@@ -1,0 +1,13 @@
+android_app_import {
+    name: "MultiMediaPlayer",
+    apk: "MultiMediaPlayer.apk",
+
+    certificate: "platform",
+    dex_preopt: {
+        enabled: false,
+    },
+
+    vendor: true,
+    soc_specific: true,
+    privileged: true,
+}
