@@ -161,7 +161,7 @@ void load_key_map() {
                 }
                 keys_map[num_keys].type = strdup(type);
                 keys_map[num_keys].value = value;
-                keys_map[num_keys].key[0] = key1?atoi(key1):-1;
+                keys_map[num_keys].key[0] = atoi(key1);
                 keys_map[num_keys].key[1] = key2?atoi(key2):-1;
                 keys_map[num_keys].key[2] = key3?atoi(key3):-1;
                 keys_map[num_keys].key[3] = key4?atoi(key4):-1;

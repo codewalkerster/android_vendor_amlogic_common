@@ -34,19 +34,23 @@ int set_bootloader_env(const char* name, const char* value)
 
     if (ubootenv->updateValue(ubootenv_name, value)) {
         fprintf(stderr,"could not set boot env\n");
+        delete ubootenv;
         return -1;
     }
 
+    delete ubootenv;
     return 0;
 }
 
 char *get_bootloader_env(const char * name)
 {
     Ubootenv *ubootenv = new Ubootenv();
-     char ubootenv_name[128] = {0};
+    char ubootenv_name[128] = {0};
     const char *ubootenv_var = "ubootenv.var.";
     sprintf(ubootenv_name, "%s%s", ubootenv_var, name);
-    return (char *)ubootenv->getValue(ubootenv_name);
+    char *uboot_env = (char *)ubootenv->getValue(ubootenv_name);
+    delete ubootenv;
+    return uboot_env;
 }
 
 
@@ -66,6 +70,10 @@ int set_env_optarg(char * optarg)
     }
 
     name = strtok(buffer, "=");
+    if (!name) {
+        goto END;
+    }
+
     if (strlen(name) == strlen(optarg)) {
         printf("strtok for '=' failed\n");
         goto END;
@@ -74,6 +82,10 @@ int set_env_optarg(char * optarg)
     value = optarg + strlen(name) + 1;
     if (strlen(name) == 0) {
         printf("name is NULL\n");
+        goto END;
+    }
+
+    if (!value) {
         goto END;
     }
 

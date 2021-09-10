@@ -177,6 +177,7 @@ auto_mounted:
 
 int customize_smart_device_mounted(const char*blk_device, const char *mount_point,
     const char *fs_type) {
+    int ret = 0;
     int i = 0, j = 0;
     int first_position = 0;
     int second_position = 0;
@@ -206,7 +207,11 @@ int customize_smart_device_mounted(const char*blk_device, const char *mount_poin
         }
 
         if (access(mount_point, F_OK)) {
-            mkdir(mount_point, 0755);
+            ret = mkdir(mount_point, 0755);
+            if (ret != 0) {
+                LOGE("mkdir for %s failed\n", mount_point);
+                return -1;
+            }
         }
 
         // find '#' position
@@ -287,15 +292,22 @@ mounted:
 
 int smart_device_mounted(const char *blk_device, const char *mount_point,
     const char *fs_type) {
+    int ret = 0;
     int i = 0, len = 0;
     char * tmp = NULL;
     char device_name[256] = {0};
     char *mounted_device = NULL;
 
-    mkdir(mount_point, 0755);
+    if (access(mount_point, F_OK)) {
+        ret = mkdir(mount_point, 0755);
+        if (ret != 0) {
+            LOGE("mkdir for %s failed\n", mount_point);
+            return -1;
+        }
+    }
 
     if (blk_device != NULL) {
-        int ret = customize_smart_device_mounted(blk_device, mount_point, fs_type);
+        ret = customize_smart_device_mounted(blk_device, mount_point, fs_type);
         if (ret <= 0) {
             return ret;
         }
@@ -336,7 +348,7 @@ int smart_device_mounted(const char *blk_device, const char *mount_point,
             }
         } else {
             LOGW("try mount %s ...\n", blk_device);
-            strncpy(device_name, blk_device, sizeof(device_name));
+            strncpy(device_name, blk_device, sizeof(device_name)-1);
             if (!access(device_name, F_OK)) {
                 if (!auto_mount_fs(device_name, mount_point, fs_type)) {
                     mounted_device = device_name;
