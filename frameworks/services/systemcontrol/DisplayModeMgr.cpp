@@ -109,7 +109,7 @@ bool DisplayModeMgr::initConnectType() {
     }
 
     // detect connector Type
-    if (mDisplayType == DISPLAY_TYPE_TV || mDisplayType == DISPLAY_TYPE_TABLET) {
+    if (mDisplayType == DISPLAY_TYPE_TV) {
         mConnType = ConnectorType::CONN_TYPE_PANEL;
     } else {
         if (!access(DISPLAY_HDMI_USED, F_OK)) {
