@@ -2361,15 +2361,9 @@ public class SystemControlManager {
     public boolean hasMemcFunc() {
           synchronized (mLock) {
             try {
-                int ret = 0;
-                ret = mProxy.hasMemcFunc();
-                if(ret == 0) {
-                    return false;
-                } else {
-                    return true;
-                }
+                return (mProxy.hasMemcFunc() == Result.OK);
             } catch (RemoteException e) {
-                Log.e(TAG, "HasMemcFunc:" + e);
+                Log.e(TAG, "hasMemcFunc:" + e);
             }
         }
         return false;
