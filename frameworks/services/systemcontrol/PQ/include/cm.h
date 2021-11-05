@@ -213,7 +213,8 @@ typedef struct ve_pq_load_s {
  *NTST_M/NTST_443/PAL_I/PAL_M/PAL_60/PAL_CN/SECAM/NTST_50 for AV/ATV
  */
 typedef enum ve_pq_timing_type_e {
-    SIG_TIMING_TYPE_SD = 0,
+    SIG_TIMING_TYPE_SD_480 = 0,
+    SIG_TIMING_TYPE_SD_576,
     SIG_TIMING_TYPE_HD,
     SIG_TIMING_TYPE_FHD,
     SIG_TIMING_TYPE_UHD,

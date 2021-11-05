@@ -413,8 +413,10 @@ tvin_sig_fmt_t CPQControl::getVideoResolutionToFmt()
     ret = pqReadSys(VIDEO_FRAME_HEIGHT, buf, sizeof(buf));
     if (ret > 0) {
         int height = atoi(buf);
-        if (height <= 576) {
+        if (height <= 480) {
             sig_fmt = TVIN_SIG_FMT_HDMI_720X480P_60HZ;
+        } else if (height > 480 && height <= 576) {
+            sig_fmt = TVIN_SIG_FMT_HDMI_720X576P_50HZ;
         } else if (height > 576 && height <= 720) {
             sig_fmt = TVIN_SIG_FMT_HDMI_1280X720P_60HZ;
         } else if (height > 720 && height <= 1088) {
@@ -2840,29 +2842,31 @@ int CPQControl::Cpq_SetDisplayModeAllTiming(tv_source_input_t source_input, vpp_
     tvin_sig_fmt_t sig_fmt[SIG_TIMING_TYPE_MAX];
     ve_pq_timing_type_t flag[SIG_TIMING_TYPE_MAX];
     sig_fmt[0] = TVIN_SIG_FMT_HDMI_720X480P_60HZ;
-    sig_fmt[1] = TVIN_SIG_FMT_HDMI_1280X720P_60HZ;
-    sig_fmt[2] = TVIN_SIG_FMT_HDMI_1920X1080P_60HZ;
-    sig_fmt[3] = TVIN_SIG_FMT_HDMI_3840_2160_00HZ;
-    sig_fmt[4] = TVIN_SIG_FMT_CVBS_NTSC_M;
-    sig_fmt[5] = TVIN_SIG_FMT_CVBS_NTSC_443;
-    sig_fmt[6] = TVIN_SIG_FMT_CVBS_PAL_I;
-    sig_fmt[7] = TVIN_SIG_FMT_CVBS_PAL_M;
-    sig_fmt[8] = TVIN_SIG_FMT_CVBS_PAL_60;
-    sig_fmt[9] = TVIN_SIG_FMT_CVBS_PAL_CN;
-    sig_fmt[10] = TVIN_SIG_FMT_CVBS_SECAM;
-    sig_fmt[11] = TVIN_SIG_FMT_CVBS_NTSC_50;
-    flag[0] = SIG_TIMING_TYPE_SD;
-    flag[1] = SIG_TIMING_TYPE_HD;
-    flag[2] = SIG_TIMING_TYPE_FHD;
-    flag[3] = SIG_TIMING_TYPE_UHD;
-    flag[4] = SIG_TIMING_TYPE_NTSC_M;
-    flag[5] = SIG_TIMING_TYPE_NTSC_443;
-    flag[6] = SIG_TIMING_TYPE_PAL_I;
-    flag[7] = SIG_TIMING_TYPE_PAL_M;
-    flag[8] = SIG_TIMING_TYPE_PAL_60;
-    flag[9] = SIG_TIMING_TYPE_PAL_CN;
-    flag[10] = SIG_TIMING_TYPE_SECAM;
-    flag[11] = SIG_TIMING_TYPE_NTSC_50;
+    sig_fmt[1] = TVIN_SIG_FMT_HDMI_720X576P_50HZ;
+    sig_fmt[2] = TVIN_SIG_FMT_HDMI_1280X720P_60HZ;
+    sig_fmt[3] = TVIN_SIG_FMT_HDMI_1920X1080P_60HZ;
+    sig_fmt[4] = TVIN_SIG_FMT_HDMI_3840_2160_00HZ;
+    sig_fmt[5] = TVIN_SIG_FMT_CVBS_NTSC_M;
+    sig_fmt[6] = TVIN_SIG_FMT_CVBS_NTSC_443;
+    sig_fmt[7] = TVIN_SIG_FMT_CVBS_PAL_I;
+    sig_fmt[8] = TVIN_SIG_FMT_CVBS_PAL_M;
+    sig_fmt[9] = TVIN_SIG_FMT_CVBS_PAL_60;
+    sig_fmt[10] = TVIN_SIG_FMT_CVBS_PAL_CN;
+    sig_fmt[11] = TVIN_SIG_FMT_CVBS_SECAM;
+    sig_fmt[12] = TVIN_SIG_FMT_CVBS_NTSC_50;
+    flag[0] = SIG_TIMING_TYPE_SD_480;
+    flag[1] = SIG_TIMING_TYPE_SD_576;
+    flag[2] = SIG_TIMING_TYPE_HD;
+    flag[3] = SIG_TIMING_TYPE_FHD;
+    flag[4] = SIG_TIMING_TYPE_UHD;
+    flag[5] = SIG_TIMING_TYPE_NTSC_M;
+    flag[6] = SIG_TIMING_TYPE_NTSC_443;
+    flag[7] = SIG_TIMING_TYPE_PAL_I;
+    flag[8] = SIG_TIMING_TYPE_PAL_M;
+    flag[9] = SIG_TIMING_TYPE_PAL_60;
+    flag[10] = SIG_TIMING_TYPE_PAL_CN;
+    flag[11] = SIG_TIMING_TYPE_SECAM;
+    flag[12] = SIG_TIMING_TYPE_NTSC_50;
 
     source_input_param_t source_input_param;
     source_input_param.source_input = source_input;
