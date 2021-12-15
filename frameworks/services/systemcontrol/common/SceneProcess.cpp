@@ -336,6 +336,11 @@ void SceneProcess::updateDolbyVisionAttr(int dolbyvision_type, char * dv_attr) {
     SYS_LOGI("dv_type :%d dv_attr:%s", dv_type, dv_attr);
 }
 
+bool SceneProcess::isDolbyVisionPreference() {
+    return mScene_Input_Info.isDvEnable && mScene_Input_Info.isTvSupportDv
+        && (mScene_Input_Info.hdr_priority == DOLBY_VISION_PRIORITY);
+}
+
 bool SceneProcess::IsBestPolicy() {
     return mScene_Input_Info.isbestpolicy;
 }
@@ -647,9 +652,11 @@ void SceneProcess::UpdateSceneInputInfo(scene_input_info_t* input_info) {
         mScene_Input_Info.isbestpolicy,
         mScene_Input_Info.cur_displaymode);
 
-    SYS_LOGI("isDvEnable:%d, isTvSupportDv:%d\n",
+    SYS_LOGI("isDvEnable:%d, isTvSupportDv:%d, hdr_priority:%d, hdr_policy:%d\n",
         mScene_Input_Info.isDvEnable,
-        mScene_Input_Info.isTvSupportDv);
+        mScene_Input_Info.isTvSupportDv,
+        mScene_Input_Info.hdr_priority,
+        mScene_Input_Info.hdr_policy);
 
     //dolby vision info
     SYS_LOGI("dv_cap:%s, ubootenv_dv_type:%s, dv_deepcolor:%s, dv_displaymode:%s\n",
@@ -758,7 +765,7 @@ void SceneProcess::Process(scene_input_info_t* input_info, scene_output_info_t* 
 
     //2. dolby vision scene process
     //   only for tv support dv and box enable dv
-    if (mScene_Input_Info.isDvEnable && mScene_Input_Info.isTvSupportDv) {
+    if (isDolbyVisionPreference()) {
         DolbyVisionSceneProcess(&Scene_output_info);
     } else if (mScene_Input_Info.isDvEnable) {
         //for enable dolby vision core when first boot connecting non dv tv
@@ -770,7 +777,7 @@ void SceneProcess::Process(scene_input_info_t* input_info, scene_output_info_t* 
 
     //3. hdr/sdr scene process
     //   and decide final display mode and deepcolor
-    if (mScene_Input_Info.isDvEnable && mScene_Input_Info.isTvSupportDv) {
+    if (isDolbyVisionPreference()) {
         strcpy(output_info->final_displaymode, Scene_output_info.final_displaymode);
         strcpy(output_info->final_deepcolor, Scene_output_info.final_deepcolor);
         output_info->dv_type = Scene_output_info.dv_type;

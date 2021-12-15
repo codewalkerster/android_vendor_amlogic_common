@@ -373,10 +373,6 @@ enum {
 #define HDR_POLICY_SINK                 "0"
 #define HDR_POLICY_SOURCE               "1"
 
-#define DOLBY_VISION_PRIORITY           "0"
-#define HDR10_PRIORITY                  "1"
-#define SDR_PRIORITY                    "2"
-
 enum {
     RESOLUTION_PRIORITY = 0,
     FRAMERATE_PRIORITY  = 1,
@@ -449,6 +445,8 @@ typedef struct hdmi_dv_info {
 
 typedef struct hdmi_data {
     output_mode_state state;
+    hdr_priority_e hdr_priority; //dynamic range fromat preference,0:dolby vision,1:hdr,2:sdr
+    hdr_policy_e   hdr_policy;   //dynamic range policy,0 :follow sink, 1: match content
     char edidParsing[MODE_LEN];
     char dc_cap[MAX_STR_LEN];  //device colorspace cap
     char disp_cap[MAX_STR_LEN];
@@ -542,6 +540,7 @@ public:
     bool isHdmiHpd(void);
     bool isHdmiUsed(void);
     bool isVMXCertification(void);
+    void getCommonData(hdmi_data_t* data);
     void getHdmiData(hdmi_data_t* data);
     void setActiveDispMode(const char*value);
     void notifyPlugin();
@@ -573,6 +572,7 @@ public:
     bool getPrefHdmiDispMode(char* mode);
     void getHdrStrategy(char* value);
     void setHdrStrategy(const char* type);
+    int getHdrPriority(void);
     void setHdrPriority(const char* type);
     void updateDisplayMode(char* mode) ;
     void updateAttr(bool cvbsMode, output_mode_state state, const char* outputmode);

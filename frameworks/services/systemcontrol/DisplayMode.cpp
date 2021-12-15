@@ -520,10 +520,12 @@ void DisplayMode::sceneProcess(hdmi_data_t* data) {
         strcpy(scene_input_info.cur_displaymode, data->ui_hdmimode);
     }
 
-    scene_input_info.state                               = (scene_state)data->state;
-    scene_input_info.isbestpolicy                        = isBestOutputmode();
-    scene_input_info.isDvEnable                          = isDolbyVisionEnable();
-    scene_input_info.isTvSupportDv                       = isTvSupportDolbyVision(tvmode);
+    scene_input_info.state          = (scene_state)data->state;
+    scene_input_info.isbestpolicy   = isBestOutputmode();
+    scene_input_info.isDvEnable     = isDolbyVisionEnable();
+    scene_input_info.isTvSupportDv  = isTvSupportDolbyVision(tvmode);
+    scene_input_info.hdr_policy     = data->hdr_policy;
+    scene_input_info.hdr_priority   = data->hdr_priority;
 
    //1.2 dolby vision input info
     strcpy(scene_input_info.dv_input_info.ubootenv_dv_type, data->dv_info.ubootenv_dv_type);
@@ -642,6 +644,8 @@ void DisplayMode::setSourceOutputMode(const char* outputmode) {
     //1. get hdmi data
     mHdmidata.state = OUPUT_MODE_STATE_SWITCH;
     strcpy(mHdmidata.ui_hdmimode, outputmode);
+
+    getCommonData(&mHdmidata);
 
     //2. scene logic process
     sceneProcess(&mHdmidata);
@@ -1444,10 +1448,67 @@ bool DisplayMode::isVMXCertification() {
     return pSysWrite->getPropertyBoolean(PROP_VMX, false);
 }
 
-void DisplayMode::getHdmiData(hdmi_data_t* data) {
-    char sinkType[MODE_LEN] = {0};
+void DisplayMode::getCommonData(hdmi_data_t* data) {
+    char hdr_policy[MODE_LEN] = {0};
+    getHdrStrategy(hdr_policy);
+    data->hdr_policy = (hdr_policy_e)atoi(hdr_policy);
 
+    data->hdr_priority = (hdr_priority_e)getHdrPriority();
+
+    SYS_LOGI("hdr_policy:%d, hdr_priority :%d\n",
+            data->hdr_policy,
+            data->hdr_priority);
+
+    getDisplayMode(data->hdmi_current_mode);
+    getBootEnv(UBOOTENV_HDMIMODE, data->ubootenv_hdmimode);
+    getBootEnv(UBOOTENV_CVBSMODE, data->ubootenv_cvbsmode);
+    SYS_LOGI("hdmi_current_mode:%s, ubootenv hdmimode:%s cvbsmode:%s\n",
+            data->hdmi_current_mode,
+            data->ubootenv_hdmimode,
+            data->ubootenv_cvbsmode);
+
+    std::string curColorAttribute;
+    DisplayModeMgr::getInstance().getDisplayAttribute(DISPLAY_HDMI_COLOR_ATTR, curColorAttribute);
+    strcpy(data->hdmi_current_attr, curColorAttribute.c_str());
+    getBootEnv(UBOOTENV_COLORATTRIBUTE, data->ubootenv_colorattribute);
+    SYS_LOGI("hdmi_current_attr:%s, ubootenv_colorattribute:%s\n",
+            data->hdmi_current_attr,
+            data->ubootenv_colorattribute);
+
+    //if no dolby_status env set to std for enable dolby vision
+    //if box support dolby vision
+    bool ret;
+    char dv_enable[MODE_LEN];
+    ret = getBootEnv(UBOOTENV_DV_ENABLE, dv_enable);
+    if (ret) {
+        strcpy(data->dv_info.dv_enable, dv_enable);
+    } else if (isMboxSupportDolbyVision()) {
+        strcpy(data->dv_info.dv_enable, "1");
+    } else {
+        strcpy(data->dv_info.dv_enable, "0");
+    }
+    SYS_LOGI("dv_enable:%s\n", data->dv_info.dv_enable);
+
+    char ubootenv_dv_type[MODE_LEN];
+    ret = getBootEnv(UBOOTENV_DV_TYPE, ubootenv_dv_type);
+    if (ret) {
+        strcpy(data->dv_info.ubootenv_dv_type, ubootenv_dv_type);
+    } else if (isMboxSupportDolbyVision()) {
+        strcpy(data->dv_info.ubootenv_dv_type, "1");
+    } else {
+        strcpy(data->dv_info.ubootenv_dv_type, "0");
+    }
+    SYS_LOGI("ubootenv_dv_type:%s\n", data->dv_info.ubootenv_dv_type);
+
+}
+
+void DisplayMode::getHdmiData(hdmi_data_t* data) {
+    //common info
+    getCommonData(data);
+
+    //hdmi info
     //three sink types: sink, repeater, none
+    char sinkType[MODE_LEN] = {0};
     pSysWrite->readSysfsOriginal(DISPLAY_HDMI_SINK_TYPE, sinkType);
     pSysWrite->readSysfs(DISPLAY_EDID_STATUS, data->edidParsing);
 
@@ -1491,22 +1552,6 @@ void DisplayMode::getHdmiData(hdmi_data_t* data) {
         }
     }
 
-    getDisplayMode(data->hdmi_current_mode);
-    getBootEnv(UBOOTENV_HDMIMODE, data->ubootenv_hdmimode);
-    getBootEnv(UBOOTENV_CVBSMODE, data->ubootenv_cvbsmode);
-    SYS_LOGI("hdmi_current_mode:%s, ubootenv hdmimode:%s cvbsmode:%s\n",
-            data->hdmi_current_mode,
-            data->ubootenv_hdmimode,
-            data->ubootenv_cvbsmode);
-
-    std::string curColorAttribute;
-    DisplayModeMgr::getInstance().getDisplayAttribute(DISPLAY_HDMI_COLOR_ATTR, curColorAttribute);
-    strcpy(data->hdmi_current_attr, curColorAttribute.c_str());
-    getBootEnv(UBOOTENV_COLORATTRIBUTE, data->ubootenv_colorattribute);
-    SYS_LOGI("hdmi_current_attr:%s, ubootenv_colorattribute:%s\n",
-            data->hdmi_current_attr,
-            data->ubootenv_colorattribute);
-
     //filter hdmi disp_cap mode for compatibility
     filterHdmiDispcap(data);
 
@@ -1546,33 +1591,8 @@ void DisplayMode::getHdmiData(hdmi_data_t* data) {
     }
 
     //get hdmi dv_info
-    //if no dolby_status env set to std for enable dolby vision
-    //if box support dolby vision
-    bool ret;
-    char dv_enable[MODE_LEN];
-    ret = getBootEnv(UBOOTENV_DV_ENABLE, dv_enable);
-    if (ret) {
-        strcpy(data->dv_info.dv_enable, dv_enable);
-    } else if (isMboxSupportDolbyVision()) {
-        strcpy(data->dv_info.dv_enable, "1");
-    } else {
-        strcpy(data->dv_info.dv_enable, "0");
-    }
-    SYS_LOGI("dv_enable:%s\n", data->dv_info.dv_enable);
-
-    char ubootenv_dv_type[MODE_LEN];
-    ret = getBootEnv(UBOOTENV_DV_TYPE, ubootenv_dv_type);
-    if (ret) {
-        strcpy(data->dv_info.ubootenv_dv_type, ubootenv_dv_type);
-    } else if (isMboxSupportDolbyVision()) {
-        strcpy(data->dv_info.ubootenv_dv_type, "1");
-    } else {
-        strcpy(data->dv_info.ubootenv_dv_type, "0");
-    }
-    SYS_LOGI("ubootenv_dv_type:%s\n", data->dv_info.ubootenv_dv_type);
-
     std::string dv_cap;
-    DisplayModeMgr::getInstance().getDisplayAttribute(DISPLAY_DOLBY_VISION_CAP, dv_cap, ConnectorType::CONN_TYPE_HDMI);
+    DisplayModeMgr::getInstance().getDisplayAttribute(DISPLAY_DOLBY_VISION_CAP2, dv_cap, ConnectorType::CONN_TYPE_HDMI);
     strcpy(data->dv_info.dv_cap, dv_cap.c_str());
 
     if (strstr(data->dv_info.dv_cap, "DolbyVision RX support list") != NULL) {
@@ -1880,7 +1900,7 @@ void DisplayMode::updateDeepColor(bool cvbsMode, output_mode_state state, const 
         char colorAttribute[MODE_LEN] = {0};
         if (pSysWrite->getPropertyBoolean(PROP_DEEPCOLOR, true)) {
             char mode[MAX_STR_LEN] = {0};
-            if (isDolbyVisionEnable() && isTvSupportDolbyVision(mode)) {
+            if (isDolbyVisionEnable() && isTvSupportDolbyVision(mode) && (mHdmidata.hdr_priority == DOLBY_VISION_PRIORITY)) {
                  char type[MODE_LEN] = {0};
                  strcpy(type, mHdmidata.dv_info.ubootenv_dv_type);
                 if (((atoi(type) == 2) && (strstr(mode, DV_MODE_TYPE[2]) == NULL))
@@ -2252,7 +2272,7 @@ void DisplayMode::enableDolbyVision(int DvMode) {
 
     //if OTT
     if ((DISPLAY_TYPE_MBOX == mDisplayType) || (DISPLAY_TYPE_REPEATER == mDisplayType)) {
-        if (isTvSupportDolbyVision(tvmode)) {
+        if (isTvSupportDolbyVision(tvmode) && (mHdmidata.hdr_priority == DOLBY_VISION_PRIORITY)) {
             SYS_LOGI("Tv is Support DolbyVision, tvmode is [%s]", tvmode);
 
             switch (DvMode) {
@@ -2471,12 +2491,31 @@ void DisplayMode::updateAttr(bool cvbsMode, output_mode_state state, const char*
     }
 }
 
+int DisplayMode::getHdrPriority(void) {
+    char hdr_priority[MODE_LEN] = {0};
+    hdr_priority_e value = DOLBY_VISION_PRIORITY;
+
+    memset(hdr_priority, 0, MODE_LEN);
+    getBootEnv(UBOOTENV_HDR_PRIORITY, hdr_priority);
+
+    if (strstr(hdr_priority, "2")) {
+        value = SDR_PRIORITY;
+    } else if (strstr(hdr_priority, "1")) {
+        value = HDR10_PRIORITY;
+    } else {
+        value = DOLBY_VISION_PRIORITY;
+    }
+
+    SYS_LOGI("getHdrPriority is [%d]", value);
+    return (int)value;
+}
+
 void DisplayMode::setHdrPriority(const char* type) {
     SYS_LOGI("setHdrPriority is [%s]\n", type);
 
     setBootEnv(UBOOTENV_HDR_PRIORITY, (char *)type);
 
-    if  (strstr(type, SDR_PRIORITY))  {
+    if  (strstr(type, "2"))  {
         bool cvbsMode = false;
         char outputmode[MODE_LEN] = {0};
         /*1. update dispmode*/
@@ -2494,7 +2533,7 @@ void DisplayMode::setHdrPriority(const char* type) {
 
         /* disable uboot dolby vision*/
         setBootEnv(UBOOTENV_DOLBYSTATUS, "0");
-    } else if  (strstr(type, HDR10_PRIORITY))  {
+    } else if  (strstr(type, "1")) {
         bool cvbsMode = false;
         char outputmode[MODE_LEN] = {0};
         /*1. update dispmode*/
@@ -2632,7 +2671,7 @@ int DisplayMode::getDolbyVisionType() {
     int dv_type;
     char dv_mode[MAX_STR_LEN];
 
-    if (isTvSupportDolbyVision(dv_mode)) {
+    if (isTvSupportDolbyVision(dv_mode) && (mHdmidata.hdr_priority == DOLBY_VISION_PRIORITY)) {
         //1. read dolby vision mode from prop(maybe need to env)
         dv_type = mHdmidata.dv_info.dv_type;
         SYS_LOGI("dv_type %d tv dolby vision mode:%s\n", dv_type, dv_mode);

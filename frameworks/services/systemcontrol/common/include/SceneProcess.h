@@ -26,6 +26,17 @@
 #include "SysWrite.h"
 
 typedef enum {
+    DOLBY_VISION_PRIORITY = 0,
+    HDR10_PRIORITY        = 1,
+    SDR_PRIORITY          = 2,
+}hdr_priority_e;
+
+typedef enum {
+    HDR_POLICY_SINK   = 0,
+    HDR_POLICY_SOURCE = 1,
+}hdr_policy_e;
+
+typedef enum {
     SCENE_STATE_INIT               = 0,//boot
     SCENE_STATE_POWER              = 1,//hot plug or suspend/resume
     SCENE_STATE_SWITCH             = 2,//user switch the mode
@@ -73,6 +84,8 @@ typedef struct scene_input_info {
     bool isDvEnable;   //dolby vision enable or not,false:disable true:enable
     bool isTvSupportHDR;//tv is support HDR or not, false:not support true:support
     bool isTvSupportDv;//tv is support dolby vision or not, false:not support true:support
+    hdr_priority_e hdr_priority; //dynamic range fromat preference,0:dolby vision,1:hdr,2:sdr
+    hdr_policy_e hdr_policy;     //dynamic range policy,0 :follow sink, 1: match content
     char cur_displaymode[MODE_LEN]; // hdmi current output mode
     dv_input_info_t dv_input_info;
     hdmi_input_info_t hdmi_input_info;
@@ -99,6 +112,7 @@ private:
     int updateDolbyVisionType(void);
     void updateDolbyVisionAttr(int dolbyvision_type, char * dv_attr);
     void updateDolbyVisionDisplayMode(char * cur_outputmode, int dv_type, char * final_displaymode);
+    bool isDolbyVisionPreference();
     bool IsBestPolicy();
     bool IsFrameratePriority();
     bool IsSupport4K();
