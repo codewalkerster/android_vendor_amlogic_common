@@ -52,6 +52,11 @@ typedef enum {
     SINK_TYPE_RESERVE              = 3
 }sink_type;
 
+enum {
+    RESOLUTION_PRIORITY = 0,
+    FRAMERATE_PRIORITY  = 1,
+};
+
 typedef struct dv_input_info {
     char ubootenv_dv_type[MODE_LEN];  //the env of dolby vision type
     char dv_cap[MAX_STR_LEN];         //tv dolby vision cap
@@ -119,7 +124,7 @@ private:
     bool IsSupport4K30Hz();
     bool IsSupportDeepColor();
     bool isLowPowerMode();
-    int64_t resolveResolutionValue(const char *mode);
+    int64_t resolveResolutionValue(const char *mode, int flag = FRAMERATE_PRIORITY);
     bool isModeSupportDeepColorAttr(const char *mode, const char * color);
     bool initColorAttribute(char* supportedColorList, int len);
     void getBestHdmiDeepColorAttr(const char *outputmode, char* colorAttribute);

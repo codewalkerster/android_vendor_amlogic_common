@@ -374,11 +374,6 @@ enum {
 #define HDR_POLICY_SOURCE               "1"
 
 enum {
-    RESOLUTION_PRIORITY = 0,
-    FRAMERATE_PRIORITY  = 1,
-};
-
-enum {
     DISPLAY_MODE_480I                   = 0,
     DISPLAY_MODE_480P                   = 1,
     DISPLAY_MODE_480CVBS                = 2,

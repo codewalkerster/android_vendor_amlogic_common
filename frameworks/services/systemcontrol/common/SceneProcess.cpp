@@ -391,7 +391,7 @@ void SceneProcess::updateDolbyVisionDisplayMode(char * cur_outputmode, int dv_ty
             }
         }
     } else {
-        if ((resolveResolutionValue(cur_outputmode) > resolveResolutionValue(dv_displaymode))
+        if ((resolveResolutionValue(cur_outputmode, RESOLUTION_PRIORITY) > resolveResolutionValue(dv_displaymode, RESOLUTION_PRIORITY))
             || (strstr(cur_outputmode, "smpte") != NULL) || (strstr(cur_outputmode, "i") != NULL)) {
             strcpy(final_displaymode, dv_displaymode);
         } else {
@@ -402,7 +402,7 @@ void SceneProcess::updateDolbyVisionDisplayMode(char * cur_outputmode, int dv_ty
     SYS_LOGI("final_displaymode:%s, cur_outputmode:%s, dv_displaymode:%s", final_displaymode, cur_outputmode, dv_displaymode);
 }
 
-int64_t SceneProcess::resolveResolutionValue(const char *mode) {
+int64_t SceneProcess::resolveResolutionValue(const char *mode, int flag) {
     bool validMode = false;
     if (strlen(mode) != 0) {
         for (int i = 0; i < DISPLAY_MODE_TOTAL; i++) {
@@ -417,7 +417,7 @@ int64_t SceneProcess::resolveResolutionValue(const char *mode) {
         return -1;
     }
 
-    if (IsFrameratePriority()) {
+    if (IsFrameratePriority() && flag == FRAMERATE_PRIORITY) {
         for (int64_t index = 0; index < sizeof(MODE_FRAMERATE_FIRST)/sizeof(char *); index++) {
             if (strcmp(mode, MODE_FRAMERATE_FIRST[index]) == 0) {
                 return index;
@@ -430,7 +430,6 @@ int64_t SceneProcess::resolveResolutionValue(const char *mode) {
             }
         }
     }
-
     return -1;
 }
 
