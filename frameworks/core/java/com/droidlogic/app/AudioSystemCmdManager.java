@@ -50,6 +50,8 @@ public class AudioSystemCmdManager {
     public static final int AUDIO_SERVICE_CMD_SET_MEDIA_SYCN_ID                     = 17;
 
     //audio ad
+    public static final int AUDIO_SERVICE_CMD_AD_SWITCH_ENABLE                      = 18;
+    public static final int AUDIO_SERVICE_CMD_AD_SET_VOLUME                         = 19;
     public static final int AUDIO_SERVICE_CMD_AD_DUAL_SUPPORT                       = 20;
     public static final int AUDIO_SERVICE_CMD_AD_MIX_SUPPORT                        = 21;
     public static final int AUDIO_SERVICE_CMD_AD_MIX_LEVEL                          = 22;
@@ -58,8 +60,7 @@ public class AudioSystemCmdManager {
 
     public static final int AUDIO_SERVICE_CMD_SET_MEDIA_PRESENTATION_ID             = 25;
     public static final int AUDIO_SERVICE_CMD_SET_AUDIO_PATCH_MANAGE_MODE           = 26;
-
-    public static final int AUDIO_SERVICE_CMD_SET_SPDIF_PROTECTION__MODE            = 27;
+    public static final int AUDIO_SERVICE_CMD_SET_SPDIF_PROTECTION_MODE             = 27;
     public static final int AUDIO_SERVICE_CMD_SET_TSPLAYER_CLIENT_DIED              = 28;
 
     private static AudioSystemCmdManager mInstance;
@@ -149,6 +150,10 @@ public class AudioSystemCmdManager {
             case AUDIO_SERVICE_CMD_SET_SECURITY_MEM_LEVEL:
                 return temp + "SET_SECURITY_MEM_LEVEL";
 
+            case AUDIO_SERVICE_CMD_AD_SWITCH_ENABLE:
+                return temp + "AD_SWITCH_ENABLE";
+            case AUDIO_SERVICE_CMD_AD_SET_VOLUME:
+                return temp + "AD_SET_VOLUME";
             case AUDIO_SERVICE_CMD_AD_DUAL_SUPPORT:
                 return temp + "AD_DUAL_SUPPORT";
             case AUDIO_SERVICE_CMD_AD_MIX_SUPPORT:
@@ -163,6 +168,12 @@ public class AudioSystemCmdManager {
                 return temp + "SET_HAS_VIDEO";
             case AUDIO_SERVICE_CMD_SET_MEDIA_PRESENTATION_ID:
                 return temp + "SET_MEDIA_PRESENTATION_ID";
+            case AUDIO_SERVICE_CMD_SET_AUDIO_PATCH_MANAGE_MODE:
+                return temp + "SET_AUDIO_PATCH_MANAGE_MODE";
+            case AUDIO_SERVICE_CMD_SET_SPDIF_PROTECTION_MODE:
+                return temp + "SET_SPDIF_PROTECTION_MODE";
+            case AUDIO_SERVICE_CMD_SET_TSPLAYER_CLIENT_DIED:
+                return temp + "SET_TSPLAYER_CLIENT_DIED";
             default:
                 return temp + "invalid cmd";
         }
@@ -203,6 +214,15 @@ public class AudioSystemCmdManager {
             mAudioSystemCmdService.handleAdtvAudioEvent(cmd, param1, param2);
         } catch (RemoteException e) {
             Log.e(TAG, "handleAdtvAudioEvent failed:" + e);
+        }
+    }
+
+    public void updateAudioPortGain(int sourceType) {
+        if (audioCmdServiceIsNull()) return;
+        try {
+            mAudioSystemCmdService.updateAudioPortGain(sourceType);
+        } catch (RemoteException e) {
+            Log.e(TAG, "openTvAudio failed:" + e);
         }
     }
 

@@ -193,7 +193,7 @@ public class OutputModeManager {
     public static final String HAL_PARAM_SPDIF_OUTPUT_ENABLE            = "hal_param_spdif_output_enable=";
 
     public static final String DB_ID_SOUND_AD_SWITCH                    = "ad_switch";
-    public static final String HAL_PARAM_AD_SWITCH                      = "associate_audio_mixing_enable=";
+    public static final String HAL_PARAM_AD_SWITCH                      = "ad_switch_enable=";
 
     //surround sound formats, must sync with Settings.Global
     public static final String ENCODED_SURROUND_OUTPUT                  = "encoded_surround_output";
