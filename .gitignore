@@ -61,3 +61,5 @@
 *.order
 *.symtypes
 *.order
+/codec2/
+/libdsm/
