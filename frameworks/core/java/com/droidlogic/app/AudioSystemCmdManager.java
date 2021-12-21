@@ -59,6 +59,9 @@ public class AudioSystemCmdManager {
     public static final int AUDIO_SERVICE_CMD_SET_MEDIA_PRESENTATION_ID             = 25;
     public static final int AUDIO_SERVICE_CMD_SET_AUDIO_PATCH_MANAGE_MODE           = 26;
 
+    public static final int AUDIO_SERVICE_CMD_SET_SPDIF_PROTECTION__MODE            = 27;
+    public static final int AUDIO_SERVICE_CMD_SET_TSPLAYER_CLIENT_DIED              = 28;
+
     private static AudioSystemCmdManager mInstance;
 
     public static AudioSystemCmdManager getInstance(Context context) {
