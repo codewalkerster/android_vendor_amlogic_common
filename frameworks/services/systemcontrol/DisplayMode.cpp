@@ -2391,7 +2391,7 @@ void DisplayMode::setDolbyVisionEnable(int state,  output_mode_state mode_state)
         //save env
         setBootEnv(UBOOTENV_DV_ENABLE, mHdmidata.dv_info.dv_enable);
     } else {
-        //1. update prop
+        //1. update uboot env
         char tmp[10];
         sprintf(tmp, "%d", state);
         strcpy(mHdmidata.dv_info.ubootenv_dv_type, tmp);
@@ -2401,12 +2401,9 @@ void DisplayMode::setDolbyVisionEnable(int state,  output_mode_state mode_state)
         } else {
             strcpy(mHdmidata.dv_info.dv_enable, "1");
         }
-/*
-        //2. update setting
-        char cur_displaymode[MODE_LEN] = {0};
-        getDisplayMode(cur_displaymode);
-        setSourceOutputMode(cur_displaymode);
-*/
+
+        setBootEnv(UBOOTENV_DV_TYPE, mHdmidata.dv_info.ubootenv_dv_type);
+        setBootEnv(UBOOTENV_DV_ENABLE, mHdmidata.dv_info.dv_enable);
     }
 }
 
