@@ -9,5 +9,4 @@ android_app_import {
 
     vendor: true,
     soc_specific: true,
-    privileged: true,
 }
