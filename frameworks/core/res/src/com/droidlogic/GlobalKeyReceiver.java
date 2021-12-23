@@ -53,6 +53,11 @@ public class GlobalKeyReceiver extends BroadcastReceiver {
     private static final int  PENDING_KEY_NULL = -1;
     private static final String EXTRA_BEGAN_FROM_NON_INTERACTIVE =
             "EXTRA_BEGAN_FROM_NON_INTERACTIVE";
+    private static final String NETFLIX_KEY_POWER_MODE = "power_on";
+    private static final String ACTION_LAUNCH_APP = "com.google.global_button.ACTION_LAUNCH_APP";
+    private static final String EXTRA_PACKAGE_NAME = "launchPackageName";
+    private static final String EXTRA_LAUNCH_INTENT = "launchIntent";
+    private static final String NETFLIX_INTENT = "com.netflix.action.NETFLIX_KEY_START";
 
     private static boolean isTvSetupComplete(Context context) {
         return Settings.Secure
@@ -207,24 +212,57 @@ public class GlobalKeyReceiver extends BroadcastReceiver {
         return isNetflixRunning;
     }
 
-    private void launchNetflix(Context context , boolean isInteractive) {
+    private void launchNetflixAtv(Context context , boolean isInteractive) {
+        Log.i(TAG, "launchNetflix atv: isInteractive: " + isInteractive);
+        //changed for Ninja 7.0.0 and Later
+        //https://nrd.netflix.com/docs/development/atv/integrating-netflix
+        Intent netflixIntent = new Intent();
+        netflixIntent.setAction(NETFLIX_INTENT);
+        netflixIntent.setPackage(PACKAGE_NAME_NETFLIX);
+        netflixIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        netflixIntent.putExtra(NETFLIX_KEY_POWER_MODE, isInteractive); //false for netflixButton, true for powerOnFromNetflixButton
+        context.startActivity(netflixIntent);
+    }
+
+    private void launchNetflix(Context context, boolean fromNonInteractive) {
         PackageManager packageManager = context.getPackageManager();
         if (packageManager.getLaunchIntentForPackage(PACKAGE_NAME_NETFLIX) == null) {
             Log.e(TAG, "Cannot find intent for Netlix package: " + PACKAGE_NAME_NETFLIX);
             return;
         }
+        String globalButtonLaunch = context.getString(R.string.config_globalButtonLaunch);
+        Log.d(TAG, " globalButtonLaunch component: " + globalButtonLaunch);
 
-        Log.i(TAG, "launchNetflix: isInteractive: " + isInteractive);
-        //changed for Ninja 7.0.0 and Later
-        //https://nrd.netflix.com/docs/development/atv/integrating-netflix
-        Intent netflixIntent = new Intent();
-        netflixIntent.setAction("com.netflix.action.NETFLIX_KEY_START");
-        netflixIntent.setPackage(PACKAGE_NAME_NETFLIX);
-        netflixIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        netflixIntent.putExtra("power_on", isInteractive); //false for netflixButton, true for powerOnFromNetflixButton
-        context.startActivity(netflixIntent);
-       //netflix key always need wake up, if it is in interactive , wakeUp do noting
+        Intent intent = new Intent(ACTION_LAUNCH_APP);
+        intent.setComponent(ComponentName.unflattenFromString(globalButtonLaunch));
+        intent.putExtra(EXTRA_PACKAGE_NAME, PACKAGE_NAME_NETFLIX);
+        intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES | Intent.FLAG_RECEIVER_FOREGROUND);
+
+        Intent launchIntent  = new Intent(NETFLIX_INTENT);
+        launchIntent.setPackage(PACKAGE_NAME_NETFLIX);
+        launchIntent.putExtra(NETFLIX_KEY_POWER_MODE, fromNonInteractive);
+        launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_INCLUDE_STOPPED_PACKAGES
+            | Intent.FLAG_RECEIVER_FOREGROUND | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        intent.putExtra(EXTRA_LAUNCH_INTENT, launchIntent);
+
+        if (canIntentBeHandled(context, intent)) {
+        Log.d(TAG, "launchNetflix gtv: isInteractive: " + fromNonInteractive);
+            context.sendBroadcast(intent);
+        } else {
+            launchNetflixAtv(context,fromNonInteractive);
+        }
+        //netflix key always need wake up, if it is in interactive , wakeUp do noting
         wakeUp(context);
+    }
+
+    private  boolean canIntentBeHandled(Context context, Intent intent) {
+        List<ResolveInfo> receivers = context.getPackageManager().queryBroadcastReceivers(
+            intent, PackageManager.MATCH_ALL);
+        Log.d(TAG, "receivers " + receivers);
+        if (receivers != null && receivers.size() > 0) {
+            return true;
+        }
+        return false;
     }
 
     public boolean isIntentAvailable(Context context, Intent intent) {
