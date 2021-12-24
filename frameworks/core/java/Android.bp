@@ -1,0 +1,67 @@
+// *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+//     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+//     DEPENDING ON IT IN YOUR PROJECT. ***
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "vendor_amlogic_common_frameworks_core_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-FTL
+    //   SPDX-license-identifier-GPL
+    //   SPDX-license-identifier-LGPL-2.1
+    //   SPDX-license-identifier-MIT
+    //   legacy_by_exception_only (by exception only)
+    //   legacy_notice
+    default_applicable_licenses: [
+        "vendor_amlogic_common_frameworks_core_license",
+    ],
+}
+
+java_library {
+    name: "droidlogicLib",
+
+    vendor: true,
+    sdk_version: "system_current",
+    srcs: [
+        "**/*.java",
+        "com/droidlogic/audioservice/services/IAudioSystemCmdService.aidl",
+    ],
+
+    libs: [
+        "android.hidl.base-V1.0-java",
+        "android.hidl.manager-V1.0-java",
+    ],
+
+    static_libs: [
+        "vendor.amlogic.hardware.systemcontrol-V1.0-java",
+        "vendor.amlogic.hardware.systemcontrol-V1.1-java",
+        "vendor.amlogic.hardware.droidvold-V1.0-java",
+    ],
+}
+
+java_library {
+    name: "droidlogic.software.core",
+    vendor: true,
+    sdk_version: "system_current",
+    installable: true,
+    required: ["droidlogic.software.core.xml"],
+    dxflags: ["--core-library"],
+
+    static_libs: [
+        "droidlogicLib",
+        "vendor.amlogic.hardware.systemcontrol-V1.0-java",
+        "vendor.amlogic.hardware.systemcontrol-V1.1-java",
+        "vendor.amlogic.hardware.droidvold-V1.0-java",
+    ],
+
+}
+
+//copy xml to permissions directory
+prebuilt_etc {
+    name: "droidlogic.software.core.xml",
+
+    vendor: true,
+    src: "droidlogic.software.core.xml",
+    sub_dir: "permissions",
+}

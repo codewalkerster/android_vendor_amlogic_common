@@ -1,0 +1,10 @@
+MAKE_ARGS := KERNEL_SRC=$(KERNEL_SRC) O=$(O) CC=$(CC) HOSTCC=$(HOSTCC) LD=$(LD) NM=$(NM) OBJCOPY=$(OBJCOPY)
+INSTALL_ARGS := INSTALL_MOD_PATH=$(INSTALL_MOD_PATH)
+
+include $(ROOT_DIR)/vendor/amlogic/common/wifi_bt/wifi/configs/5_4/config.mk
+ifdef PRODUCT_DIRNAME
+-include $(ROOT_DIR)/$(PRODUCT_DIRNAME)/wifibt.build.config.trunk.mk
+else
+-include $(ROOT_DIR)/device/amlogic/$(PRODUCT_DIR)/wifibt.build.config.trunk.mk
+endif
+include $(ROOT_DIR)/vendor/amlogic/common/wifi_bt/wifi/configs/driver.mk

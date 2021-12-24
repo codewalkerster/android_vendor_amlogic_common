@@ -1,0 +1,54 @@
+LOCAL_PATH := $(call my-dir)
+
+include $(CLEAR_VARS)
+
+BDROID_DIR := $(TOP_DIR)packages/modules/Bluetooth/system
+
+
+LOCAL_SRC_FILES := \
+        rtk_socket.c \
+        bt_vendor_rtk.c \
+        hardware.c \
+        userial_vendor.c \
+        upio.c \
+        bt_list.c \
+        bt_skbuff.c \
+        hci_h5.c \
+        rtk_parse.c \
+        rtk_btservice.c \
+        hardware_uart.c \
+        hardware_usb.c \
+        rtk_heartbeat.c \
+        rtk_poll.c \
+        rtk_btsnoop_net.c \
+        FallthroughBTA.cpp
+
+LOCAL_C_INCLUDES += \
+        $(LOCAL_PATH)/../include \
+        $(LOCAL_PATH)/../codec/sbc \
+        $(LOCAL_PATH)/../codec/plc \
+        $(BDROID_DIR)/hci/include \
+        $(TOP_DIR)vendor/amlogic/common/wifi_bt/bluetooth/common/include
+
+LOCAL_SHARED_LIBRARIES := \
+        libcutils \
+        libutils \
+        liblog
+
+LOCAL_WHOLE_STATIC_LIBRARIES := \
+        libbt-codec
+ifeq ($(BOARD_HAVE_BLUETOOTH_MULTIBT),true)
+	LOCAL_MODULE := libbt-vendor_rtl
+	LOCAL_LICENSE_KINDS := SPDX-license-identifier-Apache-2.0
+	LOCAL_LICENSE_CONDITIONS := notice
+else
+	LOCAL_MODULE := libbt-vendor
+	LOCAL_LICENSE_KINDS := SPDX-license-identifier-Apache-2.0
+	LOCAL_LICENSE_CONDITIONS := notice
+endif
+
+LOCAL_MODULE_TAGS := optional
+LOCAL_PROPRIETARY_MODULE := true
+LOCAL_MODULE_CLASS := SHARED_LIBRARIES
+
+include $(BUILD_SHARED_LIBRARY)

@@ -1,0 +1,76 @@
+//================================
+//getbootenv
+
+// *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+//     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+//     DEPENDING ON IT IN YOUR PROJECT. ***
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "vendor_amlogic_common_frameworks_services_systemcontrol_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-FTL
+    //   SPDX-license-identifier-GPL
+    //   SPDX-license-identifier-LGPL-2.1
+    //   SPDX-license-identifier-MIT
+    //   legacy_by_exception_only (by exception only)
+    //   legacy_notice
+    default_applicable_licenses: [
+        "vendor_amlogic_common_frameworks_services_systemcontrol_license",
+    ],
+}
+
+cc_binary {
+    name: "getbootenv",
+    enabled: false,
+    srcs: [
+        "getbootenv.cpp",
+        "../ubootenv/Ubootenv.cpp",
+    ],
+
+    shared_libs: [
+        "libcutils",
+        "libutils",
+        "liblog",
+    ],
+
+    static_libs: ["libz"],
+
+    include_dirs: [
+        "system/core/include",
+        "vendor/amlogic/common/frameworks/services/systemcontrol",
+    ],
+
+    proprietary: true,
+
+}
+
+//================================
+//setbootenv
+
+cc_binary {
+    name: "setbootenv",
+    enabled: false,
+
+    srcs: [
+        "setbootenv.cpp",
+        "../ubootenv/Ubootenv.cpp",
+    ],
+
+    shared_libs: [
+        "libcutils",
+        "libutils",
+        "liblog",
+    ],
+
+    static_libs: ["libz"],
+
+    include_dirs: [
+        "system/core/include",
+        "vendor/amlogic/common/frameworks/services/systemcontrol",
+    ],
+
+    proprietary: true,
+
+}

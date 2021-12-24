@@ -1,0 +1,47 @@
+// Copyright 2013 The Android Open Source Project
+
+// ANDROIDMK TRANSLATION ERROR: unsupported conditional
+// ifneq ($(BUILD_TINY_ANDROID),true)
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "vendor_amlogic_common_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["vendor_amlogic_common_license"],
+}
+
+cc_library_static {
+    name: "libhealthd.mboxdefault",
+    srcs: ["healthd_board_mbox_default.cpp"],
+    cflags: ["-Werror"],
+
+    header_libs: [
+        "libbatteryservice_headers",
+        "libhealthd_headers",
+    ],
+
+
+    proprietary: true,
+
+}
+
+cc_library_static {
+    name: "libhealthd.tablet",
+    srcs: ["healthd_board_tablet_default.cpp"],
+
+    cflags: ["-Werror"],
+
+    header_libs: [
+        "libbatteryservice_headers",
+        "libhealthd_headers",
+    ],
+
+
+    proprietary: true,
+
+}
+
+// ANDROIDMK TRANSLATION ERROR: endif from unsupported conditional
+// endif

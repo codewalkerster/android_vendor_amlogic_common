@@ -1,0 +1,57 @@
+// Copyright (c) 2014 Amlogic, Inc. All rights reserved.
+//
+// This source code is subject to the terms and conditions defined in the
+// file 'LICENSE' which is part of this source code package.
+//
+// Description: makefile
+
+// *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+//     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+//     DEPENDING ON IT IN YOUR PROJECT. ***
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "vendor_amlogic_common_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-FTL
+    //   SPDX-license-identifier-GPL
+    //   SPDX-license-identifier-LGPL-2.1
+    //   SPDX-license-identifier-MIT
+    //   legacy_by_exception_only (by exception only)
+    //   legacy_notice
+    default_applicable_licenses: ["vendor_amlogic_common_license"],
+}
+
+cc_library_shared {
+    name: "libfbc",
+
+    vendor: true,
+
+    srcs: [
+        "CFbcCommunication.cpp",
+        "CFbcLinker.cpp",
+        "CFbcProtocol.cpp",
+        "CFbcUpgrade.cpp",
+        "CSerialPort.cpp",
+        "CVirtualInput.cpp",
+        "CFbcLog.cpp",
+        "CFile.cpp",
+        "CFbcEpoll.cpp",
+    ],
+
+    export_include_dirs: ["include"],
+
+    shared_libs: [
+        "libcutils",
+        "liblog",
+        "libutils",
+        "libsystemcontrolservice",
+        "vendor.amlogic.hardware.systemcontrol@1.1",
+        "libbinder",
+    ],
+
+
+    proprietary: true,
+
+}

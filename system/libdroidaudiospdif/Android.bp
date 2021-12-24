@@ -1,0 +1,35 @@
+
+
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "vendor_amlogic_common_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["vendor_amlogic_common_license"],
+}
+
+cc_library_shared {
+    name: "libdroidaudiospdif",
+
+    srcs: [
+        "BitFieldParser.cpp",
+        "FrameScanner.cpp",
+        "AC3FrameScanner.cpp",
+        "DTSFrameScanner.cpp",
+	"MatFrameScanner.cpp",
+        "SPDIFEncoder.cpp",
+    ],
+
+    shared_libs: [
+        "libcutils",
+        "liblog",
+    ],
+
+    header_libs: [
+        "libaudio_system_headers",
+    ],
+
+    proprietary: true,
+
+}

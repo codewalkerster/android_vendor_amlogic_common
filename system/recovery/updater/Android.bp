@@ -1,0 +1,50 @@
+// *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+//     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+//     DEPENDING ON IT IN YOUR PROJECT. ***
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "vendor_amlogic_common_system_recovery_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-FTL
+    //   SPDX-license-identifier-GPL
+    //   SPDX-license-identifier-LGPL-2.1
+    //   SPDX-license-identifier-MIT
+    //   legacy_by_exception_only (by exception only)
+    //   legacy_notice
+    default_applicable_licenses: [
+        "vendor_amlogic_common_system_recovery_license",
+    ],
+}
+
+cc_library_static {
+    name: "libinstall_amlogic",
+    recovery_available: true,
+
+    srcs: [
+        "install_amlogic.cpp",
+        "uboot_env.cpp",
+        "dtbcheck.cpp",
+        "security.cpp",
+    ],
+    static_libs: [
+        "libfstab",
+        "libbase",
+        "libotautil",
+        "libziparchive",
+        "libsystemcontrol_static",
+        "libcutils",
+        "librecovery_ui",
+        "libbootloader_message",
+        "libotautil",
+        "libedify",
+        "libfs_mgr",
+        "libtinyxml2",
+        "libutils",
+        "libz",
+    ],
+    include_dirs: [
+        "external/dtc/libfdt",
+    ],
+}

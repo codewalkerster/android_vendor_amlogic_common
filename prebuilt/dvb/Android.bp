@@ -1,0 +1,245 @@
+// *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+//     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+//     DEPENDING ON IT IN YOUR PROJECT. ***
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "vendor_amlogic_common_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-FTL
+    //   SPDX-license-identifier-GPL
+    //   SPDX-license-identifier-GPL-2.0
+    //   SPDX-license-identifier-LGPL
+    //   SPDX-license-identifier-LGPL-2.1
+    //   SPDX-license-identifier-MIT
+    //   legacy_by_exception_only (by exception only)
+    //   legacy_notice
+    default_applicable_licenses: ["vendor_amlogic_common_license"],
+}
+
+bootstrap_go_package {
+    name: "soong-droidlogic_dvb",
+    pkgPath: "android/soong/vendor/amlogic/common/prebuilt/dvb",
+    deps: [
+        "blueprint",
+        "blueprint-pathtools",
+        "soong",
+        "soong-android",
+        "soong-cc",
+        "soong-genrule",
+    ],
+    srcs: [
+        "droidlogic_dvb.go",
+    ],
+    pluginFor: ["soong_build"],
+}
+
+
+droidlogic_dvb_go_defaults {
+    name: "droidlogic_dvb_go_defaults",
+}
+
+cc_library_headers {
+    name: "libam_adp_headers",
+    vendor_available: true,
+    export_include_dirs: [
+        "include",
+        "include/am_adp",
+        "ndk/include",
+        "ndk/include/linux",
+    ],
+}
+
+cc_prebuilt_library_shared {
+    name: "libam_adp",
+    compile_multilib: "32",
+
+    defaults: ["droidlogic_dvb_go_defaults"],
+    proprietary: true,
+
+    arch: {
+        arm: {
+            srcs: ["lib/libam_adp.so"],
+        },
+        arm64: {
+            srcs: ["lib64/libam_adp.so"],
+        },
+        x86: {
+            enabled: false,
+        },
+        x86_64: {
+            enabled: false,
+        },
+    },
+
+    header_libs: ["libam_adp_headers"],
+    export_header_lib_headers: ["libam_adp_headers"],
+
+    shared_libs: [
+        "libcutils",
+        "liblog",
+        //"libzvbi",
+        "libicuuc_vendor",
+    ],
+
+}
+
+cc_prebuilt_library_shared {
+
+    name: "libam_mw",
+    compile_multilib: "32",
+    defaults: ["droidlogic_dvb_go_defaults"],
+    arch: {
+        arm: {
+            srcs: ["lib/libam_mw.so"],
+        },
+        arm64: {
+            srcs: ["lib64/libam_mw.so"],
+        },
+        x86: {
+            enabled: false,
+        },
+        x86_64: {
+            enabled: false,
+        },
+    },
+
+    export_include_dirs: ["include", "include/am_mw"],
+    check_elf_files: false,
+
+    shared_libs: [
+        "libam_adp",
+        "libcutils",
+        "liblog",
+        //"libzvbi",
+    ],
+    proprietary: true,
+
+}
+
+cc_prebuilt_library_shared {
+
+    name: "libam_sysfs",
+    compile_multilib: "32",
+    defaults: ["droidlogic_dvb_go_defaults"],
+    arch: {
+        arm: {
+            srcs: ["lib/libam_sysfs.so"],
+        },
+        arm64: {
+            srcs: ["lib64/libam_sysfs.so"],
+        },
+        x86: {
+            enabled: false,
+        },
+        x86_64: {
+            enabled: false,
+        },
+    },
+
+    export_include_dirs: ["include", "include/am_sysfs"],
+
+    shared_libs: [
+        "libam_adp",
+        "libbinder",
+        "libcutils",
+        "liblog",
+        "libsystemcontrolservice",
+        "libutils",
+        "vendor.amlogic.hardware.systemcontrol@1.0",
+        "vendor.amlogic.hardware.systemcontrol@1.1",
+    ],
+    proprietary: true,
+
+}
+
+cc_prebuilt_library_shared {
+
+    name: "libam_ver",
+    compile_multilib: "32",
+    defaults: ["droidlogic_dvb_go_defaults"],
+    arch: {
+        arm: {
+            srcs: ["lib/libam_ver.so"],
+        },
+        arm64: {
+            srcs: ["lib64/libam_ver.so"],
+        },
+    },
+
+
+    export_include_dirs: ["include", "include/am_ver"],
+
+    shared_libs: [
+        "libcutils",
+        "liblog",
+    ],
+    proprietary: true,
+
+}
+
+cc_prebuilt_library_static {
+
+    name: "libam_adp_static",
+    defaults: ["droidlogic_dvb_go_defaults"],
+    arch: {
+        arm: {
+            srcs: ["lib/libam_adp.a"],
+        },
+        arm64: {
+            enabled: false,
+            //srcs: ["lib64/libam_adp.a"],
+        },
+        x86: {
+            enabled: false,
+        },
+        x86_64: {
+            enabled: false,
+        },
+
+    },
+
+    header_libs: ["libam_adp_headers"],
+    export_header_lib_headers: ["libam_adp_headers"],
+
+    shared_libs: [
+        "libcutils",
+        "libicuuc_vendor",
+        "liblog",
+    ],
+    proprietary: true,
+
+}
+
+cc_prebuilt_library_static {
+
+    name: "libam_mw_static",
+    compile_multilib: "32",
+    defaults: ["droidlogic_dvb_go_defaults"],
+    arch: {
+        arm: {
+            srcs: ["lib/libam_mw.a"],
+        },
+        arm64: {
+            srcs: ["lib64/libam_mw.a"],
+        },
+        x86: {
+            enabled: false,
+        },
+        x86_64: {
+            enabled: false,
+        },
+    },
+
+    export_include_dirs: ["include", "include/am_mw"],
+
+    shared_libs: [
+        "libam_adp",
+        "libcutils",
+        "liblog",
+       // "libzvbi",
+    ],
+    proprietary: true,
+
+}
