@@ -274,7 +274,7 @@ SceneProcess::~SceneProcess() {
 
 int SceneProcess::updateDolbyVisionType(void) {
     char type[MODE_LEN];
-    char dv_deepcolor[MODE_LEN];
+    char dv_deepcolor[DV_MODE_LEN];
 
     //1. read dolby vision mode from prop(maybe need to env)
     strcpy(type, mScene_Input_Info.dv_input_info.ubootenv_dv_type);

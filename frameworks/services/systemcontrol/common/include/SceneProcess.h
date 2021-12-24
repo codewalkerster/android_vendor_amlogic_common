@@ -61,7 +61,7 @@ typedef struct dv_input_info {
     char ubootenv_dv_type[MODE_LEN];  //the env of dolby vision type
     char dv_cap[MAX_STR_LEN];         //tv dolby vision cap
     char dv_displaymode[MODE_LEN];    //tv dolby vision max resolution
-    char dv_deepcolor[MODE_LEN];      //tv dolby vision type
+    char dv_deepcolor[DV_MODE_LEN];   //tv dolby vision type
 }dv_input_info_t;
 
 typedef struct hdmi_input_info {

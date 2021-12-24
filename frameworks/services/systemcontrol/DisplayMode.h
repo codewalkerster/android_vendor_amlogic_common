@@ -430,7 +430,7 @@ typedef struct hdmi_dv_info {
     char ubootenv_dv_type[MODE_LEN];
     char dv_cap[MAX_STR_LEN];
     char dv_displaymode[MODE_LEN];
-    char dv_deepcolor[MODE_LEN];
+    char dv_deepcolor[DV_MODE_LEN];
     int  dv_type;
     char dv_enable[MODE_LEN];
     char dv_cur_displaymode[MODE_LEN];

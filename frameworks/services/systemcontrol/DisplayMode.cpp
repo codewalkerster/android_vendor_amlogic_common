@@ -1598,7 +1598,7 @@ void DisplayMode::getHdmiData(hdmi_data_t* data) {
     if (strstr(data->dv_info.dv_cap, "DolbyVision RX support list") != NULL) {
         for (int i = DISPLAY_MODE_TOTAL - 1; i >= 0; i--) {
             if (strstr(data->dv_info.dv_cap, DISPLAY_MODE_LIST[i]) != NULL) {
-                if ((strlen(data->dv_info.dv_displaymode) + strlen(DISPLAY_MODE_LIST[i])) < sizeof(data->dv_info.dv_displaymode)) {
+                if ((strlen(data->dv_info.dv_displaymode) + strlen(DISPLAY_MODE_LIST[i]) + 1) < sizeof(data->dv_info.dv_displaymode)) {
                     strcat(data->dv_info.dv_displaymode, DISPLAY_MODE_LIST[i]);
                     strcat(data->dv_info.dv_displaymode, ",");
                 } else {
@@ -1610,7 +1610,7 @@ void DisplayMode::getHdmiData(hdmi_data_t* data) {
 
         for (int i = 0; i < sizeof(DV_MODE_TYPE)/sizeof(DV_MODE_TYPE[0]); i++) {
             if (strstr(data->dv_info.dv_cap, DV_MODE_TYPE[i])) {
-                if ((strlen(data->dv_info.dv_deepcolor) + strlen(DV_MODE_TYPE[i])) < sizeof(data->dv_info.dv_deepcolor)) {
+                if ((strlen(data->dv_info.dv_deepcolor) + strlen(DV_MODE_TYPE[i]) + 1) < sizeof(data->dv_info.dv_deepcolor)) {
                     strcat(data->dv_info.dv_deepcolor, DV_MODE_TYPE[i]);
                     strcat(data->dv_info.dv_deepcolor, ",");
                 } else {
