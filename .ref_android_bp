@@ -1,0 +1,6 @@
+soong_namespace {
+    imports: [
+        "hardware/amlogic",
+        "vendor/amlogic/common",
+    ],
+}
