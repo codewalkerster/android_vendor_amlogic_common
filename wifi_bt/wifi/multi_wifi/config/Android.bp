@@ -1,5 +1,27 @@
+bootstrap_go_package {
+    name: "soong-droidlogic_iwpriv",
+    pkgPath: "android/soong/vendor/amlogic/common/wifi_bt/wifi/multi_wifi/config",
+    deps: [
+        "blueprint",
+        "blueprint-pathtools",
+        "soong",
+        "soong-android",
+        "soong-cc",
+        "soong-genrule",
+    ],
+    srcs: [
+        "droidlogic_iwpriv.go",
+    ],
+    pluginFor: ["soong_build"],
+}
+
+iwpriv_go_defaults {
+    name: "iwpriv_go_defaults",
+}
+
 cc_prebuilt_binary {
     name: "iwpriv",
+    defaults: ["iwpriv_go_defaults"],
 
     vendor: true,
     srcs: ["iwpriv"],
