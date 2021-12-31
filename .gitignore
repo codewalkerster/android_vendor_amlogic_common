@@ -48,7 +48,6 @@
 /prebuilt/libmediadrm
 /codec2
 /libdsm
-/wifi_bt/wifi/wpa_supplicant_8
 *.bak
 *.revise
 /apps/Miracast
