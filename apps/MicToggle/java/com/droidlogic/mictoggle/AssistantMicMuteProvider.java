@@ -193,6 +193,8 @@ public class AssistantMicMuteProvider extends ContentProvider {
         Log.d(TAG, "getMicToggleState:"+ret);
 
         int a = ret.indexOf("name = mute");
+        if (a < 0)
+           return false;
         String item_mute = ret.substring(a);
         int pos_on = item_mute.indexOf("1");
         int pos_off = item_mute.indexOf("0");
