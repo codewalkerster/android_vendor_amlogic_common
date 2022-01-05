@@ -1055,6 +1055,22 @@ int SSMAction::SSMReadColorGamutMode(int offset, int *rw_val)
     return ret;
 }
 
+int SSMAction::SSMReadAiSrEnable(int *rw_val)
+{
+    int tmp_ret = 0;
+    int ret = 0;
+
+    ret = SSMReadNTypes(VPP_DATA_POS_AISR_ENABLE_START, 1, &tmp_ret);
+    *rw_val = tmp_ret;
+
+    return ret;
+}
+
+int SSMAction::SSMSaveAiSrEnable(int rw_val)
+{
+    return SSMWriteNTypes(VPP_DATA_POS_AISR_ENABLE_START, 1, &rw_val);
+}
+
 int SSMAction::SSMSaveHdrTmoVal(int offset, int rw_val)
 {
     return SSMWriteNTypes(VPP_DATA_POS_HDR_TMO_START, 1, &rw_val, offset);

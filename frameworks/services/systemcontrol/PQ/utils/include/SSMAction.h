@@ -160,6 +160,8 @@ public:
     int SSMReadDemoSquitoMode(int offset, int *rw_val);
     int SSMReadAipqEnableVal(int *rw_val);
     int SSMSaveAipqEnableVal(int rw_val);
+    int SSMReadAiSrEnable(int *rw_val);
+    int SSMSaveAiSrEnable(int rw_val);
     int SSMSaveColorGamutMode(int offset, int rw_val);
     int SSMReadColorGamutMode(int offset, int *rw_val);
 

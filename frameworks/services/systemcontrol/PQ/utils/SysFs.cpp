@@ -247,6 +247,8 @@ void SysFs::initConstCharforSysNode()
         mPathforSysNode[VIDEO_RGB_SCREEN]           = "/sys/class/video/rgb_screen";
         mPathforSysNode[VIDEO_TEST_SCREEN]          = "/sys/class/video/test_screen";
         mPathforSysNode[VIDEO_FRAME_HEIGHT]         = "/sys/class/video/frame_height";
+        mPathforSysNode[VIDEO_AISR_ENABLE]          = "/sys/module/aml_media/parameters/uvm_open_nn";
+        mPathforSysNode[VIDEO_SR_ENABLE]            = "/sys/class/video/sr";
         mPathforSysNode[AMVECM_PQ_REG_RW]           = "/sys/class/amvecm/pq_reg_rw";
         mPathforSysNode[AMVECM_PQ_DNLP_DEBUG]       = "/sys/class/amvecm/dnlp_debug";
         mPathforSysNode[AMVECM_PQ_USER_SET]         = "/sys/class/amvecm/pq_user_set";
@@ -281,6 +283,8 @@ void SysFs::initConstCharforSysNode()
         mPathforSysNode[VIDEO_RGB_SCREEN]           = "/sys/class/video/rgb_screen";
         mPathforSysNode[VIDEO_TEST_SCREEN]          = "/sys/class/video/test_screen";
         mPathforSysNode[VIDEO_FRAME_HEIGHT]         = "/sys/class/video/frame_height";
+        mPathforSysNode[VIDEO_AISR_ENABLE]          = "/sys/module/aml_media/parameters/uvm_open_nn";
+        mPathforSysNode[VIDEO_SR_ENABLE]            = "/sys/class/video/sr";
         mPathforSysNode[AMVECM_PQ_REG_RW]           = "/sys/class/amvecm/pq_reg_rw";
         mPathforSysNode[AMVECM_PQ_DNLP_DEBUG]       = "/sys/class/amvecm/dnlp_debug";
         mPathforSysNode[AMVECM_PQ_USER_SET]         = "/sys/class/amvecm/pq_user_set";

@@ -1939,16 +1939,18 @@ int SystemControlService::getAipqEnable()
     return ret;
 }
 
-bool SystemControlService::aisrContrl(bool on) {
+bool SystemControlService::aisrContrl(bool on)
+{
     int ret = -1;
     if (pCPQControl != NULL) {
-        ret = pCPQControl->aisrContrl(on);
+        ret = pCPQControl->SetAiSrEnable(on);
     }
 
     return ret;
 }
 
-bool SystemControlService::hasAisrFunc() {
+bool SystemControlService::hasAisrFunc()
+{
     int ret = -1;
     if (pCPQControl != NULL) {
         ret = pCPQControl->hasAisrFunc();
@@ -1957,13 +1959,17 @@ bool SystemControlService::hasAisrFunc() {
     return ret;
 }
 
-bool SystemControlService::getAisr() {
-    int ret = -1;
+bool SystemControlService::getAisr()
+{
     if (pCPQControl != NULL) {
-        ret = pCPQControl->getAisr();
+        if ((pCPQControl->GetAiSrEnable()) > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+            return -1;
     }
-
-    return ret;
 }
 
 int SystemControlService::setColorGamutMode(int mode, int is_save)

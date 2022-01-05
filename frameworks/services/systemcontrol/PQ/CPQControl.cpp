@@ -153,9 +153,6 @@ void CPQControl::CPQControlInit()
         SYS_LOGD("Load PQ success!\n");
     }
 
-    //reset aisr
-    resetAisr();
-
     //set backlight
     BacklightInit();
     //AI PQ
@@ -519,6 +516,9 @@ int CPQControl::LoadPQSettings()
         ret |= SetHDRTMOMode(HDR_TMO_DYNAMIC, 1);
 
         ret |= AiParamLoad();
+
+        int aisr_enable = GetAiSrEnable();
+        ret |= SetAiSrEnable((aisr_enable > 0)? true : false);
 
         vpp_smooth_plus_mode_t smoothplus_mode = VPP_SMOOTH_PLUS_MODE_OFF;
         ret |= Cpq_SetSmoothPlusMode(smoothplus_mode, mCurentSourceInputInfo);
@@ -6601,19 +6601,6 @@ int CPQControl::AiParamLoad(void)
     return ret;
 }
 
-bool CPQControl::aisrContrl(bool on) {
-    int ret = -1;
-    if (on) {
-       mSysFs->setProperty(PROP_MEDIA_AISR, "true");
-       ret = pqWriteSys(AISR_PARAMETERS_UVM_OPEN_NN, on ? "1" : "0");
-    } else {
-       mSysFs->setProperty(PROP_MEDIA_AISR, "false");
-       ret = pqWriteSys(AISR_PARAMETERS_UVM_OPEN_NN, on ? "1" : "0");
-    }
-
-    return  ret >= 0 ? true : false;
-}
-
  bool CPQControl::hasAisrFunc() {
     int ret = -1;
 
@@ -6627,19 +6614,63 @@ bool CPQControl::aisrContrl(bool on) {
     return ret;
  }
 
-bool CPQControl::getAisr() {
-    return mSysFs->getPropertyBoolean(PROP_MEDIA_AISR, "false");
-}
-
-void CPQControl::resetAisr() {
+int CPQControl::SetAiSrEnable(bool isEnable)
+{
+    SYS_LOGD("%s isEnable = %d\n", __FUNCTION__, isEnable);
     int ret = -1;
-    if (mSysFs->getPropertyBoolean(PROP_MEDIA_AISR, "false")) {
-        ret = pqWriteSys(AISR_PARAMETERS_UVM_OPEN_NN, "1");
+    ret = Cpq_SetAiSrEnable(isEnable);
+
+    if (ret < 0) {
+        SYS_LOGD("%s Cpq_SetAiSrEnable fail\n", __FUNCTION__);
+        return ret;
     } else {
-        ret = pqWriteSys(AISR_PARAMETERS_UVM_OPEN_NN, "0");
+        ret = SaveAiSrEnable(isEnable);
+        property_set(PROP_MEDIA_AISR, isEnable > 0 ? "true" : "false");
     }
 
-    SYS_LOGD("resetAisr ret:%d\n",ret);
+    if (ret < 0) {
+        SYS_LOGD("%s failed\n", __FUNCTION__);
+    } else {
+        SYS_LOGD("%s success\n", __FUNCTION__);
+    }
+    return ret;
+}
+
+int CPQControl::GetAiSrEnable()
+{
+    int data = 0;
+    mSSMAction->SSMReadAiSrEnable(&data);
+    SYS_LOGD(" %s, data = %d\n", __FUNCTION__, data);
+
+    if (data < 0 || data > 1) {
+        data = 0;
+    }
+    return data;
+}
+
+int CPQControl::SaveAiSrEnable(bool enable)
+{
+    SYS_LOGD(" %s, enable = %d\n", __FUNCTION__, enable);
+    int ret = mSSMAction->SSMSaveAiSrEnable(enable ? 1 : 0);
+
+    if (ret < 0) {
+        SYS_LOGE("%s failed!\n",__FUNCTION__);
+    } else {
+        SYS_LOGD("%s success!\n",__FUNCTION__);
+    }
+
+    return ret;
+}
+
+int CPQControl::Cpq_SetAiSrEnable(bool enable)
+{
+    int ret = 0;
+    if (mbCpqCfg_aisr_enable) {
+        ret =pqWriteSys(VIDEO_AISR_ENABLE, enable ? "1" : "0");
+    } else {
+        SYS_LOGE("%s disabled\n",__FUNCTION__);
+    }
+    return ret;
 }
 
 //color space
@@ -7011,6 +7042,8 @@ void CPQControl::resetAllUserSettingParam()
     Cpq_SSMWriteNTypes(CUSTOMER_DATA_POS_SCREEN_COLOR_START, 1, 0, 0);
 
     mSSMAction->SSMSaveAipqEnableVal(0);
+    mSSMAction->SSMSaveAiSrEnable(1);
+
     return;
 }
 

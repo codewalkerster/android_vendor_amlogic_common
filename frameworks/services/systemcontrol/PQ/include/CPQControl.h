@@ -423,10 +423,11 @@ public:
     void enableAipq(bool isEnable);
     int AiParamLoad(void);
     //aisr
-    bool aisrContrl(bool on);
     bool hasAisrFunc();
-    bool getAisr();
-    void resetAisr();
+    int SetAiSrEnable(bool isEnable);
+    int GetAiSrEnable(void);
+    int SaveAiSrEnable(bool enable);
+    int Cpq_SetAiSrEnable(bool enable);
 
     //COLOR SPACE
     int SetColorGamutMode(vpp_colorgamut_mode_t value, int is_save);

@@ -322,6 +322,7 @@ struct SSMHeader_section2_t gSSMHeader_section2[] = {
     {.id =VPP_DATA_POS_MEMC_MODE_START, .addr = 0, .size = SSM_SOURCE_MAX, .valid = 0, .rsv = {0}},
     {.id =VPP_DATA_POS_MEMC_DEBLUR_LEVEL_START, .addr = 0, .size = SSM_SOURCE_MAX, .valid = 0, .rsv = {0}},
     {.id =VPP_DATA_POS_MEMC_DEJUDDER_LEVEL_START, .addr = 0, .size = SSM_SOURCE_MAX, .valid = 0, .rsv = {0}},
+    {.id =VPP_DATA_POS_AISR_ENABLE_START, .addr = 0, .size = 1, .valid = 0, .rsv = {0}},
 };
 
 struct SSMHeader_section1_t gSSMHeader_section1 =
