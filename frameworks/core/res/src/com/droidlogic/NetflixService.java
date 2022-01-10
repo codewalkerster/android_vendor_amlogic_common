@@ -116,7 +116,7 @@ public class NetflixService extends Service {
 
     private final class DeviceConfigListener implements DeviceConfig.OnPropertiesChangedListener {
         private static final String KEY_LIGHT_IDLE_AFTER_INACTIVE_TIMEOUT = "light_after_inactive_to";
-        private static final String LIGHT_IDLE_AFTER_INACTIVE_TIMEOUT_VALUE = "1800000";
+        private static final String LIGHT_IDLE_AFTER_INACTIVE_TIMEOUT_VALUE = "3600000";
         private static final String KEY_ACTIVITY_MANAGER_CONSTANTS = "activity_manager_constants";
 
         public DeviceConfigListener() {
