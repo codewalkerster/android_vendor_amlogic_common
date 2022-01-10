@@ -100,7 +100,26 @@ void SystemControlHal::onFBCUpgradeEvent(int32_t state, int32_t param) {
         }
     }
 }
+void SystemControlHal::onDensityChange(int32_t displayid,int32_t width, int32_t height) {
+    int clientSize = mClients.size();
+    AutoMutex _l( mLock );
 
+    SYS_LOGI("onDensityChange display:%d, size:%d %d", displayid, width, height);
+
+    for (auto it = mClients.begin(); it != mClients.end();) {
+        if (it->second == nullptr) {
+            it = mClients.erase(it);
+            continue;
+        }
+        auto ret = (it->second)->notifyDensityChange(displayid, width, height);
+        if (!ret.isOk() && ret.isDeadObject()) {
+            SYS_LOGE("%s event:%d notifyCallback fail\n", __FUNCTION__, displayid);
+            it = mClients.erase(it);
+        } else {
+            ++it;
+        }
+    }
+}
 void SystemControlHal::onSetDisplayMode(int mode) {
     AutoMutex _l(mLock);
     if (ENABLE_LOG_PRINT) ALOGI("onSetDisplaymode mode:%d", mode);
@@ -307,6 +326,12 @@ Return<Result> SystemControlHal::writeSysfsBin(const hidl_string &path, const hi
 
 Return<Result> SystemControlHal::memcContrl(bool on) {
     if (mSysControl->memcContrl(on)) {
+        return Result::OK;
+    }
+    return Result::FAIL;
+}
+Return<Result> SystemControlHal::syncDensity(int displayId, int width, int height) {
+    if (mSysControl->syncDensity(displayId, width, height)) {
         return Result::OK;
     }
     return Result::FAIL;

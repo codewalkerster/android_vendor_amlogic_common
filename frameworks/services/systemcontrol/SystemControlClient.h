@@ -52,6 +52,7 @@ public:
     virtual void onSetDisplayMode(int mode) = 0;
     virtual void onHdrInfoChange(int newHdrInfo) = 0;
     virtual void onAudioEvent(int param1, int param2, int param3, int param4) = 0;
+    virtual void onDensityChange(int param1,int param2, int param3) = 0;
 };
 
 class SystemControlClient  : virtual public RefBase {
@@ -325,7 +326,7 @@ public:
     int StartUpgradeFBC(const std::string&file_name, int mode, int upgrade_blk_size);
     int UpdateFBCUpgradeStatus(int state, int param);
     int setAudioParam(int param1, int param2, int param3, int param4 = -1);
-
+    bool syncDensity(int displayid, int width, int height);
     void setListener(const sp<SysCtrlListener> &listener);
     static SystemControlClient * getInstance();
 
@@ -337,6 +338,7 @@ public:
          Return<void> notifyFBCUpgradeCallback(int state, int param) override;
          Return<void> notifySetDisplayModeCallback(int mode) override;
          Return<void> notifyHdrInfoChangedCallback(int newHdrInfo) override;
+         Return<void> notifyDensityChange(int param1, int param2, int param3) override;
          Return<void> notifyAudioCallback(int param1, int param2, int param3, int param4) override;
      private:
          SystemControlClient *SysCtrlClient;

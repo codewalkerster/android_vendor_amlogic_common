@@ -136,7 +136,9 @@ bool SystemControlClient::writeSysfs(const std::string& path, const std::string&
 bool SystemControlClient::memcContrl(int isEnable) {
     return (mSysCtrl->memcContrl(isEnable) == Result::OK);
 }
-
+bool SystemControlClient::syncDensity(int displayid,int width, int height) {
+    return (mSysCtrl->syncDensity(displayid, width, height) == Result::OK);
+}
 bool SystemControlClient::writeSysfs(const std::string& path, const char *value, const int size) {
     int i;
     hidl_array<int32_t, 4096> result;
@@ -1651,7 +1653,19 @@ Return<void> SystemControlClient::SystemControlHidlCallback::notifyAudioCallback
 
     return Void();
 }
+Return<void> SystemControlClient::SystemControlHidlCallback::notifyDensityChange(int param1, int param2, int param3) {
+    sp<SysCtrlListener> listener;
 
+    listener = SysCtrlClient->mListener;
+
+    if (listener != NULL) {
+        listener->onDensityChange(param1, param2, param3);
+    } else {
+        ALOGI("%s: listener is NULL.", __FUNCTION__);
+    }
+
+    return Void();
+}
 void SystemControlClient::SystemControlDeathRecipient::serviceDied(uint64_t cookie,
         const ::android::wp<::android::hidl::base::V1_0::IBase>& who) {
     LOG(ERROR) << "system control service died. need release some resources";

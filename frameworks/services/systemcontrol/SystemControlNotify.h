@@ -35,6 +35,7 @@ public:
     virtual void onFBCUpgradeEvent(int32_t state, int32_t param) = 0;
     virtual void onSetDisplayMode(int mode) = 0;
     virtual void onAudioEvent(int param1, int param2, int param3, int param4) = 0;
+    virtual void onDensityChange(int param1,int param2, int param3) = 0;
 };
 
 }; // namespace android

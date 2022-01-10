@@ -56,6 +56,9 @@ public class SystemControlEvent extends ISystemControlCallback.Stub {
         if (context != null) {
             mContext = context;
             mAudioManager = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
+            if (DisplayDensityManager.Enabled()) {
+                DisplayDensityManager.getInstance(mContext);
+            }
         }
     }
 
@@ -156,8 +159,12 @@ public class SystemControlEvent extends ISystemControlCallback.Stub {
         Log.d(TAG, "SetFBCUpgradeEventListener");
         mFBCUpgradeEventListener  = l;
     }
-
-
+    public void notifyDensityChange(int displayId, int width, int height) {
+        if (DisplayDensityManager.Enabled()) {
+            DisplayDensityManager mDisplayManager = DisplayDensityManager.getInstance(mContext);
+            mDisplayManager.adjustDisplayDensityByMode(displayId,width,height);
+        }
+    }
     private void setWiredDeviceConnectionState(int type, int state, String address, String name) {
         try {
             Class<?> audioManager = Class.forName("android.media.AudioManager");

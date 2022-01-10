@@ -87,4 +87,6 @@ interface ISystemControl extends @1.0::ISystemControl{
 
   memcContrl (bool on)
       generates (Result result);
+  syncDensity(int32_t displayid, int32_t width, int32_t height)
+      generates (Result result);
 };

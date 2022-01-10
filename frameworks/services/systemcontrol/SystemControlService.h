@@ -313,7 +313,7 @@ public:
     void setHdrPriority(const std::string& value);
     int setColorGamutMode(int mode, int is_save);
     int getColorGamutMode(void);
-
+    bool syncDensity(int displayid, int width, int height);
     //PQ end
     //static frame
     int setStaticFrameEnable(int enable, int isSave);
@@ -330,7 +330,7 @@ public:
     void SendDisplayMode(int mode);
 
     int setAudioParam(int param1, int param2, int param3, int param4);
-
+    int setDensityUpdate(int displayId, int width, int height);
     static SystemControlService* instantiate(const char *cfgpath);
 
     virtual status_t dump(int fd, const std::vector<std::string>& args);

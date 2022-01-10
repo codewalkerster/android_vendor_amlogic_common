@@ -775,6 +775,14 @@ void SystemControlService::setPqListener(const sp<PqNotify>& listener) {
         pCPQControl->setHdrInfoListener(listener);
     }
 }
+bool SystemControlService::syncDensity(int displayid, int width, int height) {
+    if (mNotifyListener != NULL) {
+        ALOGI("set displaymode callback\n");
+        mNotifyListener->onDensityChange(displayid, width, height);
+        return true;
+    }
+    return false;
+}
 
 void SystemControlService::SendDisplayMode(int mode) {
     if (mNotifyListener != NULL) {
