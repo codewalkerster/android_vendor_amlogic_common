@@ -658,6 +658,16 @@ void DisplayMode::setSourceOutputMode(const char* outputmode) {
 * apply setting
 */
 void DisplayMode::applyDisplaySetting(output_mode_state state) {
+
+    //quiescent boot need not output
+    char quiescent_mode[8] = {0};
+    pSysWrite->getPropertyString("ro.boot.quiescent", quiescent_mode, "0");
+    SYS_LOGI("quiescent_mode is %s\n", quiescent_mode);
+    if ((strcmp(quiescent_mode, "1") == 0) && (state == OUPUT_MODE_STATE_INIT)) {
+        SYS_LOGI("don't need to setting hdmi when quiescent mode\n");
+        return;
+    }
+
     //check cvbs mode
     bool cvbsMode = false;
 
