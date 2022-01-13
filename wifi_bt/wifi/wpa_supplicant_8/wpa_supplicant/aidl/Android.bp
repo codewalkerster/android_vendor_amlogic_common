@@ -22,24 +22,20 @@ package {
 }
 
 cc_library_headers {
-    name: "libwpa_droidlogic_hidl_headers",
+    name: "libwpa_droidlogic_aidl_headers",
     export_include_dirs: ["."],
     soc_specific: true,
 }
 
 cc_library_static {
-    name: "libwpa_droidlogic_hidl_bp",
+    name: "libwpa_droidlogic_aidl_bp",
     srcs: ["*.cpp"],
     defaults: ["wpa_supplicant_cflags_defaults"],
     soc_specific: true,
     shared_libs: [
-        "android.hardware.wifi.supplicant@1.0",
-        "android.hardware.wifi.supplicant@1.1",
-        "android.hardware.wifi.supplicant@1.2",
-        "android.hardware.wifi.supplicant@1.3",
-        "android.hardware.wifi.supplicant@1.4",
+        "android.hardware.wifi.supplicant-V1-ndk",
+        "libbinder_ndk",
         "libbase",
-        "libhidlbase",
         "libutils",
         "liblog",
         "libssl",
@@ -53,8 +49,8 @@ cc_library_static {
         "-Wno-unused-variable",
     ],
     header_libs: [
-        "wpa_supplicant_droidlogic_headers",
-        "libwpa_droidlogic_hidl_headers",
+        "wpa_supplicant_headers",
+        "libwpa_droidlogic_aidl_headers",
     ],
 }
 
