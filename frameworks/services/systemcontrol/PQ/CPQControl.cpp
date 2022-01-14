@@ -2929,7 +2929,7 @@ int CPQControl::Cpq_SetDisplayModeAllTiming(tv_source_input_t source_input, vpp_
             }
 
             if (ret == 0) {
-                SYS_LOGD("signal_fmt:0x%x, AFDFlag:%d,screen mode:%d hs:%d he:%d vs:%d ve:%d!\n", sig_fmt[i], AFDFlag, ScreenModeValue, cutwin[i].he, cutwin[i].hs, cutwin[i].ve, cutwin[i].vs);
+                SYS_LOGD("signal_fmt:0x%x, AFDFlag:%d,screen mode:%d he:%d hs:%d ve:%d vs:%d!\n", sig_fmt[i], AFDFlag, ScreenModeValue, cutwin[i].he, cutwin[i].hs, cutwin[i].ve, cutwin[i].vs);
                 ve_pq_table[i].value1 = ((cutwin[i].he & 0xffff)<<16) | (cutwin[i].hs & 0xffff);
                 ve_pq_table[i].value2 = ((cutwin[i].ve & 0xffff)<<16) | (cutwin[i].vs & 0xffff);
             } else {
@@ -3693,6 +3693,8 @@ tvin_cutwin_t CPQControl::GetOverscanParams(vpp_display_mode_t display_mode)
     } else {
         SYS_LOGD("%s success\n", __FUNCTION__);
     }
+
+    SYS_LOGD("he:%d hs:%d ve:%d vs:%d\n", cutwin_t.he, cutwin_t.hs, cutwin_t.ve, cutwin_t.vs);
 
     return cutwin_t;
 }

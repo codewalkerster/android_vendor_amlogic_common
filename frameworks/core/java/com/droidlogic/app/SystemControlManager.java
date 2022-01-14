@@ -2932,10 +2932,10 @@ public class SystemControlManager {
          synchronized (mLock) {
              try {
                  OverScanParam param = mProxy.getOverscanParams(mode.toInt());
-                 cutwin_t.hs = param.he;
-                 cutwin_t.he = param.hs;
-                 cutwin_t.vs = param.ve;
-                 cutwin_t.ve = param.vs;
+                 cutwin_t.hs = param.hs;
+                 cutwin_t.he = param.he;
+                 cutwin_t.vs = param.vs;
+                 cutwin_t.ve = param.ve;
              } catch (RemoteException e) {
                  Log.e(TAG, "getOverscanParams:" + e);
              }
