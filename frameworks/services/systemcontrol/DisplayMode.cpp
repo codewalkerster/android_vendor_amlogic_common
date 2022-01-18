@@ -524,6 +524,7 @@ void DisplayMode::sceneProcess(hdmi_data_t* data) {
     scene_input_info.isbestpolicy   = isBestOutputmode();
     scene_input_info.isDvEnable     = isDolbyVisionEnable();
     scene_input_info.isTvSupportDv  = isTvSupportDolbyVision(tvmode);
+    scene_input_info.isTvSupportHDR = isTvSupportHDR();
     scene_input_info.hdr_policy     = data->hdr_policy;
     scene_input_info.hdr_priority   = data->hdr_priority;
 
@@ -550,7 +551,8 @@ void DisplayMode::sceneProcess(hdmi_data_t* data) {
     strcpy(scene_input_info.hdmi_input_info.ubootenv_colorattribute, data->ubootenv_colorattribute);
 
     //2 scene process
-    mpSceneProcess->Process(&scene_input_info, &mScene_output_info);
+    mpSceneProcess->UpdateSceneInputInfo(&scene_input_info);
+    mpSceneProcess->Process(&mScene_output_info);
 
     //3 return output final result
     strcpy(data->final_displaymode, mScene_output_info.final_displaymode);
@@ -1459,6 +1461,11 @@ bool DisplayMode::isVMXCertification() {
 }
 
 void DisplayMode::getCommonData(hdmi_data_t* data) {
+    if (!data) {
+        SYS_LOGE("%s data is NULL\n", __FUNCTION__);
+        return;
+    }
+
     char hdr_policy[MODE_LEN] = {0};
     getHdrStrategy(hdr_policy);
     data->hdr_policy = (hdr_policy_e)atoi(hdr_policy);
@@ -1512,95 +1519,12 @@ void DisplayMode::getCommonData(hdmi_data_t* data) {
 
 }
 
-void DisplayMode::getHdmiData(hdmi_data_t* data) {
-    //common info
-    getCommonData(data);
-
-    //hdmi info
-    //three sink types: sink, repeater, none
-    char sinkType[MODE_LEN] = {0};
-    pSysWrite->readSysfsOriginal(DISPLAY_HDMI_SINK_TYPE, sinkType);
-    pSysWrite->readSysfs(DISPLAY_EDID_STATUS, data->edidParsing);
-
-    data->sinkType = HDMI_SINK_TYPE_NONE;
-    if (NULL != strstr(sinkType, "sink"))
-        data->sinkType = HDMI_SINK_TYPE_SINK;
-    else if (NULL != strstr(sinkType, "repeater"))
-        data->sinkType = HDMI_SINK_TYPE_REPEATER;
-
-    SYS_LOGI("display sink type:%d [0:none, 1:sink, 2:repeater]\n", data->sinkType);
-
-    if (HDMI_SINK_TYPE_NONE != data->sinkType) {
-        //read hdmi disp_cap
-        int count = 0;
-        while (true) {
-            pSysWrite->readSysfsOriginal(DISPLAY_HDMI_DISP_CAP, data->disp_cap);
-            if (strlen(data->disp_cap) > 0)
-                break;
-
-            if (count >= 5) {
-                strcpy(data->disp_cap, "null edid");
-                break;
-            }
-            count++;
-            usleep(500000);
-        }
-
-        //read hdmi dc_cap
-        count = 0;
-        while (true) {
-            //mSysWrite.readSysfsOriginal(DISPLAY_HDMI_DEEP_COLOR, supportedColorList);
-            pSysWrite->readSysfs(DISPLAY_HDMI_DEEP_COLOR, data->dc_cap);
-            if (strlen(data->dc_cap) > 0) {
-                break;
-            }
-
-            if (count++ >= 5) {
-                break;
-            }
-            usleep(500000);
-        }
+void DisplayMode::getHdmiDvCap(hdmi_data_t* data) {
+    if (!data) {
+        SYS_LOGE("%s data is NULL\n", __FUNCTION__);
+        return;
     }
 
-    //filter hdmi disp_cap mode for compatibility
-    filterHdmiDispcap(data);
-
-    //filter mode defined by CDF, default disable this
-    if (!strcmp(data->edidParsing, "ok") && false) {
-        const char *delim = "\n";
-        char filterEdid[MAX_STR_LEN] = {0};
-
-        char *ptr = strtok(data->disp_cap, delim);
-        while (ptr != NULL) {
-            //recommend mode or not
-            bool recomMode = false;
-            int len = strlen(ptr);
-            if (ptr[len - 1] == '*') {
-                ptr[len - 1] = '\0';
-                recomMode = true;
-            }
-
-            if (modeSupport(ptr, data->sinkType)) {
-                if ((strlen(filterEdid) + strlen(ptr)) < (MAX_STR_LEN-1)) {
-                    strcat(filterEdid, ptr);
-                    if (recomMode)
-                        strcat(filterEdid, "*");
-                    strcat(filterEdid, delim);
-                } else {
-                    SYS_LOGE("DisplayMode strcat overflow: src=%s, dst=%s\n", ptr, filterEdid);
-                    break;
-                }
-            }
-            ptr = strtok(NULL, delim);
-        }
-
-        //this is the real support edid filter by CDF
-        strcpy(data->disp_cap, filterEdid);
-
-        SYS_LOGI("CDF filtered modes: %s\n", data->disp_cap);
-    }
-
-    //get hdmi dv_info
     std::string dv_cap;
     DisplayModeMgr::getInstance().getDisplayAttribute(DISPLAY_DOLBY_VISION_CAP2, dv_cap, ConnectorType::CONN_TYPE_HDMI);
     strcpy(data->dv_info.dv_cap, dv_cap.c_str());
@@ -1633,6 +1557,104 @@ void DisplayMode::getHdmiData(hdmi_data_t* data) {
     } else {
         SYS_LOGE("TV isn't support dolby vision: %s\n", data->dv_info.dv_cap);
     }
+}
+
+void DisplayMode::getHdmiDispCap(char* disp_cap) {
+    if (!disp_cap) {
+        SYS_LOGE("%s disp_cap is NULL\n", __FUNCTION__);
+        return;
+    }
+
+    int count = 0;
+    while (true) {
+        pSysWrite->readSysfsOriginal(DISPLAY_HDMI_DISP_CAP, disp_cap);
+        if (strlen(disp_cap) > 0)
+            break;
+
+        if (count >= 5) {
+            strcpy(disp_cap, "null edid");
+            break;
+        }
+        count++;
+        usleep(500000);
+    }
+}
+
+void DisplayMode::getHdmiDcCap(char* dc_cap) {
+    if (!dc_cap) {
+        SYS_LOGE("%s dc_cap is NULL\n", __FUNCTION__);
+        return;
+    }
+
+    int count = 0;
+    while (true) {
+        pSysWrite->readSysfsOriginal(DISPLAY_HDMI_DEEP_COLOR, dc_cap);
+        if (strlen(dc_cap) > 0)
+            break;
+
+        if (count >= 5) {
+            strcpy(dc_cap, "444,8bit");
+            break;
+        }
+        count++;
+        usleep(500000);
+    }
+}
+
+int DisplayMode::getHdmiSinkType(void) {
+    char sinkType[MODE_LEN] = {0};
+    pSysWrite->readSysfsOriginal(DISPLAY_HDMI_SINK_TYPE, sinkType);
+
+    if (NULL != strstr(sinkType, "sink")) {
+        return HDMI_SINK_TYPE_SINK;
+    } else if (NULL != strstr(sinkType, "repeater")) {
+        return HDMI_SINK_TYPE_REPEATER;
+    } else {
+        return HDMI_SINK_TYPE_NONE;
+    }
+}
+
+void DisplayMode::getHdmiEdidStatus(char* edidstatus) {
+    if (!edidstatus) {
+        SYS_LOGE("%s edidstatus is NULL\n", __FUNCTION__);
+        return;
+    }
+
+    pSysWrite->readSysfs(DISPLAY_EDID_STATUS, edidstatus);
+}
+
+void DisplayMode::getHdmiData(hdmi_data_t* data) {
+    if (!data) {
+        SYS_LOGE("%s data is NULL\n", __FUNCTION__);
+        return;
+    }
+
+    //common info
+    getCommonData(data);
+
+    //hdmi info
+    getHdmiEdidStatus(data->edidParsing);
+    //three sink types: sink, repeater, none
+    data->sinkType = getHdmiSinkType();
+    SYS_LOGI("display sink type:%d [0:none, 1:sink, 2:repeater]\n", data->sinkType);
+
+    if (HDMI_SINK_TYPE_NONE != data->sinkType) {
+        //read hdmi disp_cap
+        char disp_cap[MAX_STR_LEN];
+        getHdmiDispCap(disp_cap);
+        strcpy(data->disp_cap, disp_cap);
+
+        //read hdmi dc_cap
+        char dc_cap[MAX_STR_LEN];
+        getHdmiDcCap(dc_cap);
+        strcpy(data->dc_cap, dc_cap);
+    }
+
+    //filter hdmi disp_cap mode for compatibility
+    filterHdmiDispcap(data);
+
+    //get hdmi dv_info
+    getHdmiDvCap(data);
 }
 
 bool DisplayMode::modeSupport(char *mode, int sinkType) {
@@ -1715,7 +1737,7 @@ bool DisplayMode::isBestOutputmode() {
 }
 
 bool DisplayMode::isFrameratePriority() {
-    return pSysWrite->getPropertyBoolean(PROP_HDMI_FRAMERATE_PRIORITY, true);
+    return pSysWrite->getPropertyBoolean(PROP_HDMI_FRAMERATE_PRIORITY, false);
 }
 
 bool DisplayMode::isSupport4K() {
@@ -2156,6 +2178,43 @@ void DisplayMode::setDisplayMode(std::string mode) {
 }
 
 /* *
+ * @Description: Detect Whether TV support HDR
+ * @return: if TV support return true, or false
+ */
+bool DisplayMode::isTvSupportHDR() {
+    if (DISPLAY_TYPE_TV == mDisplayType) {
+        SYS_LOGI("Current Device is TV, no hdr_cap\n");
+        return false;
+    }
+
+/*
+    //read hdr_cap
+    std::string hdr_cap;
+    DisplayModeMgr::getInstance().getDisplayAttribute(DISPLAY_HDR_CAP, hdr_cap, ConnectorType::CONN_TYPE_HDMI);
+
+    //check hdr_cap
+    if ((strstr(hdr_cap.c_str(), "HDR10Plus Supported: 1") != NULL)
+        || (strstr(hdr_cap.c_str(), "SMPTE ST 2084: 1") != NULL)
+        || (strstr(hdr_cap.c_str(), "Hybrid Log-Gamma: 1") != NULL)) {
+        SYS_LOGD("Current Tv Support HDR:%s", hdr_cap.c_str());
+        return true;
+    }
+*/
+    char hdr_cap[MAX_STR_LEN];
+    pSysWrite->readSysfs(DISPLAY_HDMI_HDR_CAP2, hdr_cap);
+
+    //check hdr_cap
+    if ((strstr(hdr_cap, "HDR10Plus Supported: 1") != NULL)
+        || (strstr(hdr_cap, "SMPTE ST 2084: 1") != NULL)
+        || (strstr(hdr_cap, "Hybrid Log-Gamma: 1") != NULL)) {
+        SYS_LOGD("Current Tv Support HDR:%s", hdr_cap);
+        return true;
+    }
+
+    return false;
+}
+
+/* *
  * @Description: Detect Whether TV support Dolby Vision
  * @return: if TV support return true, or false
  * if true, mode is the Highest resolution Tv Dolby Vision supported
@@ -2463,41 +2522,6 @@ void DisplayMode::setHdrStrategy(const char* type) {
 
 }
 
-void DisplayMode::updateDisplayMode(char* outputmode)  {
-    hdmi_data_t hdmi_data;
-
-    memset(&hdmi_data, 0, sizeof(hdmi_data_t));
-
-    getHdmiData(&hdmi_data);
-
-    if  (pSysWrite->getPropertyBoolean(PROP_HDMIONLY, true))  {
-        if (HDMI_SINK_TYPE_NONE != hdmi_data.sinkType) {
-            getHdmiOutputMode(outputmode, &hdmi_data);
-        } else {
-            getBootEnv(UBOOTENV_CVBSMODE, outputmode);
-        }
-    } else {
-        getBootEnv(UBOOTENV_OUTPUTMODE, outputmode);
-    }
-}
-
-void DisplayMode::updateAttr(bool cvbsMode, output_mode_state state, const char* outputmode) {
-    if (!cvbsMode && (mDisplayType != DISPLAY_TYPE_TV)) {
-        char colorAttribute[MODE_LEN] = {0};
-        if (pSysWrite->getPropertyBoolean(PROP_DEEPCOLOR, true)) {
-            char mode[MAX_STR_LEN] = {0};
-            pmDeepColor->getHdmiColorAttribute(outputmode, colorAttribute, (int)state);
-        } else {
-            strcpy(colorAttribute, "default");
-        }
-
-        SYS_LOGI("setMboxOutputMode colorAttribute = %s\n", colorAttribute);
-        //save to ubootenv
-        saveDeepColorAttr(outputmode, colorAttribute);
-        setBootEnv(UBOOTENV_COLORATTRIBUTE, colorAttribute);
-    }
-}
-
 int DisplayMode::getHdrPriority(void) {
     char hdr_priority[MODE_LEN] = {0};
     hdr_priority_e value = DOLBY_VISION_PRIORITY;
@@ -2523,38 +2547,45 @@ void DisplayMode::setHdrPriority(const char* type) {
     setBootEnv(UBOOTENV_HDR_PRIORITY, (char *)type);
 
     if  (strstr(type, "2"))  {
-        bool cvbsMode = false;
-        char outputmode[MODE_LEN] = {0};
-        /*1. update dispmode*/
-        updateDisplayMode(outputmode);
+        //1. get final display mode and color format
+        setBootEnv(UBOOTENV_ISBESTMODE, "true");
+        mHdmidata.state = OUPUT_MODE_STATE_INIT;
+        getCommonData(&mHdmidata);
+        sceneProcess(&mHdmidata);
 
-        /*2. update deep color*/
-        updateAttr(cvbsMode, OUPUT_MODE_STATE_INIT, outputmode);
-
-        /*3. save uboot env*/
-        if (strstr(outputmode, "cvbs") != NULL) {
-            setBootEnv(UBOOTENV_CVBSMODE, (char *)outputmode);
-        } else if (strstr(outputmode, "hz") != NULL) {
-            setBootEnv(UBOOTENV_HDMIMODE, (char *)outputmode);
+        // 2. save uboot env
+        //2.1 save hdmimode
+        if (strstr(mHdmidata.final_displaymode, "cvbs") != NULL) {
+            setBootEnv(UBOOTENV_CVBSMODE, mHdmidata.final_displaymode);
+        } else if (strstr(mHdmidata.final_displaymode, "hz") != NULL) {
+            setBootEnv(UBOOTENV_HDMIMODE, mHdmidata.final_displaymode);
         }
+        //2.2 save colorattribute
+        saveDeepColorAttr(mHdmidata.final_displaymode, mHdmidata.final_deepcolor);
+        setBootEnv(UBOOTENV_COLORATTRIBUTE, mHdmidata.final_deepcolor);
 
-        /* disable uboot dolby vision*/
+        //3. disable uboot dolby vision
         setBootEnv(UBOOTENV_DOLBYSTATUS, "0");
     } else if  (strstr(type, "1")) {
-        bool cvbsMode = false;
-        char outputmode[MODE_LEN] = {0};
-        /*1. update dispmode*/
-        updateDisplayMode(outputmode);
+        //1. get final display mode and color format
+        setBootEnv(UBOOTENV_ISBESTMODE, "true");
+        mHdmidata.state = OUPUT_MODE_STATE_INIT;
+        getCommonData(&mHdmidata);
+        sceneProcess(&mHdmidata);
 
-        /*2. update deep color*/
-        updateAttr(cvbsMode, OUPUT_MODE_STATE_INIT, outputmode);
-
-        /*3. save uboot env*/
-        if (strstr(outputmode, "cvbs") != NULL) {
-            setBootEnv(UBOOTENV_CVBSMODE, (char *)outputmode);
-        } else if (strstr(outputmode, "hz") != NULL) {
-            setBootEnv(UBOOTENV_HDMIMODE, (char *)outputmode);
+        // 2. save uboot env
+        //2.1 save hdmimode
+        if (strstr(mHdmidata.final_displaymode, "cvbs") != NULL) {
+            setBootEnv(UBOOTENV_CVBSMODE, mHdmidata.final_displaymode);
+        } else if (strstr(mHdmidata.final_displaymode, "hz") != NULL) {
+            setBootEnv(UBOOTENV_HDMIMODE, mHdmidata.final_displaymode);
         }
+        //2.2 save colorattribute
+        saveDeepColorAttr(mHdmidata.final_displaymode, mHdmidata.final_deepcolor);
+        setBootEnv(UBOOTENV_COLORATTRIBUTE, mHdmidata.final_deepcolor);
+
+        //3. disable uboot dolby vision
+        setBootEnv(UBOOTENV_DOLBYSTATUS, "0");
     } else {
         char hdr_policy[MODE_LEN] = {0};
         std::string dv_cap;

@@ -107,16 +107,43 @@ class SceneProcess
 public:
     SceneProcess();
     ~SceneProcess();
-
+    //update scene input info api
+    void setSceneState(const scene_state state);
+    void setBestPolicy(const bool isEnable);
+    void setDvEnable(const bool isEnable);
+    void setTvSupportHDR(const bool isEnable);
+    void setTvSupportDV(const bool isEnable);
+    void setHDRPriority(const hdr_priority_e value);
+    void setHDRPolicy(const hdr_policy_e value);
+    void setCurrtenDisplayMode(const char* value);
+    void setIsSupport4K(const bool isEnable);
+    void setIsSupport4K30(const bool isEnable);
+    void setIsDeepColor(const bool isEnable);
+    void setIsLowPowerMode(const bool isEnable);
+    void setFrameRatePriority(const bool isEnable);
+    void setSinkType(const int value);
+    void setdccap(const char* value);
+    void setdispcap(const char* value);
+    void setcvbsmode(const char* value);
+    void setcolorattribute(const char* value);
+    void setdvtype(const char* value);
+    void setdvcap(const char* value);
+    void setdvdisplaymode(const char* value);
+    void setdvdeepcolor(const char* value);
     void UpdateSceneInputInfo(scene_input_info_t * input_info);
-    void DolbyVisionSceneProcess(scene_output_info_t* output_info);
-    void SDRSceneProcess(scene_output_info_t* output_info);
-    void Process(scene_input_info_t* input_info, scene_output_info_t* output_info);
+
+    void Process(scene_output_info_t* output_info);
 
 private:
+    void DolbyVisionSceneProcess(scene_output_info_t* output_info);
+    void HDRSceneProcess(scene_output_info_t* output_info);
+    void SDRSceneProcess(scene_output_info_t* output_info);
+    bool isSupport4KHDR(scene_output_info_t *output_info);
+    bool isSupportnon4KHDR(scene_output_info_t *output_info);
     int updateDolbyVisionType(void);
     void updateDolbyVisionAttr(int dolbyvision_type, char * dv_attr);
     void updateDolbyVisionDisplayMode(char * cur_outputmode, int dv_type, char * final_displaymode);
+    bool isHDRPreference();
     bool isDolbyVisionPreference();
     bool IsBestPolicy();
     bool IsFrameratePriority();

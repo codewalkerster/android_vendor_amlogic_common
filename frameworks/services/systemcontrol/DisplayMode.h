@@ -103,6 +103,8 @@ using namespace android;
 #define DISPLAY_HDMI_DISP_CAP_3D        "/sys/class/amhdmitx/amhdmitx0/disp_cap_3d"//RX support display 3d mode
 #define DISPLAY_HDMI_DEEP_COLOR         "/sys/class/amhdmitx/amhdmitx0/dc_cap"//RX supoort deep color
 #define DISPLAY_HDMI_HDR                "/sys/class/amhdmitx/amhdmitx0/hdr_cap"
+#define DISPLAY_HDMI_HDR_CAP2           "/sys/class/amhdmitx/amhdmitx0/hdr_cap2"
+
 #define DISPLAY_HDMI_AUDIO              "/sys/class/amhdmitx/amhdmitx0/aud_cap"
 #define DISPLAY_HDMI_AUDIO_MUTE         "/sys/class/amhdmitx/amhdmitx0/aud_mute"
 #define DISPLAY_HDMI_VIDEO_MUTE         "/sys/class/amhdmitx/amhdmitx0/vid_mute"
@@ -523,6 +525,7 @@ public:
     bool isTvSupportDolbyVision(char *mode);
     void setGraphicsPriority(const char* mode);
     void getGraphicsPriority(char* mode);
+    bool isTvSupportHDR();
     void getDeepColorAttr(const char* mode, char *value);
     void saveDeepColorAttr(const char* mode, const char* dcValue);
     int64_t resolveResolutionValue(const char *mode);
@@ -535,6 +538,11 @@ public:
     bool isHdmiHpd(void);
     bool isHdmiUsed(void);
     bool isVMXCertification(void);
+    int  getHdmiSinkType(void);
+    void getHdmiEdidStatus(char* edidstatus);
+    void getHdmiDispCap(char* disp_cap);
+    void getHdmiDcCap(char* dc_cap);
+    void getHdmiDvCap(hdmi_data_t* data);
     void getCommonData(hdmi_data_t* data);
     void getHdmiData(hdmi_data_t* data);
     void setActiveDispMode(const char*value);
@@ -569,8 +577,6 @@ public:
     void setHdrStrategy(const char* type);
     int getHdrPriority(void);
     void setHdrPriority(const char* type);
-    void updateDisplayMode(char* mode) ;
-    void updateAttr(bool cvbsMode, output_mode_state state, const char* outputmode);
     int  updateDolbyVisionType(void);
     bool memcContrl(bool on);
 private:

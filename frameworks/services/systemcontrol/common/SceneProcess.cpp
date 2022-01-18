@@ -220,6 +220,26 @@ static const char* MODE_FRAMERATE_FIRST[] = {
     MODE_4K2K60HZ,
 };
 
+//for check hdr 4k support or not
+static const char* MODE_4K_LIST[] = {
+    MODE_4K2K60HZ,
+    MODE_4K2K50HZ,
+};
+
+//for check hdr non-4k support or not
+static const char* MODE_NON4K_LIST[] = {
+    MODE_1080P,
+    MODE_1080P50HZ,
+    MODE_1080I,
+    MODE_1080I50HZ,
+    MODE_720P,
+    MODE_720P50HZ,
+    MODE_576P,
+    MODE_480P,
+    MODE_576I,
+    MODE_480I,
+};
+
 //this is prior selected list  of 4k2k50hz, 4k2k60hz smpte50hz, smpte60hz
 static const char* COLOR_ATTRIBUTE_LIST1[] = {
     COLOR_YCBCR420_10BIT,
@@ -263,13 +283,180 @@ static const char* COLOR_ATTRIBUTE_LIST4[] = {
     COLOR_RGB_12BIT,
 };
 
+//this is prior selected list of HDR non 4k colorspace
+static const char* HDR_NON4K_COLOR_ATTRIBUTE_LIST[] = {
+    COLOR_YCBCR444_10BIT,
+    COLOR_YCBCR422_12BIT,
+    COLOR_YCBCR444_12BIT,
+};
+
+//this is prior selected list of HDR 4k colorspace(2160p60hz/2160p50hz)
+static const char* HDR_4K_COLOR_ATTRIBUTE_LIST[] = {
+    COLOR_YCBCR420_10BIT,
+    COLOR_YCBCR422_12BIT,
+};
+
 SceneProcess::SceneProcess()
     :mSceneLock(PTHREAD_MUTEX_INITIALIZER) {
     mpSysWrite  = new SysWrite();
+
+    mScene_Input_Info.state          = SCENE_STATE_INIT;
+    mScene_Input_Info.isbestpolicy   = true;
+    mScene_Input_Info.isDvEnable     = false;
+    mScene_Input_Info.isTvSupportHDR = true;
+    mScene_Input_Info.isTvSupportDv  = false;
+    mScene_Input_Info.hdr_priority   = DOLBY_VISION_PRIORITY;
+    mScene_Input_Info.hdr_policy     = HDR_POLICY_SINK;
+    strcpy(mScene_Input_Info.cur_displaymode, DEFAULT_HDMI_MODE);
+
+    mScene_Input_Info.hdmi_input_info.isSupport4K     = true;
+    mScene_Input_Info.hdmi_input_info.isSupport4K30Hz = true;
+    mScene_Input_Info.hdmi_input_info.isDeepColor     = true;
+    mScene_Input_Info.hdmi_input_info.isLowPowerMode  = false;
+    mScene_Input_Info.hdmi_input_info.isframeratepriority  = false;
+    mScene_Input_Info.hdmi_input_info.sinkType = SINK_TYPE_SINK;
+    strcpy(mScene_Input_Info.hdmi_input_info.edidParsing, "ok");
+    strcpy(mScene_Input_Info.hdmi_input_info.ubootenv_cvbsmode, "480cvbs");
+    strcpy(mScene_Input_Info.hdmi_input_info.ubootenv_colorattribute, DEFAULT_COLOR_FORMAT);
+
+    strcpy(mScene_Input_Info.dv_input_info.ubootenv_dv_type, "0");
 }
 
 SceneProcess::~SceneProcess() {
     delete mpSysWrite;
+}
+
+//update scene input info
+void SceneProcess::setSceneState(const scene_state state) {
+    SYS_LOGI("%s state:%d\n", __FUNCTION__, state);
+
+    mScene_Input_Info.state =  state;
+}
+
+void SceneProcess::setBestPolicy(const bool isEnable) {
+    SYS_LOGI("%s isEnable:%d\n", __FUNCTION__, isEnable);
+
+    mScene_Input_Info.isbestpolicy =  isEnable;
+}
+
+void SceneProcess::setDvEnable(const bool isEnable) {
+    SYS_LOGI("%s isEnable:%d\n", __FUNCTION__, isEnable);
+
+    mScene_Input_Info.isDvEnable =  isEnable;
+}
+
+void SceneProcess::setTvSupportHDR(const bool isEnable) {
+    SYS_LOGI("%s isEnable:%d\n", __FUNCTION__, isEnable);
+
+    mScene_Input_Info.isTvSupportHDR =  isEnable;
+}
+
+void SceneProcess::setTvSupportDV(const bool isEnable) {
+    SYS_LOGI("%s isEnable:%d\n", __FUNCTION__, isEnable);
+
+    mScene_Input_Info.isTvSupportDv =  isEnable;
+}
+
+void SceneProcess::setHDRPriority(const hdr_priority_e value) {
+    SYS_LOGI("%s value:%d\n", __FUNCTION__, value);
+
+    mScene_Input_Info.hdr_priority =  value;
+}
+
+void SceneProcess::setHDRPolicy(const hdr_policy_e value) {
+    SYS_LOGI("%s value:%d\n", __FUNCTION__, value);
+
+    mScene_Input_Info.hdr_policy =  value;
+}
+
+void SceneProcess::setCurrtenDisplayMode(const char* value) {
+    SYS_LOGI("%s value:%s\n", __FUNCTION__, value);
+
+    strcpy(mScene_Input_Info.cur_displaymode, value);
+}
+
+void SceneProcess::setIsSupport4K(const bool isEnable) {
+    SYS_LOGI("%s isEnable:%d\n", __FUNCTION__, isEnable);
+
+    mScene_Input_Info.hdmi_input_info.isSupport4K =  isEnable;
+}
+
+void SceneProcess::setIsSupport4K30(const bool isEnable) {
+    SYS_LOGI("%s isEnable:%d\n", __FUNCTION__, isEnable);
+
+    mScene_Input_Info.hdmi_input_info.isSupport4K30Hz =  isEnable;
+}
+
+void SceneProcess::setIsDeepColor(const bool isEnable) {
+    SYS_LOGI("%s isEnable:%d\n", __FUNCTION__, isEnable);
+
+    mScene_Input_Info.hdmi_input_info.isDeepColor =  isEnable;
+}
+
+void SceneProcess::setIsLowPowerMode(const bool isEnable) {
+    SYS_LOGI("%s isEnable:%d\n", __FUNCTION__, isEnable);
+
+    mScene_Input_Info.hdmi_input_info.isLowPowerMode =  isEnable;
+}
+
+void SceneProcess::setFrameRatePriority(const bool isEnable) {
+    SYS_LOGI("%s isEnable:%d\n", __FUNCTION__, isEnable);
+
+    mScene_Input_Info.hdmi_input_info.isframeratepriority =  isEnable;
+}
+
+void SceneProcess::setSinkType(const int value) {
+    SYS_LOGI("%s value:%d\n", __FUNCTION__, value);
+
+    mScene_Input_Info.hdmi_input_info.sinkType =  value;
+}
+
+void SceneProcess::setdccap(const char* value) {
+    SYS_LOGI("%s value:%s\n", __FUNCTION__, value);
+
+    strcpy(mScene_Input_Info.hdmi_input_info.dc_cap, value);
+}
+
+void SceneProcess::setdispcap(const char* value) {
+    SYS_LOGI("%s value:%s\n", __FUNCTION__, value);
+
+    strcpy(mScene_Input_Info.hdmi_input_info.disp_cap, value);
+}
+
+void SceneProcess::setcvbsmode(const char* value) {
+    SYS_LOGI("%s value:%s\n", __FUNCTION__, value);
+
+    strcpy(mScene_Input_Info.hdmi_input_info.ubootenv_cvbsmode, value);
+}
+
+void SceneProcess::setcolorattribute(const char* value) {
+    SYS_LOGI("%s value:%s\n", __FUNCTION__, value);
+
+    strcpy(mScene_Input_Info.hdmi_input_info.ubootenv_colorattribute, value);
+}
+
+void SceneProcess::setdvtype(const char* value) {
+    SYS_LOGI("%s value:%s\n", __FUNCTION__, value);
+
+    strcpy(mScene_Input_Info.dv_input_info.ubootenv_dv_type, value);
+}
+
+void SceneProcess::setdvcap(const char* value) {
+    SYS_LOGI("%s value:%s\n", __FUNCTION__, value);
+
+    strcpy(mScene_Input_Info.dv_input_info.dv_cap, value);
+}
+
+void SceneProcess::setdvdisplaymode(const char* value) {
+    SYS_LOGI("%s value:%s\n", __FUNCTION__, value);
+
+    strcpy(mScene_Input_Info.dv_input_info.dv_displaymode, value);
+}
+
+void SceneProcess::setdvdeepcolor(const char* value) {
+    SYS_LOGI("%s value:%s\n", __FUNCTION__, value);
+
+    strcpy(mScene_Input_Info.dv_input_info.dv_deepcolor, value);
 }
 
 int SceneProcess::updateDolbyVisionType(void) {
@@ -334,6 +521,11 @@ void SceneProcess::updateDolbyVisionAttr(int dolbyvision_type, char * dv_attr) {
     }
 
     SYS_LOGI("dv_type :%d dv_attr:%s", dv_type, dv_attr);
+}
+
+bool SceneProcess::isHDRPreference() {
+    return mScene_Input_Info.isTvSupportHDR
+        && ((mScene_Input_Info.hdr_priority == DOLBY_VISION_PRIORITY) || (mScene_Input_Info.hdr_priority == HDR10_PRIORITY));
 }
 
 bool SceneProcess::isDolbyVisionPreference() {
@@ -643,6 +835,11 @@ void SceneProcess::updateHdmiDeepColor(scene_state state, const char* outputmode
 
 void SceneProcess::UpdateSceneInputInfo(scene_input_info_t* input_info) {
 
+    if (!input_info) {
+        SYS_LOGE("input_info is NULL\n");
+        return;
+    }
+
     memcpy(&mScene_Input_Info, input_info, sizeof(scene_input_info_t));
 
     //common info
@@ -651,9 +848,10 @@ void SceneProcess::UpdateSceneInputInfo(scene_input_info_t* input_info) {
         mScene_Input_Info.isbestpolicy,
         mScene_Input_Info.cur_displaymode);
 
-    SYS_LOGI("isDvEnable:%d, isTvSupportDv:%d, hdr_priority:%d, hdr_policy:%d\n",
+    SYS_LOGI("isDvEnable:%d, isTvSupportDv:%d, isTvSupportHDR:%d, hdr_priority:%d, hdr_policy:%d\n",
         mScene_Input_Info.isDvEnable,
         mScene_Input_Info.isTvSupportDv,
+        mScene_Input_Info.isTvSupportHDR,
         mScene_Input_Info.hdr_priority,
         mScene_Input_Info.hdr_policy);
 
@@ -718,6 +916,139 @@ void SceneProcess::DolbyVisionSceneProcess(scene_output_info_t* output_info) {
     output_info->dv_type = mScene_output_info.dv_type;
 }
 
+//check 4k50/4k60 hdr support or not
+bool SceneProcess::isSupport4KHDR(scene_output_info_t *output_info) {
+    if (!output_info) {
+        SYS_LOGE("output_info is NULL\n");
+        return false;
+    } else {
+        const char **colorList = NULL;
+        int colorList_length   = 0;
+
+        colorList        = HDR_4K_COLOR_ATTRIBUTE_LIST;
+        colorList_length = ARRAY_SIZE(HDR_4K_COLOR_ATTRIBUTE_LIST);
+
+        for (int i = 0; i < colorList_length; i++) {
+            if (strstr(mScene_Input_Info.hdmi_input_info.dc_cap, colorList[i]) != NULL) {
+                const char **resolutionList = NULL;
+                int resolutionList_length   = 0;
+                resolutionList        = MODE_4K_LIST;
+                resolutionList_length = ARRAY_SIZE(MODE_4K_LIST);
+                for (int j = 0; j < resolutionList_length; j++) {
+                    if (strstr(mScene_Input_Info.hdmi_input_info.disp_cap, resolutionList[j]) != NULL) {
+                        if (isModeSupportDeepColorAttr(resolutionList[j], colorList[i])) {
+                           SYS_LOGI("%s mode:[%s], deep color:[%s]\n", __FUNCTION__, resolutionList[j], colorList[i]);
+                           strcpy(output_info->final_deepcolor, colorList[i]);
+                           strcpy(output_info->final_displaymode, resolutionList[j]);
+                           return true;
+                        }
+                   }
+               }
+            }
+        }
+
+        SYS_LOGI("%s 4k hdr not support\n", __FUNCTION__);
+        return false;
+    }
+}
+
+//check non 4k hdr support or not
+bool SceneProcess::isSupportnon4KHDR(scene_output_info_t *output_info) {
+    if (!output_info) {
+        SYS_LOGE("output_info is NULL\n");
+        return false;
+    } else {
+        const char **colorList = NULL;
+        int colorList_length   = 0;
+
+        colorList        = HDR_NON4K_COLOR_ATTRIBUTE_LIST;
+        colorList_length = ARRAY_SIZE(HDR_NON4K_COLOR_ATTRIBUTE_LIST);
+
+        for (int i = 0; i < colorList_length; i++) {
+            if (strstr(mScene_Input_Info.hdmi_input_info.dc_cap, colorList[i]) != NULL) {
+                const char **resolutionList = NULL;
+                int resolutionList_length   = 0;
+
+                resolutionList        = MODE_NON4K_LIST;
+                resolutionList_length = ARRAY_SIZE(MODE_NON4K_LIST);
+                for (int j = 0; j < resolutionList_length; j++) {
+                    if (strstr(mScene_Input_Info.hdmi_input_info.disp_cap, resolutionList[j]) != NULL) {
+                        if (isModeSupportDeepColorAttr(resolutionList[j], colorList[i])) {
+                           SYS_LOGI("%s mode:[%s], deep color:[%s]\n", __FUNCTION__, resolutionList[j], colorList[i]);
+                           strcpy(output_info->final_deepcolor, colorList[i]);
+                           strcpy(output_info->final_displaymode, resolutionList[j]);
+                           return true;
+                        }
+                   }
+               }
+            }
+        }
+
+        SYS_LOGI("%s non 4k hdr not support\n", __FUNCTION__);
+        return false;
+    }
+}
+
+void SceneProcess::HDRSceneProcess(scene_output_info_t* output_info) {
+     if (IsBestPolicy()) {
+         bool find = false;
+
+         scene_output_info_t   Scene_output_info;
+         memset(&Scene_output_info, 0, sizeof(scene_output_info_t));
+
+         if (IsSupport4K() == true) {
+             find = isSupport4KHDR(&Scene_output_info);
+         }
+
+         if (find) {
+             strcpy(mScene_output_info.final_deepcolor, Scene_output_info.final_deepcolor);
+             strcpy(mScene_output_info.final_displaymode, Scene_output_info.final_displaymode);
+         } else {
+             find = isSupportnon4KHDR(&Scene_output_info);
+             if (find) {
+                 strcpy(mScene_output_info.final_deepcolor, Scene_output_info.final_deepcolor);
+                 strcpy(mScene_output_info.final_displaymode, Scene_output_info.final_displaymode);
+             } else {
+                 SYS_LOGE("%s not find hdr support\n", __FUNCTION__);
+             }
+         }
+     } else {
+         if ((mScene_Input_Info.state == SCENE_STATE_INIT) ||
+             (mScene_Input_Info.state == SCENE_STATE_POWER)) {
+             //1. choose resolution, frame rate
+             char outputmode[MODE_LEN] = {0};
+
+             if (SINK_TYPE_NONE != mScene_Input_Info.hdmi_input_info.sinkType) {
+                 getHdmiOutputMode(outputmode);
+             } else {
+                 strcpy(outputmode, mScene_Input_Info.hdmi_input_info.ubootenv_cvbsmode);
+             }
+
+             if (strlen(outputmode) == 0) {
+                 strcpy(outputmode, DEFAULT_HDMI_MODE);
+             }
+
+             strcpy(mScene_output_info.final_displaymode, outputmode);
+             SYS_LOGI("%s final_displaymode:%s\n", __FUNCTION__, mScene_output_info.final_displaymode);
+         } else if (mScene_Input_Info.state == SCENE_STATE_SWITCH) {
+             //1. doesn't read hdmi info for ui switch scene
+             //   choose resolution, frame rate
+             strcpy(mScene_output_info.final_displaymode, mScene_Input_Info.cur_displaymode);
+             SYS_LOGI("%s final_displaymode:%s\n", __FUNCTION__, mScene_output_info.final_displaymode);
+         }
+
+         //2. choose color format, bit-depth
+         char colorAttribute[MODE_LEN] = {0};
+         updateHdmiDeepColor(mScene_Input_Info.state, mScene_output_info.final_displaymode, colorAttribute);
+         strcpy(mScene_output_info.final_deepcolor, colorAttribute);
+         SYS_LOGI("%s final_deepcolor = %s\n", __FUNCTION__, mScene_output_info.final_deepcolor);
+    }
+
+     //3 return output info
+     strcpy(output_info->final_displaymode, mScene_output_info.final_displaymode);
+     strcpy(output_info->final_deepcolor, mScene_output_info.final_deepcolor);
+}
+
 void SceneProcess::SDRSceneProcess(scene_output_info_t* output_info) {
     if ((mScene_Input_Info.state == SCENE_STATE_INIT) ||
         (mScene_Input_Info.state == SCENE_STATE_POWER)) {
@@ -753,14 +1084,11 @@ void SceneProcess::SDRSceneProcess(scene_output_info_t* output_info) {
     strcpy(output_info->final_deepcolor, mScene_output_info.final_deepcolor);
 }
 
-void SceneProcess::Process(scene_input_info_t* input_info, scene_output_info_t* output_info) {
+void SceneProcess::Process(scene_output_info_t* output_info) {
     pthread_mutex_lock(&mSceneLock);
 
     scene_output_info_t   Scene_output_info;
     memset(&Scene_output_info, 0, sizeof(scene_output_info_t));
-
-    //1 update scene input info
-    UpdateSceneInputInfo(input_info);
 
     //2. dolby vision scene process
     //   only for tv support dv and box enable dv
@@ -780,10 +1108,24 @@ void SceneProcess::Process(scene_input_info_t* input_info, scene_output_info_t* 
         strcpy(output_info->final_displaymode, Scene_output_info.final_displaymode);
         strcpy(output_info->final_deepcolor, Scene_output_info.final_deepcolor);
         output_info->dv_type = Scene_output_info.dv_type;
+    } else if (isHDRPreference()) {
+        HDRSceneProcess(&Scene_output_info);
+        strcpy(output_info->final_displaymode, Scene_output_info.final_displaymode);
+        strcpy(output_info->final_deepcolor, Scene_output_info.final_deepcolor);
     } else {
         SDRSceneProcess(&Scene_output_info);
         strcpy(output_info->final_displaymode, Scene_output_info.final_displaymode);
         strcpy(output_info->final_deepcolor, Scene_output_info.final_deepcolor);
+    }
+
+    //not find outputmode and use default mode
+    if (strlen(output_info->final_displaymode) == 0) {
+        strcpy(output_info->final_displaymode, DEFAULT_HDMI_MODE);
+    }
+
+    //not find color space and use default mode
+    if (!strstr(output_info->final_deepcolor, "bit")) {
+        strcpy(output_info->final_deepcolor, DEFAULT_COLOR_FORMAT);
     }
 
     SYS_LOGI("final_displaymode:%s, final_deepcolor:%s, dv_type:%d\n",
