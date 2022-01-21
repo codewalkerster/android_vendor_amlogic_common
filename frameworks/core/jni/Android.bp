@@ -80,17 +80,17 @@ cc_library_shared {
     ],
 
     include_dirs: [
-        "frameworks/av/include",
-        "frameworks/av/media/libmediametrics/include",
         "hardware/amlogic/screen_source",
         "frameworks/av/media/libaudioclient/aidl",
     ],
 
     header_libs: [
+        "av-headers",
         "jni_headers",
         "libaudioclient_headers",
         "libgui_headers",
         "libmedia_headers",
+        "libmediametrics_headers",
         "gl_headers",
     ],
 
