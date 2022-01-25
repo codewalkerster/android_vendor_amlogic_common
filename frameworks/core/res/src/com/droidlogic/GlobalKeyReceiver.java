@@ -31,6 +31,7 @@ import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.os.SystemProperties;
 
 import com.droidlogic.app.UsbCameraManager;
 import java.util.List;
@@ -149,7 +150,11 @@ public class GlobalKeyReceiver extends BroadcastReceiver {
 
                 case KeyEvent.KEYCODE_SETTINGS:
                     if (keyAction == KeyEvent.ACTION_UP) {
-                        intent1.setComponent(new ComponentName("com.android.tv.settings", "com.android.tv.settings.MainSettings"));
+                        if (SystemProperties.get("sys.vendor.global.settingskey").equals("dashboard")) {
+                            intent1.setComponent(new ComponentName("com.google.android.apps.tv.launcherx", "com.google.android.apps.tv.launcherx.dashboard.DashboardActivity"));
+                        } else {
+                            intent1.setComponent(new ComponentName("com.android.tv.settings", "com.android.tv.settings.MainSettings"));
+                        }
                     }
                     break;
                 case KeyEvent.KEYCODE_F6:
