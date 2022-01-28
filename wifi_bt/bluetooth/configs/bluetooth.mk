@@ -89,6 +89,8 @@ $(call inherit-product, vendor/amlogic/common/wifi_bt/bluetooth/realtek/rtkbt/rt
 #realtek add end
 PRODUCT_PACKAGES += libbt-vendor
 
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/bluetooth/configs/init_rc/init.amlogic.bluetooth_rtk.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/hw/init.amlogic.bluetooth.rc
+
 #Realtek add start
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.bluetooth.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.bluetooth.xml \
@@ -117,7 +119,7 @@ ifeq ($(BLUETOOTH_MODULE), BCMBT)
 $(call inherit-product, vendor/amlogic/common/wifi_bt/bluetooth/broadcom/bcmbt.mk )
 #load bcm mk end
 ifeq ($(BLUETOOTH_INF), USB)
-PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/bluetooth/configs/init_rc/init.amlogic.bluetooth.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/hw/init.amlogic.bluetooth.rc
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/bluetooth/configs/init_rc/init.amlogic.bluetooth_bcm.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/hw/init.amlogic.bluetooth.rc
 endif
 
 
@@ -132,6 +134,13 @@ ifeq ($(BLUETOOTH_MODULE), MTKBT)
 $(call inherit-product, vendor/amlogic/common/wifi_bt/bluetooth/mtk/mtkbt/mtkbt.mk )
 #load mtk mk end
 
+ifeq ($(BLUETOOTH_INF), USB)
+$(shell sed -i "1a\    insmod \/vendor\/lib/modules\/btmtk_usb.ko" vendor/amlogic/common/wifi_bt/bluetooth/configs/init_rc/init.amlogic.bluetooth.rc)
+else
+$(shell sed -i "1a\    insmod \/vendor\/lib/modules\/btmtksdio.ko" vendor/amlogic/common/wifi_bt/bluetooth/configs/init_rc/init.amlogic.bluetooth.rc)
+endif
+
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/bluetooth/configs/init_rc/init.amlogic.bluetooth_mtk.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/hw/init.amlogic.bluetooth.rc
 
 PRODUCT_PACKAGES += libbt-vendor \
                     libbluetooth_mtkbt
@@ -168,7 +177,7 @@ $(call inherit-product, vendor/amlogic/common/wifi_bt/bluetooth/broadcom/bcmbt.m
 $(call inherit-product, vendor/amlogic/common/wifi_bt/bluetooth/qualcomm/qcabt.mk )
 $(call inherit-product, vendor/amlogic/common/wifi_bt/bluetooth/amlogic/amlbt.mk )
 
-PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/bluetooth/configs/init_rc/init.amlogic.amlbt.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/hw/init.amlogic.bluetooth.rc
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/bluetooth/configs/init_rc/init.amlogic.bluetooth_common.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/hw/init.amlogic.bluetooth.rc
 
 
 PRODUCT_PACKAGES += \

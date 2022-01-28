@@ -202,6 +202,8 @@ bool VendorInterface::Open(InitializeCompleteCallback initialize_complete_cb,
   if(strstr(bt_vendor_module, "multibt") != NULL) {
 	memset(bt_vendor_name_temp,'\0',sizeof(bt_vendor_name_temp));
 	memset(bt_vendor_name,'\0',sizeof(bt_vendor_name));
+	btvendor_hal.get_config();
+
 	property_get("persist.vendor.libbt_vendor", bt_vendor_name_temp, VENDOR_LIBRARY_NAME);
 	ALOGE("%s ,get vendor lib: %s", __func__, bt_vendor_name_temp);
 	if (strstr(bt_vendor_name_temp,"Multi") == NULL)
@@ -218,6 +220,7 @@ bool VendorInterface::Open(InitializeCompleteCallback initialize_complete_cb,
 		}
 	}
 
+	btvendor_hal.set_config();
 	if (strstr(bt_vendor_name_temp,"Multi"))
 	{
 		sprintf(bt_vendor_name, "%s.so", strncpy(dev_type, bt_vendor_name_temp, 16));
