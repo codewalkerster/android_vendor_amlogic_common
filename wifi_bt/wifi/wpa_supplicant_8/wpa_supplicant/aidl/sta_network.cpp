@@ -855,6 +855,14 @@ ndk::ScopedAStatus StaNetwork::getBssid(
 		&StaNetwork::enableSaePkOnlyModeInternal, in_enable);
 }
 
+::ndk::ScopedAStatus StaNetwork::setRoamingConsortiumSelection(
+	const std::vector<uint8_t>& in_selectedRcoi)
+{
+	return validateAndCall(
+		this, SupplicantStatusCode::FAILURE_NETWORK_INVALID,
+		&StaNetwork::setRoamingConsortiumSelectionInternal, in_selectedRcoi);
+}
+
 std::pair<uint32_t, ndk::ScopedAStatus> StaNetwork::getIdInternal()
 {
 	return {network_id_, ndk::ScopedAStatus::ok()};
@@ -2071,6 +2079,15 @@ ndk::ScopedAStatus StaNetwork::setPmkCacheInternal(const std::vector<uint8_t>& s
 	ss.write((char *) serializedEntry.data(), std::streamsize(serializedEntry.size()));
 	misc_utils::deserializePmkCacheEntry(ss, new_entry);
 	new_entry->network_ctx = wpa_ssid;
+
+	// If there is an entry has a later expiration, ignore this one.
+	struct rsn_pmksa_cache_entry *existing_entry = wpa_sm_pmksa_cache_get(
+		wpa_s->wpa, new_entry->aa, NULL, NULL, new_entry->akmp);
+	if (NULL != existing_entry &&
+		existing_entry->expiration >= new_entry->expiration) {
+		return ndk::ScopedAStatus::ok();
+	}
+
 	wpa_sm_pmksa_cache_add_entry(wpa_s->wpa, new_entry);
 
 	return ndk::ScopedAStatus::ok();
@@ -2174,6 +2191,26 @@ StaNetwork::getPairwiseCipherInternal()
 	uint32_t pairwise_cipher_mask = wpa_ssid->pairwise_cipher & kAllowedPairwisewCipherMask;
 	return {static_cast<PairwiseCipherMask>(pairwise_cipher_mask),
 		ndk::ScopedAStatus::ok()};
+}
+
+ndk::ScopedAStatus StaNetwork::setRoamingConsortiumSelectionInternal(
+	const std::vector<uint8_t> &selectedRcoi)
+{
+	struct wpa_ssid *wpa_ssid = retrieveNetworkPtr();
+	if (wpa_ssid == NULL) {
+		return createStatus(SupplicantStatusCode::FAILURE_NETWORK_INVALID);
+	}
+
+	if (setByteArrayFieldAndResetState(
+		selectedRcoi.data(), selectedRcoi.size(),
+		&(wpa_ssid->roaming_consortium_selection),
+		&(wpa_ssid->roaming_consortium_selection_len),
+		"roaming_consortium_selection")) {
+		return createStatus(SupplicantStatusCode::FAILURE_UNKNOWN);
+	}
+
+	resetInternalStateAfterParamsUpdate();
+	return ndk::ScopedAStatus::ok();
 }
 
 /**

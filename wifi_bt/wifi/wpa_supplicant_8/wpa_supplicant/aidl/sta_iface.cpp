@@ -734,7 +734,7 @@ bool StaIface::isValid()
 {
 	return validateAndCall(
 		this, SupplicantStatusCode::FAILURE_IFACE_INVALID,
-		&StaIface::generateDppBootstrapInfoForResponderInternal, _aidl_return,
+		&StaIface::generateDppBootstrapInfoForResponderInternal, _aidl_return, 
 		in_macAddress, in_deviceInfo, in_curve);
 }
 
@@ -768,6 +768,31 @@ bool StaIface::isValid()
 	return validateAndCall(
 		this, SupplicantStatusCode::FAILURE_UNKNOWN,
 		&StaIface::setMboCellularDataStatusInternal, in_available);
+}
+
+::ndk::ScopedAStatus StaIface::setQosPolicyFeatureEnabled(
+	bool in_enable)
+{
+	return validateAndCall(
+		this, SupplicantStatusCode::FAILURE_UNKNOWN,
+		&StaIface::setQosPolicyFeatureEnabledInternal, in_enable);
+}
+
+::ndk::ScopedAStatus StaIface::sendQosPolicyResponse(
+	bool in_morePolicies,
+	const std::vector<QosPolicyStatus>& in_qosPolicyStatusList)
+{
+	return validateAndCall(
+		this, SupplicantStatusCode::FAILURE_UNKNOWN,
+		&StaIface::sendQosPolicyResponseInternal, in_morePolicies,
+		in_qosPolicyStatusList);
+}
+
+::ndk::ScopedAStatus StaIface::removeAllQosPolicies()
+{
+	return validateAndCall(
+		this, SupplicantStatusCode::FAILURE_UNKNOWN,
+		&StaIface::removeAllQosPoliciesInternal);
 }
 
 std::pair<std::string, ndk::ScopedAStatus> StaIface::getNameInternal()
@@ -1508,7 +1533,7 @@ ndk::ScopedAStatus StaIface::stopDppInitiatorInternal()
 
 std::pair<DppResponderBootstrapInfo, ndk::ScopedAStatus>
 StaIface::generateDppBootstrapInfoForResponderInternal(
-	const std::vector<uint8_t> &mac_address,
+	const std::vector<uint8_t> &mac_address, 
 	const std::string& device_info, DppCurve curve)
 {
 #ifdef CONFIG_DPP
@@ -1630,7 +1655,7 @@ StaIface::getConnectionCapabilitiesInternal()
 			capa.technology = WifiTechnology::LEGACY;
 			if (wpas_freq_to_band(wpa_s->assoc_freq) == BAND_2_4_GHZ) {
 				capa.legacyMode = (wpa_s->connection_11b_only) ? LegacyMode::B_MODE
-						: LegacyMode::G_MODE;
+						: LegacyMode::G_MODE; 
 			} else {
 				capa.legacyMode = LegacyMode::A_MODE;
 			}
@@ -1688,6 +1713,8 @@ StaIface::getWpaDriverCapabilitiesInternal()
 #endif
 	mask |= static_cast<uint32_t>(WpaDriverCapabilitiesMask::WFD_R2);
 
+	mask |= static_cast<uint32_t>(WpaDriverCapabilitiesMask::TRUST_ON_FIRST_USE);
+
 	wpa_printf(MSG_DEBUG, "Driver capability mask: 0x%x", mask);
 
 	return {static_cast<WpaDriverCapabilitiesMask>(mask),
@@ -1738,6 +1765,22 @@ StaIface::getKeyMgmtCapabilitiesInternal()
 
 	return {convertWpaKeyMgmtCapabilitiesToAidl(wpa_s, &capa),
 		ndk::ScopedAStatus::ok()};
+}
+
+ndk::ScopedAStatus StaIface::setQosPolicyFeatureEnabledInternal(bool enable)
+{
+	return ndk::ScopedAStatus::ok();
+}
+
+ndk::ScopedAStatus StaIface::sendQosPolicyResponseInternal(
+	bool more_policies, const std::vector<QosPolicyStatus>& qos_policy_status_list)
+{
+	return ndk::ScopedAStatus::ok();
+}
+
+ndk::ScopedAStatus StaIface::removeAllQosPoliciesInternal()
+{
+	return ndk::ScopedAStatus::ok();
 }
 
 /**

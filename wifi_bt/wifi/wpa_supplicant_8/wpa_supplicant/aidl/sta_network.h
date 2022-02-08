@@ -56,7 +56,7 @@ public:
 	bool isValid();
 
 	// Aidl methods exposed.
-    ::ndk::ScopedAStatus getId(int32_t* _aidl_return) override;
+  	::ndk::ScopedAStatus getId(int32_t* _aidl_return) override;
 	::ndk::ScopedAStatus getInterfaceName(std::string* _aidl_return) override;
 	::ndk::ScopedAStatus getType(IfaceType* _aidl_return) override;
 	::ndk::ScopedAStatus registerCallback(
@@ -169,6 +169,8 @@ public:
 	::ndk::ScopedAStatus setEapErp(bool in_enable) override;
 	::ndk::ScopedAStatus setSaeH2eMode(SaeH2eMode in_mode) override;
 	::ndk::ScopedAStatus enableSaePkOnlyMode(bool in_enable) override;
+	::ndk::ScopedAStatus setRoamingConsortiumSelection(
+		const std::vector<uint8_t>& in_selectedRcoi) override;
 
 private:
 	// Corresponding worker functions for the AIDL methods.
@@ -295,6 +297,8 @@ private:
 	std::pair<std::vector<uint8_t>, ndk::ScopedAStatus> getWapiPskInternal();
 	ndk::ScopedAStatus setSaeH2eModeInternal(SaeH2eMode mode);
 	ndk::ScopedAStatus enableSaePkOnlyModeInternal(bool enable);
+	ndk::ScopedAStatus setRoamingConsortiumSelectionInternal(
+		const std::vector<uint8_t>& selectedRcoi);
 
 	struct wpa_ssid* retrieveNetworkPtr();
 	struct wpa_supplicant* retrieveIfacePtr();

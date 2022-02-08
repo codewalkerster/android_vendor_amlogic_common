@@ -46,7 +46,7 @@ public:
 	bool isValid();
 
 	// Aidl methods exposed.
-    ::ndk::ScopedAStatus addP2pInterface(
+  	::ndk::ScopedAStatus addP2pInterface(
 		  const std::string& in_name,
 		  std::shared_ptr<ISupplicantP2pIface>* _aidl_return) override;
 	::ndk::ScopedAStatus addStaInterface(
