@@ -268,6 +268,7 @@ public class SubtitleManager {
     private native void nativeSetSubType(int type);
     private native void nativeSetPlayerType(int type);
     private native void nativeSetSctePid(int pid);
+    private native void nativeSetSubPid(int pid, int onid, int tsid);
     private native int nativeGetSubType();
     private native String nativeGetSubLanguage(int idx);
     private native String nativeGetCurName();
@@ -661,10 +662,12 @@ public class SubtitleManager {
             mUI.stopTtxLoading();
             mUI.setDisplayFlag(false);
          });
-         mHidlCallback = null;
-         mHidlFallbackDisplay = null;
-         mChalIdList.clear();
-         mThreadStop = true;
+         synchronized(SubtitleManager.this) {
+             mHidlCallback = null;
+             mHidlFallbackDisplay = null;
+             mChalIdList.clear();
+             mThreadStop = true;
+         }
          return true;
     }
 
@@ -822,7 +825,7 @@ public class SubtitleManager {
     public boolean open(String path, int ioType) {
         boolean r = false;
         //Log.d(TAG, "[open] path:" + path, new Throwable());
-
+        mInterSubTotal = -1;//need clear, or else may be used the old vlaue which cause outofindex error
         r = nativeOpen(path, ioType);
 
         LOGI("[open] innerTotal:" + innerTotal() +", mIOType:" + mIOType);
@@ -985,7 +988,12 @@ public class SubtitleManager {
     public int total() {
         int extTotal = 0;
         if (mDisplayType == SUBTITLE_CC_JASON) {
-            return mChalIdList.size();
+            if (mChalIdList.size() > 0) {
+                LOGI("[total] SUBTITLE_CC_JASON type, mChalIdList size:" + mChalIdList.size());
+                return mChalIdList.size();
+            } else {
+                LOGI("[total] SUBTITLE_CC_JASON type, mChalIdList.size() <=0");
+            }
         }
 
         if (mSubtitleUtils != null) {
@@ -1097,6 +1105,11 @@ public class SubtitleManager {
     public void setSubPid(int pid) {
         nativeSetSctePid(pid);
     }
+
+    public void setSubPid(int pid, int onid, int tsid) {
+        nativeSetSubPid(pid, onid, tsid);
+    }
+
     public int getSubTypeDetial() {
         return nativeGetSubTypeDetial();
     }
@@ -1302,9 +1315,17 @@ public class SubtitleManager {
                 }
 
                 //show subtitle
-                if (mMediaPlayer != null && mMediaPlayer.isPlaying() ) {
-                    pos = mMediaPlayer.getCurrentPosition() * 90;//convert to pts
-                    //LOGI("[runnable]showSub:" + pos);
+                try {
+                    if (mMediaPlayer != null && mMediaPlayer.isPlaying() ) {
+                        pos = mMediaPlayer.getCurrentPosition() * 90;//convert to pts
+                        //LOGI("[runnable]showSub:" + pos);
+                    }
+                } catch (IllegalStateException e) {
+                    Log.e(TAG, "Player has exception, exit loop:" + e);
+                    break;
+                } catch (IllegalArgumentException e) {
+                    Log.e(TAG, "Player has exception, exit loop:" + e);
+                    break;
                 }
 
                 if (!mThreadStop) {
@@ -1326,14 +1347,16 @@ public class SubtitleManager {
 
     private void notifySubtitleEvent(int data[], byte[] subdata, int type, int x, int y,
             int width , int height, int videoWidth, int videoHeight, boolean show) {
-        if (mHidlCallback != null) {
-            Log.d(TAG, "onSubtitleEvent: mHidlCallback=" + mHidlCallback);
-            mHidlCallback.onSubtitleEvent(type, data, subdata, x, y, width, height, videoWidth, videoHeight, show);
-        } else if (mHidlFallbackDisplay != null) {
-            Log.d(TAG, "onSubtitleEvent: mHidlFallbackDisplay=" + mHidlFallbackDisplay);
-            mHidlFallbackDisplay.onSubtitleEvent(type, data, subdata, x, y, width, height, videoWidth, videoHeight, show);
-        } else {
-            Log.e(TAG, "Cannot handle events!");
+        synchronized(SubtitleManager.this) {
+            if (mHidlCallback != null) {
+                Log.d(TAG, "onSubtitleEvent: mHidlCallback=" + mHidlCallback);
+                mHidlCallback.onSubtitleEvent(type, data, subdata, x, y, width, height, videoWidth, videoHeight, show);
+            } else if (mHidlFallbackDisplay != null) {
+                Log.d(TAG, "onSubtitleEvent: mHidlFallbackDisplay=" + mHidlFallbackDisplay);
+                mHidlFallbackDisplay.onSubtitleEvent(type, data, subdata, x, y, width, height, videoWidth, videoHeight, show);
+            } else {
+                Log.e(TAG, "Cannot handle events!");
+            }
         }
     }
 

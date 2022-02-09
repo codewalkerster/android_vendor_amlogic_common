@@ -135,7 +135,8 @@ class SubtitleViewAdaptor {
 
         mTextView.setVisibility(View.INVISIBLE);
         mImageView.setVisibility(View.INVISIBLE);
-        mCcSutbitlteView.hide();
+        mCcSutbitlteView.setVisibility(View.INVISIBLE);
+        //mCcSutbitlteView.hide();
 
         mDisplay = mWindowManager.getDefaultDisplay();
         mDisplayBoundWidth = mDisplay.getWidth();
@@ -214,7 +215,7 @@ class SubtitleViewAdaptor {
             return;
         }
         if (View.VISIBLE == mCcSutbitlteView.getVisibility()) {
-            mCcSutbitlteView.setVisible(false);
+            mCcSutbitlteView.setVisibility(View.INVISIBLE);
         }
         if (View.VISIBLE == mTextView.getVisibility()) {
             mTextView.setVisibility(View.INVISIBLE);
@@ -258,7 +259,8 @@ class SubtitleViewAdaptor {
        }
 
         mTextView.setVisibility(View.VISIBLE);
-        mCcSutbitlteView.hide();
+        //mCcSutbitlteView.hide();
+        mCcSutbitlteView.setVisibility(View.INVISIBLE);
         text = text.replace("\\N", "\n");
         Pattern pattern1 = Pattern.compile("(?<=\\{)[^\\}]+");
         Matcher m = pattern1.matcher(text);
@@ -470,6 +472,7 @@ class SubtitleViewAdaptor {
         if (mDisableDisplay)
             return;
         mTextView.setVisibility(View.INVISIBLE);
+        mCcSutbitlteView.setVisibility(View.INVISIBLE);
 
         if (!showing) {
             Log.d(TAG, "hidden!");
