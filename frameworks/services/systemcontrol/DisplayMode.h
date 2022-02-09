@@ -152,9 +152,13 @@ using namespace android;
  * DISPLAY_DOLBY_VISION_ENABLE            |  "/sys/module/aml_media/parameters/dolby_vision_enable"
 */
 
+#define DOLBY_VISION_SUPPORT_INFO            "/sys/class/amdolby_vision/support_info"
 
-#define DOLBY_VISION_KO_DIR                 "/odm/lib/modules/dovi.ko"
-#define DOLBY_VISION_KO_DIR_TV              "/odm/lib/modules/dovi_tv.ko"
+#define DOLBY_VISION_KO_DIR0                 "/odm/lib/modules/dovi.ko"
+#define DOLBY_VISION_KO_DIR0_TV              "/odm/lib/modules/dovi_tv.ko"
+
+#define DOLBY_VISION_KO_DIR1                 "/oem/overlay/dovi.ko"
+#define DOLBY_VISION_KO_DIR1_TV              "/oem/overlay/dovi_tv.ko"
 
 #define DOLBY_VISION_SET_ENABLE_LL_RGB      3
 #define DOLBY_VISION_SET_ENABLE_LL_YUV      2
@@ -510,6 +514,8 @@ public:
     void getPosition(const char* curMode, int *position);
     bool getDisplayMode(char* mode);
     void setDisplayMode(std::string mode);
+    bool isExitDovi();
+    bool isLoadDovi();
     void setDolbyVisionSupport();
     void initDolbyVision(output_mode_state state);
     void setDolbyVisionEnable(int state, output_mode_state mode_state);

@@ -2655,17 +2655,45 @@ void DisplayMode::initDolbyVision(output_mode_state state) {
     setDolbyVisionEnable(dv_type,  state);
 }
 
-void DisplayMode::setDolbyVisionSupport() {
-    char dvFile[100] = {0};
-
+bool DisplayMode::isExitDovi() {
+    bool ret = false;
     if (DISPLAY_TYPE_TV == mDisplayType) {
-        strcpy(dvFile, DOLBY_VISION_KO_DIR_TV);
+        ret = ((access(DOLBY_VISION_KO_DIR0_TV, F_OK) == 0)
+                || (access(DOLBY_VISION_KO_DIR1_TV, F_OK) == 0));
     } else {
-        strcpy(dvFile, DOLBY_VISION_KO_DIR);
+        ret = ((access(DOLBY_VISION_KO_DIR0, F_OK) == 0)
+                || (access(DOLBY_VISION_KO_DIR1, F_OK) == 0));
     }
 
+    SYS_LOGI("ret:%d\n", ret);
+
+    return ret;
+}
+
+bool DisplayMode::isLoadDovi() {
+    /*bit0: 0-> efuse, 1->no efuse; */
+    /*bit1: 1->ko loaded*/
+    /*bit2: 1-> value updated*/
+    constexpr int dvSupported = ((1 << 0) | (1 << 1) | (1 <<2));
+    int supportInfo;
+    int len;
+    char dv_info[MODE_LEN] = {0};
+
+    len = pSysWrite->readSysfs(DOLBY_VISION_SUPPORT_INFO, dv_info);
+    if (len < 0) {
+        SYS_LOGI("read %s error: %s\n", DOLBY_VISION_SUPPORT_INFO, strerror(errno));
+        return false;
+    } else {
+        SYS_LOGI("dv_info:%s\n", dv_info);
+        sscanf(dv_info, "%d", &supportInfo);
+        return ((supportInfo & dvSupported) == dvSupported) ? true : false;
+    }
+}
+
+void DisplayMode::setDolbyVisionSupport() {
+
     if ((pSysWrite->getPropertyBoolean(PROP_DOLBY_VISION_FEATURE, false))
-            && (access(dvFile, 0) == 0)) {
+            && (isExitDovi() || isLoadDovi())) {
         pSysWrite->setProperty(PROP_SUPPORT_DOLBY_VISION, "true");
     } else {
         pSysWrite->setProperty(PROP_SUPPORT_DOLBY_VISION, "false");
