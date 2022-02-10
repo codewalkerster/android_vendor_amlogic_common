@@ -2563,9 +2563,6 @@ void DisplayMode::setHdrPriority(const char* type) {
         //2.2 save colorattribute
         saveDeepColorAttr(mHdmidata.final_displaymode, mHdmidata.final_deepcolor);
         setBootEnv(UBOOTENV_COLORATTRIBUTE, mHdmidata.final_deepcolor);
-
-        //3. disable uboot dolby vision
-        setBootEnv(UBOOTENV_DOLBYSTATUS, "0");
     } else if  (strstr(type, "1")) {
         //1. get final display mode and color format
         setBootEnv(UBOOTENV_ISBESTMODE, "true");
@@ -2583,9 +2580,6 @@ void DisplayMode::setHdrPriority(const char* type) {
         //2.2 save colorattribute
         saveDeepColorAttr(mHdmidata.final_displaymode, mHdmidata.final_deepcolor);
         setBootEnv(UBOOTENV_COLORATTRIBUTE, mHdmidata.final_deepcolor);
-
-        //3. disable uboot dolby vision
-        setBootEnv(UBOOTENV_DOLBYSTATUS, "0");
     } else {
         char hdr_policy[MODE_LEN] = {0};
         std::string dv_cap;
