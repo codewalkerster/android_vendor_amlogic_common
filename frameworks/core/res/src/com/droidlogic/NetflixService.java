@@ -117,7 +117,6 @@ public class NetflixService extends Service {
     private final class DeviceConfigListener implements DeviceConfig.OnPropertiesChangedListener {
         private static final String KEY_LIGHT_IDLE_AFTER_INACTIVE_TIMEOUT = "light_after_inactive_to";
         private static final String LIGHT_IDLE_AFTER_INACTIVE_TIMEOUT_VALUE = "3600000";
-        private static final String KEY_ACTIVITY_MANAGER_CONSTANTS = "activity_manager_constants";
 
         public DeviceConfigListener() {
             Log.d(TAG, "DeviceConfigListener");
@@ -152,10 +151,6 @@ public class NetflixService extends Service {
                     LIGHT_IDLE_AFTER_INACTIVE_TIMEOUT_VALUE, false);
             Log.d(TAG,
                 "set DEVICE_IDLE light_after_inactive_to = " + LIGHT_IDLE_AFTER_INACTIVE_TIMEOUT_VALUE + ":" + deviceConfigSetBoolean);
-
-            deviceConfigSetBoolean = Settings.Global.putString(mContext.getContentResolver(), KEY_ACTIVITY_MANAGER_CONSTANTS,
-                                                               "service_restart_duration=15000,service_min_restart_time_between=20000");
-            Log.d(TAG, "set service_restart_duration=15000,service_min_restart_time_between=20000 " + deviceConfigSetBoolean);
         }
     }
 
