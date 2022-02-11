@@ -85,11 +85,6 @@
 #define MODE_PAL_N                      "pal_n"
 #define MODE_NTSC_M                     "ntsc_m"
 
-#define DEFAULT_COLOR_FORMAT_4K         "420,8bit"
-#define DEFAULT_COLOR_FORMAT            "444,8bit"
-
-#define DEFAULT_HDMI_MODE               "480p60hz"
-
 
 #define COLOR_YCBCR444_12BIT             "444,12bit"
 #define COLOR_YCBCR444_10BIT             "444,10bit"
@@ -864,8 +859,10 @@ void SceneProcess::getHdmiColorAttribute(const char* outputmode, char* colorAttr
         getBestHdmiDeepColorAttr(outputmode,  colorAttribute);
     }
 
-    //if colorAttr is null above steps, will defines a initial value to it
-    if (!strstr(colorAttribute, "bit")) {
+    //1.if colorAttr is null above steps, will defines a initial value to it
+    //2.edid_parsing ng,will defines a initial value to it
+    if (!strstr(colorAttribute, "bit")
+        || strcmp(mScene_Input_Info.hdmi_input_info.edidParsing, "ok")) {
         strcpy(colorAttribute, DEFAULT_COLOR_FORMAT);
     }
 

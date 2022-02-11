@@ -593,14 +593,14 @@ void DisplayMode::setSourceDisplay(output_mode_state state) {
         //set avmute
         pSysWrite->writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "1");
         //set default color format
-        DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDMI_COLOR_ATTR, COLOR_RGB_8BIT);
+        DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDMI_COLOR_ATTR, DEFAULT_COLOR_FORMAT);
         //set default resolution
-        setDisplayMode(DEFAULT_OUTPUT_MODE);
+        setDisplayMode(DEFAULT_HDMI_MODE);
 
         //update display position
         int position[4] = { 0, 0, 0, 0 };//x,y,w,h
-        getPosition(DEFAULT_OUTPUT_MODE, position);
-        setPosition(DEFAULT_OUTPUT_MODE, position[0], position[1],position[2], position[3]);
+        getPosition(DEFAULT_HDMI_MODE, position);
+        setPosition(DEFAULT_HDMI_MODE, position[0], position[1],position[2], position[3]);
 
         //clear avmute
         pSysWrite->writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "-1");
@@ -1190,7 +1190,7 @@ void DisplayMode::getBestHdmiMode(char* mode, hdmi_data_t* data) {
     }
 
     if (strlen(mode) == 0) {
-        pSysWrite->getPropertyString(PROP_BEST_OUTPUT_MODE, mode, DEFAULT_OUTPUT_MODE);
+        pSysWrite->getPropertyString(PROP_BEST_OUTPUT_MODE, mode, DEFAULT_HDMI_MODE);
     }
 }
 
@@ -1203,7 +1203,7 @@ void DisplayMode::getHighestHdmiMode(char* mode, hdmi_data_t* data) {
     char* destpos;
 
     startpos = data->disp_cap;
-    strcpy(value, DEFAULT_OUTPUT_MODE);
+    strcpy(value, DEFAULT_HDMI_MODE);
 
     while (strlen(startpos) > 0) {
         //get edid resolution to tempMode in order.
@@ -1289,7 +1289,7 @@ void DisplayMode::getHighestPriorityMode(char* mode, hdmi_data_t* data) {
         }
     }
 
-    pSysWrite->getPropertyString(PROP_BEST_OUTPUT_MODE, mode, DEFAULT_OUTPUT_MODE);
+    pSysWrite->getPropertyString(PROP_BEST_OUTPUT_MODE, mode, DEFAULT_HDMI_MODE);
 }
 
 bool DisplayMode::isMatchMode(char* curmode, const char* outputmode) {
@@ -1362,7 +1362,7 @@ void DisplayMode::getHdmiOutputMode(char* mode, hdmi_data_t* data) {
 
     /* Fall back to 480p if EDID can't be parsed */
     if (strcmp(edidParsing, "ok")) {
-        strcpy(mode, DEFAULT_OUTPUT_MODE);
+        strcpy(mode, DEFAULT_HDMI_MODE);
         SYS_LOGE("EDID parsing error detected\n");
         return;
     }
@@ -3067,14 +3067,14 @@ void DisplayMode::onTxEvent (char* switchName, char* hpdstate, int outputState) 
     if ((isHdmiEdidParseOK() == false) &&
         (isHdmiHpd() == true)) {
         pSysWrite->writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "1");
-        DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDMI_COLOR_ATTR, COLOR_RGB_8BIT);
-
+        DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDMI_COLOR_ATTR, DEFAULT_COLOR_FORMAT);
         //set hdmi default mode
-        setDisplayMode(DEFAULT_OUTPUT_MODE);
+        setDisplayMode(DEFAULT_HDMI_MODE);
+
         //update display position
         int position[4] = { 0, 0, 0, 0 };//x,y,w,h
-        getPosition(DEFAULT_OUTPUT_MODE, position);
-        setPosition(DEFAULT_OUTPUT_MODE, position[0], position[1],position[2], position[3]);
+        getPosition(DEFAULT_HDMI_MODE, position);
+        setPosition(DEFAULT_HDMI_MODE, position[0], position[1],position[2], position[3]);
         pSysWrite->writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "-1");
         return;
     }

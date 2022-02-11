@@ -63,7 +63,6 @@ using namespace android;
 #define DESITY_2160P                    "480"
 
 #define DEFAULT_EDID_CRCHEAD            "checkvalue: "
-#define DEFAULT_OUTPUT_MODE             "480p60hz"
 
 #define DISPLAY_CFG_FILE                "/vendor/etc/mesondisplay.cfg"
 #define FILTER_EDID_CFG_FILE            "/vendor/etc/filteredid.cfg"
