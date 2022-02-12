@@ -572,7 +572,8 @@ void DisplayMode::setSourceDisplay(output_mode_state state) {
     AutoMutex _l( mLock );
 #endif
 
-    //hdmi used and plugout when boot
+    //1. hdmi used and hpd = 0
+    //set dummy_l mode
     if ((isHdmiUsed() == true) &&
         (isHdmiHpd() == false)) {
         if (isVMXCertification()) {
@@ -585,12 +586,15 @@ void DisplayMode::setSourceDisplay(output_mode_state state) {
         return;
     }
 
-    //hdmi edid parse error
+    //2. hdmi edid parse error and hpd = 1
+    //set default reolsution and color format
     if ((isHdmiEdidParseOK() == false) &&
         (isHdmiHpd() == true)) {
+        //set avmute
         pSysWrite->writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "1");
+        //set default color format
         DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDMI_COLOR_ATTR, COLOR_RGB_8BIT);
-        //set hdmi mode
+        //set default resolution
         setDisplayMode(DEFAULT_OUTPUT_MODE);
 
         //update display position
@@ -598,12 +602,13 @@ void DisplayMode::setSourceDisplay(output_mode_state state) {
         getPosition(DEFAULT_OUTPUT_MODE, position);
         setPosition(DEFAULT_OUTPUT_MODE, position[0], position[1],position[2], position[3]);
 
+        //clear avmute
         pSysWrite->writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "-1");
         SYS_LOGE("EDID parsing error detected\n");
         return;
     }
 
-    //1. read hdmi info for boot and hdmi plug/suspend/resume
+    //3. update hdmi info when boot and hdmi plug/suspend/resume
     if ((state == OUPUT_MODE_STATE_INIT) ||
         (state == OUPUT_MODE_STATE_POWER)) {
         memset(&mHdmidata, 0, sizeof(hdmi_data_t));
@@ -611,14 +616,14 @@ void DisplayMode::setSourceDisplay(output_mode_state state) {
         getHdmiData(&mHdmidata);
      }
 
-    //2. scene logic process
+    //4. scene logic process
     sceneProcess(&mHdmidata);
 
     if (OUPUT_MODE_STATE_INIT == state) {
         updateDefaultUI();
     }
 
-    //3. setting apply
+    //5. apply seting to driver
     applyDisplaySetting(state);
 }
 
@@ -1730,7 +1735,7 @@ bool DisplayMode::isEdidChange() {
 
 bool DisplayMode::isBestOutputmode() {
     char isBestMode[MODE_LEN] = {0};
-    if (DISPLAY_TYPE_TV == mDisplayType || mHdmidata.reason == OUPTUT_CHANGE_BY_HWC) {
+    if (DISPLAY_TYPE_TV == mDisplayType) {
         return false;
     }
     return !getBootEnv(UBOOTENV_ISBESTMODE, isBestMode) || strcmp(isBestMode, "true") == 0;
@@ -3047,7 +3052,7 @@ void DisplayMode::onTxEvent (char* switchName, char* hpdstate, int outputState) 
             dumpCaps();
     }
 #endif
-    //plugout hdmi
+    //plugout or suspend,set dummy_l
     if (hpdstate && hpdstate[0] == '0') {
         if (isVMXCertification()) {
             setDisplayMode("576cvbs");
@@ -3057,13 +3062,14 @@ void DisplayMode::onTxEvent (char* switchName, char* hpdstate, int outputState) 
         return;
     }
 
-    //hdmi edid parse error
+    //hdmi edid parse error and hpd = 1
+    //set default reolsution and color format
     if ((isHdmiEdidParseOK() == false) &&
         (isHdmiHpd() == true)) {
         pSysWrite->writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "1");
         DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDMI_COLOR_ATTR, COLOR_RGB_8BIT);
 
-        //set hdmi mode
+        //set hdmi default mode
         setDisplayMode(DEFAULT_OUTPUT_MODE);
         //update display position
         int position[4] = { 0, 0, 0, 0 };//x,y,w,h
@@ -3073,6 +3079,7 @@ void DisplayMode::onTxEvent (char* switchName, char* hpdstate, int outputState) 
         return;
     }
 
+    //hdmi edid parse ok
     setSourceDisplay((output_mode_state)outputState);
 }
 

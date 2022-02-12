@@ -463,8 +463,10 @@ int SceneProcess::updateDolbyVisionType(void) {
     char type[MODE_LEN];
     char dv_deepcolor[DV_MODE_LEN];
 
-    //1. read dolby vision mode from prop(maybe need to env)
+    //1. update input dolby vision info
+    //1.1 update current dolby vision mode
     strcpy(type, mScene_Input_Info.dv_input_info.ubootenv_dv_type);
+    //1.2 update tv supprot dolby  vision deep color
     strcpy(dv_deepcolor, mScene_Input_Info.dv_input_info.dv_deepcolor);
     SYS_LOGI("ubootenv_dv_type %s dv_deepcolor:%s\n", type, dv_deepcolor);
 
@@ -498,6 +500,7 @@ int SceneProcess::updateDolbyVisionType(void) {
     return DOLBY_VISION_DISABLE;
 }
 
+//dolby vision mode to color format
 void SceneProcess::updateDolbyVisionAttr(int dolbyvision_type, char * dv_attr) {
     int  dv_type = dolbyvision_type;
 
@@ -560,29 +563,43 @@ bool SceneProcess::isLowPowerMode() {
 void SceneProcess::updateDolbyVisionDisplayMode(char * cur_outputmode, int dv_type, char * final_displaymode) {
     char dv_displaymode[MODE_LEN] = {0};
 
-    //1. read tv dv_mode
+    //1. update tv support dolby vision resolution
     for (int i = DV_MODE_LIST_SIZE - 1; i >= 0; i--) {
         if (strstr(mScene_Input_Info.dv_input_info.dv_displaymode, DV_MODE_LIST[i]) != NULL) {
             strcpy(dv_displaymode, DV_MODE_LIST[i]);
         }
     }
 
+    //2. find prefer dolby vision resolution
     if (IsBestPolicy()) {
+        //2.1 best policy enable case
         if (!strcmp(dv_displaymode, DV_MODE_4K2K60HZ)) {
+            //TV support dolby vision 2160p60hz case
             if (dv_type == DOLBY_VISION_LL_RGB) {
+                //dolby vision LL RGB(rgb 10/12bit) only support 1080p60hz
                 strcpy(final_displaymode, DV_MODE_1080P);
             } else {
+                //other dolby visin mode,use 2160p60hz
                 strcpy(final_displaymode, DV_MODE_4K2K60HZ);
             }
         } else {
+            //TV support dolby vision non 2160p60hz case
             if (!strcmp(dv_displaymode, DV_MODE_4K2K30HZ)
                 || !strcmp(dv_displaymode, DV_MODE_4K2K25HZ) || !strcmp(dv_displaymode, DV_MODE_4K2K24HZ)) {
+                //TV support dolby vision support 2160p30hz or 2160p25hz or 2160p24hz
+                //1080p60hz prefer to 2160p30hz 2160p25hz 2160p24hz
                 strcpy(final_displaymode, DV_MODE_1080P);
             } else {
+                //TV support dolby vision non 2160p30hz 2160p25hz 2160p24hz
+                //use tv support dolby vision resolution
                 strcpy(final_displaymode, dv_displaymode);
             }
         }
     } else {
+        //2.1 best policy disable case
+        //smpte(3840x2160@XXhz) and i timing not support dolby vision
+        //hdmi output resolution need small than dolby vision resolution
+        //ex:dolby vision support 1080p60hz,only can output small 1080p60hz resolution
         if ((resolveResolutionValue(cur_outputmode, RESOLUTION_PRIORITY) > resolveResolutionValue(dv_displaymode, RESOLUTION_PRIORITY))
             || (strstr(cur_outputmode, "smpte") != NULL) || (strstr(cur_outputmode, "i") != NULL)) {
             strcpy(final_displaymode, dv_displaymode);
@@ -594,6 +611,7 @@ void SceneProcess::updateDolbyVisionDisplayMode(char * cur_outputmode, int dv_ty
     SYS_LOGI("final_displaymode:%s, cur_outputmode:%s, dv_displaymode:%s", final_displaymode, cur_outputmode, dv_displaymode);
 }
 
+//find the index of mode base the hdmi resolution priority table
 int64_t SceneProcess::resolveResolutionValue(const char *mode, int flag) {
     bool validMode = false;
     if (strlen(mode) != 0) {
@@ -609,6 +627,8 @@ int64_t SceneProcess::resolveResolutionValue(const char *mode, int flag) {
         return -1;
     }
 
+    //frame rate priority than resolution
+    //ex:1080p60hz prefer to 2160p30hz
     if (IsFrameratePriority() && flag == FRAMERATE_PRIORITY) {
         for (int64_t index = 0; index < sizeof(MODE_FRAMERATE_FIRST)/sizeof(char *); index++) {
             if (strcmp(mode, MODE_FRAMERATE_FIRST[index]) == 0) {
@@ -616,6 +636,8 @@ int64_t SceneProcess::resolveResolutionValue(const char *mode, int flag) {
             }
         }
     } else {
+        //resolution priority than frame rate
+        //ex:2160p30hz prefer to 1080p60hz
         for (int64_t index = 0; index < sizeof(MODE_RESOLUTION_FIRST)/sizeof(char *); index++) {
             if (strcmp(mode, MODE_RESOLUTION_FIRST[index]) == 0) {
                 return index;
@@ -633,9 +655,12 @@ void SceneProcess::getHighestHdmiMode(char* mode) {
     char* startpos;
     char* destpos;
 
+    //disp_cap:the list of TV support resolution from driver parse edid
     startpos = mScene_Input_Info.hdmi_input_info.disp_cap;
+    //use the default resolution as base mode
     strcpy(value, DEFAULT_HDMI_MODE);
 
+    //select the preferred resolution
     while (strlen(startpos) > 0) {
         //get edid resolution to tempMode in order.
         destpos = strstr(startpos, "\n");
@@ -644,6 +669,8 @@ void SceneProcess::getHighestHdmiMode(char* mode) {
         memset(tempMode, 0, MODE_LEN);
         strncpy(tempMode, startpos, destpos - startpos);
         startpos = destpos + 1;
+
+        //filter 4k when soc not support 4K
         if ((IsSupport4K() == false)
             &&(strstr(tempMode, "2160") || strstr(tempMode, "smpte"))) {
             SYS_LOGE("This platform not support : %s\n", tempMode);
@@ -654,6 +681,8 @@ void SceneProcess::getHighestHdmiMode(char* mode) {
             tempMode[strlen(tempMode) - 1] = '\0';
         }
 
+        //find the index of mode base the hdmi resolution priority table
+        //and find the best prefer resolution
         if (resolveResolutionValue(tempMode) > resolveResolutionValue(value)) {
             memset(value, 0, MODE_LEN);
             strcpy(value, tempMode);
@@ -666,6 +695,7 @@ void SceneProcess::getHighestHdmiMode(char* mode) {
 
 //check if the edid support current hdmi mode
 void SceneProcess::filterHdmiMode(char* mode) {
+    //check current resolution support or not base driver edid
     char *pCmp = mScene_Input_Info.hdmi_input_info.disp_cap;
     while ((pCmp - mScene_Input_Info.hdmi_input_info.disp_cap) < (int)strlen(mScene_Input_Info.hdmi_input_info.disp_cap)) {
         char *pos = strchr(pCmp, 0x0a);
@@ -684,7 +714,7 @@ void SceneProcess::filterHdmiMode(char* mode) {
         pCmp = pos + step;
     }
 
-    //old mode is not support in this TV, so switch to best mode.
+    //current resolution is not support in this TV, so switch to best mode.
     getHighestHdmiMode(mode);
 }
 
@@ -697,8 +727,13 @@ void SceneProcess::getHdmiOutputMode(char* mode) {
     }
 
     if (IsBestPolicy()) {
+        //best policy enable case
+        //find best prefer resolution base driver edid
         getHighestHdmiMode(mode);
     } else {
+        //best policy disable case
+        //if current mode support,use current mode
+        //if current mode not support,find best prefer resolution base driver edid
         filterHdmiMode(mode);
     }
     SYS_LOGI("set HDMI mode to %s\n", mode);
@@ -728,6 +763,7 @@ bool SceneProcess::initColorAttribute(char* supportedColorList, int len) {
     return result;
 }
 
+//check resolution and color format support or not
 bool SceneProcess::isModeSupportDeepColorAttr(const char *mode, const char * color) {
     char valueStr[10] = {0};
     char outputmode[MODE_LEN] = {0};
@@ -747,14 +783,18 @@ void SceneProcess::getBestHdmiDeepColorAttr(const char *outputmode, char* colorA
     int length = 0;
     const char **colorList = NULL;
     char supportedColorList[MAX_STR_LEN];
+
+    //if read /sys/class/amhdmitx/amhdmitx0/dc_cap is null
+    //return and use default color format(444 8bit)
     if (!initColorAttribute(supportedColorList, MAX_STR_LEN)) {
         SYS_LOGE("initColorAttribute fail\n");
         return;
     }
 
-    //filter some color value options, aimed at some modes.
+    //1. select the color format table for different resolution or scene.
     if (!strcmp(outputmode, MODE_4K2K60HZ) || !strcmp(outputmode, MODE_4K2K50HZ)
         || !strcmp(outputmode, MODE_4K2KSMPTE60HZ) || !strcmp(outputmode, MODE_4K2KSMPTE50HZ)) {
+        //2160p50hz 2160p60hz 3840x2160p60hz 3840x2160p50hz case
         if (isLowPowerMode()) {
             colorList = COLOR_ATTRIBUTE_LIST3;
             length = ARRAY_SIZE(COLOR_ATTRIBUTE_LIST3);
@@ -763,17 +803,24 @@ void SceneProcess::getBestHdmiDeepColorAttr(const char *outputmode, char* colorA
             length = ARRAY_SIZE(COLOR_ATTRIBUTE_LIST1);
         }
     } else {
+        //except 2160p60hz 2160p50hz 3840x2160p60hz 3840x2160p60hz case
         if (isLowPowerMode()) {
+            //8bit prefer to 10bit for low power mode
+            //detail priority as table
             colorList = COLOR_ATTRIBUTE_LIST4;
             length = ARRAY_SIZE(COLOR_ATTRIBUTE_LIST4);
         } else {
+            //10bit prefer to 8bit normal mode
+            //detail priority as table
             colorList = COLOR_ATTRIBUTE_LIST2;
             length = ARRAY_SIZE(COLOR_ATTRIBUTE_LIST2);
         }
     }
 
+    //2. select the preferred color format base resolution
     for (int i = 0; i < length; i++) {
         if ((pos = strstr(supportedColorList, colorList[i])) != NULL) {
+            //check resolution+color format support or not base driver edid
             if (isModeSupportDeepColorAttr(outputmode, colorList[i])) {
                 SYS_LOGI("support current mode:[%s], deep color:[%s]\n", outputmode, colorList[i]);
 
@@ -802,6 +849,7 @@ void SceneProcess::getHdmiColorAttribute(const char* outputmode, char* colorAttr
     }
 
     //if bestpolicy is disable use ubootenv.var.colorattribute
+    //will check resolution + color format be support TV EDID
     if (IsBestPolicy() == false) {
         char colorTemp[MODE_LEN] = {0};
         strcpy(colorTemp, mScene_Input_Info.hdmi_input_info.ubootenv_colorattribute);
@@ -811,6 +859,8 @@ void SceneProcess::getHdmiColorAttribute(const char* outputmode, char* colorAttr
             getBestHdmiDeepColorAttr(outputmode,  colorAttribute);
         }
     } else {
+        //best policy enable case
+        //select the preferred color format base outputmode(resolution)
         getBestHdmiDeepColorAttr(outputmode,  colorAttribute);
     }
 
@@ -825,8 +875,10 @@ void SceneProcess::getHdmiColorAttribute(const char* outputmode, char* colorAttr
 
 void SceneProcess::updateHdmiDeepColor(scene_state state, const char* outputmode, char* colorAttribute) {
     if (IsSupportDeepColor()) {
+        //deep color(10/12bit) enable case
         getHdmiColorAttribute(outputmode, colorAttribute, (int)state);
     } else {
+        //deep color disable case
         strcpy(colorAttribute, "default");
     }
 
@@ -894,14 +946,14 @@ void SceneProcess::DolbyVisionSceneProcess(scene_output_info_t* output_info) {
     mScene_output_info.dv_type = dv_type;
     SYS_LOGI("dv type:%d", mScene_output_info.dv_type);
 
-    //2. update dolby vision output output mode and colorspace
+    //2. update dolby vision output output mode to color format
     //2.1 update dolby vision deepcolor
     char dv_attr[MODE_LEN] = {0};
     updateDolbyVisionAttr(dv_type, dv_attr);
     strcpy(mScene_output_info.final_deepcolor, dv_attr);
     SYS_LOGI("dv final_deepcolor:%s", mScene_output_info.final_deepcolor);
 
-    //2.2 update dolby vision output mode
+    //2.2 update dolby vision output resolution
     char final_displaymode[MODE_LEN] = {0};
     char cur_displaymode[MODE_LEN] = {0};
     strcpy(cur_displaymode, mScene_Input_Info.cur_displaymode);
@@ -916,7 +968,7 @@ void SceneProcess::DolbyVisionSceneProcess(scene_output_info_t* output_info) {
     output_info->dv_type = mScene_output_info.dv_type;
 }
 
-//check 4k50/4k60 hdr support or not
+//check 4k50/4k60 hdr support or not base driver edid
 bool SceneProcess::isSupport4KHDR(scene_output_info_t *output_info) {
     if (!output_info) {
         SYS_LOGE("output_info is NULL\n");
@@ -925,13 +977,18 @@ bool SceneProcess::isSupport4KHDR(scene_output_info_t *output_info) {
         const char **colorList = NULL;
         int colorList_length   = 0;
 
+        //use 4k hdr color format table
         colorList        = HDR_4K_COLOR_ATTRIBUTE_LIST;
         colorList_length = ARRAY_SIZE(HDR_4K_COLOR_ATTRIBUTE_LIST);
 
+        //choose prefer color format and resolution for 4k hdr
+        //disp_cap:the list of TV support resolution from driver parse edid
+        //dc_cap:the list of TV support color format from driver parse edid
         for (int i = 0; i < colorList_length; i++) {
             if (strstr(mScene_Input_Info.hdmi_input_info.dc_cap, colorList[i]) != NULL) {
                 const char **resolutionList = NULL;
                 int resolutionList_length   = 0;
+                //use 4k hdr resolution table
                 resolutionList        = MODE_4K_LIST;
                 resolutionList_length = ARRAY_SIZE(MODE_4K_LIST);
                 for (int j = 0; j < resolutionList_length; j++) {
@@ -961,14 +1018,18 @@ bool SceneProcess::isSupportnon4KHDR(scene_output_info_t *output_info) {
         const char **colorList = NULL;
         int colorList_length   = 0;
 
+        //use non 4k hdr color format table
         colorList        = HDR_NON4K_COLOR_ATTRIBUTE_LIST;
         colorList_length = ARRAY_SIZE(HDR_NON4K_COLOR_ATTRIBUTE_LIST);
 
+        //choose prefer color format and resolution for non 4k hdr
+        //disp_cap:the list of TV support resolution from driver parse edid
+        //dc_cap:the list of TV support color format from driver parse edid
         for (int i = 0; i < colorList_length; i++) {
             if (strstr(mScene_Input_Info.hdmi_input_info.dc_cap, colorList[i]) != NULL) {
                 const char **resolutionList = NULL;
                 int resolutionList_length   = 0;
-
+                //use non 4k hdr resolution table
                 resolutionList        = MODE_NON4K_LIST;
                 resolutionList_length = ARRAY_SIZE(MODE_NON4K_LIST);
                 for (int j = 0; j < resolutionList_length; j++) {
@@ -991,11 +1052,14 @@ bool SceneProcess::isSupportnon4KHDR(scene_output_info_t *output_info) {
 
 void SceneProcess::HDRSceneProcess(scene_output_info_t* output_info) {
      if (IsBestPolicy()) {
+         //best policy enable case
          bool find = false;
 
          scene_output_info_t   Scene_output_info;
          memset(&Scene_output_info, 0, sizeof(scene_output_info_t));
 
+         //box can support 4k case
+         //find prefer 4k hdr resolution and color format base driver edid
          if (IsSupport4K() == true) {
              find = isSupport4KHDR(&Scene_output_info);
          }
@@ -1004,6 +1068,8 @@ void SceneProcess::HDRSceneProcess(scene_output_info_t* output_info) {
              strcpy(mScene_output_info.final_deepcolor, Scene_output_info.final_deepcolor);
              strcpy(mScene_output_info.final_displaymode, Scene_output_info.final_displaymode);
          } else {
+             //non 4k case
+             //find prefer non 4k hdr resolution and color format base driver edid
              find = isSupportnon4KHDR(&Scene_output_info);
              if (find) {
                  strcpy(mScene_output_info.final_deepcolor, Scene_output_info.final_deepcolor);
@@ -1013,9 +1079,10 @@ void SceneProcess::HDRSceneProcess(scene_output_info_t* output_info) {
              }
          }
      } else {
+         //best policy disable case
          if ((mScene_Input_Info.state == SCENE_STATE_INIT) ||
              (mScene_Input_Info.state == SCENE_STATE_POWER)) {
-             //1. choose resolution, frame rate
+             //choose resolution, frame rate
              char outputmode[MODE_LEN] = {0};
 
              if (SINK_TYPE_NONE != mScene_Input_Info.hdmi_input_info.sinkType) {
@@ -1031,36 +1098,40 @@ void SceneProcess::HDRSceneProcess(scene_output_info_t* output_info) {
              strcpy(mScene_output_info.final_displaymode, outputmode);
              SYS_LOGI("%s final_displaymode:%s\n", __FUNCTION__, mScene_output_info.final_displaymode);
          } else if (mScene_Input_Info.state == SCENE_STATE_SWITCH) {
-             //1. doesn't read hdmi info for ui switch scene
-             //   choose resolution, frame rate
+             // doesn't read hdmi info for ui switch scene
+             // choose resolution, frame rate
              strcpy(mScene_output_info.final_displaymode, mScene_Input_Info.cur_displaymode);
              SYS_LOGI("%s final_displaymode:%s\n", __FUNCTION__, mScene_output_info.final_displaymode);
          }
 
-         //2. choose color format, bit-depth
+         //choose color format, bit-depth
          char colorAttribute[MODE_LEN] = {0};
          updateHdmiDeepColor(mScene_Input_Info.state, mScene_output_info.final_displaymode, colorAttribute);
          strcpy(mScene_output_info.final_deepcolor, colorAttribute);
          SYS_LOGI("%s final_deepcolor = %s\n", __FUNCTION__, mScene_output_info.final_deepcolor);
     }
 
-     //3 return output info
+     //return output info
      strcpy(output_info->final_displaymode, mScene_output_info.final_displaymode);
      strcpy(output_info->final_deepcolor, mScene_output_info.final_deepcolor);
 }
 
 void SceneProcess::SDRSceneProcess(scene_output_info_t* output_info) {
+    //1. choose resolution and frame rate
     if ((mScene_Input_Info.state == SCENE_STATE_INIT) ||
         (mScene_Input_Info.state == SCENE_STATE_POWER)) {
-        //1. choose resolution, frame rate
+        //boot/hot plug/suspend/resmue case
+        //choose resolution, frame rate base driver edid
         char outputmode[MODE_LEN] = {0};
 
         if (SINK_TYPE_NONE != mScene_Input_Info.hdmi_input_info.sinkType) {
+            //hdmi connect
             getHdmiOutputMode(outputmode);
         } else {
+            //hdmi not connect
             strcpy(outputmode, mScene_Input_Info.hdmi_input_info.ubootenv_cvbsmode);
         }
-
+        //not find prefer resolution,use default resolution
         if (strlen(outputmode) == 0) {
             strcpy(outputmode, DEFAULT_HDMI_MODE);
         }
@@ -1068,8 +1139,9 @@ void SceneProcess::SDRSceneProcess(scene_output_info_t* output_info) {
         strcpy(mScene_output_info.final_displaymode, outputmode);
         SYS_LOGI("final_displaymode:%s\n", mScene_output_info.final_displaymode);
     } else if (mScene_Input_Info.state == SCENE_STATE_SWITCH) {
-        //1. doesn't read hdmi info for ui switch scene
-        //   choose resolution, frame rate
+        //user/framework change scene
+        //doesn't read hdmi info for ui switch scene
+        //use user want to set resolution and frame rate
         strcpy(mScene_output_info.final_displaymode, mScene_Input_Info.cur_displaymode);
         SYS_LOGI("final_displaymode:%s\n", mScene_output_info.final_displaymode);
     }
@@ -1090,7 +1162,7 @@ void SceneProcess::Process(scene_output_info_t* output_info) {
     scene_output_info_t   Scene_output_info;
     memset(&Scene_output_info, 0, sizeof(scene_output_info_t));
 
-    //2. dolby vision scene process
+    //1. dolby vision scene process
     //   only for tv support dv and box enable dv
     if (isDolbyVisionPreference()) {
         DolbyVisionSceneProcess(&Scene_output_info);
@@ -1102,7 +1174,7 @@ void SceneProcess::Process(scene_output_info_t* output_info) {
         output_info->dv_type = DOLBY_VISION_DISABLE;
     }
 
-    //3. hdr/sdr scene process
+    //2. hdr/sdr scene process
     //   and decide final display mode and deepcolor
     if (isDolbyVisionPreference()) {
         strcpy(output_info->final_displaymode, Scene_output_info.final_displaymode);
@@ -1118,12 +1190,12 @@ void SceneProcess::Process(scene_output_info_t* output_info) {
         strcpy(output_info->final_deepcolor, Scene_output_info.final_deepcolor);
     }
 
-    //not find outputmode and use default mode
+    //3. not find outputmode and use default mode
     if (strlen(output_info->final_displaymode) == 0) {
         strcpy(output_info->final_displaymode, DEFAULT_HDMI_MODE);
     }
 
-    //not find color space and use default mode
+    //4. not find color space and use default mode
     if (!strstr(output_info->final_deepcolor, "bit")) {
         strcpy(output_info->final_deepcolor, DEFAULT_COLOR_FORMAT);
     }
