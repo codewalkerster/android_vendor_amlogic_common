@@ -36,13 +36,21 @@
 #include "FormatColorDepth.h"
 #include "common.h"
 
-//this is check hdmi mode list
+//this is check hdmi mode(4K60/4k50) list
 static const char* COLOR_ATTRIBUTE_LIST[] = {
     COLOR_RGB_8BIT,
     COLOR_YCBCR444_8BIT,
     COLOR_YCBCR420_8BIT,
     COLOR_YCBCR422_8BIT,
 };
+
+//this is check hdmi mode(4k30/4k25/4k24) list
+static const char* COLOR_ATTRIBUTE_LIST_NON4K[] = {
+    COLOR_RGB_8BIT,
+    COLOR_YCBCR444_8BIT,
+    COLOR_YCBCR422_8BIT,
+};
+
 //this is prior selected list  of 4k2k50hz, 4k2k60hz smpte50hz, smpte60hz
 static const char* COLOR_ATTRIBUTE_LIST1[] = {
     COLOR_YCBCR420_10BIT,
@@ -271,16 +279,34 @@ bool FormatColorDepth::isSupportHdmiMode(const char *hdmi_mode, const char *supp
     int length = 0;
     const char **colorList = NULL;
 
-    colorList = COLOR_ATTRIBUTE_LIST;
-    length    = ARRAY_SIZE(COLOR_ATTRIBUTE_LIST);
-
     if (strstr(hdmi_mode, "2160p60hz")  != NULL
         || strstr(hdmi_mode,"2160p50hz") != NULL
         || strstr(hdmi_mode,"smpte50hz") != NULL
         || strstr(hdmi_mode,"smpte60hz") != NULL) {
+
+        colorList = COLOR_ATTRIBUTE_LIST;
+        length    = ARRAY_SIZE(COLOR_ATTRIBUTE_LIST);
+
         for (int i = 0; i < length; i++) {
             if (strstr(supportedColorList, colorList[i]) != NULL) {
                 if (isModeSupportDeepColorAttr(hdmi_mode, colorList[i])) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    else if (strstr(hdmi_mode,"2160p30hz")  != NULL
+            || strstr(hdmi_mode,"2160p25hz") != NULL
+            || strstr(hdmi_mode,"2160p24hz") != NULL
+            || strstr(hdmi_mode,"smpte24hz") != NULL) {
+
+        colorList = COLOR_ATTRIBUTE_LIST_NON4K;
+        length    = ARRAY_SIZE(COLOR_ATTRIBUTE_LIST_NON4K);
+
+        for (int j = 0; j < length; j++) {
+            if (strstr(supportedColorList, colorList[j]) != NULL) {
+                if (isModeSupportDeepColorAttr(hdmi_mode, colorList[j])) {
                     return true;
                 }
             }
