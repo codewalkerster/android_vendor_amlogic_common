@@ -47,7 +47,7 @@ using android::base::RemoveFileIfExists;
 using android::base::StringPrintf;
 using android::base::WriteStringToFile;
 using aidl::android::hardware::wifi::hostapd::BandMask;
-using aidl::android::hardware::wifi::hostapd::Bandwidth;
+using aidl::android::hardware::wifi::hostapd::ChannelBandwidth;
 using aidl::android::hardware::wifi::hostapd::ChannelParams;
 using aidl::android::hardware::wifi::hostapd::EncryptionType;
 using aidl::android::hardware::wifi::hostapd::Generation;
@@ -400,7 +400,15 @@ std::string CreateHostapdConfig(
 			is_6Ghz_band_only ? 1 : 2,
 			nw_params.passphrase.c_str());
 		break;
-	case EncryptionType::OWE_TRANSITION:
+	case EncryptionType::WPA3_OWE_TRANSITION:
+		encryption_config_as_string = StringPrintf(
+			"wpa=2\n"
+			"rsn_pairwise=%s\n"
+			"wpa_key_mgmt=OWE\n"
+			"ieee80211w=2",
+			is_60Ghz_band_only ? "GCMP" : "CCMP");
+		break;
+	case EncryptionType::WPA3_OWE:
 		encryption_config_as_string = StringPrintf(
 			"wpa=2\n"
 			"rsn_pairwise=%s\n"
@@ -611,36 +619,36 @@ Generation getGeneration(hostapd_hw_modes *current_mode)
 	}
 }
 
-Bandwidth getBandwidth(struct hostapd_config *iconf)
+ChannelBandwidth getChannelBandwidth(struct hostapd_config *iconf)
 {
-	wpa_printf(MSG_DEBUG, "getBandwidth %d, isHT=%d, isHT40=%d",
+	wpa_printf(MSG_DEBUG, "getChannelBandwidth %d, isHT=%d, isHT40=%d",
 		   iconf->vht_oper_chwidth, iconf->ieee80211n,
 		   iconf->secondary_channel);
 	switch (iconf->vht_oper_chwidth) {
 	case CHANWIDTH_80MHZ:
-		return Bandwidth::BANDWIDTH_80;
+		return ChannelBandwidth::BANDWIDTH_80;
 	case CHANWIDTH_80P80MHZ:
-		return Bandwidth::BANDWIDTH_80P80;
+		return ChannelBandwidth::BANDWIDTH_80P80;
 		break;
 	case CHANWIDTH_160MHZ:
-		return Bandwidth::BANDWIDTH_160;
+		return ChannelBandwidth::BANDWIDTH_160;
 		break;
 	case CHANWIDTH_USE_HT:
 		if (iconf->ieee80211n) {
 			return iconf->secondary_channel != 0 ?
-				Bandwidth::BANDWIDTH_40 : Bandwidth::BANDWIDTH_20;
+				ChannelBandwidth::BANDWIDTH_40 : ChannelBandwidth::BANDWIDTH_20;
 		}
-		return Bandwidth::BANDWIDTH_20_NOHT;
+		return ChannelBandwidth::BANDWIDTH_20_NOHT;
 	case CHANWIDTH_2160MHZ:
-		return Bandwidth::BANDWIDTH_2160;
+		return ChannelBandwidth::BANDWIDTH_2160;
 	case CHANWIDTH_4320MHZ:
-		return Bandwidth::BANDWIDTH_4320;
+		return ChannelBandwidth::BANDWIDTH_4320;
 	case CHANWIDTH_6480MHZ:
-		return Bandwidth::BANDWIDTH_6480;
+		return ChannelBandwidth::BANDWIDTH_6480;
 	case CHANWIDTH_8640MHZ:
-		return Bandwidth::BANDWIDTH_8640;
+		return ChannelBandwidth::BANDWIDTH_8640;
 	default:
-		return Bandwidth::BANDWIDTH_INVALID;
+		return ChannelBandwidth::BANDWIDTH_INVALID;
 	}
 }
 
@@ -836,7 +844,7 @@ std::vector<uint8_t>  generateRandomOweSsid()
 		iface_params_new.name = managed_interfaces[i];
 
 		std::string owe_transition_ifname = "";
-		if (nw_params.encryptionType == EncryptionType::OWE_TRANSITION) {
+		if (nw_params.encryptionType == EncryptionType::WPA3_OWE_TRANSITION) {
 			if (i == 0 && i+1 < channelParamsListSize) {
 				owe_transition_ifname = managed_interfaces[i+1];
 				nw_params_new.encryptionType = EncryptionType::NONE;
@@ -950,7 +958,7 @@ std::vector<uint8_t>  generateRandomOweSsid()
 				iface_hapd->conf->bridge : iface_hapd->conf->iface,
 			info.apIfaceInstance = iface_hapd->conf->iface;
 			info.freqMhz = iface_hapd->iface->freq;
-			info.bandwidth = getBandwidth(iface_hapd->iconf);
+			info.channelBandwidth = getChannelBandwidth(iface_hapd->iconf);
 			info.generation = getGeneration(iface_hapd->iface->current_mode);
 			info.apIfaceInstanceMacAddress.assign(iface_hapd->own_addr,
 				iface_hapd->own_addr + ETH_ALEN);

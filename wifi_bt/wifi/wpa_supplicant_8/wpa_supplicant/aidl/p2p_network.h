@@ -42,7 +42,7 @@ public:
 	bool isValid();
 
 	// Aidl methods exposed.
-    ::ndk::ScopedAStatus getId(int32_t* _aidl_return) override;
+  	::ndk::ScopedAStatus getId(int32_t* _aidl_return) override;
 	::ndk::ScopedAStatus getInterfaceName(std::string* _aidl_return) override;
 	::ndk::ScopedAStatus getType(IfaceType* _aidl_return) override;
 	::ndk::ScopedAStatus getSsid(std::vector<uint8_t>* _aidl_return) override;

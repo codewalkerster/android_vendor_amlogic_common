@@ -287,7 +287,7 @@ ndk::ScopedAStatus Supplicant::addP2pDevInterface(struct wpa_interface iface_par
 	u32 primary_ifname_len =
 		strlen(iface_params.ifname) - strlen(P2P_MGMT_DEVICE_PREFIX);
 
-	if (primary_ifname_len > IFNAMSIZ) {
+	if(primary_ifname_len > IFNAMSIZ) {
 		wpa_printf(MSG_DEBUG, "%s, Invalid primary iface name ", __FUNCTION__);
 		return createStatus(SupplicantStatusCode::FAILURE_ARGS_INVALID);
 	}
