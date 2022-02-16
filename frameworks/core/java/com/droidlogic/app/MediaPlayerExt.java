@@ -106,6 +106,14 @@ public class MediaPlayerExt extends MediaPlayer {
     private static final int INVOKE_ID_GET_AM_TRACK_INFO        = 11;
     private static final int INVOKE_ID_USE_CUSTOMIZED_EXTRACTOR  = 1001;
     private static final int INVOKE_ID_SET_SOUND_TRACK  = 1003;
+    //add for scte35
+    private static final int INVOKE_ID__SCTE35_COMMAND_TYPE           = 7000;
+    private static final int INVOKE_ID__SCTE35_SPLICE_NULL            = 7001;
+    private static final int INVOKE_ID__SCTE35_SPLICE_SCHEDULE        = 7002;
+    private static final int INVOKE_ID__SCTE35_SPLICE_INSERT          = 7003;
+    private static final int INVOKE_ID__SCTE35_SPLICE_TIME_SIGNAL              = 7004;
+    private static final int INVOKE_ID__SCTE35_SPLICE_BANDWIDTH_RESERVATION    = 7005;
+    private static final int INVOKE_ID__SCTE35_SPLICE_SPLICE_PRIVATE_COMMAND   = 7006;
 
     //must sync with IMediaPlayerService.cpp (av\media\libmedia)
     private IBinder mIBinderService = null; //IMediaPlayerService
@@ -461,6 +469,26 @@ public class MediaPlayerExt extends MediaPlayer {
         public TsProgrameInfo[] tsprogrameInfo;
     }
 
+    public class SpliceTime {
+        public long pts_time;
+    }
+
+    public class SpliceInsert {
+        public int splice_event_id;
+        public int splice_event_cancel_indicator;
+        public int out_of_network_indicator;
+        public int program_splice_flag;
+        public int duration_flag;
+        public int splice_immediate_flag;
+        public int component_count;
+        public int component_tag;
+        SpliceTime splice_time;
+        public int unique_program_id;
+        public int avail_num;
+        public int avails_expected;
+        public long pts_time;
+    }
+
     public void setUseLocalExtractor(MediaPlayerExt mp) {
         /* setUseLocalExtractor use INVOKE_ID_USE_CUSTOMIZED_EXTRACTOR */
         /* para: 1: enable ffmpeg extractor force                      */
@@ -574,6 +602,63 @@ public class MediaPlayerExt extends MediaPlayer {
         p.recycle();
 
         return mediaInfo;
+    }
+
+    ////add for scte35 info
+    public int getScte35CommandType(MediaPlayerExt mp) {
+        int cmdtype = -1;
+        Parcel request = Parcel.obtain();
+        Parcel p = Parcel.obtain();
+        request.writeInterfaceToken(IMEDIA_PLAYER);
+        request.writeInt(INVOKE_ID__SCTE35_COMMAND_TYPE);
+        MediaPlayerInvoke(request, p, mp);
+        cmdtype = p.readInt();
+        if (DEBUG) Log.i(TAG,"[getScte35CommandType]comtype:"+cmdtype);
+            return cmdtype;
+    }
+
+    public SpliceInsert getScte35Info(MediaPlayerExt mp, int cmdtype) {
+        SpliceInsert ins = new SpliceInsert();
+        Parcel request = Parcel.obtain();
+        Parcel p = Parcel.obtain();
+        request.writeInterfaceToken(IMEDIA_PLAYER);
+        if (cmdtype == 0) {  //SPLICE_NULL nothing to report
+        }
+        else if (cmdtype == 0x04) {//SPLICE_SCHEDULE
+                request.writeInt(INVOKE_ID__SCTE35_SPLICE_SCHEDULE);
+                MediaPlayerInvoke(request, p, mp);
+
+                ins.splice_event_id = p.readInt();
+                ins.splice_event_cancel_indicator = p.readInt();
+                ins.out_of_network_indicator = p.readInt();
+                ins.program_splice_flag = p.readInt();
+
+                ins.unique_program_id = p.readInt();
+                ins.avail_num = p.readInt();
+                ins.avails_expected = p.readInt();
+        } else if (cmdtype == 0x05) {//SPLICE_INSERT
+                request.writeInt(INVOKE_ID__SCTE35_SPLICE_INSERT);
+                MediaPlayerInvoke(request, p, mp);
+                ins.splice_event_id = p.readInt();
+                ins.splice_event_cancel_indicator = p.readInt();
+                ins.out_of_network_indicator = p.readInt();
+                ins.program_splice_flag = p.readInt();
+                ins.duration_flag = p.readInt();
+                ins.splice_immediate_flag = p.readInt();
+                ins.component_count = p.readInt();
+                ins.unique_program_id = p.readInt();
+                ins.avail_num = p.readInt();
+                ins.avails_expected = p.readInt();
+                if (DEBUG) Log.i(TAG,"[getScte35Info] SPLICE_INSERT splice_event_id:"+ins.splice_event_id+",splice_event_cancel_indicator:"+ins.splice_event_cancel_indicator+",out_of_network_indicator:"+ins.out_of_network_indicator+",program_splice_flag:"+ins.program_splice_flag+",duration_flag:"+ins.duration_flag+",splice_immediate_flag:"+ins.splice_immediate_flag+",ins->component_count:"+ins.component_count+",ins->unique_program_id:"+ins.unique_program_id+",avail_num:"+ins.avail_num+",avails_expected:"+ins.avails_expected);
+        } else if (cmdtype == 0x06){//SPLICE_TIME_SIGNAL
+                request.writeInt(INVOKE_ID__SCTE35_SPLICE_TIME_SIGNAL);
+                MediaPlayerInvoke(request, p, mp);
+                ins.pts_time = p.readInt();
+        }else if (cmdtype == 0x07){//SPLICE_BANDWIDTH_RESERVATION
+        }
+        else if (cmdtype == 0xFF){//SPLICE_PRIVATE_COMMAND
+        }
+        return ins;
     }
 
     public boolean MediaPlayerInvoke(Parcel p1, Parcel p2, MediaPlayerExt mp) {
