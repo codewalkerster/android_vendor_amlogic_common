@@ -91,6 +91,11 @@ static const tUSERIAL_CFG userial_H4_cfg =
     (USERIAL_DATABITS_8 | USERIAL_PARITY_NONE | USERIAL_STOPBITS_1),
     USERIAL_BAUD_115200,
 };
+
+static const char *p_pdt_name[] = {
+	"mercury",
+	NULL
+};
 /******************************************************************************
 **  init variables
 ******************************************************************************/
@@ -269,6 +274,26 @@ static int set_power_type(void)
 	wirte_power_type(str);
 	return 0;
 }
+
+static void get_product_device(void)
+{
+	char pdt_name[100];
+	int i;
+
+	memset(pdt_name, 0, sizeof(pdt_name));
+	property_get("ro.product.device", pdt_name, "NULL");
+	if (!strncmp(pdt_name, "NULL", sizeof("NULL")-1))
+		return;
+
+	for (i = 0; p_pdt_name[0] != NULL; i++) {
+		if (!strcmp(p_pdt_name[i], pdt_name)) {
+			PR_INFO("product.device : %s", pdt_name);
+			wirte_power_type((char*)"1");
+			break;
+		}
+	}
+}
+
 
 #if 0
 static int set_module_name(const char * str)
@@ -1250,7 +1275,7 @@ static int bluetooth_distinguish_module(void)
 	if (btvendor_hal.pci_module()) {
 		return 1;
 	}
-
+	get_product_device();
 	upio_set_bluetooth_power(UPIO_BT_POWER_ON);
 
 	if (btvendor_hal.usb_module()) {
