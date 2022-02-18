@@ -93,7 +93,6 @@ static const tUSERIAL_CFG userial_H4_cfg =
 };
 
 static const char *p_pdt_name[] = {
-	"mercury",
 	NULL
 };
 /******************************************************************************
