@@ -717,8 +717,8 @@ int RecoverySecureCheck(const ZipArchiveHandle zipArchive)
 
     //if not android 9, need upgrade for two step
     std::string android_version = android::base::GetProperty("ro.build.version.sdk", "");
-    if (strcmp(ANDROID_VERSION_S, android_version.c_str())) {
-        printf("now upgrade from android %s to S\n", android_version.c_str());
+    if (strcmp(ANDROID_VERSION_T, android_version.c_str())) {
+        printf("now upgrade from android %s to T\n", android_version.c_str());
         flag_old_new = 1;
     }
 
