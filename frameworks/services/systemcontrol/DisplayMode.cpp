@@ -623,7 +623,7 @@ void DisplayMode::setSourceDisplay(output_mode_state state) {
         updateDefaultUI();
     }
 
-    //5. apply seting to driver
+    //5. apply settings to driver
     applyDisplaySetting(state);
 }
 
@@ -1746,7 +1746,7 @@ bool DisplayMode::isBestOutputmode() {
 }
 
 bool DisplayMode::isFrameratePriority() {
-    return pSysWrite->getPropertyBoolean(PROP_HDMI_FRAMERATE_PRIORITY, false);
+    return pSysWrite->getPropertyBoolean(PROP_HDMI_FRAMERATE_PRIORITY, true);
 }
 
 bool DisplayMode::isSupport4K() {

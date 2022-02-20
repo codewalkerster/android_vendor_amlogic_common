@@ -182,12 +182,12 @@ static const char* DISPLAY_MODE_LIST[DISPLAY_MODE_TOTAL] = {
 static const char* MODE_RESOLUTION_FIRST[] = {
     MODE_480I,
     MODE_576I,
+    MODE_1080I50HZ,
+    MODE_1080I,
     MODE_480P,
     MODE_576P,
     MODE_720P50HZ,
     MODE_720P,
-    MODE_1080I50HZ,
-    MODE_1080I,
     MODE_1080P50HZ,
     MODE_1080P,
     MODE_4K2K24HZ,
@@ -200,12 +200,12 @@ static const char* MODE_RESOLUTION_FIRST[] = {
 static const char* MODE_FRAMERATE_FIRST[] = {
     MODE_480I,
     MODE_576I,
+    MODE_1080I50HZ,
+    MODE_1080I,
     MODE_480P,
     MODE_576P,
     MODE_720P50HZ,
     MODE_720P,
-    MODE_1080I50HZ,
-    MODE_1080I,
     MODE_4K2K24HZ,
     MODE_4K2K25HZ,
     MODE_4K2K30HZ,
@@ -225,17 +225,18 @@ static const char* MODE_4K_LIST[] = {
 static const char* MODE_NON4K_LIST[] = {
     MODE_1080P,
     MODE_1080P50HZ,
-    MODE_1080I,
-    MODE_1080I50HZ,
     MODE_720P,
     MODE_720P50HZ,
     MODE_576P,
     MODE_480P,
+    MODE_1080I,
+    MODE_1080I50HZ,
     MODE_576I,
     MODE_480I,
 };
 
-//this is prior selected list  of 4k2k50hz, 4k2k60hz smpte50hz, smpte60hz
+//this is prior selected list for sdr of 4k2k50hz, 4k2k60hz smpte50hz, smpte60hz
+//for user change resolution case
 static const char* COLOR_ATTRIBUTE_LIST1[] = {
     COLOR_YCBCR420_10BIT,
     COLOR_YCBCR422_12BIT,
@@ -244,13 +245,23 @@ static const char* COLOR_ATTRIBUTE_LIST1[] = {
     COLOR_RGB_8BIT,
 };
 
-//this is prior selected list  of other display mode
+//this is prior selected list for hdr and sdr  of non 4k display mode
+//for user change resolution case
 static const char* COLOR_ATTRIBUTE_LIST2[] = {
-    COLOR_YCBCR444_10BIT,
     COLOR_YCBCR422_12BIT,
+    COLOR_YCBCR444_10BIT,
     COLOR_RGB_10BIT,
     COLOR_YCBCR444_8BIT,
     COLOR_RGB_8BIT,
+};
+
+//this is prior selected list for sdr  of non 4k display mode
+static const char* SDR_NON4K_COLOR_ATTRIBUTE_LIST[] = {
+    COLOR_YCBCR444_8BIT,
+    COLOR_RGB_8BIT,
+    COLOR_YCBCR422_12BIT,
+    COLOR_YCBCR444_10BIT,
+    COLOR_RGB_10BIT,
 };
 
 //this is prior selected list  of Low Power Mode 4k2k50hz, 4k2k60hz smpte50hz, smpte60hz
@@ -280,9 +291,11 @@ static const char* COLOR_ATTRIBUTE_LIST4[] = {
 
 //this is prior selected list of HDR non 4k colorspace
 static const char* HDR_NON4K_COLOR_ATTRIBUTE_LIST[] = {
-    COLOR_YCBCR444_10BIT,
     COLOR_YCBCR422_12BIT,
+    COLOR_YCBCR444_10BIT,
+    COLOR_RGB_10BIT,
     COLOR_YCBCR444_12BIT,
+    COLOR_RGB_12BIT,
 };
 
 //this is prior selected list of HDR 4k colorspace(2160p60hz/2160p50hz)
@@ -461,7 +474,7 @@ int SceneProcess::updateDolbyVisionType(void) {
     //1. update input dolby vision info
     //1.1 update current dolby vision mode
     strcpy(type, mScene_Input_Info.dv_input_info.ubootenv_dv_type);
-    //1.2 update tv supprot dolby  vision deep color
+    //1.2 update tv support dolby  vision deep color
     strcpy(dv_deepcolor, mScene_Input_Info.dv_input_info.dv_deepcolor);
     SYS_LOGI("ubootenv_dv_type %s dv_deepcolor:%s\n", type, dv_deepcolor);
 
@@ -689,6 +702,38 @@ void SceneProcess::getHighestHdmiMode(char* mode) {
 }
 
 //check if the edid support current hdmi mode
+bool SceneProcess::isSupportHdmiMode(char* mode) {
+    if (!mode) {
+        SYS_LOGE("mode is NULL\n");
+        return false;
+    } else {
+        //check current resolution support or not base driver edid
+        char *pCmp = mScene_Input_Info.hdmi_input_info.disp_cap;
+        while ((pCmp - mScene_Input_Info.hdmi_input_info.disp_cap) < (int)strlen(mScene_Input_Info.hdmi_input_info.disp_cap)) {
+            char *pos = strchr(pCmp, 0x0a);
+            if (NULL == pos)
+                break;
+
+            int step = 1;
+            if (*(pos - 1) == '*') {
+                pos -= 1;
+                step += 1;
+            }
+            if (!strncmp(pCmp, mode, pos - pCmp)) {
+                strncpy(mode, pCmp, pos - pCmp);
+                SYS_LOGI("mode: %s\n", mode);
+                return true;
+            }
+            pCmp = pos + step;
+        }
+
+        SYS_LOGI("mode: %s not support\n", mode);
+
+        return false;
+    }
+}
+
+//check if the edid support current hdmi mode
 void SceneProcess::filterHdmiMode(char* mode) {
     //check current resolution support or not base driver edid
     char *pCmp = mScene_Input_Info.hdmi_input_info.disp_cap;
@@ -782,6 +827,13 @@ void SceneProcess::getBestHdmiDeepColorAttr(const char *outputmode, char* colorA
     //if read /sys/class/amhdmitx/amhdmitx0/dc_cap is null
     //return and use default color format(444 8bit)
     if (!initColorAttribute(supportedColorList, MAX_STR_LEN)) {
+        if (!strcmp(outputmode, MODE_4K2K60HZ) || !strcmp(outputmode, MODE_4K2K50HZ)
+            || !strcmp(outputmode, MODE_4K2KSMPTE60HZ) || !strcmp(outputmode, MODE_4K2KSMPTE50HZ)) {
+            strcpy(colorAttribute, DEFAULT_COLOR_FORMAT_4K);
+        } else {
+            strcpy(colorAttribute, DEFAULT_COLOR_FORMAT);
+        }
+
         SYS_LOGE("initColorAttribute fail\n");
         return;
     }
@@ -804,11 +856,16 @@ void SceneProcess::getBestHdmiDeepColorAttr(const char *outputmode, char* colorA
             //detail priority as table
             colorList = COLOR_ATTRIBUTE_LIST4;
             length = ARRAY_SIZE(COLOR_ATTRIBUTE_LIST4);
-        } else {
-            //10bit prefer to 8bit normal mode
-            //detail priority as table
+        } else if (isHDRPreference()) {
+            //hdr non 4k color format priority table
+            //for user change resolution case
+            //ex:connector 2160p60 420 8bit TV,when switch to 1080p60,10bit first for hdr,switch 2160p60,only 420 8bit.
             colorList = COLOR_ATTRIBUTE_LIST2;
             length = ARRAY_SIZE(COLOR_ATTRIBUTE_LIST2);
+        } else {
+            //sdr non 4k color format priority table
+            colorList = SDR_NON4K_COLOR_ATTRIBUTE_LIST;
+            length = ARRAY_SIZE(SDR_NON4K_COLOR_ATTRIBUTE_LIST);
         }
     }
 
@@ -1046,66 +1103,76 @@ bool SceneProcess::isSupportnon4KHDR(scene_output_info_t *output_info) {
         return false;
     }
 }
+bool SceneProcess::findHDRpreferMode(scene_output_info_t *output_info) {
+    bool find = false;
+    if (!output_info) {
+        SYS_LOGE("output_info is NULL\n");
+    } else {
+        //box can support 4k case
+        //find prefer 4k hdr resolution and color format base driver edid
+        if (IsSupport4K() == true) {
+            find = isSupport4KHDR(output_info);
+        }
+
+        //not find 4k hdr mode and find non 4k case
+        //find prefer non 4k hdr resolution and color format base driver edid
+        if (false == find) {
+            find = isSupportnon4KHDR(output_info);
+        }
+    }
+
+    return find;
+}
 
 void SceneProcess::HDRSceneProcess(scene_output_info_t* output_info) {
-     if (IsBestPolicy()) {
+     if (IsBestPolicy()
+         && ((mScene_Input_Info.state == SCENE_STATE_INIT) ||
+         (mScene_Input_Info.state == SCENE_STATE_POWER))) {
          //best policy enable case
+         //and except from third apk or framewotk set mode.
          bool find = false;
 
          scene_output_info_t   Scene_output_info;
          memset(&Scene_output_info, 0, sizeof(scene_output_info_t));
 
-         //box can support 4k case
-         //find prefer 4k hdr resolution and color format base driver edid
-         if (IsSupport4K() == true) {
-             find = isSupport4KHDR(&Scene_output_info);
-         }
-
+         find = findHDRpreferMode(&Scene_output_info);
          if (find) {
              strcpy(mScene_output_info.final_deepcolor, Scene_output_info.final_deepcolor);
              strcpy(mScene_output_info.final_displaymode, Scene_output_info.final_displaymode);
          } else {
-             //non 4k case
-             //find prefer non 4k hdr resolution and color format base driver edid
-             find = isSupportnon4KHDR(&Scene_output_info);
+             SYS_LOGE("%s not find hdr support mode\n", __FUNCTION__);
+         }
+     } else {
+         //best policy disable case
+         //1.check cur_displaymode + ubootenv.var.colorattribute support or not
+         // and except from third apk or framewotk set mode.
+         if (isModeSupportDeepColorAttr(mScene_Input_Info.cur_displaymode, mScene_Input_Info.hdmi_input_info.ubootenv_colorattribute)
+             && !((mScene_Input_Info.state == SCENE_STATE_SWITCH) && IsBestPolicy())) {
+             SYS_LOGI("support current mode:[%s], deep color:[%s]\n", mScene_Input_Info.cur_displaymode, mScene_Input_Info.hdmi_input_info.ubootenv_colorattribute);
+             strcpy(mScene_output_info.final_deepcolor, mScene_Input_Info.hdmi_input_info.ubootenv_colorattribute);
+             strcpy(mScene_output_info.final_displaymode, mScene_Input_Info.cur_displaymode);
+         } else if (isSupportHdmiMode(mScene_Input_Info.cur_displaymode)) {
+             //2.check cur_displaymode support or not
+             //if displaymode support ,and find best color format base mode.
+             char colorAttribute[MODE_LEN] = {0};
+             getBestHdmiDeepColorAttr(mScene_Input_Info.cur_displaymode,  colorAttribute);
+             strcpy(mScene_output_info.final_deepcolor, colorAttribute);
+             strcpy(mScene_output_info.final_displaymode, mScene_Input_Info.cur_displaymode);
+         } else {
+             //3.find best hdr prefer mode
+             bool find = false;
+
+             scene_output_info_t   Scene_output_info;
+             memset(&Scene_output_info, 0, sizeof(scene_output_info_t));
+
+             find = findHDRpreferMode(&Scene_output_info);
              if (find) {
                  strcpy(mScene_output_info.final_deepcolor, Scene_output_info.final_deepcolor);
                  strcpy(mScene_output_info.final_displaymode, Scene_output_info.final_displaymode);
              } else {
-                 SYS_LOGE("%s not find hdr support\n", __FUNCTION__);
+                 SYS_LOGE("%s not find hdr support mode\n", __FUNCTION__);
              }
          }
-     } else {
-         //best policy disable case
-         if ((mScene_Input_Info.state == SCENE_STATE_INIT) ||
-             (mScene_Input_Info.state == SCENE_STATE_POWER)) {
-             //choose resolution, frame rate
-             char outputmode[MODE_LEN] = {0};
-
-             if (SINK_TYPE_NONE != mScene_Input_Info.hdmi_input_info.sinkType) {
-                 getHdmiOutputMode(outputmode);
-             } else {
-                 strcpy(outputmode, mScene_Input_Info.hdmi_input_info.ubootenv_cvbsmode);
-             }
-
-             if (strlen(outputmode) == 0) {
-                 strcpy(outputmode, DEFAULT_HDMI_MODE);
-             }
-
-             strcpy(mScene_output_info.final_displaymode, outputmode);
-             SYS_LOGI("%s final_displaymode:%s\n", __FUNCTION__, mScene_output_info.final_displaymode);
-         } else if (mScene_Input_Info.state == SCENE_STATE_SWITCH) {
-             // doesn't read hdmi info for ui switch scene
-             // choose resolution, frame rate
-             strcpy(mScene_output_info.final_displaymode, mScene_Input_Info.cur_displaymode);
-             SYS_LOGI("%s final_displaymode:%s\n", __FUNCTION__, mScene_output_info.final_displaymode);
-         }
-
-         //choose color format, bit-depth
-         char colorAttribute[MODE_LEN] = {0};
-         updateHdmiDeepColor(mScene_Input_Info.state, mScene_output_info.final_displaymode, colorAttribute);
-         strcpy(mScene_output_info.final_deepcolor, colorAttribute);
-         SYS_LOGI("%s final_deepcolor = %s\n", __FUNCTION__, mScene_output_info.final_deepcolor);
     }
 
      //return output info

@@ -147,6 +147,7 @@ private:
     void SDRSceneProcess(scene_output_info_t* output_info);
     bool isSupport4KHDR(scene_output_info_t *output_info);
     bool isSupportnon4KHDR(scene_output_info_t *output_info);
+    bool findHDRpreferMode(scene_output_info_t *output_info);
     int updateDolbyVisionType(void);
     void updateDolbyVisionAttr(int dolbyvision_type, char * dv_attr);
     void updateDolbyVisionDisplayMode(char * cur_outputmode, int dv_type, char * final_displaymode);
@@ -166,6 +167,7 @@ private:
     void updateHdmiDeepColor(scene_state state, const char* outputmode, char* colorAttribute);
     void getHighestHdmiMode(char* mode);
     void filterHdmiMode(char* mode);
+    bool isSupportHdmiMode(char* mode);
     void getHdmiOutputMode(char* mode);
 
     scene_input_info_t    mScene_Input_Info;
