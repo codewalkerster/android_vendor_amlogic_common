@@ -145,10 +145,10 @@ public class AudioSettingManager {
 
     public void initSystemAudioSetting() {
         Log.d(TAG, "initParameterAfterBoot");
-
-        setWiredDeviceConnectionState(SystemControlEvent.DEVICE_OUT_AUX_DIGITAL,
-                mOutputModeManager.isHDMIPlugged() ? 1 : 0, "", "");
-                /*setThisValue for dts scale*/
+        if (mOutputModeManager.isHDMIPlugged()) {
+            setWiredDeviceConnectionState(SystemControlEvent.DEVICE_OUT_AUX_DIGITAL, 1, "", "");
+        }
+        /*setThisValue for dts scale*/
         mOutputModeManager.setDtsDrcScaleSysfs();
 
         initDigitalAudioFormat();

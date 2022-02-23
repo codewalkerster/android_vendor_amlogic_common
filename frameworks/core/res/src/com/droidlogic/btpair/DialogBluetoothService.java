@@ -24,6 +24,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioManager;
+import android.media.AudioSystem;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
@@ -35,7 +37,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import android.media.AudioManager;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
@@ -67,9 +68,6 @@ public class DialogBluetoothService extends Service {
         "B12"
     };
 
-    public static final int DEVICE_BIT_IN = 0x80000000;
-    public static final int DEVICE_IN_WIRED_HEADSET = DEVICE_BIT_IN | 0x10;
-    public static final int DEVICE_IN_BLE_IN = DEVICE_BIT_IN | 0x4000000;
     // Time to connect to bonded devices for boot
     private static final int CONNECT_DELAY_MS_BOOT = 100;
     // Time to wait before connecting to bonded devices
@@ -157,7 +155,7 @@ public class DialogBluetoothService extends Service {
             else */if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
                 Log.i(TAG, ">ACL LINK CONNECTED ["+device.getName()+"] - checking for supported devices after delay");
                 if (isBleVoiceDevice(device)) {
-                    setWiredDeviceConnectionState(/*AudioManager.*/DEVICE_IN_BLE_IN, 1, macAddress, deviceName);
+                    mAudioManager.setWiredDeviceConnectionState(AudioSystem.DEVICE_IN_BLUETOOTH_BLE, 1, macAddress, deviceName);
                 }
                 if (isRemoteAudioCapable(device)) {
                     Log.i(TAG, "pending.isEmpty()="+pending.isEmpty());
@@ -177,7 +175,7 @@ public class DialogBluetoothService extends Service {
             else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
                 Log.i(TAG, ">ACL LINK DISCONNECTED ["+device.getName()+"]");
                 if (isBleVoiceDevice(device)) {
-                    setWiredDeviceConnectionState(/*AudioManager.*/DEVICE_IN_BLE_IN, 0, macAddress, deviceName);
+                    mAudioManager.setWiredDeviceConnectionState(AudioSystem.DEVICE_IN_BLUETOOTH_BLE, 0, macAddress, deviceName);
                 }
                 if (isRemoteAudioCapable(device)) {
                     pending.remove(device);
@@ -256,7 +254,7 @@ public class DialogBluetoothService extends Service {
         for (Iterator<BluetoothDevice> it = bondedDevices.iterator(); it.hasNext();) {
             BluetoothDevice dev = (BluetoothDevice) it.next();
             if (isBleVoiceDevice(dev)) {
-                setWiredDeviceConnectionState(/*AudioManager.*/DEVICE_IN_BLE_IN, 1, dev.getAddress(), dev.getName());
+                mAudioManager.setWiredDeviceConnectionState(AudioSystem.DEVICE_IN_BLUETOOTH_BLE, 1, dev.getAddress(), dev.getName());
             }
         }
     }
@@ -667,43 +665,13 @@ public class DialogBluetoothService extends Service {
         for (Iterator<BluetoothDevice> it = bondedDevices.iterator(); it.hasNext();) {
             BluetoothDevice dev = (BluetoothDevice) it.next();
             if (isRemoteAudioCapable(dev)) {
-
-            /* @hidden-api-issue-start*/
                 Log.i(TAG, "amlogic rc " + (status == 1 ? "input" : "remove"));
                 connectedState = status;
-                //mAudioManager.setWiredDeviceConnectionState(AudioManager.DEVICE_IN_WIRED_HEADSET, connectedState, dev.getAddress(), dev.getName());
-                setWiredDeviceConnectionState(/*AudioManager.*/DEVICE_IN_WIRED_HEADSET, connectedState, dev.getAddress(), dev.getName());
-           /* @hidden-api-issue-end */
+                mAudioManager.setWiredDeviceConnectionState(AudioSystem.DEVICE_IN_WIRED_HEADSET, connectedState, dev.getAddress(), dev.getName());
                 break;
             }
         }
     }
-
-    private void setWiredDeviceConnectionState(int type, int state, String address, String name) {
-        Log.i(TAG, "type = "+ type +"; state = "+ state +"; address ="+ address +"; name="+name);
-        try {
-            Class<?> audioManager = Class.forName("android.media.AudioManager");
-            Method setwireState = audioManager.getMethod("setWiredDeviceConnectionState",
-                                    int.class, int.class, String.class, String.class);
-
-            setwireState.invoke(mAudioManager, type, state, address, name);
-
-        } catch(ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (NoSuchMethodException ex) {
-            ex.printStackTrace();
-        } catch (IllegalArgumentException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
-
 
     /*****
      * broadcastUpdate functions to send data back to BleActivity
