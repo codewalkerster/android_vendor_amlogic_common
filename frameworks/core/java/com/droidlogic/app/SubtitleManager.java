@@ -875,7 +875,7 @@ public class SubtitleManager {
                 LOGI("[openIdx] ext sub switch idx:" + idx + "-" + trackId +" mExtFilePath:"+mExtFilePath+" mInterSubTotal:" + mInterSubTotal);
                 //nativeOpen(mExtFilePath, IO_TYPE_FILE);
                 nativeOpenSubIdx(mExtFilePath, trackId, IO_TYPE_FILE);
-                show();
+                schedulePtsReport(); // external subtitle need pts from app
                 runOnMainThread(() -> { mUI.clearContent(); });
             }
         }
@@ -915,8 +915,8 @@ public class SubtitleManager {
 
         boolean result = false;
         if (mPath != null) {
+            int iotype = IO_TYPE_FMQ;
             try {
-                int iotype = IO_TYPE_FMQ;
                 mSubtitleUtils = new SubtitleUtils(mPath);
                 if (mSubtitleUtils.getSubID(0) != null) {
                     iotype = IO_TYPE_FILE;
@@ -931,7 +931,10 @@ public class SubtitleManager {
             }
 
             if (result) {
-                show();
+                // only external sub files need schedule pts report
+                if (iotype == IO_TYPE_FILE) {
+                    schedulePtsReport();
+                }
 
                 if (optionEnable() ) {
                     option();//show subtitle select option add for debug
@@ -958,11 +961,12 @@ public class SubtitleManager {
         nativeDestroy();
     }
 
-    private void show() {
+    private void schedulePtsReport() {
         LOGI("[show]mSubtitleUtils:" + mSubtitleUtils);
         if (mExtFilePath != null) {
             if (mThread == null || mThreadStop == true) {
                 mThreadStop = false;
+                Log.d(TAG, "mExtFilePath="+mExtFilePath, new Throwable());
                 mThread = new Thread (runnable);
                 mThread.start();
             }
@@ -1256,8 +1260,6 @@ public class SubtitleManager {
                     boolean ret = open(mPath);
 
                         if (ret) {
-                            show();
-
                             if (optionEnable() ) {
                                 option();//show subtitle select option add for debug
                             }
