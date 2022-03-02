@@ -78,7 +78,7 @@ int wpa_driver_nl80211_driver_cmd(void *priv, char *cmd, char *buf,
 	android_wifi_priv_cmd priv_cmd;
 	int ret = 0;
 	char wifi_status[PROPERTY_VALUE_MAX] = {'\0'};
-	property_get("vendor.bcm_wifi", wifi_status, NULL);
+	property_get("vendor.wifi_name", wifi_status, NULL);
 	if (bss->ifindex <= 0 && bss->wdev_id > 0) {
 		/* DRIVER CMD received on the DEDICATED P2P Interface which doesn't
 		 * have an NETDEVICE associated with it. So we have to re-route the

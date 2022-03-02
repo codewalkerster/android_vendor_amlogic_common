@@ -39,6 +39,7 @@ cc_prebuilt_library_shared {
     defaults: ["multiwifi_go_defaults"],
 
     proprietary: true,
+    check_elf_files: false,
     arch: {
         arm: {
             srcs: ["lib/libwifi-hal-common-ext.so"],
@@ -52,5 +53,6 @@ cc_prebuilt_library_shared {
         "libcutils",
         "liblog",
         "libnetutils",
+        "libwifi-hal-common-info",
     ],
 }
