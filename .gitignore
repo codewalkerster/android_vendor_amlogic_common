@@ -34,7 +34,6 @@
 /apps/DroidLiveTvSettings/
 /apps/FileBrowser/
 /apps/GoogleTVCustomizationSample/
-/apps/MboxLauncher2/
 /apps/PPPoE/
 /apps/RemoteIME/
 /apps/TvInput/
@@ -62,3 +61,4 @@
 *.order
 /codec2/
 /libdsm/
+/arm_isp
