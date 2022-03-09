@@ -652,7 +652,11 @@ void DisplayMode::setSourceOutputMode(const char* outputmode) {
     mHdmidata.state = OUPUT_MODE_STATE_SWITCH;
     strcpy(mHdmidata.ui_hdmimode, outputmode);
 
-    getCommonData(&mHdmidata);
+    if (DISPLAY_TYPE_TABLET == mDisplayType) {
+        getHdmiData(&mHdmidata);
+    } else {
+        getCommonData(&mHdmidata);
+    }
 
     //2. scene logic process
     sceneProcess(&mHdmidata);
