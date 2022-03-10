@@ -763,8 +763,8 @@ RecoveryDtbCheck(const ZipArchiveHandle za){
         goto END;
     }
 
-    if (strcmp(ANDROID_VERSION_S, android_version.c_str())) {
-        printf("now upgrade from android %s to S\n", android_version.c_str());
+    if (strcmp(ANDROID_VERSION_T, android_version.c_str())) {
+        printf("now upgrade from android %s to T\n", android_version.c_str());
         ret = DTB_TWO_STEP;
     }
 

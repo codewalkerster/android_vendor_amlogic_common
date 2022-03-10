@@ -16,7 +16,7 @@ Description:
 #define BOOTLOADER_IMG  "bootloader.img"
 #define ARRAY_SIZE(x)   (int)(sizeof(x)/sizeof(x[0]))
 
-#define ANDROID_VERSION_S "31"
+#define ANDROID_VERSION_T "32"
 
 #define NORMALBOOT_NAME_SIZE   16
 #define NORMALBOOT_ARGS_SIZE   512
