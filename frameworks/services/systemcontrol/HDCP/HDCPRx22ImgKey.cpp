@@ -23,6 +23,7 @@
 //#include "crc32.h"
 #include "HDCPRx22ImgKey.h"
 #include "HDCPRxKey.h"
+#include "../provision/ProvisionKey.h"
 #include <sys/stat.h>
 
 #define HDCP_LOGD(...)  ALOGD(__VA_ARGS__)
@@ -618,7 +619,17 @@ int setImgPath(const char *path)
     AmlResImgHead_t *pImgHead = NULL;
     AmlResItemHead_t *pItemHead = NULL;
     SysWrite write;
-    bool isTeeHdcp = write.getPropertyBoolean("ro.vendor.hdcp.tee.key.enable", false);
+    ProvisionKey provisionKey;
+
+    char existKey[10] = {0};
+    bool isTeeHdcp = false;
+    write.writeSysfs("/sys/class/unifykeys/attach", "1");
+    write.writeSysfs("/sys/class/unifykeys/name", "hdcp22_rx_fw");
+
+    write.readSysfs("/sys/class/unifykeys/exist", existKey);
+    if (0 == strncmp(existKey, "none", 5)) {
+        isTeeHdcp = true;
+    }
     bool result_provison = false;
 
     if (path == NULL) {
@@ -722,7 +733,7 @@ int setImgPath(const char *path)
             }
 
             if(isTeeHdcp) {
-                result_provison = write.writeHDCP22Key(tmpbuffer, pItemHead->dataSz);
+                result_provison = provisionKey.writeHDCP22Key(tmpbuffer, pItemHead->dataSz);
                 if (result_provison) {
                     result = 0;
                 } else {
@@ -764,7 +775,7 @@ int setImgPath(const char *path)
             }
 
             if(isTeeHdcp) {
-                result_provison = write.writeHDCP22Key(writebuffer, pItemHead->dataSz);
+                result_provison = provisionKey.writeHDCP22Key(writebuffer, pItemHead->dataSz);
                 if (result_provison) {
                     result = 0;
                 } else {
@@ -802,7 +813,7 @@ int setImgPath(const char *path)
             }
 
             if(isTeeHdcp) {
-                result_provison = write.writeHDCP22Key(writebuffer, pItemHead->dataSz);
+                result_provison = provisionKey.writeHDCP22Key(writebuffer, pItemHead->dataSz);
                 if (result_provison) {
                     result = 0;
                 } else {
