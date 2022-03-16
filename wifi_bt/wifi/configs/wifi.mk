@@ -53,6 +53,13 @@ $(strip \
 $(eval $(call check-wifi-modules,$(WIFI_MODULES)))
 
 PRODUCT_PROPERTY_OVERRIDES += persist.vendor.wifibt_name = "$(CONFIG_WIFIBT_NAME)"
+ifeq ($(WIFI_MODULES), multiwifi)
+WIFI_MODULES := $(WIFI_BUILT_MODULES)
+else ifeq ($(WIFI_MODULES), )
+WIFI_MODULES := $(WIFI_BUILT_MODULES)
+else ifneq (,$(filter-out $(WIFI_BUILT_MODULES),$(WIFI_MODULES)))
+$(error wifi modules "$(filter-out $(WIFI_BUILT_MODULES),$(WIFI_MODULES))" have no driver support!)
+endif
 
 #enable clang CFI for arm64
 ifeq ($(ANDROID_BUILD_TYPE), 64)
