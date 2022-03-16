@@ -1012,6 +1012,10 @@ public class SubtitleManager {
         LOGI("[innerTotal]mInterSubTotal:" + mInterSubTotal);
         if (mInterSubTotal == -1) {
             mInterSubTotal = nativeInnerSubtitles();
+            if (mInterSubTotal == -1 && mInnerTrackIdx != null && mInnerTrackIdx.size() > 0) {
+                mInterSubTotal = mInnerTrackIdx.size();
+                LOGI("[innerTotal]mInterSubTotal is -1, use mInnerTrackIdx.size:" + mInterSubTotal);
+            }
         }
         return mInterSubTotal;
     }
