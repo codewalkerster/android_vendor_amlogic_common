@@ -44,6 +44,8 @@ interface ISubtitleServer {
   /* for extenal subtitle update pts */
   updateVideoPos(int32_t sId, int32_t pos) generates (Result result);
 
+  // some stream,set secure level
+  setSecureLevel(int32_t sId, int32_t flag) generates (Result result);
 
     /* Some Infos for clients */
   getTotalTracks(int32_t sId) generates (Result result, int32_t val);
