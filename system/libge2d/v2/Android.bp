@@ -37,7 +37,7 @@ license {
         "legacy_notice",
     ],
     license_text: [
-        "LICENSE.txt",
+        "LICENSE",
     ],
 }
 
