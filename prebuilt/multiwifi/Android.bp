@@ -37,15 +37,20 @@ multiwifi_go_defaults {
 cc_prebuilt_library_shared {
     name: "libwifi-hal-common-ext",
     defaults: ["multiwifi_go_defaults"],
-
-    proprietary: true,
     check_elf_files: false,
+    proprietary: true,
     arch: {
         arm: {
             srcs: ["lib/libwifi-hal-common-ext.so"],
         },
         arm64: {
             srcs: ["lib64/libwifi-hal-common-ext.so"],
+        },
+        x86: {
+            enabled: false,
+        },
+        x86_64: {
+            enabled: false,
         },
     },
     shared_libs: [
