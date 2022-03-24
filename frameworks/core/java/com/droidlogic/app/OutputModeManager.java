@@ -613,9 +613,7 @@ public class OutputModeManager {
         }
 
         if (isLogPrint(2)) {
-            for (int i =  0; i < listHdmiMode.size(); i++) {
-                Log.d(TAG, "listHdmiMode:"+ listHdmiMode.get(i));
-            }
+            Log.d(TAG, "listHdmiMode: " + listHdmiMode);
         }
 
         //2.2 filter dolby vision support mode list
