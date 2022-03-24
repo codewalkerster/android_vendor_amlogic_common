@@ -561,10 +561,18 @@ public class OutputModeManager {
         return mOutModeList;
     }
 
-    public void  filterHdmiSupportModeList() {
+    public void filterHdmiSupportModeList() {
         //init mode and title list
-        mHdmiSupportModeList  = HDMI_LIST;
-        mHdmiSupportTitleList = HDMI_TITLE;
+        mHdmiSupportModeList  = new String[0];
+        mHdmiSupportTitleList = new String[0];
+
+        //If reading hdmi support mode returns failure, stop and return empty list
+        ArrayList<String> mSupportDispModeList = new ArrayList<String>();
+        mSystemControl.getSupportDispModeList(mSupportDispModeList);
+        if (mSupportDispModeList.size() <= 0) {
+            Log.w(TAG, "read hdmi support mode fail");
+            return;
+        }
 
         //1. update title for 59.94/29.97/23.976
         //mHdmiSupportModeList-->listMode
@@ -572,111 +580,104 @@ public class OutputModeManager {
         List<String> listMode = new ArrayList<String>();
         List<String> listTitle = new ArrayList<String>();
         String frac_rate_policy = getFrameRateOffset();
-
-        for (int i = 0; i < mHdmiSupportModeList.length; i++) {
-            if (mHdmiSupportModeList[i] != null) {
-                listMode.add(mHdmiSupportModeList[i]);
+        for (int i = 0; i < HDMI_LIST.length; i++) {
+            if (HDMI_LIST[i] != null) {
+                listMode.add(HDMI_LIST[i]);
                 if (frac_rate_policy.contains(HDMI_OFFSET_ENABLE)) {
-                    if (mHdmiSupportTitleList[i].contains("60hz")) {
-                        listTitle.add(mHdmiSupportTitleList[i].replace("60hz", "59.94hz"));
-                    } else if (mHdmiSupportTitleList[i].contains("30hz")) {
-                        listTitle.add(mHdmiSupportTitleList[i].replace("30hz", "29.97hz"));
-                    } else if (mHdmiSupportTitleList[i].contains("24hz")) {
-                        listTitle.add(mHdmiSupportTitleList[i].replace("24hz", "23.976hz"));
+                    if (HDMI_TITLE[i].contains("60hz")) {
+                        listTitle.add(HDMI_TITLE[i].replace("60hz", "59.94hz"));
+                    } else if (HDMI_TITLE[i].contains("30hz")) {
+                        listTitle.add(HDMI_TITLE[i].replace("30hz", "29.97hz"));
+                    } else if (HDMI_TITLE[i].contains("24hz")) {
+                        listTitle.add(HDMI_TITLE[i].replace("24hz", "23.976hz"));
                     } else {
-                        listTitle.add(mHdmiSupportTitleList[i]);
+                        listTitle.add(HDMI_TITLE[i]);
                     }
                 } else {
-                    listTitle.add(mHdmiSupportTitleList[i]);
+                    listTitle.add(HDMI_TITLE[i]);
                 }
             }
         }
 
         //2. check hdmi edid support mode
+        //2.1 filter hdmi edid mode list
+        //listMode-->listHdmiMode
+        //listTitle-->listHdmiTitle
         List<String> listHdmiMode  = new ArrayList<String>();
         List<String> listHdmiTitle = new ArrayList<String>();
-        ArrayList<String> HdmiSupportModeList = new ArrayList<String>();
+        for (int i = 0; i < listMode.size(); i++) {
+            if (mSupportDispModeList.contains(listMode.get(i))) {
+                listHdmiMode.add(listMode.get(i));
+                listHdmiTitle.add(listTitle.get(i));
+            }
+        }
 
-        mSystemControl.getSupportDispModeList(HdmiSupportModeList);
-        if (HdmiSupportModeList.size() <= 0) {
-            Log.w(TAG, "read hdmi support mode fail");
-            mHdmiSupportModeList  = listMode.toArray(new String[listMode.size()]);
-            mHdmiSupportTitleList = listTitle.toArray(new String[listTitle.size()]);
-        } else {
-            //2.1 filter hdmi edid mode list
-            //listMode-->listHdmiMode
-            //listTitle-->listHdmiTitle
-            for (int i = 0; i < listMode.size(); i++) {
-                if (HdmiSupportModeList.contains(listMode.get(i))) {
-                    listHdmiMode.add(listMode.get(i));
-                    listHdmiTitle.add(listTitle.get(i));
+        if (isLogPrint(2)) {
+            for (int i =  0; i < listHdmiMode.size(); i++) {
+                Log.d(TAG, "listHdmiMode:"+ listHdmiMode.get(i));
+            }
+        }
+
+        //2.2 filter dolby vision support mode list
+        //listHdmiMode-->listHdmiDVMode
+        //listHdmiTitle-->listHdmiDVTitle
+        List<String> listHdmiDVMode  = new ArrayList<String>();
+        List<String> listHdmiDVTitle = new ArrayList<String>();
+        if (isDolbyVisionPreference()) {
+            //get current dolby vision mode
+            int type = mDolbyVisionSettingManager.getDolbyVisionType();
+            for (int i = 0; i < listHdmiMode.size(); i++) {
+                if (resolveResolutionValue(listHdmiMode.get(i))
+                        > resolveResolutionValue(tvSupportDolbyVisionMode)) {
+                    Log.w(TAG, "This TV not Support Dolby Vision: " + listHdmiMode.get(i));
+                } else {
+                    if (listHdmiMode.get(i).contains("smpte")
+                        || listHdmiMode.get(i).contains("i")) {
+                        Log.w(TAG, "This hdmi mode is not support Dolby Vision: " + listHdmiMode.get(i));
+                        continue;
+                    }
+
+                    switch (type) {
+                        case DV_ENABLE:
+                            if (isModeSupportColor(listHdmiMode.get(i), "444,8bit")) {
+                                listHdmiDVMode.add(listHdmiMode.get(i));
+                                listHdmiDVTitle.add(listHdmiTitle.get(i));
+                            }
+                            break;
+                        case DV_LL_YUV:
+                            if (isModeSupportColor(listHdmiMode.get(i), "422,12bit")
+                                    || isModeSupportColor(listHdmiMode.get(i), "422,10bit")) {
+                                listHdmiDVMode.add(listHdmiMode.get(i));
+                                listHdmiDVTitle.add(listHdmiTitle.get(i));
+                            }
+                            break;
+                        case DV_LL_RGB:
+                            if (resolveResolutionValue(listHdmiMode.get(i))
+                                    > resolveResolutionValue("1080p60hz")) {
+                                Log.e(TAG, "This mode is not support dv LL RGB: " + listHdmiMode.get(i));
+                                continue;
+                            }
+
+                            if (isModeSupportColor(listHdmiMode.get(i), "444,12bit")
+                                || isModeSupportColor(listHdmiMode.get(i), "444,10bit")) {
+                                listHdmiDVMode.add(listHdmiMode.get(i));
+                                listHdmiDVTitle.add(listHdmiTitle.get(i));
+                            }
+                            break;
+                    }
                 }
             }
 
             if (isLogPrint(2)) {
-                Log.v(TAG, "listHdmiMode: " + listHdmiMode);
-            }
-
-            //2.2 filter dolby vision support mode list
-            //listHdmiMode-->listHdmiDVMode
-            //listHdmiTitle-->listHdmiDVTitle
-            List<String> listHdmiDVMode  = new ArrayList<String>();
-            List<String> listHdmiDVTitle = new ArrayList<String>();
-            if (isDolbyVisionPreference()) {
-                //get current dolby vision mode
-                int type = mDolbyVisionSettingManager.getDolbyVisionType();
-                for (int i = 0; i < listHdmiMode.size(); i++) {
-                    if (resolveResolutionValue(listHdmiMode.get(i))
-                            > resolveResolutionValue(tvSupportDolbyVisionMode)) {
-                        Log.w(TAG, "This TV not Support Dolby Vision: " + listHdmiMode.get(i));
-                    } else {
-                        if (listHdmiMode.get(i).contains("smpte")
-                            || listHdmiMode.get(i).contains("i")) {
-                            Log.w(TAG, "This hdmi mode is not support Dolby Vision: " + listHdmiMode.get(i));
-                            continue;
-                        }
-
-                        switch (type) {
-                            case DV_ENABLE:
-                                if (isModeSupportColor(listHdmiMode.get(i), "444,8bit")) {
-                                    listHdmiDVMode.add(listHdmiMode.get(i));
-                                    listHdmiDVTitle.add(listHdmiTitle.get(i));
-                                }
-                                break;
-                            case DV_LL_YUV:
-                                if (isModeSupportColor(listHdmiMode.get(i), "422,12bit")
-                                        || isModeSupportColor(listHdmiMode.get(i), "422,10bit")) {
-                                    listHdmiDVMode.add(listHdmiMode.get(i));
-                                    listHdmiDVTitle.add(listHdmiTitle.get(i));
-                                }
-                                break;
-                            case DV_LL_RGB:
-                                if (resolveResolutionValue(listHdmiMode.get(i))
-                                        > resolveResolutionValue("1080p60hz")) {
-                                    Log.e(TAG, "This mode is not support dv LL RGB: " + listHdmiMode.get(i));
-                                    continue;
-                                }
-
-                                if (isModeSupportColor(listHdmiMode.get(i), "444,12bit")
-                                    || isModeSupportColor(listHdmiMode.get(i), "444,10bit")) {
-                                    listHdmiDVMode.add(listHdmiMode.get(i));
-                                    listHdmiDVTitle.add(listHdmiTitle.get(i));
-                                }
-                                break;
-                        }
-                    }
+                for (int i =  0; i < listHdmiDVMode.size(); i++) {
+                    Log.d(TAG, "listHdmiDVMode:"+ listHdmiDVMode.get(i));
                 }
-
-                if (isLogPrint(2)) {
-                    Log.v(TAG, "listHdmiDVMode: " + listHdmiDVMode);
-                }
-
-                mHdmiSupportModeList  = listHdmiDVMode.toArray(new String[listHdmiDVMode.size()]);
-                mHdmiSupportTitleList = listHdmiDVTitle.toArray(new String[listHdmiDVTitle.size()]);
-            } else {
-                mHdmiSupportModeList  = listHdmiMode.toArray(new String[listHdmiMode.size()]);
-                mHdmiSupportTitleList = listHdmiTitle.toArray(new String[listHdmiTitle.size()]);
             }
+            mHdmiSupportModeList  = listHdmiDVMode.toArray(new String[listHdmiDVMode.size()]);
+            mHdmiSupportTitleList = listHdmiDVTitle.toArray(new String[listHdmiDVTitle.size()]);
+        } else {
+            mHdmiSupportModeList  = listHdmiMode.toArray(new String[listHdmiMode.size()]);
+            mHdmiSupportTitleList = listHdmiTitle.toArray(new String[listHdmiTitle.size()]);
         }
     }
 
@@ -723,7 +724,10 @@ public class OutputModeManager {
         //String list = readSupportList(HDMI_SUPPORT_LIST).replaceAll("[*]", "");
 
         RefreshOutModeList();
-        String list = mOutModeList.toString();
+        String list = "";
+        if (mOutModeList != null && !mOutModeList.isEmpty()) {
+            list = mOutModeList.toString();
+        }
 
         if (isLogPrint(3))
             Log.d(TAG, "getHdmiSupportList: " + list);
