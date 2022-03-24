@@ -509,7 +509,7 @@ private:
     SysFs *mSysFs;
     static CPQControl *mInstance;
     sp<CDevicePollCheckThread> mCDevicePollCheckThread;
-    CDynamicBackLight mDynamicBackLight;
+    sp<CDynamicBackLight> mDynamicBackLight;
     CConfigFile *mPQConfigFile;
 
     CHlgToneMapping *mHlgToneMapping;

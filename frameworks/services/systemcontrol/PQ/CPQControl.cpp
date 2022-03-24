@@ -170,8 +170,9 @@ void CPQControl::CPQControlInit()
     if (isFileExist(LDIM_PATH)) {
         SetDynamicBacklight((Dynamic_backlight_status_t)GetDynamicBacklight(), 1);
     } else if (isFileExist(mSysFs->getSysNode(BACKLIGHT_AML_BL_BRIGHTNESS))) {//local diming or pwm
-        mDynamicBackLight.setObserver(this);
-        mDynamicBackLight.startDected();
+        mDynamicBackLight = sp<CDynamicBackLight>::make();
+        mDynamicBackLight->setObserver(this);
+        mDynamicBackLight->startDected();
     } else {
         SYS_LOGD("No auto backlight moudle!\n");
     }
