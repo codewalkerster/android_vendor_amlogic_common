@@ -315,6 +315,7 @@ enum {
 #define MODE_8K4K48HZ                   "7680x4320p48hz"
 #define MODE_8K4K50HZ                   "7680x4320p50hz"
 #define MODE_8K4K60HZ                   "7680x4320p60hz"
+#define MODE_4K2K1080                   "3840x1080"
 #define MODE_PANEL                      "panel"
 #define MODE_PAL_M                      "pal_m"
 #define MODE_PAL_N                      "pal_n"
