@@ -2999,7 +2999,7 @@ static void btusb_intr_complete(struct urb *urb)
         }
     }
     /* Avoid suspend failed when usb_kill_urb */
-    else if(urb->status == -ENOENT)    {
+    else if (urb->status == -ENOENT) {
         return;
     }
 
@@ -3092,7 +3092,8 @@ static void btusb_bulk_complete(struct urb *urb)
         }
     }
     /* Avoid suspend failed when usb_kill_urb */
-    else if(urb->status == -ENOENT)    {
+    else if((urb->status == -ENOENT) || (urb->status == -EPROTO))   {
+        RTKBT_ERR("%s: urb->status = %d", __func__, urb->status);
         return;
     }
 
@@ -4440,13 +4441,17 @@ static int btusb_probe(struct usb_interface *intf, const struct usb_device_id *i
 
     RTKBT_DBG("%s: can wakeup = %x, may wakeup = %x", __func__,
             device_can_wakeup(&udev->dev), device_may_wakeup(&udev->dev));
-
+RTKBT_INFO("%s-%d", __func__,__LINE__);
     data = rtk_alloc(intf);
     if (!data)
         return -ENOMEM;
-
+RTKBT_INFO("%s-%d", __func__,__LINE__);
     for (i = 0; i < intf->cur_altsetting->desc.bNumEndpoints; i++) {
         ep_desc = &intf->cur_altsetting->endpoint[i].desc;
+        if (!data->intr_ep && usb_endpoint_is_bulk_in(ep_desc) && (ep_desc->bEndpointAddress == 0x81)) {
+                data->intr_ep = ep_desc;
+                continue;
+        }
 
         if (!data->intr_ep && usb_endpoint_is_int_in(ep_desc)) {
             data->intr_ep = ep_desc;
@@ -4463,12 +4468,12 @@ static int btusb_probe(struct usb_interface *intf, const struct usb_device_id *i
             continue;
         }
     }
-
+RTKBT_INFO("%s-%d", __func__,__LINE__);
     if (!data->intr_ep || !data->bulk_tx_ep || !data->bulk_rx_ep) {
         rtk_free(data);
         return -ENODEV;
     }
-
+RTKBT_INFO("%s-%d", __func__,__LINE__);
     data->cmdreq_type = USB_TYPE_CLASS;
 
     data->udev = udev;
@@ -4487,7 +4492,7 @@ static int btusb_probe(struct usb_interface *intf, const struct usb_device_id *i
     init_usb_anchor(&data->bulk_anchor);
     init_usb_anchor(&data->isoc_anchor);
     init_usb_anchor(&data->deferred);
-
+RTKBT_INFO("%s-%d", __func__,__LINE__);
     fw_info = firmware_info_init(intf);
     if (fw_info)
         data->fw_info = fw_info;
@@ -4496,14 +4501,14 @@ static int btusb_probe(struct usb_interface *intf, const struct usb_device_id *i
         /* Skip download patch */
         goto end;
     }
-
+RTKBT_INFO("%s-%d", __func__,__LINE__);
     hdev = hci_alloc_dev();
     if (!hdev) {
         rtk_free(data);
         data = NULL;
         return -ENOMEM;
     }
-
+RTKBT_INFO("%s-%d", __func__,__LINE__);
     HDEV_BUS = HCI_USB;
 
     data->hdev = hdev;

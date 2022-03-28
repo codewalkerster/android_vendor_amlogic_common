@@ -27,8 +27,8 @@ LOCAL_C_INCLUDES += \
         $(LOCAL_PATH)/../include \
         $(LOCAL_PATH)/../codec/sbc \
         $(LOCAL_PATH)/../codec/plc \
-        $(BDROID_DIR)/hci/include \
-        $(TOP_DIR)vendor/amlogic/common/wifi_bt/bluetooth/common/include
+        $(TOP_DIR)vendor/amlogic/common/wifi_bt/bluetooth/common/include \
+        $(BDROID_DIR)/hci/include
 
 LOCAL_SHARED_LIBRARIES := \
         libcutils \
