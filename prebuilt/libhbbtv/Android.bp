@@ -1,0 +1,38 @@
+bootstrap_go_package {
+    name: "soong-amlogic_hbbtv",
+    pkgPath: "android/soong/vendor/amlogic/common/prebuilt/libhbbtv",
+    deps: [
+        "blueprint",
+        "blueprint-pathtools",
+        "soong",
+        "soong-android",
+        "soong-cc",
+        "soong-genrule",
+    ],
+    srcs: [
+        "hbbtv_defaults.go",
+    ],
+    pluginFor: ["soong_build"],
+}
+
+amlogic_hbbtv_go_defaults {
+    name: "amlogic_hbbtv_go_defaults",
+}
+
+cc_prebuilt_library_shared {
+
+    name: "libfmq_vendor",
+    compile_multilib: "32",
+	defaults: ["amlogic_hbbtv_go_defaults"],
+    vendor: true,
+    arch: {
+        arm: {
+            srcs: ["lib/armeabi-v7a/libfmq_vendor.so"],
+        },
+        arm64: {
+            enabled: false,
+            srcs: ["lib/armeabi-v7a/libfmq_vendor.so"],
+        },
+    },
+    check_elf_files: false,
+}
