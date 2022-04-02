@@ -19,4 +19,5 @@ interface IDTVKitServer {
     setAfd(int32_t player, int32_t afd);
     setSubtitleFlag(int32_t flag);
     setCallback(IDTVKitServerCallback callback, DTVKitConnectType type);
+    getQueue() generates (fmq_sync<uint8_t> mqDesc);
 };
