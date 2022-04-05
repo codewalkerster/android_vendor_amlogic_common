@@ -65,7 +65,7 @@ public class HdmiCecManager {
     }
 
     public boolean isAutoChangeLanguageEnabled() {
-        return readValue(SETTINGS_AUTO_LANGUAGE_CHANGE);
+        return readValue(SETTINGS_AUTO_LANGUAGE_CHANGE, OFF);
     }
 
     public boolean isArcEnabled() {
