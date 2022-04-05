@@ -43,7 +43,7 @@
 ******************************************************************************/
 
 #define VND_PORT_NAME_MAXLEN    256
-#define LOOP_TIMES              100
+#define LOOP_TIMES              1
 
 /******************************************************************************
 **  Local type definitions
@@ -134,6 +134,7 @@ static const struct device_info bluetooth_dongle[] = {
 	{0x9378, "qca9379",   "libbt-vendor_qcaMulti.so", "bt_usb_qcom", 0x0000, true},
 	{0x7A85, "qca9379",   "libbt-vendor_qcaMulti.so", "bt_usb_qcom", 0x0000, true},
 	{0x7668, "mtk7668u",  "libbt-vendor_mtkMulti.so", "btmtk_usb", 0x0000, true},
+	{0x0000, "mtk7920e",  "libbt-vendor_792Multi.so", "btmtkuart", 0x7961, false},
 	{0x0000, "aml_w1",    "libbt-vendor_amlMulti.so", "NULL"     , 0x8888, true},
 	{0x0000, "qca6391",   "libbt-vendor_639Multi.so", "NULL"     , 0x1101, false},
 	{0x0000, "nxp8987",   "libbt-vendor_nxpMulti.so", "NULL"     , 0x9149, false},
@@ -284,7 +285,7 @@ static void get_product_device(void)
 	if (!strncmp(pdt_name, "NULL", sizeof("NULL")-1))
 		return;
 
-	for (i = 0; p_pdt_name[0] != NULL; i++) {
+	for (i = 0; p_pdt_name[i] != NULL; i++) {
 		if (!strcmp(p_pdt_name[i], pdt_name)) {
 			PR_INFO("product.device : %s", pdt_name);
 			wirte_power_type((char*)"1");
@@ -511,7 +512,6 @@ static int distinguish_vendormmc_module(void)
 				return 1;
 			}
 		}
-		usleep(20000);//20ms
 		cnt--;
 	}
 	return 0;
@@ -1281,11 +1281,11 @@ static int bluetooth_distinguish_module(void)
 		init_bt_status();
 		return 1;
 	}
-	if (btvendor_hal.uart_module()) {
+	if (btvendor_hal.mmc_module()) {
 		init_bt_status();
 		return 1;
 	}
-	if (btvendor_hal.mmc_module()) {
+	if (btvendor_hal.uart_module()) {
 		init_bt_status();
 		return 1;
 	}
