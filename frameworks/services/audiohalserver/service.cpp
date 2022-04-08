@@ -88,12 +88,12 @@ int main(int /* argc */, char* /* argv */ []) {
             "android.hardware.soundtrigger@2.1::ISoundTriggerHw",
             "android.hardware.soundtrigger@2.0::ISoundTriggerHw",
         },
-        {
+        /*{
             "Bluetooth Audio API",
             "android.hardware.bluetooth.audio@2.2::IBluetoothAudioProvidersFactory",
             "android.hardware.bluetooth.audio@2.1::IBluetoothAudioProvidersFactory",
             "android.hardware.bluetooth.audio@2.0::IBluetoothAudioProvidersFactory",
-        },
+        },*/
         // remove the old HIDL when Bluetooth Audio Hal V2 has offloading supported
         {
             "Bluetooth Audio Offload API",
