@@ -28,7 +28,6 @@
 
 #include <unistd.h>
 #include <utils/Log.h>
-#include <cutils/properties.h>
 #include <string.h>
 #include "bt_vendor_brcm.h"
 #include "upio.h"
@@ -108,7 +107,7 @@ extern int wake_signal_sent;
 static int init(const bt_vendor_callbacks_t* p_cb, unsigned char *local_bdaddr)
 {
     ALOGI("init");
-    static char bt_module_name_temp[PROP_VALUE_MAX] = {'\0'};
+    static char bt_module_name_temp[100];
 
     if (p_cb == NULL)
     {
