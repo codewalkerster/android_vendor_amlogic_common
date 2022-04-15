@@ -1390,6 +1390,7 @@ void DisplayMode::filterHdmiDispcap(hdmi_data_t* data) {
     const char *delim = "\n";
     char filter_dispcap[MAX_STR_LEN] = {0};
     char supportedColorList[MAX_STR_LEN];
+    char *save_ptr = NULL;
 
     if (!(pmDeepColor->initColorAttribute(supportedColorList, MAX_STR_LEN))) {
         SYS_LOGE("initColorAttribute fail\n");
@@ -1398,7 +1399,7 @@ void DisplayMode::filterHdmiDispcap(hdmi_data_t* data) {
 
     SYS_LOGI("before filtered HdmiDispcap: %s\n", data->disp_cap);
 
-    char *hdmi_mode = strtok(data->disp_cap, delim);
+    char *hdmi_mode = strtok_r(data->disp_cap, delim, &save_ptr);
     while (hdmi_mode != NULL) {
         //recommend mode or not
         bool recomMode = false;
@@ -1420,7 +1421,7 @@ void DisplayMode::filterHdmiDispcap(hdmi_data_t* data) {
             }
         }
 
-        hdmi_mode = strtok(NULL, delim);
+        hdmi_mode = strtok_r(NULL, delim, &save_ptr);
     }
 
     strcpy(data->disp_cap, filter_dispcap);
