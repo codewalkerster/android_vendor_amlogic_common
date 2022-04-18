@@ -26,6 +26,8 @@
     <key keyCode="KEYCODE_F6" component="com.droidlogic/.GlobalKeyReceiver" />
     <key keyCode="KEYCODE_BUTTON_3" component="com.droidlogic/.GlobalKeyReceiver" />
     <key keyCode="KEYCODE_BUTTON_4" component="com.droidlogic/.GlobalKeyReceiver" />
+   <!-- add it for GTV smoking Test -->
+    <key keyCode="KEYCODE_GUIDE" component="com.google.android.apps.tv.launcherx/com.google.android.apps.tv.launcherx.remotecontrol.GlobalKeyListener_Receiver" />
     <!-- disable TV global key as LiveTv need them -->
     <!--<key keyCode="KEYCODE_DVR" component="com.google.android.tv/.receiver.GlobalKeyReceiver1" />
     <key keyCode="KEYCODE_GUIDE" component="com.google.android.tv/.receiver.GlobalKeyReceiver" />
