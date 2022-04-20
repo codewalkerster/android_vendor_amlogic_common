@@ -34,6 +34,7 @@ public class DisplayDensityManager {
     private static final String ENV_IS_BEST_MODE = "ubootenv.var.is.bestmode";
     private static final String MAX_SIZE_HEIGHT_PROP = "ro.surface_flinger.max_graphics_height";
     private static final String MAX_SIZE_WIDTH_PROP = "ro.surface_flinger.max_graphics_width";
+    private static final String SYSFS_HPD = "/sys/class/amhdmitx/amhdmitx0/hpd_state";
     private static final String DISPLAY_MODE_TRUE = "true";
     private static final String DISPLAY_MODE_FALSE = "false";
     private static final String MODE_KEYWORD_1080 = "1080";
@@ -53,11 +54,13 @@ public class DisplayDensityManager {
     private static int mMxDensity;
     private DisplayManager mDisplayManager;
     private Context mContext;
+    private SystemControlManager mSystemControl;
 
     private DisplayDensityManager(Context context,boolean create) {
         if (!create)
             return;
         mContext = context;
+        mSystemControl = SystemControlManager.getInstance();
         mDisplayManager = (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
         mDefaultDensity = SystemProperties.getInt(DENSITY_PROP, DisplayMetrics.DENSITY_MEDIUM);
         SystemControlManager mSystemControlManager = SystemControlManager.getInstance();
@@ -78,9 +81,9 @@ public class DisplayDensityManager {
 
                 //  densityList.add(DisplayMetrics.DENSITY_XXXHIGH); //not used now largetest screen
                 densityList.add(DisplayMetrics.DENSITY_XXHIGH);
-                densityList.add(DisplayMetrics.DENSITY_XHIGH);
-                densityList.add(DisplayMetrics.DENSITY_HIGH);
-                densityList.add(DisplayMetrics.DENSITY_TV);
+                densityList.add(DisplayMetrics.DENSITY_XHIGH);//320
+                densityList.add(DisplayMetrics.DENSITY_HIGH);//240
+                densityList.add(DisplayMetrics.DENSITY_TV);//213
                 densityList.add(DisplayMetrics.DENSITY_MEDIUM);
                 densityList.add(DisplayMetrics.DENSITY_LOW);
 
@@ -132,7 +135,6 @@ public class DisplayDensityManager {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        Log.d(TAG,"processName"+currentProcName);
         return (!currentProcName.isEmpty() && currentProcName.equals(PROCESS_ONLY));
     }
     private int getPrefDensity(int width, int height) {
@@ -152,10 +154,21 @@ public class DisplayDensityManager {
         Log.e(TAG, "density: " + density + " ->" + targetDensity + " scaleSize:" + scaleSize);
         return targetDensity;
     }
+    private int getSuggetedDisplay(int width,int height) {
+        if (width >= 3840) return DisplayMetrics.DENSITY_XHIGH;
+        if (width >= 1920) return DisplayMetrics.DENSITY_HIGH;
+        if (width >= 1280) return DisplayMetrics.DENSITY_TV;
+        return getPrefDensity(width,height);
+    }
     public void adjustDisplayDensityByMode(int displayId, int width, int height) {
         if (!Enabled()) return;
-        int targetDensity = getPrefDensity(width,height);
-
+        String hdp = mSystemControl.readSysFs(SYSFS_HPD);
+        if (hdp.equals("0")) {
+            Log.d(TAG,"hdp is 0 ");
+            return;
+        }
+        int targetDensity = getSuggetedDisplay(width,height);
+        Log.d(TAG,"getSuggetedDisplay"+width+"targetDensity"+targetDensity);
         try {
             Class globalclass = Class.forName("android.view.WindowManagerGlobal");
             Method getWmServiceMethod = globalclass.getDeclaredMethod("getWindowManagerService");
