@@ -1,9 +1,23 @@
 BUILD_MODULES := $(CONFIG_WIFI_MODULES)
 
-build_drivers :=\
+define get-makefile-path
+$(subst //,/,$($(1)_src_path)/$($(1)_build_path))
+endef
+
+define exist-makefile
+$(shell if [ -f $(1)/Makefile -o -f $(1)/makefile ]; then echo "true"; else echo "false"; fi)
+endef
+
+build_drivers :=
 $(foreach driver,\
  $(WIFI_SUPPORT_DRIVERS),\
- $(if $(filter true,$($(driver)_build)),$(driver)))
+ $(if $(filter true,$($(driver)_build)),\
+  $(if $(filter true,$(call exist-makefile,$(ROOT_DIR)/$(call get-makefile-path,$(driver)))),\
+   $(eval build_drivers += $(driver)),\
+   $(warning "$(call get-makefile-path,$(driver))/Makefile" not found!)\
+   )\
+ )\
+)
 
 build_modules :=\
 $(foreach driver,\
@@ -17,12 +31,15 @@ endif
 ifeq ($(BUILD_MODULES), )
 BUILD_MODULES := $(build_modules)
 else
+support_modules :=
 $(foreach module,\
  $(BUILD_MODULES),\
- $(if $(filter $(module),$(build_modules)),,\
-  $(error wifi module "$(module)" has no driver support!)\
+ $(if $(filter $(module),$(build_modules)),\
+  $(eval support_modules += $(module)),\
+  $(warning wifi module "$(module)" has no driver support!)\
  )\
 )
+BUILD_MODULES := $(support_modules)
 endif
 
 modules: $(addsuffix _modules,$(BUILD_MODULES))
