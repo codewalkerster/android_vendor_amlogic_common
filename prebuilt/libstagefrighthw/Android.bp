@@ -131,6 +131,38 @@ cc_prebuilt_library_shared {
     },
     check_elf_files: false,
 }
+cc_prebuilt_library_shared {
+    name: "libHwAudio_dcvdec_passthrough",
+    vendor: true,
+    // for condition build.
+    // if TARGET_DDLIB_BUILT_FROM_CUSTOMER is true, not build.
+    defaults: ["stagefrighthw_go_defaults", "stagefrighthw_ddlib_go_defaults"],
+    arch: {
+        arm: {
+            srcs: ["lib/libHwAudio_dcvdec.so"],
+        },
+        arm64: {
+            srcs: ["lib64/libHwAudio_dcvdec.so"],
+        },
+    },
+    check_elf_files: false,
+}
+
+
+cc_prebuilt_library_shared {
+    name: "libHwAudio_dtshd_passthrough",
+    vendor: true,
+    defaults: ["stagefrighthw_go_defaults"],
+    arch: {
+        arm: {
+            srcs: ["lib/libHwAudio_dtshd.so"],
+        },
+        arm64: {
+            srcs: ["lib64/libHwAudio_dtshd.so"],
+        },
+    },
+    check_elf_files: false,
+}
 
 cc_prebuilt_library_shared {
     name: "libOmxCore",
