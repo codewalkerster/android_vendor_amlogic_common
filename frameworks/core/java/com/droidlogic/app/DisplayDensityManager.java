@@ -156,7 +156,7 @@ public class DisplayDensityManager {
     }
     private int getSuggetedDisplay(int width,int height) {
         if (width >= 3840) return DisplayMetrics.DENSITY_XHIGH;
-        if (width >= 1920) return DisplayMetrics.DENSITY_HIGH;
+        if (width >= 1920) return DisplayMetrics.DENSITY_XHIGH;
         if (width >= 1280) return DisplayMetrics.DENSITY_TV;
         return getPrefDensity(width,height);
     }
