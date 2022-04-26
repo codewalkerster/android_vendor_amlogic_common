@@ -803,10 +803,10 @@ RecoveryDtbCheck(const ZipArchiveHandle za){
             recovery_size_zip = dtb_zip[i].partition_size;
         }
 
-        if (!strcmp("data", dtb_dev[i].partition_name)) {
+        if ((!strcmp("data", dtb_dev[i].partition_name)) || (!strcmp("userdata", dtb_dev[i].partition_name))) {
             data_dev = i;
         }
-        if (!strcmp("data", dtb_zip[i].partition_name)) {
+        if ((!strcmp("data", dtb_zip[i].partition_name)) || (!strcmp("userdata", dtb_zip[i].partition_name))) {
             data_zip = i;
         }
 
@@ -826,8 +826,7 @@ RecoveryDtbCheck(const ZipArchiveHandle za){
             cache_size_zip = dtb_zip[i].partition_size;
         }
 
-        if ((strcmp(dtb_zip[i].partition_name, dtb_dev[i].partition_name) != 0)||
-                (dtb_zip[i].partition_size != dtb_dev[i].partition_size)) {
+        if ((dtb_zip[i].partition_size != dtb_dev[i].partition_size)) {
             ret = DTB_TWO_STEP;
         }
     }
