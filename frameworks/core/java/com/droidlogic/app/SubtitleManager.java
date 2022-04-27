@@ -275,7 +275,7 @@ public class SubtitleManager {
     private native int nativeGetSubTypeDetial();
     private native int nativeTtControl(int teletxtEvent, int magazine, int page, int regionId);
     private native int nativeTtGoHome();
-    private native int nativeTtGotoPage(int pageNo, int subPageNo);
+    private native int nativeTtGotoPage(int magazine, int page);
     private native int nativeTtNextPage(int dir);
     private native int nativeTtNextSubPage(int dir);
     private native void nativeLoad(String path);
@@ -1159,8 +1159,8 @@ public class SubtitleManager {
         return nativeTtGoHome();
     }
 
-    public int ttGotoPage(int pageNo, int subPageNo) {
-        return nativeTtGotoPage(pageNo, subPageNo);
+    public int ttGotoPage(int magazine, int page) {
+        return nativeTtGotoPage(magazine, page);
     }
     public int ttNextPage(int dir) {
         return nativeTtNextPage(dir);
