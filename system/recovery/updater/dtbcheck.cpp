@@ -826,7 +826,7 @@ RecoveryDtbCheck(const ZipArchiveHandle za){
             cache_size_zip = dtb_zip[i].partition_size;
         }
 
-        if ((dtb_zip[i].partition_size != dtb_dev[i].partition_size)) {
+        if (dtb_zip[i].partition_size != dtb_dev[i].partition_size) {
             ret = DTB_TWO_STEP;
         }
     }
