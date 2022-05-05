@@ -665,8 +665,8 @@ void SceneProcess::getHighestHdmiMode(char* mode) {
 
     //disp_cap:the list of TV support resolution from driver parse edid
     startpos = mScene_Input_Info.hdmi_input_info.disp_cap;
-    //use the default resolution as base mode
-    strcpy(value, DEFAULT_HDMI_MODE);
+    //use the 480p as base mode for choosing 480p when edid only support 480p
+    strcpy(value, "480p60hz");
 
     //select the preferred resolution
     while (strlen(startpos) > 0) {
