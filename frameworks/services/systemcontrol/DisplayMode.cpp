@@ -3205,14 +3205,8 @@ bool DisplayMode::checkDolbyVisionStatusChanged(int state) {
         return false;
     }
 }
-void DisplayMode::saveHdmiParamToEnv(){
-    std::string colorAttr;
-    char colorDepth[MODE_LEN] = {0};
-    char colorSpace[MODE_LEN] = {0};
+void DisplayMode::saveHdmiParamToEnv() {
     char outputMode[MODE_LEN] = {0};
-    char dvstatus[MODE_LEN]   = {0};
-    char dv_type[MODE_LEN]    = {0};
-    char hdr_policy[MODE_LEN] = {0};
 
     getDisplayMode(outputMode);
 
@@ -3221,9 +3215,16 @@ void DisplayMode::saveHdmiParamToEnv(){
         SYS_LOGD("tv sink changed\n");
     }
 
-    // 2. save rawEdid/coloattr/hdmimode to bootenv if mode is not null
-    //if the value we try to save is the same with the last saved value,then Logoparam will prohibited to write
-    if (strcmp(outputMode, "null") || strcmp(outputMode, "dummy_l")) {
+    // 2. save coloattr/hdmimode to bootenv if mode is not null or dummy_l
+    if (strstr(outputMode, "cvbs") != NULL) {
+        setBootEnv(UBOOTENV_CVBSMODE, (char *)outputMode);
+    } else if (strcmp(outputMode, "null") && strcmp(outputMode, "dummy_l")) {
+        std::string colorAttr;
+        char colorDepth[MODE_LEN] = {0};
+        char colorSpace[MODE_LEN] = {0};
+        char dvstatus[MODE_LEN]   = {0};
+        char dv_type[MODE_LEN]    = {0};
+        char hdr_policy[MODE_LEN] = {0};
         // 2.1 save color attr
         DisplayModeMgr::getInstance().getDisplayAttribute(DISPLAY_HDMI_COLOR_ATTR, colorAttr);
         saveDeepColorAttr(outputMode, colorAttr.c_str());
@@ -3240,9 +3241,7 @@ void DisplayMode::saveHdmiParamToEnv(){
             setBootEnv(UBOOTENV_OUTPUTMODE, (char *)outputMode);
         }
 
-        if (strstr(outputMode, "cvbs") != NULL) {
-            setBootEnv(UBOOTENV_CVBSMODE, (char *)outputMode);
-        } else if (strstr(outputMode, "hz") != NULL) {
+        if (strstr(outputMode, "hz") != NULL) {
             setBootEnv(UBOOTENV_HDMIMODE, (char *)outputMode);
         }
 
