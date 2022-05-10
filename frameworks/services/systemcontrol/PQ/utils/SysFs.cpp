@@ -145,7 +145,7 @@ int SysFs::readSys(const char *path, char *buf, int count, bool needOriginalData
         buf[j] = 0x0;
     }
 
-    //SYS_LOGI("%s, path:%s, len:%d, buf:%s\n", __FUNCTION__, path, len, buf);
+    SYS_LOGV("%s, path:%s, len:%d, buf:%s\n", __FUNCTION__, path, len, buf);
 
 exit:
     close(fd);
@@ -156,7 +156,7 @@ int SysFs::readSysfs(ConstCharforSysFsNodeIndex index, char *buf, int count)
 {
     int len = -1;
 
-    //SYS_LOGD("%s, index %d path:%s count:%d\n", __FUNCTION__, index, mPathforSysNode[index], count);
+    SYS_LOGV("%s, index %d path:%s count:%d\n", __FUNCTION__, index, mPathforSysNode[index], count);
 
     len = readSys(mPathforSysNode[index], (char*)buf, count, false);
 
@@ -168,7 +168,7 @@ int SysFs::readSysfsOriginal(ConstCharforSysFsNodeIndex index, char *buf, int co
 {
     int len = -1;
 
-    //SYS_LOGD("%s, index:%d path:%s count:%d\n", __FUNCTION__, index, mPathforSysNode[index], count);
+    SYS_LOGV("%s, index:%d path:%s count:%d\n", __FUNCTION__, index, mPathforSysNode[index], count);
 
     len = readSys(mPathforSysNode[index], (char*)buf, count, true);
 
@@ -186,7 +186,7 @@ int SysFs::writeSys(const char *path, const char *val)
         goto exit;
     }
 
-    //SYS_LOGI("%s,path:%s, val:%s\n", __FUNCTION__, path, val);
+    SYS_LOGV("%s,path:%s, val:%s\n", __FUNCTION__, path, val);
 
     len = write(fd, val, strlen(val));
 
@@ -199,7 +199,7 @@ int SysFs::writeSysfs(ConstCharforSysFsNodeIndex index, const char *value)
 {
     int len = -1;
 
-    //SYS_LOGD("%s, index %d path:%s value:%s\n", __FUNCTION__, index, mPathforSysNode[index], value);
+    SYS_LOGV("%s, index %d path:%s value:%s\n", __FUNCTION__, index, mPathforSysNode[index], value);
 
     len = writeSys(mPathforSysNode[index], value);
     return len;

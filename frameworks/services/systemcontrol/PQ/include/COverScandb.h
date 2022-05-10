@@ -15,16 +15,6 @@
 #include <CSqlite.h>
 #include "PQType.h"
 
-#ifdef TV_DEBUG_PQ_ENABLE
-#define DEBUG_FLAG 1
-#else
-#define DEBUG_FLAG 0
-#endif
-
-#ifdef PROP_DEBUG_PQ
-#undef PROP_DEBUG_PQ
-#endif
-#define PROP_DEBUG_PQ "tv.debug.pq.enable"
 
 #ifdef getSqlParams
 #undef getSqlParams
@@ -32,15 +22,8 @@
 #define getSqlParams(func, buffer, args...) \
     do{\
         sprintf(buffer, ##args);\
-        if (DEBUG_FLAG) {\
-            char value[PROPERTY_VALUE_MAX];\
-            memset(value, '\0', PROPERTY_VALUE_MAX);\
-            property_get(PROP_DEBUG_PQ, value, "0");\
-            if(!strcmp(value, "1")){\
-                SYS_LOGD("getSqlParams for %s\n", func);\
-                SYS_LOGD("%s = %s\n",#buffer, buffer);\
-            }\
-        }\
+        SYS_LOGV("getSqlParams for %s\n", func);\
+        SYS_LOGV("%s = %s\n",#buffer, buffer);\
     }while(0)
 
 

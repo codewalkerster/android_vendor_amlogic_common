@@ -65,7 +65,7 @@ bool CConfigFile::isFileExist(const char *file_name)
        SYS_LOGE("%s don't exist!\n",file_name);
        return false;
     } else {
-       SYS_LOGD("file_name:%s  size:%d \n", file_name, tmp_st.st_size);
+       SYS_LOGI("file_name:%s  size:%d \n", file_name, tmp_st.st_size);
        if (tmp_st.st_size > 0) {
            return true;
        } else {
@@ -88,7 +88,7 @@ int CConfigFile::LoadFromFile(const char *filename)
         return -1;
     }
 
-    SYS_LOGD("LoadFromFile name = %s", filename);
+    SYS_LOGI("LoadFromFile name = %s", filename);
     strcpy(mpFileName, filename);
     if ((mpConfigFile = fopen (mpFileName, "r")) == NULL) {
         return -1;
@@ -434,14 +434,14 @@ void CConfigFile::GetPqdbPath(char *file_path)
         } else {
             SYS_LOGE("no pq.db in %s, %s and %s\n", pqDBConfigPath, pqDBDefaultPath0, pqDBDefaultPath1);
         }
-        SYS_LOGD("%s:bin flie path: %s\n", __FUNCTION__, pqBinFilePath);
+        SYS_LOGI("%s:bin flie path: %s\n", __FUNCTION__, pqBinFilePath);
 
         //Uncompress pq.bin
         if (!isFileExist(pqBinFilePath)) {
             SYS_LOGE("%s is not exit!\n", pqBinFilePath);
         } else {
             int ret;
-            SYS_LOGD("run CheckAndUpdateUncompressFile\n");
+            SYS_LOGI("run CheckAndUpdateUncompressFile\n");
             pMiniz = new Minizip();
             ret = pMiniz->CheckAndUpdateUncompressFile(PARAM_PQ_DB_PATH, pqBinFilePath);
             pMiniz->freeAll();
@@ -450,7 +450,7 @@ void CConfigFile::GetPqdbPath(char *file_path)
             if (ret != 0) {
                 SYS_LOGE("Uncompress %s failed!!!!\n", pqBinFilePath);
             } else {
-                SYS_LOGD("Uncompress %s success!!!!\n", pqBinFilePath);
+                SYS_LOGI("Uncompress %s success!!!!\n", pqBinFilePath);
             }
         }
 #else

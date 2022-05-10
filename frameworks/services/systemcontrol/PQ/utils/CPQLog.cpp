@@ -12,9 +12,10 @@
 
 int __pq_log_print(int prio, const char *tag, const char *pq_tag, const char *fmt, ...)
 {
-    char buf[PROPERTY_VALUE_MAX] = {0};
-    int len = property_get("vendor.pq.log.enable", buf, "enable");
-    if (strcmp(buf, "disable") == 0) {
+    char log_level[PROPERTY_VALUE_MAX] = {0};
+
+    int len = property_get("persist.vendor.pq.log.level", log_level, "4");
+    if (prio < atoi(log_level)) {
         return 0;
     } else {
         char buf[DEFAULT_LOG_BUFFER_LEN];

@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdlib.h>
 
 #ifndef _C_PQ_LOG_H_
 #define _C_PQ_LOG_H_

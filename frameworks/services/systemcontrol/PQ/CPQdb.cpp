@@ -42,7 +42,7 @@ CPQdb::~CPQdb()
 
 int CPQdb::openPqDB(const char *db_path)
 {
-    SYS_LOGD("openPqDB path = %s", db_path);
+    SYS_LOGI("openPqDB path = %s", db_path);
     int rval;
 
     if (access(db_path, 0) < 0) {
@@ -58,7 +58,7 @@ int CPQdb::openPqDB(const char *db_path)
         database_attribute_t databaseAttribute;
         bool ret = PQ_GetDataBaseAttribute(&databaseAttribute);
         if (ret) {
-            SYS_LOGD("db-code match mask is %d\n", PQ_DB_CODE_MATCH_MASK);
+            SYS_LOGI("db-code match mask is %d\n", PQ_DB_CODE_MATCH_MASK);
             if (databaseAttribute.ProjectVersion.isEmpty()) {
                 mDbMatchType = MATCH_TYPE_NO_DBVERSION;
             } else {
@@ -71,7 +71,7 @@ int CPQdb::openPqDB(const char *db_path)
                     mDbMatchType = MATCH_TYPE_NEWCODE_OLDDB;
                 }
             }
-            SYS_LOGD("db-code match type is %d.\n", mDbMatchType);
+            SYS_LOGI("db-code match type is %d.\n", mDbMatchType);
             attributeVal = databaseAttribute.ToolVersion + " " +
                            databaseAttribute.ProjectVersion + " " +
                            databaseAttribute.GenerateTime + " " +
@@ -79,7 +79,7 @@ int CPQdb::openPqDB(const char *db_path)
         } else {
             attributeVal = "Get PQ_DB Verion failure!!!";
         }
-        SYS_LOGD("%s = %s\n", "PQ.db.version", attributeVal.string());
+        SYS_LOGI("%s = %s\n", "PQ.db.version", attributeVal.string());
     }
 
     return rval;
@@ -186,7 +186,7 @@ int CPQdb::getRegValuesByValue(const char *name, const char *f_name, const char 
         rval = -1;
     }
 
-    SYS_LOGD("%s, length = %d", __FUNCTION__, regs->length);
+    SYS_LOGI("%s, length = %d", __FUNCTION__, regs->length);
     return rval;
 }
 
@@ -212,12 +212,12 @@ int CPQdb::getRegValuesByValue_long(const char *name, const char *f_name, const 
     int index_am_reg = 0;
     int count = c_reg_list.getCount();
     if (count < 0) {
-        SYS_LOGD("%s, Select value error!\n", __FUNCTION__);
+        SYS_LOGE("%s, Select value error!\n", __FUNCTION__);
         regs->length = 0;
         regs_1->length = 0;
         return -1;
     } else if (count > 1024) {
-        SYS_LOGD("%s, regs is too more, in pq.db count = %d", __FUNCTION__, count);
+        SYS_LOGE("%s, regs is too more, in pq.db count = %d", __FUNCTION__, count);
         regs->length = 0;
         regs_1->length = 0;
         return -1;
@@ -501,7 +501,7 @@ int CPQdb::getDIRegValuesByValue(const char *name, const char *f_name, const cha
         rval = -1;
     }
 
-    SYS_LOGD("%s, length = %d", __FUNCTION__, regs->length);
+    SYS_LOGI("%s, length = %d", __FUNCTION__, regs->length);
     return rval;
 }
 
@@ -581,7 +581,7 @@ int CPQdb::PQ_SetColorTemperatureParams(vpp_color_temperature_mode_t Tempmode,so
             rval = -1;
         }
     } else {
-        SYS_LOGD("%s, GeneralWhiteBalanceTable don't have this table!\n", __FUNCTION__);
+        SYS_LOGE("%s, GeneralWhiteBalanceTable don't have this table!\n", __FUNCTION__);
         rval = -1;
     }
 
@@ -1433,7 +1433,7 @@ int CPQdb::PQ_GetLocalContrastNodeParams(source_input_param_t source_input_param
 
             rval = this->select(sqlmaster, c);
             if (rval < 0) {
-                SYS_LOGD("%s: Table don't have this option!\n", __FUNCTION__);
+                SYS_LOGE("%s: Table don't have this option!\n", __FUNCTION__);
                 rval = 0;
             } else {
                 memset(buf, 0, sizeof(buf));
@@ -1460,7 +1460,7 @@ int CPQdb::PQ_GetLocalContrastNodeParams(source_input_param_t source_input_param
 
             rval = this->select(sqlmaster, c);
             if (rval < 0) {
-                SYS_LOGD("%s: Table don't have this option!\n", __FUNCTION__);
+                SYS_LOGE("%s: Table don't have this option!\n", __FUNCTION__);
                 rval = 0;
             } else {
                 memset(buf, 0, sizeof(buf));
@@ -1515,7 +1515,7 @@ int CPQdb::PQ_SetDNLPGains(source_input_param_t source_input_param, Dynamic_cont
                       TableName.string(), final_gain, final_gain_reg_num, level);
         rval = this->exeSql(sqlmaster);
     } else {
-        SYS_LOGD("%s: GeneralDNLPTable don't have this table!\n", __FUNCTION__);
+        SYS_LOGE("%s: GeneralDNLPTable don't have this table!\n", __FUNCTION__);
     }
 
     return rval;
@@ -1540,7 +1540,7 @@ int CPQdb::PQ_GetDNLPGains(source_input_param_t source_input_param, Dynamic_cont
             final_gain = c.getInt(0);
         }
     } else {
-        SYS_LOGD("%s: GeneralDNLPTable don't have this table!\n", __FUNCTION__);
+        SYS_LOGE("%s: GeneralDNLPTable don't have this table!\n", __FUNCTION__);
     }
 
     SYS_LOGD("PQ_GetDNLPGains, get final_gain: %d", final_gain);
@@ -1841,7 +1841,7 @@ int CPQdb::PQ_GetPLLParams(source_input_param_t source_input_param, am_regs_t *r
     int i = 0;
 
     ret = getRegValuesByValue("ADC_Settings", "Port", "Format", source_input_param.source_input, source_input_param.sig_fmt, regs);
-#ifdef  CPQDB_DEBUG
+
     if (ret == 0) {
         for (i = 0; i < regs->length; i++) {
             SYS_LOGD("%s, =================================================", "TV");
@@ -1851,7 +1851,7 @@ int CPQdb::PQ_GetPLLParams(source_input_param_t source_input_param, am_regs_t *r
             SYS_LOGD("%s, regData.am_reg[%d].val  = %d", "TV", i, regs->am_reg[i].val);
         }
     }
-#endif
+
     if (regs->am_reg[0].val == 0 && regs->am_reg[1].val == 0 && regs->am_reg[2].val == 0
             && regs->am_reg[3].val == 0) {
         SYS_LOGE("%s,db's value is all zeros, that's not OK!!!\n", "TV");
@@ -1958,7 +1958,7 @@ int CPQdb::PQ_GetNoiseReductionParams(vpp_noise_reduction_mode_t nr_mode, source
             reg_val = c.getInt(0);
         }
     } else {
-        SYS_LOGD("%s: GeneralNR2Table don't have this table!\n", __FUNCTION__);
+        SYS_LOGE("%s: GeneralNR2Table don't have this table!\n", __FUNCTION__);
     }
 
     return reg_val;
@@ -1978,7 +1978,7 @@ int CPQdb::PQ_SetNoiseReductionParams(vpp_noise_reduction_mode_t nr_mode, source
                  TableName.string(), value, reg_addr, nr_mode);
         err = this->exeSql(sqlmaster);
     } else {
-        SYS_LOGD("%s: GeneralNR2Table don't have this table!\n", __FUNCTION__);
+        SYS_LOGE("%s: GeneralNR2Table don't have this table!\n", __FUNCTION__);
     }
 
     return err;
@@ -2091,7 +2091,7 @@ int CPQdb::PQ_GetSharpnessCTIParams(source_input_param_t source_input_param, int
     if (c.getCount() <= 0) {
         source_input_param.sig_fmt = TVIN_SIG_FMT_NULL;
         c.close();
-        SYS_LOGD ("%s - Load default", __FUNCTION__);
+        SYS_LOGE ("%s - Load default", __FUNCTION__);
         getSqlParams(__FUNCTION__,sqlmaster,
                  "select TableName from %s where "
                  "TVIN_PORT = %d and "
@@ -2163,7 +2163,7 @@ int CPQdb::PQ_SetSharpnessCTIParams(source_input_param_t source_input_param, int
     if (c.getCount() <= 0) {
         source_input_param.sig_fmt = TVIN_SIG_FMT_NULL;
         c.close();
-        SYS_LOGD ("%s - Load default", __FUNCTION__);
+        SYS_LOGE ("%s - Load default", __FUNCTION__);
         getSqlParams(__FUNCTION__,sqlmaster,
                  "select TableName from %s where "
                  "TVIN_PORT = %d and "
@@ -2301,7 +2301,7 @@ int CPQdb::getSharpnessRegValues(const char *table_name, source_input_param_t so
     if (c_tablelist.getCount() <= 0) {
         signal = TVIN_SIG_FMT_NULL;
         c_tablelist.close();
-        SYS_LOGD ("%s - Load default", __FUNCTION__);
+        SYS_LOGE ("%s - Load default", __FUNCTION__);
 
         getSqlParams(__FUNCTION__, sqlmaster,
                    "select TableName from %s where "
@@ -2368,7 +2368,7 @@ int CPQdb::PQ_SetSharpnessAdvancedParams(source_input_param_t source_input_param
   if (c_tablelist.getCount() <= 0) {
       signal = TVIN_SIG_FMT_NULL;
       c_tablelist.close();
-      SYS_LOGD ("%s - Load default", __FUNCTION__);
+      SYS_LOGE ("%s - Load default", __FUNCTION__);
 
       getSqlParams(__FUNCTION__, sqlmaster,
                    "select TableName from %s where "
@@ -2479,7 +2479,7 @@ int CPQdb::PQ_GetOverscanParams(source_input_param_t source_input_param, vpp_dis
     if (c.getCount() <= 0) {
         fmt = TVIN_SIG_FMT_NULL;
         c.close();
-        SYS_LOGD ("%s - Load default", __FUNCTION__);
+        SYS_LOGE ("%s - Load default", __FUNCTION__);
 
         getSqlParams(__FUNCTION__, sqlmaster, "select hs, he, vs, ve from %s where "
                                               "TVIN_PORT = %d and "
@@ -2584,7 +2584,7 @@ bool CPQdb::PQ_GetDataBaseAttribute(database_attribute_t *DbAttribute)
 {
     bool ret = false;
     if (DbAttribute == NULL) {
-        SYS_LOGD("%s: DbAttribute is NULL!\n", __FUNCTION__);
+        SYS_LOGE("%s: DbAttribute is NULL!\n", __FUNCTION__);
     } else {
         CSqlite::Cursor c;
         char sqlmaster[256];
@@ -2614,7 +2614,7 @@ bool CPQdb::PQ_GetDataBaseAttribute(database_attribute_t *DbAttribute)
 
             ret = true;
         } else {
-            SYS_LOGD("%s: select action failed!\n", __FUNCTION__);
+            SYS_LOGE("%s: select action failed!\n", __FUNCTION__);
             ret = false;
         }
     }
@@ -2806,7 +2806,7 @@ int CPQdb::PQ_GetVGAAjustPara(tvin_sig_fmt_t vga_fmt, tvafe_vga_parm_t *adjparam
     if (c.getCount() <= 0) {
         vga_fmt = TVIN_SIG_FMT_NULL;
         c.close();
-        SYS_LOGD ("%s - Load default", __FUNCTION__);
+        SYS_LOGE ("%s - Load default", __FUNCTION__);
 
         getSqlParams(
                     __FUNCTION__,
@@ -2840,7 +2840,7 @@ int CPQdb::PQ_SetVGAAjustPara(tvin_sig_fmt_t vga_fmt, tvafe_vga_parm_t adjparam)
     if (c.getCount() <= 0) {
         vga_fmt = TVIN_SIG_FMT_NULL;
         c.close();
-        SYS_LOGD ("%s - Load default", __FUNCTION__);
+        SYS_LOGE ("%s - Load default", __FUNCTION__);
 
         getSqlParams(
                     __FUNCTION__,
@@ -3394,20 +3394,17 @@ bool CPQdb::PQ_GetLDIM_Regs(vpu_ldim_param_s *vpu_ldim_param)
 
             if ( retNums > 0 && retNums == ldimMemsSize ) {
                 do {
-
                     temp[i] = c.getUInt(0);
                     SYS_LOGD ("%d - %d\n", i + 1, temp[i]);
 
                     i++;
-                }while (c.moveToNext());
-            }
-            else {
-                SYS_LOGV ("DataBase not match vpu_ldim_param_s\n");
+                } while (c.moveToNext());
+            } else {
+                SYS_LOGE ("DataBase not match vpu_ldim_param_s\n");
                 ret = false;
             }
-        }
-        else {
-            SYS_LOGV ("select value from LDIM_1; failure\n");
+        } else {
+            SYS_LOGE ("select value from LDIM_1; failure\n");
             ret = false;
         }
     }
@@ -3482,11 +3479,11 @@ bool CPQdb::CheckCVBSParamValidStatus()
         if ((this->select(sqlmaster, tempCursor) == 0) && (tempCursor.moveToFirst())) {
             ret = true;
         } else {
-            SYS_LOGD("%s: new db, but don't have cvbs param!\n", __FUNCTION__);
+            SYS_LOGE("%s: new db, but don't have cvbs param!\n", __FUNCTION__);
             ret = false;
         }
     } else {
-        SYS_LOGD("%s: old db, don't have cvbs param!\n", __FUNCTION__);
+        SYS_LOGE("%s: old db, don't have cvbs param!\n", __FUNCTION__);
         ret = false;
     }
     return ret;

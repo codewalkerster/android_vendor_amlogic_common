@@ -30,7 +30,7 @@ COverScandb::~COverScandb()
 
 int COverScandb::openOverScanDB(const char *db_path)
 {
-    SYS_LOGD("%s: path = %s", __FUNCTION__, db_path);
+    SYS_LOGI("%s: path = %s", __FUNCTION__, db_path);
     int rval;
 
     if (access(db_path, 0) < 0) {
@@ -47,7 +47,7 @@ int COverScandb::openOverScanDB(const char *db_path)
         } else {
             val = "Get OverScan_DB Verion failure!!!";
         }
-        SYS_LOGD("%s = %s\n", "OverScan.db.version", val.string());
+        SYS_LOGI("%s = %s\n", "OverScan.db.version", val.string());
     }
 
     return rval;
@@ -136,7 +136,7 @@ int COverScandb::PQ_GetOverscanParams(source_input_param_t source_input_param, v
     if (c.getCount() <= 0) {
         fmt = TVIN_SIG_FMT_HDMI_1920X1080P_60HZ;
         c.close();
-        SYS_LOGD ("%s - Load default", __FUNCTION__);
+        SYS_LOGE ("%s - Load default", __FUNCTION__);
 
         getSqlParams(__FUNCTION__, sqlmaster, "select hs, he, vs, ve from %s where "
                                               "TVIN_PORT = %d and "

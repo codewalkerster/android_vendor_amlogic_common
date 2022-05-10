@@ -19,12 +19,6 @@
 
 using namespace android;
 
-#ifdef SYSTEMCONTROL_DEBUG_PQ_ENABLE
-#define DEBUG_FLAG 1
-#else
-#define DEBUG_FLAG 0
-#endif
-
 //pq db table name
 #define PQ_DB_HDRTMO_TABLE_NAME        "HDR_HDMI_NODE"
 #define PQ_DB_CABC_TABLE_NAME          "CABC_AAD_HDMI"
@@ -67,10 +61,6 @@ typedef struct database_attribute_s {
     String8 reserved;
 } database_attribute_t;
 
-#ifdef PROP_DEBUG_PQ
-#undef PROP_DEBUG_PQ
-#endif
-#define PROP_DEBUG_PQ "systemcontrol.debug.pq.enable"
 
 #ifdef getSqlParams
 #undef getSqlParams
@@ -78,15 +68,8 @@ typedef struct database_attribute_s {
 #define getSqlParams(func, buffer, args...) \
     do{\
         sprintf(buffer, ##args);\
-        if (DEBUG_FLAG) {\
-            char value[PROPERTY_VALUE_MAX];\
-            memset(value, '\0', PROPERTY_VALUE_MAX);\
-            property_get(PROP_DEBUG_PQ, value, "0");\
-            if(!strcmp(value, "1") || !strcmp(value, "true")){\
-                SYS_LOGD("getSqlParams for %s\n", func);\
-                SYS_LOGD("%s = %s\n",#buffer, buffer);\
-            }\
-        }\
+        SYS_LOGV("getSqlParams for %s\n", func);\
+        SYS_LOGV("%s = %s\n",#buffer, buffer);\
     }while(0)
 
 #define PQ_DB_CODE_MATCH_MASK        20191113
