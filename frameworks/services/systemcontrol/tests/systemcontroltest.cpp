@@ -30,6 +30,7 @@
 
 #include <unistd.h>
 #include <stdio.h>
+#include <getopt.h>
 #include <stdlib.h>
 #include <string.h>
 #include <fcntl.h>
@@ -37,9 +38,10 @@
 #include <stdint.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <string>
 
 #include <../SystemControlClient.h>
-#include <string>
+
 
 
 using namespace android;
@@ -813,43 +815,114 @@ static int read_write_test_netflix(const char *path)
     return mSysClient->readNetflixKey(key_type, actualReadSz);
 }
 
+bool sc_read_bootenv(const char * key) {
+    std::string env_value;
+    mSysClient->getBootEnv(key, env_value);
+    printf("env:%s is %s\n", key, env_value.c_str());
+    return true;
+}
+
+bool sc_set_bootenv(const char *key, const std::string &val) {
+    mSysClient->setBootEnv(key, val);
+    return true;
+}
+
+static const char* short_option = "";
+static const struct option long_option[] = {
+    {"help", no_argument, 0, 'h'},
+    {"keytest", required_argument, 0, 'k'},
+    {"envtest", required_argument, 0, 'e'},
+    {0, 0, 0, 0}
+};
+
+static void print_usage(const char* name) {
+    printf("Usage: %s \n"
+            "test systemcontrol clinet api\n"
+            "Options:\n"
+            "        --help        \tlist all cmd\n"
+            "        --keytest     \t cmd  keypath\n"
+            "        cmd:   test-RDWR-Atte\n"
+            "               test-RDWR-hdcp14\n"
+            "               test-RDWR-hdcp22\n"
+            "               test-WR-bin\n"
+            "               test-RDWR-Netflix\n"
+            "               test-RDWR-Widevine\n"
+            "        --envtest      \t cmd parameter\n"
+            "        cmd:getenv key\n"
+            "            setenv key value\n"
+            "        --displaytest   \t cmd parameter\n"
+            "        --pqtest        \t cmd parameter\n", name);
+}
 
 int main(int argc __unused, char** argv __unused)
 {
+    if (argc == 1) {
+        print_usage(argv[0]);
+        return 0;
+    }
+
+    //connect systemcontrol service
     getSystemControlService();
 
-    ALOGI("argc: %d\n", argc);
+    int opt;
+    while ((opt = getopt_long_only(argc, argv, short_option, long_option, NULL)) != -1) {
+        printf("opt: %d\n", opt);
+        switch (opt) {
+            case 'h':
+                print_usage(argv[0]);
+                break;
+            case 'k':
+                if (optarg == NULL) {
+                    printf("no optarg(key cmd)!\n");
+                    break;
+                }
 
-    for (int i=0;i<argc;i++)
-        ALOGI("argv: %s\n", argv[i]);
+                if (optind + 1 > argc) {
+                    printf("no key path\n");
+                    break;
+                }
 
-    /*if (strcmp(argv[1], "test-write-bin") == 0)
-        res_img_unpack(argv[2]);
-    else if (strcmp(argv[1], "test-write22-img") == 0) {
-        mSysClient->writeHdcpRXImg(std::string(argv[2]));
-        char *data4 = (char *)malloc(4096);
-        if (!data4) {
-            ALOGE("Fail to malloc buffer  \n");
-            return -1;
+                if (strcmp(optarg, "test-RDWR-Atte") == 0) {
+                    read_write_test_atte(argv[optind]);
+                } else if (strcmp(optarg, "test-RDWR-hdcp14") == 0) {
+                    read_write_test14(argv[optind]);
+                } else if (strcmp(optarg, "test-RDWR-hdcp22") == 0) {
+                    read_write_test22(argv[optind]);
+                } else if (strcmp(optarg, "test-WR-bin") == 0) {
+                    read_write_bin(argv[optind]);
+                } else if (strcmp(optarg, "test-RDWR-Netflix") == 0) {
+                    read_write_test_netflix(argv[optind]);
+                } else if (strcmp(optarg, "test-RDWR-Widevine") == 0) {
+                    read_write_test_widevine(argv[optind]);
+                } else {
+                    printf("optarg: %s argv[%d]: %s\n", optarg, optind, argv[optind]);
+                }
+                break;
+            case 'e':
+                if (optarg == NULL) {
+                    printf("no optarg(key cmd)!\n");
+                    break;
+                }
+
+                if (optind + 1 > argc) {
+                    printf("no cmd\n");
+                    break;
+                }
+
+                if (strcmp(optarg, "getenv") == 0) {
+                    sc_read_bootenv(argv[optind]);
+                } else if (strcmp(optarg, "setenv") == 0) {
+                    sc_set_bootenv(argv[optind], argv[optind + 1]);
+                } else {
+                    printf("optarg: %s argv[%d]: %s\n", optarg, optind, argv[optind]);
+                }
+                break;
+            default:
+                print_usage(argv[0]);
+                break;
         }
-        memset(data4, 0, 4096);
-        int len4 = mSysClient->readHdcpRX22Key(data4, 4096);
-        ALOGE("readHdcpRX22Key want to read %d, actually read %d\n", 4096, len4);
-        writeSys("/mnt/vendor/param/test-write22-img.txt", data4, len4);
-        free(data4);
+
     }
-    else */
-    if (strcmp(argv[1], "test-RDWR-Atte") == 0)
-        read_write_test_atte(argv[2]);
-    else if (strcmp(argv[1], "test-RDWR-hdcp14") == 0)
-        read_write_test14(argv[2]);
-    else if (strcmp(argv[1], "test-RDWR-hdcp22") == 0)
-        read_write_test22(argv[2]);
-    else if (strcmp(argv[1], "test-WR-bin") == 0)
-        read_write_bin(argv[2]);
-    else if (strcmp(argv[1], "test-RDWR-Netflix") == 0)
-        read_write_test_netflix(argv[2]);
-    else if (strcmp(argv[1], "test-RDWR-Widevine") == 0)
-        read_write_test_widevine(argv[2]);
+
     return 0;
 }

@@ -110,7 +110,9 @@ int Ubootenv::updateValue(const char* name, const char* value) {
 const char * Ubootenv::getValue(const char * key) {
     if (!isEnv(key)) {
         //should assert here.
-        SYS_LOGE("[ubootenv] %s is not a ubootenv varible.\n", key);
+        SYS_LOGE("[ubootenv] %s is not a ubootenv varible and need prefix:ubootenv.var.xxx\n", key);
+        //print all env
+        printValues();
         return NULL;
     }
 
