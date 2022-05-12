@@ -39,7 +39,7 @@ public class ShuntdownService extends Service {
 
     private static final String TAG = "ShuntdownService";
 
-    public static final String BT_NAME_QCA                  = "persist.vendor.bt_vendor";
+    public static final String BT_NAME_QCA                  = "persist.vendor.libbt_vendor";//"persist.vendor.bt_vendor";
     public static final String BLUETOOTH_PKG_NAME           = "com.android.bluetooth";
     private static final int BT_SLEEP_TIME = 300;
     private boolean qcabt = false;
@@ -59,6 +59,7 @@ public class ShuntdownService extends Service {
         if (SystemProperties.get(BT_NAME_QCA, "null").indexOf("qca") != -1)
             qcabt = true;
 
+        Log.e(TAG, " Larson: QCA module = " + qcabt);
         if (qcabt) {
             IntentFilter shundownfilter = new IntentFilter();
             shundownfilter.addAction(Intent.ACTION_SHUTDOWN);
