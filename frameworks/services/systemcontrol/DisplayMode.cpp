@@ -366,8 +366,7 @@ void DisplayMode::setLogLevel(int level){
 bool DisplayMode::getBootEnv(const char* key, char* value) {
     const char* p_value = mUbootenv->getValue(key);
 
-    //if (mLogLevel > LOG_LEVEL_1)
-        SYS_LOGI("key:%s value:%s", key, p_value);
+    SYS_LOGD("key:%s value:%s", key, p_value);
 
     if (p_value) {
         strcpy(value, p_value);
@@ -377,8 +376,7 @@ bool DisplayMode::getBootEnv(const char* key, char* value) {
 }
 
 void DisplayMode::setBootEnv(const char* key, const char* value) {
-    if (mLogLevel > LOG_LEVEL_1)
-        SYS_LOGI("key:%s value:%s", key, value);
+    SYS_LOGD("key:%s value:%s", key, value);
 
     mUbootenv->updateValue(key, value);
 }
@@ -393,8 +391,7 @@ int DisplayMode::parseConfigFile(){
     } else {
         while (!tokenizer->isEof()) {
 
-            if(mLogLevel > LOG_LEVEL_1)
-                SYS_LOGI("Parsing %s: %s", tokenizer->getLocation(), tokenizer->peekRemainderOfLine());
+            SYS_LOGD("Parsing %s: %s", tokenizer->getLocation(), tokenizer->peekRemainderOfLine());
 
             tokenizer->skipDelimiters(WHITESPACE);
 
@@ -453,8 +450,7 @@ int DisplayMode::parseFilterEdidConfigFile(){
 
         while (!tokenizer->isEof()) {
 
-            if (mLogLevel > LOG_LEVEL_1)
-                SYS_LOGI("Parsing %s: %s", tokenizer->getLocation(), tokenizer->peekRemainderOfLine());
+            SYS_LOGD("Parsing %s: %s", tokenizer->getLocation(), tokenizer->peekRemainderOfLine());
 
             tokenizer->skipDelimiters(WHITESPACE);
             if (tokenizer->peekChar() == '*') {
@@ -629,7 +625,7 @@ void DisplayMode::setSourceDisplay(output_mode_state state) {
 
 void DisplayMode::setActiveDispMode(const char*value) {
     mHdmidata.reason = OUPTUT_CHANGE_BY_HWC;
-    SYS_LOGD("setDisplayed by hwc %s", value);
+    SYS_LOGI("setDisplayed by hwc %s", value);
     setSourceOutputMode(value);
     mHdmidata.reason = OUTPUT_CHANGE_BY_INIT;
 }
@@ -2245,9 +2241,7 @@ bool DisplayMode::isTvSupportDolbyVision(char *mode) {
     strcat(mode, mHdmidata.dv_info.dv_displaymode);
     strcat(mode, mHdmidata.dv_info.dv_deepcolor);
 
-    if (mLogLevel > LOG_LEVEL_1) {
-        SYS_LOGI("Current Tv Support DV type [%s]", mode);
-    }
+    SYS_LOGD("Current Tv Support DV type [%s]", mode);
 
     return true;
 }
@@ -3141,9 +3135,6 @@ void DisplayMode::setListener(const sp<SystemControlNotify>& listener) {
 void DisplayMode::dumpCap(const char * path, const char * hint, char *result) {
     char logBuf[MAX_STR_LEN];
     pSysWrite->readSysfsOriginal(path, logBuf);
-
-    if (mLogLevel > LOG_LEVEL_0)
-        SYS_LOGI("%s%s", hint, logBuf);
 
     if (NULL != result) {
         strcat(result, hint);

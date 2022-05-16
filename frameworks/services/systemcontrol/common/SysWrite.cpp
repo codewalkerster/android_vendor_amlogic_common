@@ -206,8 +206,7 @@ void SysWrite::writeSys(const char *path, const char *val){
         goto exit;
     }
 
-    if (mLogLevel > LOG_LEVEL_1)
-        SYS_LOGI("write %s, val:%s\n", path, val);
+    SYS_LOGD("write %s, val:%s\n", path, val);
     write(fd, val, strlen(val));
 
 exit:
@@ -217,8 +216,7 @@ exit:
 int SysWrite::writeSys(const char *path, const char *val, const int size){
     int fd;
 
-    if (mLogLevel > LOG_LEVEL_1)
-        SYS_LOGI("writeSysFs, size = %d \n", size);
+    SYS_LOGD("writeSysFs, size = %d \n", size);
 
     if ((fd = open(path, O_WRONLY)) < 0) {
         SYS_LOGE("writeSysFs, open %s fail.", path);
@@ -552,9 +550,7 @@ void SysWrite::readSys(const char *path, char *buf, int count, bool needOriginal
              */
             if (0x0 == buf[i] && i < len - 1) {
                 buf[i] = 0x20;
-
-                if (mLogLevel > LOG_LEVEL_1)
-                    SYS_LOGI("read buffer index:%d is a 0x0, replace to spacing \n", i);
+                SYS_LOGD("read buffer index:%d is a 0x0, replace to spacing \n", i);
             }
 
             /* delete all the character of '\n' */
@@ -566,8 +562,7 @@ void SysWrite::readSys(const char *path, char *buf, int count, bool needOriginal
         buf[j] = 0x0;
     }
 
-    if (mLogLevel > LOG_LEVEL_1)
-        SYS_LOGI("read %s, result length:%d, val:%s\n", path, len, buf);
+    SYS_LOGD("read %s, result length:%d, val:%s\n", path, len, buf);
 
 exit:
     close(fd);

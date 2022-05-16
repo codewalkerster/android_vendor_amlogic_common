@@ -53,7 +53,7 @@ import com.droidlogic.app.DroidLogicUtils;
 
 public class OutputModeManager {
     private static final String TAG                         = "OutputModeManager";
-    private static final boolean DEBUG                      = true;
+   // private static final boolean DEBUG                      = false;
     /**
      * The saved value for Outputmode auto-detection.
      * One integer
@@ -119,6 +119,7 @@ public class OutputModeManager {
     public static final String PROP_DTSDRCSCALE             = "persist.vendor.sys.dtsdrcscale";
     public static final String PROP_DTSEDID                 = "persist.vendor.sys.dts.edid";
     public static final String DISPLY_DEBUG_PROP            = "vendor.display.debug";
+    public static final String PROP_LOG_LEVEL               = "persist.vendor.sc.log.level";
 
     public static final String FULL_WIDTH_480               = "720";
     public static final String FULL_HEIGHT_480              = "480";
@@ -488,8 +489,8 @@ public class OutputModeManager {
     public String getHdmiColorSupportList() {
         String list = readSupportList(HDMI_COLOR_SUPPORT_LIST);
 
-        if (DEBUG)
-            Log.d(TAG, "getHdmiColorSupportList :" + list);
+        if (isLogPrint(3))
+            Log.d(TAG, "getHdmiColorSupportList: " + list);
         return list;
     }
 
@@ -507,7 +508,7 @@ public class OutputModeManager {
                 oldMode = DEFAULT_OUTPUT_MODE;
             }
 
-            if (DEBUG)
+            if (isLogPrint(3))
                 Log.d(TAG, "change mode from " + oldMode + " -> " + newMode);
 
             mSystemControl.setMboxOutputMode(newMode);
@@ -520,8 +521,8 @@ public class OutputModeManager {
     }
 
     public void setOsdMouse(String curMode) {
-        if (DEBUG)
-            Log.d(TAG, "set osd mouse curMode " + curMode);
+        if (isLogPrint(3))
+            Log.d(TAG, "set osd mouse curMode: " + curMode);
         mSystemControl.setOsdMouseMode(curMode);
     }
 
@@ -612,10 +613,8 @@ public class OutputModeManager {
                 }
             }
 
-            if (DEBUG) {
-                for (int i =  0; i < listHdmiMode.size(); i++) {
-                    Log.d(TAG, "listHdmiMode:"+ listHdmiMode.get(i));
-                }
+            if (isLogPrint(2)) {
+                Log.v(TAG, "listHdmiMode: " + listHdmiMode);
             }
 
             //2.2 filter dolby vision support mode list
@@ -668,10 +667,8 @@ public class OutputModeManager {
                     }
                 }
 
-                if (DEBUG) {
-                    for (int i =  0; i < listHdmiDVMode.size(); i++) {
-                        Log.d(TAG, "listHdmiDVMode:"+ listHdmiDVMode.get(i));
-                    }
+                if (isLogPrint(2)) {
+                    Log.v(TAG, "listHdmiDVMode: " + listHdmiDVMode);
                 }
 
                 mHdmiSupportModeList  = listHdmiDVMode.toArray(new String[listHdmiDVMode.size()]);
@@ -716,11 +713,9 @@ public class OutputModeManager {
             }
         }
 
-        if (DEBUG) {
-            for (int i =  0; i < mOutModeList.size(); i++) {
-                Log.d(TAG, "mOutModeList:"+ mOutModeList.get(i));
-                Log.d(TAG, "mOutTitleList:"+ mOutTitleList.get(i));
-            }
+        if (isLogPrint(2)) {
+            Log.v(TAG, "mOutModeList: " + mOutModeList);
+            Log.v(TAG, "mOutTitleList: " + mOutTitleList);
         }
     }
 
@@ -730,8 +725,8 @@ public class OutputModeManager {
         RefreshOutModeList();
         String list = mOutModeList.toString();
 
-        if (DEBUG)
-            Log.d(TAG, "getHdmiSupportList :" + list);
+        if (isLogPrint(3))
+            Log.d(TAG, "getHdmiSupportList: " + list);
         return list;
     }
 
@@ -740,8 +735,8 @@ public class OutputModeManager {
     }
 
     public String getBestMatchResolution() {
-        if (DEBUG)
-            Log.d(TAG, "get best mode, if support mode contains *, that is best mode, otherwise use:" + PROP_BEST_OUTPUT_MODE);
+        if (isLogPrint(3))
+            Log.d(TAG, "get best mode, if support mode contains *, that is best mode, otherwise use: " + PROP_BEST_OUTPUT_MODE);
 
         String[] supportList = null;
         String value = readSupportList(HDMI_SUPPORT_LIST);
@@ -769,8 +764,8 @@ public class OutputModeManager {
     public String getSupportedResolution() {
         String curMode = getBootenv(ENV_HDMI_MODE, DEFAULT_OUTPUT_MODE);
 
-        if (DEBUG)
-            Log.d(TAG, "get supported resolution curMode:" + curMode);
+        if (isLogPrint(3))
+            Log.d(TAG, "get supported resolution curMode: " + curMode);
 
         String value = readSupportList(HDMI_SUPPORT_LIST);
         String[] supportList = null;
@@ -832,14 +827,16 @@ public class OutputModeManager {
         String value = "";
         String fullStr = mSystemControl.readSysFsOri(path).replaceAll("\n", "#");
         String[] substrs = fullStr.split("#");
+
+        boolean support4k = getPropertyBoolean(PROP_SUPPORT_4K, true);
+        boolean supportOver4k30 = getPropertyBoolean(PROP_SUPPORT_OVER_4K30, true);
+
         for(String str:substrs){
             if (str != null) {
-                if (!getPropertyBoolean(PROP_SUPPORT_4K, true)
-                    && (str.contains("2160") || str.contains("smpte"))) {
+                if (!support4k && (str.contains("2160") || str.contains("smpte"))) {
                     continue;
                 }
-                if (!getPropertyBoolean(PROP_SUPPORT_OVER_4K30, true)
-                    && (str.contains("2160p50") || str.contains("2160p60") || str.contains("smpte"))) {
+                if (!supportOver4k30 && (str.contains("2160p50") || str.contains("2160p60") || str.contains("smpte"))) {
                     continue;
                 }
 
@@ -1059,56 +1056,65 @@ public class OutputModeManager {
         }
     }
 
+    private boolean isLogPrint(int prio) {
+        int log_level = mSystemControl.getPropertyInt(PROP_LOG_LEVEL, 4);
+        if (prio < log_level) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     private String getProperty(String key) {
-        if (DEBUG)
+        if (isLogPrint(4))
             Log.i(TAG, "getProperty key:" + key);
         return mSystemControl.getProperty(key);
     }
 
     private String getPropertyString(String key, String def) {
-        if (DEBUG)
+        if (isLogPrint(4))
             Log.i(TAG, "getPropertyString key:" + key + " def:" + def);
         return mSystemControl.getPropertyString(key, def);
     }
 
     private int getPropertyInt(String key,int def) {
-        if (DEBUG)
+        if (isLogPrint(4))
             Log.i(TAG, "getPropertyInt key:" + key + " def:" + def);
         return mSystemControl.getPropertyInt(key, def);
     }
 
     private long getPropertyLong(String key,long def) {
-        if (DEBUG)
+        if (isLogPrint(4))
             Log.i(TAG, "getPropertyLong key:" + key + " def:" + def);
         return mSystemControl.getPropertyLong(key, def);
     }
 
     private boolean getPropertyBoolean(String key,boolean def) {
-        if (DEBUG)
+        if (isLogPrint(4))
             Log.i(TAG, "getPropertyBoolean key:" + key + " def:" + def);
         return mSystemControl.getPropertyBoolean(key, def);
     }
 
     private void setProperty(String key, String value) {
-        if (DEBUG)
+        if (isLogPrint(4))
             Log.i(TAG, "setProperty key:" + key + " value:" + value);
         mSystemControl.setProperty(key, value);
     }
 
     private String getBootenv(String key, String value) {
-        if (DEBUG)
+        if (isLogPrint(4))
             Log.i(TAG, "getBootenv key:" + key + " def value:" + value);
         return mSystemControl.getBootenv(key, value);
     }
 
     private int getBootenvInt(String key, String value) {
-        if (DEBUG)
+        if (isLogPrint(4))
             Log.i(TAG, "getBootenvInt key:" + key + " def value:" + value);
         return Integer.parseInt(mSystemControl.getBootenv(key, value));
     }
 
     private void setBootenv(String key, String value) {
-        if (DEBUG)
+        if (isLogPrint(4))
             Log.i(TAG, "setBootenv key:" + key + " value:" + value);
         mSystemControl.setBootenv(key, value);
     }
@@ -1129,7 +1135,7 @@ public class OutputModeManager {
         String str = null;
         StringBuilder value = new StringBuilder();
 
-        if (DEBUG)
+        if (isLogPrint(4))
             Log.i(TAG, "readSysfs path:" + path);
 
         try {
@@ -1158,7 +1164,7 @@ public class OutputModeManager {
     }
 
     private boolean writeSysfs(String path, String value) {
-        if (DEBUG)
+        if (isLogPrint(4))
             Log.i(TAG, "writeSysfs path:" + path + " value:" + value);
 
         return mSystemControl.writeSysFs(path, value);

@@ -39,10 +39,43 @@ extern "C" {
 #define SYS_LOGI(x...)      KLOG_INFO("systemcontrol", x)
 #else
 #include <log/log.h>
-#define SYS_LOGE(x, ...)        ALOGE("[%s, %s, %d] " x, strrchr(__FILE__, '/'), __FUNCTION__, __LINE__, ##__VA_ARGS__)
-#define SYS_LOGD(x, ...)        ALOGD("[%s, %s, %d] " x, strrchr(__FILE__, '/'), __FUNCTION__, __LINE__, ##__VA_ARGS__)
-#define SYS_LOGV(x, ...)        ALOGV("[%s, %s, %d] " x, strrchr(__FILE__, '/'), __FUNCTION__, __LINE__, ##__VA_ARGS__)
-#define SYS_LOGI(x, ...)        ALOGI("[%s, %s, %d] " x, strrchr(__FILE__, '/'), __FUNCTION__, __LINE__, ##__VA_ARGS__)
+#include <cutils/properties.h>
+#include <stdlib.h>
+#define SYS_LOGE(x, ...) \
+    do{\
+        char log_level[PROPERTY_VALUE_MAX] = {0};\
+        property_get("persist.vendor.sc.log.level", log_level, "4");\
+        if (atoi(log_level) <= 6) {\
+            ALOGE("[%s, %s, %d] " x, strrchr(__FILE__, '/'), __FUNCTION__, __LINE__, ##__VA_ARGS__);\
+        }\
+    }while(0)
+
+#define SYS_LOGD(x, ...) \
+    do{\
+        char log_level[PROPERTY_VALUE_MAX] = {0};\
+        property_get("persist.vendor.sc.log.level", log_level, "4");\
+        if (atoi(log_level) <= 3) {\
+            ALOGD("[%s, %s, %d] " x, strrchr(__FILE__, '/'), __FUNCTION__, __LINE__, ##__VA_ARGS__);\
+        }\
+    }while(0)
+
+#define SYS_LOGV(x, ...) \
+    do{\
+        char log_level[PROPERTY_VALUE_MAX] = {0};\
+        property_get("persist.vendor.sc.log.level", log_level, "4");\
+        if (atoi(log_level) <= 2) {\
+            ALOGV("[%s, %s, %d] " x, strrchr(__FILE__, '/'), __FUNCTION__, __LINE__, ##__VA_ARGS__);\
+        }\
+    }while(0)
+
+#define SYS_LOGI(x, ...) \
+    do{\
+        char log_level[PROPERTY_VALUE_MAX] = {0};\
+        property_get("persist.vendor.sc.log.level", log_level, "4");\
+        if (atoi(log_level) <= 4) {\
+            ALOGI("[%s, %s, %d] " x, strrchr(__FILE__, '/'), __FUNCTION__, __LINE__, ##__VA_ARGS__);\
+        }\
+    }while(0)
 #endif
 
 enum {
