@@ -845,7 +845,7 @@ void DisplayMode::applyDisplaySetting(output_mode_state state) {
         sscanf(resolution, "%dx%d", &w, &h);
         sscanf(defaultResolution, "%dx%d", &w1, &h1);
         if ((w != w1) || (h != h1)) {
-            if (strstr(final_Mode, "null") && w1 != 0) {
+            if (strstr(final_displaymode, "null") && w1 != 0) {
                 sprintf(finalResolution, "%dx%d", w1, h1);
             } else {
                 sprintf(finalResolution, "%dx%d", w, h);
@@ -861,8 +861,8 @@ void DisplayMode::applyDisplaySetting(output_mode_state state) {
     SYS_LOGI("set display-size:%s\n", defaultResolution);
 
     int position[4] = { 0, 0, 0, 0 };//x,y,w,h
-    getPosition(final_Mode, position);
-    setPosition(final_Mode, position[0], position[1],position[2], position[3]);
+    getPosition(final_displaymode, position);
+    setPosition(final_displaymode, position[0], position[1],position[2], position[3]);
 
     // no need to update
     // update free_scale_axis and window_axis in recovery mode
