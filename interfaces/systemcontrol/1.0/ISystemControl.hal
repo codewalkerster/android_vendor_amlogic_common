@@ -129,7 +129,7 @@ interface ISystemControl {
   writeHdcpRX22Key(int32_t[4096] value, int32_t size)
       generates (Result result);
 
-  writePFIDKey(int32_t[4096] value, int32_t size)
+  writePFIDKey(int32_t[10240] value, int32_t size)
       generates (Result result);
 
   writePFPKKey(int32_t[4096] value, int32_t size)

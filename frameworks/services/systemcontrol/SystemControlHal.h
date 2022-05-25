@@ -85,7 +85,7 @@ class SystemControlHal : public ISystemControl, public SystemControlNotify, publ
     Return<Result> writeHdcpRX14Key(const hidl_array<int32_t, 4096>& value, int32_t size) override;
     Return<Result> writeHDCP22Key(const hidl_array<int32_t, 4096>& value, int32_t size) override;
     Return<Result> writeHdcpRX22Key(const hidl_array<int32_t, 4096>& value, int32_t size) override;
-    Return<Result> writePFIDKey(const hidl_array<int32_t, 4096>& value, int32_t size) override;
+    Return<Result> writePFIDKey(const hidl_array<int32_t, 10240>& value, int32_t size) override;
     Return<Result> writePFPKKey(const hidl_array<int32_t, 4096>& value, int32_t size) override;
 
     Return<void> readUnifyKey(const hidl_string &path, readUnifyKey_cb _hidl_cb) override;
@@ -108,6 +108,8 @@ class SystemControlHal : public ISystemControl, public SystemControlNotify, publ
     Return<Result> checkHDCP22KeyIsExist(const uint32_t key_type_first, const uint32_t key_type_second) override;
     Return<Result> checkPFIDKeyIsExist(const uint32_t key_type) override;
     Return<Result> checkPFPKKeyIsExist(const uint32_t key_type) override;
+    Return<void> calcChecksumKey(const hidl_array<int32_t, 10240>& value, int32_t size, calcChecksumKey_cb _hidl_cb) override;
+
     //Provision key end
 
     Return<Result> updataLogoBmp(const hidl_string &path) override;

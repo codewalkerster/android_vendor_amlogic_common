@@ -521,11 +521,11 @@ public class SystemControlManager {
         synchronized (mLock) {
             try {
                 int[] data;
-                if (size > KEY_TYPE_LEN_FIRST) {
+                if (size > KEY_TYPE_LEN_SECOND) {
                     Log.e(TAG, "The data len is too long, it cannot exceed " + (String.format("%d", size)));
                     return false;
                 }
-                data = paddingBuffer(val, size, KEY_TYPE_LEN_FIRST);
+                data = paddingBuffer(val, size, KEY_TYPE_LEN_SECOND);
                 int res = mProxy.writePFIDKey(data, size);
                 return 0 == res;
             } catch (RemoteException e) {
@@ -901,6 +901,34 @@ public class SystemControlManager {
             }
         }
         return false;
+    }
+
+    /*
+    *usage: calcChecksumKey(keyContent, keyContent.length);
+    * keyContent: the value of keyContent
+    * keyContent.length: the size of keyContent
+    */
+    public String calcChecksumKey(int[] val, int size) {
+        synchronized (mLock) {
+            try {
+                int[] data;
+                Mutable<String> resultVal = new Mutable<>();
+                if (size > KEY_TYPE_LEN_SECOND) {
+                    Log.e(TAG, "The data len is too long, it cannot exceed " + (String.format("%d", size)));
+                    return "";
+                }
+                data = paddingBuffer(val, size, KEY_TYPE_LEN_SECOND);
+                mProxy.calcChecksumKey(data, size, (int ret, String v) -> {
+                    if (Result.OK == ret) {
+                            resultVal.value = v;
+                        }
+                    });
+                return resultVal.value;
+            } catch (Exception e) {
+                Log.e(TAG, "calcChecksumKey:" + e);
+            }
+        }
+        return "";
     }
 
     //Provision key end
