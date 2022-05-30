@@ -1,125 +1,171 @@
-BUILD_MODULES := $(CONFIG_WIFI_MODULES)
+####################################################################################
+# define variables
+######################################################
+LOCAL_ROOT_DIR             := $(ROOT_DIR)
+LOCAL_OUT_DIR              := $(OUT_DIR)
+LOCAL_KERNEL_TO_ROOT_PATH  := $(KERNEL_TO_ROOT_PATH)
+LOCAL_CONFIG_BUILD_MODULES := $(CONFIG_WIFI_MODULES)
+LOCAL_WIFI_SUPPORT_DRIVERS := $(WIFI_SUPPORT_DRIVERS)
+LOCAL_MAKE_ARGS            := $(MAKE_ARGS)
+LOCAL_INSTALL_ARGS         := $(INSTALL_ARGS)
+LOCAL_WIFI_DRV_MAKE_JOBS   := $(WIFI_DRV_MAKE_JOBS)
+######################################################
 
-define get-makefile-path
-$(subst //,/,$($(1)_src_path)/$($(1)_build_path))
+####################################################################################
+# define functions
+######################################################
+define get-make-threads
+$(strip \
+ $(if $(LOCAL_WIFI_DRV_MAKE_JOBS),$(LOCAL_WIFI_DRV_MAKE_JOBS),\
+  $(shell expr `cat /proc/cpuinfo |grep "physical id"|sort|uniq|wc -l` \* `cat /proc/cpuinfo \
+   |grep "cpu cores"|uniq|wc -l` \* `cat /proc/cpuinfo |grep "processor"|wc -l`))\
+)
 endef
 
-define exist-makefile
+define get-drv-src-path
+$(strip $($(1)_src_path))
+endef
+
+define get-drv-copy-path
+$(strip $($(1)_copy_path))
+endef
+
+define get-drv-makefile-path
+$(strip $(patsubst %/,%,$(call get-drv-src-path,$(1))/$(strip $($(1)_build_path))))
+endef
+
+define get-drv-build-path
+$(strip \
+ $(if $($(1)_copy_path),\
+  $(patsubst %/,%,$(call get-drv-copy-path,$(1))/$(strip $($(1)_build_path))),\
+  $(patsubst %/,%,$(call get-drv-src-path,$(1))/$(strip $($(1)_build_path))))\
+)
+endef
+
+define get-drv-build-args
+$(strip $($(1)_args))
+endef
+
+define drv-is-existed
 $(shell if [ -f $(1)/Makefile -o -f $(1)/makefile ]; then echo "true"; else echo "false"; fi)
 endef
 
-build_drivers :=
+define drv-has-modules-install
+$(strip \
+ $(eval f := $(shell if [ -f $(1)/Makefile ]; then echo "$(1)/Makefile"; else echo "$(1)/makefile"; fi))\
+ $(shell if [ x$(shell cat $(f) | grep -w "modules_install:") = x"modules_install:" ];then echo "true"; else echo "false"; fi)\
+)
+endef
+
+define get-wifi-drivers
+$(strip \
+ $(foreach driver,\
+  $(LOCAL_WIFI_SUPPORT_DRIVERS),\
+  $(if $(filter true,$($(driver)_build)),\
+   $(if $(filter true,$(call drv-is-existed,$(LOCAL_ROOT_DIR)/$(call get-drv-makefile-path,$(driver)))),$(driver))))\
+)
+endef
+
+define get-wifi-modules
+$(strip \
+ $(eval all_modules := $(foreach driver,$(call get-wifi-drivers),$($(driver)_modules)))\
+ $(eval config_modules := $(foreach module,$(LOCAL_CONFIG_BUILD_MODULES),$(if $(filter $(module),$(all_modules)),$(module))))\
+ $(if $(LOCAL_CONFIG_BUILD_MODULES),\
+  $(if $(filter multiwifi,$(LOCAL_CONFIG_BUILD_MODULES)),$(all_modules),$(config_modules)),\
+  $(all_modules))\
+)
+endef
+
+define get-install-drivers
+$(strip \
+$(eval install_drivers := $(strip $(sort $(foreach module,$(call get-wifi-modules),\
+ $(foreach driver,$(call get-wifi-drivers),$(if $(filter $(module),$($(driver)_modules)),$(driver)))))))\
+$(foreach driver,$(install_drivers),\
+ $(if $(filter true,$(call drv-has-modules-install,$(LOCAL_ROOT_DIR)/$(call get-drv-makefile-path,$(driver)))),$(driver)))\
+)
+endef
+
+define print-ignored-drivers
 $(foreach driver,\
- $(WIFI_SUPPORT_DRIVERS),\
+ $(LOCAL_WIFI_SUPPORT_DRIVERS),\
  $(if $(filter true,$($(driver)_build)),\
-  $(if $(filter true,$(call exist-makefile,$(ROOT_DIR)/$(call get-makefile-path,$(driver)))),\
-   $(eval build_drivers += $(driver)),\
-   $(warning "$(call get-makefile-path,$(driver))/Makefile" not found!)\
-   )\
- )\
+  $(if $(filter false,$(call drv-is-existed,$(LOCAL_ROOT_DIR)/$(call get-drv-makefile-path,$(driver)))),\
+   $(warning ignore build wifi driver "$(driver)"! because "$(call get-drv-makefile-path,$(driver))/Makefile" not found!)))\
 )
+endef
 
-build_modules :=\
-$(foreach driver,\
- $(build_drivers),\
- $($(driver)_modules))
-
-ifeq ($(BUILD_MODULES), multiwifi)
-BUILD_MODULES := $(build_modules)
-endif
-
-ifeq ($(BUILD_MODULES), )
-BUILD_MODULES := $(build_modules)
-else
-support_modules :=
-$(foreach module,\
- $(BUILD_MODULES),\
- $(if $(filter $(module),$(build_modules)),\
-  $(eval support_modules += $(module)),\
-  $(warning wifi module "$(module)" has no driver support!)\
- )\
+define print-ignored-modules
+$(eval all_modules := $(foreach driver,$(call get-wifi-drivers),$($(driver)_modules)))\
+$(if $(LOCAL_CONFIG_BUILD_MODULES),\
+ $(if $(filter multiwifi,$(LOCAL_CONFIG_BUILD_MODULES)),,\
+  $(foreach module,$(LOCAL_CONFIG_BUILD_MODULES),\
+   $(if $(filter $(module),$(all_modules)),,\
+    $(warning ignore wifi module "$(module)"! because "$(module)" has no driver support!))))\
 )
-BUILD_MODULES := $(support_modules)
-endif
+endef
 
-modules: $(addsuffix _modules,$(BUILD_MODULES))
+define def-direct-build-driver-cmd
+$(strip $(1)_drv_modules):
+	@echo "===>wifi: build driver $(strip $(1))"
+	mkdir -p $(LOCAL_OUT_DIR)/$(LOCAL_KERNEL_TO_ROOT_PATH)/$(call get-drv-build-path,$(1))
+	+$(MAKE) -C $(LOCAL_ROOT_DIR)/$(call get-drv-build-path,$(1)) \
+	 M=$(LOCAL_KERNEL_TO_ROOT_PATH)/$(call get-drv-build-path,$(1)) \
+	 $(LOCAL_MAKE_ARGS) $(call get-drv-build-args,$(1)) -j$(call get-make-threads)
+
+$(strip $(1)_drv_modules_install):
+	@echo "wifi: driver $(strip $(1)) modules_install"
+	make -C $(LOCAL_ROOT_DIR)/$(call get-drv-build-path,$(1)) \
+	 M=$(LOCAL_KERNEL_TO_ROOT_PATH)/$(call get-drv-build-path,$(1)) \
+	 $(LOCAL_INSTALL_ARGS) $(LOCAL_MAKE_ARGS) $(call get-drv-build-args,$(1)) modules_install
+
+$(addsuffix _modules,$(strip $($(1)_modules))): $(strip $(1)_drv_modules)
+endef
+
+define def-copy-build-driver-cmd
+$(strip $(1)_drv_modules):
+	@echo "===>wifi: build driver $(strip $(1))"
+	mkdir -p $(call get-drv-copy-path,$(1))
+	@echo Syncing directory $(LOCAL_ROOT_DIR)/$(call get-drv-src-path,$(1))/ to $(call get-drv-copy-path,$(1))
+	rsync -a $(LOCAL_ROOT_DIR)/$(call get-drv-src-path,$(1))/ $(call get-drv-copy-path,$(1))
+	+$(MAKE) -C $(call get-drv-build-path,$(1)) \
+	 M=$(call get-drv-build-path,$(1)) \
+	 $(LOCAL_MAKE_ARGS) $(call get-drv-build-args,$(1)) -j$(call get-make-threads)
+
+$(strip $(1)_drv_modules_install):
+	@echo "===>wifi: driver $(strip $(1)) modules_install"
+	make -C $(call get-drv-build-path,$(1)) \
+	 M=$(call get-drv-build-path,$(1)) \
+	 $(LOCAL_INSTALL_ARGS) $(LOCAL_MAKE_ARGS) $(call get-drv-build-args,$(1)) modules_install
+
+$(addsuffix _modules,$(strip $($(1)_modules))): $(strip $(1)_drv_modules)
+endef
+
+define def-build-driver-rules
+$(foreach driver,$(call get-wifi-drivers),\
+ $(if $($(driver)_copy_path),\
+  $(eval $(call def-copy-build-driver-cmd,$(driver))),\
+  $(eval $(call def-direct-build-driver-cmd,$(driver))))\
+)
+endef
+######################################################
+
+####################################################################################
+# build rules
+######################################################
+$(eval $(call print-ignored-drivers))
+
+$(eval $(call print-ignored-modules))
+
+modules: $(addsuffix _modules,$(call get-wifi-modules))
 	@echo "######build wifi drivers done!######"
 
 modules_install: all_modules_install
-	@echo "######install wifi modules done!######"
-
-makeThreads ?= $(shell expr `cat /proc/cpuinfo |grep "physical id"|sort|uniq|wc -l` \* `cat /proc/cpuinfo \
- |grep "cpu cores"|uniq|wc -l` \* `cat /proc/cpuinfo |grep "processor"|wc -l`)
-
-define direct_build_modules
-$(strip $(1)_drv_modules):
-	@echo "===>wifi: build driver->$(strip $(1))"
-	mkdir -p $(patsubst %/,%,$(OUT_DIR)/$(K_REL_DIR)/$(strip $($(1)_src_path))/$(strip $($(1)_build_path)))
-	+$(MAKE) -C $(patsubst %/,%,$(ROOT_DIR)/$(strip $($(1)_src_path))/$(strip $($(1)_build_path)))\
-	 M=$(patsubst %/,%,$(K_REL_DIR)/$(strip $($(1)_src_path))/$(strip $($(1)_build_path)))\
-	 $(MAKE_ARGS) $(strip $($(1)_args)) -j$(makeThreads)
-
-$(strip $(1)_drv_modules_install):
-	@echo "===>wifi: install modules->$(strip $(1))"
-	make -C $(patsubst %/,%,$(ROOT_DIR)/$(strip $($(1)_src_path))/$(strip $($(1)_build_path)))\
-	 M=$(patsubst %/,%,$(K_REL_DIR)/$(strip $($(1)_src_path))/$(strip $($(1)_build_path)))\
-	 $(INSTALL_ARGS) $(MAKE_ARGS) $(strip $($(1)_args)) modules_install
-
-$(addsuffix _modules,$(strip $($(1)_modules))): $(strip $(1)_drv_modules)
-endef
-
-define copy_build_modules
-$(strip $(1)_drv_modules):
-	@echo "===>wifi build driver->$(strip $(1))"
-	mkdir -p $(strip $($(1)_copy_path))
-	@echo Syncing directory $(ROOT_DIR)/$(strip $($(1)_src_path))/ to $(strip $($(1)_copy_path))
-	rsync -a $(ROOT_DIR)/$(strip $($(1)_src_path))/ $(strip $($(1)_copy_path))
-	+$(MAKE) -C $(patsubst %/,%,$(strip $($(1)_copy_path))/$(strip $($(1)_build_path)))\
-	 M=$(patsubst %/,%,$(strip $($(1)_copy_path))/$(strip $($(1)_build_path)))\
-	 $(MAKE_ARGS) $(strip $($(1)_args)) -j$(makeThreads)
-
-$(strip $(1)_drv_modules_install):
-	@echo "===>wifi: install modules->$(strip $(1))"
-	make -C $(patsubst %/,%,$(strip $($(1)_copy_path))/$(strip $($(1)_build_path)))\
-	 M=$(patsubst %/,%,$(strip $($(1)_copy_path))/$(strip $($(1)_build_path)))\
-	 $(INSTALL_ARGS) $(MAKE_ARGS) $(strip $($(1)_args)) modules_install
-
-$(addsuffix _modules,$(strip $($(1)_modules))): $(strip $(1)_drv_modules)
-endef
-
-direct_build_drivers :=\
-$(foreach driver,\
- $(build_drivers),\
- $(if $($(driver)_copy_path),,$(driver)))
-
-copy_build_drivers :=\
-$(foreach driver,\
- $(build_drivers),\
- $(if $($(driver)_copy_path),$(driver)))
-
-install_drivers :=\
-$(sort \
- $(foreach module,\
-  $(BUILD_MODULES),\
-   $(foreach driver,\
-    $(build_drivers),\
-     $(if $(filter $(module),$($(driver)_modules)),$(driver))\
-   )\
- )\
-)
-
-$(foreach driver,\
- $(direct_build_drivers),\
- $(eval $(call direct_build_modules,$(driver)))\
-)
-
-$(foreach driver,\
- $(copy_build_drivers),\
- $(eval $(call copy_build_modules,$(driver)))\
-)
+	@echo "######wifi drivers modules_install done!######"
 
 all_modules_install:
-	@for driver in $(install_drivers); do\
+	@for driver in $(call get-install-drivers); do\
 	 make $(strip "$$driver"_drv_modules_install);\
 	done
 
+$(eval $(call def-build-driver-rules))
+######################################################

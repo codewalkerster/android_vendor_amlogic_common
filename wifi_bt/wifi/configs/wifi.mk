@@ -22,33 +22,30 @@ include vendor/amlogic/common/wifi_bt/wifi/configs/5_4/config.mk
 endif
 
 ifdef PRODUCT_DIRNAME
--include $(ROOT_DIR)/$(PRODUCT_DIRNAME)/wifibt.build.config.trunk.mk
+-include $(PRODUCT_DIRNAME)/wifibt.build.config.trunk.mk
 else
--include $(ROOT_DIR)/device/amlogic/$(PRODUCT_DIR)/wifibt.build.config.trunk.mk
+-include device/amlogic/$(PRODUCT_DIR)/wifibt.build.config.trunk.mk
 endif
 
-WIFI_MODULES := $(CONFIG_WIFI_MODULES)
-build_drivers :=\
-$(foreach driver,\
- $(WIFI_SUPPORT_DRIVERS),\
- $(if $(filter true,$($(driver)_build)),$(driver)))
-build_modules :=\
-$(foreach driver,\
- $(build_drivers),\
- $($(driver)_modules))
-ifeq ($(WIFI_MODULES), multiwifi)
-WIFI_MODULES := $(build_modules)
-endif
-ifeq ($(WIFI_MODULES), )
-WIFI_MODULES := $(build_modules)
-else
-$(foreach module,\
- $(WIFI_MODULES),\
- $(if $(filter $(module),$(build_modules)),,\
-  $(error wifi module "$(module)" has no driver support!)\
+define check-wifi-modules
+$(eval supported_drivers := $(strip $(foreach driver,$(WIFI_SUPPORT_DRIVERS),$(if $(filter true,$($(driver)_build)),$(driver)))))\
+$(eval supported_modules := $(strip $(foreach driver,$(supported_drivers),$($(driver)_modules))))\
+$(foreach module,$(1),$(if $(filter $(module),$(supported_modules)),,\
+ $(warning wifi module "$(module)" has no driver support!)))
+endef
+
+define get-supported-wifi-modules
+$(strip $(foreach driver,$(WIFI_SUPPORT_DRIVERS),$($(driver)_modules)))
+endef
+
+WIFI_MODULES := \
+$(strip \
+ $(if $(CONFIG_WIFI_MODULES),\
+  $(if $(filter multiwifi,$(CONFIG_WIFI_MODULES)),$(call get-supported-wifi-modules),$(CONFIG_WIFI_MODULES)),\
+  $(call get-supported-wifi-modules)\
  )\
 )
-endif
+$(eval $(call check-wifi-modules,$(WIFI_MODULES)))
 
 #enable clang CFI for arm64
 ifeq ($(ANDROID_BUILD_TYPE), 64)

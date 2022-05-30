@@ -1,15 +1,6 @@
 ####################################################################################
 DRIVER_DIR ?= vendor/wifi_driver
-K_REL_DIR  ?= \
-$(patsubst %/,%,\
- $(shell echo \
-  $(foreach word,\
-   $(shell echo \
-    $(subst $(ROOT_DIR),,$(KERNEL_SRC))\
-   | tr '/' ' '),\
-  ../)\
- |sed 's/[[:space:]]//g')\
-)
+KERNEL_TO_ROOT_PATH  ?= $(patsubst %/,%,$(shell echo $(foreach word,$(shell echo $(subst $(ROOT_DIR),,$(KERNEL_SRC)) | tr '/' ' '),../)|sed 's/[[:space:]]//g'))
 WIFI_SUPPORT_DRIVERS ?= $(EXTRA_WIFI_SUPPORT_DRIVERS)
 ####################################################################################
 
@@ -17,7 +8,7 @@ WIFI_SUPPORT_DRIVERS += dhd_sdio
 dhd_sdio_build ?= true
 dhd_sdio_modules ?= ap6181 ap6335 ap6234 ap6255 ap6256 ap6271 ap6212 ap6354 ap6356 ap6398s ap6275s bcm43751_s bcm43458_s bcm4358_s ap6236
 dhd_sdio_src_path ?= $(DRIVER_DIR)/broadcom/ap6xxx/bcmdhd.101.10.361.x
-dhd_sdio_copy_path ?= $(OUT_DIR)/$(K_REL_DIR)/$(strip $(dhd_sdio_src_path))/dhd_sdio
+dhd_sdio_copy_path ?= $(OUT_DIR)/$(KERNEL_TO_ROOT_PATH)/$(strip $(dhd_sdio_src_path))/dhd_sdio
 dhd_sdio_build_path ?=
 dhd_sdio_args ?= CONFIG_BCMDHD_SDIO=y
 
@@ -25,7 +16,7 @@ WIFI_SUPPORT_DRIVERS += dhd_usb
 dhd_usb_build ?= true
 dhd_usb_modules ?= ap6269 ap62x8
 dhd_usb_src_path ?= $(DRIVER_DIR)/broadcom/ap6xxx/bcmdhd.101.10.361.x
-dhd_usb_copy_path ?= $(OUT_DIR)/$(K_REL_DIR)/$(strip $(dhd_usb_src_path))/dhd_usb
+dhd_usb_copy_path ?= $(OUT_DIR)/$(KERNEL_TO_ROOT_PATH)/$(strip $(dhd_usb_src_path))/dhd_usb
 dhd_usb_build_path ?=
 dhd_usb_args ?= CONFIG_BCMDHD_USB=y
 
@@ -33,7 +24,7 @@ WIFI_SUPPORT_DRIVERS += dhd_pcie
 dhd_pcie_build ?= true
 dhd_pcie_modules ?= ap6275p ap6275hh3
 dhd_pcie_src_path ?= $(DRIVER_DIR)/broadcom/ap6xxx/bcmdhd.101.10.361.x
-dhd_pcie_copy_path ?= $(OUT_DIR)/$(K_REL_DIR)/$(strip $(dhd_pcie_src_path))/dhd_pcie
+dhd_pcie_copy_path ?= $(OUT_DIR)/$(KERNEL_TO_ROOT_PATH)/$(strip $(dhd_pcie_src_path))/dhd_pcie
 dhd_pcie_build_path ?=
 dhd_pcie_args ?= CONFIG_BCMDHD_PCIE=y
 
