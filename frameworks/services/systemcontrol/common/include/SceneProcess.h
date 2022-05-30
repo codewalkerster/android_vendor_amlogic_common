@@ -96,6 +96,7 @@ typedef struct scene_input_info {
     bool isDvEnable;   //dolby vision enable or not,false:disable true:enable
     bool isTvSupportHDR;//tv is support HDR or not, false:not support true:support
     bool isTvSupportDv;//tv is support dolby vision or not, false:not support true:support
+    bool isHdrResolutionPriority;//Hdr Resolution Priority enable or not, false:disable true:enable
     hdr_priority_e hdr_priority; //dynamic range fromat preference,0:dolby vision,1:hdr,2:sdr
     hdr_policy_e hdr_policy;     //dynamic range policy,0 :follow sink, 1: match content
     char cur_displaymode[MODE_LEN]; // hdmi current output mode

@@ -247,6 +247,7 @@ using namespace android;
 #define PROP_DISPLAY_SIZE_CHECK         "vendor.display-size.check"
 #define PROP_ENABLE_SDR2HDR             "ro.vendor.sdr2hdr.enable"
 #define PROP_HDMI_FRAMERATE_PRIORITY    "persist.vendor.sys.framerate.priority"
+#define PROP_HDR_RESOLUTION_PRIORITY    "persist.vendor.hdr.resolution.priority"
 
 #define HDR_MODE_OFF                    "0"
 #define HDR_MODE_ON                     "1"
@@ -613,6 +614,7 @@ private:
     bool isSupport4K();
     bool isSupportDeepColor();
     bool isFrameratePriority();
+    bool isHdrResolutionPriority();
     bool isLowPowerMode();
     bool isBestOutputmode();
     bool modeSupport(char *mode, int sinkType);

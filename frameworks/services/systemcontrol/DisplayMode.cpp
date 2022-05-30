@@ -516,13 +516,14 @@ void DisplayMode::sceneProcess(hdmi_data_t* data) {
         strcpy(scene_input_info.cur_displaymode, data->ui_hdmimode);
     }
 
-    scene_input_info.state          = (scene_state)data->state;
-    scene_input_info.isbestpolicy   = isBestOutputmode();
-    scene_input_info.isDvEnable     = isDolbyVisionEnable();
-    scene_input_info.isTvSupportDv  = isTvSupportDolbyVision(tvmode);
-    scene_input_info.isTvSupportHDR = isTvSupportHDR();
-    scene_input_info.hdr_policy     = data->hdr_policy;
-    scene_input_info.hdr_priority   = data->hdr_priority;
+    scene_input_info.state                   = (scene_state)data->state;
+    scene_input_info.isbestpolicy            = isBestOutputmode();
+    scene_input_info.isDvEnable              = isDolbyVisionEnable();
+    scene_input_info.isTvSupportDv           = isTvSupportDolbyVision(tvmode);
+    scene_input_info.isTvSupportHDR          = isTvSupportHDR();
+    scene_input_info.isHdrResolutionPriority = isHdrResolutionPriority();
+    scene_input_info.hdr_policy              = data->hdr_policy;
+    scene_input_info.hdr_priority            = data->hdr_priority;
 
    //1.2 dolby vision input info
     strcpy(scene_input_info.dv_input_info.ubootenv_dv_type, data->dv_info.ubootenv_dv_type);
@@ -1740,6 +1741,10 @@ bool DisplayMode::isBestOutputmode() {
         return false;
     }
     return !getBootEnv(UBOOTENV_ISBESTMODE, isBestMode) || strcmp(isBestMode, "true") == 0;
+}
+
+bool DisplayMode::isHdrResolutionPriority() {
+    return pSysWrite->getPropertyBoolean(PROP_HDR_RESOLUTION_PRIORITY, true);
 }
 
 bool DisplayMode::isFrameratePriority() {

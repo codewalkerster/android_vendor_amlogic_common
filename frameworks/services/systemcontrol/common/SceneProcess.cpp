@@ -535,7 +535,7 @@ void SceneProcess::updateDolbyVisionAttr(int dolbyvision_type, char * dv_attr) {
 }
 
 bool SceneProcess::isHDRPreference() {
-    return mScene_Input_Info.isTvSupportHDR
+    return mScene_Input_Info.isTvSupportHDR && mScene_Input_Info.isHdrResolutionPriority
         && ((mScene_Input_Info.hdr_priority == DOLBY_VISION_PRIORITY) || (mScene_Input_Info.hdr_priority == HDR10_PRIORITY));
 }
 
@@ -954,10 +954,11 @@ void SceneProcess::UpdateSceneInputInfo(scene_input_info_t* input_info) {
         mScene_Input_Info.isbestpolicy,
         mScene_Input_Info.cur_displaymode);
 
-    SYS_LOGI("isDvEnable:%d, isTvSupportDv:%d, isTvSupportHDR:%d, hdr_priority:%d, hdr_policy:%d\n",
+    SYS_LOGI("isDvEnable:%d, isTvSupportDv:%d, isTvSupportHDR:%d, isHdrResolutionPriority:%d, hdr_priority:%d, hdr_policy:%d\n",
         mScene_Input_Info.isDvEnable,
         mScene_Input_Info.isTvSupportDv,
         mScene_Input_Info.isTvSupportHDR,
+        mScene_Input_Info.isHdrResolutionPriority,
         mScene_Input_Info.hdr_priority,
         mScene_Input_Info.hdr_policy);
 
