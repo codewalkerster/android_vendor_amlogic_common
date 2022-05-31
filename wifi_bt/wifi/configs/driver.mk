@@ -113,7 +113,7 @@ $(strip $(1)_drv_modules):
 	 $(LOCAL_MAKE_ARGS) $(call get-drv-build-args,$(1)) -j$(call get-make-threads)
 
 $(strip $(1)_drv_modules_install):
-	@echo "wifi: driver $(strip $(1)) modules_install"
+	@echo "===>wifi: driver $(strip $(1)) modules_install"
 	make -C $(LOCAL_ROOT_DIR)/$(call get-drv-build-path,$(1)) \
 	 M=$(LOCAL_KERNEL_TO_ROOT_PATH)/$(call get-drv-build-path,$(1)) \
 	 $(LOCAL_INSTALL_ARGS) $(LOCAL_MAKE_ARGS) $(call get-drv-build-args,$(1)) modules_install
