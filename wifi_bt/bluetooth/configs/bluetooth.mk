@@ -17,7 +17,12 @@
 #Support modules:
 #   bcm40183, AP6210, AP6476, AP6330, AP62x2,AP6335,mt5931 & mt6622
 
+ifdef PRODUCT_DIRNAME
+-include $(PRODUCT_DIRNAME)/wifibt.build.config.trunk.mk
+else
 -include device/amlogic/$(PRODUCT_DIR)/wifibt.build.config.trunk.mk
+endif
+
 BLUETOOTH_MODULE := $(CONFIG_BLUETOOTH_MODULES)
 ifeq ($(BLUETOOTH_MODULE), )
 BLUETOOTH_MODULE := multibt
@@ -29,6 +34,8 @@ $(warning BLUETOOTH_INF is $(BLUETOOTH_INF))
 else
 $(warning BLUETOOTH_INF is not set)
 endif
+
+PRODUCT_PROPERTY_OVERRIDES += persist.vendor.wifibt_name = "$(CONFIG_WIFIBT_NAME)"
 
 ifeq ($(BOARD_HAVE_BLUETOOTH),true)
     PRODUCT_PROPERTY_OVERRIDES += config.disable_bluetooth=false \

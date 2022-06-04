@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 
+PRODUCT_PROPERTY_OVERRIDES += persist.vendor.wifibt_name = "$(CONFIG_WIFIBT_NAME)"
 
 ifeq ($(TARGET_BUILD_KERNEL_4_9),true)
 include vendor/amlogic/common/wifi_bt/wifi/configs/4_9/config.mk
