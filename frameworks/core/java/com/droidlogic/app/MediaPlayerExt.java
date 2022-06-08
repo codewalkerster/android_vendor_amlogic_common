@@ -433,11 +433,19 @@ public class MediaPlayerExt extends MediaPlayer {
         public String audioMime;
     }
 
+    public class teletextDataInfo
+    {
+        public int sub_page_count;
+        public int[] magazine;
+        public int[] page;
+    }
+
     public class SubtitleInfo{
         public int index;
         public int id;
         public int sub_type;
         public String sub_language;
+        public teletextDataInfo teletext_data_info;
     }
 
     public class TsProgrameInfo{
@@ -596,6 +604,26 @@ public class MediaPlayerExt extends MediaPlayer {
                     Log.i(TAG,"[getMediaInfo]data["+m+"]:"+data[m] + "("+(String.format("0x%x", (0xff & data[m]))) + ")");
                 }
                 Log.i(TAG,"[getMediaInfo]=======================================");
+            }
+        }
+
+        //----subtitle teletext info----
+        for (int m = 0; m < mediaInfo.total_sub_num; m++) {
+            if (mediaInfo.subtitleInfo[m].sub_type == 2 /*SFORMAT_TELETEXT*/) {
+                //get one subtitle track teletext sub page count
+                mediaInfo.subtitleInfo[m].teletext_data_info = new teletextDataInfo();
+                mediaInfo.subtitleInfo[m].teletext_data_info.sub_page_count = p.readInt();
+
+                //get one subtitle track teletext sub page magazine and page
+                mediaInfo.subtitleInfo[m].teletext_data_info.magazine = new int[mediaInfo.subtitleInfo[m].teletext_data_info.sub_page_count];
+                mediaInfo.subtitleInfo[m].teletext_data_info.page = new int[mediaInfo.subtitleInfo[m].teletext_data_info.sub_page_count];
+                if (DEBUG) Log.i(TAG,"[getMediaInfo]subtitle id:" + mediaInfo.subtitleInfo[m].id + ",teletext sub_page_count:" + mediaInfo.subtitleInfo[m].teletext_data_info.sub_page_count);
+                for (int s = 0; s < mediaInfo.subtitleInfo[m].teletext_data_info.sub_page_count; s++) {
+                    mediaInfo.subtitleInfo[m].teletext_data_info.magazine[s] = p.readInt();
+                    mediaInfo.subtitleInfo[m].teletext_data_info.page[s] = p.readInt();
+                    if (DEBUG) Log.i(TAG,"[getMediaInfo]subtitle teletext index:" + s + "magazine:" + mediaInfo.subtitleInfo[m].teletext_data_info.magazine[s]
+                        + ",page:" + mediaInfo.subtitleInfo[m].teletext_data_info.page[s]);
+                }
             }
         }
 
