@@ -1661,7 +1661,13 @@ Return<void> SystemControlClient::SystemControlHidlCallback::notifyHdrInfoChange
 }
 
 int SystemControlClient::setAudioParam(int param1, int param2, int param3, int param4) {
-    return mSysCtrl->setAudioParam(param1, param2, param3, param4);
+    int32_t result = -1;
+    mSysCtrl->setAudioParam(param1, param2, param3, param4, [&result](const Result &ret, const int32_t& v) {
+        if (Result::OK == ret) {
+            result = v;
+        }
+    });
+    return result;
 }
 
 Return<void> SystemControlClient::SystemControlHidlCallback::notifyAudioCallback(int param1, int param2, int param3, int param4) {

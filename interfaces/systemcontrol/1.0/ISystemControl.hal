@@ -745,5 +745,5 @@ interface ISystemControl {
     generates (int32_t ret);
 
   setAudioParam(int32_t param1, int32_t param2, int32_t param3, int32_t param4)
-      generates (int32_t ret);
+      generates (Result result, int32_t ret);
 };

@@ -1782,8 +1782,10 @@ Return<int32_t> SystemControlHal::UpdateFBCUpgradeStatus(int32_t state, int32_t 
     return mSysControl->UpdateFBCUpgradeStatus(state, param);
 }
 
-Return<int32_t> SystemControlHal::setAudioParam(int32_t param1, int32_t param2, int32_t param3, int32_t param4) {
-    return mSysControl->setAudioParam(param1, param2, param3, param4);
+Return<void> SystemControlHal::setAudioParam(int32_t param1, int32_t param2, int32_t param3, int32_t param4, setAudioParam_cb _hidl_cb) {
+    int32_t value = mSysControl->setAudioParam(param1, param2, param3, param4);
+    _hidl_cb(Result::OK, value);
+    return Void();
 }
 
 void SystemControlHal::handleServiceDeath(uint32_t cookie) {
