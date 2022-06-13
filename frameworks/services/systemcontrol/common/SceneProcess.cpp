@@ -609,7 +609,8 @@ void SceneProcess::updateDolbyVisionDisplayMode(char * cur_outputmode, int dv_ty
         //hdmi output resolution need small than dolby vision resolution
         //ex:dolby vision support 1080p60hz,only can output small 1080p60hz resolution
         if ((resolveResolutionValue(cur_outputmode, RESOLUTION_PRIORITY) > resolveResolutionValue(dv_displaymode, RESOLUTION_PRIORITY))
-            || (strstr(cur_outputmode, "smpte") != NULL) || (strstr(cur_outputmode, "i") != NULL)) {
+            || (strstr(cur_outputmode, "smpte") != NULL) || (strstr(cur_outputmode, "i") != NULL)
+            || (strstr(cur_outputmode, "480p") != NULL) || (strstr(cur_outputmode, "576p") != NULL)) {
             strcpy(final_displaymode, dv_displaymode);
         } else {
             strcpy(final_displaymode, cur_outputmode);

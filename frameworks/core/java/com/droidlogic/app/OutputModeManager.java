@@ -630,7 +630,9 @@ public class OutputModeManager {
                     Log.w(TAG, "This TV not Support Dolby Vision: " + listHdmiMode.get(i));
                 } else {
                     if (listHdmiMode.get(i).contains("smpte")
-                        || listHdmiMode.get(i).contains("i")) {
+                        || listHdmiMode.get(i).contains("i")
+                        || listHdmiMode.get(i).contains("576p")
+                        || listHdmiMode.get(i).contains("480p"))  {
                         Log.w(TAG, "This hdmi mode is not support Dolby Vision: " + listHdmiMode.get(i));
                         continue;
                     }

@@ -2603,51 +2603,52 @@ void DisplayMode::setHdrPriority(const char* type) {
         setBootEnv(UBOOTENV_COLORATTRIBUTE, mHdmidata.final_deepcolor);
     } else {
         char hdr_policy[MODE_LEN] = {0};
+        char dvstatus[MODE_LEN]   = {0};
+        char dv_type[MODE_LEN]    = {0};
         std::string dv_cap;
         DisplayModeMgr::getInstance().getDisplayAttribute(DISPLAY_DOLBY_VISION_CAP2, dv_cap, ConnectorType::CONN_TYPE_HDMI);
         SYS_LOGI("This TV dv cap: %s", dv_cap.c_str());
+        //1. get final display mode and color format
+        setBootEnv(UBOOTENV_ISBESTMODE, "true");
+        mHdmidata.state = OUPUT_MODE_STATE_INIT;
+        getCommonData(&mHdmidata);
+        sceneProcess(&mHdmidata);
+
+        // 2. save uboot env
+        //2.1 save hdmimode
+        if (strstr(mHdmidata.final_displaymode, "cvbs") != NULL) {
+            setBootEnv(UBOOTENV_CVBSMODE, mHdmidata.final_displaymode);
+        } else if (strstr(mHdmidata.final_displaymode, "hz") != NULL) {
+            setBootEnv(UBOOTENV_HDMIMODE, mHdmidata.final_displaymode);
+        }
+        //2.2 save colorattribute
+        saveDeepColorAttr(mHdmidata.final_displaymode, mHdmidata.final_deepcolor);
+        setBootEnv(UBOOTENV_COLORATTRIBUTE, mHdmidata.final_deepcolor);
+
+        // 2.3 save dolby status/dv_type
+        // In follow sink mode: 0:disable 1:STD(or enable dv) 2:LL YUV 3: LL RGB
+        // In follow source mode: dv is diable in uboot.
         if (!(strstr(dv_cap.c_str(), "The Rx don't support DolbyVision")) &&
             (isMboxSupportDolbyVision() == true)) {
             getHdrStrategy(hdr_policy);
             if (!strcmp(hdr_policy, HDR_POLICY_SOURCE)) {
-                setBootEnv(UBOOTENV_DOLBYSTATUS, "0");
+                sprintf(dvstatus, "%d", 0);
             } else {
-                if (strstr(dv_cap.c_str(), "2160p60hz")) {
-                    setBootEnv(UBOOTENV_HDMIMODE, "2160p60hz");
-                } else if (strstr(dv_cap.c_str(), "2160p30hz") || strstr(dv_cap.c_str(), "2160p25z")
-                    || strstr(dv_cap.c_str(), "2160p24hz") || strstr(dv_cap.c_str(), "1080p60hz")) {
-                    setBootEnv(UBOOTENV_HDMIMODE, "1080p60hz");
-                } else {
-                        SYS_LOGI("This DV-TV is special case: %s", dv_cap.c_str());
-                        return;
-                }
-
-                if (strstr(dv_cap.c_str(), "LL_YCbCr_422_12BIT") || strstr(dv_cap.c_str(), "DV_RGB_444_8BIT")) {
-                    if (pSysWrite->getPropertyBoolean(PROP_ALWAYS_DOLBY_VISION, false)) {
-                        if (strstr(dv_cap.c_str(), "DV_RGB_444_8BIT")) {
-                            setBootEnv(UBOOTENV_COLORATTRIBUTE, "444,8bit");
-                            setBootEnv(UBOOTENV_DOLBYSTATUS, "1");
-                        } else if (strstr(dv_cap.c_str(), "LL_YCbCr_422_12BIT")) {
-                            setBootEnv(UBOOTENV_COLORATTRIBUTE, "422,12bit");
-                            setBootEnv(UBOOTENV_DOLBYSTATUS, "2");
-                        }
-                    } else {
-                        if (strstr(dv_cap.c_str(), "LL_YCbCr_422_12BIT")) {
-                            setBootEnv(UBOOTENV_COLORATTRIBUTE, "422,12bit");
-                            setBootEnv(UBOOTENV_DOLBYSTATUS, "2");
-                        } else if (strstr(dv_cap.c_str(), "DV_RGB_444_8BIT")) {
-                            setBootEnv(UBOOTENV_COLORATTRIBUTE, "444,8bit");
-                            setBootEnv(UBOOTENV_DOLBYSTATUS, "1");
-                        }
-                    }
-                } else if (strstr(dv_cap.c_str(), "LL_RGB_444_12BIT")) {
-                    setBootEnv(UBOOTENV_COLORATTRIBUTE, "444,12bit");
-                    setBootEnv(UBOOTENV_DOLBYSTATUS, "3");
-                } else if (strstr(dv_cap.c_str(), "LL_RGB_444_10BIT")) {
-                    setBootEnv(UBOOTENV_COLORATTRIBUTE, "444,10bit");
-                    setBootEnv(UBOOTENV_DOLBYSTATUS, "3");
-                }
+                sprintf(dvstatus, "%d", mHdmidata.dv_info.dv_type);
             }
+            setBootEnv(UBOOTENV_DOLBYSTATUS, dvstatus);
+
+            sprintf(dv_type, "%d", mHdmidata.dv_info.dv_type);
+            setBootEnv(UBOOTENV_DV_TYPE, dv_type);
+
+            setBootEnv(UBOOTENV_DV_ENABLE, mHdmidata.dv_info.dv_enable);
+
+            SYS_LOGI("dvstatus %s dv_type %s dv_enable %s\n",
+                dvstatus, dv_type, mHdmidata.dv_info.dv_enable);
+
+        } else {
+            SYS_LOGI("MBOX or Rx is not support dolby vision, dvstatus %s dv_type %d dv_enable %s\n",
+                dvstatus, mHdmidata.dv_info.dv_type, mHdmidata.dv_info.dv_enable);
         }
     }
 }
