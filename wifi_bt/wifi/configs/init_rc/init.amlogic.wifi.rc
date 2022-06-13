@@ -34,16 +34,16 @@ on property:vendor.wifi_name=bcm
    setprop wifi.direct.interface p2p-dev-wlan0
 
 on property:vendor.wifi_name=rtl
-   setprop wifi.direct.interface p2p0
+   setprop wifi.direct.interface ap0
 
 on property:vendor.wifi_name=mtk
    setprop wifi.direct.interface p2p0
 
 on property:vendor.wifi_name=qca
-   setprop wifi.direct.interface p2p0
+   setprop wifi.direct.interface ap0
 
 on property:vendor.wifi_name=aml
-   setprop wifi.direct.interface p2p0
+   setprop wifi.direct.interface ap0
 
 on property:vendor.wifi_name=nxp
    setprop wifi.direct.interface p2p0
