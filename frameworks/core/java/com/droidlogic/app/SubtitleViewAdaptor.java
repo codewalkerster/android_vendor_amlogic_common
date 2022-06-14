@@ -19,6 +19,8 @@ import android.widget.RelativeLayout;
 import java.util.regex.*;
 import android.graphics.Bitmap.Config;
 import android.graphics.BlendMode;
+import android.util.DisplayMetrics;
+
 
 
 
@@ -246,6 +248,12 @@ class SubtitleViewAdaptor {
        tt.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
        tt.addRule(RelativeLayout.CENTER_HORIZONTAL);
        mTextView.setLayoutParams(tt);
+
+       if (mPosHeight == 0) {
+           DisplayMetrics outMetrics = new DisplayMetrics();
+           mWindowManager.getDefaultDisplay().getMetrics(outMetrics);
+           mPosHeight = outMetrics.heightPixels/10;
+       }
 
        mTextView.setGravity(Gravity.CENTER);
        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) mTextView.getLayoutParams();
