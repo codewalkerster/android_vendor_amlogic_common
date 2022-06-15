@@ -66,6 +66,9 @@ LOCAL_CFLAGS += -Werror -Wno-unused-parameter -Wno-macro-redefined
 LOCAL_SRC_FILES := $(WPA_SRC_FILE)
 LOCAL_C_INCLUDES := $(WPA_SUPPL_DIR_INCLUDE)
 LOCAL_PROPRIETARY_MODULE := true
+LOCAL_LICENSE_KINDS := SPDX-license-identifier-BSD SPDX-license-identifier-GPL-2.0
+LOCAL_LICENSE_CONDITIONS := notice restricted
+LOCAL_NOTICE_FILE := $(LOCAL_PATH)/NOTICE
 include $(BUILD_STATIC_LIBRARY)
 
 ########################

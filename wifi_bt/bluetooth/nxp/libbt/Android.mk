@@ -31,6 +31,9 @@ LOCAL_MODULE_PATH := $(TARGET_OUT_VENDOR)/etc/bluetooth/nxp
 LOCAL_MODULE_TAGS := optional
 LOCAL_PROPRIETARY_MODULE := true
 LOCAL_SRC_FILES := conf/bt_vendor_$(BOARD_NXP_CHIP).conf
+LOCAL_LICENSE_KINDS := SPDX-license-identifier-Apache-2.0
+LOCAL_LICENSE_CONDITIONS := notice
+LOCAL_NOTICE_FILE := $(LOCAL_PATH)/../../../../LICENSE
 include $(BUILD_PREBUILT)
 
 # libbt-vendor.so
