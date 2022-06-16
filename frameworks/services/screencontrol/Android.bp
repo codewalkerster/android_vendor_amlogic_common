@@ -15,7 +15,6 @@ cc_library_shared {
   ],
   srcs: [
     "IScreenControlService.cpp",
-    "SysWrite.cpp",
     "ScreenManager.cpp",
     "ScreenControlDebug.cpp",
     "ScreenCatch/ScreenCatch.cpp",

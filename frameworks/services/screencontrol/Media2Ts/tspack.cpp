@@ -66,7 +66,15 @@ TSPacker::TSPacker(int width, int height, int frameRate, int bitRate, int source
     mStarted(false),
     mMaxFrameCnt(-1),
     mLimitTimeMs(-1),
-    mheadFinalize(0) {
+    mheadFinalize(0),
+    mIsPcmAudio(0),
+    mThread((pthread_t)0),
+    mFirstVideoFrame(-1),
+    mFirstAudioFrame(-1),
+    mDumpVideoEs(-1),
+    mDumpVideoTs(-1),
+    mDumpAudioEs(-1),
+    mDumpAudioPCM(-1){
 
     mPATContinuityCounter = 0;
     mPMTContinuityCounter = 0;
@@ -116,20 +124,12 @@ int32_t TSPacker::getFrameRate( ) const {
     return mFrameRate;
 }
 
-sp<MetaData> TSPacker::getFormat() {
-    ALOGI("getFormat");
-
-    Mutex::Autolock lock(mMutex);
-    sp<MetaData> meta = new MetaData;
-
-    return meta;
-}
 
 int TSPacker::threadFunc()
 {
     int err;
-    MediaBufferBase *tESBuffer;
-    int64_t timeUs;
+    MediaBufferBase *tESBuffer = NULL;
+    int64_t timeUs = 0;
     int32_t flags;
     sp<ABuffer> tsPackets;
 
@@ -232,7 +232,7 @@ uint32_t TSPacker::crc32(const uint8_t *start, size_t size) const {
     return crc;
 }
 
-status_t TSPacker::start(MetaData *params)
+status_t TSPacker::start(MetaDataBase *params)
 {
     int err;
 
@@ -241,13 +241,11 @@ status_t TSPacker::start(MetaData *params)
     mFirstVideoFrame = 1;
     mFirstAudioFrame = 1;
 
-    sp<MetaData> params_video = new MetaData;
+    MetaDataBase *params_video = new MetaDataBase();
     params_video->setInt32(kKeyWidth, mWidth);
     params_video->setInt32(kKeyHeight, mHeight);
-
     params_video->setInt32(kKeyFrameRate, mFrameRate);
     params_video->setInt32(kKeyBitRate, mBitRate);
-
     mVideoConvertor = new ESConvertor(mSourceType, 0);
     if (mMaxFrameCnt > 0) {
         mVideoConvertor->setMaxFrameCount(mMaxFrameCnt);
@@ -255,16 +253,19 @@ status_t TSPacker::start(MetaData *params)
     if (mLimitTimeMs > 0) {
         mVideoConvertor->setTimeLimit(mLimitTimeMs);
     }
-    err = mVideoConvertor->start(params_video.get());
-
+    err = mVideoConvertor->start(params_video);
+    params_video->clear();
+    delete params_video;
     if (mHasAudio) {
-        sp<MetaData> params_audio = new MetaData;
+        MetaDataBase *params_audio = new MetaDataBase();
         params_audio->setInt32(kKeyChannelCount, 2);
         params_audio->setInt32(kKeySampleRate, 48000);
         params_audio->setInt32(kKeyIsADTS, 1);
         mIsPcmAudio = 0;
         mAudioConvertor = new ESConvertor(mSourceType, 1);
-        err = mAudioConvertor->start(params_audio.get());
+        err = mAudioConvertor->start(params_audio);
+        params_audio->clear();
+        delete params_audio;
     }
 
     pthread_attr_t attr;
@@ -424,8 +425,8 @@ void TSPacker::headFinalize() {
         uint8_t *data = descriptor->data();
         data[0] = 0x83;  // descriptor_tag
         data[1] = 2;  // descriptor_length
-
-        unsigned sampling_frequency = (sampleRate == 44100) ? 1 : 2;
+        //(sampleRate == 44100) ? 1 : 2
+        unsigned sampling_frequency = 2;
 
         data[2] = (sampling_frequency << 5) | (3 /* reserved */ << 1) | 0 /* emphasis_flag */;
         data[3] = (1 /* number_of_channels = stereo */ << 5) | 0xf /* reserved */;
@@ -462,7 +463,7 @@ status_t TSPacker::packetize(
 
     packets->clear();
 
-    bool alignPayload = 0;
+    // bool alignPayload = 0;
 
     size_t PES_packet_length = buffer_size + 8 + numStuffingBytes;
     if (PES_private_data_len > 0) {
@@ -486,9 +487,9 @@ status_t TSPacker::packetize(
         if (numBytesOfPayload > sizeAvailableForPayload) {
             numBytesOfPayload = sizeAvailableForPayload;
 
-        if (alignPayload && numBytesOfPayload > 16) {
-            numBytesOfPayload -= (numBytesOfPayload % 16);
-        }
+        // if (alignPayload && numBytesOfPayload > 16) {
+        //     numBytesOfPayload -= (numBytesOfPayload % 16);
+        // }
     }
 
     // size_t numPaddingBytes = sizeAvailableForPayload - numBytesOfPayload;
@@ -499,11 +500,11 @@ status_t TSPacker::packetize(
     // can contain at most.
     sizeAvailableForPayload = 188 - 4;
     size_t sizeAvailableForAlignedPayload = sizeAvailableForPayload;
-    if (alignPayload) {
-        // We're only going to use a subset of the available space
-        // since we need to make each fragment a multiple of 16 in size.
-        sizeAvailableForAlignedPayload -= (sizeAvailableForAlignedPayload % 16);
-    }
+    // if (alignPayload) {
+    //     // We're only going to use a subset of the available space
+    //     // since we need to make each fragment a multiple of 16 in size.
+    //     sizeAvailableForAlignedPayload -= (sizeAvailableForAlignedPayload % 16);
+    // }
 
     size_t numFullTSPackets = numBytesOfPayloadRemaining / sizeAvailableForAlignedPayload;
     numTSPackets += numFullTSPackets;
@@ -708,9 +709,9 @@ status_t TSPacker::packetize(
             if (copy > sizeAvailableForPayload) {
             copy = sizeAvailableForPayload;
 
-            if (alignPayload && copy > 16) {
-                copy -= (copy % 16);
-            }
+            // if (alignPayload && copy > 16) {
+            //     copy -= (copy % 16);
+            // }
         }
 
         size_t numPaddingBytes = sizeAvailableForPayload - copy;
@@ -779,9 +780,9 @@ status_t TSPacker::packetize(
         if (copy > sizeAvailableForPayload) {
             copy = sizeAvailableForPayload;
 
-            if (alignPayload && copy > 16) {
-                copy -= (copy % 16);
-           }
+        //     if (alignPayload && copy > 16) {
+        //         copy -= (copy % 16);
+        //    }
         }
 
         size_t numPaddingBytes = sizeAvailableForPayload - copy;
@@ -818,18 +819,6 @@ status_t TSPacker::packetize(
 }
 
 
-static void ReleaseMediaBufferReference(const sp<ABuffer> &accessUnit) {
-    void *mbuf;
-    if (accessUnit->meta()->findPointer("mediaBuffer", &mbuf)
-            && mbuf != NULL) {
-        ALOGI("releasing mbuf %p", mbuf);
-
-        accessUnit->meta()->setPointer("mediaBuffer", NULL);
-
-        static_cast<MediaBuffer *>(mbuf)->release();
-        mbuf = NULL;
-    }
-}
 
 status_t TSPacker::read( MediaBufferBase **buffer,
 				 const ReadOptions *options)
@@ -848,8 +837,10 @@ status_t TSPacker::read( MediaBufferBase **buffer,
 
     MediaBuffer *tBuffer = new MediaBuffer(aBuffer->size() + 16);
 
-    if (tBuffer->data() == 0) {
+    if (tBuffer->data() == NULL) {
         ALOGE("buffer is cant malloc");
+        tBuffer->release();
+        /* coverity[leaked_storage] */
         return !OK;
     }
 

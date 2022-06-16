@@ -28,7 +28,7 @@
 
 #include <media/stagefright/foundation/ADebug.h>
 #include <media/stagefright/MediaDefs.h>
-#include <media/stagefright/MetaData.h>
+#include <media/stagefright/MetaDataBase.h>
 #include <OMX_IVCommon.h>
 #include <media/hardware/MetadataBufferType.h>
 
@@ -105,18 +105,21 @@ ScreenManager::ScreenManager() :
     mScreenModule(NULL),
     mIsSoftwareEncoder(false),
     mIsScreenRecord(false),
-    mScreenDev(NULL){
+    mScreenDev(NULL),
+    mWidth(-1),
+    mHeight(-1),
+    mSourceType(-1),
+    mBufferSize(0),
+    mStartTimeOffsetUs(0){
 
     mCorpX = mCorpY = mCorpWidth = mCorpHeight =0;
 
-    int fd = -1;
-    fd = open("/dev/amvenc_avc", O_RDWR);
+    int fd = open("/dev/amvenc_avc", O_RDWR);
     if (fd < 0) {
         mIsSoftwareEncoder = true;
         ALOGW("%s Open /dev/amvenc_avc failed, use software encoder instead!\n", __FUNCTION__);
     } else {
         close(fd);
-        fd = -1;
     }
 
     mRawBufferQueue.clear();
@@ -192,7 +195,10 @@ status_t ScreenManager::init(int32_t width,
     }
 
     ScreenClient* Client_tmp = (ScreenClient*)malloc(sizeof(ScreenClient));
-
+    if (Client_tmp == NULL ) {
+        ALOGE("[%s %d] malloc ScreenClient error! ", __FUNCTION__, __LINE__);
+        return !OK;
+    }
     Client_tmp->width = width;
     Client_tmp->height = height;
     Client_tmp->framerate = framerate;
@@ -228,6 +234,7 @@ status_t ScreenManager::init(int32_t width,
             client_local = mClientList.valueAt(i);
             if (client_local->data_type == SCREENCONTROL_CANVAS_TYPE) {
                 ALOGE("[%s %d] screen source owned canvas client already, so reject another canvas client", __FUNCTION__, __LINE__);
+                free(Client_tmp);
                 return !OK;
             }
         }
@@ -441,8 +448,6 @@ status_t ScreenManager::start(int32_t client_id)
 
     mStartTimeOffsetUs = 0;
     mNumFramesReceived = mNumFramesEncoded = 0;
-    mStartTimeUs = systemTime(SYSTEM_TIME_MONOTONIC)/1000;
-
     mStarted = true;
 
     return OK;
@@ -499,27 +504,7 @@ status_t ScreenManager::stop(int32_t client_id)
     return OK;
 }
 
-sp<MetaData> ScreenManager::getFormat(int32_t client_id)
-{
-    ALOGI("[%s %d]", __FUNCTION__, __LINE__);
 
-    Mutex::Autolock autoLock(mLock);
-    sp<MetaData> meta = new MetaData;
-
-    meta->setInt32(kKeyWidth, mWidth);
-    meta->setInt32(kKeyHeight, mHeight);
-    if (mIsSoftwareEncoder && mIsScreenRecord) {
-        meta->setInt32(kKeyColorFormat, OMX_COLOR_FormatYUV420SemiPlanar);
-    } else {
-        meta->setInt32(kKeyColorFormat, OMX_COLOR_FormatYUV420Planar);
-    }
-    meta->setInt32(kKeyStride, mWidth);
-    meta->setInt32(kKeySliceHeight, mHeight);
-
-    meta->setInt32(kKeyFrameRate, mFrameRate);
-    meta->setCString(kKeyMIMEType, MEDIA_MIMETYPE_VIDEO_RAW);
-    return meta;
-}
 
 status_t ScreenManager::readBuffer(int32_t client_id, sp<IMemory> buffer, int64_t* pts)
 {
@@ -535,7 +520,7 @@ status_t ScreenManager::readBuffer(int32_t client_id, sp<IMemory> buffer, int64_
     client = mClientList.valueFor(client_id);
     source_data_type = client->data_type;
 
-    if (!mStarted) {
+    if (!mStarted || buffer->unsecurePointer() == NULL) {
         ALOGE("[%s %d]", __FUNCTION__, __LINE__);
         return !OK;
     }
@@ -546,7 +531,8 @@ status_t ScreenManager::readBuffer(int32_t client_id, sp<IMemory> buffer, int64_
 
         frame = *mCanvasFramesReceived.begin();
         mCanvasFramesReceived.erase(mCanvasFramesReceived.begin());
-
+        if (!frame)
+            return !OK;
         //ALOGE("ptr:%x canvas:%d", frame->buf_ptr, frame->canvas);
 
         buff_info[0] = kMetadataBufferTypeCanvasSource;
@@ -567,11 +553,8 @@ status_t ScreenManager::readBuffer(int32_t client_id, sp<IMemory> buffer, int64_
         ALOGI("[%s %d] buf_ptr:%x canvas:%x pts:%llx size:%d OK:%d", __FUNCTION__, __LINE__,
                 frame->buf_ptr, frame->canvas, frame->timestampUs, mCanvasFramesReceived.size(), OK);
 
-        if (frame)
-            delete frame;
-
+        delete frame;
         return OK;
-
     }
 
     if (SCREENCONTROL_RAWDATA_TYPE == source_data_type && !mRawBufferQueue.empty()) {
@@ -600,9 +583,6 @@ status_t ScreenManager::readBuffer(int32_t client_id, sp<IMemory> buffer, int64_
         return !OK;
     }
 
-    if (frame)
-        delete frame;
-
     return OK;
 }
 
@@ -618,7 +598,7 @@ status_t ScreenManager::freeBuffer(int32_t client_id, sp<IMemory>buffer) {
     client = mClientList.valueFor(client_id);
     source_data_type = client->data_type;
 
-    if (SCREENCONTROL_CANVAS_TYPE == source_data_type) {
+    if (SCREENCONTROL_CANVAS_TYPE == source_data_type && buffer->unsecurePointer() != NULL) {
         long buff_info[3] = {0,0,0};
         memcpy(&buff_info[0],(uint8_t *)buffer->unsecurePointer(), sizeof(buff_info));
 
@@ -644,7 +624,7 @@ int ScreenManager::dataCallBack(aml_screen_buffer_info_t *buffer){
             ALOGE("aquire_buffer fail, ptr:0x%x", buffer);
             return BAD_VALUE;
         }
-        if ((mCanvasMode == true) && (buffer->buffer_canvas == 0)) {
+        if (buffer->buffer_canvas == 0) {
             mError = true;
             ALOGE("Could get canvas info from device!");
             return BAD_VALUE;
@@ -667,12 +647,13 @@ int ScreenManager::dataCallBack(aml_screen_buffer_info_t *buffer){
                     case SCREENCONTROL_RAWDATA_TYPE:{
                         if (mRawBufferQueue.size() < 60) {
                             MediaBuffer* accessUnit = new MediaBuffer(client->width*client->height*3/2);
-                            if (accessUnit != NULL) {
+                            if (accessUnit != NULL && accessUnit->data() != NULL) {
                                 memmove(accessUnit->data(), buffer->buffer_mem, client->width*client->height*3/2);
                                 mRawBufferQueue.push_back(accessUnit);
                             } else {
                                 ALOGE("datacallback error: accessUnit or buffer = NULL");
                             }
+                            /* coverity[leaked_storage] */
                         }
 
                         if (mCanvasClientExist == 0) {//release buffer
@@ -702,10 +683,6 @@ int ScreenManager::dataCallBack(aml_screen_buffer_info_t *buffer){
                         frame->canvas = buffer->buffer_canvas;
                         frame->timestampUs = 0;
                         mCanvasFramesReceived.push_back(frame);
-
-                        if (status != OK) {
-                            mScreenDev->ops.release_buffer(mScreenDev, buffer->buffer_mem);
-                        }
                         mCanvasClientExist = 1;
                     }
                 }

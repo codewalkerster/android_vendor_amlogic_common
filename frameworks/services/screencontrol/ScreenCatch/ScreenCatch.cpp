@@ -18,7 +18,7 @@
 
 #include <media/stagefright/foundation/ADebug.h>
 #include <media/stagefright/MediaDefs.h>
-#include <media/stagefright/MetaData.h>
+#include <media/stagefright/MetaDataBase.h>
 #include <OMX_IVCommon.h>
 #include <media/hardware/MetadataBufferType.h>
 
@@ -58,7 +58,10 @@ ScreenCatch::ScreenCatch(uint32_t bufferWidth, uint32_t bufferHeight, uint32_t b
     mHeight(bufferHeight),
     mType(type),
     mScreenManager(NULL),
-    mColorFormat(OMX_COLOR_Format32bitARGB8888){
+    mColorFormat(OMX_COLOR_Format32bitARGB8888),
+    mStart(false),
+    mThread(NULL),
+    mClientId(-1){
     ALOGI("ScreenCatch: %dx%d", bufferWidth, bufferHeight);
 
     if (bufferWidth <= 0 || bufferHeight <= 0 || bufferWidth > 1920 || bufferHeight > 1080) {
@@ -188,7 +191,10 @@ int ScreenCatch::threadFunc()
 
     sp<MemoryHeapBase> newMemoryHeap = new MemoryHeapBase(mWidth*mHeight*3/2);
     sp<MemoryBase> buffer = new MemoryBase(newMemoryHeap, 0, mWidth*mHeight*3/2);
-
+    if (buffer->unsecurePointer() == NULL ) {
+        ALOGE("[%s %d] ,can't malloc memory !", __FUNCTION__, __LINE__);
+        return -1;
+    }
     ALOGI("[%s %d] empty:%d", __FUNCTION__, __LINE__, mRawBufferQueue.empty());
 
     while (mStart == true) {
@@ -204,23 +210,23 @@ int ScreenCatch::threadFunc()
 
         {
             Mutex::Autolock autoLock(mLock);
-            MediaBuffer* accessUnit;
+            MediaBuffer* accessUnit = NULL;
 
             if (OMX_COLOR_Format24bitRGB888 == mColorFormat) {//rgb 24bit
                 accessUnit = new MediaBuffer(mWidth*mHeight*3);
-                if (accessUnit != NULL) {
+                if (accessUnit != NULL && accessUnit->data() != NULL) {
                     nv21_to_rgb24((unsigned char *)buffer->unsecurePointer(), (unsigned char *)accessUnit->data(), mWidth, mHeight);
                     accessUnit->set_range(0, mWidth*mHeight*3);
                 }
             } else if (OMX_COLOR_Format32bitARGB8888 == mColorFormat) {//rgba 32bit
                 accessUnit = new MediaBuffer(mWidth*mHeight*4);
-                if (accessUnit != NULL) {
+                if (accessUnit != NULL && accessUnit->data() != NULL) {
                     nv21_to_rgb32((unsigned char *)buffer->unsecurePointer(), (unsigned char *)accessUnit->data(), mWidth, mHeight);
                     accessUnit->set_range(0, mWidth*mHeight*4);
                 }
             } else if (OMX_COLOR_FormatYUV420SemiPlanar ==  mColorFormat){//nv21
                 accessUnit = new MediaBuffer(mWidth*mHeight*3/2);
-                if (accessUnit != NULL) {
+                if (accessUnit != NULL && accessUnit->data() != NULL ) {
                     memcpy((unsigned char *)accessUnit->data(), (unsigned char *)buffer->unsecurePointer(), mWidth*mHeight*3/2);
                     accessUnit->set_range(0, mWidth*mHeight*3/2);
                 }
@@ -245,14 +251,14 @@ void *ScreenCatch::ThreadWrapper(void *me) {
     return NULL;
 }
 
-status_t ScreenCatch::start(MetaData *params)
+status_t ScreenCatch::start(MetaDataBase *params)
 {
     ALOGI("[%s %d] mWidth:%d mHeight:%d", __FUNCTION__, __LINE__, mWidth, mHeight);
     Mutex::Autolock autoLock(mLock);
 
     status_t status = 0;
     int64_t pts;
-    int client_id;
+    int client_id = -1;
 
     mScreenManager = ScreenManager::instantiate();
     ALOGI("[%s %d] mWidth:%d mHeight:%d", __FUNCTION__, __LINE__, mWidth, mHeight);
@@ -283,8 +289,8 @@ status_t ScreenCatch::start(MetaData *params)
 
     if (!(params->findInt32(kKeyColorFormat, &mColorFormat)
            && (mColorFormat != OMX_COLOR_FormatYUV420SemiPlanar
-            || mColorFormat != OMX_COLOR_Format24bitRGB888
-            || mColorFormat != OMX_COLOR_Format32bitARGB8888)))
+            && mColorFormat != OMX_COLOR_Format24bitRGB888
+            && mColorFormat != OMX_COLOR_Format32bitARGB8888)))
         mColorFormat = OMX_COLOR_Format32bitARGB8888;
 
     pthread_attr_t attr;

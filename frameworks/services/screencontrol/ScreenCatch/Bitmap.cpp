@@ -56,13 +56,15 @@ Bitmap::Bitmap(const char *inFilePath) {
 }
 
 bool Bitmap::readHeader(int fd) {
-    if (read(fd, &mBfh, sizeof(mBfh)) <= 0) {
+    int BfhLen =0;
+    int BihLen =0;
+    if ((BfhLen = read(fd, &mBfh, sizeof(mBfh))) <= 0) {
         return false;
     }
     if (BITMAT_FILE_TYPE_MAGIC != mBfh.bfType) {
         return false;
     }
-    if (read(fd, &mBih, sizeof(mBih)) <= 0) {
+    if ((BihLen = read(fd, &mBih, sizeof(mBih))) <= 0) {
         return false;
     }
 
@@ -71,7 +73,7 @@ bool Bitmap::readHeader(int fd) {
 
 bool Bitmap::readData(int fd) {
     int dataLen = abs(mBih.biWidth * mBih.biHeight) * mBih.biBitCount / 8;
-    int ret = -1;
+    int ret;
     int readedLen = 0;
     if (mData == NULL) {
         mData = calloc(1, dataLen);

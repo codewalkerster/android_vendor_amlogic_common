@@ -120,22 +120,32 @@ int main(int argc, char **argv) {
     int  video_file   = open(filename, O_CREAT | O_RDWR, 0666);
     if (video_file < 0) {
         printf("open file [%s] error: %s", filename, strerror(errno));
+        return -1;
     }
 
     ESConvertor *mH264Convertor = new ESConvertor(type, 0);
+    if (mH264Convertor == NULL) {
+        ALOGE("[%s %d]\n", __FUNCTION__, __LINE__);
+        close(video_file);
+        return OK;
+    }
 
     //mH264Convertor->setVideoCrop(100,100,400,300);
-    MetaData* pMeta = new MetaData();
+    MetaDataBase* pMeta = new MetaDataBase();
     pMeta->setInt32(kKeyWidth, outWidth);
     pMeta->setInt32(kKeyHeight, outHeight);
     pMeta->setInt32(kKeyFrameRate, framerate);
     pMeta->setInt32(kKeyBitRate, bitrate);
 
     err = mH264Convertor->start(pMeta);
+    delete pMeta;
     if (err != OK) {
         ALOGE("[%s %d]\n", __FUNCTION__, __LINE__);
+        close(video_file);
+        delete mH264Convertor;
         return OK;
     }
+
 
     while (1) {
         tVideoBuffer = NULL;
@@ -166,5 +176,6 @@ int main(int argc, char **argv) {
     if (mH264Convertor)
         delete mH264Convertor;
     printf("file close\n");
+    /* coverity[leaked_storage] */
     return 0;
 }

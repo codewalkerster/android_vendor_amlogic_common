@@ -81,7 +81,6 @@ public:
     virtual status_t freeBuffer(int32_t client_id, sp<IMemory> buffer);
 
     static ScreenManager* instantiate();
-    virtual sp<MetaData> getFormat(int32_t client_id);
 
     // Get / Set the frame rate used for encoding. Default fps = 30
     virtual int32_t getFrameRate( );
@@ -101,7 +100,7 @@ public:
     virtual int64_t getTimestamp();
 
     // isMetaDataStoredInVideoBuffers tells the encoder whether we will
-    // pass metadata through the buffers. Currently, it is force set to true
+    // pass MetaDataBase through the buffers. Currently, it is force set to true
     virtual bool isMetaDataStoredInVideoBuffers() const;
 
     // To be called before start()
@@ -178,9 +177,6 @@ private:
 
     bool mUseAbsoluteTimestamps;
 
-    bool mCanvasMode;
-
-    int64_t mStartTimeUs;
     int64_t bufferTimeUs;
     int64_t mFrameCount;
     Condition mFrameAvailableCondition;

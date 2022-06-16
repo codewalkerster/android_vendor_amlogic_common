@@ -29,7 +29,7 @@
 #include <utils/RefBase.h>
 #include <utils/threads.h>
 
-#include <media/stagefright/MetaData.h>
+#include <media/stagefright/MetaDataBase.h>
 
 #include <stdio.h>
 #include <assert.h>
@@ -195,14 +195,16 @@ int main(int argc, char **argv)
         mScreenCatch = new ScreenCatch(outWidth, outHeight, 32, type);
         mScreenCatch->setVideoCrop(left, top, right, bottom);
 
-        MetaData* pMeta;
-        pMeta = new MetaData();
+        MetaDataBase* pMeta;
+        pMeta = new MetaDataBase();
         pMeta->setInt32(kKeyColorFormat, clrFormat);
         mScreenCatch->start(pMeta);
+        pMeta->clear();
+        delete pMeta;
         char dump_path[128];
         char dump_dir[64] = "/data/temp";
 
-        MediaBuffer *buffer;
+        MediaBuffer *buffer = NULL;
         while (framecount < counter) {
             status = mScreenCatch->read(&buffer);
             if (status != OK) {
@@ -218,15 +220,18 @@ int main(int argc, char **argv)
             } else if (SAVE_FILE_BMP == saveFileType) {
                 sprintf(dump_path, "%s/%d.bmp", dump_dir, framecount);
             } else {
-                sprintf(dump_path, "%s/%s-%dx%d-%d.bin", dump_dir,
-                    (clrFormat==OMX_COLOR_Format32bitARGB8888?"argb8888":
-                        (clrFormat==OMX_COLOR_Format24bitRGB888?"rgb888":
-                        (clrFormat==OMX_COLOR_FormatYUV420SemiPlanar?"yuv420":"unknow"))),
+                sprintf(dump_path, "%s/%s-%dx%d-%d.bin", dump_dir,"argb8888",
                     outWidth, outHeight, framecount);
             }
             printf("Try save:%s, size=%d\n", dump_path, buffer->size());
 
             dumpfd = open(dump_path, O_CREAT | O_RDWR | O_TRUNC, 0644);
+            if (dumpfd < 0) {
+                ALOGE("[%s %d] can't open the file ", __FUNCTION__, __LINE__);
+                buffer->release();
+                buffer = NULL;
+                break;
+            }
 
             if (SAVE_FILE_PNG == saveFileType || SAVE_FILE_JPEG == saveFileType) {
 #if 0
@@ -272,6 +277,7 @@ int main(int argc, char **argv)
                         bytePerPixel = 4;
                         success = true;
                         break;
+#if 0
                     case OMX_COLOR_Format24bitRGB888:
                         /*
                          * rgb888 need to change Red and Blue order to adapter to BMP rgb24
@@ -284,6 +290,7 @@ int main(int argc, char **argv)
                         success = true;
                         break;
                     default: success = false; break;
+#endif
                     }
                     if (success) {
                         Bitmap *bmp = new Bitmap((void *)rgb, outWidth, outHeight, bytePerPixel);
@@ -306,7 +313,6 @@ int main(int argc, char **argv)
 
         memoryBase.clear();
         mScreenCatch->stop();
-        pMeta->clear();
         delete mScreenCatch;
     } else {
         ret = UNKNOWN_ERROR;

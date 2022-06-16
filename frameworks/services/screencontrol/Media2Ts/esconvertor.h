@@ -40,11 +40,11 @@ public:
     virtual ~ESConvertor();
 
     // For the MediaSource interface for use by StageFrightRecorder:
-    virtual status_t start(MetaData *params = NULL);
+    virtual status_t start(MetaDataBase *params = NULL);
     virtual status_t stop();
     virtual status_t read(MediaBufferBase **buffer,
             const struct ReadOptions *options = NULL);
-    virtual sp<MetaData> getFormat();
+    virtual MetaDataBase* getFormat();
 
     // valid function after call setMaxFrameCount()
     virtual status_t checkConvertDone();
@@ -79,7 +79,7 @@ public:
     int64_t getTimestamp();
 
     // isMetaDataStoredInVideoBuffers tells the encoder whether we will
-    // pass metadata through the buffers. Currently, it is force set to true
+    // pass MetaDataBase through the buffers. Currently, it is force set to true
     bool isMetaDataStoredInVideoBuffers() const;
 
     // To be called before start()
@@ -127,7 +127,6 @@ private:
     int mSourceType;
     int mVideoFrameRate;
     int mVIdeoBitRate;
-    bool mDoMoreWorkPending;
     bool mIsSoftwareEncoder;
     int mMaxInFrameCnt;  // limit input frame count when > 0
     int mFrameCounter;   // all input frame counter (include droped)
@@ -137,7 +136,6 @@ private:
     int64_t mFirstPtsUs;   // store first frame pts
     int64_t mLastPtsUs;    // store lastest frame pts
     int32_t mLimitTimeMs;  // limit time when > 0, priority: mLimitTimeMs > mMaxFrameCnt
-    sp<MetaData> meta;
 
     // use prop value "ro.vendor.screencontrol.maxbufsize", default as -1(no limit)
     // limit unencoded buffer size in buffer queue
@@ -163,7 +161,6 @@ private:
     int32_t mFrameRate;
     int64_t mCurrentTimestamp;
     bool mStarted;
-    int32_t mStoped;
     sp<ABuffer> mPartialAudioAU;
 //    sp<AudioSource> mAudioSource;
 
@@ -185,7 +182,6 @@ private:
 
     int mEscDumpAAC;
     int mEscDumpPcm;
-    int mEscDumpVideo;
 
     int32_t mCorpX;
     int32_t mCorpY;
@@ -193,7 +189,6 @@ private:
     int32_t mCorpHeight;
 
     Condition mThreadOutCondition;
-    int32_t mVideoFrameRemain;
 };
 
 // ----------------------------------------------------------------------------

@@ -37,11 +37,10 @@ public:
     virtual ~TSPacker();
 
     // For the MediaSource interface for use by StageFrightRecorder:
-    virtual status_t start(MetaData *params = NULL);
+    virtual status_t start(MetaDataBase *params = NULL);
     virtual status_t stop();
     virtual status_t read(MediaBufferBase **buffer,
             const ReadOptions *options = NULL);
-    virtual sp<MetaData> getFormat();
 
     // valid function after call setMaxFrameCount()
     virtual status_t checkConvertDone();
@@ -74,7 +73,7 @@ public:
     int64_t getTimestamp();
 
     // isMetaDataStoredInVideoBuffers tells the encoder whether we will
-    // pass metadata through the buffers. Currently, it is force set to true
+    // pass MetaDataBase through the buffers. Currently, it is force set to true
     bool isMetaDataStoredInVideoBuffers() const;
 
     // To be called before start()
@@ -94,7 +93,7 @@ public:
 private:
     mutable Mutex mMutex;
     int mFrameRate;
-    int64_t mCurrentTimestamp;
+    // int64_t mCurrentTimestamp;
     bool mStarted;
     int mWidth;
     int mHeight;

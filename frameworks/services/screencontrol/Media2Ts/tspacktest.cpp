@@ -116,6 +116,7 @@ int main(int argc, char **argv) {
     int  video_file = open(filename, O_CREAT | O_RDWR, 0666);
     if (video_file < 0) {
         printf("open file [%s] error: %s", filename, strerror(errno));
+        return -1;
     }
 
     sp<TSPacker> mTSPacker = new TSPacker(outWidth, outHeight, framerate, bitrate, type, 0);
@@ -123,6 +124,7 @@ int main(int argc, char **argv) {
     err = mTSPacker->start();
     if (err != OK) {
         printf("[%s %d] start TSPacker error, exit...\n", __FUNCTION__, __LINE__);
+        close(video_file);
         return OK;
     }
 

@@ -38,7 +38,7 @@ public:
     virtual ~ScreenCatch();
 
     // For the MediaSource interface for use by StageFrightRecorder:
-    virtual status_t start(MetaData *params);
+    virtual status_t start(MetaDataBase *params);
     virtual status_t stop();
     virtual status_t read(MediaBuffer **buffer);
 
@@ -61,8 +61,6 @@ private:
     int mWidth;
     int mHeight;
     int mType;
-    int mWidthDst;
-    int mHeightDst;
     int mColorFormat;
 
     int32_t mCorpX;

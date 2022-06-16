@@ -26,7 +26,7 @@
 
 #include <media/stagefright/foundation/ADebug.h>
 #include <media/stagefright/MediaDefs.h>
-#include <media/stagefright/MetaData.h>
+#include <media/stagefright/MetaDataBase.h>
 #include <OMX_IVCommon.h>
 #include <media/hardware/MetadataBufferType.h>
 
@@ -153,6 +153,7 @@ int ScreenControlService::startScreenRecord(int32_t width, int32_t height, int32
 
     if (err != OK) {
         ALOGE("[%s %d]TSPacker start fail\n", __FUNCTION__, __LINE__);
+        close(video_file);
         return !OK;
     }
 
@@ -207,16 +208,17 @@ int ScreenControlService::startScreenCap(int32_t left, int32_t top, int32_t righ
     sp<MemoryHeapBase> memoryBase(new MemoryHeapBase(size, 0, "screen-capture"));
     void* const base = memoryBase->getBase();
 
-    if (base != MAP_FAILED) {
+    if (base != nullptr) {
         mScreenCatch = new ScreenCatch(width, height, 32, sourceType);
         mScreenCatch->setVideoCrop(left, top, right, bottom);
 
-        MetaData* pMeta;
-        pMeta = new MetaData();
+        MetaDataBase* pMeta;
+        pMeta = new MetaDataBase();
         pMeta->setInt32(kKeyColorFormat, OMX_COLOR_Format32bitARGB8888);
         mScreenCatch->start(pMeta);
-
-        MediaBuffer *buffer;
+        pMeta->clear();
+        delete pMeta;
+        MediaBuffer *buffer = NULL;
 
         while ((!mNeedStop) && (count < 1)) {
             status = mScreenCatch->read(&buffer);
@@ -227,6 +229,11 @@ int ScreenControlService::startScreenCap(int32_t left, int32_t top, int32_t righ
 
             count++;
             ALOGI("[%s %d] dump:%s size:%d", __FUNCTION__, __LINE__, filename, buffer->size());
+            if (buffer->data() == NULL) {
+                buffer->release();
+                buffer = NULL;
+                break;
+            }
             memcpy(base, buffer->data(), buffer->size());
 
             if (mPicFd < 0)
@@ -259,7 +266,6 @@ int ScreenControlService::startScreenCap(int32_t left, int32_t top, int32_t righ
 
         memoryBase.clear();
         mScreenCatch->stop();
-        pMeta->clear();
         delete mScreenCatch;
     } else {
         result = UNKNOWN_ERROR;
@@ -291,12 +297,13 @@ int ScreenControlService::startScreenCapBuffer(int32_t left, int32_t top, int32_
     mScreenCatch = new ScreenCatch(width, height, 32, sourceType);
     mScreenCatch->setVideoCrop(left, top, right, bottom);
 
-    MetaData* pMeta;
-    pMeta = new MetaData();
+    MetaDataBase* pMeta;
+    pMeta = new MetaDataBase();
     pMeta->setInt32(kKeyColorFormat, OMX_COLOR_Format32bitARGB8888);
     mScreenCatch->start(pMeta);
-
-    MediaBuffer *buffer;
+    pMeta->clear();
+    delete pMeta;
+    MediaBuffer *buffer = NULL;
 
     while ((!mNeedStop) && (count < 1)) {
         status = mScreenCatch->read(&buffer);
@@ -307,15 +314,18 @@ int ScreenControlService::startScreenCapBuffer(int32_t left, int32_t top, int32_
 
         count++;
         ALOGI("[%s %d] readed size:%d", __FUNCTION__, __LINE__, buffer->size());
+        if (buffer->data() == NULL) {
+            buffer->release();
+            buffer = NULL;
+            break;
+        }
         memcpy(dstBuffer, buffer->data(), buffer->size());
         *dstBufferSize = buffer->size();
-
         buffer->release();
         buffer = NULL;
     }
 
     mScreenCatch->stop();
-    pMeta->clear();
     delete mScreenCatch;
 
     if (mNeedStop) {

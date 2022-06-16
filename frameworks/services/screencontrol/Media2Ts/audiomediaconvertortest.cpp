@@ -32,7 +32,7 @@
 #include <media/stagefright/MediaCodec.h>
 #include <media/stagefright/MediaDefs.h>
 #include <media/stagefright/MediaErrors.h>
-#include <media/stagefright/MetaData.h>
+#include <media/stagefright/MetaDataBase.h>
 
 //#include <MetadataBufferType.h>
 
@@ -78,12 +78,14 @@ int main(int argc, char **argv) {
 
     sp<ESConvertor> mAACConvertor = new ESConvertor(AML_CAPTURE_OSD_VIDEO, 1);
 
-    sp<MetaData> params_audio = new MetaData;
+    MetaDataBase* params_audio = new MetaDataBase();
     params_audio->setInt32(kKeyChannelCount, 2);
     params_audio->setInt32(kKeySampleRate, 48000);
     params_audio->setInt32(kKeyIsADTS, 1);
 
-    err = mAACConvertor->start(params_audio.get());
+    err = mAACConvertor->start(params_audio);
+    params_audio->clear();
+    delete params_audio;
     if (err != OK) {
         ALOGE("[%s %d]\n", __FUNCTION__, __LINE__);
         return OK;
