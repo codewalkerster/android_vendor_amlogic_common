@@ -301,6 +301,18 @@ DisplayMode::~DisplayMode() {
 }
 
 void DisplayMode::init() {
+    /* enter gpio key to power on
+    * for ohm: boot_flag = 0 will enter recovery mode
+    *                      1 will enter update mode
+    *                      2 will enter fastboot mode
+    * for other board: boot_flag = 0 will enter fastboot mode
+    *                              1 will enter update mode
+    *                              2 will enter recovery mode
+    */
+    if (mIsRecovery) {
+        mUbootenv->updateValue("ubootenv.var.boot_flag", "0");
+    }
+
     /*TODO:tmp solution for DRM MODE., will remove later.*/
     if (mIsRecovery && access("/dev/dri/card0", R_OK | W_OK) == 0) {
         pSysWrite->writeSysfs("/sys/class/amhdmitx/amhdmitx0/attr", "rgb,8bit", strlen("rgb,8bit"));
