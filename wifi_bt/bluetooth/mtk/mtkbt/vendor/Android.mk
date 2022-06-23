@@ -10,7 +10,7 @@ LOCAL_SRC_FILES := \
   platform.c
 
 LOCAL_C_INCLUDES := \
-  $(BDROID_DIR)hci/includei \
+  $(BDROID_DIR)hci/include \
   packages/modules/Bluetooth/system/hci/include
 
 
