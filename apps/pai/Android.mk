@@ -7,7 +7,6 @@ LOCAL_MODULE := PlayAutoInstallStub
 LOCAL_PRODUCT_MODULE := true
 LOCAL_LICENSE_KINDS := SPDX-license-identifier-Apache-2.0 SPDX-license-identifier-BSD SPDX-license-identifier-LGPL legacy_by_exception_only
 LOCAL_LICENSE_CONDITIONS := by_exception_only notice restricted
-LOCAL_SYSTEM_EXT_MODULE := true
 LOCAL_SRC_FILES := PlayAutoInstallStub.apk
 LOCAL_MODULE_CLASS := APPS
 LOCAL_MODULE_SUFFIX := .apk
