@@ -25,12 +25,14 @@
 /external/exfat/
 /external/ntfs-3g/
 /frameworks/av
+/frameworks/automotive/
 /kernel
 /prebuilt/libmediadrm/playready
 /dsp
 /aml_mp_sdk
 /system/libgdc
 /pre_submit_for_google
+/apps/automotive/
 /apps/DroidLiveTvSettings/
 /apps/FileBrowser/
 /apps/GoogleTVCustomizationSample/
