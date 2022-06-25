@@ -3,7 +3,7 @@ cc_library_shared {
 
     proprietary: true,
 
-	srcs: [
+    srcs: [
         "wifi_info.cc",
     ],
 }
