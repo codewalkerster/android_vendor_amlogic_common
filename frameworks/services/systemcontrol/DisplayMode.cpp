@@ -216,6 +216,13 @@ static void copy_if_gt0(uint32_t *src, uint32_t *dst, unsigned cnt)
 }
 
 DisplayMode::DisplayMode(const char *path) {
+    pConfigPath = DISPLAY_CFG_FILE;
+    mDisplayType = DISPLAY_TYPE_MBOX;
+    mDisplayWidth = FULL_WIDTH_1080;
+    mDisplayHeight = FULL_HEIGHT_1080;
+    mLogLevel = LOG_LEVEL_DEFAULT;
+    memset(&mHdmidata, 0, sizeof(hdmi_data_t));
+    mScene_output_info.dv_type = DOLBY_VISION_SET_DISABLE;
     DisplayMode(path, NULL);
 }
 
@@ -225,6 +232,9 @@ DisplayMode::DisplayMode(const char *path, Ubootenv *ubootenv)
     mDisplayWidth(FULL_WIDTH_1080),
     mDisplayHeight(FULL_HEIGHT_1080),
     mLogLevel(LOG_LEVEL_DEFAULT) {
+
+    memset(&mHdmidata, 0, sizeof(hdmi_data_t));
+    mScene_output_info.dv_type = DOLBY_VISION_SET_DISABLE;
 
     if (NULL == path) {
         pConfigPath = DISPLAY_CFG_FILE;
@@ -703,7 +713,7 @@ void DisplayMode::applyDisplaySetting(output_mode_state state) {
      * as phy will be enabled in driver when set mode
      * only enable phy if phy is disabled but not enabled
      */
-    bool phy_enabled_already = true;
+    //bool phy_enabled_already = true;
 
     // 1. update hdmi frac_rate_policy
     char frac_rate_policy[MODE_LEN]     = {0};
@@ -824,8 +834,8 @@ void DisplayMode::applyDisplaySetting(output_mode_state state) {
             usleep(100000);//100ms
             pSysWrite->writeSysfs(DISPLAY_HDMI_HDCP_MODE, "-1");
             //usleep(100000);//100ms
-            pSysWrite->writeSysfs(DISPLAY_HDMI_PHY, "0"); /* Turn off TMDS PHY */
-            phy_enabled_already = false;
+            /*pSysWrite->writeSysfs(DISPLAY_HDMI_PHY, "0"); // Turn off TMDS PHY
+            phy_enabled_already = false;*/
             usleep(50000);//50ms
         }
         // stop hdcp tx
@@ -840,7 +850,7 @@ void DisplayMode::applyDisplaySetting(output_mode_state state) {
         //set hdmi mode
         setDisplayMode(final_displaymode);
         /* phy already turned on after write display/mode node */
-        phy_enabled_already     = true;
+        //phy_enabled_already     = true;
     } else {
         SYS_LOGI("curDisplayMode is equal  final_displaymode, Do not need set it\n");
     }
@@ -886,9 +896,9 @@ void DisplayMode::applyDisplaySetting(output_mode_state state) {
 
     // 9. turn on phy and clear avmute
     if (isNeedChange) {
-        if (!phy_enabled_already) {
-            pSysWrite->writeSysfs(DISPLAY_HDMI_PHY, "1"); /* Turn on TMDS PHY */
-        }
+        /*if (!phy_enabled_already) {
+            pSysWrite->writeSysfs(DISPLAY_HDMI_PHY, "1"); // Turn on TMDS PHY
+        }*/
         usleep(20000);
         pSysWrite->writeSysfs(DISPLAY_HDMI_AUDIO_MUTE, "1");
         pSysWrite->writeSysfs(DISPLAY_HDMI_AUDIO_MUTE, "0");
@@ -1423,7 +1433,7 @@ void DisplayMode::filterHdmiDispcap(hdmi_data_t* data) {
                 strcat(filter_dispcap, hdmi_mode);
                 if (recomMode)
                     strcat(filter_dispcap, "*");
-                    strcat(filter_dispcap, delim);
+                strcat(filter_dispcap, delim);
             } else {
                 SYS_LOGE("DisplayMode strcat overflow: src=%s, dst=%s\n", hdmi_mode, filter_dispcap);
                 break;
@@ -1612,7 +1622,7 @@ void DisplayMode::getHdmiDcCap(char* dc_cap) {
             break;
 
         if (count >= 5) {
-            strcpy(dc_cap, "444,8bit");
+            SYS_LOGE("read dc_cap fail\n");
             break;
         }
         count++;
@@ -2162,9 +2172,8 @@ void DisplayMode::setPosition(const char* curMode, int left, int top, int width,
         sprintf(ubootvar, "ubootenv.var.%s_h", keyValue);
         setBootEnv(ubootvar, h);
     }
-    DisplayModeMgr::getInstance().setDisplayRect({left, top, width , height});
     pthread_mutex_unlock(&mEnvLock);
-
+    DisplayModeMgr::getInstance().setDisplayRect({left, top, width , height});
 }
 
 void DisplayMode::saveDeepColorAttr(const char* mode, const char* dcValue) {
@@ -3330,8 +3339,13 @@ bool DisplayMode::memcContrl(bool on) {
 
 void DisplayMode::resetMemc() {
     int memDev = open(DISPLAY_MEMC_SYSFS, O_WRONLY);
+    if (memDev < 0) {
+        SYS_LOGE("resetMemc open %s fail. Error info [%s]\n", DISPLAY_MEMC_SYSFS, strerror(errno));
+        return;
+    }
     if (pSysWrite->getPropertyBoolean(PROP_DISPLAY_MEMC, false) && memDev > 0) {
         int value = 1;
         ioctl(memDev, MEMDEV_CONTRL, &value);
     }
+    close(memDev);
 }

@@ -162,7 +162,6 @@ private:
     bool isLowPowerMode();
     int64_t resolveResolutionValue(const char *mode, int flag = FRAMERATE_PRIORITY);
     bool isModeSupportDeepColorAttr(const char *mode, const char * color);
-    bool initColorAttribute(char* supportedColorList, int len);
     void getBestHdmiDeepColorAttr(const char *outputmode, char* colorAttribute);
     void getHdmiColorAttribute(const char* outputmode, char* colorAttribute, int state);
     void updateHdmiDeepColor(scene_state state, const char* outputmode, char* colorAttribute);

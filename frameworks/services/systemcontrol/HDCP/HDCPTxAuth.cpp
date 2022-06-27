@@ -73,7 +73,7 @@ int HDCPTxAuth::start() {
     int ret;
     pthread_t thread_id;
 
-    if (pthread_mutex_trylock(&pthreadTxMutex) == EDEADLK) {
+    if (pthread_mutex_trylock(&pthreadTxMutex) != 0) {
         SYS_LOGE("hdcp_tx create thread, Mutex is deadlock\n");
         return -1;
     }
@@ -100,12 +100,13 @@ int HDCPTxAuth::stop() {
     if (0 != pthreadIdHdcpTx) {
         mExitHdcpTxThread = true;
         mCv.notify_all();
-        if (pthread_mutex_trylock(&pthreadTxMutex) == EDEADLK) {
+        if (pthread_mutex_trylock(&pthreadTxMutex) != 0) {
             SYS_LOGE("hdcp_tx exit thread, Mutex is deadlock\n");
             return ret;
         }
 
         if (0 != pthread_join(pthreadIdHdcpTx, &threadResult)) {
+            pthread_mutex_unlock(&pthreadTxMutex);
             SYS_LOGE("hdcp_tx exit thread failed\n");
             return ret;
         }

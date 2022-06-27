@@ -84,6 +84,7 @@ SystemControlService::SystemControlService(const char *path)
         func_optimization = (int (*)(const char *, const char *, const std::vector<std::string>&))dlsym(handle, "_ZN7android15appOptimizationEPKcS1_RKNSt3__16vectorINS2_12basic_stringIcNS2_11char_traitsIcEENS2_9allocatorIcEEEENS7_IS9_EEEE");
         if (NULL == func_optimization)
             ALOGE("has not find appOptimization from liboptimization.so , %s", dlerror());
+        dlclose(handle);
     }
     else
         ALOGE("open liboptimization.so fail%s", dlerror());
@@ -2629,7 +2630,10 @@ int SystemControlService::getProcName(pid_t pid, String16& procName) {
     fd = open(proc_path, O_RDONLY);
     if (fd >= 0) {
         int rc = read(fd, cmdline, sizeof(cmdline)-1);
-        cmdline[rc] = 0;
+        if (rc >= 0)
+            cmdline[rc] = 0;
+        else
+            SYS_LOGE("read %s fail\n", proc_path);
         close(fd);
 
         procName.setTo(String16(cmdline));

@@ -53,6 +53,14 @@ Dimension::Dimension(DisplayMode *displayMode, SysWrite *sysWrite)
     pTxAuth = displayMode->geTxAuth();
 
     strcpy(mMode3d, VIDEO_3D_OFF);
+
+    mSupport.total = 0;
+    for (int i = 0; i < NUM_MAX; i++) {
+        memset(mSupport.info[i].mode, 0, sizeof(mSupport.info[i].mode));
+        memset(mSupport.info[i].list, 0, sizeof(mSupport.info[i].list));
+        mSupport.info[i].mo = 0;
+        mSupport.info[i].hz = 0;
+    }
 }
 
 Dimension::~Dimension() {
@@ -115,6 +123,10 @@ void Dimension::getLine(int idx, int total, char* src, char* dst) {
 }
 
 void Dimension::parseLine(int idx, char *line) {
+    if (line == NULL) {
+        ALOGE("line is NULL\n");
+        return;
+    }
     ALOGI("[parseLine] idx:%d, line:%s\n", idx, line);
     if (!strcmp(line, "3D support lists:")) {
         return;// skip comment

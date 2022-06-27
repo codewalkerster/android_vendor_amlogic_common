@@ -638,7 +638,6 @@ private:
 
     const char* pConfigPath;
     int mDisplayType;
-    bool mVideoPlaying;
     bool mIsRecovery = false;
 
     pthread_mutex_t mEnvLock;

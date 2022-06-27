@@ -46,6 +46,7 @@ UEventObserver::UEventObserver()
     mMatchStr.num = 0;
     mMatchStr.strList.buf = NULL;
     mMatchStr.strList.next = NULL;
+    mSuspendResume = false;
 }
 
 UEventObserver::~UEventObserver() {
@@ -70,7 +71,11 @@ int UEventObserver::ueventInit() {
     if (s < 0)
         return 0;
 
-    setsockopt(s, SOL_SOCKET, SO_RCVBUFFORCE, &sz, sizeof(sz));
+    int ret = setsockopt(s, SOL_SOCKET, SO_RCVBUFFORCE, &sz, sizeof(sz));
+    if (ret != 0) {
+        SYS_LOGE("setsockopt fail.\n");
+        return 0;
+    }
 
     if (bind(s, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
         close(s);

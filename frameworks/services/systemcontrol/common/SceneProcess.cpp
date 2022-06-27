@@ -308,13 +308,14 @@ SceneProcess::SceneProcess()
     :mSceneLock(PTHREAD_MUTEX_INITIALIZER) {
     mpSysWrite  = new SysWrite();
 
-    mScene_Input_Info.state          = SCENE_STATE_INIT;
-    mScene_Input_Info.isbestpolicy   = true;
-    mScene_Input_Info.isDvEnable     = false;
-    mScene_Input_Info.isTvSupportHDR = true;
-    mScene_Input_Info.isTvSupportDv  = false;
-    mScene_Input_Info.hdr_priority   = DOLBY_VISION_PRIORITY;
-    mScene_Input_Info.hdr_policy     = HDR_POLICY_SINK;
+    mScene_Input_Info.state                   = SCENE_STATE_INIT;
+    mScene_Input_Info.isbestpolicy            = true;
+    mScene_Input_Info.isDvEnable              = false;
+    mScene_Input_Info.isTvSupportHDR          = true;
+    mScene_Input_Info.isTvSupportDv           = false;
+    mScene_Input_Info.isHdrResolutionPriority = true;
+    mScene_Input_Info.hdr_priority            = DOLBY_VISION_PRIORITY;
+    mScene_Input_Info.hdr_policy              = HDR_POLICY_SINK;
     strcpy(mScene_Input_Info.cur_displaymode, DEFAULT_HDMI_MODE);
 
     mScene_Input_Info.hdmi_input_info.isSupport4K     = true;
@@ -328,6 +329,8 @@ SceneProcess::SceneProcess()
     strcpy(mScene_Input_Info.hdmi_input_info.ubootenv_colorattribute, DEFAULT_COLOR_FORMAT);
 
     strcpy(mScene_Input_Info.dv_input_info.ubootenv_dv_type, "0");
+
+    mScene_output_info.dv_type = DOLBY_VISION_DISABLE;
 }
 
 SceneProcess::~SceneProcess() {
@@ -780,30 +783,6 @@ void SceneProcess::getHdmiOutputMode(char* mode) {
     SYS_LOGI("set HDMI mode to %s\n", mode);
 }
 
-bool SceneProcess::initColorAttribute(char* supportedColorList, int len) {
-    int count = 0;
-    bool result = false;
-
-    if (supportedColorList != NULL)
-        memset(supportedColorList, 0, len);
-
-    while (true) {
-        //mSysWrite.readSysfsOriginal(DISPLAY_HDMI_DEEP_COLOR, supportedColorList);
-        mpSysWrite->readSysfs(DISPLAY_HDMI_DEEP_COLOR, supportedColorList);
-        if (strlen(supportedColorList) > 0) {
-            result = true;
-            break;
-        }
-
-        if (count++ >= 5) {
-            break;
-        }
-        usleep(500000);
-    }
-
-    return result;
-}
-
 //check resolution and color format support or not
 bool SceneProcess::isModeSupportDeepColorAttr(const char *mode, const char * color) {
     char valueStr[10] = {0};
@@ -824,10 +803,11 @@ void SceneProcess::getBestHdmiDeepColorAttr(const char *outputmode, char* colorA
     int length = 0;
     const char **colorList = NULL;
     char supportedColorList[MAX_STR_LEN];
+    strcpy(supportedColorList, mScene_Input_Info.hdmi_input_info.dc_cap);
 
     //if read /sys/class/amhdmitx/amhdmitx0/dc_cap is null
     //return and use default color format(444 8bit)
-    if (!initColorAttribute(supportedColorList, MAX_STR_LEN)) {
+    if (!strlen(supportedColorList)) {
         if (!strcmp(outputmode, MODE_4K2K60HZ) || !strcmp(outputmode, MODE_4K2K50HZ)
             || !strcmp(outputmode, MODE_4K2KSMPTE60HZ) || !strcmp(outputmode, MODE_4K2KSMPTE50HZ)) {
             strcpy(colorAttribute, DEFAULT_COLOR_FORMAT_4K);
@@ -835,7 +815,7 @@ void SceneProcess::getBestHdmiDeepColorAttr(const char *outputmode, char* colorA
             strcpy(colorAttribute, DEFAULT_COLOR_FORMAT);
         }
 
-        SYS_LOGE("initColorAttribute fail\n");
+        SYS_LOGE("dc_cap is NULL\n");
         return;
     }
 
@@ -886,10 +866,11 @@ void SceneProcess::getBestHdmiDeepColorAttr(const char *outputmode, char* colorA
 
 void SceneProcess::getHdmiColorAttribute(const char* outputmode, char* colorAttribute, int state) {
     char supportedColorList[MAX_STR_LEN];
+    strcpy(supportedColorList, mScene_Input_Info.hdmi_input_info.dc_cap);
 
     //if read /sys/class/amhdmitx/amhdmitx0/dc_cap is null.
     //use default color format
-    if (!initColorAttribute(supportedColorList, MAX_STR_LEN)) {
+    if (!strlen(supportedColorList)) {
         if (!strcmp(outputmode, MODE_4K2K60HZ) || !strcmp(outputmode, MODE_4K2K50HZ)
             || !strcmp(outputmode, MODE_4K2KSMPTE60HZ) || !strcmp(outputmode, MODE_4K2KSMPTE50HZ)) {
             strcpy(colorAttribute, DEFAULT_COLOR_FORMAT_4K);

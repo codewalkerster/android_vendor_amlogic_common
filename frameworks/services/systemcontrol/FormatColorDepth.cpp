@@ -106,8 +106,12 @@ bool FormatColorDepth::initColorAttribute(char* supportedColorList, int len) {
     int count = 0;
     bool result = false;
 
-    if (supportedColorList != NULL)
+    if (supportedColorList != NULL) {
         memset(supportedColorList, 0, len);
+    } else {
+        SYS_LOGE("supportedColorList is NULL\n");
+        return false;
+    }
 
     while (true) {
         //mSysWrite.readSysfsOriginal(DISPLAY_HDMI_DEEP_COLOR, supportedColorList);

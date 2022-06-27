@@ -450,7 +450,10 @@ int Ubootenv::save() {
 
         if (info.erasesize > (unsigned int)mEnvPartitionSize) {
             lseek(fd, 0L, SEEK_SET);
-            err = write(fd , data, info.erasesize);
+            if (data != NULL)
+                err = write(fd , data, info.erasesize);
+            else
+                SYS_LOGE("data is NULL\n");
             free(data);
         }
         else {

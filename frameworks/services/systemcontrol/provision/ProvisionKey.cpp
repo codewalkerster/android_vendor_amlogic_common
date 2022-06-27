@@ -48,6 +48,7 @@
 #include "ProvisionKey.h"
 
 ProvisionKey::ProvisionKey() {
+    mLogLevel = LOG_LEVEL_DEFAULT;
 }
 
 ProvisionKey::~ProvisionKey() {

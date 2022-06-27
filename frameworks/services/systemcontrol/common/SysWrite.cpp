@@ -162,8 +162,13 @@ bool SysWrite::writeSysfs(const char *path, const char *value){
 }
 
 bool SysWrite::writeSysfs(const char *path, const char *value, const int size){
-    writeSys(path, value, size);
-    return true;
+    int ret;
+    ret = writeSys(path, value, size);
+
+    if (ret == 0)
+        return true;
+    else
+        return false;
 }
 
 bool SysWrite::writeSysfs(ConstCharforSysNodeIndex index, const char *value){
@@ -185,7 +190,9 @@ bool SysWrite::writeUnifyKey(const char *path, const char *value){
 bool SysWrite::readUnifyKey(const char *path, char *value) {
     char buf[MAX_STR_LEN+1] = {0};
     int ret = readUnifyKeyfs(path, (char*)buf, MAX_STR_LEN);
+
     if (ret >= 1) {
+        buf[ret] = '\0';
         strcpy(value, buf);
         SYS_LOGI("readUnifyKey, value: %s", value);
         return true;
@@ -203,13 +210,13 @@ void SysWrite::writeSys(const char *path, const char *val){
 
     if ((fd = open(path, O_RDWR)) < 0) {
         SYS_LOGE("writeSysFs, open %s fail.", path);
-        goto exit;
+        return;
     }
 
     SYS_LOGD("write %s, val:%s\n", path, val);
-    write(fd, val, strlen(val));
+   if (write(fd, val, strlen(val)) != strlen(val))
+        SYS_LOGE("write %s failed!\n", path);
 
-exit:
     close(fd);
 }
 
@@ -236,12 +243,17 @@ int SysWrite::writeSys(const char *path, const char *val, const int size){
 
 int SysWrite::readUnifyKeyfs(const char *path, char *value, int count) {
     int keyLen = 0;
-    char existKey[10] = {0};
+    char existKey[11] = {0};
 
     writeSys(UNIFYKEY_ATTACH, "1");
     writeSys(UNIFYKEY_NAME, path);
 
-    readSys(UNIFYKEY_EXIST, (char*)existKey, 10);
+    int len = readSys(UNIFYKEY_EXIST, (char*)existKey, 10);
+    if (len >= 1)
+        existKey[len] = '\0';
+    else
+        memset(existKey, '\0', sizeof(existKey));
+
     if (0 == strcmp(existKey, "0")) {
         SYS_LOGE("do not write key to the storage");
         goto _exit;
@@ -260,7 +272,7 @@ _exit:
 
 int SysWrite::writeUnifyKeyfs(const char *path, const char *value) {
     int keyLen;
-    char existKey[10] = {0};
+    char existKey[11] = {0};
     int ret;
     char lock_str[10] = {0};
     int size = 0;
@@ -285,7 +297,12 @@ int SysWrite::writeUnifyKeyfs(const char *path, const char *value) {
 
     usleep(100*1000);
 
-    readSys(UNIFYKEY_EXIST, (char*)existKey, 10);
+    int len = readSys(UNIFYKEY_EXIST, (char*)existKey, 10);
+    if (len >= 1)
+        existKey[len] = '\0';
+    else
+        memset(existKey, '\0', sizeof(existKey));
+
     if (0 == strcmp(existKey, "0")) {
         SYS_LOGE("do not write key to the storage");
         writeSys(UNIFYKEY_LOCK, "0");
@@ -299,7 +316,7 @@ int SysWrite::writeUnifyKeyfs(const char *path, const char *value) {
 
 int SysWrite::writePlayreadyKeyfs(const char *path, const char *value, const int size) {
     int keyLen;
-    char existKey[10] = {0};
+    char existKey[11] = {0};
     int ret;
     char lock_str[10] = {0};
     writeSys(UNIFYKEY_ATTACH, "1");
@@ -322,7 +339,12 @@ int SysWrite::writePlayreadyKeyfs(const char *path, const char *value, const int
 
     usleep(100*1000);
 
-    readSys(UNIFYKEY_EXIST, (char*)existKey, 10);
+    int len = readSys(UNIFYKEY_EXIST, (char*)existKey, 10);
+    if (len >= 1)
+        existKey[len] = '\0';
+    else
+        memset(existKey, '\0', sizeof(existKey));
+
     if (0 == strcmp(existKey, "0")) {
         SYS_LOGE("do not write key to the storage");
         writeSys(UNIFYKEY_LOCK, "0");
@@ -337,7 +359,7 @@ int SysWrite::writePlayreadyKeyfs(const char *path, const char *value, const int
 bool SysWrite::writeNetflixKeyfs(const char *path, const char *value, const int size) {
     SYS_LOGI("writeNetflixKeyfs");
     int keyLen;
-    char existKey[10] = {0};
+    char existKey[11] = {0};
     int ret;
     char lock_str[10] = {0};
     writeSys(UNIFYKEY_ATTACH, "1");
@@ -360,7 +382,12 @@ bool SysWrite::writeNetflixKeyfs(const char *path, const char *value, const int 
 
     usleep(100*1000);
 
-    readSys(UNIFYKEY_EXIST, (char*)existKey, 10);
+    int len = readSys(UNIFYKEY_EXIST, (char*)existKey, 10);
+    if (len >= 1)
+        existKey[len] = '\0';
+    else
+        memset(existKey, '\0', sizeof(existKey));
+
     if (0 == strcmp(existKey, "0")) {
         SYS_LOGE("do not write key to the storage");
         writeSys(UNIFYKEY_LOCK, "0");
@@ -376,7 +403,7 @@ bool SysWrite::writeNetflixKeyfs(const char *path, const char *value, const int 
 bool SysWrite::writeWidevineKeyfs(const char *path, const char *value, const int size) {
     SYS_LOGI("writeWidevineKeyfs");
     int keyLen;
-    char existKey[10] = {0};
+    char existKey[11] = {0};
     int ret;
     char lock_str[10] = {0};
     writeSys(UNIFYKEY_ATTACH, "1");
@@ -399,7 +426,12 @@ bool SysWrite::writeWidevineKeyfs(const char *path, const char *value, const int
 
     usleep(100*1000);
 
-    readSys(UNIFYKEY_EXIST, (char*)existKey, 10);
+    int len = readSys(UNIFYKEY_EXIST, (char*)existKey, 10);
+    if (len >= 1)
+        existKey[len] = '\0';
+    else
+        memset(existKey, '\0', sizeof(existKey));
+
     if (0 == strcmp(existKey, "0")) {
         SYS_LOGE("do not write key to the storage");
         writeSys(UNIFYKEY_LOCK, "0");
@@ -533,7 +565,7 @@ void SysWrite::readSys(const char *path, char *buf, int count, bool needOriginal
 
     if ((fd = open(path, O_RDONLY)) < 0) {
         SYS_LOGE("readSysFs, open %s fail. Error info [%s]", path, strerror(errno));
-        goto exit;
+        return;
     }
 
     len = read(fd, buf, count);
