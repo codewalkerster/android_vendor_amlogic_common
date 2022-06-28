@@ -1,6 +1,6 @@
 ####################################################################################
 DRIVER_DIR ?= vendor/wifi_driver
-KERNEL_TO_ROOT_PATH  ?= $(patsubst %/,%,$(shell echo $(foreach word,$(shell echo $(subst $(ROOT_DIR),,$(KERNEL_SRC)) | tr '/' ' '),../)|sed 's/[[:space:]]//g'))
+KERNEL_TO_ROOT_PATH  ?= $(patsubst %/,%,$(shell echo $(foreach word,$(shell echo $(subst $(call root-dir),,$(KERNEL_SRC)) | tr '/' ' '),../)|sed 's/[[:space:]]//g'))
 WIFI_SUPPORT_DRIVERS ?= $(EXTRA_WIFI_SUPPORT_DRIVERS)
 ####################################################################################
 

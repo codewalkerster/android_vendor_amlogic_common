@@ -14,20 +14,6 @@
 # limitations under the License.
 #
 
-PRODUCT_PROPERTY_OVERRIDES += persist.vendor.wifibt_name = "$(CONFIG_WIFIBT_NAME)"
-
-ifeq ($(TARGET_BUILD_KERNEL_4_9),true)
-include vendor/amlogic/common/wifi_bt/wifi/configs/4_9/config.mk
-else
-include vendor/amlogic/common/wifi_bt/wifi/configs/5_4/config.mk
-endif
-
-ifdef PRODUCT_DIRNAME
--include $(PRODUCT_DIRNAME)/wifibt.build.config.trunk.mk
-else
--include device/amlogic/$(PRODUCT_DIR)/wifibt.build.config.trunk.mk
-endif
-
 define check-wifi-modules
 $(eval supported_drivers := $(strip $(foreach driver,$(WIFI_SUPPORT_DRIVERS),$(if $(filter true,$($(driver)_build)),$(driver)))))\
 $(eval supported_modules := $(strip $(foreach driver,$(supported_drivers),$($(driver)_modules))))\
@@ -39,6 +25,24 @@ define get-supported-wifi-modules
 $(strip $(foreach driver,$(WIFI_SUPPORT_DRIVERS),$($(driver)_modules)))
 endef
 
+WIFI_TRUNK_CONFIG ?= $(if $(PRODUCT_DIRNAME),$(PRODUCT_DIRNAME)/wifibt.build.config.trunk.mk,device/amlogic/$(PRODUCT_DIR)/wifibt.build.config.trunk.mk)
+
+ifeq ($(TARGET_BUILD_KERNEL_4_9),true)
+WIFI_DEFAULT_CONFIG := vendor/amlogic/common/wifi_bt/wifi/configs/4_9/config.mk
+else ifeq ($(TARGET_BUILD_KERNEL_5_4),true)
+WIFI_DEFAULT_CONFIG := vendor/amlogic/common/wifi_bt/wifi/configs/5_4/config.mk
+else ifeq ($(TARGET_BUILD_KERNEL_5_15),true)
+WIFI_DEFAULT_CONFIG := vendor/amlogic/common/wifi_bt/wifi/configs/5_15/config.mk
+else
+WIFI_DEFAULT_CONFIG := vendor/amlogic/common/wifi_bt/wifi/configs/5_4/config.mk
+endif
+
+$(warning loading default wifi config: $(WIFI_DEFAULT_CONFIG))
+include $(WIFI_DEFAULT_CONFIG)
+
+$(warning loading trunk wifi config: $(WIFI_TRUNK_CONFIG))
+-include $(WIFI_TRUNK_CONFIG)
+
 WIFI_MODULES := \
 $(strip \
  $(if $(CONFIG_WIFI_MODULES),\
@@ -47,6 +51,8 @@ $(strip \
  )\
 )
 $(eval $(call check-wifi-modules,$(WIFI_MODULES)))
+
+PRODUCT_PROPERTY_OVERRIDES += persist.vendor.wifibt_name = "$(CONFIG_WIFIBT_NAME)"
 
 #enable clang CFI for arm64
 ifeq ($(ANDROID_BUILD_TYPE), 64)

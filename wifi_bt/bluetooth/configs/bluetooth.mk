@@ -17,11 +17,9 @@
 #Support modules:
 #   bcm40183, AP6210, AP6476, AP6330, AP62x2,AP6335,mt5931 & mt6622
 
-ifdef PRODUCT_DIRNAME
--include $(PRODUCT_DIRNAME)/wifibt.build.config.trunk.mk
-else
--include device/amlogic/$(PRODUCT_DIR)/wifibt.build.config.trunk.mk
-endif
+BT_TRUNK_CONFIG ?= $(if $(PRODUCT_DIRNAME),$(PRODUCT_DIRNAME)/wifibt.build.config.trunk.mk,device/amlogic/$(PRODUCT_DIR)/wifibt.build.config.trunk.mk)
+$(warning loading trunk bt config: $(BT_TRUNK_CONFIG))
+-include $(BT_TRUNK_CONFIG)
 
 BLUETOOTH_MODULE := $(CONFIG_BLUETOOTH_MODULES)
 ifeq ($(BLUETOOTH_MODULE), )
