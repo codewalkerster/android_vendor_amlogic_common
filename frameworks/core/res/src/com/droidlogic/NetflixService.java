@@ -326,8 +326,8 @@ public class NetflixService extends Service {
         }
 
         String audioSinkCap = mSCM.readSysFs(SYS_AUDIO_CAP);
-        atmosSupported = audioSinkCap.contains("Dobly_Digital+/ATMOS");
-        doblySupported = audioSinkCap.contains("Dobly_Digital");
+        atmosSupported = audioSinkCap.contains("Dolby_Digital+/ATMOS");
+        doblySupported = audioSinkCap.contains("Dolby_Digital");
         if (isHdmiPlugged && (OutputModeManager.DIGITAL_AUDIO_FORMAT_AUTO == surround
                 || OutputModeManager.DIGITAL_AUDIO_FORMAT_PASSTHROUGH == surround)) {
             Log.i(TAG, "ATMOS: " + atmosSupported + ", audioSinkCap: " + audioSinkCap);

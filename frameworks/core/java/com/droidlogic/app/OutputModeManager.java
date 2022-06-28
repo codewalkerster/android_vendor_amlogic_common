@@ -272,13 +272,13 @@ public class OutputModeManager {
     private String DEFAULT_OUTPUT_MODE                      = "720p60hz";
 
     //ac4 enhancer
-    public static final String AC4_DIAGLOGUE_ENHANCEMENT_VALUE   = "ac4_diaglogue_enhancer_value";
-    public static final String DIAGLOGUE_ENHANCEMENT_SWITCH      = "diaglogue_enhancement";
+    public static final String AC4_DIALOGUE_ENHANCEMENT_VALUE   = "ac4_dialogue_enhancer_value";
+    public static final String DIALOGUE_ENHANCEMENT_SWITCH      = "dialogue_enhancement";
 
-    public static final int DIAGLOGUE_ENHANCEMENT_OFF       = 0;
-    public static final int DIAGLOGUE_ENHANCEMENT_LOW       = 4;
-    public static final int DIAGLOGUE_ENHANCEMENT_MEDIUM    = 8;
-    public static final int DIAGLOGUE_ENHANCEMENT_HIGH      = 12;
+    public static final int DIALOGUE_ENHANCEMENT_OFF       = 0;
+    public static final int DIALOGUE_ENHANCEMENT_LOW       = 4;
+    public static final int DIALOGUE_ENHANCEMENT_MEDIUM    = 8;
+    public static final int DIALOGUE_ENHANCEMENT_HIGH      = 12;
 
     public static final String FORCE_DDP_SWITCH      = "force_ddp_enable";
     public static final int FORCE_DDP_OFF   = 0;
@@ -970,9 +970,9 @@ public class OutputModeManager {
         return getBootenv(ENV_DIGIT_AUDIO, PCM);
     }
 
-    public int autoSwitchHdmiPassthough () {
+    public int autoSwitchHdmiPassthrough () {
         String mAudioCapInfo = readSysfsTotal(SYS_AUDIO_CAP);
-        if (mAudioCapInfo.contains("Dobly_Digital+")) {
+        if (mAudioCapInfo.contains("Dolby_Digital+")) {
             setDigitalMode(HDMI_RAW);
             return IS_HDMI_RAW;
         } else if (mAudioCapInfo.contains("AC-3")
@@ -1348,21 +1348,21 @@ public class OutputModeManager {
     public void setAc4DialogEnhancer(int newVal) {
         Log.d(TAG, "setAc4DialogEnhancer: " + newVal);
         switch (newVal) {
-            case DIAGLOGUE_ENHANCEMENT_OFF:
-                Settings.Global.putInt(mResolver, DIAGLOGUE_ENHANCEMENT_SWITCH, 0);
-                mAudioManager.setParameters("diaglogue_enhancement=0");
+            case DIALOGUE_ENHANCEMENT_OFF:
+                Settings.Global.putInt(mResolver, DIALOGUE_ENHANCEMENT_SWITCH, 0);
+                mAudioManager.setParameters("dialogue_enhancement=0");
                 break;
-            case DIAGLOGUE_ENHANCEMENT_LOW:
-                Settings.Global.putInt(mResolver, DIAGLOGUE_ENHANCEMENT_SWITCH, 4);
-                mAudioManager.setParameters("diaglogue_enhancement=4");
+            case DIALOGUE_ENHANCEMENT_LOW:
+                Settings.Global.putInt(mResolver, DIALOGUE_ENHANCEMENT_SWITCH, 4);
+                mAudioManager.setParameters("dialogue_enhancement=4");
                 break;
-            case DIAGLOGUE_ENHANCEMENT_MEDIUM:
-                Settings.Global.putInt(mResolver, DIAGLOGUE_ENHANCEMENT_SWITCH, 8);
-                mAudioManager.setParameters("diaglogue_enhancement=8");
+            case DIALOGUE_ENHANCEMENT_MEDIUM:
+                Settings.Global.putInt(mResolver, DIALOGUE_ENHANCEMENT_SWITCH, 8);
+                mAudioManager.setParameters("dialogue_enhancement=8");
                 break;
-            case DIAGLOGUE_ENHANCEMENT_HIGH:
-                Settings.Global.putInt(mResolver, DIAGLOGUE_ENHANCEMENT_SWITCH, 12);
-                mAudioManager.setParameters("diaglogue_enhancement=12");
+            case DIALOGUE_ENHANCEMENT_HIGH:
+                Settings.Global.putInt(mResolver, DIALOGUE_ENHANCEMENT_SWITCH, 12);
+                mAudioManager.setParameters("dialogue_enhancement=12");
                 break;
         }
     }
@@ -1380,7 +1380,7 @@ public class OutputModeManager {
     }
 
     public int getAc4DialogEnhancer() {
-        return Settings.Global.getInt(mResolver, DIAGLOGUE_ENHANCEMENT_SWITCH, DIAGLOGUE_ENHANCEMENT_OFF);
+        return Settings.Global.getInt(mResolver, DIALOGUE_ENHANCEMENT_SWITCH, DIALOGUE_ENHANCEMENT_OFF);
     }
 
     public boolean getForceDDPEnable() {
