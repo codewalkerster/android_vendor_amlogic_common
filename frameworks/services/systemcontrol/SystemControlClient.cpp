@@ -1662,11 +1662,15 @@ Return<void> SystemControlClient::SystemControlHidlCallback::notifyHdrInfoChange
 
 int SystemControlClient::setAudioParam(int param1, int param2, int param3, int param4) {
     int32_t result = -1;
-    mSysCtrl->setAudioParam(param1, param2, param3, param4, [&result](const Result &ret, const int32_t& v) {
+    Return<void> ret= mSysCtrl->setAudioParam(param1, param2, param3, param4, [&result](const Result &ret, const int32_t& v) {
         if (Result::OK == ret) {
             result = v;
         }
     });
+    if (!ret.isOk()) {
+        ALOGI("%s: hidl calls fails", __FUNCTION__);
+        return -1;
+    }
     return result;
 }
 
