@@ -27,11 +27,11 @@ endef
 
 WIFI_TRUNK_CONFIG ?= $(if $(PRODUCT_DIRNAME),$(PRODUCT_DIRNAME)/wifibt.build.config.trunk.mk,device/amlogic/$(PRODUCT_DIR)/wifibt.build.config.trunk.mk)
 
-ifeq ($(TARGET_BUILD_KERNEL_4_9),true)
+ifeq ($(TARGET_BUILD_KERNEL_VERSION),4.9)
 WIFI_DEFAULT_CONFIG := vendor/amlogic/common/wifi_bt/wifi/configs/4_9/config.mk
-else ifeq ($(TARGET_BUILD_KERNEL_5_4),true)
+else ifeq ($(TARGET_BUILD_KERNEL_VERSION),5.4)
 WIFI_DEFAULT_CONFIG := vendor/amlogic/common/wifi_bt/wifi/configs/5_4/config.mk
-else ifeq ($(TARGET_BUILD_KERNEL_5_15),true)
+else ifeq ($(TARGET_BUILD_KERNEL_VERSION),5.15)
 WIFI_DEFAULT_CONFIG := vendor/amlogic/common/wifi_bt/wifi/configs/5_15/config.mk
 else
 WIFI_DEFAULT_CONFIG := vendor/amlogic/common/wifi_bt/wifi/configs/5_4/config.mk
