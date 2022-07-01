@@ -838,6 +838,10 @@ typedef struct tvin_info_s {
      */
     unsigned int hdr_info;
     tvin_aspect_ratio_e aspect_ratio;
+    //0:no dv 1:vsif 2:emp
+    unsigned char amdolby_vision;
+    //0:sink-led 1:source-led
+    unsigned char low_latency;
 } tvin_info_t;
 
 typedef struct source_input_param_s {
