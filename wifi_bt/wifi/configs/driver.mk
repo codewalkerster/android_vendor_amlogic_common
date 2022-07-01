@@ -1,7 +1,7 @@
 ####################################################################################
 # define variables
 ######################################################
-LOCAL_ROOT_DIR             := $(call root-dir)
+LOCAL_ROOT_DIR             := $(ANDROID_ROOT_DIR)
 LOCAL_OUT_DIR              := $(OUT_DIR)
 LOCAL_KERNEL_TO_ROOT_PATH  := $(KERNEL_TO_ROOT_PATH)
 LOCAL_CONFIG_BUILD_MODULES := $(CONFIG_WIFI_MODULES)
