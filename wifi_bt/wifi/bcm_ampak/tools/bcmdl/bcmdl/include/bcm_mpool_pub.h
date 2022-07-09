@@ -4,7 +4,7 @@
  * API Overview
  *
  * This package provides a memory allocation subsystem based on pools of
- * homogenous objects.
+ * homogeneous objects.
  *
  * Instrumentation is available for reporting memory utilization both
  * on a per-data-structure basis and system wide.
@@ -18,7 +18,7 @@
  *                  creates and provides individual memory pools
  *                  upon request to application code.
  *
- *    memory pool:  An object for allocating homogenous memory blocks.
+ *    memory pool:  An object for allocating homogeneous memory blocks.
  *
  * Global identifiers in this module use the following prefixes:
  *    bcm_mpm_*     Memory pool manager
@@ -27,7 +27,7 @@
  * There are two main types of memory pools:
  *
  *    prealloc: The contiguous memory block of objects can either be supplied
- *              by the client or malloc'ed by the memory manager. The objects are
+ *              by the client or malloc by the memory manager. The objects are
  *              allocated out of a block of memory and freed back to the block.
  *
  *    heap:     The memory pool allocator uses the heap (malloc/free) for memory.

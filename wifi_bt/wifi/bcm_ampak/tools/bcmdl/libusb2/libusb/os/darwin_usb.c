@@ -885,7 +885,7 @@ static int darwin_claim_interface(struct libusb_device_handle *dev_handle, int i
   
   /* Do the actual claim */
   kresult = (*plugInInterface)->QueryInterface(plugInInterface,
-					       CFUUIDGetUUIDBytes(kIOUSBInterfaceInterfaceID),
+					       CFUUIDGetUUIDBytes(kIOUSBInterfaceID),
 					       (LPVOID)&cInterface->interface);
   if (kresult || !cInterface->interface) {
     usbi_err (HANDLE_CTX (dev_handle), "QueryInterface: %s", darwin_error_str(kresult));

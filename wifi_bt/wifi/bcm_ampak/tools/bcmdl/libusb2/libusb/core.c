@@ -254,7 +254,7 @@ if (cfg != desired)
  * libusb v1.0.2, this information was lost (and for device-to-host transfers,
  * the corresponding data was discarded). As of libusb v1.0.3, this information
  * is kept (the data length of the transfer is updated) and, for device-to-host
- * transfesr, any surplus data was added to the buffer. Still, this is not
+ * transfer, any surplus data was added to the buffer. Still, this is not
  * a nice solution because it loses the information about the end of the short
  * packet, and the user probably wanted that surplus data to arrive in the next
  * logical transfer.
@@ -739,7 +739,7 @@ API_EXPORTED int libusb_get_max_packet_size(libusb_device *dev,
  * Calculate the maximum packet size which a specific endpoint is capable is
  * sending or receiving in the duration of 1 microframe
  *
- * Only the active configution is examined. The calculation is based on the
+ * Only the active configuration is examined. The calculation is based on the
  * wMaxPacketSize field in the endpoint descriptor as described in section
  * 9.6.6 in the USB 2.0 specifications.
  *

@@ -1318,7 +1318,7 @@ public:
      * in this set, or will be added if it is not in this set.
      * A frozen set will not be modified.
      *
-     * @param c set that defines which elements will be xor'ed from
+     * @param c set that defines which elements will be  from
      *          this set.
      * @stable ICU 2.4
      */

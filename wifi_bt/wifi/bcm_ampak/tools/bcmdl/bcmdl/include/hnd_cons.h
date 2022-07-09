@@ -24,7 +24,7 @@
 #include <siutils.h>
 
 #if defined(RWL_DONGLE) || defined(UART_REFLECTOR)
-/* For Dongle uart tranport max cmd len is 256 bytes + header length (16 bytes)
+/* For Dongle uart transport max cmd len is 256 bytes + header length (16 bytes)
  *  In case of ASD commands we are not sure about how much is the command size
  *  To be on the safe side, input buf len CBUF_LEN is increased to max (512) bytes.
  */

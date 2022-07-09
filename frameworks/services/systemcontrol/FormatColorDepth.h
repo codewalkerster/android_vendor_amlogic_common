@@ -61,7 +61,7 @@ private:
     bool getBootEnv(const char* key, char* value);
 
     Ubootenv *mUbootenv;
-    void getProperHdmiColorArrtibute(const char * outputmode, char * colorAttribute);
+    void getProperHdmiColorAttribute(const char * outputmode, char * colorAttribute);
     bool isFilterEdid();
     SysWrite mSysWrite;
     std::map<int, std::string> mFilterEdid;

@@ -454,7 +454,7 @@ static wifi_error wifi_init_user_sock(hal_info *info)
     }
 
     info->user_sock = user_sock;
-    ALOGV("Initiialized diag sock successfully");
+    ALOGV("Initialized diag sock successfully");
     return WIFI_SUCCESS;
 }
 
@@ -694,7 +694,7 @@ wifi_error wifi_initialize(wifi_handle *handle)
 
     info->nl80211_family_id = genl_ctrl_resolve(cmd_sock, "nl80211");
     if (info->nl80211_family_id < 0) {
-        ALOGE("Could not resolve nl80211 familty id");
+        ALOGE("Could not resolve nl80211 family id");
         ret = WIFI_ERROR_UNKNOWN;
         goto unload;
     }
@@ -713,7 +713,7 @@ wifi_error wifi_initialize(wifi_handle *handle)
 
     wifi_create_ctrl_socket(info);
 
-    //! Initailise the monitoring clients list
+    //! Initialise the monitoring clients list
     INITIALISE_LIST(&info->monitor_sockets);
 
     info->cldctx = cld80211_init();
@@ -1325,8 +1325,8 @@ static int register_monitor_sock(wifi_handle handle, wifihal_ctrl_req_t *ctrl_ms
     }
     else
     {
-       //! Not attached, so cant be dettached
-       ALOGE("%s: Dettaching the unregistered socket \n", __FUNCTION__);
+       //! Not attached, so cant be detached
+       ALOGE("%s: Detaching the unregistered socket \n", __FUNCTION__);
        return -2;
     }
 
@@ -1696,7 +1696,7 @@ public:
 
     virtual int handleResponse(WifiEvent& reply) {
 
-        // ALOGI("handling reponse in %s", __func__);
+        // ALOGI("handling response in %s", __func__);
 
         struct nlattr **tb = reply.attributes();
         struct nlattr *mcgrp = NULL;
@@ -2264,7 +2264,7 @@ static wifi_error wifi_get_packet_filter_capabilities(
             /* Packet filtering is not supported currently, so return version
              * and length as 0
              */
-            ALOGI("Packet filtering is not supprted");
+            ALOGI("Packet filtering is not supported");
             *version = 0;
             *max_len = 0;
             ret = WIFI_SUCCESS;
@@ -2318,10 +2318,10 @@ cleanup:
 /**
  * Copy 'len' bytes of raw data from host memory at source address 'program'
  * to APF (Android Packet Filter) working memory starting at offset 'dst_offset'.
- * The size of the program lenght passed to the interpreter is set to
- * 'progaram_lenght'
+ * The size of the program length passed to the interpreter is set to
+ * 'progaram_length'
  *
- * The implementation is allowed to tranlate this wrtie into a series of smaller
+ * The implementation is allowed to tranlate this write into a series of smaller
  * writes,but this function is not allowed to return untill all write operations
  * have been completed
  * additionally visible memory not targeted by this function must remain
@@ -2477,7 +2477,7 @@ cleanup:
  * Copy 'length' bytes of raw data from APF (Android Packet Filter) working
  * memory  to host memory starting at offset src_offset into host memory
  * pointed to by host_dst.
- * Memory can be text, data or some combination of the two. The implementiion is
+ * Memory can be text, data or some combination of the two. The implementation is
  * allowed to translate this read into a series of smaller reads, but this
  * function is not allowed to return untill all the reads operations
  * into host_dst have been completed.
@@ -2509,12 +2509,12 @@ static wifi_error wifi_read_packet_filter(wifi_interface_handle handle,
 
     /*Temporary varibles to support the read complete length in chunks */
     u8 *temp_host_dst;
-    u32 remainingLengthToBeRead, currentLength;
+    u32 remainingLengthBeRead, currentLength;
     u8 apf_locally_disabled = 0;
 
     /*Initializing the temporary variables*/
     temp_host_dst = host_dst;
-    remainingLengthToBeRead = length;
+    remainingLengthBeRead = length;
 
     if (info->apf_enabled) {
         /* Disable APF only when not disabled by framework before calling
@@ -2531,7 +2531,7 @@ static wifi_error wifi_read_packet_filter(wifi_interface_handle handle,
      * Read the complete length in chunks of size less or equal to firmware bus
      * max size
      */
-    while (remainingLengthToBeRead)
+    while (remainingLengthBeRead)
     {
         vCommand = new WifihalGeneric(wifiHandle, 0, OUI_QCA,
                                       QCA_NL80211_VENDOR_SUBCMD_PACKET_FILTER);
@@ -2558,7 +2558,7 @@ static wifi_error wifi_read_packet_filter(wifi_interface_handle handle,
         if (ret != WIFI_SUCCESS)
             break;
 
-        currentLength = min(remainingLengthToBeRead, info->firmware_bus_max_size);
+        currentLength = min(remainingLengthBeRead, info->firmware_bus_max_size);
 
         ret = vCommand->put_u32(QCA_WLAN_VENDOR_ATTR_PACKET_FILTER_SIZE,
                                 currentLength);
@@ -2579,7 +2579,7 @@ static wifi_error wifi_read_packet_filter(wifi_interface_handle handle,
             break;
         }
 
-        remainingLengthToBeRead -= currentLength;
+        remainingLengthBeRead -= currentLength;
         temp_host_dst += currentLength;
         src_offset += currentLength;
         delete vCommand;

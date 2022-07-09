@@ -45,7 +45,7 @@
 #ifndef NETLINK_CAP_ACK
 #define NETLINK_CAP_ACK 10
 #endif /* NETLINK_CAP_ACK */
-/* support for extack if compilation headers are too old */
+/* support for extract if compilation headers are too old */
 #ifndef NETLINK_EXT_ACK
 #define NETLINK_EXT_ACK 11
 enum nlmsgerr_attrs {

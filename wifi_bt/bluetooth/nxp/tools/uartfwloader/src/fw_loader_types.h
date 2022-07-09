@@ -1,7 +1,7 @@
 /** @file   fw_loader_types.h
  *
  *  @brief  This file contains the Nxp specific typedefinitions of 
- *          standatd ANSI-C data types.
+ *          standard ANSI-C data types.
  *
  *  Copyright 2014-2020 NXP
  *

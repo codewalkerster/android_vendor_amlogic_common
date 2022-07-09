@@ -281,7 +281,7 @@ static int btusb_lite_hci_nocp_event_hdlr(struct btusb_cb *p_dev, UINT8 *p_data,
     UINT8 byte;
     UINT8 *p_save;
     int send_to_user;
-    UINT16 num_cplt_pck_caugth;
+    UINT16 num_cplt_pck_caught;
 
     /* We are waiting for an Event of, at least, 7 bytes */
     if (length < BTUSB_LITE_HCI_NOCP_HCI_LEN)
@@ -326,16 +326,16 @@ static int btusb_lite_hci_nocp_event_hdlr(struct btusb_cb *p_dev, UINT8 *p_data,
         STREAM_TO_UINT16(num_cplt_pck, p_data);
 
         /* Call the L2CAP NumberOfcompletePacket Handler */
-        num_cplt_pck_caugth = btusb_lite_l2c_nocp_hdlr(p_dev, con_hdl, num_cplt_pck);
+        num_cplt_pck_caught = btusb_lite_l2c_nocp_hdlr(p_dev, con_hdl, num_cplt_pck);
 
         /* If L2CAP "caught"at least one nocp packet */
-        if (num_cplt_pck_caugth)
+        if (num_cplt_pck_caught)
         {
             /* Overwrite the Number Of Complete Packet */
-            UINT16_TO_STREAM(p_save, num_cplt_pck - num_cplt_pck_caugth);
+            UINT16_TO_STREAM(p_save, num_cplt_pck - num_cplt_pck_caught);
 
             /* If at least one Number Of Complete Packet remains */
-            if (num_cplt_pck - num_cplt_pck_caugth)
+            if (num_cplt_pck - num_cplt_pck_caught)
             {
                 /* Send the event to user space */
                 send_to_user = 1;

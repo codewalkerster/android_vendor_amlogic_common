@@ -148,7 +148,7 @@ static int ge2d_info_set(aml_ge2d_info_t *pge2dinfo)
 
             break;
         default:
-            E_GE2D("ge2d(%d) opration not support!\n",pge2dinfo->ge2d_op);
+            E_GE2D("ge2d(%d) operation not support!\n",pge2dinfo->ge2d_op);
             return ge2d_fail;
     }
     return ge2d_success;

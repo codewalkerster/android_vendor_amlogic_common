@@ -2582,7 +2582,7 @@ dbus_bool_t wpas_dbus_setter_p2p_group_vendor_ext(
 
 			dbus_message_iter_recurse(&array_iter, &sub);
 			dbus_message_iter_get_fixed_array(&sub, &val, &len);
-			wpa_hexdump(MSG_DEBUG, "dbus: WPSVendorExtentions[]",
+			wpa_hexdump(MSG_DEBUG, "dbus: WPSVendorExtension[]",
 				    val, len);
 			vals[i] = wpabuf_alloc_copy(val, len);
 			if (vals[i] == NULL) {

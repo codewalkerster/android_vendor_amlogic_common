@@ -144,7 +144,7 @@ slice/1/fdss_level_11ax_2g_ch11=2,2
 tempthresh=255
 tempoffset=-1
 rawtempsense=0x1ff
-phycal_tempdelta=15
+physical_tempdelta=15
 temps_period=15
 temps_hysteresis=15
 

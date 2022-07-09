@@ -5587,7 +5587,7 @@ DBusMessage * wpas_dbus_handler_subscribe_preq(
 
 	/*
 	 * Double-check it's still alive to make sure that we didn't
-	 * miss the NameOwnerChanged signal, e.g. while strdup'ing.
+	 * miss the NameOwnerChanged signal, e.g. while strdup in.
 	 */
 	if (!dbus_bus_name_has_owner(priv->con, name, NULL)) {
 		/*

@@ -1537,7 +1537,7 @@ wifi_error NanCommand::putNanBeaconSdfPayload(transaction_id id,
                                        const NanBeaconSdfPayloadRequest *pReq)
 {
     wifi_error ret;
-    ALOGV("NAN_BEACON_SDF_PAYLAOD");
+    ALOGV("NAN_BEACON_SDF_PAYLOAD");
     if (pReq == NULL) {
         cleanup();
         return WIFI_ERROR_INVALID_ARGS;

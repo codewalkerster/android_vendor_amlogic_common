@@ -454,7 +454,7 @@ u8 * ikev2_decrypt_payload(int encr_id, int integ_id,
 
 	integ_alg = ikev2_get_integ(integ_id);
 	if (integ_alg == NULL) {
-		wpa_printf(MSG_INFO, "IKEV2: Unsupported intergrity type");
+		wpa_printf(MSG_INFO, "IKEV2: Unsupported integrity type");
 		return NULL;
 	}
 
@@ -521,7 +521,7 @@ void ikev2_update_hdr(struct wpabuf *msg)
 {
 	struct ikev2_hdr *hdr;
 
-	/* Update lenth field in HDR */
+	/* Update Length field in HDR */
 	hdr = wpabuf_mhead(msg);
 	WPA_PUT_BE32(hdr->length, wpabuf_len(msg));
 }
@@ -553,7 +553,7 @@ int ikev2_build_encrypted(int encr_id, int integ_id, struct ikev2_keys *keys,
 
 	integ_alg = ikev2_get_integ(integ_id);
 	if (integ_alg == NULL) {
-		wpa_printf(MSG_INFO, "IKEV2: Unsupported intergrity type");
+		wpa_printf(MSG_INFO, "IKEV2: Unsupported integrity type");
 		return -1;
 	}
 

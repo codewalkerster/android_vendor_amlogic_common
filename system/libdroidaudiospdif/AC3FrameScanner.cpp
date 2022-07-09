@@ -209,7 +209,7 @@ bool AC3FrameScanner::parseHeader()
         mStreamType = mHeaderBuffer[2] >> 6; // strmtyp in spec
         mSubstreamID = (mHeaderBuffer[2] >> 3) & 0x07;
         //for dd frame, bsmod is contained in frame header
-        //for ddp frame, the bsmod is depending on bse_infomdate(informational metadata)
+        //for ddp frame, the bsmod is depending on base_information_date(informational metadata)
         //if the flag == 1, there will be bsmod there.It is too difficult to parse
         //to much data to get the information, we assume it is 0.
         mDataTypeInfo = 0;

@@ -57,7 +57,7 @@ extern u8 btmtk_log_lvl;
 	do {if (btmtk_log_lvl >= BTMTK_LOG_LEVEL_DEBUG)		\
 		pr_warn("[btmtk_debug] %s: "fmt"\n", __func__, ##__VA_ARGS__); } while (0)
 
-#define BTMTK_WARN_LIMITTED(fmt, ...)     \
+#define BTMTK_WARN_LIMITED(fmt, ...)     \
 	do {												\
 		if (btmtk_log_lvl >= BTMTK_LOG_LEVEL_WARNING)	\
 			printk_ratelimited(KERN_WARNING "[btmtk_warn_limit] %s: "fmt"\n",	\

@@ -88,7 +88,7 @@ public class SubtitleManager {
     static public final int TYPE_SUBTITLE_TMD_TXT = 7;
     static public final int TYPE_SUBTITLE_IDX_SUB = 8;
     static public final int TYPE_SUBTITLE_DVB_TELETEXT = 9;
-    static public final int TYPE_SUBTITLE_CLOSED_CATPTION = 10;
+    static public final int TYPE_SUBTITLE_CLOSED_CAPTION = 10;
     static public final int TYPE_SUBTITLE_SCTE27 = 11;
     static public final int TYPE_SUBTITLE_EXTERNAL = 15;
     static public final int TYPE_SUBTITLE_MAX = 13;
@@ -272,7 +272,7 @@ public class SubtitleManager {
     private native int nativeGetSubType();
     private native String nativeGetSubLanguage(int idx);
     private native String nativeGetCurName();
-    private native int nativeGetSubTypeDetial();
+    private native int nativeGetSubTypeDetail();
     private native int nativeTtControl(int teletxtEvent, int magazine, int page, int regionId);
     private native int nativeTtGoHome();
     private native int nativeTtGotoPage(int magazine, int page);
@@ -380,7 +380,7 @@ public class SubtitleManager {
         //Log.e(TAG, "initResolution mScreenWidth:" + mScreenWidth +";mScreenHeight = "+mScreenHeight);
     }
 
-    //get the subtilte display type by parse type : image or text
+    //get the subtitle display type by parse type : image or text
     private int subtitleTextOrImage(int type) {
         int displayType = -1;
         switch (type) {
@@ -391,7 +391,7 @@ public class SubtitleManager {
             case TYPE_SUBTITLE_SSA:
                 displayType = SUBTITLE_TXT;
                 break;
-            case TYPE_SUBTITLE_CLOSED_CATPTION:
+            case TYPE_SUBTITLE_CLOSED_CAPTION:
                 displayType = SUBTITLE_CC_JASON;
                 break;
             case TYPE_SUBTITLE_DVB_TELETEXT:
@@ -406,10 +406,10 @@ public class SubtitleManager {
         return displayType;
     }
 
-    private void updateChannelId(int event, int channelId) {
+    private void updateChannedId(int event, int channelId) {
         int idx = -1;
         mDisplayType = SUBTITLE_CC_JASON;
-        LOGI("[updateChannelId]event:" + event + ",channedId:" + channelId);
+        LOGI("[updateChannedId]event:" + event + ",channedId:" + channelId);
         if (event == 1 && !mChalIdList.contains(channelId)) { //1:add
             mChalIdList.add(channelId);
             if (mMonitorCCchannel == channelId && mCurrentCCchannel != channelId) {
@@ -423,7 +423,7 @@ public class SubtitleManager {
             int auth = channelId >> 16;
             int id = channelId >> 8 &0xff;
             int dlsv = channelId&0x0f;
-            LOGI("updateChannelId  auth="+auth+";id="+id+";dlsv="+dlsv);
+            LOGI("updateChannedId  auth="+auth+";id="+id+";dlsv="+dlsv);
             if (mHidlCallback != null) {
                 Log.d(TAG, "onSubtitleEvent: mHidlCallback=" + mHidlCallback);
                 mHidlCallback.onSubtitleEvent(SUBTITLE_VCHIP_RATE, null, null, auth, id, dlsv, 0, 0, 0, false);
@@ -434,7 +434,7 @@ public class SubtitleManager {
                 Log.e(TAG, "Cannot handle events!");
             }
         } else if (event == -2) {
-            LOGI("updateChannelId  mask ="+channelId);
+            LOGI("updateChannedId  mask ="+channelId);
             if (mHidlCallback != null) {
                 Log.d(TAG, "onSubtitleEvent: mHidlCallback = " + mHidlCallback);
                 mHidlCallback.onSubtitleEvent(SUBTITLE_VCHIP_RATE,  null, null, -1, -1, -1, channelId, 0, 0, false);
@@ -469,7 +469,7 @@ public class SubtitleManager {
         }
     }
 
-    private void runOnMainThreadImmidiate(Runnable r) {
+    private void runOnMainThreadImmediate(Runnable r) {
         if (Process.myPid() != Process.myTid()) {
             synchronized(this) {
                 if (mHandler == null) {
@@ -519,7 +519,7 @@ public class SubtitleManager {
                     }
                     try {
                         int[] array = (int[])data;
-                        mUI.setCordinate(x, y);
+                        mUI.setCoordinate(x, y);
                         Bitmap bitmap = Bitmap.createBitmap(array, width, height, Config.ARGB_8888);
                         // scaling.
                         float scaleW = ((mDisplayRect.right-mDisplayRect.left)*1.0f)/(float)videoWidth;
@@ -656,7 +656,7 @@ public class SubtitleManager {
     // TODO: how to design api?
     public boolean stopSubtitle() {
          hide();
-         runOnMainThreadImmidiate(() -> {
+         runOnMainThreadImmediate(() -> {
             mShowFlag = false;
             mUI.removeSubtitleView();
             mUI.stopTtxLoading();
@@ -953,7 +953,7 @@ public class SubtitleManager {
     }
 
     public void destory() {
-        Log.d(TAG, "destory:", new Throwable());
+        Log.d(TAG, "destroy:", new Throwable());
         mDisplayType = -1;
         mCurrentTrack = 0;
         mCurrentCCchannel = 15;
@@ -1118,8 +1118,8 @@ public class SubtitleManager {
         nativeSetSubPid(pid, onid, tsid);
     }
 
-    public int getSubTypeDetial() {
-        return nativeGetSubTypeDetial();
+    public int getSubTypeDetail() {
+        return nativeGetSubTypeDetail();
     }
 
     public void setTextColor(int color) {

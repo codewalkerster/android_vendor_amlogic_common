@@ -190,14 +190,14 @@ class GetCapabilitiesCommand : public WifiCommand
 {
     wifi_gscan_capabilities *mCapabilities;
 public:
-    GetCapabilitiesCommand(wifi_interface_handle iface, wifi_gscan_capabilities *capabitlites)
-        : WifiCommand("GetGscanCapabilitiesCommand", iface, 0), mCapabilities(capabitlites)
+    GetCapabilitiesCommand(wifi_interface_handle iface, wifi_gscan_capabilities *capabilities)
+        : WifiCommand("GetGscanCapabilitiesCommand", iface, 0), mCapabilities(capabilities)
     {
         memset(mCapabilities, 0, sizeof(*mCapabilities));
     }
 
     virtual int create() {
-        ALOGV("Creating message to get scan capablities; iface = %d", mIfaceInfo->id);
+        ALOGV("Creating message to get scan capabilities; iface = %d", mIfaceInfo->id);
 
         int ret = mMsg.create(GOOGLE_OUI, GSCAN_SUBCMD_GET_CAPABILITIES);
         if (ret < 0) {

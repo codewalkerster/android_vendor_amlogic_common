@@ -56,7 +56,7 @@ static u8 * hostapd_eid_bss_load(struct hostapd_data *hapd, u8 *eid, size_t len)
 		WPA_PUT_LE16(eid, hapd->num_sta);
 		eid += 2;
 		*eid++ = hapd->iface->channel_utilization;
-		WPA_PUT_LE16(eid, 0); /* no available admission capabity */
+		WPA_PUT_LE16(eid, 0); /* no available admission capability */
 		eid += 2;
 	}
 	return eid;

@@ -21,7 +21,7 @@
 *	    bt_skbuff.c
 *
 *	Abstract:
-*	    Data buffer managerment through whole bluetooth stack.
+*	    Data buffer management through whole bluetooth stack.
 *
 *	Major Change History:
 *	      When             Who       What
@@ -260,7 +260,7 @@ RtbRemoveTail(
 //****************************************************************************
 /**
     Initialize a rtb queue.
-    \return  Initilized rtb queue if succeed, otherwise NULL
+    \return  Initialized rtb queue if succeed, otherwise NULL
 */
 RTB_QUEUE_HEAD*
 RtbQueueInit(

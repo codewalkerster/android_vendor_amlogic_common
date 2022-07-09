@@ -2619,7 +2619,7 @@ interworking_match_anqp_info(struct wpa_supplicant *wpa_s, struct wpa_bss *bss)
 	struct wpa_bss *other;
 
 	if (is_zero_ether_addr(bss->hessid))
-		return NULL; /* Cannot be in the same homegenous ESS */
+		return NULL; /* Cannot be in the same homogeneous ESS */
 
 	dl_list_for_each(other, &wpa_s->bss, struct wpa_bss, list) {
 		if (other == bss)

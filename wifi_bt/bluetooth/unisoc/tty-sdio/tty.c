@@ -578,7 +578,7 @@ static int mtty_probe(struct platform_device *pdev)
         kfree(mtty->port);
         kfree(mtty);
         mtty_destroy_pdata(&pdata);
-        pr_err("%s regitster notifier failed (%d)\n", __func__, rval);
+        pr_err("%s register notifier failed (%d)\n", __func__, rval);
         return rval;
     }
 
@@ -621,7 +621,7 @@ static int mtty_remove(struct platform_device *pdev)
     kfree(mtty);
     platform_set_drvdata(pdev, NULL);
     //bluesleep_exit();
-    hci_destory();
+    hci_destroy();
     return 0;
 }
 

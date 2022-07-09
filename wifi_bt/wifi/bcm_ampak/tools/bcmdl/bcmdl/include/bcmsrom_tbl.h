@@ -49,7 +49,7 @@ typedef struct {
 #define SROM_DEVID_PCIE	48
 
 /* Assumptions:
- * - Ethernet address spans across 3 consective words
+ * - Ethernet address spans across 3 consecutive words
  *
  * Table rules:
  * - Add multiple entries next to each other if a value spans across multiple words
@@ -259,9 +259,9 @@ static const sromvar_t BCMATTACHDATA(pci_sromvars)[] = {
 	{"hw_iqcal_en",	0x00000700,	SRFL_PRHEX,	SROM8_FOC_HWIQ_IQSWP,	0x0020},
 	{"elna2g",      0x00000700,     0,              SROM8_EXTLNAGAIN,       0x00ff},
 	{"elna5g",      0x00000700,     0,              SROM8_EXTLNAGAIN,       0xff00},
-	{"phycal_tempdelta",	0x00000700,	0,	SROM8_PHYCAL_TEMPDELTA,	0x00ff},
-	{"temps_period",	0x00000700,	0,	SROM8_PHYCAL_TEMPDELTA,	0x0f00},
-	{"temps_hysteresis",	0x00000700,	0,	SROM8_PHYCAL_TEMPDELTA,	0xf000},
+	{"physical_tempdelta",	0x00000700,	0,	SROM8_PHYSICAL_TEMPDELTA,	0x00ff},
+	{"temps_period",	0x00000700,	0,	SROM8_PHYSICAL_TEMPDELTA,	0x0f00},
+	{"temps_hysteresis",	0x00000700,	0,	SROM8_PHYSICAL_TEMPDELTA,	0xf000},
 	{"measpower1", 0x00000700,	SRFL_PRHEX, SROM8_MPWR_1_AND_2, 	0x007f},
 	{"measpower2",	0x00000700, 	SRFL_PRHEX, SROM8_MPWR_1_AND_2, 	0x3f80},
 
@@ -509,9 +509,9 @@ static const sromvar_t BCMATTACHDATA(pci_sromvars)[] = {
 	{"", 0xfffff800, SRFL_PRHEX | SRFL_ARRAY, SROM11_PATH2 + SROM11_5GB3_4080_PA,     0xffff},
 	{"", 0xfffff800, SRFL_PRHEX | SRFL_ARRAY, SROM11_PATH2 + SROM11_5GB3_4080_PA + 1, 0xffff},
 	{"", 0xfffff800, SRFL_PRHEX,              SROM11_PATH2 + SROM11_5GB3_4080_PA + 2, 0xffff},
-	{"phycal_tempdelta",	0xfffff800,	0,		SROM11_PHYCAL_TEMPDELTA, 0x00ff},
-	{"temps_period",	0xfffff800,	0,		SROM11_PHYCAL_TEMPDELTA, 0x0f00},
-	{"temps_hysteresis",	0xfffff800,	0,		SROM11_PHYCAL_TEMPDELTA, 0xf000},
+	{"physical_tempdelta",	0xfffff800,	0,		SROM11_PHYSICAL_TEMPDELTA, 0x00ff},
+	{"temps_period",	0xfffff800,	0,		SROM11_PHYSICAL_TEMPDELTA, 0x0f00},
+	{"temps_hysteresis",	0xfffff800,	0,		SROM11_PHYSICAL_TEMPDELTA, 0xf000},
 	{"measpower1", 		0xfffff800,	SRFL_PRHEX,	SROM11_MPWR_1_AND_2, 	0x007f},
 	{"measpower2",		0xfffff800, 	SRFL_PRHEX,	SROM11_MPWR_1_AND_2, 	0x3f80},
 	{"tssifloor2g",		0xfffff800,	SRFL_PRHEX,	SROM11_TSSIFLOOR_2G,	0x03ff},
@@ -955,7 +955,7 @@ static const cis_tuple_t cis_hnbuvars[] = {
 	{HNBU_LEG40DUPPO,	0xffffffff, 3,	"2legofdm40duppo"},
 	{HNBU_TEMPTHRESH,	0xffffffff, 7,	"1tempthresh 0temps_period 0temps_hysteresis "
 	"1tempoffset 1tempsense_slope 0tempcorrx 0tempsense_option "
-	"1phycal_tempdelta"}, /* special case */
+	"1physical_tempdelta"}, /* special case */
 	{HNBU_MUXENAB,		0xffffffff, 2,	"1muxenab"},
 	{HNBU_FEM_CFG,		0xfffff800, 5,	"0femctrl 0papdcap2g 0tworangetssi2g 0pdgain2g "
 	"0epagain2g 0tssiposslope2g 0gainctrlsph 0papdcap5g 0tworangetssi5g 0pdgain5g 0epagain5g "

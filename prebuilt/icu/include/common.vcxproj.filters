@@ -358,7 +358,7 @@
     <ClCompile Include="resource.cpp">
       <Filter>locales &amp; resources</Filter>
     </ClCompile>
-    <ClCompile Include="caniter.cpp">
+    <ClCompile Include="canister.cpp">
       <Filter>normalization</Filter>
     </ClCompile>
     <ClCompile Include="filterednormalizer2.cpp">
@@ -1066,7 +1066,7 @@
     <CustomBuild Include="unicode\ures.h">
       <Filter>locales &amp; resources</Filter>
     </CustomBuild>
-    <CustomBuild Include="unicode\caniter.h">
+    <CustomBuild Include="unicode\canister.h">
       <Filter>normalization</Filter>
     </CustomBuild>
     <CustomBuild Include="unicode\normalizer2.h">

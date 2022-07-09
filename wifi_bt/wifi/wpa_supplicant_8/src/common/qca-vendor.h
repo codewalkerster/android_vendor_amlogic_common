@@ -3702,7 +3702,7 @@ enum qca_wlan_vendor_attr_ll_stats_clr {
 	 * All interface statistics                     0x00000010
 	 * All tx rate statistics (within interface statistics) 0x00000020
 	 * All ac statistics (with in interface statistics) 0x00000040
-	 * All contention (min, max, avg) statistics (within ac statisctics)
+	 * All contention (min, max, avg) statistics (within ac statistics)
 	 * 0x00000080.
 	 */
 	QCA_WLAN_VENDOR_ATTR_LL_STATS_CLR_CONFIG_REQ_MASK = 1,
@@ -4963,7 +4963,7 @@ enum qca_vendor_attr_roam_control {
  *	value. 1-Enable, 0-Disable. Represents "Lazy" mode, where
  *	firmware is hunting for a better BSSID or allow listed SSID even though
  *	the RSSI of the link is good. The parameters enabling the roaming are
- *	configured through the PARAM_A_BAND_XX attrbutes.
+ *	configured through the PARAM_A_BAND_XX attributes.
  *
  * @QCA_WLAN_VENDOR_ATTR_ROAMING_PARAM_SET_BSSID_PREFS: Nested attribute,
  *	represents the BSSIDs preferred over others while evaluating them

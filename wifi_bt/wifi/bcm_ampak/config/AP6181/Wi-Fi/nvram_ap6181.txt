@@ -1,5 +1,5 @@
 #AP6181_NVRAM_V1.1_01152013
-#adjuest PA parameter for g/n mode
+#adjust PA parameter for g/n mode
 manfid=0x2d0
 prodid=0x492
 vendid=0x14e4

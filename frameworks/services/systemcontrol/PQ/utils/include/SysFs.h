@@ -28,7 +28,7 @@
 #define SYS_VIDEO_FRAME_HEIGHT    "/sys/class/video/frame_height"
 #define CROP_PATH                 "/sys/class/video/crop"
 #define SCREEN_MODE_PATH          "/sys/class/video/screen_mode"
-#define NOLINER_FACTORY           "/sys/class/video/nonlinear_factor"
+#define NONLINEAR_FACTORY           "/sys/class/video/nonlinear_factor"
 #define VIDEO_RGB_SCREEN          "/sys/class/video/rgb_screen"
 #define TEST_SCREEN               "/sys/class/video/test_screen"
 

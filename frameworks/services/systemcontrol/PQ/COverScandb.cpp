@@ -45,7 +45,7 @@ int COverScandb::openOverScanDB(const char *db_path)
         if (GetOverScanDbVersion(OverScanDBToolVersion, OverScanDBVersion, OverScanDBGenerateTime)) {
             val = OverScanDBToolVersion + " " + OverScanDBVersion + " " + OverScanDBGenerateTime;
         } else {
-            val = "Get OverScan_DB Verion failure!!!";
+            val = "Get OverScan_DB Version failure!!!";
         }
         SYS_LOGI("%s = %s\n", "OverScan.db.version", val.string());
     }

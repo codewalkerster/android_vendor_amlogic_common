@@ -84,7 +84,7 @@ struct btusb_lite_to_app
 #define BTU_FULL_TRANSPORT_ACTIVE   3
 #define BTU_LITE_TRANSPORT_ACTIVE   4
 
-#define BTU_IPC_CMD_SET_TRANSPORT_STATE 0   /* Set transport state (param=transprt state) */
+#define BTU_IPC_CMD_SET_TRANSPORT_STATE 0   /* Set transport state (param=transport state) */
 #define BTU_IPC_CMD_DISABLE_TRANSPORT   1   /* Set transport hardware (param=1 to disable) */
 
 struct btusb_lite_btu_cb

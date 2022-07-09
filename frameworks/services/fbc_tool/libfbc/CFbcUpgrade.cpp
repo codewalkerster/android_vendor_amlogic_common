@@ -100,7 +100,7 @@ int CFbcUpgrade::SetUpgradeBlockSize(int block_size)
     return 0;
 }
 
-//TODO, from fbc3 mode is invalid, partition describe upgrade infomation
+//TODO, from fbc3 mode is invalid, partition describe upgrade information
 int CFbcUpgrade::SetUpgradeMode(int mode)
 {
     int tmp_val = 0;

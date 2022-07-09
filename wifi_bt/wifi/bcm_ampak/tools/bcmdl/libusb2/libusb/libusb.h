@@ -491,7 +491,7 @@ struct libusb_config_descriptor {
 	uint8_t  bmAttributes;
 
 	/** Maximum power consumption of the USB device from this bus in this
-	 * configuration when the device is fully opreation. Expressed in units
+	 * configuration when the device is fully operation. Expressed in units
 	 * of 2 mA. */
 	uint8_t  MaxPower;
 
@@ -726,7 +726,7 @@ struct libusb_transfer {
 	/** Type of the endpoint from \ref libusb_transfer_type */
 	unsigned char type;
 
-	/** Timeout for this transfer in millseconds. A value of 0 indicates no
+	/** Timeout for this transfer in milliseconds. A value of 0 indicates no
 	 * timeout. */
 	unsigned int timeout;
 

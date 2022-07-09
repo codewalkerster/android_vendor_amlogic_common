@@ -733,7 +733,7 @@ typedef struct
     uint8_t   mix_r;                  /* Mixing Right scale : 0 ~ 255     */
 } tMIX_SCALE_CONFIG;
 
-/* For custon equalizer gain configuration */
+/* For custom equalizer gain configuration */
 typedef struct
 {
     uint32_t  audio_l_g0;         /* IIR biquad filter left ch gain 0 */

@@ -1,5 +1,5 @@
 /*
- * Universally Unique IDentifier (UUID)
+ * Universally Unique Identifier (UUID)
  * Copyright (c) 2008, Jouni Malinen <j@w1.fi>
  *
  * This software may be distributed under the terms of the BSD license.

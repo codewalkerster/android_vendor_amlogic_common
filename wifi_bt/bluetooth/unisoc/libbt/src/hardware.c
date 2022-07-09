@@ -150,7 +150,7 @@ void hw_config_cback(void *p_mem)
 **
 ** Function        hw_lpm_enable
 **
-** Description     Enalbe/Disable LPM
+** Description     Enable/Disable LPM
 **
 ** Returns         TRUE/FALSE
 **

@@ -269,7 +269,7 @@ struct errorCode errorCodeTranslation[] = {
      "Invalid post nan discovery duration value"},
     {NAN_STATUS_INVALID_PARAM, NAN_I_STATUS_INVALID_POST_NAN_DISCOVERY_BITMAP_VALUE,
      "Invalid post nan discovery bitmap value"},
-    {NAN_STATUS_INVALID_PARAM, NAN_I_STATUS_MISSING_FUTHER_AVAILABILITY_MAP,
+    {NAN_STATUS_INVALID_PARAM, NAN_I_STATUS_MISSING_FURTHER_AVAILABILITY_MAP,
      "Missing further availability map"},
     {NAN_STATUS_INVALID_PARAM, NAN_I_STATUS_INVALID_BAND_CONFIG_FLAGS,
      "Invalid band configuration flags"},

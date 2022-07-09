@@ -54,17 +54,17 @@ public class DisplayPositionManager {
         mContext = context;
         mSystemControl = SystemControlManager.getInstance();
         mOutputModeManager = OutputModeManager.getInstance(mContext);
-        initPostion();
+        initPosition();
     }
 
-    public void initPostion() {
+    public void initPosition() {
         mCurrentMode = mOutputModeManager.getCurrentOutputMode();
         initStep(mCurrentMode);
-        initCurrentPostion();
+        initCurrentPosition();
         screen_rate = getInitialRateValue();
     }
 
-    private void initCurrentPostion() {
+    private void initCurrentPosition() {
         int [] position = mOutputModeManager.getPosition(mCurrentMode);
         mPreLeft = mCurrentLeft = position[0];
         mPreRight = mCurrentTop  = position[1];

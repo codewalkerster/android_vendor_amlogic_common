@@ -60,7 +60,7 @@
 #define HCI_EVT_HEARTBEAT_SEQNUM_OFFSET_L          (6)
 #define HCI_EVT_HEARTBEAT_SEQNUM_OFFSET_H          (7)
 
-static const uint32_t DEFALUT_HEARTBEAT_TIMEOUT_MS = 1000; //send a per sercond
+static const uint32_t DEFAULT_HEARTBEAT_TIMEOUT_MS = 1000; //send a per second
 int heartBeatLog = -1;
 static int heartBeatTimeout= -1;
 static bool heartbeatFlag = false;
@@ -142,7 +142,7 @@ static void rtkbt_heartbeat_send_hw_error(uint8_t status, uint16_t seqnum, uint1
     unsigned char p_buf[100];
     int length;
     p_buf[0] = HCIT_TYPE_EVENT;//event
-    p_buf[1] = HCI_VSE_SUBCODE_DEBUG_INFO_SUB_EVT;//firmwre event log
+    p_buf[1] = HCI_VSE_SUBCODE_DEBUG_INFO_SUB_EVT;//firmware event log
     p_buf[3] = 0x01;// host log opcode
     length = sprintf((char *)&p_buf[4], "host stack: heartbeat hw error: %d:%d:%d:%d \n",
       status, seqnum, next_seqnum, heartbeatCnt);
@@ -327,7 +327,7 @@ static void rtkbt_heartbeat_beginTimer_func(void)
     else
     {
         heartBeatLog = 0;
-        poll_init(heartbeat_timed_out,DEFALUT_HEARTBEAT_TIMEOUT_MS);
+        poll_init(heartbeat_timed_out,DEFAULT_HEARTBEAT_TIMEOUT_MS);
     }
     poll_enable(TRUE);
 

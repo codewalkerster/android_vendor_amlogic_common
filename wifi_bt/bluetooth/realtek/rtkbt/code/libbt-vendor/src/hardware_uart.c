@@ -151,7 +151,7 @@ static bt_lpm_param_t lpm_param =
 };*/
 //signature: realtech
 static const uint8_t RTK_EPATCH_SIGNATURE[8]={0x52,0x65,0x61,0x6C,0x74,0x65,0x63,0x68};
-//Extension Section IGNATURE:0x77FD0451
+//Extension Section SIGNATURE:0x77FD0451
 static const uint8_t EXTENSION_SECTION_SIGNATURE[4]={0x51,0x04,0xFD,0x77};
 
 static int check_match_state(bt_hw_cfg_cb_t *cfg,uint32_t mask)
@@ -170,7 +170,7 @@ static int check_match_state(bt_hw_cfg_cb_t *cfg,uint32_t mask)
              continue;
         res++;
     }
-    ALOGI( "check_match_state return %d(cfg->lmp_subversion:0x%x cfg->hci_vesion:0x%x cfg->hci_revision:0x%x cfg->chip_type:0x%x mask:%08x)\n",
+    ALOGI( "check_match_state return %d(cfg->lmp_subversion:0x%x cfg->hci_version:0x%x cfg->hci_revision:0x%x cfg->chip_type:0x%x mask:%08x)\n",
             res, cfg->lmp_subversion, cfg->hci_version, cfg->hci_revision, cfg->chip_type, mask);
     return res;
 }
@@ -179,7 +179,7 @@ static patch_info* get_patch_entry(bt_hw_cfg_cb_t *cfg)
 {
     patch_info  *patch_entry;
 
-    ALOGI("get_patch_entry(lmp_subversion:0x%x hci_vesion:0x%x cfg->hci_revision:0x%x chip_type:0x%x)\n",
+    ALOGI("get_patch_entry(lmp_subversion:0x%x hci_version:0x%x cfg->hci_revision:0x%x chip_type:0x%x)\n",
             cfg->lmp_subversion, cfg->hci_version, cfg->hci_revision, cfg->chip_type);
     for(patch_entry = patch_table; patch_entry->lmp_subversion != LMP_SUBVERSION_NONE; patch_entry++) {
         if(patch_entry->lmp_subversion != cfg->lmp_subversion)

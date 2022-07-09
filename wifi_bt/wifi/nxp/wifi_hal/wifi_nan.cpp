@@ -48,7 +48,7 @@ typedef enum{
     NXP_ATTR_NAN_INVALID = 0,
     NXP_ATTR_NAN_FAKE,
     NXP_ATTR_NAN_IND,
-    NXP_ATTR_NAN_TRANSTIION_ID,
+    NXP_ATTR_NAN_TRANSITION_ID,
     NXP_ATTR_NAN_RSP_TYPE,
     NXP_ATTR_NAN_ENABLE_REQ,
     NXP_ATTR_NAN_PUBLISH_REQ,
@@ -83,7 +83,7 @@ typedef enum{
     NXP_ATTR_RANGE_REPORT,
 
     NXP_ATTR_NAN_AFTER_LAST,
-    NXP_ATTR_NAN_MAX = 
+    NXP_ATTR_NAN_MAX =
     NXP_ATTR_NAN_AFTER_LAST - 1,
 } NAN_ATTRIBUTES;
 
@@ -95,7 +95,7 @@ typedef struct
     u16 transactionId;
 } NanHeader;
 
-typedef struct 
+typedef struct
 {
     NanHeader header;
     u16 status;
@@ -193,7 +193,7 @@ struct errorCode errorCodeTranslation[] = {
      "Invalid post nan discovery duration value"},
     {NAN_STATUS_INVALID_PARAM, NAN_I_STATUS_INVALID_POST_NAN_DISCOVERY_BITMAP_VALUE,
      "Invalid post nan discovery bitmap value"},
-    {NAN_STATUS_INVALID_PARAM, NAN_I_STATUS_MISSING_FUTHER_AVAILABILITY_MAP,
+    {NAN_STATUS_INVALID_PARAM, NAN_I_STATUS_MISSING_FURTHER_AVAILABILITY_MAP,
      "Missing further availability map"},
     {NAN_STATUS_INVALID_PARAM, NAN_I_STATUS_INVALID_BAND_CONFIG_FLAGS,
      "Invalid band configuration flags"},
@@ -268,11 +268,11 @@ private:
     transaction_id mId;
     NanEnableRequest *Msg;
     NanHeader header;
-    NanNxpRequestType mtype; 
+    NanNxpRequestType mtype;
 
 public:
     // Constructor for nan enable
-    NanControlCommand(transaction_id id, wifi_interface_handle iface, 
+    NanControlCommand(transaction_id id, wifi_interface_handle iface,
                               NanNxpRequestType type, NanEnableRequest *msg)
     : WifiCommand("NanControlCommand", iface, 0)
     {
@@ -396,7 +396,7 @@ private:
 
 public:
     //Constructor for publish request
-    NanPublishReqCommand(transaction_id id, wifi_interface_handle iface, 
+    NanPublishReqCommand(transaction_id id, wifi_interface_handle iface,
                                    NanPublishRequest *msg)
     : WifiCommand("NanPublishReqCommand", iface, 0)
     {
@@ -407,7 +407,7 @@ public:
     }
 
     //Constructor for publish cancel request
-    NanPublishReqCommand(transaction_id id, wifi_interface_handle iface, 
+    NanPublishReqCommand(transaction_id id, wifi_interface_handle iface,
                                    NanPublishCancelRequest *msg)
     : WifiCommand("NanPublishReqCommand", iface, 0)
     {
@@ -502,7 +502,7 @@ private:
 
 public:
     //Constructor for subscribe request
-    SubscribeReqCommand(transaction_id id, wifi_interface_handle iface, 
+    SubscribeReqCommand(transaction_id id, wifi_interface_handle iface,
                                  NanSubscribeRequest* msg)
     : WifiCommand("SubscribeReqCommand", iface, 0)
     {
@@ -512,7 +512,7 @@ public:
     }
 
     //Constructor for subscribe cancel request
-    SubscribeReqCommand(transaction_id id, wifi_interface_handle iface, 
+    SubscribeReqCommand(transaction_id id, wifi_interface_handle iface,
                                  NanSubscribeCancelRequest* msg)
     : WifiCommand("SubscribeReqCommand", iface, 0)
     {
@@ -601,7 +601,7 @@ private:
     NanHeader transmitHeader;
 
 public:
-    TransmitFollowupCommand(transaction_id id, wifi_interface_handle iface, 
+    TransmitFollowupCommand(transaction_id id, wifi_interface_handle iface,
                                       NanTransmitFollowupRequest *msg)
     : WifiCommand("TransmitFollowupCommand", iface, 0)
     {
@@ -638,7 +638,7 @@ private:
     NanHeader statsHeader;
 
 public:
-    StatsRequestCommand(transaction_id id, wifi_interface_handle iface, 
+    StatsRequestCommand(transaction_id id, wifi_interface_handle iface,
                                 NanStatsRequest *msg)
     : WifiCommand("StatsRequestCommand", iface, 0)
     {
@@ -673,7 +673,7 @@ private:
     NanHeader configHeader;
 
 public:
-    ConfigRequestCommand(transaction_id id, wifi_interface_handle iface, 
+    ConfigRequestCommand(transaction_id id, wifi_interface_handle iface,
                                   NanNxpRequestType type, NanConfigRequest *msg)
     : WifiCommand("ConfigRequestCommand", iface, 0)
     {
@@ -715,7 +715,7 @@ private:
     NanHeader tcaHeader;
 
 public:
-    TcaRequestCommand(transaction_id id, wifi_interface_handle iface, 
+    TcaRequestCommand(transaction_id id, wifi_interface_handle iface,
                                NanTCARequest *msg)
     : WifiCommand("TcaRequestCommand", iface, 0)
     {
@@ -751,7 +751,7 @@ private:
     NanHeader SDFHeader;
 
 public:
-    BeaconSDFPayload(transaction_id id, wifi_interface_handle iface, 
+    BeaconSDFPayload(transaction_id id, wifi_interface_handle iface,
                             NanBeaconSdfPayloadRequest* msg)
     : WifiCommand("BeaconSDFPayload", iface, 0)
     {
@@ -801,7 +801,7 @@ private:
 //    NanRangeReportInd *mNRangerepInd;
 
 public:
-    SetRegisterHandlerCommand(wifi_interface_handle iface, 
+    SetRegisterHandlerCommand(wifi_interface_handle iface,
                                         NanCallbackHandler handlers)
     : WifiCommand("SetRegisterHandlerCommand", iface, 0)
     {
@@ -945,7 +945,7 @@ public:
 //                                pFwRsp->max_service_name_len;
                     rsp_data.body.nan_capabilities.max_match_filter_len = 255;
 //                                pFwRsp->max_match_filter_len;
-                    rsp_data.body.nan_capabilities.max_total_match_filter_len = 255; 
+                    rsp_data.body.nan_capabilities.max_total_match_filter_len = 255;
 //                                pFwRsp->max_total_match_filter_len;
                     rsp_data.body.nan_capabilities.max_service_specific_info_len = 255;
 //                                pFwRsp->max_service_specific_info_len;
@@ -1020,7 +1020,7 @@ public:
             ALOGV("handle Event: rsp type = %d", rsp_data.response_type);
             ALOGV("handle Event: rsp status = %d", rsp_data.status);
             ALOGV("handle Event: rsp nan error = %s", rsp_data.nan_error);
-            ALOGV("handle Event: rsp transtionId = %d", respHeader.header.transactionId);
+            ALOGV("handle Event: rsp transitionId = %d", respHeader.header.transactionId);
             /*handle enable and disable request*/
             if ((respHeader.header.MsgId == NAN_MSG_ID_ENABLE || respHeader.header.MsgId == NAN_MSG_ID_DISABLE) && (enable_num == 1)) {
                 if(mHandler.NotifyResponse && (respHeader.header.transactionId != 0xffff)){
@@ -1118,21 +1118,21 @@ public:
               mNstInd.reason = NAN_STATUS_SUCCESS;
               strlcpy(mNstInd.nan_reason, errorCodeTranslation[0].nan_error, NAN_ERROR_STR_LEN);
               mNstInd.subscribe_id = respHeader.header.handle;
-               
+
               if (mHandler.EventSubscribeTerminated) {
                   ALOGV("handle Event: mHandler.EventSubscribeTerminated");
                   mHandler.EventSubscribeTerminated(&mNstInd);
               }
             }
         }
-/*        if(tb_vendor[ATTR_NAN_TRANSTIION_ID]){
-           transaction_Id = nla_get_u32(tb_vendor[ATTR_NAN_TRANSTIION_ID]); 
+/*        if(tb_vendor[ATTR_NAN_TRANSITION_ID]){
+           transaction_Id = nla_get_u32(tb_vendor[ATTR_NAN_TRANSITION_ID]);
            ALOGE("handle Event: transactionId = %d", transaction_Id);
         }
 
         ALOGE("handle Event: start response type");
         if(tb_vendor[ATTR_NAN_RSP_TYPE]){
-            mType = (NanNxpRequestType)nla_get_u32(tb_vendor[ATTR_NAN_RSP_TYPE]); 
+            mType = (NanNxpRequestType)nla_get_u32(tb_vendor[ATTR_NAN_RSP_TYPE]);
             ALOGE("handle Event: nan rsp type = 0x%x", mType);
             if (mType == NAN_REQUEST_MAX) {
                 ALOGE("RSP type is invalid");
@@ -1172,7 +1172,7 @@ public:
             ALOGE("handle Event: rsp type = %d", rsp_data.response_type);
             ALOGE("handle Event: rsp status = %d", rsp_data.status);
             ALOGE("handle Event: rsp nan error = %s", rsp_data.nan_error);
-            ALOGE("handle Event: rsp transtionId = %d", transaction_Id);
+            ALOGE("handle Event: rsp transitionId = %d", transaction_Id);
             if(mHandler.NotifyResponse && (transaction_Id != 0xffff)){
                 ALOGE("handle Event: ATTR_NOTIFY_RESPONSE");
                 mHandler.NotifyResponse(transaction_Id, &rsp_data);
@@ -1476,7 +1476,7 @@ private:
     NanHeader NDPHeader;
 
 public:
-    DataEndCommand(transaction_id id, wifi_interface_handle iface, 
+    DataEndCommand(transaction_id id, wifi_interface_handle iface,
                            NanDataPathEndRequest *msg)
     : WifiCommand("DataEndCommand", iface, 0)
     {
@@ -1505,7 +1505,7 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////
-wifi_error nan_enable_request(transaction_id id, wifi_interface_handle iface, 
+wifi_error nan_enable_request(transaction_id id, wifi_interface_handle iface,
                                    NanEnableRequest *msg)
 {
     ALOGV("***nan_enable_request***");
@@ -1532,7 +1532,7 @@ wifi_error nan_disable_request(transaction_id id, wifi_interface_handle iface)
     return WIFI_SUCCESS;
 }
 
-wifi_error nan_publish_request(transaction_id id, wifi_interface_handle iface, 
+wifi_error nan_publish_request(transaction_id id, wifi_interface_handle iface,
                                     NanPublishRequest *msg)
 {
     ALOGV("***nan_publish_request***");
@@ -1546,7 +1546,7 @@ wifi_error nan_publish_request(transaction_id id, wifi_interface_handle iface,
     return WIFI_SUCCESS;
 }
 
-wifi_error nan_publish_cancel_request(transaction_id id, wifi_interface_handle iface, 
+wifi_error nan_publish_cancel_request(transaction_id id, wifi_interface_handle iface,
                                              NanPublishCancelRequest *msg)
 {
     ALOGV("***nan_publish_cancel_request***");
@@ -1560,7 +1560,7 @@ wifi_error nan_publish_cancel_request(transaction_id id, wifi_interface_handle i
     return WIFI_SUCCESS;
 }
 
-wifi_error nan_subscribe_request(transaction_id id, wifi_interface_handle iface, 
+wifi_error nan_subscribe_request(transaction_id id, wifi_interface_handle iface,
                                        NanSubscribeRequest *msg)
 {
     ALOGV("***nan_subscribe_request***");
@@ -1574,7 +1574,7 @@ wifi_error nan_subscribe_request(transaction_id id, wifi_interface_handle iface,
     return WIFI_SUCCESS;
 }
 
-wifi_error nan_subscribe_cancel_request(transaction_id id, wifi_interface_handle iface, 
+wifi_error nan_subscribe_cancel_request(transaction_id id, wifi_interface_handle iface,
                                                 NanSubscribeCancelRequest *msg)
 {
     ALOGV("***nan_subscribe_cancel_request***");
@@ -1588,7 +1588,7 @@ wifi_error nan_subscribe_cancel_request(transaction_id id, wifi_interface_handle
     return WIFI_SUCCESS;
 }
 
-wifi_error nan_transmit_followup_request(transaction_id id, wifi_interface_handle iface, 
+wifi_error nan_transmit_followup_request(transaction_id id, wifi_interface_handle iface,
                                                 NanTransmitFollowupRequest * msg)
 {
    // TransmitFollowupCommand command(id, iface, msg);
@@ -1596,7 +1596,7 @@ wifi_error nan_transmit_followup_request(transaction_id id, wifi_interface_handl
     return WIFI_SUCCESS;
 }
 
-wifi_error nan_stats_request(transaction_id id, wifi_interface_handle iface, 
+wifi_error nan_stats_request(transaction_id id, wifi_interface_handle iface,
                                  NanStatsRequest *msg)
 {
    // StatsRequestCommand command(id, iface, msg);

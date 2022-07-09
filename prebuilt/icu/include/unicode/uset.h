@@ -696,7 +696,7 @@ uset_complement(USet* set);
  * A frozen set will not be modified.
  *
  * @param set the set with which to complement
- * @param complement set that defines which elements will be xor'ed
+ * @param complement set that defines which elements will be
  * from this set.
  * @stable ICU 3.2
  */

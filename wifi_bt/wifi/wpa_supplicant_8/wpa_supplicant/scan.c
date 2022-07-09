@@ -1894,7 +1894,7 @@ void wpa_supplicant_cancel_sched_scan(struct wpa_supplicant *wpa_s)
  * @wpa_s: Pointer to wpa_supplicant data
  * @scanning: Whether scanning is currently in progress
  *
- * This function is to generate scanning notifycations. It is called whenever
+ * This function is to generate scanning notifications. It is called whenever
  * there may have been a change in scanning (scan started, completed, stopped).
  * wpas_notify_scanning() is called whenever the scanning state changed from the
  * previously notified state.

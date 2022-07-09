@@ -112,7 +112,7 @@
 #define AMVECM_IOC_S_CMS_HUE       _IOW(AMVECM_IOC_MAGIC, 0x67, struct cms_data_s)
 #define AMVECM_IOC_S_CMS_HUE_HS    _IOW(AMVECM_IOC_MAGIC, 0x68, struct cms_data_s)
 
-//moudle control for amvecm
+//module control for amvecm
 #define AMVECM_IOC_S_PQ_CTRL       _IOW(AMVECM_IOC_MAGIC, 0x69, struct vpp_pq_ctrl_s)
 #define AMVECM_IOC_G_PQ_CTRL       _IOR(AMVECM_IOC_MAGIC, 0x6a, struct vpp_pq_ctrl_s)
 /*cpu version ioc*/

@@ -43,7 +43,7 @@
 #define RTKBT_RELEASE_NAME "20200924_BT_ANDROID_10.0"
 #define VERSION "5.2.1"
 
-#define SUSPNED_DW_FW 0
+#define SUSPEND_DW_FW 0
 #define SET_WAKEUP_DEVICE 0
 
 
@@ -51,7 +51,7 @@ static spinlock_t queue_lock;
 static spinlock_t running_flag_lock;
 static volatile uint16_t    driver_state = 0;
 
-#if SUSPNED_DW_FW
+#if SUSPEND_DW_FW
 static firmware_info *fw_info_4_suspend = NULL;
 #endif
 
@@ -233,7 +233,7 @@ static inline void set_driver_state_value(uint16_t change_value)
     spin_unlock(&running_flag_lock);
 }
 
-#if SUSPNED_DW_FW
+#if SUSPEND_DW_FW
 static int download_suspend_patch(firmware_info *fw_info, int cached);
 #endif
 #if SET_WAKEUP_DEVICE
@@ -1114,7 +1114,7 @@ static int btchr_close(struct inode  *inode_p, struct file   *file_p)
 
     clear_driver_state(CHAR_OPENED);
     //if the state is not probed, the driver may be in the disconnecting state
-    //and waitting for signal to wake up
+    //and waiting for signal to wake up
     if((get_driver_state_value() & DEVICE_PROBED) == 0)
         wake_up_interruptible(&bt_drv_state_wait);
     return 0;
@@ -1183,7 +1183,7 @@ static ssize_t btchr_write(struct file *file_p,
         RTKBT_WARN("%s: Failed to get hci dev[Null]", __func__);
         /*
          * Note: we bypass the data from the upper layer if bt device
-         * is hotplugged out. Fortunatelly, H4 or H5 HCI stack does
+         * is hotplugged out. Fortunately, H4 or H5 HCI stack does
          * NOT check btchr_write's return value. However, returning
          * count instead of EFAULT is preferable.
          */
@@ -1518,7 +1518,7 @@ static patch_info *get_fw_table_entry(struct usb_device* udev)
     return patch_entry;
 }
 
-#if SUSPNED_DW_FW
+#if SUSPEND_DW_FW
 static patch_info *get_suspend_fw_table_entry(struct usb_device* udev)
 {
     patch_info *patch_entry = fw_patch_table;
@@ -1821,7 +1821,7 @@ int read_localversion(firmware_info* fw_info)
     if (!fw_info)
         return -ENODEV;
 
-    fw_info->cmd_hdr->opcode = cpu_to_le16(HCI_VENDOR_READ_LMP_VERISION);
+    fw_info->cmd_hdr->opcode = cpu_to_le16(HCI_VENDOR_READ_LMP_VERSION);
     fw_info->cmd_hdr->plen = 0;
     fw_info->pkt_len = CMD_HDR_LEN;
 
@@ -1862,7 +1862,7 @@ int get_eversion(firmware_info* fw_info)
     if (!fw_info)
         return -ENODEV;
 
-    fw_info->cmd_hdr->opcode = cpu_to_le16(HCI_VENDOR_READ_RTK_ROM_VERISION);
+    fw_info->cmd_hdr->opcode = cpu_to_le16(HCI_VENDOR_READ_RTK_ROM_VERSION);
     fw_info->cmd_hdr->plen = 0;
     fw_info->pkt_len = CMD_HDR_LEN;
 
@@ -2276,7 +2276,7 @@ fw_fail:
         vfree(patch_lmp.data);
 }
 
-#if SUSPNED_DW_FW
+#if SUSPEND_DW_FW
 static int load_suspend_firmware(firmware_info *fw_info, uint8_t **buff)
 {
     const struct firmware *fw, *cfg;
@@ -2470,7 +2470,7 @@ int get_firmware(firmware_info *fw_info, int cached)
     return 0;
 }
 
-#if SUSPNED_DW_FW
+#if SUSPEND_DW_FW
 static int get_suspend_firmware(firmware_info *fw_info, int cached)
 {
     patch_info *patch_entry = fw_info->patch_entry;
@@ -2624,7 +2624,7 @@ int download_patch(firmware_info *fw_info, int cached)
         goto end;
     }
 
-#if SUSPNED_DW_FW
+#if SUSPEND_DW_FW
     if(fw_info_4_suspend) {
         RTKBT_DBG("%s: get suspend fw first cached %d", __func__, cached);
         ret_val = get_suspend_firmware(fw_info_4_suspend, cached);
@@ -2669,7 +2669,7 @@ end:
     return ret_val;
 }
 
-#if SUSPNED_DW_FW
+#if SUSPEND_DW_FW
 static int download_suspend_patch(firmware_info *fw_info, int cached)
 {
     int ret_val = 0;
@@ -2844,7 +2844,7 @@ firmware_info *firmware_info_init(struct usb_interface *intf)
     fw_info->req_para = fw_info->send_pkt + CMD_HDR_LEN;
     fw_info->rsp_para = fw_info->rcv_pkt + EVT_HDR_LEN + CMD_CMP_LEN;
 
-#if SUSPNED_DW_FW
+#if SUSPEND_DW_FW
     suspend_firmware_info_init(fw_info);
 #endif
 
@@ -2889,7 +2889,7 @@ void firmware_info_destroy(struct usb_interface *intf)
     kfree(fw_info->send_pkt);
     kfree(fw_info);
 
-#if SUSPNED_DW_FW
+#if SUSPEND_DW_FW
     if (!fw_info_4_suspend)
         return;
 
@@ -3847,7 +3847,7 @@ static void btusb_work(struct work_struct *work)
             if(data->sco_num == 1)
                 new_alts = 2;
             else {
-              RTKBT_ERR("%s: we don't support mutiple sco link for cvsd", __func__);
+              RTKBT_ERR("%s: we don't support multiple sco link for cvsd", __func__);
               return;
             }
         } else{
@@ -3855,7 +3855,7 @@ static void btusb_work(struct work_struct *work)
                 if(data->sco_num == 1)
                     new_alts = 4;
                 else {
-                    RTKBT_ERR("%s: we don't support mutiple sco link for msbc", __func__);
+                    RTKBT_ERR("%s: we don't support multiple sco link for msbc", __func__);
                     return;
                 }
             } else {
@@ -4048,7 +4048,7 @@ int bt_reboot_notify(struct notifier_block *notifier, ulong pm_event, void *unus
 
     case SYS_HALT:
     case SYS_POWER_OFF:
-#if SUSPNED_DW_FW
+#if SUSPEND_DW_FW
         cancel_work_sync(&data->work);
 
         btusb_stop_traffic(data);
@@ -4700,7 +4700,7 @@ static int btusb_suspend(struct usb_interface *intf, pm_message_t message)
     mdelay(URB_CANCELING_DELAY_MS);
     usb_kill_anchored_urbs(&data->tx_anchor);
 
-#if SUSPNED_DW_FW
+#if SUSPEND_DW_FW
     if(fw_info_4_suspend) {
         download_suspend_patch(fw_info_4_suspend,1);
     }

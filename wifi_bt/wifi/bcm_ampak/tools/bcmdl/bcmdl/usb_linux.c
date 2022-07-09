@@ -128,12 +128,12 @@ usbdev_init(struct bcm_device_id *devtable, struct bcm_device_id **bcmdev)
 	info->dev = dev;
 
 	/* Set default configuration:
-	 * for a multi-interface device the default cofiguration
+	 * for a multi-interface device the default configuration
 	 * may already be set by another driver (e.g. BT)
 	 */
 	if (!device->config->bConfigurationValue) {
 		if ((status = usb_set_configuration(dev, 1))) {
-			fprintf(stderr, "Failed to set configuartion\n");
+			fprintf(stderr, "Failed to set configuration\n");
 			goto err;
 		}
 	}

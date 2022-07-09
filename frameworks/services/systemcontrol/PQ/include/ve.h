@@ -39,8 +39,8 @@ typedef enum ve_dnlp_state_e {
 } ve_dnlp_state_t;
 
 typedef enum pc_mode_e {
-    PC_MOUDLE_OFF = 0,
-    PC_MOUDLE_ON,
+    PC_MODULE_OFF = 0,
+    PC_MODULE_ON,
 } pc_mode_t;
 
 typedef enum ve_csc_type_e {
@@ -223,8 +223,8 @@ typedef struct ve_dnlp_table_s {
     unsigned int dnlp_blk_cctr;/*blk signal add brightness*/
     unsigned int dnlp_brgt_ctrl;
     unsigned int dnlp_brgt_range;
-    unsigned int dnlp_brght_add;
-    unsigned int dnlp_brght_max;
+    unsigned int dnlp_bright_add;
+    unsigned int dnlp_bright_max;
     unsigned int dnlp_almst_wht;
     unsigned int dnlp_hghbin;/*1*/
     unsigned int dnlp_hghnum;

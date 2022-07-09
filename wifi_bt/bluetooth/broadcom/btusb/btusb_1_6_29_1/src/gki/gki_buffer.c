@@ -852,7 +852,7 @@ void GKI_enqueue_head(BUFFER_Q *p_q, void *p_buf)
 
     if (p_hdr->status != BUF_STATUS_UNLINKED)
     {
-        GKI_exception(GKI_ERROR_ENQUEUE_BUF_LINKED, "Enqeueue head - buf already linked");
+        GKI_exception(GKI_ERROR_ENQUEUE_BUF_LINKED, "Enqueue head - buf already linked");
         return;
     }
 

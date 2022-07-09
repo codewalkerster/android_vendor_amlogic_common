@@ -2260,7 +2260,7 @@ int hostapd_setup_interface_complete(struct hostapd_iface *iface, int err)
 	}
 
 	if (iface->ready_to_start_in_sync) {
-		/* Already in ready and waiting. should never happpen */
+		/* Already in ready and waiting. should never happen */
 		return 0;
 	}
 

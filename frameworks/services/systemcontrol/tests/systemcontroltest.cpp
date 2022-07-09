@@ -92,13 +92,13 @@ using namespace android;
 #define PROVISION_KEY_TYPE_DOLBY_ID                         0xC1
 #define PROVISION_KEY_TYPE_INVALID                          0xFFFFFFFF
 
-/* for ioctrl transfer paramters. */
+/* for ioctrl transfer parameters. */
 struct key_item_info_t {
     unsigned int id;
     char name[KEY_UNIFY_NAME_LEN];
     unsigned int size;
     unsigned int permit;
-    unsigned int flag;/*bit 0: 1 exsit, 0-none;*/
+    unsigned int flag;/*bit 0: 1 exist, 0-none;*/
     unsigned int reserve;
 };
 
@@ -123,7 +123,7 @@ typedef struct pack_header {
     unsigned int    dataOffset;/* Item data offset*/
     unsigned char   type;/* Image Type, not used yet*/
     unsigned char   comp;/* Compression Type*/
-    unsigned short  reserv;
+    unsigned short  reserve;
     char    name[IH_NMLEN];/* Image Name*/
 }AmlResItemHead_t;
 #pragma pack(pop)
@@ -131,7 +131,7 @@ typedef struct pack_header {
 //typedef for amlogic resource image
 #pragma pack(push, 4)
 typedef struct {
-    __u32   crc;    //crc32 value for the resouces image
+    __u32   crc;    //crc32 value for the resources image
     __s32   version;//0x01 means 'AmlResItemHead_t' attach to each item , 0x02 means all 'AmlResItemHead_t' at the head
 
     __u8    magic[AML_RES_IMG_V1_MAGIC_LEN];  //resources images magic
@@ -289,7 +289,7 @@ static void hdcp2DataDecryption(const unsigned len, const char *input, char *out
          *out++ = generalDataChange(*input++);
 }
 
-static int write_partiton_raw(const char *partition, const char *data)
+static int write_partition_raw(const char *partition, const char *data)
 {
     std::string writeValue = std::string(data);
     if (mSysClient->writeSysfs(std::string(partition), writeValue)) {
@@ -301,7 +301,7 @@ static int write_partiton_raw(const char *partition, const char *data)
     }
 }
 
-static int write_partiton_keyvalue(const char *partition, const char *data, const int size)
+static int write_partition_keyvalue(const char *partition, const char *data, const int size)
 {
     if (mSysClient->writeSysfs(std::string(partition), data, size)) {
         ALOGI("Write OK!");
@@ -312,7 +312,7 @@ static int write_partiton_keyvalue(const char *partition, const char *data, cons
     }
 }
 
-static char *read_partiton_raw(const char *partition)
+static char *read_partition_raw(const char *partition)
 {
     char *data;
     std::string readValue;
@@ -351,22 +351,22 @@ static int write_hdcp_key(const char *data, const char *key_name, const int size
 {
     char *status;
 
-    if (write_partiton_raw(UNIFYKEY_ATTACH, "1")) {
+    if (write_partition_raw(UNIFYKEY_ATTACH, "1")) {
         ALOGE("attach failed!\n");
         return -1;
     }
 
-    if (write_partiton_raw(UNIFYKEY_NAME, key_name)) {
+    if (write_partition_raw(UNIFYKEY_NAME, key_name)) {
         ALOGE("name failed!\n");
         return -1;
     }
 
-    if  (write_partiton_keyvalue(UNIFYKEY_WRITE, data, size) == -1) {
+    if  (write_partition_keyvalue(UNIFYKEY_WRITE, data, size) == -1) {
         ALOGE("write failed!\n");
         return -1;
     }
 
-    status = read_partiton_raw(UNIFYKEY_EXIST);
+    status = read_partition_raw(UNIFYKEY_EXIST);
 
     ALOGI("status : %s",status);
 

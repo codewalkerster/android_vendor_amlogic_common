@@ -1063,13 +1063,13 @@ static void eap_teap_process_phase2_response(struct eap_sm *sm,
 	if (in_len > sizeof(*hdr) && *pos == EAP_TYPE_NAK) {
 		left = in_len - sizeof(*hdr);
 		wpa_hexdump(MSG_DEBUG,
-			    "EAP-TEAP: Phase 2 type Nak'ed; allowed types",
+			    "EAP-TEAP: Phase 2 type Naked; allowed types",
 			    pos + 1, left - 1);
 #ifdef EAP_SERVER_TNC
 		if (m && m->vendor == EAP_VENDOR_IETF &&
 		    m->method == EAP_TYPE_TNC) {
 			wpa_printf(MSG_DEBUG,
-				   "EAP-TEAP: Peer Nak'ed required TNC negotiation");
+				   "EAP-TEAP: Peer Naked required TNC negotiation");
 			next_vendor = EAP_VENDOR_IETF;
 			next_type = eap_teap_req_failure(data, 0);
 			eap_teap_phase2_init(sm, data, next_vendor, next_type);
@@ -1519,7 +1519,7 @@ static void eap_teap_process_phase2_tlvs(struct eap_sm *sm,
 
 	if (tlv.nak) {
 		wpa_printf(MSG_DEBUG,
-			   "EAP-TEAP: Peer NAK'ed Vendor-Id %u NAK-Type %u",
+			   "EAP-TEAP: Peer Naked Vendor-Id %u NAK-Type %u",
 			   WPA_GET_BE32(tlv.nak), WPA_GET_BE16(tlv.nak + 4));
 		eap_teap_state(data, FAILURE_SEND_RESULT);
 		return;

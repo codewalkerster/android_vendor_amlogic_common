@@ -110,8 +110,8 @@ public class DroidlogicApplication extends Application {
         mAudioSettingManager.initSystemAudioSetting();
         //set sound effect in com.droidlogic.tv.soundeffectsettings
         //set dolby DRC
-        SystemControlManager mSystenControlManager = SystemControlManager.getInstance();
-        final boolean isSupportDolby = mSystenControlManager.getPropertyBoolean("ro.vendor.platform.support.dolby", false);
+        SystemControlManager mSystemControlManager = SystemControlManager.getInstance();
+        final boolean isSupportDolby = mSystemControlManager.getPropertyBoolean("ro.vendor.platform.support.dolby", false);
         if (isSupportDolby) {
             setDoblyMode(this);
         }

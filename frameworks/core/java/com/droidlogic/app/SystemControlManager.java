@@ -1615,7 +1615,7 @@ public class SystemControlManager {
         return true;
     }
 
-    //PQ moudle
+    //PQ module
     public enum SourceInput {
         TV(0),
         AV1(1),
@@ -1984,7 +1984,7 @@ public class SystemControlManager {
     }
 
         /**
-     * @Function: SetSatuation
+     * @Function: SetSaturation
      * @Description: Set current source saturation value
      * @Param: value saturation, source refer to enum SourceInput, fmt current fmt refer to tvin_sig_fmt_e, is_save 1 to save
      * @Return: 0 success, -1 fail
@@ -2002,7 +2002,7 @@ public class SystemControlManager {
     }
 
     /**
-       * @Function: GetSatuation
+       * @Function: GetSaturation
        * @Description: Get current source saturation value
        * @Param: source refer to enum SourceInput
        * @Return: value saturation
@@ -2553,7 +2553,7 @@ public class SystemControlManager {
 
      /**
       * @Function: CheckLdimExist
-      * @Description: check local diming moudle exist or not
+      * @Description: check local diming module exist or not
       * @Param:
       * @Return: true: exist, false: don't exist
       */
@@ -3223,7 +3223,7 @@ public class SystemControlManager {
 
      /**
       * @Function: FactorySetNolineParams
-      * @Description: Nonlinearize the params of corresponding nolinear param type for factory menu conctrol
+      * @Description: Nonlinearize the params of corresponding nonlinear param type for factory menu conctrol
       * @Param: noline_params_type refer to enum NOLINE_PARAMS_TYPE, source_type refer to SourceInput_Type, params params value refer to class noline_params_t
       * @Return: 0 success, -1 fail
       */
@@ -3241,7 +3241,7 @@ public class SystemControlManager {
 
      /**
       * @Function: FactoryGetNolineParams
-      * @Description: Nonlinearize the params of corresponding nolinear param type for factory menu conctrol
+      * @Description: Nonlinearize the params of corresponding nonlinear param type for factory menu conctrol
       * @Param: noline_params_type refer to enum NOLINE_PARAMS_TYPE, source_type refer to SourceInput_Type
       * @Return: params value refer to class noline_params_t
       */
@@ -4521,7 +4521,7 @@ public class SystemControlManager {
     /**
     * @Function: getScreenColorForSignalChange
     * @Description: get screen color for switch source/switch channal/no signal
-    * @Return: 0 is balck acreen; 1 is blue screen;
+    * @Return: 0 is black screen; 1 is blue screen;
     */
     public int getScreenColorForSignalChange() {
         synchronized (mLock) {

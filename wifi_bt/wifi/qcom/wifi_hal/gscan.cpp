@@ -1752,7 +1752,7 @@ wifi_error wifi_set_epno_list(wifi_request_id id,
             QCA_WLAN_VENDOR_ATTR_PNO_SET_LIST_PARAM_NUM_NETWORKS,
             num_networks))
     {
-        ALOGE("%s: Failed to add vendor atributes. Error:%d", __FUNCTION__, ret);
+        ALOGE("%s: Failed to add vendor attributes. Error:%d", __FUNCTION__, ret);
         goto cleanup;
     }
 
@@ -1898,7 +1898,7 @@ wifi_error wifi_reset_epno_list(wifi_request_id id, wifi_interface_handle iface)
             QCA_WLAN_VENDOR_ATTR_PNO_SET_LIST_PARAM_NUM_NETWORKS,
             EPNO_NO_NETWORKS))
     {
-        ALOGE("%s: Failed to add vendor atributes Error:%d", __FUNCTION__, ret);
+        ALOGE("%s: Failed to add vendor attributes Error:%d", __FUNCTION__, ret);
         goto cleanup;
     }
 
@@ -1986,7 +1986,7 @@ wifi_error wifi_set_passpoint_list(wifi_request_id id,
             QCA_WLAN_VENDOR_ATTR_PNO_PASSPOINT_LIST_PARAM_NUM,
             num))
     {
-        ALOGE("%s: Failed to add vendor atributes. Error:%d", __FUNCTION__, ret);
+        ALOGE("%s: Failed to add vendor attributes. Error:%d", __FUNCTION__, ret);
         goto cleanup;
     }
 

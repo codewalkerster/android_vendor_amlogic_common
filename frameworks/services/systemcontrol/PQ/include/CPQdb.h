@@ -129,9 +129,9 @@ public:
     int PQ_GetSharpnessAdvancedParams(source_input_param_t source_input_param, int reg_addr, int isHd);
     int PQ_SetSharpnessAdvancedParams(source_input_param_t source_input_param, int reg_addr, int value, int isHd);
     int getSharpnessRegValues(const char *table_name, source_input_param_t source_input_param, am_regs_t *regs, int reg_addr, int isHd);
-    int PQ_GetDNLPParams(source_input_param_t source_input_param, Dynamic_contrst_status_t mode, ve_dnlp_curve_param_t *newParams);
-    int PQ_SetDNLPGains(source_input_param_t source_input_param, Dynamic_contrst_status_t level, int final_gain);
-    int PQ_GetDNLPGains(source_input_param_t source_input_param, Dynamic_contrst_status_t level);
+    int PQ_GetDNLPParams(source_input_param_t source_input_param, Dynamic_contrast_status_t mode, ve_dnlp_curve_param_t *newParams);
+    int PQ_SetDNLPGains(source_input_param_t source_input_param, Dynamic_contrast_status_t level, int final_gain);
+    int PQ_GetDNLPGains(source_input_param_t source_input_param, Dynamic_contrast_status_t level);
     int PQ_GetLocalContrastNodeParams(source_input_param_t source_input_param, local_contrast_mode_t mode, ve_lc_curve_parm_t *Params);
     int PQ_GetLocalContrastRegParams(source_input_param_t source_input_param, local_contrast_mode_t mode, am_regs_t *regs);
     int PQ_GetBEParams(source_input_param_t source_input_param, int addr, am_regs_t *regs);
@@ -173,8 +173,8 @@ public:
 
 private:
     String8 GetTableName(const char *GeneralTableName, source_input_param_t source_input_param);
-    int CaculateLevelParam(tvpq_data_t *pq_data, int nodes, int level);
-    am_regs_t CaculateLevelRegsParam(tvpq_sharpness_regs_t *pq_regs, int level, int sharpness_number);
+    int CalculateLevelParam(tvpq_data_t *pq_data, int nodes, int level);
+    am_regs_t CalculateLevelRegsParam(tvpq_sharpness_regs_t *pq_regs, int level, int sharpness_number);
     int GetNonlinearMapping(tvpq_data_type_t data_type, tv_source_input_t source_input, int level, int *params);
     int GetNonlinearMappingByOSDFac(tvpq_data_type_t data_type, tv_source_input_t source_input, int *params);
     int SetNonlinearMapping(tvpq_data_type_t data_type, tv_source_input_t source_input, int osd0, int osd25, int osd50, int osd75, int osd100);

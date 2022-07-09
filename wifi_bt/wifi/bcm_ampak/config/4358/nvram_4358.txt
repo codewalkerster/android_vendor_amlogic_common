@@ -39,7 +39,7 @@ boardflags=0x02000201
 boardflags2=0x00002000
 
 # Board	flags 3:
-# BFL3_TSSI_DIV_WAR         0x00000080  /* acphy, Seperate paparam for 20/40/80 */
+# BFL3_TSSI_DIV_WAR         0x00000080  /* acphy, Separate paparam for 20/40/80 */
 # BFL3_FEMTBL_FROM_NVRAM    0x00000100  /* acphy, femctrl table is read from nvram */
 # BFL3_FORCE_EXT_LPO_SEL    0x08000000  /* Force external lpo */
 # BFL3_AVVMID_FROM_NVRAM    0x40000000  /* Read Av Vmid from NVRAM  */
@@ -80,7 +80,7 @@ tempthresh=120
 temps_hysteresis=10
 tempoffset=255
 rawtempsense=0x1ff
-phycal_tempdelta=25
+physical_tempdelta=25
 temps_period=15
 
 nocrc=1

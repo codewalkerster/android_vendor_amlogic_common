@@ -49,7 +49,7 @@ using namespace android;
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
-//frame rate auto adatper feature
+//frame rate auto adapter feature
 #define FRAME_RATE_AUTO_ADAPTER
 
 #define TEST_UBOOT_MODE
@@ -58,9 +58,9 @@ using namespace android;
 #define DEVICE_STR_MBOX                 "MBOX"
 #define DEVICE_STR_TV                   "TV"
 
-#define DESITY_720P                     "160"
-#define DESITY_1080P                    "240"
-#define DESITY_2160P                    "480"
+#define DENSITY_720P                     "160"
+#define DENSITY_1080P                    "240"
+#define DENSITY_2160P                    "480"
 
 #define DEFAULT_EDID_CRCHEAD            "checkvalue: "
 
@@ -100,7 +100,7 @@ using namespace android;
 #define DISPLAY_HPD_STATE               "/sys/class/amhdmitx/amhdmitx0/hpd_state"
 #define DISPLAY_HDMI_DISP_CAP           "/sys/class/amhdmitx/amhdmitx0/disp_cap"//RX support display mode
 #define DISPLAY_HDMI_DISP_CAP_3D        "/sys/class/amhdmitx/amhdmitx0/disp_cap_3d"//RX support display 3d mode
-#define DISPLAY_HDMI_DEEP_COLOR         "/sys/class/amhdmitx/amhdmitx0/dc_cap"//RX supoort deep color
+#define DISPLAY_HDMI_DEEP_COLOR         "/sys/class/amhdmitx/amhdmitx0/dc_cap"//RX support deep color
 #define DISPLAY_HDMI_HDR                "/sys/class/amhdmitx/amhdmitx0/hdr_cap"
 #define DISPLAY_HDMI_HDR_CAP2           "/sys/class/amhdmitx/amhdmitx0/hdr_cap2"
 
@@ -411,12 +411,12 @@ enum {
 };
 
 typedef enum {
-    OUPUT_MODE_STATE_INIT               = 0,
-    OUPUT_MODE_STATE_POWER              = 1,//hot plug
+    OUTPUT_MODE_STATE_INIT               = 0,
+    OUTPUT_MODE_STATE_POWER              = 1,//hot plug
     OUPUT_MODE_STATE_SWITCH             = 2,//user switch the mode
-    OUPUT_MODE_STATE_SWITCH_ADAPTER     = 3,//video auto switch the mode
-    OUPUT_MODE_STATE_RESERVE            = 4,
-    OUPUT_MODE_STATE_ADAPTER_END        = 5 //end hint video auto switch the mode
+    OUTPUT_MODE_STATE_SWITCH_ADAPTER     = 3,//video auto switch the mode
+    OUTPUT_MODE_STATE_RESERVE            = 4,
+    OUTPUT_MODE_STATE_ADAPTER_END        = 5 //end hint video auto switch the mode
 }output_mode_state;
 
 typedef enum {
@@ -491,8 +491,8 @@ namespace meson {
     class DisplayAdapter;
 }
 
-class DisplayMode : public UEventObserver::HDMITxUevntCallbak,
-                                      private FrameRateAutoAdaption::Callbak
+class DisplayMode : public UEventObserver::HDMITxUevntCallback,
+                                      private FrameRateAutoAdaption::Callback
 {
 public:
     DisplayMode(const char *path);

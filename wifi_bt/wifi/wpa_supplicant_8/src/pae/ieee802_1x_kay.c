@@ -2139,7 +2139,7 @@ ieee802_1x_kay_generate_new_sak(struct ieee802_1x_mka_participant *participant)
 	 * MKA life time has elapsed since the prior SAK was first distributed,
 	 * or the Key server's potential peer is empty
 	 * but I can't understand the second item, so
-	 * here only check first item and ingore
+	 * here only check first item and ignore
 	 *   && (!dl_list_empty(&participant->potential_peers))) {
 	 */
 	if ((time(NULL) - kay->dist_time) < MKA_LIFE_TIME / 1000) {

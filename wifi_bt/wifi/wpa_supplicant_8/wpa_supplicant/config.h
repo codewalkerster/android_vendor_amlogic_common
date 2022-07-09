@@ -692,7 +692,7 @@ struct wpa_config {
 	struct wpa_config_blob *blobs;
 
 	/**
-	 * uuid - Universally Unique IDentifier (UUID; see RFC 4122) for WPS
+	 * uuid - Universally Unique Identifier (UUID; see RFC 4122) for WPS
 	 */
 	u8 uuid[16];
 

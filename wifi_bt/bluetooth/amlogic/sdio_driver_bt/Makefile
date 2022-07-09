@@ -5,7 +5,7 @@ M ?= $(PWD)
 ###############################################################################
 AMLBT_MOD_NAME = sdio_bt
 AMLBT_CFILES := \
-	bt_hal_plateform.c
+	bt_hal_platform.c
 
 $(AMLBT_MOD_NAME)-objs := $(AMLBT_CFILES:.c=.o)
 

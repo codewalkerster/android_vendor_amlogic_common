@@ -25,7 +25,7 @@
 #include <string.h>
 
 #include "p_256_ecc_pp.h"
-#include "p_256_multprecision.h"
+#include "p_256_multiprecision.h"
 
 /*lint -e514 Unusual use of a Boolean expression */
 
@@ -248,7 +248,7 @@ void multiprecision_sub_mod(DWORD *c, DWORD *a, DWORD *b, uint32_t keyLength)
         return;
 
     borrow = multiprecision_sub(c, a, b, keyLength);
-    if(borrow)
+    if (borrow)
         multiprecision_add(c, c, modp, keyLength);
 }
 
@@ -636,7 +636,7 @@ void multiprecision_fast_mod_P256(DWORD *c, DWORD *a)
         }
     }
 
-    if (multiprecision_compare(c, modp, KEY_LENGTH_DWORDS_P256)>=0)
+    if (multiprecision_compare(c, modp, KEY_LENGTH_DWORDS_P256) >= 0)
         multiprecision_sub(c, c, modp, KEY_LENGTH_DWORDS_P256);
 
 }
@@ -648,7 +648,7 @@ void multiprecision_inv_mod(DWORD *aminus, DWORD *u, uint32_t keyLength)
     DWORD C[KEY_LENGTH_DWORDS_P256+1];
     DWORD *modp;
 
-    if(keyLength == KEY_LENGTH_DWORDS_P256)
+    if (keyLength == KEY_LENGTH_DWORDS_P256)
     {
         modp = curve_p256.p;
     }
@@ -667,7 +667,7 @@ void multiprecision_inv_mod(DWORD *aminus, DWORD *u, uint32_t keyLength)
         while (!(u[0] & 0x01))  // u is even
         {
             multiprecision_rshift(u, u, keyLength);
-            if(!(A[0] & 0x01))  // A is even
+            if (!(A[0] & 0x01))  // A is even
                 multiprecision_rshift(A, A, keyLength);
             else
             {

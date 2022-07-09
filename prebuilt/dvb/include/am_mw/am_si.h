@@ -382,7 +382,7 @@ extern void AM_SI_SetDefaultDVBTextCoding(const char *coding);
 
 /**\brief convert text to UTF-8 code text
  * \param [in] in_code/in Character data that needs to be converted
- * \param [in] in_len the lenght of in_code/in
+ * \param [in] in_len the length of in_code/in
  * \param [out] out_code/out Converted character data
  * \param [in] out_len out_code/out buf length
  * \param [in] coding coding of the @in

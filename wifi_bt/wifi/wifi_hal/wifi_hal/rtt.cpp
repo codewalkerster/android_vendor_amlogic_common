@@ -99,7 +99,7 @@ typedef struct dot11_rm_ie dot11_rm_ie_t;
 static const strmap_entry_t err_info[] = {
     {RTT_STATUS_SUCCESS, String8("Success")},
     {RTT_STATUS_FAILURE, String8("Failure")},
-    {RTT_STATUS_FAIL_NO_RSP, String8("No reponse")},
+    {RTT_STATUS_FAIL_NO_RSP, String8("No response")},
     {RTT_STATUS_FAIL_INVALID_TS, String8("Invalid Timestamp")},
     {RTT_STATUS_FAIL_PROTOCOL, String8("Protocol error")},
     {RTT_STATUS_FAIL_REJECTED, String8("Rejected")},
@@ -133,14 +133,14 @@ class GetRttCapabilitiesCommand : public WifiCommand
 {
     wifi_rtt_capabilities *mCapabilities;
 public:
-    GetRttCapabilitiesCommand(wifi_interface_handle iface, wifi_rtt_capabilities *capabitlites)
-        : WifiCommand("GetRttCapabilitiesCommand", iface, 0), mCapabilities(capabitlites)
+    GetRttCapabilitiesCommand(wifi_interface_handle iface, wifi_rtt_capabilities *capabilities)
+        : WifiCommand("GetRttCapabilitiesCommand", iface, 0), mCapabilities(capabilities)
     {
         memset(mCapabilities, 0, sizeof(*mCapabilities));
     }
 
     virtual int create() {
-        ALOGD("Creating message to get scan capablities; iface = %d", mIfaceInfo->id);
+        ALOGD("Creating message to get scan capabilities; iface = %d", mIfaceInfo->id);
 
         int ret = mMsg.create(GOOGLE_OUI, RTT_SUBCMD_GETCAPABILITY);
         if (ret < 0) {

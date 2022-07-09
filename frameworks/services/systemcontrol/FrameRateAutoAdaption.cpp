@@ -36,7 +36,7 @@
 #include "FrameRateAutoAdaption.h"
 
 
-FrameRateAutoAdaption::FrameRateAutoAdaption(Callbak *cb): mCallback(cb){
+FrameRateAutoAdaption::FrameRateAutoAdaption(Callback *cb): mCallback(cb){
 }
 
 FrameRateAutoAdaption::~FrameRateAutoAdaption() {
@@ -185,7 +185,7 @@ void FrameRateAutoAdaption::onTxUeventReceived(uevent_data_t* ueventData){
     if (!strcmp(ueventData->switchName, "end_hint")) {
         SYS_LOGD("Video framerate switch end hint last mode: %s\n", mLastVideoMode);
         if (strlen(mLastVideoMode) > 0) {
-            mCallback->onDispModeSyncEvent(mLastVideoMode, OUPUT_MODE_STATE_ADAPTER_END);
+            mCallback->onDispModeSyncEvent(mLastVideoMode, OUTPUT_MODE_STATE_ADAPTER_END);
             memset(mLastVideoMode, 0, sizeof(mLastVideoMode));
         }
     }
@@ -202,7 +202,7 @@ void FrameRateAutoAdaption::onTxUeventReceived(uevent_data_t* ueventData){
         if (pulldow) {
             autoSwitchFlag = true;
             strcpy(mLastVideoMode, curDisplayMode);
-            mCallback->onDispModeSyncEvent((strlen(newDisplayMode) != 0)?newDisplayMode:curDisplayMode, OUPUT_MODE_STATE_SWITCH_ADAPTER);
+            mCallback->onDispModeSyncEvent((strlen(newDisplayMode) != 0)?newDisplayMode:curDisplayMode, OUTPUT_MODE_STATE_SWITCH_ADAPTER);
         }
         else if (strlen(newDisplayMode) != 0) {
             strcpy(mLastVideoMode, curDisplayMode);

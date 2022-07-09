@@ -33,7 +33,7 @@ LOCAL_ALGO_SRC_FILES:= \
         src/bt_vendor_sprd_ssp.c \
         src/algorithms/p_256_ecc_pp.c \
         src/algorithms/p_256_curvepara.c \
-        src/algorithms/p_256_multprecision.c \
+        src/algorithms/p_256_multiprecision.c \
         src/algorithms/lmp_ecc.c \
         src/algorithms/algo_api.c \
         src/algorithms/algo_utils.c

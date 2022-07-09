@@ -1041,7 +1041,7 @@ static const char *btusb_ioctl_string(unsigned int cmd)
         BTUSB_RETURN_STR(TIOCMBIC);
         BTUSB_RETURN_STR(TIOCMBIS);
         default:
-            return "unknwown";
+            return "unknown";
     }
 }
 

@@ -704,7 +704,7 @@ static uint16 fw_upload_WaitFor_ErrCode()
 static void fw_upload_SendLenBytesToHelper(uint8* pFileBuffer, uint16 uiLenToSend, uint32 ulOffset)
 
 {
-  // Retransmittion of previous block
+  // Retransmission of previous block
   if (ulOffset == ulLastOffsetToSend)
   {
 #ifdef DEBUG_PRINT

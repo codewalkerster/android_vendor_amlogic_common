@@ -26,41 +26,41 @@
 #include <IOKit/usb/IOUSBLib.h>
 #include <IOKit/IOCFPlugIn.h>
 
-/* IOUSBInterfaceInferface */
-#if defined (kIOUSBInterfaceInterfaceID300)
+/* IOUSBInterface */
+#if defined (kIOUSBInterfaceID300)
 
-#define usb_interface_t IOUSBInterfaceInterface300
-#define InterfaceInterfaceID kIOUSBInterfaceInterfaceID300
+#define usb_interface_t IOUSBInterface300
+#define InterfaceID kIOUSBInterfaceID300
 #define InterfaceVersion 300
 
-#elif defined (kIOUSBInterfaceInterfaceID245)
+#elif defined (kIOUSBInterfaceID245)
 
-#define usb_interface_t IOUSBInterfaceInterface245
-#define InterfaceInterfaceID kIOUSBInterfaceInterfaceID245
+#define usb_interface_t IOUSBInterface245
+#define InterfaceID kIOUSBInterfaceID245
 #define InterfaceVersion 245
 
-#elif defined (kIOUSBInterfaceInterfaceID220)
+#elif defined (kIOUSBInterfaceID220)
 
-#define usb_interface_t IOUSBInterfaceInterface220
-#define InterfaceInterfaceID kIOUSBInterfaceInterfaceID220
+#define usb_interface_t IOUSBInterface220
+#define InterfaceID kIOUSBInterfaceID220
 #define InterfaceVersion 220
 
-#elif defined (kIOUSBInterfaceInterfaceID197)
+#elif defined (kIOUSBInterfaceID197)
 
-#define usb_interface_t IOUSBInterfaceInterface197
-#define InterfaceInterfaceID kIOUSBInterfaceInterfaceID197
+#define usb_interface_t IOUSBInterface197
+#define InterfaceID kIOUSBInterfaceID197
 #define InterfaceVersion 197
 
-#elif defined (kIOUSBInterfaceInterfaceID190)
+#elif defined (kIOUSBInterfaceID190)
 
-#define usb_interface_t IOUSBInterfaceInterface190
-#define InterfaceInterfaceID kIOUSBInterfaceInterfaceID190
+#define usb_interface_t IOUSBInterface190
+#define InterfaceID kIOUSBInterfaceID190
 #define InterfaceVersion 190
 
-#elif defined (kIOUSBInterfaceInterfaceID182)
+#elif defined (kIOUSBInterfaceID182)
 
-#define usb_interface_t IOUSBInterfaceInterface182
-#define InterfaceInterfaceID kIOUSBInterfaceInterfaceID182
+#define usb_interface_t IOUSBInterface182
+#define InterfaceID kIOUSBInterfaceID182
 #define InterfaceVersion 182
 
 #else

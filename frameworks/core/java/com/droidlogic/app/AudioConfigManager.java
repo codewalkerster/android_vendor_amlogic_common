@@ -272,33 +272,33 @@ public class AudioConfigManager {
             DecimalFormat decimalFormat = new DecimalFormat("0.0");
             Settings.Global.putInt(mResolver, DB_ID_AUDIO_PRESCALE_ARRAY[source], value);
 
-            // packgeing "SOURCE_GAIN=1.0 1.0 1.0 1.0 1.0" [atv,dtv,hdmi,av,media]
+            // packaging "SOURCE_GAIN=1.0 1.0 1.0 1.0 1.0" [atv,dtv,hdmi,av,media]
             parameter = new StringBuffer(PARAM_HAL_AUDIO_PRESCALE + "=");
             //UI -150 - 150, audio_hal -15 - 15 db
-            int tempParamter = 1;
-            tempParamter = Settings.Global.getInt(mResolver, DB_ID_AUDIO_PRESCALE_ARRAY[AUDIO_OUTPUT_DELAY_SOURCE_ATV],
+            int tempParameter = 1;
+            tempParameter = Settings.Global.getInt(mResolver, DB_ID_AUDIO_PRESCALE_ARRAY[AUDIO_OUTPUT_DELAY_SOURCE_ATV],
                     AUDIO_PRESCALE_DEFAULT_ARRAY[AUDIO_OUTPUT_DELAY_SOURCE_ATV]);
-            realValue = decimalFormat.format((float) tempParamter / 10);
+            realValue = decimalFormat.format((float) tempParameter / 10);
             parameter.append(realValue + " ");
 
-            tempParamter = Settings.Global.getInt(mResolver, DB_ID_AUDIO_PRESCALE_ARRAY[AUDIO_OUTPUT_DELAY_SOURCE_DTV],
+            tempParameter = Settings.Global.getInt(mResolver, DB_ID_AUDIO_PRESCALE_ARRAY[AUDIO_OUTPUT_DELAY_SOURCE_DTV],
                     AUDIO_PRESCALE_DEFAULT_ARRAY[AUDIO_OUTPUT_DELAY_SOURCE_DTV]);
-            realValue = decimalFormat.format((float) tempParamter / 10);
+            realValue = decimalFormat.format((float) tempParameter / 10);
             parameter.append(realValue + " ");
 
-            tempParamter = Settings.Global.getInt(mResolver, DB_ID_AUDIO_PRESCALE_ARRAY[AUDIO_OUTPUT_DELAY_SOURCE_HDMI],
+            tempParameter = Settings.Global.getInt(mResolver, DB_ID_AUDIO_PRESCALE_ARRAY[AUDIO_OUTPUT_DELAY_SOURCE_HDMI],
                     AUDIO_PRESCALE_DEFAULT_ARRAY[AUDIO_OUTPUT_DELAY_SOURCE_HDMI]);
-            realValue = decimalFormat.format((float) tempParamter / 10);
+            realValue = decimalFormat.format((float) tempParameter / 10);
             parameter.append(realValue + " ");
 
-            tempParamter = Settings.Global.getInt(mResolver, DB_ID_AUDIO_PRESCALE_ARRAY[AUDIO_OUTPUT_DELAY_SOURCE_AV],
+            tempParameter = Settings.Global.getInt(mResolver, DB_ID_AUDIO_PRESCALE_ARRAY[AUDIO_OUTPUT_DELAY_SOURCE_AV],
                     AUDIO_PRESCALE_DEFAULT_ARRAY[AUDIO_OUTPUT_DELAY_SOURCE_AV]);
-            realValue = decimalFormat.format((float) tempParamter / 10);
+            realValue = decimalFormat.format((float) tempParameter / 10);
             parameter.append(realValue + " ");
 
-            tempParamter = Settings.Global.getInt(mResolver, DB_ID_AUDIO_PRESCALE_ARRAY[AUDIO_OUTPUT_DELAY_SOURCE_MEDIA],
+            tempParameter = Settings.Global.getInt(mResolver, DB_ID_AUDIO_PRESCALE_ARRAY[AUDIO_OUTPUT_DELAY_SOURCE_MEDIA],
                     AUDIO_PRESCALE_DEFAULT_ARRAY[AUDIO_OUTPUT_DELAY_SOURCE_MEDIA]);
-            realValue = decimalFormat.format((float) tempParamter / 10);
+            realValue = decimalFormat.format((float) tempParameter / 10);
             parameter.append(realValue + " ");
             if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "setAudioPrescale setParameters:" + parameter.toString());
             mAudioManager.setParameters(parameter.toString());

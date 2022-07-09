@@ -18,7 +18,7 @@ public class DroidLogicKeyEvent extends KeyEvent{
     public static final int KEYCODE_TV_SHORTCUTKEY_GLOBALSETUP    = 2001;
     public static final int KEYCODE_TV_SHORTCUTKEY_SOURCE_LIST    = 2002;
     public static final int KEYCODE_TV_SHORTCUTKEY_3DMODE         = 2003;
-    public static final int KEYCODE_TV_SHORTCUTKEY_DISPAYMODE     = 2004;
+    public static final int KEYCODE_TV_SHORTCUTKEY_DISPLAYMODE     = 2004;
     public static final int KEYCODE_TV_SHORTCUTKEY_VIEWMODE       = 2005;
     public static final int KEYCODE_TV_SHORTCUTKEY_VOICEMODE      = 2006;
     public static final int KEYCODE_TV_SHORTCUTKEY_TVINFO         = 2007;

@@ -775,7 +775,7 @@ static int p2p_group_info_text(const u8 *gi, size_t gi_len, char *buf,
  * @data: P2P IE contents
  * @buf: Buffer for returning text
  * @end: Pointer to the end of the buf area
- * Returns: Number of octets written to the buffer or -1 on faikure
+ * Returns: Number of octets written to the buffer or -1 on failure
  *
  * This function can be used to parse P2P IE contents into text format
  * field=value lines.

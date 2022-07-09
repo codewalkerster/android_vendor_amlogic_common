@@ -417,7 +417,7 @@ void pmksa_candidate_add(struct wpa_sm *sm, const u8 *bssid,
 		if (cand->priority <= pos->priority) {
 			if (!pos->list.prev) {
 				/*
-				 * This cannot really happen in pracrice since
+				 * This cannot really happen in practice since
 				 * pos was fetched from the list and the prev
 				 * pointer must be set. It looks like clang
 				 * static analyzer gets confused with the

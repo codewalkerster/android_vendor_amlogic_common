@@ -116,7 +116,7 @@ void HDCPRxAuth::initKey() {
             SYS_LOGI("firmware_rptx.le don't exist, and copy it from vendor/etc/firmware/hdcp_rp22/");
             int ret = hdcpRx22.copyHdcpFwToParam(HDCP_RPTX22_SRC_FW_PATH, HDCP_RPTX22_DES_FW_PATH);
             if (ret == -1) {
-                SYS_LOGE("copy RPTX firwmare fail\n");
+                SYS_LOGE("copy RPTX firmware fail\n");
                 remove(HDCP_RPTX22_DES_FW_PATH);
             }
         }

@@ -390,7 +390,7 @@
     <ClCompile Include="uresdata.cpp" />
     <ClCompile Include="resource.cpp" />
     <ClCompile Include="ucurr.cpp" />
-    <ClCompile Include="caniter.cpp" />
+    <ClCompile Include="canister.cpp" />
     <ClCompile Include="filterednormalizer2.cpp" />
     <ClCompile Include="loadednormalizer2impl.cpp" />
     <ClCompile Include="normalizer2.cpp" />
@@ -737,7 +737,7 @@
       <Outputs>..\..\include\unicode\%(Filename)%(Extension);%(Outputs)</Outputs>
     </CustomBuild>
     <ClInclude Include="ucurrimp.h" />
-    <CustomBuild Include="unicode\caniter.h">
+    <CustomBuild Include="unicode\canister.h">
       <Command>copy "%(FullPath)" ..\..\include\unicode</Command>
       <Outputs>..\..\include\unicode\%(Filename)%(Extension);%(Outputs)</Outputs>
     </CustomBuild>

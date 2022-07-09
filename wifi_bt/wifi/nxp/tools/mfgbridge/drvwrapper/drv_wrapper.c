@@ -117,7 +117,7 @@ static bdaddr_t  multi_hci_addr;
 #ifdef MFG_UPDATE
 static struct _drv_cb Driver;
 struct _new_drv_cb *Driver1, *MultiDevPtr=NULL;
-int  WiFidevicecnt=1;
+int  WifiDeviceCnt=1;
 
 static int BT_IF_MODE = HCI_Mode;
 #endif // MFG_UPDATE
@@ -158,7 +158,7 @@ get_private_info_multi(const char *ifName, int sockfd_multi)
  *  @brief Get Sub command ioctl number
  *
  *  @param cmdIndex		command index
- *  @param privCnt   	Total number of private ioctls availabe in driver
+ *  @param privCnt   	Total number of private ioctls available in driver
  *  @param ioctlVal    	A pointer to return ioctl number
  *  @param subIoctlVal 	A pointer to return sub-ioctl number
  *  @return             0 on success, otherwise -1
@@ -289,7 +289,7 @@ get_hci_dev_info(int s, int dev_id, long arg)
 /**
  *  @brief Get HCI driver info
  *
- *  @return  0 --- if already loadded, otherwise -1
+ *  @return  0 --- if already loaded, otherwise -1
  */
 int
 drv_wrapper_get_hci_info(char *cmdname)
@@ -453,7 +453,7 @@ return 0;
 /**
  *  @brief Get driver info
  *
- *  @return  0 --- if already loadded, otherwise -1
+ *  @return  0 --- if already loaded, otherwise -1
  */
 int
 drv_wrapper_get_info(char *cmdname)
@@ -564,7 +564,7 @@ drv_wrapper_deinit_multi()
     int cnt=0;
     printf("De-Initialize drvwrapper multi....\n");
     MultiDevPtr = Driver1; 
-      for (cnt=0; cnt<WiFidevicecnt; cnt++)
+      for (cnt=0; cnt<WifiDeviceCnt; cnt++)
       {     
     		printf("DEBUG>>drv_wrapper_deinit_multi:: wlan_ifname=%s\n", &MultiDevPtr->wlan_ifname);
     		if (MultiDevPtr->sockfd)
@@ -713,7 +713,7 @@ drv_init(struct _bridge_cb *bridge, drv_config * drv_conf)
     drv->load_script = drv_conf->load_script;
     drv->unload_script = drv_conf->unload_script;
 
-    /** Initialize drvwrapper, if driver already loadded */
+    /** Initialize drvwrapper, if driver already loaded */
     /** Init WiFi */
 /*
     if (!drv_wrapper_get_info(drv->wlan_ifname))
@@ -721,7 +721,7 @@ drv_init(struct _bridge_cb *bridge, drv_config * drv_conf)
   */
     printf("DEBUG>>drv_init\n");
     MultiDevPtr = Driver1;
-    for (cnt =0 ;cnt <WiFidevicecnt; cnt++)
+    for (cnt =0 ;cnt <WifiDeviceCnt; cnt++)
     {
     	 
     	 if (!drv_wrapper_get_info(&MultiDevPtr->wlan_ifname))
@@ -779,9 +779,9 @@ drv_proc_wlan_command(drv_cb * drv, unsigned char *buf, int *rsplen, int buflen)
      	printf("DEBUG>>drv_proc_wlan_command::DeviceId=0x%x\n",CMDPtr->deviceId);
 		//Device ID check
 		MultiDevPtr = Driver1;
-		  if (abs(CMDPtr->deviceId) > WiFidevicecnt)
+		  if (abs(CMDPtr->deviceId) > WifiDeviceCnt)
 		{
-			printf("DEBUG>>drv_proc_wlan_command::Fail!!Invalid DeviceId=%d(%d), force to Device 0\n", CMDPtr->deviceId, WiFidevicecnt);
+			printf("DEBUG>>drv_proc_wlan_command::Fail!!Invalid DeviceId=%d(%d), force to Device 0\n", CMDPtr->deviceId, WifiDeviceCnt);
 			MultiDevPtr = Driver1;
 		}			
 		else

@@ -106,8 +106,8 @@ enum emmcPartition {
 #define LOCAL_ARGS_VALUE_STRING Value::Type::STRING
 #define LOCAL_ARGS_VALUE_BLOB   Value::Type::BLOB
 
-static int sEmmcPartionIndex = -1;
-static const char *sEmmcPartionName[] = {
+static int sEmmcPartitionIndex = -1;
+static const char *sEmmcPartitionName[] = {
     EMMC_USER_PARTITION,
     EMMC_BLK0BOOT0_PARTITION,
     EMMC_BLK0BOOT1_PARTITION,
@@ -117,13 +117,13 @@ static const char *sEmmcPartionName[] = {
 
 int wipe_flag = 0;
 
-/* for ioctrl transfer paramters. */
+/* for ioctrl transfer parameters. */
 struct key_item_info_t {
     unsigned int id;
     char name[KEY_UNIFY_NAME_LEN];
     unsigned int size;
     unsigned int permit;
-    unsigned int flag;        /*bit 0: 1 exsit, 0-none;*/
+    unsigned int flag;        /*bit 0: 1 exist, 0-none;*/
     unsigned int reserve;
 };
 
@@ -458,7 +458,7 @@ int block_write_data( const std::string& args, off_t offset) {
     if (fd < 0) {
         memset(devname, 0, sizeof(devname));
         // emmc user, boot0, boot1 partition
-        sprintf(devname, "/dev/block/%s", sEmmcPartionName[sEmmcPartionIndex]);
+        sprintf(devname, "/dev/block/%s", sEmmcPartitionName[sEmmcPartitionIndex]);
         fd = open(devname, O_RDWR);
         if (fd < 0) {
             memset(devname, 0, sizeof(devname));
@@ -547,23 +547,23 @@ Value* WriteBootloaderImageFn(const char* name, State* state, const std::vector<
 
     unsigned int i;
     char emmcPartitionPath[128];
-    for (i = BLK0BOOT0; i < ARRAY_SIZE(sEmmcPartionName); i ++) {
+    for (i = BLK0BOOT0; i < ARRAY_SIZE(sEmmcPartitionName); i ++) {
         memset(emmcPartitionPath, 0, sizeof(emmcPartitionPath));
-        sprintf(emmcPartitionPath, "/dev/block/%s", sEmmcPartionName[i]);
+        sprintf(emmcPartitionPath, "/dev/block/%s", sEmmcPartitionName[i]);
         if (!access(emmcPartitionPath, F_OK)) {
-            sEmmcPartionIndex = i;
+            sEmmcPartitionIndex = i;
             iRet = block_write_data(args[0]->data, _mmcblOffBytes);
             if (iRet == 0) {
-                printf("Write Uboot Image to %s successful!\n\n", sEmmcPartionName[sEmmcPartionIndex]);
+                printf("Write Uboot Image to %s successful!\n\n", sEmmcPartitionName[sEmmcPartitionIndex]);
             } else {
-                printf("Write Uboot Image to %s failed!\n\n", sEmmcPartionName[sEmmcPartionIndex]);
+                printf("Write Uboot Image to %s failed!\n\n", sEmmcPartitionName[sEmmcPartitionIndex]);
                 printf("iRet= %d, exit !!!\n", iRet);
                 return ErrorAbort(state, kFwriteFailure, "%s() update bootloader", name);
             }
         }
     }
 
-    sEmmcPartionIndex = USER;
+    sEmmcPartitionIndex = USER;
     iRet = block_write_data(args[0]->data, _mmcblOffBytes);
     if (iRet == 0) {
         printf("Write Uboot Image successful!\n\n");

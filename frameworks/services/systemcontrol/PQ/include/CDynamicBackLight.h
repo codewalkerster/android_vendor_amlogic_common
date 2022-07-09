@@ -55,7 +55,7 @@ public:
             IDynamicBackLightObserver() {};
             virtual ~IDynamicBackLightObserver() {};
             virtual void Set_Backlight(int value) {};
-            virtual void GetDynamicBacklighConfig(int *thtf, int *lut_mode, int *heigh_param, int *low_param) {};
+            virtual void GetDynamicBacklighConfig(int *thtf, int *lut_mode, int *height_param, int *low_param) {};
             virtual void GetDynamicBacklighParam(dynamic_backlight_Param_t *DynamicBacklightParam) {};
     };
 

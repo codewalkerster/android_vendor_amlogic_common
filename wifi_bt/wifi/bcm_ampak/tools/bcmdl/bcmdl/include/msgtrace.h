@@ -39,7 +39,7 @@ typedef BWL_PRE_PACKED_STRUCT struct msgtrace_hdr {
 #define MSGTRACE_HDR_TYPE_MSG 0
 #define MSGTRACE_HDR_TYPE_LOG 1
 	uint16	len;	/* Len of the trace */
-	uint32	seqnum;	/* Sequence number of message. Useful if the messsage has been lost
+	uint32	seqnum;	/* Sequence number of message. Useful if the message has been lost
 			 * because of DMA error or a bus reset (ex: SDIO Func2)
 			 */
 	/* Msgtrace type  only */
@@ -51,7 +51,7 @@ typedef BWL_PRE_PACKED_STRUCT struct msgtrace_hdr {
 
 /* The hbus driver generates traces when sending a trace message. This causes endless traces.
  * This flag must be set to TRUE in any hbus traces. The flag is reset in the function msgtrace_put.
- * This prevents endless traces but generates hasardous lost of traces only in bus device code.
+ * This prevents endless traces but generates hazardous lost of traces only in bus device code.
  * It is recommendat to set this flag in macro SD_TRACE but not in SD_ERROR for avoiding missing
  * hbus error traces. hbus error trace should not generates endless traces.
  */

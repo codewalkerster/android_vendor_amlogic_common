@@ -121,7 +121,7 @@ U_CDECL_END
   *  with tracing code to contains the function number.
   *
   *  Set the flag if the function's entry is traced, which will cause the
-  *  function's exit to also be traced.  utraceFnNumber is uncoditionally
+  *  function's exit to also be traced.  utraceFnNumber is unconditionally
   *  set at entry, whether or not the entry is traced, so that it will
   *  always be available for error trace output.
   *  @internal
@@ -188,7 +188,7 @@ U_CDECL_END
  * Trace statement for each exit point of a function that has a UTRACE_ENTRY()
  * statement, and that returns a value.
  *
- * @param val       The function's return value, int32_t or comatible type.
+ * @param val       The function's return value, int32_t or compatible type.
  *
  * @internal
  */

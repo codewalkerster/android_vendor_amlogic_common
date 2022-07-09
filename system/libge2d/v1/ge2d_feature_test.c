@@ -372,8 +372,8 @@ static int do_blend(aml_ge2d_info_t *pge2dinfo)
 {
     int ret = -1;
 
-    int shared_fd_bakup;
-    unsigned long offset_bakup = 0;
+    int shared_fd_backup;
+    unsigned long offset_backup = 0;
 
     printf("do_blend test case:\n");
 
@@ -521,8 +521,8 @@ static int do_blend(aml_ge2d_info_t *pge2dinfo)
             pge2dinfo->src_info[0].rect.w = pge2dinfo->src_info[0].canvas_w;
             pge2dinfo->src_info[0].rect.h = pge2dinfo->src_info[0].canvas_h;
 
-            shared_fd_bakup = pge2dinfo->src_info[0].shared_fd;
-            offset_bakup = pge2dinfo->src_info[0].offset;
+            shared_fd_backup = pge2dinfo->src_info[0].shared_fd;
+            offset_backup = pge2dinfo->src_info[0].offset;
             pge2dinfo->src_info[0].shared_fd = pge2dinfo->src_info[1].shared_fd;
             pge2dinfo->src_info[0].offset = pge2dinfo->src_info[1].offset;
 
@@ -548,8 +548,8 @@ static int do_blend(aml_ge2d_info_t *pge2dinfo)
             pge2dinfo->src_info[0].rect.y = 0;
             pge2dinfo->src_info[0].rect.w = pge2dinfo->src_info[0].canvas_w;
             pge2dinfo->src_info[0].rect.h = pge2dinfo->src_info[0].canvas_h;
-            pge2dinfo->src_info[0].shared_fd = shared_fd_bakup;
-            pge2dinfo->src_info[0].offset = offset_bakup;
+            pge2dinfo->src_info[0].shared_fd = shared_fd_backup;
+            pge2dinfo->src_info[0].offset = offset_backup;
             pge2dinfo->src_info[0].fill_color_en = 0;
 
             pge2dinfo->src_info[1].canvas_w = pge2dinfo->dst_info.canvas_w;
@@ -681,8 +681,8 @@ static int do_blend(aml_ge2d_info_t *pge2dinfo)
         pge2dinfo->src_info[0].rect.w = pge2dinfo->src_info[0].canvas_w;
         pge2dinfo->src_info[0].rect.h = pge2dinfo->src_info[0].canvas_h;
 
-        shared_fd_bakup = pge2dinfo->src_info[0].shared_fd;
-        offset_bakup = pge2dinfo->src_info[0].offset;
+        shared_fd_backup = pge2dinfo->src_info[0].shared_fd;
+        offset_backup = pge2dinfo->src_info[0].offset;
         pge2dinfo->src_info[0].shared_fd = pge2dinfo->src_info[1].shared_fd;
         pge2dinfo->src_info[0].offset = pge2dinfo->src_info[1].offset;
         pge2dinfo->src_info[0].layer_mode = src2_layer_mode;
@@ -709,8 +709,8 @@ static int do_blend(aml_ge2d_info_t *pge2dinfo)
         pge2dinfo->src_info[0].rect.y = 0;
         pge2dinfo->src_info[0].rect.w = pge2dinfo->src_info[0].canvas_w;
         pge2dinfo->src_info[0].rect.h = pge2dinfo->src_info[0].canvas_h;
-        pge2dinfo->src_info[0].shared_fd = shared_fd_bakup;
-        pge2dinfo->src_info[0].offset = offset_bakup;
+        pge2dinfo->src_info[0].shared_fd = shared_fd_backup;
+        pge2dinfo->src_info[0].offset = offset_backup;
         pge2dinfo->src_info[0].fill_color_en = 0;
 
         pge2dinfo->src_info[1].canvas_w = pge2dinfo->dst_info.canvas_w;

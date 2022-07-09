@@ -250,7 +250,7 @@ struct rtk_epatch_entry *rtk_get_patch_entry(bt_hw_cfg_cb_t *cfg_cb)
 
     if (i == patch->number_of_patch)
     {
-        ALOGE("rtk_get_patch_entry: failed to get etnry");
+        ALOGE("rtk_get_patch_entry: failed to get entry");
         free(entry);
         entry = NULL;
     }

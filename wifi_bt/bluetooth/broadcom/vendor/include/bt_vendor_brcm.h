@@ -79,7 +79,7 @@
  * Note: It has been discovered that BCM43241B0 needs at least 200ms
  * settlement delay in here. Without the delay, a Hardware Error event
  * from BCM43241B0 had been seen in HCI upstream path right after the
- * host sent the HCI_VSC_SET_BDADDR commad to the controller at higher
+ * host sent the HCI_VSC_SET_BDADDR command to the controller at higher
  * baud.
  */
 #ifndef FW_PATCH_SETTLEMENT_DELAY_MS
@@ -257,7 +257,7 @@
  This macro is used for setting WBS sampling rate for a SCO connection
  If the mobile network supports WBS, we need to use 16KHz as default
  but if the platform doesn't support 16KHz, the sample rate can be
- overriden to 8KHz by setting this to 0.
+ overridden to 8KHz by setting this to 0.
 */
 #ifndef SCO_WBS_SAMPLE_RATE
 #define SCO_WBS_SAMPLE_RATE            1

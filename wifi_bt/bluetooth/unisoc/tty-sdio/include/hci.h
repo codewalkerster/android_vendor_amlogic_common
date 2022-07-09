@@ -121,7 +121,7 @@ typedef struct mtty_bt_wake_t {
 } mtty_bt_wake_t;
 
 int hci_init(void);
-int hci_destory(void);
+int hci_destroy(void);
 void hci_cleanup(void);
 void hci_woble_enable(void);
 int rx_data_recv(const unsigned char *buf, int count, int (*upper_cb)(const unsigned char *buf, int count));

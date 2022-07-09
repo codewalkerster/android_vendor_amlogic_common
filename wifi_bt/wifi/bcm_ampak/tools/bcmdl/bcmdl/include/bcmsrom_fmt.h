@@ -21,7 +21,7 @@
 #ifndef	_bcmsrom_fmt_h_
 #define	_bcmsrom_fmt_h_
 
-#define SROM_MAXREV		11	/* max revisiton supported by driver */
+#define SROM_MAXREV		11	/* max revision supported by driver */
 
 /* Maximum srom: 12 Kilobits == 1536 bytes */
 #define	SROM_MAX		1536
@@ -111,7 +111,7 @@
 
 #define	SROM_CRCREV		63
 
-/* SROM Rev 4: Reallocate the software part of the srom to accomodate
+/* SROM Rev 4: Reallocate the software part of the srom to accommodate
  * MIMO features. It assumes up to two PCIE functions and 440 bytes
  * of useable srom i.e. the useable storage in chips with OTP that
  * implements hardware redundancy.
@@ -274,13 +274,13 @@
 /* Temp sense related entries */
 #define SROM8_MPWR_RAWTS		90
 #define SROM8_TS_SLP_OPT_CORRX	91
-/* FOC: freiquency offset correction, HWIQ: H/W IOCAL enable, IQSWP: IQ CAL swap disable */
+/* FOC: frequency offset correction, HWIQ: H/W IOCAL enable, IQSWP: IQ CAL swap disable */
 #define SROM8_FOC_HWIQ_IQSWP	92
 
 #define SROM8_EXTLNAGAIN        93
 
 /* Temperature delta for PHY calibration */
-#define SROM8_PHYCAL_TEMPDELTA	94
+#define SROM8_PHYSICAL_TEMPDELTA	94
 
 /* Measured power 1 & 2, 0-13 bits at offset 95, MSB 2 bits are unused for now. */
 #define SROM8_MPWR_1_AND_2	95
@@ -321,7 +321,7 @@
 /* SISO PA parameters are in the path0 spaces */
 #define	SROM8_SISO		96
 
-/* Legacy names for SISO PA paramters */
+/* Legacy names for SISO PA parameters */
 #define	SROM8_W0_ITTMAXP	(SROM8_SISO + SROM8_2G_ITT_MAXP)
 #define	SROM8_W0_PAB0		(SROM8_SISO + SROM8_2G_PA)
 #define	SROM8_W0_PAB1		(SROM8_SISO + SROM8_2G_PA + 1)
@@ -450,7 +450,7 @@
 #define SROM11_TS_SLP_OPT_CORRX		89
 #define SROM11_XTAL_FREQ		90
 #define SROM11_5GB0_4080_W0_A1          91
-#define SROM11_PHYCAL_TEMPDELTA  	92
+#define SROM11_PHYSICAL_TEMPDELTA  	92
 #define SROM11_MPWR_1_AND_2 		93
 #define SROM11_5GB0_4080_W1_A1          94
 #define SROM11_TSSIFLOOR_2G 		95

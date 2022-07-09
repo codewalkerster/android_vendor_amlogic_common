@@ -56,7 +56,7 @@ public:
     int32_t getSize() const { return length; }
     /**
      * @param i Array item index.
-     * @param value Output-only, receives the value of the i'th item.
+     * @param value Output-only, receives the value of the item.
      * @return TRUE if i is non-negative and less than getSize().
      */
     UBool getValue(int32_t i, ResourceValue &value) const;
@@ -89,8 +89,8 @@ public:
     int32_t getSize() const { return length; }
     /**
      * @param i Array item index.
-     * @param key Output-only, receives the key of the i'th item.
-     * @param value Output-only, receives the value of the i'th item.
+     * @param key Output-only, receives the key of the item.
+     * @param value Output-only, receives the value of the item.
      * @return TRUE if i is non-negative and less than getSize().
      */
     UBool getKeyAndValue(int32_t i, const char *&key, ResourceValue &value) const;

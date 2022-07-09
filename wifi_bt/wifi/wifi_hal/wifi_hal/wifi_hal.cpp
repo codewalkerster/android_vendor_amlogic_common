@@ -270,7 +270,7 @@ wifi_error wifi_initialize(wifi_handle *handle)
 
     info->nl80211_family_id = genl_ctrl_resolve(cmd_sock, "nl80211");
     if (info->nl80211_family_id < 0) {
-        ALOGE("Could not resolve nl80211 familty id");
+        ALOGE("Could not resolve nl80211 family id");
         nl_socket_free(cmd_sock);
         nl_socket_free(event_sock);
         free(info);
@@ -361,7 +361,7 @@ void wifi_cleanup(wifi_handle handle, wifi_cleaned_up_handler handler)
         // Listen to the response
         // Hopefully we dont get errors or get hung up
         // Not much can be done in that case, but assume that
-        // it has rx'ed the Exit message to exit the thread.
+        // it has accepted the Exit message to exit the thread.
         // As a fallback set the cleanup flag to TRUE
         memset(buf, 0, sizeof(buf));
         ssize_t result = TEMP_FAILURE_RETRY(read(info->cleanup_socks[0], buf, sizeof(buf)));
@@ -370,7 +370,7 @@ void wifi_cleanup(wifi_handle handle, wifi_cleaned_up_handler handler)
         if (strncmp(buf, "Done", 4) == 0) {
             ALOGE("Event processing terminated");
         } else {
-            ALOGD("Rx'ed %s", buf);
+            ALOGD("accepted %s", buf);
         }
     }
     info->clean_up = true;
@@ -473,7 +473,7 @@ void wifi_event_loop(wifi_handle handle)
                 }
                 break;
             } else {
-                ALOGD("Rx'ed %s on the cleanup socket\n", buf);
+                ALOGD("accepted %s on the cleanup socket\n", buf);
             }
         } else {
             ALOGE("Unknown event - %0x, %0x", pfd[0].revents, pfd[1].revents);
@@ -589,7 +589,7 @@ public:
 
     virtual int handleResponse(WifiEvent& reply) {
 
-        // ALOGI("handling reponse in %s", __func__);
+        // ALOGI("handling response in %s", __func__);
 
         struct nlattr **tb = reply.attributes();
         //struct genlmsghdr *gnlh = reply.header();
@@ -890,7 +890,7 @@ class AndroidPktFilterCommand : public WifiCommand {
             return createSetPktFilterRequest(request);
         } else if (mReqType == GET_APF_CAPABILITIES) {
             ALOGI("\n%s: APF get capabilities request\n", __FUNCTION__);
-            return createGetPktFilterCapabilitesRequest(request);
+            return createGetPktFilterCapabilitiesRequest(request);
         } else {
             ALOGE("\n%s Unknown APF request\n", __FUNCTION__);
             return WIFI_ERROR_NOT_SUPPORTED;
@@ -921,7 +921,7 @@ class AndroidPktFilterCommand : public WifiCommand {
         return result;
     }
 
-    int createGetPktFilterCapabilitesRequest(WifiRequest& request) {
+    int createGetPktFilterCapabilitiesRequest(WifiRequest& request) {
         int result = request.create(GOOGLE_OUI, APF_SUBCMD_GET_CAPABILITIES);
         if (result < 0) {
             return result;
@@ -971,11 +971,11 @@ class AndroidPktFilterCommand : public WifiCommand {
             return NL_SKIP;
         }
         if( mReqType == SET_APF_PROGRAM) {
-            ALOGD("Response recieved for set packet filter command\n");
+            ALOGD("Response received for set packet filter command\n");
         } else if (mReqType == GET_APF_CAPABILITIES) {
             *mVersion = 0;
             *mMaxLen = 0;
-            ALOGD("Response recieved for get packet filter capabilities command\n");
+            ALOGD("Response received for get packet filter capabilities command\n");
             for (nl_iterator it(vendor_data); it.has_next(); it.next()) {
                 if (it.get_type() == APF_ATTRIBUTE_VERSION) {
                     *mVersion = it.get_u32();
@@ -993,7 +993,7 @@ class AndroidPktFilterCommand : public WifiCommand {
     }
 
     int handleEvent(WifiEvent& event) {
-        /* No Event to recieve for APF commands */
+        /* No Event to receive for APF commands */
         return NL_SKIP;
     }
 };

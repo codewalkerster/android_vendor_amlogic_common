@@ -47,7 +47,7 @@ extern "C" {
   stream interface.
 
      Compression can be done in a single step if the buffers are large
-  enough (for example if an input file is mmap'ed), or can be done by
+  enough (for example if an input file is map), or can be done by
   repeated calls of the compression function.  In the latter case, the
   application must provide more input and/or consume the output
   (providing more output space) before each call.
@@ -614,7 +614,7 @@ ZEXTERN int ZEXPORT compress OF((Bytef *dest,   uLongf *destLen,
    sourceLen plus 12 bytes. Upon exit, destLen is the actual size of the
    compressed buffer.
      This function can be used to compress a whole file at once if the
-   input file is mmap'ed.
+   input file is map.
      compress returns Z_OK if success, Z_MEM_ERROR if there was not
    enough memory, Z_BUF_ERROR if there was not enough room in the output
    buffer.
@@ -646,7 +646,7 @@ ZEXTERN int ZEXPORT uncompress OF((Bytef *dest,   uLongf *destLen,
    by some mechanism outside the scope of this compression library.)
    Upon exit, destLen is the actual size of the compressed buffer.
      This function can be used to decompress a whole file at once if the
-   input file is mmap'ed.
+   input file is map.
 
      uncompress returns Z_OK if success, Z_MEM_ERROR if there was not
    enough memory, Z_BUF_ERROR if there was not enough room in the output

@@ -1008,7 +1008,7 @@ static int tls_verify_cb(int preverify_ok, WOLFSSL_X509_STORE_CTX *x509_ctx)
 
 #ifdef CONFIG_SHA256
 	/*
-	 * Do not require preverify_ok so we can explicity allow otherwise
+	 * Do not require preverify_ok so we can explicitly allow otherwise
 	 * invalid pinned server certificates.
 	 */
 	if (depth == 0 && conn->server_cert_only) {

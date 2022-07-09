@@ -519,7 +519,7 @@ int mAlsaInit(int tm_sleep, int init_flag, int track_rate) {
     if (tm_sleep > 0)
         sleep(tm_sleep);
 
-    LOGD("Exit mAlsaInit function sucess.\n");
+    LOGD("Exit mAlsaInit function success.\n");
 
     return 0;
 #else
@@ -548,7 +548,7 @@ int mAlsaUninit(int tm_sleep) {
     if (tm_sleep > 0)
         sleep(tm_sleep);
 
-    LOGD("Exit mAlsaUninit function sucess.\n");
+    LOGD("Exit mAlsaUninit function success.\n");
 
     return 0;
 #else

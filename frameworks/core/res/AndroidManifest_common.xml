@@ -71,7 +71,7 @@
         </receiver>
 
         <service android:exported="true" android:name="com.droidlogic.ThermalService" android:singleUser="true" />
-        <service android:exported="true" android:name="com.droidlogic.ShuntdownService" android:singleUser="true" />
+        <service android:exported="true" android:name="com.droidlogic.ShutdownService" android:singleUser="true" />
         <service android:exported="true" android:name="com.droidlogic.NtpService" android:singleUser="true" />
         <service android:exported="true" android:name="com.droidlogic.NetflixService" android:singleUser="true" />
         <service android:exported="true" android:name="com.droidlogic.EsmService" android:singleUser="true" />

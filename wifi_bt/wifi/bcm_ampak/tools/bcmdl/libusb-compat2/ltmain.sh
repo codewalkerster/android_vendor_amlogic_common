@@ -723,7 +723,7 @@ func_enable_tag ()
   link|lin|li|l)
     shift; set dummy --mode link ${1+"$@"}; shift
     ;;
-  uninstall|uninstal|uninsta|uninst|unins|unin|uni|un|u)
+  uninstall|uninstall|uninsta|uninst|unins|unin|uni|un|u)
     shift; set dummy --mode uninstall ${1+"$@"}; shift
     ;;
   esac
@@ -2436,7 +2436,7 @@ typedef struct {
 	  case $host in
 	  *cygwin* | *mingw* | *cegcc* )
 	    $ECHO >> "$output_objdir/$my_dlsyms" "\
-/* DATA imports from DLLs on WIN32 con't be const, because
+/* DATA imports from DLLs on WIN32 cannot be const, because
    runtime relocations are performed -- see ld's documentation
    on pseudo-relocs.  */"
 	    lt_dlsym_const= ;;

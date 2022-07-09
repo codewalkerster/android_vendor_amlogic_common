@@ -212,7 +212,7 @@ typedef void (U_EXPORT2 *UConverterToUCallback) (
  * @param args Information about the conversion in progress
  * @param codeUnits Points to 'length' UChars of the concerned Unicode sequence
  * @param length Size (in bytes) of the concerned codepage sequence
- * @param codePoint Single UChar32 (UTF-32) containing the concerend Unicode codepoint.
+ * @param codePoint Single UChar32 (UTF-32) containing the concerned Unicode codepoint.
  * @param reason Defines the reason the callback was invoked
  * @param pErrorCode    ICU error code in/out parameter.
  *                      For converter callback functions, set to a conversion error
@@ -262,7 +262,7 @@ U_CDECL_END
 /**
  * Converter option for specifying a locale.
  * For example, ucnv_open("SCSU,locale=ja", &errorCode);
- * See convrtrs.txt.
+ * See converters.txt.
  *
  * @see ucnv_open
  * @stable ICU 2.0
@@ -275,7 +275,7 @@ U_CDECL_END
  * \code
  *   ucnv_open("UTF-7,version=1", &errorCode);
  * \endcode
- * See convrtrs.txt.
+ * See converters.txt.
  *
  * @see ucnv_open
  * @stable ICU 2.4
@@ -287,7 +287,7 @@ U_CDECL_END
  * Swaps Unicode mappings for EBCDIC LF and NL codes, as used on
  * S/390 (z/OS) Unix System Services (Open Edition).
  * For example, ucnv_open("ibm-1047,swaplfnl", &errorCode);
- * See convrtrs.txt.
+ * See converters.txt.
  *
  * @see ucnv_open
  * @stable ICU 2.4
@@ -1697,10 +1697,10 @@ ucnv_countAvailable(void);
 
 /**
  * Gets the canonical converter name of the specified converter from a list of
- * all available converters contaied in the alias file. All converters
+ * all available converters contained in the alias file. All converters
  * in this list can be opened.
  *
- * @param n the index to a converter available on the system (in the range <TT>[0..ucnv_countAvaiable()]</TT>)
+ * @param n the index to a converter available on the system (in the range <TT>[0..ucnv_countAvailable()]</TT>)
  * @return a pointer a string (library owned), or <TT>NULL</TT> if the index is out of bounds.
  * @see ucnv_countAvailable
  * @stable ICU 2.0
@@ -1771,7 +1771,7 @@ ucnv_getAliases(const char *alias, const char **aliases, UErrorCode *pErrorCode)
  * Return a new UEnumeration object for enumerating all the
  * alias names for a given converter that are recognized by a standard.
  * This method only enumerates the listed entries in the alias file.
- * The convrtrs.txt file can be modified to change the results of
+ * The converters.txt file can be modified to change the results of
  * this function.
  * The first result in this list is the same result given by
  * <code>ucnv_getStandardName</code>, which is the default alias for
@@ -2030,7 +2030,7 @@ ucnv_toUCountPending(const UConverter* cnv, UErrorCode* status);
  * fixed ratio of bytes to Unicode codes <i>units</i> for any particular Unicode encoding form.
  * FALSE is returned with the UErrorCode if error occurs or cnv is NULL.
  * @param cnv       The converter to be tested
- * @param status    ICU error code in/out paramter
+ * @param status    ICU error code in/out parameter
  * @return TRUE if the converter is fixed-width
  * @stable ICU 4.8
  */

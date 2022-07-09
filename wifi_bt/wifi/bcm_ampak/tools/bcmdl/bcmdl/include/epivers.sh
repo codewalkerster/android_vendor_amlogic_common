@@ -106,7 +106,7 @@ else # epivers.h doesn't exist
 	# or
 	#    <NAME>_REL_<MAJ>_<MINOR>_RC<RCNUM>_<INCREMENTAL>
 
-	MERGERLOG=${SRCBASE}/../merger_sources.log
+	MERGE_LOG=${SRCBASE}/../merger_sources.log
 	GETCOMPVER=getcompver.py
 	GETCOMPVER_NET=/projects/hnd_software/gallery/src/tools/build/$GETCOMPVER
 	GETCOMPVER_NET_WIN=Z:${GETCOMPVER_NET}
@@ -141,9 +141,9 @@ else # epivers.h doesn't exist
 
 	# Now get tag for src/include from automerger log
 	[ -n "$VERBOSE" ] && \
-		echo "DBG: python $GETCOMPVER_PATH $MERGERLOG src/include"
+		echo "DBG: python $GETCOMPVER_PATH $MERGE_LOG src/include"
 
-	COMPTAG=$(python $GETCOMPVER_PATH $MERGERLOG src/include 2> $NULL | sed -e 's/[[:space:]]*//g')
+	COMPTAG=$(python $GETCOMPVER_PATH $MERGE_LOG src/include 2> $NULL | sed -e 's/[[:space:]]*//g')
 
 	echo "DBG: Component Tag String Derived = $COMPTAG"
 

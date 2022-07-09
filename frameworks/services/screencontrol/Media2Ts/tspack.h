@@ -54,7 +54,7 @@ public:
     int32_t getMaxFrameCount() const;
 
     // Get / Set time limit in unit million second (ms)
-    // proiroty: setTimeLimit() > setMaxFrameCount()
+    // priority: setTimeLimit() > setMaxFrameCount()
     status_t setTimeLimit(int32_t timeLimitMs);
     int32_t getTimeLimit() const;
 

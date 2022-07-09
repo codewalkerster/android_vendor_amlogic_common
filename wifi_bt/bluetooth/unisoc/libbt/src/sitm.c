@@ -121,7 +121,7 @@ static void sitm_read_th(void *arg)
         max_fd = userial_fd > rx_fds[0] ? userial_fd : rx_fds[0];
         ret = select(max_fd + 1, &fds, NULL, NULL, NULL);
         if(ret <= 0) {
-            SITME("select userial faield");
+            SITME("select userial failed");
             break;
         }
         if (FD_ISSET(rx_fds[0], &fds)) {
@@ -153,7 +153,7 @@ static void sitm_write_th(void *arg)
         max_fd = vendor_fd > tx_fds[0] ? vendor_fd : tx_fds[0];
         ret = select(max_fd + 1, &fds, NULL, NULL, NULL);
         if(ret <= 0) {
-            SITME("select userial faield");
+            SITME("select userial failed");
             break;
         }
         if (FD_ISSET(tx_fds[0], &fds)) {

@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2006  Adam Charrett
+Copyright (C) 2006  Adam Charette
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -23,7 +23,7 @@ Decode PSIP Virtual Channel Table.
 
 /*!
  * \file atsc_vct.h
- * \author Adam Charrett
+ * \author Adam Charette
  * \brief Decode PSIP Virtual Channel Table. (ATSC VCT).
  */
 

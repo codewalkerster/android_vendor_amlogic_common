@@ -119,19 +119,19 @@ typedef struct UConverter UConverter;
 #define UCNV_ESCAPE_JAVA      "J"
 /**
  * FROM_U_CALLBACK_ESCAPE context option to escape the code unit according to C (\\uXXXX \\UXXXXXXXX)
- * TO_U_CALLBACK_ESCAPE option to escape the character value accoding to C (\\xXXXX)
+ * TO_U_CALLBACK_ESCAPE option to escape the character value according to C (\\xXXXX)
  * @stable ICU 2.0
  */
 #define UCNV_ESCAPE_C         "C"
 /**
  * FROM_U_CALLBACK_ESCAPE context option to escape the code unit according to XML Decimal escape \htmlonly(&amp;#DDDD;)\endhtmlonly
- * TO_U_CALLBACK_ESCAPE context option to escape the character value accoding to XML Decimal escape \htmlonly(&amp;#DDDD;)\endhtmlonly
+ * TO_U_CALLBACK_ESCAPE context option to escape the character value according to XML Decimal escape \htmlonly(&amp;#DDDD;)\endhtmlonly
  * @stable ICU 2.0
  */
 #define UCNV_ESCAPE_XML_DEC   "D"
 /**
  * FROM_U_CALLBACK_ESCAPE context option to escape the code unit according to XML Hex escape \htmlonly(&amp;#xXXXX;)\endhtmlonly
- * TO_U_CALLBACK_ESCAPE context option to escape the character value accoding to XML Hex escape \htmlonly(&amp;#xXXXX;)\endhtmlonly
+ * TO_U_CALLBACK_ESCAPE context option to escape the character value according to XML Hex escape \htmlonly(&amp;#xXXXX;)\endhtmlonly
  * @stable ICU 2.0
  */
 #define UCNV_ESCAPE_XML_HEX   "X"
@@ -199,7 +199,7 @@ typedef struct {
     const UChar *sourceLimit;   /**< Pointer to the limit (end + 1) of source buffer. @stable ICU 2.0    */
     char *target;               /**< Pointer to the target buffer. @stable ICU 2.0    */
     const char *targetLimit;    /**< Pointer to the limit (end + 1) of target buffer. @stable ICU 2.0     */
-    int32_t *offsets;           /**< Pointer to the buffer that recieves the offsets. *offset = blah ; offset++;. @stable ICU 2.0  */
+    int32_t *offsets;           /**< Pointer to the buffer that receives the offsets. *offset = blah ; offset++;. @stable ICU 2.0  */
 } UConverterFromUnicodeArgs;
 
 
@@ -215,7 +215,7 @@ typedef struct {
     const char *sourceLimit;    /**< Pointer to the limit (end + 1) of source buffer. @stable ICU 2.0    */
     UChar *target;              /**< Pointer to the target buffer. @stable ICU 2.0    */
     const UChar *targetLimit;   /**< Pointer to the limit (end + 1) of target buffer. @stable ICU 2.0     */
-    int32_t *offsets;           /**< Pointer to the buffer that recieves the offsets. *offset = blah ; offset++;. @stable ICU 2.0  */
+    int32_t *offsets;           /**< Pointer to the buffer that receives the offsets. *offset = blah ; offset++;. @stable ICU 2.0  */
 } UConverterToUnicodeArgs;
 
 
@@ -228,7 +228,7 @@ typedef struct {
  * @param fromUArgs Information about the conversion in progress
  * @param codeUnits Points to 'length' UChars of the concerned Unicode sequence
  * @param length Size (in bytes) of the concerned codepage sequence
- * @param codePoint Single UChar32 (UTF-32) containing the concerend Unicode codepoint.
+ * @param codePoint Single UChar32 (UTF-32) containing the concerned Unicode codepoint.
  * @param reason Defines the reason the callback was invoked
  * @param err This should always be set to a failure status prior to calling.
  * @stable ICU 2.0
@@ -278,7 +278,7 @@ U_STABLE void U_EXPORT2 UCNV_TO_U_CALLBACK_STOP (
  * @param fromUArgs Information about the conversion in progress
  * @param codeUnits Points to 'length' UChars of the concerned Unicode sequence
  * @param length Size (in bytes) of the concerned codepage sequence
- * @param codePoint Single UChar32 (UTF-32) containing the concerend Unicode codepoint.
+ * @param codePoint Single UChar32 (UTF-32) containing the concerned Unicode codepoint.
  * @param reason Defines the reason the callback was invoked
  * @param err Return value will be set to success if the callback was handled,
  *      otherwise this value will be set to a failure status.
@@ -307,7 +307,7 @@ U_STABLE void U_EXPORT2 UCNV_FROM_U_CALLBACK_SKIP (
  * @param fromUArgs Information about the conversion in progress
  * @param codeUnits Points to 'length' UChars of the concerned Unicode sequence
  * @param length Size (in bytes) of the concerned codepage sequence
- * @param codePoint Single UChar32 (UTF-32) containing the concerend Unicode codepoint.
+ * @param codePoint Single UChar32 (UTF-32) containing the concerned Unicode codepoint.
  * @param reason Defines the reason the callback was invoked
  * @param err Return value will be set to success if the callback was handled,
  *      otherwise this value will be set to a failure status.
@@ -364,7 +364,7 @@ U_STABLE void U_EXPORT2 UCNV_FROM_U_CALLBACK_SUBSTITUTE (
  * @param fromUArgs Information about the conversion in progress
  * @param codeUnits Points to 'length' UChars of the concerned Unicode sequence
  * @param length Size (in bytes) of the concerned codepage sequence
- * @param codePoint Single UChar32 (UTF-32) containing the concerend Unicode codepoint.
+ * @param codePoint Single UChar32 (UTF-32) containing the concerned Unicode codepoint.
  * @param reason Defines the reason the callback was invoked
  * @param err Return value will be set to success if the callback was handled,
  *      otherwise this value will be set to a failure status.

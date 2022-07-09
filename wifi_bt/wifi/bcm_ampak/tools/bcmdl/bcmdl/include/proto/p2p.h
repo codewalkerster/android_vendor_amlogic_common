@@ -197,7 +197,7 @@ typedef struct wifi_p2p_status_se_s wifi_p2p_status_se_t;
 #define P2P_STATSE_FAIL_INVALID_PARAMS		4
 				/* Failed, invalid parameters */
 #define P2P_STATSE_FAIL_UNABLE_TO_ACCOM		5
-				/* Failed, unable to accomodate request */
+				/* Failed, unable to accommodate request */
 #define P2P_STATSE_FAIL_PROTO_ERROR		6
 				/* Failed, previous protocol error or disruptive behaviour */
 #define P2P_STATSE_FAIL_NO_COMMON_CHAN		7
@@ -424,7 +424,7 @@ typedef struct wifi_p2p_adv_serv_info_s wifi_p2p_adv_serv_info_t;
 /* WiFi P2P IE subelement: Advertise Service Hash */
 BWL_PRE_PACKED_STRUCT struct wifi_p2p_advt_serv_se_s {
 	uint8	eltId;			/* SE ID: P2P_SEID_ADVERTISE_SERVICE */
-	uint8	len[2];			/* SE length not including eltId, len fields mutiple len of
+	uint8	len[2];			/* SE length not including eltId, len fields multiple len of
 					 * wifi_p2p_adv_serv_info_t entries
 					*/
 	wifi_p2p_adv_serv_info_t	p_advt_serv_info[1]; /* Variable length
@@ -659,7 +659,7 @@ typedef struct wifi_p2psd_qresp_tlv wifi_p2psd_qresp_tlv_t;
 /* Query Response Frame, defined in generic format, instead of NQP specific */
 BWL_PRE_PACKED_STRUCT struct wifi_p2psd_qresp_frame {
 	uint16	info_id;	/* Info ID: 0xDDDD */
-	uint16	len;		/* Lenth of service response TLV, 6 plus the size of resp data */
+	uint16	len;		/* Length of service response TLV, 6 plus the size of resp data */
 	uint8	oui[3];		/* WFA OUI: 0x0050F2 */
 	uint8	qresp_vsc[1]; /* Vendor-specific Content: wifi_p2psd_qresp_tlv_t type for NQP */
 

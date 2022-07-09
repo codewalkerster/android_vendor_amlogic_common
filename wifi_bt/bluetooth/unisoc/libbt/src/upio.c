@@ -547,7 +547,7 @@ void upio_set(uint8_t pio, uint8_t action, uint8_t polarity)
                 /*
                  * The proc btwrite node could have not been updated for
                  * certain time already due to heavy downstream path flow.
-                 * In this case, we want to explicity touch proc btwrite
+                 * In this case, we want to explicitly touch proc btwrite
                  * node to keep the bt_wake assertion in the LPM kernel
                  * driver. The current kernel bluesleep LPM code starts
                  * a 10sec internal in-activity timeout timer before it
@@ -580,7 +580,7 @@ void upio_set(uint8_t pio, uint8_t action, uint8_t polarity)
         if (action == UPIO_DEASSERT) return;
 #endif
         if (fd_btwrite < 0) {
-            ALOGE("upio_set : %s(%d) incorrent", VENDOR_BTWRITE_PROC_NODE,
+            ALOGE("upio_set : %s(%d) incorrect", VENDOR_BTWRITE_PROC_NODE,
                   fd_btwrite);
             return;
         }

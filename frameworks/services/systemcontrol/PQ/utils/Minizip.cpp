@@ -156,7 +156,7 @@ int Minizip::compress_file(const char *dst_name, const char *src_name)
 
     if (mDstBuf != NULL && mSrcBuf != NULL)
     {
-        // dst_len input is avaliable buffer size, output is compress size.
+        // dst_len input is available buffer size, output is compress size.
         dst_len = mMaxUnCompressFileSize;
         tmp_ret = mz_compress(mDstBuf + header_len, &dst_len, mSrcBuf, src_len);
         if (tmp_ret < 0)
@@ -232,7 +232,7 @@ int Minizip::uncompress_file(const char *dst_name, const char *src_name)
 
     if (mDstBuf != NULL && mSrcBuf != NULL)
     {
-        // dst_len input is avaliable buffer size, output is compress size.
+        // dst_len input is available buffer size, output is compress size.
         dst_len = mMaxUnCompressFileSize;
         tmp_ret = mz_uncompress(mDstBuf, &dst_len, mSrcBuf + header_len, src_len - header_len);
         if (tmp_ret < 0)
@@ -652,7 +652,7 @@ int Minizip::testCompressFile(const char *dst_path, const char *src_name)
         sprintf(tmp_path + tmp_len, "/pq_%010d.db", i);
         if (access(tmp_path, 0) < 0)
         {
-            SYS_LOGD("find one avaliable file name \"%s\"\n", tmp_path);
+            SYS_LOGD("find one available file name \"%s\"\n", tmp_path);
             break;
         }
     }

@@ -77,7 +77,7 @@ int CPQdb::openPqDB(const char *db_path)
                            databaseAttribute.GenerateTime + " " +
                            databaseAttribute.ChipVersion;
         } else {
-            attributeVal = "Get PQ_DB Verion failure!!!";
+            attributeVal = "Get PQ_DB Version failure!!!";
         }
         SYS_LOGI("%s = %s\n", "PQ.db.version", attributeVal.string());
     }
@@ -991,7 +991,7 @@ int CPQdb::PQ_GetCABCParams(source_input_param_t source_input_param, cabc_param_
     return rval;
 }
 
-int CPQdb::PQ_GetDNLPParams(source_input_param_t source_input_param, Dynamic_contrst_status_t mode, ve_dnlp_curve_param_t *newParams)
+int CPQdb::PQ_GetDNLPParams(source_input_param_t source_input_param, Dynamic_contrast_status_t mode, ve_dnlp_curve_param_t *newParams)
 {
     CSqlite::Cursor c;
     CSqlite::Cursor c1;
@@ -1501,7 +1501,7 @@ int CPQdb::PQ_GetLocalContrastRegParams(source_input_param_t source_input_param,
     return ret;
 }
 
-int CPQdb::PQ_SetDNLPGains(source_input_param_t source_input_param, Dynamic_contrst_status_t level, int final_gain)
+int CPQdb::PQ_SetDNLPGains(source_input_param_t source_input_param, Dynamic_contrast_status_t level, int final_gain)
 {
     char sqlmaster[256];
     int final_gain_reg_num = 46;
@@ -1521,7 +1521,7 @@ int CPQdb::PQ_SetDNLPGains(source_input_param_t source_input_param, Dynamic_cont
     return rval;
 }
 
-int CPQdb::PQ_GetDNLPGains(source_input_param_t source_input_param, Dynamic_contrst_status_t level)
+int CPQdb::PQ_GetDNLPGains(source_input_param_t source_input_param, Dynamic_contrast_status_t level)
 {
     CSqlite::Cursor c;
     char sqlmaster[256];
@@ -1680,7 +1680,7 @@ int CPQdb::PQ_GetBrightnessParams(source_input_param_t source_input_param, int l
 {
     int val = 0;
     GetNonlinearMapping(TVPQ_DATA_BRIGHTNESS, source_input_param.source_input, level, &val);
-    *params = CaculateLevelParam(pq_bri_data, bri_nodes, val);
+    *params = CalculateLevelParam(pq_bri_data, bri_nodes, val);
     return 0;
 
 }
@@ -1717,7 +1717,7 @@ int CPQdb::PQ_GetContrastParams(source_input_param_t source_input_param, int lev
     int val = 0;
 
     GetNonlinearMapping(TVPQ_DATA_CONTRAST, source_input_param.source_input, level, &val);
-    *params = CaculateLevelParam(pq_con_data, con_nodes, val);
+    *params = CalculateLevelParam(pq_con_data, con_nodes, val);
     return 0;
 }
 
@@ -1752,7 +1752,7 @@ int CPQdb::PQ_GetSaturationParams(source_input_param_t source_input_param, int l
     int val = 0;
 
     GetNonlinearMapping(TVPQ_DATA_SATURATION, source_input_param.source_input, level, &val);
-    *params = CaculateLevelParam(pq_sat_data, sat_nodes, val);
+    *params = CalculateLevelParam(pq_sat_data, sat_nodes, val);
     return 0;
 }
 
@@ -1787,7 +1787,7 @@ int CPQdb::PQ_GetHueParams(source_input_param_t source_input_param, int level, i
     int val = 0;
 
     GetNonlinearMapping(TVPQ_DATA_HUE, source_input_param.source_input, level, &val);
-    *params = CaculateLevelParam(pq_hue_data, hue_nodes, val);
+    *params = CalculateLevelParam(pq_hue_data, hue_nodes, val);
     return 0;
 }
 
@@ -1822,7 +1822,7 @@ int CPQdb::PQ_GetSharpness0Params(source_input_param_t source_input_param, int l
     int val = 0;
 
     GetNonlinearMapping(TVPQ_DATA_SHARPNESS, source_input_param.source_input, level, &val);
-    *regs = CaculateLevelRegsParam(pq_sharpness0_reg_data, val, 0);
+    *regs = CalculateLevelRegsParam(pq_sharpness0_reg_data, val, 0);
     return 0;
 }
 
@@ -1831,7 +1831,7 @@ int CPQdb::PQ_GetSharpness1Params(source_input_param_t source_input_param, int l
     int val = 0;
 
     GetNonlinearMapping(TVPQ_DATA_SHARPNESS, source_input_param.source_input, level, &val);
-    *regs = CaculateLevelRegsParam(pq_sharpness1_reg_data, val, 1);
+    *regs = CalculateLevelRegsParam(pq_sharpness1_reg_data, val, 1);
     return 0;
 }
 
@@ -2940,7 +2940,7 @@ String8 CPQdb::GetTableName(const char *GeneralTableName, source_input_param_t s
 }
 
 
-int CPQdb::CaculateLevelParam(tvpq_data_t *pq_data, int nodes, int level)
+int CPQdb::CalculateLevelParam(tvpq_data_t *pq_data, int nodes, int level)
 {
     int i;
 
@@ -2959,7 +2959,7 @@ int CPQdb::CaculateLevelParam(tvpq_data_t *pq_data, int nodes, int level)
     }
 }
 
-am_regs_t CPQdb::CaculateLevelRegsParam(tvpq_sharpness_regs_t *pq_regs, int level, int sharpness_number)
+am_regs_t CPQdb::CalculateLevelRegsParam(tvpq_sharpness_regs_t *pq_regs, int level, int sharpness_number)
 {
     int i;
     am_regs_t regs;

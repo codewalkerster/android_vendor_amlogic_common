@@ -1802,7 +1802,7 @@ int SystemControlService::factorySetParamsDefault()
 int SystemControlService::factorySSMRestore(void)
 {
     if (pCPQControl != NULL) {
-        return pCPQControl->FcatorySSMRestore();
+        return pCPQControl->FactorySSMRestore();
     } else {
         return -1;
     }

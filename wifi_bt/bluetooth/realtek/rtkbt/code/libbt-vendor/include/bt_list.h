@@ -155,9 +155,9 @@ void
 
 /**
     Macros to get the struct pointer of this list entry
-    You could make every RT_LIST_ENTRY at the first place of your structure to avoid the macro, which will be dangerouse.
+    You could make every RT_LIST_ENTRY at the first place of your structure to avoid the macro, which will be dangerous.
     Copy from winnt.h.
-    BUG:if offset of field in type larger than 32 bit interger, which is not likely to happen, it will error
+    BUG:if offset of field in type larger than 32 bit integer, which is not likely to happen, it will error
     \param _Ptr               : Struct RT_LIST_ENTRY type pointer
     \param _Type            : The type of structure in which the RT_LIST_ENTRY embedded in
     \param _Field            : the name of the RT_LIST_ENTRY within the struct

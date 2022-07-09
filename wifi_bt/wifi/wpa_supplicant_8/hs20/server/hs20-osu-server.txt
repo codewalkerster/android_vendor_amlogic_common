@@ -200,7 +200,7 @@ private_key_passwd=whatever
 ocsp_stapling_response=/home/user/hs20-server/ca/ocsp-server-cache.der
 
 The /home/user/hs20-server/AS/hostapd-osen.eap_user file should look
-similar to this, and should coorelate with the osu_nai entry in
+similar to this, and should correlate with the osu_nai entry in
 the non-OSEN VAP config file.  For instance:
 
 # cat hostapd-osen.eap_user

@@ -945,7 +945,7 @@ eap_pwd_process(struct eap_sm *sm, void *priv, struct eap_method_ret *ret,
 	/*
 	 * see if this is a fragment that needs buffering
 	 *
-	 * if it's the first fragment there'll be a length field
+	 * if it's the first fragment there will be a length field
 	 */
 	if (EAP_PWD_GET_LENGTH_BIT(lm_exch)) {
 		if (len < 2) {

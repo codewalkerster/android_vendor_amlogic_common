@@ -320,7 +320,7 @@ struct bt_stereo_para {
 
 #define MTK_WMT_HEADER_LEN 4
 
-#define DEFAULE_PATCH_FRAG_SIZE    1000
+#define DEFAULT_PATCH_FRAG_SIZE    1000
 
 #define PATCH_IS_DOWNLOAD_BY_OTHER 0
 #define PATCH_READY 1
@@ -365,7 +365,7 @@ struct bt_stereo_para {
 		((((unsigned long)(p)) + (((unsigned long)(a)) - 1)) & \
 		~(((unsigned long)(a)) - 1))
 struct sk_buff *btmtk_create_send_data(struct sk_buff *skb);
-int btmtk_print_buffer_conent(u8 *buf, u32 Datalen);
+int btmtk_print_buffer_content(u8 *buf, u32 Datalen);
 u32 lock_unsleepable_lock(struct _OSAL_UNSLEEPABLE_LOCK_ *pUSL);
 u32 unlock_unsleepable_lock(struct _OSAL_UNSLEEPABLE_LOCK_ *pUSL);
 

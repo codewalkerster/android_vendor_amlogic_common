@@ -232,7 +232,7 @@ typedef enum ve_pq_timing_type_e {
 /*
  *src_timing: load status: bit31 ->1: load/save all crop; 0: load one according to timing
               AFD flag:    bit30 ->1: enable AFD; 0: disable AFD
-              screen mode: bit24~bit29 ->dispiay mode
+              screen mode: bit24~bit29 ->display mode
               source:      bit16~bit23 -> source
               timing:      bit0 ~bit15 -> sd/hd/fhd/uhd
  *value1: bit0 ~bit15 -> hs

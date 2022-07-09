@@ -995,12 +995,12 @@ static void eap_fast_process_phase2_response(struct eap_sm *sm,
 
 	if (in_len > sizeof(*hdr) && *pos == EAP_TYPE_NAK) {
 		left = in_len - sizeof(*hdr);
-		wpa_hexdump(MSG_DEBUG, "EAP-FAST: Phase2 type Nak'ed; "
+		wpa_hexdump(MSG_DEBUG, "EAP-FAST: Phase2 type Naked; "
 			    "allowed types", pos + 1, left - 1);
 #ifdef EAP_SERVER_TNC
 		if (m && m->vendor == EAP_VENDOR_IETF &&
 		    m->method == EAP_TYPE_TNC) {
-			wpa_printf(MSG_DEBUG, "EAP-FAST: Peer Nak'ed required "
+			wpa_printf(MSG_DEBUG, "EAP-FAST: Peer Naked required "
 				   "TNC negotiation");
 			next_vendor = EAP_VENDOR_IETF;
 			next_type = eap_fast_req_failure(sm, data);

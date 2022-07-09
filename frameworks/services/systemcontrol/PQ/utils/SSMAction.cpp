@@ -121,13 +121,13 @@ static const int SSM_MARK_01_VALUE = 0x90;
 static const int SSM_MARK_02_VALUE = 0xCE;
 static const int SSM_MARK_03_VALUE = 0xDF;
 
-int SSMAction::SaveBurnWriteCharaterChar(int rw_val)
+int SSMAction::SaveBurnWriteCharacterChar(int rw_val)
 {
     int value = rw_val;
     return SSMWriteNTypes(SSM_RSV_W_CHARACTER_CHAR_START, 1, &value, 0);
 }
 
-int SSMAction::ReadBurnWriteCharaterChar()
+int SSMAction::ReadBurnWriteCharacterChar()
 {
     int tmp_val = 0;
 
@@ -156,8 +156,8 @@ int SSMAction::DeviceMarkCheck()
     mark_values[1] = SSM_MARK_02_VALUE;
     mark_values[2] = SSM_MARK_03_VALUE;
 
-    if (ReadBurnWriteCharaterChar() != CC_DEF_CHARACTER_CHAR_VAL) {
-        SaveBurnWriteCharaterChar(CC_DEF_CHARACTER_CHAR_VAL);
+    if (ReadBurnWriteCharacterChar() != CC_DEF_CHARACTER_CHAR_VAL) {
+        SaveBurnWriteCharacterChar(CC_DEF_CHARACTER_CHAR_VAL);
     }
 
     failed_count = 0;
@@ -638,7 +638,7 @@ int SSMAction::SSMReadBrightness(int offset, int *rw_val)
 }
 
 
-//constract
+//construct
 int SSMAction::SSMSaveContrast(int offset, int rw_val)
 {
     return SSMWriteNTypes(VPP_DATA_POS_CONTRAST_START, 1, &rw_val, offset);

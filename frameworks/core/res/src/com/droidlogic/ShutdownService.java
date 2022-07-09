@@ -5,7 +5,7 @@
  * file 'LICENSE' which is part of this source code package.
  *
  * Description:
- *     AMLOGIC ShuntdownService
+ *     AMLOGIC ShutdownService
  */
 
 package com.droidlogic;
@@ -35,9 +35,9 @@ import android.os.PowerManager;
 
 
 
-public class ShuntdownService extends Service {
+public class ShutdownService extends Service {
 
-    private static final String TAG = "ShuntdownService";
+    private static final String TAG = "ShutdownService";
 
     public static final String BT_NAME_QCA                  = "persist.vendor.libbt_vendor";//"persist.vendor.bt_vendor";
     public static final String BLUETOOTH_PKG_NAME           = "com.android.bluetooth";
@@ -61,9 +61,9 @@ public class ShuntdownService extends Service {
 
         Log.e(TAG, " Larson: QCA module = " + qcabt);
         if (qcabt) {
-            IntentFilter shundownfilter = new IntentFilter();
-            shundownfilter.addAction(Intent.ACTION_SHUTDOWN);
-            registerReceiver (shundownReceiver, shundownfilter);
+            IntentFilter shutdownFilter = new IntentFilter();
+            shutdownFilter.addAction(Intent.ACTION_SHUTDOWN);
+            registerReceiver (shutdownReceiver, shutdownFilter);
         }
     }
 
@@ -83,7 +83,7 @@ public class ShuntdownService extends Service {
     }
 
 
-    private BroadcastReceiver shundownReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver shutdownReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
@@ -92,7 +92,7 @@ public class ShuntdownService extends Service {
             mDevicePolicyManager.lockNow();
 
             //bluetoothAdapter.disable(false);
-            //donot save shundown status setting global bluetooth_on
+            //donot save shutdown status setting global bluetooth_on
             try {
                 bluetoothAdapter.getClass().getMethod("disable", boolean.class)
                     .invoke(bluetoothAdapter,false);

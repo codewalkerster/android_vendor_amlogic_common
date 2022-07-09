@@ -31,7 +31,7 @@
 #define BT_LIBBT_INCLUDE_BT_VENDOR_SPRD_OSI_H_
 
 /* A2DP COMPAT  Start */
-#if (defined (OSI_COMPAT_ANROID_6_0) || defined (OSI_COMPAT_ANROID_4_4_4))
+#if (defined (OSI_COMPAT_ANDROID_6_0) || defined (OSI_COMPAT_ANDROID_4_4_4))
 #include "a2d_api.h"
 #include "a2d_sbc.h"
 
@@ -89,7 +89,7 @@
 
 
 
-#else //endif OSI_COMPAT_ANROID_6_0
+#else //endif OSI_COMPAT_ANDROID_6_0
 #include "a2dp_constants.h"
 #include "a2dp_sbc_constants.h"
 #include "a2dp_error_codes.h"

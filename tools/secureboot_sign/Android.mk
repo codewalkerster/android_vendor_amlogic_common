@@ -1,4 +1,4 @@
-#variable LOCAL_PATH will overwrited by other Android.mk
+#variable LOCAL_PATH will overwritten by other Android.mk
 #	so LOCAL_PATH only valid when Makefile life-time, no target building time
 LOCAL_PATH:= $(call my-dir)
 

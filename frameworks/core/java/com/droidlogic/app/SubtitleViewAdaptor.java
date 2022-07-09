@@ -32,7 +32,7 @@ class SubtitleViewAdaptor {
     private FrameLayout mSubLayout = null;
     private TextView mTextView;
     private ImageView mImageView;
-    private CCSubtitleView mCcSutbitlteView;
+    private CCSubtitleView mCcSubtitleView;
     boolean mIsWindowCreated;
 
     private AnimationDrawable mAnimationDrawable;
@@ -53,8 +53,8 @@ class SubtitleViewAdaptor {
     private int mPosHeight = 0;
     private int mTextSize = 0;
     private int mTextColor = 0;
-    private int mCordinateX = 0;
-    private int mCordinateY = 0;
+    private int mCoordinateX = 0;
+    private int mCoordinateY = 0;
     private int mDisplayFlag = 0;
     private int mSubtitleType = -1;
     private boolean mDisableDisplay = false;
@@ -127,9 +127,9 @@ class SubtitleViewAdaptor {
 
         RelativeLayout cclayout = new RelativeLayout(mContext);
         ilayout.setLayoutParams(lparams);
-        mCcSutbitlteView = new CCSubtitleView(mContext);
+        mCcSubtitleView = new CCSubtitleView(mContext);
         cclayout.setPadding(0, 0, 0, 50);
-        cclayout.addView(mCcSutbitlteView, lparams);
+        cclayout.addView(mCcSubtitleView, lparams);
         mSubLayout.addView(tlayout, tparams);
         mSubLayout.addView(ilayout, tparams);
         mSubLayout.addView(cclayout, tparams);
@@ -137,8 +137,8 @@ class SubtitleViewAdaptor {
 
         mTextView.setVisibility(View.INVISIBLE);
         mImageView.setVisibility(View.INVISIBLE);
-        mCcSutbitlteView.setVisibility(View.INVISIBLE);
-        //mCcSutbitlteView.hide();
+        mCcSubtitleView.setVisibility(View.INVISIBLE);
+        //mCcSubtitleView.hide();
 
         mDisplay = mWindowManager.getDefaultDisplay();
         mDisplayBoundWidth = mDisplay.getWidth();
@@ -216,8 +216,8 @@ class SubtitleViewAdaptor {
         if (!mIsWindowCreated) {
             return;
         }
-        if (View.VISIBLE == mCcSutbitlteView.getVisibility()) {
-            mCcSutbitlteView.setVisibility(View.INVISIBLE);
+        if (View.VISIBLE == mCcSubtitleView.getVisibility()) {
+            mCcSubtitleView.setVisibility(View.INVISIBLE);
         }
         if (View.VISIBLE == mTextView.getVisibility()) {
             mTextView.setVisibility(View.INVISIBLE);
@@ -267,8 +267,8 @@ class SubtitleViewAdaptor {
        }
 
         mTextView.setVisibility(View.VISIBLE);
-        //mCcSutbitlteView.hide();
-        mCcSutbitlteView.setVisibility(View.INVISIBLE);
+        //mCcSubtitleView.hide();
+        mCcSubtitleView.setVisibility(View.INVISIBLE);
         text = text.replace("\\N", "\n");
         Pattern pattern1 = Pattern.compile("(?<=\\{)[^\\}]+");
         Matcher m = pattern1.matcher(text);
@@ -315,7 +315,7 @@ class SubtitleViewAdaptor {
             mImageView.setVisibility(View.VISIBLE);
         }
         else if (SubtitleManager.SUBTITLE_CC_JASON == mDisplayFlag) {
-            mCcSutbitlteView.setVisibility(View.VISIBLE);
+            mCcSubtitleView.setVisibility(View.VISIBLE);
         }
     }
 
@@ -356,7 +356,7 @@ class SubtitleViewAdaptor {
             mImageView.setVisibility(View.INVISIBLE);
         }
         else if (SubtitleManager.SUBTITLE_CC_JASON == mDisplayFlag) {
-            mCcSutbitlteView.setVisibility(View.INVISIBLE);
+            mCcSubtitleView.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -376,8 +376,8 @@ class SubtitleViewAdaptor {
             return;
         mTextView.setVisibility(View.INVISIBLE);
         mImageView.setVisibility(View.INVISIBLE);
-        mCcSutbitlteView.setVisibility(View.VISIBLE);
-        mCcSutbitlteView.showJsonStr(str);
+        mCcSubtitleView.setVisibility(View.VISIBLE);
+        mCcSubtitleView.showJsonStr(str);
     }
     public void resetForSeek() {
         checkCallerOnUIThread();
@@ -413,9 +413,9 @@ class SubtitleViewAdaptor {
         checkCallerOnUIThread();
          mTextColor = color;
     }
-    public void setCordinate (int x, int y) {
-        mCordinateX = x;
-        mCordinateY = y;
+    public void setCoordinate (int x, int y) {
+        mCoordinateX = x;
+        mCoordinateY = y;
       }
 
     //set the teletext Subtitlebitmap by scale
@@ -480,7 +480,7 @@ class SubtitleViewAdaptor {
         if (mDisableDisplay)
             return;
         mTextView.setVisibility(View.INVISIBLE);
-        mCcSutbitlteView.setVisibility(View.INVISIBLE);
+        mCcSubtitleView.setVisibility(View.INVISIBLE);
 
         if (!showing) {
             Log.d(TAG, "hidden!");
@@ -500,12 +500,12 @@ class SubtitleViewAdaptor {
         if ((mSubtitleType == SubtitleManager.TYPE_SUBTITLE_DVB)
             || (mSubtitleType == SubtitleManager.TYPE_SUBTITLE_SCTE27)
             || (mSubtitleType == SubtitleManager.TYPE_SUBTITLE_PGS)) {
-            mCordinateX = (int)(mCordinateX*wScale);
-            mCordinateY = (int)(mCordinateY*hScale);
-            params.setMargins(mCordinateX, mCordinateY, 0, 0);
+            mCoordinateX = (int)(mCoordinateX*wScale);
+            mCoordinateY = (int)(mCoordinateY*hScale);
+            params.setMargins(mCoordinateX, mCoordinateY, 0, 0);
             mImageView.setLayoutParams(params);
 
-            Log.d(TAG, "mCordinateX="+mCordinateX+", mCordinateY="+mCordinateY);
+            Log.d(TAG, "mCoordinateX="+mCoordinateX+", mCoordinateY="+mCoordinateY);
         } else {
             RelativeLayout.LayoutParams tt = new RelativeLayout.LayoutParams(mImageView.getLayoutParams());
             if (mSubtitleType == SubtitleManager.TYPE_SUBTITLE_DVB_TELETEXT) {

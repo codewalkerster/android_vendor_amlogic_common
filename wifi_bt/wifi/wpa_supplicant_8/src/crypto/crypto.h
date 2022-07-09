@@ -473,7 +473,7 @@ int __must_check crypto_mod_exp(const u8 *base, size_t base_len,
  * @key: RC4 key
  * @keylen: RC4 key length
  * @skip: number of bytes to skip from the beginning of the RC4 stream
- * @data: data to be XOR'ed with RC4 stream
+ * @data: data to be  with RC4 stream
  * @data_len: buf length
  * Returns: 0 on success, -1 on failure
  *
@@ -731,7 +731,7 @@ struct crypto_ec_point;
 /**
  * crypto_ec_init - Initialize elliptic curve context
  * @group: Identifying number for the ECC group (IANA "Group Description"
- *	attribute registrty for RFC 2409)
+ *	attribute registry for RFC 2409)
  * Returns: Pointer to EC context or %NULL on failure
  */
 struct crypto_ec * crypto_ec_init(int group);

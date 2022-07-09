@@ -35,7 +35,7 @@
 #include "SceneProcess.h"
 
 //sysfs define
-#define DISPLAY_HDMI_DEEP_COLOR         "/sys/class/amhdmitx/amhdmitx0/dc_cap"//RX supoort deep color
+#define DISPLAY_HDMI_DEEP_COLOR         "/sys/class/amhdmitx/amhdmitx0/dc_cap"//RX support deep color
 #define DISPLAY_HDMI_VALID_MODE         "/sys/class/amhdmitx/amhdmitx0/valid_mode"//testing if tv support this displaymode and  deepcolor combination, then if cat result is 1: support, 0: not
 
 #define DOLBY_VISION_LL_RGB             3
@@ -380,7 +380,7 @@ void SceneProcess::setHDRPolicy(const hdr_policy_e value) {
     mScene_Input_Info.hdr_policy =  value;
 }
 
-void SceneProcess::setCurrtenDisplayMode(const char* value) {
+void SceneProcess::setCurrentDisplayMode(const char* value) {
     SYS_LOGI("%s value:%s\n", __FUNCTION__, value);
 
     strcpy(mScene_Input_Info.cur_displaymode, value);
@@ -1112,7 +1112,7 @@ void SceneProcess::HDRSceneProcess(scene_output_info_t* output_info) {
          && ((mScene_Input_Info.state == SCENE_STATE_INIT) ||
          (mScene_Input_Info.state == SCENE_STATE_POWER))) {
          //best policy enable case
-         //and except from third apk or framewotk set mode.
+         //and except from third apk or framework set mode.
          bool find = false;
 
          scene_output_info_t   Scene_output_info;
@@ -1128,7 +1128,7 @@ void SceneProcess::HDRSceneProcess(scene_output_info_t* output_info) {
      } else {
          //best policy disable case
          //1.check cur_displaymode + ubootenv.var.colorattribute support or not
-         // and except from third apk or framewotk set mode.
+         // and except from third apk or framework set mode.
          if (isModeSupportDeepColorAttr(mScene_Input_Info.cur_displaymode, mScene_Input_Info.hdmi_input_info.ubootenv_colorattribute)
              && !((mScene_Input_Info.state == SCENE_STATE_SWITCH) && IsBestPolicy())) {
              SYS_LOGI("support current mode:[%s], deep color:[%s]\n", mScene_Input_Info.cur_displaymode, mScene_Input_Info.hdmi_input_info.ubootenv_colorattribute);

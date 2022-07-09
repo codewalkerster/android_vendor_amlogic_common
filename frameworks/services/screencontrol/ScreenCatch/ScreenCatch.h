@@ -57,7 +57,7 @@ private:
 
     ScreenManager* mScreenManager;
 
-    // The permenent width and height of SMS buffers
+    // The permanent width and height of SMS buffers
     int mWidth;
     int mHeight;
     int mType;

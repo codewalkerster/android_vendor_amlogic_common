@@ -78,7 +78,7 @@ public class BootComplete extends BroadcastReceiver {
         }
 
         context.startService(new Intent(context,NtpService.class));
-        context.startService(new Intent(context,ShuntdownService.class));
+        context.startService(new Intent(context,ShutdownService.class));
 
         if (mHasTvUiMode)
             context.startService(new Intent(context, DroidLogicPowerService.class));

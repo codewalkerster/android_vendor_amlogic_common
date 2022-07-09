@@ -294,7 +294,7 @@ struct p2ps_advertisement {
 	/**
 	 * cpt_priority - Coordination Protocol Transport priority list
 	 *
-	 * Priorities of supported ASP Coordinatin Protocol Transports.
+	 * Priorities of supported ASP Coordination Protocol Transports.
 	 * This property is set together and corresponds with cpt_mask.
 	 * The CPT priority list is 0 terminated.
 	 */
@@ -1377,7 +1377,7 @@ int p2p_reject(struct p2p_data *p2p, const u8 *peer_addr);
  * (config_methods = WPS_CONFIG_KEYPAD). The Provision Discovery Request frame
  * is transmitted once immediately and if no response is received, the frame
  * will be sent again whenever the target device is discovered during device
- * dsicovery (start with a p2p_find() call). Response from the peer is
+ * discovery (start with a p2p_find() call). Response from the peer is
  * indicated with the p2p_config::prov_disc_resp() callback.
  */
 int p2p_prov_disc_req(struct p2p_data *p2p, const u8 *peer_addr,

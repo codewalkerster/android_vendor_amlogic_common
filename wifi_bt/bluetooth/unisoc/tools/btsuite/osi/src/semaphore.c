@@ -89,7 +89,7 @@ bool semaphore_try_wait(semaphore_t *semaphore) {
     return false;
 
   if (fcntl(semaphore->fd, F_SETFL, flags) == -1)
-    LOG_ERROR("%s unable to resetore flags for semaphore fd: %s", __func__, strerror(errno));
+    LOG_ERROR("%s unable to restore flags for semaphore fd: %s", __func__, strerror(errno));
   return true;
 }
 

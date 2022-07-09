@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2006  Adam Charrett
+Copyright (C) 2006  Adam Charette
 Copyright (C) 2011-2012  Michael Krufky
 
 This library is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@ Decode PSIP Master Guide Table.
 
 /*!
  * \file atsc_mgt.h
- * \author Adam Charrett and Michael Krufky
+ * \author Adam Charette and Michael Krufky
  * \brief Decode PSIP Master Guide Table (ATSC MGT).
  */
 

@@ -25,7 +25,7 @@
 #ifndef MESH_P_256_ECC_PP_H
 #define MESH_P_256_ECC_PP_H
 
-#include "p_256_multprecision.h"
+#include "p_256_multiprecision.h"
 
 //typedef unsigned long  DWORD;
 

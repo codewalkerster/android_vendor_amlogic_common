@@ -186,7 +186,7 @@ static void client_connection_handler(int fd){
     STREAM_TO_UINT16(opcode, p);
     STREAM_TO_UINT8(length, p);
 
-    BTD("encrpty_code: 0x%08x, opcode: 0x%04x, length: 0x%02x", value, opcode, length);
+    BTD("encrypt_code: 0x%08x, opcode: 0x%04x, length: 0x%02x", value, opcode, length);
 
     STREAM_TO_UINT32(value, p);
 

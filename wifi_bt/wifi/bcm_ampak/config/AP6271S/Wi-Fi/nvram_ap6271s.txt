@@ -126,7 +126,7 @@ fdss_level_5g=3,3
 tempthresh=255
 tempoffset=0
 rawtempsense=0x1ff
-phycal_tempdelta=15
+physical_tempdelta=15
 temps_period=15
 temps_hysteresis=15
 

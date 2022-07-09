@@ -14,10 +14,10 @@
 /*!
  * \file <dr_7f.h>
  * \author chen hua ling <hualing.chen@amlogic.com>
- * \brief Application interface for the extention des
+ * \brief Application interface for the extension des
  * descriptor decoder and generator.
  *
- * Application interface for the MPEG 2 TS extention des descriptor decoder and generator
+ * Application interface for the MPEG 2 TS extension des descriptor decoder and generator
  * This descriptor's definition can be found in ETSC EN 300 468
  */
 
@@ -30,38 +30,38 @@ extern "C" {
 
 
 /*****************************************************************************
- * dvbpsi_EXTENTION_dr_t
+ * dvbpsi_EXTENSION_dr_t
  *****************************************************************************/
 /*!
- * \struct dvbpsi_EXTENTION_dr_t
- * \brief EXTENTION descriptor structure.
+ * \struct dvbpsi_EXTENSION_dr_t
+ * \brief EXTENSION descriptor structure.
  *
- * This structure is used to store a decoded EXTENTION descriptor.
+ * This structure is used to store a decoded EXTENSION descriptor.
  * (ETSI EN 300 468).
  */
 /*!
- * \typedef struct dvbpsi_EXTENTION_dr_s dvbpsi_EXTENTION_dr_t
- * \brief dvbpsi_EXTENTION_dr_t type definition.
+ * \typedef struct dvbpsi_EXTENSION_dr_s dvbpsi_EXTENSION_dr_t
+ * \brief dvbpsi_EXTENSION_dr_t type definition.
  */
 
 typedef uint8_t language_code_t[3];
 
-typedef struct dvbpsi_EXTENTION_sup_audio_s
+typedef struct dvbpsi_EXTENSION_sup_audio_s
 {
 	uint8_t		mix_type;					/*!< audio mix type */
 	uint8_t		editorial_classification;	/*!< audio edit classificatio */
 	uint8_t		lang_code;					/*!< lang code,is set 1,need used lang code replace iso 639 code */
 	language_code_t	iso_639_lang_code;		/*!< ISO_639_language_code */
-} dvbpsi_EXTENTION_sup_audio_t;
+} dvbpsi_EXTENSION_sup_audio_t;
 
 
-typedef struct dvbpsi_EXTENTION_dr_s
+typedef struct dvbpsi_EXTENSION_dr_s
 {
 	uint8_t   i_extern_des_tag;          /*!< exten des tag */
 	union {
-		dvbpsi_EXTENTION_sup_audio_t sup_audio;
+		dvbpsi_EXTENSION_sup_audio_t sup_audio;
 	} exten_t;							/*!< exten tag info */
-} dvbpsi_EXTENTION_dr_t;
+} dvbpsi_EXTENSION_dr_t;
 
 #define AM_AUDIO_MIX_DEPENDENT	(0)
 #define AM_AUDIO_MIX_COMPLETE	(1)
@@ -77,7 +77,7 @@ typedef struct dvbpsi_EXTENTION_dr_s
 #define AM_SI_EXTEN_DESCR_IMAGE_ICON				(0x00)
 #define AM_SI_EXTEN_DESCR_CPCM_DELIVERY_SIGNAL		(0x01)
 #define AM_SI_EXTEN_DESCR_CP						(0x02)
-#define AM_SI_EXTEN_DESCR_CP_IDENTIFITER			(0x03)
+#define AM_SI_EXTEN_DESCR_CP_IDENTIFIER			(0x03)
 #define AM_SI_EXTEN_DESCR_T2_DELIVERY_SYS			(0x04)
 #define AM_SI_EXTEN_DESCR_SH_DELIVERY_SYS			(0x05)
 #define AM_SI_EXTEN_DESCR_SUP_AUDIO					(0x06)
@@ -97,17 +97,17 @@ typedef struct dvbpsi_EXTENTION_dr_s
 #define AM_SI_EXTEN_DESCR_BCI_ANCILLARY				(0x14)
 #define AM_SI_EXTEN_DESCR_OTHER						(0x15)
 /*****************************************************************************
- * dvbpsi_DecodeEXTENTIONDr
+ * dvbpsi_DecodeEXTENSIONDr
  *****************************************************************************/
 /*!
- * \fn dvbpsi_EXTENTION_dr_t * dvbpsi_DecodeEXTENTIONDr(
+ * \fn dvbpsi_EXTENSION_dr_t * dvbpsi_DecodeEXTENSIONDr(
                                         dvbpsi_descriptor_t * p_descriptor)
- * \brief EXTENTION descriptor decoder.
+ * \brief EXTENSION descriptor decoder.
  * \param p_descriptor pointer to the descriptor structure
- * \return a pointer to a new "EXTENTION audio" descriptor structure which
+ * \return a pointer to a new "EXTENSION audio" descriptor structure which
  * contains the decoded data.
  */
-dvbpsi_EXTENTION_dr_t* dvbpsi_DecodeEXTENTIONDr(dvbpsi_descriptor_t * p_descriptor);
+dvbpsi_EXTENSION_dr_t* dvbpsi_DecodeEXTENSIONDr(dvbpsi_descriptor_t * p_descriptor);
 
 
 #ifdef __cplusplus

@@ -367,7 +367,7 @@ struct hostapd_bss_config {
 		PSK_RADIUS_REQUIRED = 2
 	} wpa_psk_radius;
 	int wpa_pairwise;
-	int group_cipher; /* wpa_group value override from configuation */
+	int group_cipher; /* wpa_group value override from configuration */
 	int wpa_group;
 	int wpa_group_rekey;
 	int wpa_group_rekey_set;
@@ -980,7 +980,7 @@ struct hostapd_config {
 	char country[3]; /* first two octets: country code as described in
 			  * ISO/IEC 3166-1. Third octet:
 			  * ' ' (ascii 32): all environments
-			  * 'O': Outdoor environemnt only
+			  * 'O': Outdoor environment only
 			  * 'I': Indoor environment only
 			  * 'X': Used with noncountry entity ("XXX")
 			  * 0x00..0x31: identifying IEEE 802.11 standard

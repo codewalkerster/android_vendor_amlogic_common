@@ -328,8 +328,8 @@ void UEventObserver::ueventPrint(char* ueventBuf, int len) {
     }
 }
 
-void UEventObserver::setUevntCallback (HDMITxUevntCallbak *cb) {
-    pmHDMITxUevntCallbak = cb;
+void UEventObserver::setUevntCallback (HDMITxUevntCallback *cb) {
+    pmHDMITxUevntCallback = cb;
 }
 
 void UEventObserver::setFRAutoAdpt(FrameRateAutoAdaption *mFRAutoAdpt) {
@@ -391,35 +391,35 @@ void* UEventObserver::HDMITxUenventThreadLoop(void* data) {
         if (!strcmp(ueventData.matchName, HDMI_TX_UEVENT)) {
             if (pThiz->getSuspendResume()) {
                 // hdmi audio uevent
-                if (!strcmp(ueventData.switchName, UEVENT_HDMI_AUDIO)  && (NULL != pThiz->pmHDMITxUevntCallbak)) {
-                    pThiz->pmHDMITxUevntCallbak->onTxEvent(ueventData.switchName, ueventData.switchState, OUPUT_MODE_STATE_POWER);
+                if (!strcmp(ueventData.switchName, UEVENT_HDMI_AUDIO)  && (NULL != pThiz->pmHDMITxUevntCallback)) {
+                    pThiz->pmHDMITxUevntCallback->onTxEvent(ueventData.switchName, ueventData.switchState, OUTPUT_MODE_STATE_POWER);
                 } else if ((!strcmp(ueventData.switchName, UEVENT_HDMI_POWER)) &&
                     (!strcmp(ueventData.switchState, HDMI_TX_RESUME)) &&
-                    (NULL != pThiz->pmHDMITxUevntCallbak)) {
+                    (NULL != pThiz->pmHDMITxUevntCallback)) {
                     pThiz->setSuspendResume(false);
-                    pThiz->pmHDMITxUevntCallbak->onTxEvent(ueventData.switchName, ueventData.switchState, OUPUT_MODE_STATE_POWER);
+                    pThiz->pmHDMITxUevntCallback->onTxEvent(ueventData.switchName, ueventData.switchState, OUTPUT_MODE_STATE_POWER);
                 }
             } else {
                 //hdmi plugin/plugout uevent
-                if (!strcmp(ueventData.switchName, UEVENT_HPD) && (NULL != pThiz->pmHDMITxUevntCallbak)) {
-                    pThiz->pmHDMITxUevntCallbak->onTxEvent(ueventData.switchName, ueventData.switchState, OUPUT_MODE_STATE_POWER);
+                if (!strcmp(ueventData.switchName, UEVENT_HPD) && (NULL != pThiz->pmHDMITxUevntCallback)) {
+                    pThiz->pmHDMITxUevntCallback->onTxEvent(ueventData.switchName, ueventData.switchState, OUTPUT_MODE_STATE_POWER);
                 }
                 //hdmi suspend and resume uevent
                 else if (!strcmp(ueventData.switchName, UEVENT_HDMI_POWER)) {
                     //0: hdmi suspend  1: hdmi resume
-                    if (!strcmp(ueventData.switchState, HDMI_TX_RESUME) && (NULL != pThiz->pmHDMITxUevntCallbak)) {
+                    if (!strcmp(ueventData.switchState, HDMI_TX_RESUME) && (NULL != pThiz->pmHDMITxUevntCallback)) {
                         pThiz->setSuspendResume(false);
-                        pThiz->pmHDMITxUevntCallbak->onTxEvent(ueventData.switchName, ueventData.switchState, OUPUT_MODE_STATE_POWER);
+                        pThiz->pmHDMITxUevntCallback->onTxEvent(ueventData.switchName, ueventData.switchState, OUTPUT_MODE_STATE_POWER);
                     }
-                    else if (!strcmp(ueventData.switchState, HDMI_TX_SUSPEND) && (NULL != pThiz->pmHDMITxUevntCallbak)) {
+                    else if (!strcmp(ueventData.switchState, HDMI_TX_SUSPEND) && (NULL != pThiz->pmHDMITxUevntCallback)) {
                         pThiz->setSuspendResume(true);
                         pThiz->mSysWrite.writeSysfs(DISPLAY_HDMI_HDCP_POWER, "1");
-                        pThiz->pmHDMITxUevntCallbak->onTxEvent(ueventData.switchName, ueventData.switchState, OUPUT_MODE_STATE_POWER);
+                        pThiz->pmHDMITxUevntCallback->onTxEvent(ueventData.switchName, ueventData.switchState, OUTPUT_MODE_STATE_POWER);
                     }
                 }
                 // hdmi audio uevent
-                else if (!strcmp(ueventData.switchName, UEVENT_HDMI_AUDIO)  && (NULL != pThiz->pmHDMITxUevntCallbak)) {
-                    pThiz->pmHDMITxUevntCallbak->onTxEvent(ueventData.switchName, ueventData.switchState, OUPUT_MODE_STATE_POWER);
+                else if (!strcmp(ueventData.switchName, UEVENT_HDMI_AUDIO)  && (NULL != pThiz->pmHDMITxUevntCallback)) {
+                    pThiz->pmHDMITxUevntCallback->onTxEvent(ueventData.switchName, ueventData.switchState, OUTPUT_MODE_STATE_POWER);
                 }
                 //hdmi hdr uevent
                 else if (!strcmp(ueventData.switchName, UEVENT_HDMI_HDR)) {
@@ -444,13 +444,13 @@ void* UEventObserver::HDMITxUenventThreadLoop(void* data) {
         }
         //old extcon uevent handle
         //hot plug string is the hdmi audio, hdmi power, hdmi hdr substring
-        else if (!strcmp(ueventData.matchName, HDMI_TX_PLUG_UEVENT) && !strcmp(ueventData.switchName, HDMI_UEVENT_HDMI) && (NULL != pThiz->pmHDMITxUevntCallbak)) {
-            pThiz->pmHDMITxUevntCallbak->onTxEvent(ueventData.switchName, ueventData.switchState, OUPUT_MODE_STATE_POWER);
+        else if (!strcmp(ueventData.matchName, HDMI_TX_PLUG_UEVENT) && !strcmp(ueventData.switchName, HDMI_UEVENT_HDMI) && (NULL != pThiz->pmHDMITxUevntCallback)) {
+            pThiz->pmHDMITxUevntCallback->onTxEvent(ueventData.switchName, ueventData.switchState, OUTPUT_MODE_STATE_POWER);
         }
         else if (!strcmp(ueventData.matchName, HDMI_TX_POWER_UEVENT) && !strcmp(ueventData.switchName, HDMI_UEVENT_HDMI_POWER)) {
             //0: hdmi suspend  1: hdmi resume
-            if (!strcmp(ueventData.switchState, HDMI_TX_RESUME) && (NULL != pThiz->pmHDMITxUevntCallbak)) {
-                pThiz->pmHDMITxUevntCallbak->onTxEvent(ueventData.switchName, ueventData.switchState, OUPUT_MODE_STATE_POWER);
+            if (!strcmp(ueventData.switchState, HDMI_TX_RESUME) && (NULL != pThiz->pmHDMITxUevntCallback)) {
+                pThiz->pmHDMITxUevntCallback->onTxEvent(ueventData.switchName, ueventData.switchState, OUTPUT_MODE_STATE_POWER);
             }
             else if (!strcmp(ueventData.switchState, HDMI_TX_SUSPEND)) {
                 pThiz->mSysWrite.writeSysfs(DISPLAY_HDMI_HDCP_POWER, "1");
@@ -481,8 +481,8 @@ void* UEventObserver::HDMITxUenventThreadLoop(void* data) {
         else if (!strcmp(ueventData.matchName, HDMI_TVOUT_FRAME_RATE_UEVENT)) {
                pThiz->pmFrameRateAutoAdaption->onTxUeventReceived(&ueventData);
         }
-        else if (!strcmp(ueventData.matchName, HDMI_TX_HDMI_AUDIO_UEVENT) && !strcmp(ueventData.switchName, HDMI_UEVENT_HDMI_AUDIO)  && (NULL != pThiz->pmHDMITxUevntCallbak)) {
-               pThiz->pmHDMITxUevntCallbak->onTxEvent(ueventData.switchName, ueventData.switchState, OUPUT_MODE_STATE_POWER);
+        else if (!strcmp(ueventData.matchName, HDMI_TX_HDMI_AUDIO_UEVENT) && !strcmp(ueventData.switchName, HDMI_UEVENT_HDMI_AUDIO)  && (NULL != pThiz->pmHDMITxUevntCallback)) {
+               pThiz->pmHDMITxUevntCallback->onTxEvent(ueventData.switchName, ueventData.switchState, OUTPUT_MODE_STATE_POWER);
         }
     }
 

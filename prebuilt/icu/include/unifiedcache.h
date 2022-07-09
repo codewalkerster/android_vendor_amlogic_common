@@ -293,7 +293,7 @@ class U_COMMON_API UnifiedCache : public UnifiedCacheBase {
    void flush() const;
 
    /**
-    * Configures at what point evcition of unused entries will begin.
+    * Configures at what point eviction of unused entries will begin.
     * Eviction is triggered whenever the number of unused entries exeeds
     * BOTH count AND (number of in-use items) * (percentageOfInUseItems / 100).
     * Once the number of unused entries drops below one of these,
@@ -321,7 +321,7 @@ class U_COMMON_API UnifiedCache : public UnifiedCacheBase {
     * unused entries will remain only a small percentage of the total cache
     * size.
     *
-    * If the parameters passed are negative, setEvctionPolicy sets status to
+    * If the parameters passed are negative, setEvictionPolicy sets status to
     * U_ILLEGAL_ARGUMENT_ERROR.
     */
    void setEvictionPolicy(

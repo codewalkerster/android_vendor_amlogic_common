@@ -4,7 +4,7 @@
  * guarantee that structure members will be aligned.
  *
  * Declaring packed structures is compiler specific. In order to handle all
- * cases, packed structures should be delared as:
+ * cases, packed structures should be declared as:
  *
  * #include <packed_section_start.h>
  *

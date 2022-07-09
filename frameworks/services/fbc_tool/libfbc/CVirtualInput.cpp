@@ -38,7 +38,7 @@ int CVirtualInput::setup_uinput_device()
         return -1;
     }
 
-    memset(&uinp, 0, sizeof(uinp)); // Intialize the uInput device to NULL
+    memset(&uinp, 0, sizeof(uinp)); // initialize the uInput device to NULL
     strncpy(uinp.name, "FBC key event", UINPUT_MAX_NAME_SIZE);
     uinp.id.version = 1;
     uinp.id.bustype = BUS_VIRTUAL;

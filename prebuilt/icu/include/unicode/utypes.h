@@ -145,7 +145,7 @@
 /**
  *  U_ICU_ENTRY_POINT is the name of the DLL entry point to the ICU data library.
  *    Defined as a literal, not a string.
- *    Tricky Preprocessor use - ## operator replaces macro paramters with the literal string
+ *    Tricky Preprocessor use - ## operator replaces macro parameters with the literal string
  *                              from the corresponding macro invocation, _before_ other macro substitutions.
  *                              Need a nested \#defines to get the actual version numbers rather than
  *                              the literal text U_ICU_VERSION_MAJOR_NUM into the name.
@@ -446,7 +446,7 @@ typedef enum UErrorCode {
     U_BUFFER_OVERFLOW_ERROR   = 15,     /**< A result would not fit in the supplied buffer */
     U_UNSUPPORTED_ERROR       = 16,     /**< Requested operation not supported in current context */
     U_RESOURCE_TYPE_MISMATCH  = 17,     /**< an operation is requested over a resource that does not support it */
-    U_ILLEGAL_ESCAPE_SEQUENCE = 18,     /**< ISO-2022 illlegal escape sequence */
+    U_ILLEGAL_ESCAPE_SEQUENCE = 18,     /**< ISO-2022 illegal escape sequence */
     U_UNSUPPORTED_ESCAPE_SEQUENCE = 19, /**< ISO-2022 unsupported escape sequence */
     U_NO_SPACE_AVAILABLE      = 20,     /**< No space available for in-buffer expansion for Arabic shaping */
     U_CE_NOT_FOUND_ERROR      = 21,     /**< Currently used only while setting variable top, but can be used generally */
@@ -499,7 +499,7 @@ typedef enum UErrorCode {
     U_MULTIPLE_COMPOUND_FILTERS,      /**< More than one compound filter */
     U_INVALID_RBT_SYNTAX,             /**< A "::id" rule was passed to the RuleBasedTransliterator parser */
     U_INVALID_PROPERTY_PATTERN,       /**< UNUSED as of ICU 2.4 */
-    U_MALFORMED_PRAGMA,               /**< A 'use' pragma is invlalid */
+    U_MALFORMED_PRAGMA,               /**< A 'use' pragma is invalid */
     U_UNCLOSED_SEGMENT,               /**< A closing ')' is missing */
     U_ILLEGAL_CHAR_IN_SEGMENT,        /**< UNUSED as of ICU 2.4 */
     U_VARIABLE_RANGE_EXHAUSTED,       /**< Too many stand-ins generated for the given variable range */
@@ -557,7 +557,7 @@ typedef enum UErrorCode {
     U_BRK_RULE_SYNTAX,                     /**< Syntax error in RBBI rule.                        */
     U_BRK_UNCLOSED_SET,                    /**< UnicodeSet witing an RBBI rule missing a closing ']'.  */
     U_BRK_ASSIGN_ERROR,                    /**< Syntax error in RBBI rule assignment statement.   */
-    U_BRK_VARIABLE_REDFINITION,            /**< RBBI rule $Variable redefined.                    */
+    U_BRK_VARIABLE_REDEFINITION,            /**< RBBI rule $Variable redefined.                    */
     U_BRK_MISMATCHED_PAREN,                /**< Mis-matched parentheses in an RBBI rule.          */
     U_BRK_NEW_LINE_IN_QUOTED_STRING,       /**< Missing closing quote in an RBBI rule.            */
     U_BRK_UNDEFINED_VARIABLE,              /**< Use of an undefined $Variable in an RBBI rule.    */

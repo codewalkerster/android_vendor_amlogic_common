@@ -334,7 +334,7 @@ template <typename T> InStreams& deserializeParamValue(InStreams& in, T* value) 
 }
 
 InStreams& deserialize(TAG_INVALID_t&&, InStreams& in, KeyParameter*) {
-    // there should be no invalid KeyParamaters but if handle them as zero sized.
+    // there should be no invalid KeyParameters but if handle them as zero sized.
     return in;
 }
 

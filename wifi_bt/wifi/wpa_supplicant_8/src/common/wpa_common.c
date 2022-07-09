@@ -1195,7 +1195,7 @@ static bool pasn_use_sha384(int akmp, int cipher)
  * pasn_pmk_to_ptk - Calculate PASN PTK from PMK, addresses, etc.
  * @pmk: Pairwise master key
  * @pmk_len: Length of PMK
- * @spa: Suppplicant address
+ * @spa: Supplicant address
  * @bssid: AP BSSID
  * @dhss: Is the shared secret (DHss) derived from the PASN ephemeral key
  *	exchange encoded as an octet string

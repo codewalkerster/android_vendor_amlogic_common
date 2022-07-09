@@ -733,11 +733,11 @@ public class MediaPlayerExt extends MediaPlayer {
 
     /**
      * Interface definition of a callback to be invoked when a
-     * bluray infomation is available for update.
+     * bluray information is available for update.
      */
     public interface OnBlurayListener {
         /**
-         * Called to indicate an avaliable bluray info
+         * Called to indicate an available bluray info
          *
          * @param mp             the MediaPlayer associated with this callback
          * @param ext1           the bluray info message arg1

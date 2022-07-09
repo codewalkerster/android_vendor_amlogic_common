@@ -1093,7 +1093,7 @@ UTextExtract(UText *ut,
  * @param nativeStart      the index of the start of the region to be replaced
  * @param nativeLimit      the index of the character following the region to be replaced.
  * @param replacementText  pointer to the replacement text
- * @param replacmentLength length of the replacement text in UChars, or -1 if the text is NUL terminated.
+ * @param replacementLength length of the replacement text in UChars, or -1 if the text is NUL terminated.
  * @param status           receives any error status.  Possible errors include
  *                         U_NO_WRITE_PERMISSION
  *
@@ -1105,7 +1105,7 @@ UTextExtract(UText *ut,
 typedef int32_t U_CALLCONV
 UTextReplace(UText *ut,
              int64_t nativeStart, int64_t nativeLimit,
-             const UChar *replacementText, int32_t replacmentLength,
+             const UChar *replacementText, int32_t replacementLength,
              UErrorCode *status);
 
 /**

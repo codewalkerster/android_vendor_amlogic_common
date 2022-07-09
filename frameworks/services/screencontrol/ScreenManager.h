@@ -133,7 +133,7 @@ private:
 
     status_t reset(void);
 
-    // The permenent width and height of SMS buffers
+    // The permanent width and height of SMS buffers
     int mWidth;
     int mHeight;
     int mSourceType;
@@ -158,7 +158,7 @@ private:
     // mStarted is a flag to check if the recording is going on
     bool mError;
 
-    // mNumFramesReceived indicates the number of frames recieved from
+    // mNumFramesReceived indicates the number of frames received from
     // the client side
     int mNumFramesReceived;
     // mNumFramesEncoded indicates the number of frames passed on to the

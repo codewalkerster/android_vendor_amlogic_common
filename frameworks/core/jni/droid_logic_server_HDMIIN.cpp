@@ -70,7 +70,7 @@ static bool usePpmgr = false;
 enum State{
     START,
     PAUSE,
-    STOPING,
+    STOPPING,
     STOP,
 };
 aml_screen_module_t* screenModule;

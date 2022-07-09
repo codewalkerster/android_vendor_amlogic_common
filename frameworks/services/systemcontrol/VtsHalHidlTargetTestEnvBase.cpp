@@ -23,7 +23,7 @@
 #include <log/log.h>
 
 static constexpr const char* kListFlag = "--list_registered_services";
-static constexpr const char* kServceInstanceFlag = "--hal_service_instance";
+static constexpr const char* kServiceInstanceFlag = "--hal_service_instance";
 
 using namespace std;
 
@@ -78,9 +78,9 @@ bool VtsHalHidlTargetTestEnvBase::parseVtsTestOption(const char* arg) {
     return true;
   }
 
-  if (strncmp(arg, kServceInstanceFlag, strlen(kServceInstanceFlag)) == 0) {
+  if (strncmp(arg, kServiceInstanceFlag, strlen(kServiceInstanceFlag)) == 0) {
     // value is the past after "--hal_service_instance="
-    const char* value = arg + strlen(kServceInstanceFlag) + 1;
+    const char* value = arg + strlen(kServiceInstanceFlag) + 1;
     addHalServiceInstance(string(value));
     return true;
   }
@@ -99,7 +99,7 @@ void VtsHalHidlTargetTestEnvBase::addHalServiceInstance(
   // Fail the process if trying to pass multiple service names for the same
   // service instance.
   if (halServiceInstances_.find(instance_name) != halServiceInstances_.end()) {
-    ALOGE("Exisitng instance %s with name %s", instance_name.c_str(),
+    ALOGE("Existing instance %s with name %s", instance_name.c_str(),
           halServiceInstances_[instance_name].c_str());
     abort();
   }

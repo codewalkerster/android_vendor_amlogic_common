@@ -66,7 +66,7 @@
 #define MAX_CONNECTION_NUMBER 10
 
 #define RTK_HCICMD          0x01
-#define RTK_CLOSESOCRET     0x02
+#define RTK_CLOSESOCKET     0x02
 #define RTK_INNER           0x03
 #define RTK_STRING          0x04
 #define OTHER               0xff
@@ -371,7 +371,7 @@ static void Rtk_Service_Send_Hwerror_Event()
     unsigned char p_buf[100];
     int length;
     p_buf[0] = HCIT_TYPE_EVENT;//event
-    p_buf[1] = HCI_VSE_SUBCODE_DEBUG_INFO_SUB_EVT;//firmwre event log
+    p_buf[1] = HCI_VSE_SUBCODE_DEBUG_INFO_SUB_EVT;//firmware event log
     p_buf[3] = 0x01;// host log opcode
     length = sprintf((char *)&p_buf[4], "rtk service error\n");
     p_buf[2] = length + 2;//len
@@ -525,7 +525,7 @@ static void Getpacket(int client_sock)
             break;
         }
 
-        case RTK_CLOSESOCRET:
+        case RTK_CLOSESOCKET:
         {
             close(client_sock);
             //pthread_exit(0);

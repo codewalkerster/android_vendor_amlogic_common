@@ -7,20 +7,20 @@ TARGET_OUT=$(PRODUCT_OUT)/obj/lib_vendor
 ifeq ($(BLUETOOTH_INF), USB)
 
 define rtk-usb-bt
-	@echo "inferface is usb"
+	@echo "interface is usb"
 	$(MAKE) -C $(shell pwd)/$(PRODUCT_OUT)/obj/KERNEL_OBJ M=$(shell pwd)/vendor/amlogic/common/wifi_bt/bluetooth/realtek/rtk_btusb ARCH=$(KERNEL_ARCH) CROSS_COMPILE=$(CROSS_COMPILE) CONFIG_BT_RTKBTUSB=m modules
 	cp $(shell pwd)/vendor/amlogic/common/wifi_bt/bluetooth/realtek/rtk_btusb/rtk_btusb.ko $(TARGET_OUT)/
 
 endef
 
 define bcm-usb-bt
-	@echo "inferface is usb"
+	@echo "interface is usb"
 	$(MAKE) -C $(shell pwd)/$(PRODUCT_OUT)/obj/KERNEL_OBJ M=$(shell pwd)/vendor/amlogic/common/broadcom/btusb/btusb_1_6_29_1/ ARCH=$(KERNEL_ARCH) CROSS_COMPILE=$(CROSS_COMPILE) modules
 	cp $(shell pwd)/vendor/amlogic/common/broadcom/btusb/btusb_1_6_29_1/btusb.ko $(TARGET_OUT)/
 endef
 
 define mtk-usb-bt
-	@echo "inferface is usb"
+	@echo "interface is usb"
 	$(MAKE) -C $(shell pwd)/$(PRODUCT_OUT)/obj/KERNEL_OBJ M=$(shell pwd)/vendor/amlogic/common/wifi_bt/bluetooth/mtk/mtkbt/bt_driver_usb/ ARCH=$(KERNEL_ARCH) CROSS_COMPILE=$(CROSS_COMPILE) modules
 	cp $(shell pwd)/vendor/amlogic/common/wifi_bt/bluetooth/mtk/mtkbt/bt_driver_usb/btmtk_usb.ko $(TARGET_OUT)/
 endef
@@ -29,7 +29,7 @@ endef
 else
 
 define mtk-sdio-bt
-	@echo "inferface is sdio"
+	@echo "interface is sdio"
 	$(MAKE) -C $(shell pwd)/$(PRODUCT_OUT)/obj/KERNEL_OBJ M=$(shell pwd)/vendor/amlogic/common/wifi_bt/bluetooth/mtk/mtkbt/bt_driver_sdio/ ARCH=$(KERNEL_ARCH) CROSS_COMPILE=$(CROSS_COMPILE) modules
 	cp $(shell pwd)/vendor/amlogic/common/wifi_bt/bluetooth/mtk/mtkbt/bt_driver_sdio/btmtksdio.ko $(TARGET_OUT)/
 endef

@@ -397,7 +397,7 @@ struct wpa_ssid {
 #endif /* IEEE8021X_EAPOL */
 
 	/**
-	 * mode - IEEE 802.11 operation mode (Infrastucture/IBSS)
+	 * mode - IEEE 802.11 operation mode (Infrastructure/IBSS)
 	 *
 	 * 0 = infrastructure (Managed) mode, i.e., associate with an AP.
 	 *

@@ -17,31 +17,31 @@
 #include <CFbcLog.h>
 
 
-static CFbcProtocol *mInstace = NULL;
+static CFbcProtocol *mInstance = NULL;
 CFbcProtocol *GetFbcProtocolInstance(unsigned int baud_rate)
 {
-    if (mInstace == NULL) {
-        mInstace = new CFbcProtocol();
-        if (NULL == mInstace || (-1 == mInstace->start(baud_rate))) {
+    if (mInstance == NULL) {
+        mInstance = new CFbcProtocol();
+        if (NULL == mInstance || (-1 == mInstance->start(baud_rate))) {
 
-            if (mInstace)
-                delete mInstace;
+            if (mInstance)
+                delete mInstance;
 
-            mInstace = NULL;
+            mInstance = NULL;
 
             LOGD ("Create FbcProtocolInstance Failure!");
         }
     }
 
-    return mInstace;
+    return mInstance;
 }
 
 void ResetFbcProtocolInstance()
 {
-    if (mInstace)
-        delete mInstace;
+    if (mInstance)
+        delete mInstance;
 
-    mInstace = NULL;
+    mInstance = NULL;
 }
 
 CFbcProtocol::CFbcProtocol()
@@ -256,7 +256,7 @@ int CFbcProtocol::sendDataAndWaitReply(int devno, int waitForDevno, int waitForC
     mLock.unlock();
 
     if (mReplyList.reDataLen > 0) { //data have come in
-        LOGD("%s: recieve data!\n", __FUNCTION__);
+        LOGD("%s: receive data!\n", __FUNCTION__);
         *reDataLen = mReplyList.reDataLen;
         memcpy(pReData, mReplyList.replyData, mReplyList.reDataLen);
         mReplyList.reDataLen = 0;

@@ -17,8 +17,8 @@
 #include <sys/prctl.h>
 #include <fcntl.h>
 
-#define VFRAME_MOUDLE_PATH    "/dev/amvideo_poll"
-#define TX_MOUDLE_PATH        "/dev/display"
+#define VFRAME_MODULE_PATH    "/dev/amvideo_poll"
+#define TX_MODULE_PATH        "/dev/display"
 
 using namespace android;
 class CDevicePollCheckThread: public Thread {

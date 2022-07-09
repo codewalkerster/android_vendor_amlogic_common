@@ -44,7 +44,7 @@
 
 /* LOWI supported capabilities bit masks */
 #define ONE_SIDED_RANGING_SUPPORTED   0x00000001
-#define DUAL_SIDED_RANGING_SUPPORED   0x00000002
+#define DUAL_SIDED_RANGING_SUPPORTED   0x00000002
 #define GSCAN_SUPPORTED               0x00000004
 
 typedef struct wifihal_mon_sock_s {

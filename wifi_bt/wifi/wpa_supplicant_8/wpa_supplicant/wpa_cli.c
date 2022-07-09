@@ -2548,7 +2548,7 @@ static int wpa_cli_cmd_p2p_presence_req(struct wpa_ctrl *ctrl, int argc,
 {
 	if (argc != 0 && argc != 2 && argc != 4) {
 		printf("Invalid P2P_PRESENCE_REQ command: needs two arguments "
-		       "(preferred duration, interval; in microsecods).\n"
+		       "(preferred duration, interval; in microseconds).\n"
 		       "Optional second pair can be used to provide "
 		       "acceptable values.\n");
 		return -1;
@@ -2564,7 +2564,7 @@ static int wpa_cli_cmd_p2p_ext_listen(struct wpa_ctrl *ctrl, int argc,
 	if (argc != 0 && argc != 2) {
 		printf("Invalid P2P_EXT_LISTEN command: needs two arguments "
 		       "(availability period, availability interval; in "
-		       "millisecods).\n"
+		       "milliseconds).\n"
 		       "Extended Listen Timing can be cancelled with this "
 		       "command when used without parameters.\n");
 		return -1;

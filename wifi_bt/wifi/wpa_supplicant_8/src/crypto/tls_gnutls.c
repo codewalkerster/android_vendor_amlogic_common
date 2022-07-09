@@ -321,7 +321,7 @@ int tls_connection_shutdown(void *ssl_ctx, struct tls_connection *conn)
 
 	gnutls_deinit(conn->session);
 	if (tls_gnutls_init_session(global, conn)) {
-		wpa_printf(MSG_INFO, "GnuTLS: Failed to preparare new session "
+		wpa_printf(MSG_INFO, "GnuTLS: Failed to prepare new session "
 			   "for session resumption use");
 		return -1;
 	}
@@ -588,7 +588,7 @@ int tls_connection_set_params(void *tls_ctx, struct tls_connection *conn,
 #ifdef PKCS12_FUNCS
 		/* Try to load in PKCS#12 format */
 		wpa_printf(MSG_DEBUG,
-			   "GnuTLS: Try to parse client cert/key '%s'in PKCS#12 DER format",
+			   "GnuTLS: Try to parse client cert/key '%s in PKCS#12 DER format",
 			   params->private_key);
 		ret = gnutls_certificate_set_x509_simple_pkcs12_file(
 			conn->xcred, params->private_key, GNUTLS_X509_FMT_DER,

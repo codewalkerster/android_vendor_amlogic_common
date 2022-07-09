@@ -106,7 +106,7 @@ static int send_cmd(uint8_t *p_buf, int data_len) {
     dump_data(p_buf, data_len);
 
     /* Send command via HC's xmit_cb API */
-    BTD("wirte command size=%d", data_len);
+    BTD("write command size=%d", data_len);
     uint16_t total = 0;
     while (data_len) {
         ret = write(uart_fd, p_buf + total, data_len);
@@ -359,7 +359,7 @@ size_t read_data(serial_data_type_t type, uint8_t *buffer, size_t max_size, bool
     LOG_ERROR("%s invalid data type: %d", __func__, type);
     return 0;
   } else if (!stream_has_interpretation) {
-    LOG_ERROR("%s with no valid stream intepretation.", __func__);
+    LOG_ERROR("%s with no valid stream interpretation.", __func__);
     return 0;
   } else if (current_data_type != type) {
     LOG_ERROR("%s with different type than existing interpretation.", __func__);

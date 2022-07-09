@@ -179,7 +179,7 @@ U_CDECL_BEGIN
   *  The user-supplied function will be called by ICU whenever ICU needs to create a
   *  new mutex.  The function implementation should create a mutex, and store a pointer
   *  to something that uniquely identifies the mutex into the UMTX that is supplied
-  *  as a paramter.
+  *  as a parameter.
   *  @param context user supplied value, obtained from from u_setMutexFunctions().
   *  @param mutex   Receives a pointer that identifies the new mutex.
   *                 The mutex init function must set the UMTX to a non-null value.

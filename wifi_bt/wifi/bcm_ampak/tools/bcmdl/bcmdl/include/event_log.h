@@ -150,7 +150,7 @@ typedef union event_log_hdr {
 	uint32 t;			/* Type cheat */
 } event_log_hdr_t;
 
-/* Event log sets (a logical circurlar buffer) consist of one or more
+/* Event log sets (a logical circular buffer) consist of one or more
  * event_log_blocks.  The blocks themselves form a logical circular
  * list.  The log entries are placed in each event_log_block until it
  * is full.  Logging continues with the next event_log_block in the

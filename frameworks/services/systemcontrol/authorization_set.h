@@ -287,7 +287,7 @@ class AuthorizationSetBuilder : public AuthorizationSet {
     AuthorizationSetBuilder& Padding(std::initializer_list<PaddingMode> padding_modes);
 
     // The following forwarding templates enable BlockMode,Digest and Padding to be called with a
-    // variable number of arguments; no need to wrap them in braces to make them an initalizer_list.
+    // variable number of arguments; no need to wrap them in braces to make them an initializer_list.
     template <typename... T> AuthorizationSetBuilder& BlockMode(T&&... a) {
         return BlockMode({std::forward<T>(a)...});
     }

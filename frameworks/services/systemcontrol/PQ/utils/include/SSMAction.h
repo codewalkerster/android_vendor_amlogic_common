@@ -32,8 +32,8 @@ public:
     SSMAction();
     ~SSMAction();
     void init(const char *SsmDataPath, const char *SsmDataHandlerPath, const char *WhiteBalanceFilePath);
-    int SaveBurnWriteCharaterChar(int rw_val);
-    int ReadBurnWriteCharaterChar();
+    int SaveBurnWriteCharacterChar(int rw_val);
+    int ReadBurnWriteCharacterChar();
     int DeviceMarkCheck();
     int RestoreDeviceMarkValues();
     static SSMAction *getInstance();
@@ -84,7 +84,7 @@ public:
     //Brightness
     int SSMSaveBrightness(int offset, int rw_val);
     int SSMReadBrightness(int offset, int *rw_val);
-    //constract
+    //construct
     int SSMSaveContrast(int offset, int rw_val);
     int SSMReadContrast(int offset, int *rw_val);
     //saturation

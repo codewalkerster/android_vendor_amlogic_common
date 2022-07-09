@@ -21,13 +21,13 @@ CDevicePollCheckThread::CDevicePollCheckThread()
     }
 
     //VFrameSize change
-    if (mVFrameSizeFile.openFile(VFRAME_MOUDLE_PATH) > 0) {
+    if (mVFrameSizeFile.openFile(VFRAME_MODULE_PATH) > 0) {
         m_event.data.fd = mVFrameSizeFile.getFd();
         m_event.events = EPOLLIN | EPOLLET;
         mEpoll.add(mVFrameSizeFile.getFd(), &m_event);
     }
     //TX
-    if (mTXStatusFile.openFile(TX_MOUDLE_PATH) > 0) {
+    if (mTXStatusFile.openFile(TX_MODULE_PATH) > 0) {
         m_event.data.fd = mTXStatusFile.getFd();
         m_event.events = EPOLLIN | EPOLLET;
         mEpoll.add(mTXStatusFile.getFd(), &m_event);

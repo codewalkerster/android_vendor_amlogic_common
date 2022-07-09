@@ -729,7 +729,7 @@ static int initialize_device(struct libusb_device *dev, uint8_t busnum,
 				/* buggy devices sometimes fail to report their active config.
 				 * assume unconfigured and continue the probing */
 				usbi_warn(DEVICE_CTX(dev), "couldn't query active "
-					"configuration, assumung unconfigured");
+					"configuration, assuming unconfigured");
 				device_configured = 0;
 			} else if (active_config < 0) {
 				close(fd);

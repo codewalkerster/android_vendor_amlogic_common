@@ -534,7 +534,7 @@ bool HDCPRxKey::setHDCP22Key() {
         goto _exit;
     }
 
-_reGenetate:
+_reGenerate:
    if (!strcmp(rpvalue, "1")) {
         decryptRetRp = PC_TOOL; //use pc tool to combine firmware
         if (access(HDCP_RX22_SRC_FW_PATH, F_OK) || access(HDCP_RPRX22_SRC_FW_PATH, F_OK)) {
@@ -627,7 +627,7 @@ _reGenetate:
         SYS_LOGE("generate firmware.le error, for the %d time", countNum);
         if (countNum < 2) {
             countNum++;
-            goto _reGenetate;
+            goto _reGenerate;
         }
         else {
             writeSys(HDMI_RX_HPD_OK_FLAG, "0");
@@ -734,7 +734,7 @@ bool HDCPRxKey::aicTool(const char* rpvalue) {
     return true;
 }
 
-//insert 2080 byte into origin firware, combine a new firware
+//insert 2080 byte into origin firmware, combine a new firmware
 bool HDCPRxKey::combineFirmwarewithArmTool(const char* pSourcePath, const char* pDestPath, const char* pTempPath) {
     bool ret = false;
     int srcFd = -1;
@@ -757,7 +757,7 @@ bool HDCPRxKey::combineFirmwarewithArmTool(const char* pSourcePath, const char* 
     lseek(srcFd, 0, SEEK_SET);
     pSrcData = (char *)malloc(srcSize + 1);
     if (NULL == pSrcData) {
-        SYS_LOGE("combine firware, can not malloc source fw:%d memory\n", srcSize);
+        SYS_LOGE("combine firmware, can not malloc source fw:%d memory\n", srcSize);
         goto exit;
     }
     memset((void*)pSrcData, 0, srcSize + 1);
@@ -769,11 +769,11 @@ bool HDCPRxKey::combineFirmwarewithArmTool(const char* pSourcePath, const char* 
     insertFd = open(pTempPath, O_RDONLY);
     insertSize = lseek(insertFd, 0, SEEK_END);
     if (2080 != insertSize)
-        SYS_LOGE("combine firware, key size is not 2080 bytes\n");
+        SYS_LOGE("combine firmware, key size is not 2080 bytes\n");
     lseek(insertFd, 0, SEEK_SET);
     pInsertData = (char *)malloc(insertSize + 1);
     if (NULL == pInsertData) {
-        SYS_LOGE("combine firware, can not malloc insert:%d memory\n", insertSize);
+        SYS_LOGE("combine firmware, can not malloc insert:%d memory\n", insertSize);
         goto exit;
     }
     memset((void*)pInsertData, 0, insertSize + 1);
@@ -785,7 +785,7 @@ bool HDCPRxKey::combineFirmwarewithArmTool(const char* pSourcePath, const char* 
     memcpy(pSrcData + 0x2800, pInsertData, insertSize);
 
     if ((desFd = open(pDestPath, O_CREAT | O_RDWR | O_TRUNC, 0644)) < 0) {
-        SYS_LOGE("combine firware, open %s error(%s)", pDestPath, strerror(errno));
+        SYS_LOGE("combine firmware, open %s error(%s)", pDestPath, strerror(errno));
         goto exit;
     }
 
@@ -811,7 +811,7 @@ exit:
     return ret;
 }
 
-//insert 2080 byte into origin firware, combine a new firware
+//insert 2080 byte into origin firmware, combine a new firmware
 bool HDCPRxKey::combineFirmwarewithPCTool(const char* pKeyName, const char* pCrcName, const char* pSourcePath, const char* pDestPath) {
     bool ret = false;
     int srcFd = -1;
@@ -869,7 +869,7 @@ bool HDCPRxKey::combineFirmwarewithPCTool(const char* pKeyName, const char* pCrc
         lseek(srcFd, 0, SEEK_SET);
         pSrcData = (char *)malloc(srcSize + 1);
         if (NULL == pSrcData) {
-            SYS_LOGE("combine firware, can not malloc source fw:%d memory\n", srcSize);
+            SYS_LOGE("combine firmware, can not malloc source fw:%d memory\n", srcSize);
             goto exit;
         }
         memset((void*)pSrcData, 0, srcSize + 1);
@@ -880,14 +880,14 @@ bool HDCPRxKey::combineFirmwarewithPCTool(const char* pKeyName, const char* pCrc
         //read 2080 bytes to buffer
         pInsertData = (char *)malloc(HDCP_RXRP22_2080BYTE_SIZE + 1);
         if (NULL == pInsertData) {
-            SYS_LOGE("combine firware, can not malloc insert memory\n");
+            SYS_LOGE("combine firmware, can not malloc insert memory\n");
             goto exit;
         }
         memset((void*)pInsertData, 0, HDCP_RXRP22_2080BYTE_SIZE + 1);
 
         readSys(HDCP_RX_KEY_READ_DEV_PATH, (char*)pInsertData, HDCP_RXRP22_2080BYTE_SIZE);
         if (!pInsertData) {
-            SYS_LOGE("combine firware, can not get insert data\n");
+            SYS_LOGE("combine firmware, can not get insert data\n");
             goto exit;
         }
 
@@ -898,7 +898,7 @@ bool HDCPRxKey::combineFirmwarewithPCTool(const char* pKeyName, const char* pCrc
         memcpy(pSrcData + 0x2800, pInsertData, HDCP_RXRP22_2080BYTE_SIZE);
 
         if ((desFd = open(pDestPath, O_CREAT | O_RDWR | O_TRUNC, 0644)) < 0) {
-            SYS_LOGE("combine firware, open %s error(%s)", pDestPath, strerror(errno));
+            SYS_LOGE("combine firmware, open %s error(%s)", pDestPath, strerror(errno));
             goto exit;
         }
 

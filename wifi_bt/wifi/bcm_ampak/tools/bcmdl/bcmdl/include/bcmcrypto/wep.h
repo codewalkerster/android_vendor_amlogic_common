@@ -25,7 +25,7 @@
 extern void wep_encrypt(uint buf_len, uint8 *buf, uint sec_len, uint8 *sec_data);
 
 /* wep-decrypt a buffer */
-/* Assumes a contigious buffer, with IV prepended, and return TRUE on ICV pass
+/* Assumes a contiguous buffer, with IV prepended, and return TRUE on ICV pass
  * else FAIL
  */
 extern bool wep_decrypt(uint buf_len, uint8 *buf, uint sec_len, uint8 *sec_data);

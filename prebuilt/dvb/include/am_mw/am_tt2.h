@@ -116,7 +116,7 @@ typedef struct
  */
 extern AM_ErrorCode_t AM_TT2_Create(AM_TT2_Handle_t *handle, AM_TT2_Para_t *para);
 
-/**\brief destory teletext parser handle
+/**\brief destroy teletext parser handle
  * \param handle the handle of parser
  * \retval AM_SUCCESS On success
  * \return Error code

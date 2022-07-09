@@ -191,7 +191,7 @@ uint16_t usb_project_id[] = {
 };
 //signature: realtech
 static const uint8_t RTK_EPATCH_SIGNATURE[8]={0x52,0x65,0x61,0x6C,0x74,0x65,0x63,0x68};
-//Extension Section IGNATURE:0x77FD0451
+//Extension Section SIGNATURE:0x77FD0451
 static const uint8_t EXTENSION_SECTION_SIGNATURE[4]={0x51,0x04,0xFD,0x77};
 
 static void usb_line_process(char *buf, unsigned short *offset, int *t)

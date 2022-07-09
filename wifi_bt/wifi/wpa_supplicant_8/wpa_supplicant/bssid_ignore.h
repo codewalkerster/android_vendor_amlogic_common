@@ -16,7 +16,7 @@ struct wpa_bssid_ignore {
 	/* Time of the most recent trigger to ignore this BSSID. */
 	struct os_reltime start;
 	/*
-	 * Number of seconds after start that the entey will be considered
+	 * Number of seconds after start that the entry will be considered
 	 * valid.
 	 */
 	int timeout_secs;

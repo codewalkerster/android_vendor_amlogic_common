@@ -69,7 +69,7 @@ class VtsHalHidlTargetTestEnvBase : public ::testing::Environment {
 
   /*
    * Gets the service name for a hal instance. Returns empty string if the hal
-   * instance is unkonwn (not in hal_instances_).
+   * instance is unknown (not in hal_instances_).
    */
   template <class T>
   string getServiceName() {
@@ -82,15 +82,15 @@ class VtsHalHidlTargetTestEnvBase : public ::testing::Environment {
    * --list_registered_services to print all registered service.
    * --hal_service_instance to pass a running service instance. e.g.
    * --hal_service_instance=android.hardware.vibrator@1.0::IVibrator/default
-   * It is possible to have mulitple --hal_service_instance options passed if
-   * mutliple hal service is used in the test.
+   * It is possible to have multiple --hal_service_instance options passed if
+   * multiple hal service is used in the test.
    * Returns true if successfully pased the given arg, false if arg is null or
    * unknown flag.
    */
   bool parseVtsTestOption(const char* arg);
 
   /*
-   * Prints all registered sercives.
+   * Prints all registered services.
    */
   void listRegisteredServices();
 
@@ -109,7 +109,7 @@ class VtsHalHidlTargetTestEnvBase : public ::testing::Environment {
    */
   void addHalServiceInstance(string halServiceInstance);
 
-  // Map of hal instances with their correpoding service names.
+  // Map of hal instances with their corresponding service names.
   map<string, string> halServiceInstances_;
   // Set of all hal services used in the test.
   set<string> registeredHalServices_;

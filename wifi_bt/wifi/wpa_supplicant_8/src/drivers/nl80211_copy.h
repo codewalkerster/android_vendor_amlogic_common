@@ -466,7 +466,7 @@
  *	%NL80211_ATTR_SCHED_SCAN_PLANS. If %NL80211_ATTR_SCHED_SCAN_PLANS is
  *	not specified and only %NL80211_ATTR_SCHED_SCAN_INTERVAL is specified,
  *	scheduled scan will run in an infinite loop with the specified interval.
- *	These attributes are mutually exculsive,
+ *	These attributes are mutually exclusive,
  *	i.e. NL80211_ATTR_SCHED_SCAN_INTERVAL must not be passed if
  *	NL80211_ATTR_SCHED_SCAN_PLANS is defined.
  *	If for some reason scheduled scan is aborted by the driver, all scan
@@ -752,7 +752,7 @@
  *	reached.
  * @NL80211_CMD_SET_CHANNEL: Set the channel (using %NL80211_ATTR_WIPHY_FREQ
  *	and the attributes determining channel width) the given interface
- *	(identifed by %NL80211_ATTR_IFINDEX) shall operate on.
+ *	(identified by %NL80211_ATTR_IFINDEX) shall operate on.
  *	In case multiple channels are supported by the device, the mechanism
  *	with which it switches channels is implementation-defined.
  *	When a monitor interface is given, it can only switch channel while
@@ -824,7 +824,7 @@
  *	inform userspace of the new replay counter.
  *
  * @NL80211_CMD_PMKSA_CANDIDATE: This is used as an event to inform userspace
- *	of PMKSA caching dandidates.
+ *	of PMKSA caching candidates.
  *
  * @NL80211_CMD_TDLS_OPER: Perform a high-level TDLS command (e.g. link setup).
  *	In addition, this can be used as an event to request userspace to take
@@ -860,7 +860,7 @@
  *
  * @NL80211_CMD_PROBE_CLIENT: Probe an associated station on an AP interface
  *	by sending a null data frame to it and reporting when the frame is
- *	acknowleged. This is used to allow timing out inactive clients. Uses
+ *	acknowledged. This is used to allow timing out inactive clients. Uses
  *	%NL80211_ATTR_IFINDEX and %NL80211_ATTR_MAC. The command returns a
  *	direct reply with an %NL80211_ATTR_COOKIE that is later used to match
  *	up the event with the request. The event includes the same data and
@@ -1073,7 +1073,7 @@
  *	%NL80211_ATTR_MAC.
  * @NL80211_CMD_PORT_AUTHORIZED: An event that indicates an 802.1X FT roam was
  *	completed successfully. Drivers that support 4 way handshake offload
- *	should send this event after indicating 802.1X FT assocation with
+ *	should send this event after indicating 802.1X FT association with
  *	%NL80211_CMD_ROAM. If the 4 way handshake failed %NL80211_CMD_DISCONNECT
  *	should be indicated instead.
  * @NL80211_CMD_CONTROL_PORT_FRAME: Control Port (e.g. PAE) frame TX request
@@ -1674,7 +1674,7 @@ enum nl80211_commands {
  *	using %CMD_CONTROL_PORT_FRAME.  If control port routing over NL80211 is
  *	to be used then userspace must also use the %NL80211_ATTR_SOCKET_OWNER
  *	flag. When used with %NL80211_ATTR_CONTROL_PORT_NO_PREAUTH, pre-auth
- *	frames are not forwared over the control port.
+ *	frames are not forward over the control port.
  *
  * @NL80211_ATTR_TESTDATA: Testmode data blob, passed through to the driver.
  *	We recommend using nested, driver-specific attributes within this.
@@ -3930,7 +3930,7 @@ enum nl80211_reg_type {
  * @NL80211_ATTR_REG_RULE_FLAGS: a set of flags which specify additional
  * 	considerations for a given frequency range. These are the
  * 	&enum nl80211_reg_rule_flags.
- * @NL80211_ATTR_FREQ_RANGE_START: starting frequencry for the regulatory
+ * @NL80211_ATTR_FREQ_RANGE_START: starting frequency for the regulatory
  * 	rule in KHz. This is not a center of frequency but an actual regulatory
  * 	band edge.
  * @NL80211_ATTR_FREQ_RANGE_END: ending frequency for the regulatory rule
@@ -5015,7 +5015,7 @@ enum nl80211_tx_rate_setting {
  *	(%NL80211_TID_CONFIG_ATTR_TIDS, %NL80211_TID_CONFIG_ATTR_OVERRIDE).
  * @NL80211_TID_CONFIG_ATTR_PEER_SUPP: same as the previous per-vif one, but
  *	per peer instead.
- * @NL80211_TID_CONFIG_ATTR_OVERRIDE: flag attribue, if set indicates
+ * @NL80211_TID_CONFIG_ATTR_OVERRIDE: flag attribute, if set indicates
  *	that the new configuration overrides all previous peer
  *	configurations, otherwise previous peer specific configurations
  *	should be left untouched.
@@ -5661,7 +5661,7 @@ enum nl80211_ap_sme_features {
  * @NL80211_FEATURE_INACTIVITY_TIMER: This driver takes care of freeing up
  *	the connected inactive stations in AP mode.
  * @NL80211_FEATURE_CELL_BASE_REG_HINTS: This driver has been tested
- *	to work properly to suppport receiving regulatory hints from
+ *	to work properly to support receiving regulatory hints from
  *	cellular base stations.
  * @NL80211_FEATURE_P2P_DEVICE_NEEDS_CHANNEL: (no longer available, only
  *	here to reserve the value for API/ABI compatibility)
@@ -6976,7 +6976,7 @@ enum nl80211_peer_measurement_ftm_failure_reasons {
  * @NL80211_PMSR_FTM_RESP_ATTR_NUM_FTMR_ATTEMPTS: number of FTM Request frames
  *	transmitted (u32, optional)
  * @NL80211_PMSR_FTM_RESP_ATTR_NUM_FTMR_SUCCESSES: number of FTM Request frames
- *	that were acknowleged (u32, optional)
+ *	that were acknowledged (u32, optional)
  * @NL80211_PMSR_FTM_RESP_ATTR_BUSY_RETRY_TIME: retry time received from the
  *	busy peer (u32, seconds)
  * @NL80211_PMSR_FTM_RESP_ATTR_NUM_BURSTS_EXP: actual number of bursts exponent

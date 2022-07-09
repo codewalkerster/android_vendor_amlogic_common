@@ -459,7 +459,7 @@ int HASH_FINAL (unsigned char *md, HASH_CTX *c)
 	static const unsigned char end[4]={0x80,0x00,0x00,0x00};
 	const unsigned char *cp=end;
 
-	/* c->num should definitly have room for at least one more byte. */
+	/* c->num should definitely have room for at least one more byte. */
 	p=c->data;
 	i=c->num>>2;
 	j=c->num&0x03;
@@ -517,7 +517,7 @@ int HASH_FINAL (unsigned char *md, HASH_CTX *c)
  * Well, to be honest it should say that this *prevents* 
  * performance degradation.
  *				<appro@fy.chalmers.se>
- * Apparently there're LP64 compilers that generate better
+ * Apparently there are LP64 compilers that generate better
  * code if A-D are declared int. Most notably GCC-x86_64
  * generates better code.
  *				<appro@fy.chalmers.se>

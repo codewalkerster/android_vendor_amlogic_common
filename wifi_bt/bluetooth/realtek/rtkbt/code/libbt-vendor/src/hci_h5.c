@@ -201,7 +201,7 @@ typedef struct HCI_H5_CB
     uint8_t     dic_type;
 
 
-    RTB_QUEUE_HEAD *unack;      // Unack'ed packets queue
+    RTB_QUEUE_HEAD *unack;      // Unacked packets queue
     RTB_QUEUE_HEAD *rel;        // Reliable packets queue
 
     RTB_QUEUE_HEAD *unrel;      // Unreliable packets queue
@@ -209,7 +209,7 @@ typedef struct HCI_H5_CB
 
 
     uint8_t     rxseq_txack;        // rxseq == txack. // expected rx SeqNumber
-    uint8_t     rxack;             // Last packet sent by us that the peer ack'ed //
+    uint8_t     rxack;             // Last packet sent by us that the peer confirmed //
 
     uint8_t     use_crc;
     uint8_t     is_txack_req;      // txack required? Do we need to send ack's to the peer? //
@@ -387,7 +387,7 @@ static void rtkbt_h5_send_hw_error()
     const char *str = "host stack: h5 send error\n";
     int length = strlen(str) + 1 + 4;
     p_buf[0] = HCIT_TYPE_EVENT;//event
-    p_buf[1] = HCI_VSE_SUBCODE_DEBUG_INFO_SUB_EVT;//firmwre event log
+    p_buf[1] = HCI_VSE_SUBCODE_DEBUG_INFO_SUB_EVT;//firmware event log
     p_buf[2] = strlen(str) + 2;//len
     p_buf[3] = 0x01;// host log opcode
     strcpy((char *)&p_buf[4], str);
@@ -563,7 +563,7 @@ static uint32_t skb_queue_get_length(IN RTB_QUEUE_HEAD * skb_head)
 
 
 /**
-* Add "d" into crc scope, caculate the new crc value
+* Add "d" into crc scope, calculate the new crc value
 *
 * @param crc crc data
 * @param d one byte data
@@ -744,7 +744,7 @@ static void h5_unslip_one_byte(tHCI_H5_CB *h5, unsigned char byte)
 *  | LSB 4 octets  | 0 ~4095| 2 MSB
 *  |packet header | payload | data integrity check |
 *
-* pakcket header fromat is show below:
+* packet header fromat is show below:
 *  | LSB 3 bits         | 3 bits             | 1 bits                       | 1 bits          |
 *  | 4 bits     | 12 bits        | 8 bits MSB
 *  |sequence number | acknowledgement number | data integrity check present | reliable packet |
@@ -886,7 +886,7 @@ static void h5_remove_acked_pkt(tHCI_H5_CB *h5)
     }
 
 
-    // remove ack'ed packet from bcsp->unack queue
+    // remove confirmed packet from bcsp->unack queue
     i = 0;//  number of pkts has been removed from un_ack queue.
     Head = (RT_LIST_HEAD *)(h5->unack);
     LIST_FOR_EACH_SAFELY(Iter, Temp, Head)
@@ -1156,7 +1156,7 @@ static sk_buff * h5_dequeue()
         }
     }
     //   Now, try to send a reliable pkt. We can only send a
-    //   reliable packet if the number of packets sent but not yet ack'ed
+    //   reliable packet if the number of packets sent but not yet confirmed
     //   is < than the winsize
 
 //    H5LogMsg("RtbGetQueueLen(rtk_h5.unack) = (%d), sliding_window_size = (%d)", RtbGetQueueLen(rtk_h5.unack), rtk_h5.sliding_window_size);
@@ -1180,7 +1180,7 @@ static sk_buff * h5_dequeue()
         }
     }
     //   We could not send a reliable packet, either because there are
-    //   none or because there are too many unack'ed packets. Did we receive
+    //   none or because there are too many Unacked packets. Did we receive
     //   any packets we have not acknowledged yet
     if (rtk_h5.is_txack_req)
     {
@@ -1330,7 +1330,7 @@ void h5_process_ctl_pkts(void)
             rtk_notify_hw_h5_init_result(0);
         }
         else {
-            H5LogMsg("H5_INITIALIZED receive event, ingnore");
+            H5LogMsg("H5_INITIALIZED receive event, ignore");
         }
     }
     else if(rtk_h5.link_estab_state == H5_ACTIVE) {
@@ -1353,7 +1353,7 @@ void h5_process_ctl_pkts(void)
             H5LogMsg("H5: <<<---recv conf resp in H5_ACTIVE, discard");
         }
         else {
-            H5LogMsg("H5_ACTIVE receive unknown link control msg, ingnore");
+            H5LogMsg("H5_ACTIVE receive unknown link control msg, ignore");
         }
 
     }
@@ -1440,7 +1440,7 @@ static uint8_t hci_recv_frame(sk_buff *skb, uint8_t pkt_type)
 
 /**
 * after rx data is parsed, and we got a rx frame saved in h5->rx_skb,
-* this routinue is called.
+* this routine is called.
 * things todo in this function:
 * 1. check if it's a hci frame, if it is, complete it with response or ack
 * 2. see the ack number, free acked frame in queue
@@ -2361,7 +2361,7 @@ static void h5_conf_retrans_timeout_handler(union sigval sigev_value) {
 
 static void h5_wait_controller_baudrate_ready_timeout_handler(union sigval sigev_value) {
     RTK_UNUSED(sigev_value);
-    H5LogMsg("h5_wait_ct_baundrate_ready_timeout_handler");
+    H5LogMsg("h5_wait_ct_baudrate_ready_timeout_handler");
     if(rtk_h5.cleanuping)
     {
         ALOGE("h5_wait_controller_baudrate_ready_timeout_handler H5 is cleanuping, EXIT here!");

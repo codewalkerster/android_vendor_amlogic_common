@@ -63,7 +63,7 @@ wifi_error wifi_get_rtt_capabilities(wifi_interface_handle iface,
      * LOWI if it isn't up yet.
      */
     lowiWifiHalApi = getLowiCallbackTable(
-                ONE_SIDED_RANGING_SUPPORTED|DUAL_SIDED_RANGING_SUPPORED);
+                ONE_SIDED_RANGING_SUPPORTED|DUAL_SIDED_RANGING_SUPPORTED);
     if (lowiWifiHalApi == NULL ||
         lowiWifiHalApi->get_rtt_capabilities == NULL) {
         ALOGE("wifi_get_rtt_capabilities: getLowiCallbackTable returned NULL or "
@@ -118,7 +118,7 @@ wifi_error wifi_rtt_range_request(wifi_request_id id,
      * LOWI if it isn't up yet.
      */
     lowiWifiHalApi = getLowiCallbackTable(
-                    ONE_SIDED_RANGING_SUPPORTED|DUAL_SIDED_RANGING_SUPPORED);
+                    ONE_SIDED_RANGING_SUPPORTED|DUAL_SIDED_RANGING_SUPPORTED);
     if (lowiWifiHalApi == NULL ||
         lowiWifiHalApi->rtt_range_request == NULL) {
         ALOGE("wifi_rtt_range_request: getLowiCallbackTable returned NULL or "
@@ -168,7 +168,7 @@ wifi_error wifi_rtt_range_cancel(wifi_request_id id,
      * LOWI if it isn't up yet.
      */
     lowiWifiHalApi = getLowiCallbackTable(
-                    ONE_SIDED_RANGING_SUPPORTED|DUAL_SIDED_RANGING_SUPPORED);
+                    ONE_SIDED_RANGING_SUPPORTED|DUAL_SIDED_RANGING_SUPPORTED);
     if (lowiWifiHalApi == NULL ||
         lowiWifiHalApi->rtt_range_cancel == NULL) {
         ALOGE("wifi_rtt_range_cancel: getLowiCallbackTable returned NULL or "
@@ -208,7 +208,7 @@ wifi_error wifi_set_lci(wifi_request_id id, wifi_interface_handle iface,
      * LOWI if it isn't up yet.
      */
     lowiWifiHalApi = getLowiCallbackTable(
-                    ONE_SIDED_RANGING_SUPPORTED|DUAL_SIDED_RANGING_SUPPORED);
+                    ONE_SIDED_RANGING_SUPPORTED|DUAL_SIDED_RANGING_SUPPORTED);
     if (lowiWifiHalApi == NULL ||
         lowiWifiHalApi->rtt_set_lci == NULL) {
         ALOGE("%s: getLowiCallbackTable returned NULL or "
@@ -247,7 +247,7 @@ wifi_error wifi_set_lcr(wifi_request_id id, wifi_interface_handle iface,
      * LOWI if it isn't up yet.
      */
     lowiWifiHalApi = getLowiCallbackTable(
-                    ONE_SIDED_RANGING_SUPPORTED|DUAL_SIDED_RANGING_SUPPORED);
+                    ONE_SIDED_RANGING_SUPPORTED|DUAL_SIDED_RANGING_SUPPORTED);
     if (lowiWifiHalApi == NULL ||
         lowiWifiHalApi->rtt_set_lcr == NULL) {
         ALOGE("%s: getLowiCallbackTable returned NULL or "
@@ -279,7 +279,7 @@ wifi_error wifi_rtt_get_responder_info(wifi_interface_handle iface,
 
     /* Open LOWI dynamic library, retrieve handler to LOWI APIs */
     lowiWifiHalApi = getLowiCallbackTable(
-                    ONE_SIDED_RANGING_SUPPORTED|DUAL_SIDED_RANGING_SUPPORED);
+                    ONE_SIDED_RANGING_SUPPORTED|DUAL_SIDED_RANGING_SUPPORTED);
     if (lowiWifiHalApi == NULL ||
         lowiWifiHalApi->rtt_get_responder_info == NULL) {
         ALOGE("%s: getLowiCallbackTable returned NULL or "
@@ -318,7 +318,7 @@ wifi_error wifi_enable_responder(wifi_request_id id,
 
     /* Open LOWI dynamic library, retrieve handler to LOWI APIs */
     lowiWifiHalApi = getLowiCallbackTable(
-                    ONE_SIDED_RANGING_SUPPORTED|DUAL_SIDED_RANGING_SUPPORED);
+                    ONE_SIDED_RANGING_SUPPORTED|DUAL_SIDED_RANGING_SUPPORTED);
     if (lowiWifiHalApi == NULL ||
         lowiWifiHalApi->enable_responder == NULL) {
         ALOGE("%s: getLowiCallbackTable returned NULL or "
@@ -353,7 +353,7 @@ wifi_error wifi_disable_responder(wifi_request_id id,
 
     /* Open LOWI dynamic library, retrieve handler to LOWI APIs */
     lowiWifiHalApi = getLowiCallbackTable(
-                    ONE_SIDED_RANGING_SUPPORTED|DUAL_SIDED_RANGING_SUPPORED);
+                    ONE_SIDED_RANGING_SUPPORTED|DUAL_SIDED_RANGING_SUPPORTED);
     if (lowiWifiHalApi == NULL ||
         lowiWifiHalApi->disable_responder == NULL) {
         ALOGE("%s: getLowiCallbackTable returned NULL or "

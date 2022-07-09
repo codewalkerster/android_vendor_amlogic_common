@@ -32,7 +32,7 @@
 #define HCI_PROTO_VERSION_2_0 0x03      /* Version for BT spec 2.0          */
 #define HCI_PROTO_VERSION_2_1 0x04      /* Version for BT spec 2.1 [Lisbon] */
 #define HCI_PROTO_REVISION      0x000C    /* Current implementation version   */
-/* 
+/*
 **  Definitions for HCI groups
 */
 #define HCI_GRP_LINK_CONTROL_CMDS       (0x01 << 10)
@@ -51,7 +51,7 @@
 #define HCI_OCF(p)  ( 0x3FF & (p))
 
 /*
-**  Defentions for Link Control Commands
+**  Definitions for Link Control Commands
 */
 /* Following opcode is used only in command complete event for flow control */
 #define HCI_COMMAND_NONE                0x0000
@@ -193,7 +193,7 @@
 #define HCI_ENHANCED_FLUSH              (0x005F | HCI_GRP_HOST_CONT_BASEBAND_CMDS)
 
 #define HCI_CONT_BASEBAND_CMDS_FIRST    HCI_SET_EVENT_MASK
-#define HCI_CONT_BASEBAND_CMDS_LAST     HCI_SEND_KEYPRESS_NOTIF 
+#define HCI_CONT_BASEBAND_CMDS_LAST     HCI_SEND_KEYPRESS_NOTIF
 
 
 /* Commands of HCI_GRP_INFORMATIONAL_PARAMS group */
@@ -226,7 +226,7 @@
 #define HCI_ENABLE_DEV_UNDER_TEST_MODE  (0x0003 | HCI_GRP_TESTING_CMDS)
 #define HCI_WRITE_SIMP_PAIR_DEBUG_MODE  (0x0004 | HCI_GRP_TESTING_CMDS)
 
-#define HCI_TESTING_CMDS_FIRST          HCI_READ_LOOPBACK_MODE 
+#define HCI_TESTING_CMDS_FIRST          HCI_READ_LOOPBACK_MODE
 #define HCI_TESTING_CMDS_LAST           HCI_WRITE_SIMP_PAIR_DEBUG_MODE
 
 #define HCI_VENDOR_CMDS_FIRST           0x0001
@@ -335,17 +335,17 @@
 #define HCI_KEYPRESS_NOTIFY_EVT             0x3C
 #define HCI_RMT_HOST_SUP_FEAT_NOTIFY_EVT    0x3D
 
-#define HCI_EVENT_RSP_FIRST             HCI_INQUIRY_COMP_EVT 
+#define HCI_EVENT_RSP_FIRST             HCI_INQUIRY_COMP_EVT
 #define HCI_EVENT_RSP_LAST              HCI_RMT_HOST_SUP_FEAT_NOTIFY_EVT
 
 #define HCI_BRCM_H4IBSS_EVT             0xEF  /* Vendor specific events for H4IBSS */
 #define HCI_VENDOR_SPECIFIC_EVT         0xFF  /* Vendor specific events */
 #define HCI_NAP_TRACE_EVT               0xFF  /* was define 0xFE, 0xFD, change to 0xFF
-                                                 because conflict w/ TCI_EVT and per 
+                                                 because conflict w/ TCI_EVT and per
                                                  specification compliant */
 
 /*
-**  Defentions for HCI Error Codes that are past in the events
+**  Definitions for HCI Error Codes that are past in the events
 */
 #define HCI_SUCCESS                                     0x00
 #define HCI_PENDING                                     0x00
@@ -386,7 +386,7 @@
 #define HCI_ERR_LMP_ERR_TRANS_COLLISION                 0x23
 #define HCI_ERR_LMP_PDU_NOT_ALLOWED                     0x24
 #define HCI_ERR_ENCRY_MODE_NOT_ACCEPTABLE               0x25
-#define HCI_ERR_UNIT_KEY_USED                           0x26  
+#define HCI_ERR_UNIT_KEY_USED                           0x26
 #define HCI_ERR_QOS_NOT_SUPPORTED                       0x27
 #define HCI_ERR_INSTANT_PASSED                          0x28
 #define HCI_ERR_PAIRING_WITH_UNIT_KEY_NOT_SUPPORTED     0x29
@@ -395,7 +395,7 @@
 #define HCI_ERR_QOS_UNACCEPTABLE_PARAM                  0x2C
 #define HCI_ERR_QOS_REJECTED                            0x2D
 #define HCI_ERR_CHAN_CLASSIF_NOT_SUPPORTED              0x2E
-#define HCI_ERR_INSUFFCIENT_SECURITY                    0x2F
+#define HCI_ERR_INSUFFICIENT_SECURITY                    0x2F
 #define HCI_ERR_PARAM_OUT_OF_RANGE                      0x30
 #define HCI_ERR_UNDEFINED_0x31                          0x31
 #define HCI_ERR_ROLE_SWITCH_PENDING                     0x32
@@ -418,7 +418,7 @@
 #define HCI_DISCONNECTION_COMPLETE_EV(p)    (*((UINT32 *)(p)) & 0x00000010)
 #define HCI_AUTHENTICATION_COMPLETE_EV(p)   (*((UINT32 *)(p)) & 0x00000020)
 #define HCI_RMT_NAME_REQUEST_COMPL_EV(p)    (*((UINT32 *)(p)) & 0x00000040)
-#define HCI_CHANGE_CONN_ENCRPT_ENABLE_EV(p) (*((UINT32 *)(p)) & 0x00000080)
+#define HCI_CHANGE_CONN_ENCRYPT_ENABLE_EV(p) (*((UINT32 *)(p)) & 0x00000080)
 #define HCI_CHANGE_CONN_LINK_KEY_EV(p)      (*((UINT32 *)(p)) & 0x00000100)
 #define HCI_MASTER_LINK_KEY_COMPLETE_EV(p)  (*((UINT32 *)(p)) & 0x00000200)
 #define HCI_READ_RMT_FEATURES_COMPL_EV(p)   (*((UINT32 *)(p)) & 0x00000400)
@@ -470,7 +470,7 @@
     0x10000000 00000000 Remote Host Supported Features Notification Event
  */
 
-/* 
+/*
 ** Definitions for packet type masks (BT1.2 and BT2.0 definitions)
 */
 #define HCI_PKT_TYPES_MASK_NO_2_DH1         0x0002
@@ -521,7 +521,7 @@
 
 
 
-/* 
+/*
 ** Definitions for eSCO packet type masks (BT1.2 and BT2.0 definitions)
 */
 #define HCI_ESCO_PKT_TYPES_MASK_HV1         0x0001
@@ -554,20 +554,20 @@
                                            |      HCI_ESCO_PKT_TYPES_MASK_EV5)) == 0)) \
                                     && ((t) != 0))
 
-/* 
+/*
 ** Define parameters to allow role switch during create connection
 */
 #define HCI_CR_CONN_NOT_ALLOW_SWITCH    0x00
 #define HCI_CR_CONN_ALLOW_SWITCH        0x01
 
-/* 
-** Hold Mode command destination 
+/*
+** Hold Mode command destination
 */
 #define HOLD_MODE_DEST_LOCAL_DEVICE     0x00
 #define HOLD_MODE_DEST_RMT_DEVICE       0x01
 
 /*
-**  Defentions for different HCI parameters
+**  Definitions for different HCI parameters
 */
 #define HCI_PER_INQ_MIN_MAX_PERIOD      0x0003
 #define HCI_PER_INQ_MAX_MAX_PERIOD      0xFFFF
@@ -579,12 +579,12 @@
 #define HCI_MIN_INQ_LAP                 0x9E8B00
 #define HCI_MAX_INQ_LAP                 0x9E8B3F
 
-/* HCI role defenitions */
+/* HCI role definitions */
 #define HCI_ROLE_MASTER                 0x00
 #define HCI_ROLE_SLAVE                  0x01
 #define HCI_ROLE_UNKNOWN				0xff
 
-/* HCI mode defenitions */
+/* HCI mode definitions */
 #define HCI_MODE_ACTIVE                 0x00
 #define HCI_MODE_HOLD                   0x01
 #define HCI_MODE_SNIFF                  0x02
@@ -777,7 +777,7 @@
 #define HCI_AIR_CODING_FORMAT_CVSD      0x0000 /* 0000000000 */
 #define HCI_AIR_CODING_FORMAT_U_LAW     0x0001 /* 0000000001 */
 #define HCI_AIR_CODING_FORMAT_A_LAW     0x0002 /* 0000000010 */
-#define HCI_AIR_CODING_FORMAT_TRANSPNT  0x0003 /* 0000000011 */
+#define HCI_AIR_CODING_FORMAT_TRANSPLANT  0x0003 /* 0000000011 */
 #define HCI_AIR_CODING_FORMAT_MASK      0x0003 /* 0000000011 */
 
 /* default                                        0001100000 */
@@ -789,10 +789,10 @@
 #define HCI_CVSD_SUPPORTED(x)       (((x) & HCI_AIR_CODING_FORMAT_MASK) == HCI_AIR_CODING_FORMAT_CVSD)
 #define HCI_U_LAW_SUPPORTED(x)      (((x) & HCI_AIR_CODING_FORMAT_MASK) == HCI_AIR_CODING_FORMAT_U_LAW)
 #define HCI_A_LAW_SUPPORTED(x)      (((x) & HCI_AIR_CODING_FORMAT_MASK) == HCI_AIR_CODING_FORMAT_A_LAW)
-#define HCI_TRANSPNT_SUPPORTED(x)   (((x) & HCI_AIR_CODING_FORMAT_MASK) == HCI_AIR_CODING_FORMAT_TRANSPNT) 
+#define HCI_TRANSPLANT_SUPPORTED(x)   (((x) & HCI_AIR_CODING_FORMAT_MASK) == HCI_AIR_CODING_FORMAT_TRANSPLANT)
 
 /* Retransmit timer definitions in 0.625 */
-#define HCI_MAX_AUTO_FLUSH_TOUT         0x07FF  
+#define HCI_MAX_AUTO_FLUSH_TOUT         0x07FF
 #define HCI_DEFAULT_AUTO_FLUSH_TOUT     0       /* No auto flush */
 
 /* Broadcast retransmitions */
@@ -862,7 +862,7 @@
 
 #define HCIT_LM_DIAG_LENGTH 63
 
-/* Define values for LMP Test Control parameters 
+/* Define values for LMP Test Control parameters
 ** Test Scenario, Hopping Mode, Power Control Mode
 */
 #define LMP_TESTCTL_TESTSC_PAUSE		0
@@ -888,12 +888,12 @@
 #define LMP_TESTCTL_POWCTL_ADAPTIVE		1
 
 
-/* 
+/*
 ** Define company IDs (from Bluetooth Assigned Numbers v1.1, section 2.2)
 */
 #define LMP_COMPID_ERICSSON             0
 #define LMP_COMPID_NOKIA                1
-#define LMP_COMPID_INTEL                2   
+#define LMP_COMPID_INTEL                2
 #define LMP_COMPID_IBM                  3
 #define LMP_COMPID_TOSHIBA              4
 #define LMP_COMPID_3COM                 5
@@ -990,7 +990,7 @@
 #define PKT_TYPE_BAD    0x11
 #define PKT_TYPE_NONE   0x12
 
-/* 
+/*
 ** Define packet size
 */
 #define HCI_DM1_PACKET_SIZE         17
@@ -1011,7 +1011,7 @@
 #define HCI_EDR3_DH3_PACKET_SIZE    552
 #define HCI_EDR3_DH5_PACKET_SIZE    1021
 
-/* 
+/*
 **   Features encoding - page 0
 */
 #define HCI_NUM_FEATURE_BYTES           8
@@ -1093,9 +1093,9 @@
 #define HCI_FEATURE_POWER_CTRL_OFF      2
 #define HCI_POWER_CTRL_SUPPORTED(x)     ((x)[HCI_FEATURE_POWER_CTRL_OFF] & HCI_FEATURE_POWER_CTRL_MASK)
 
-#define HCI_FEATURE_TRANSPNT_MASK       0x08
-#define HCI_FEATURE_TRANSPNT_OFF        2
-#define HCI_LMP_TRANSPNT_SUPPORTED(x)   ((x)[HCI_FEATURE_TRANSPNT_OFF] & HCI_FEATURE_TRANSPNT_MASK)
+#define HCI_FEATURE_TRANSPLANT_MASK       0x08
+#define HCI_FEATURE_TRANSPLANT_OFF        2
+#define HCI_LMP_TRANSPLANT_SUPPORTED(x)   ((x)[HCI_FEATURE_TRANSPLANT_OFF] & HCI_FEATURE_TRANSPLANT_MASK)
 
 #define HCI_FEATURE_FLOW_CTRL_LAG_MASK  0x70
 #define HCI_FEATURE_FLOW_CTRL_LAG_OFF   2
@@ -1241,14 +1241,14 @@
 #define HCI_FEATURE_EXTENDED_OFF        7
 #define HCI_LMP_EXTENDED_SUPPORTED(x)   ((x)[HCI_FEATURE_EXTENDED_OFF] & HCI_FEATURE_EXTENDED_MASK)
 
-/* 
+/*
 **   Features encoding - page 1
 */
 #define HCI_EXT_FEATURE_SSP_HOST_MASK 0x01
 #define HCI_EXT_FEATURE_SSP_HOST_OFF  0
 #define HCI_SSP_HOST_SUPPORTED(x) ((x)[HCI_EXT_FEATURE_SSP_HOST_OFF] & HCI_EXT_FEATURE_SSP_HOST_MASK)
 
-/* 
+/*
 **   Local Supported Commands encoding
 */
 #define HCI_NUM_SUPP_COMMANDS_BYTES           64
@@ -1489,13 +1489,13 @@
 #define HCI_SUPP_COMMANDS_WRITE_PAGE_SCAN_ACTIVITY_OFF            8
 #define HCI_WRITE_PAGE_SCAN_ACTIVITY_SUPPORTED(x)           ((x)[HCI_SUPP_COMMANDS_WRITE_PAGE_SCAN_ACTIVITY_OFF] & HCI_SUPP_COMMANDS_WRITE_PAGE_SCAN_ACTIVITY_MASK)
 
-#define HCI_SUPP_COMMANDS_READ_INQURIY_SCAN_ACTIVITY_MASK  0x04
-#define HCI_SUPP_COMMANDS_READ_INQURIY_SCAN_ACTIVITY_OFF   8
-#define HCI_READ_INQURIY_SCAN_ACTIVITY_SUPPORTED(x)  ((x)[HCI_SUPP_COMMANDS_READ_INQURIY_SCAN_ACTIVITY_OFF] & HCI_SUPP_COMMANDS_READ_INQURIY_SCAN_ACTIVITY_MASK)
+#define HCI_SUPP_COMMANDS_READ_INQUIRY_SCAN_ACTIVITY_MASK  0x04
+#define HCI_SUPP_COMMANDS_READ_INQUIRY_SCAN_ACTIVITY_OFF   8
+#define HCI_READ_INQUIRY_SCAN_ACTIVITY_SUPPORTED(x)  ((x)[HCI_SUPP_COMMANDS_READ_INQUIRY_SCAN_ACTIVITY_OFF] & HCI_SUPP_COMMANDS_READ_INQUIRY_SCAN_ACTIVITY_MASK)
 
-#define HCI_SUPP_COMMANDS_WRITE_INQURIY_SCAN_ACTIVITY_MASK       0x08
-#define HCI_SUPP_COMMANDS_WRITE_INQURIY_SCAN_ACTIVITY_OFF        8
-#define HCI_WRITE_INQURIY_SCAN_ACTIVITY_SUPPORTED(x)       ((x)[HCI_SUPP_COMMANDS_WRITE_INQURIY_SCAN_ACTIVITY_OFF] & HCI_SUPP_COMMANDS_WRITE_INQURIY_SCAN_ACTIVITY_MASK)
+#define HCI_SUPP_COMMANDS_WRITE_INQUIRY_SCAN_ACTIVITY_MASK       0x08
+#define HCI_SUPP_COMMANDS_WRITE_INQUIRY_SCAN_ACTIVITY_OFF        8
+#define HCI_WRITE_INQUIRY_SCAN_ACTIVITY_SUPPORTED(x)       ((x)[HCI_SUPP_COMMANDS_WRITE_INQUIRY_SCAN_ACTIVITY_OFF] & HCI_SUPP_COMMANDS_WRITE_INQUIRY_SCAN_ACTIVITY_MASK)
 
 #define HCI_SUPP_COMMANDS_READ_AUTH_ENABLE_MASK    0x10
 #define HCI_SUPP_COMMANDS_READ_AUTH_ENABLE_OFF     8

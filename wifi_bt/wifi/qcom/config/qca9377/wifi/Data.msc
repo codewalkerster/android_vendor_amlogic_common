@@ -1156,7 +1156,7 @@ VERSION:16
 56381,3I,NAN-CHREQ_GRANT: freq %u  type %u  tsfLo 0x%08x
 56382,3I,NAN-CHREQ_END: freq %u  type %u  tsfLo 0x%x
 56383,3I,NAN-CHREQ_ERROR: freq %u  type %u  tsfLo 0x%08x
-56384,5I,NAN-RX_CALLBACK: type 0x%X  lenth %u  currTsf 0x%08x  rssi %u  freq %u
+56384,5I,NAN-RX_CALLBACK: type 0x%X  Length %u  currTsf 0x%08x  rssi %u  freq %u
 56385,5I,NAN-TX_COMPLETE: type 0x%X  handle %p  buf %p  status %u  currTsf 0x%08x
 56386,2I,NAN-TSF_TIMEOUT: currTsf 0x%08x  usecs %u
 56387,2I,NAN-SYNC_START: clusterId 0x%04x (startedFlag %u) 

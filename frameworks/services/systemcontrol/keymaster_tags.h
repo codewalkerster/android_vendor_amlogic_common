@@ -53,9 +53,9 @@
  * by NullOr. NullOr has out-of-band information about whether it is save to access the wrapped
  * reference.
  * E.g.:
- *      auto param = Authorization(TAG_ALGORITM, Algorithm::RSA);
+ *      auto param = Authorization(TAG_ALGORITHM, Algorithm::RSA);
  *      auto value1 = authorizationValue(TAG_PURPOSE, param);
- *      auto value2 = authorizationValue(TAG_ALGORITM, param);
+ *      auto value2 = authorizationValue(TAG_ALGORITHM, param);
  * value1.isOk() yields false, but value2.isOk() yields true, thus value2.value() is save to access.
  */
 

@@ -144,8 +144,8 @@ typedef struct RTK_sco_card {
 
 #define HCI_CMD_READ_BD_ADDR 0x1009
 #define HCI_VENDOR_CHANGE_BDRATE 0xfc17
-#define HCI_VENDOR_READ_RTK_ROM_VERISION 0xfc6d
-#define HCI_VENDOR_READ_LMP_VERISION 0x1001
+#define HCI_VENDOR_READ_RTK_ROM_VERSION 0xfc6d
+#define HCI_VENDOR_READ_LMP_VERSION 0x1001
 #define HCI_VENDOR_FORCE_RESET_AND_PATCHABLE 0xfc66
 #define HCI_VENDOR_RESET                       0x0C03
 #define HCI_VENDOR_ADD_WAKE_UP_DEVICE       0xfc7b
@@ -180,7 +180,7 @@ int mp_drv_mode = 0; /* 1 Mptool Fw; 0 Normal Fw */
 
 /* signature: Realtek */
 const uint8_t RTK_EPATCH_SIGNATURE[8] = {0x52,0x65,0x61,0x6C,0x74,0x65,0x63,0x68};
-/* Extension Section IGNATURE:0x77FD0451 */
+/* Extension Section SIGNATURE:0x77FD0451 */
 const uint8_t EXTENSION_SECTION_SIGNATURE[4] = {0x51,0x04,0xFD,0x77};
 
 uint16_t project_id[] = {
@@ -268,7 +268,7 @@ struct rtk_bt_vendor_config{
 /***************************************
 ** Realtek - Integrate from bluetooth.h **
 *****************************************/
-/* Reserv for core and drivers use */
+/* Reserve for core and drivers use */
 #define BT_SKB_RESERVE    8
 
 /* BD Address */
@@ -595,7 +595,7 @@ static inline void hci_set_drvdata(struct hci_dev *hdev, void *data)
 #define MAX_PATCH_SIZE_25K (1024*25)
 #define MAX_PATCH_SIZE_40K (1024*40)
 
-enum rtk_endpoit {
+enum rtk_endpoint {
     CTRL_EP = 0,
     INTR_EP = 1,
     BULK_EP = 2,

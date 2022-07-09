@@ -296,7 +296,7 @@ int generateHdcpFw(const char* firmwarele, const char* packedImg, const char* ne
 
     char *itemBuf = new char[ITEM_READ_BUF_SZ];
     if (!itemBuf) {
-        ALOGE("[%d] Exception: fail to alloc buuffer\n", __LINE__);
+        ALOGE("[%d] Exception: fail to alloc buffer\n", __LINE__);
         return __LINE__;
     }
 
@@ -630,7 +630,7 @@ int setImgPath(const char *path)
     if (0 == strncmp(existKey, "none", 5)) {
         isTeeHdcp = true;
     }
-    bool result_provison = false;
+    bool result_provision = false;
 
     if (path == NULL) {
         errorP("Fail path(%s) is null\n", path);
@@ -733,8 +733,8 @@ int setImgPath(const char *path)
             }
 
             if(isTeeHdcp) {
-                result_provison = provisionKey.writeHDCP22Key(tmpbuffer, pItemHead->dataSz);
-                if (result_provison) {
+                result_provision = provisionKey.writeHDCP22Key(tmpbuffer, pItemHead->dataSz);
+                if (result_provision) {
                     result = 0;
                 } else {
                     result = 1;
@@ -775,8 +775,8 @@ int setImgPath(const char *path)
             }
 
             if(isTeeHdcp) {
-                result_provison = provisionKey.writeHDCP22Key(writebuffer, pItemHead->dataSz);
-                if (result_provison) {
+                result_provision = provisionKey.writeHDCP22Key(writebuffer, pItemHead->dataSz);
+                if (result_provision) {
                     result = 0;
                 } else {
                     result = 1;
@@ -813,8 +813,8 @@ int setImgPath(const char *path)
             }
 
             if(isTeeHdcp) {
-                result_provison = provisionKey.writeHDCP22Key(writebuffer, pItemHead->dataSz);
-                if (result_provison) {
+                result_provision = provisionKey.writeHDCP22Key(writebuffer, pItemHead->dataSz);
+                if (result_provision) {
                     result = 0;
                 } else {
                     result = 1;

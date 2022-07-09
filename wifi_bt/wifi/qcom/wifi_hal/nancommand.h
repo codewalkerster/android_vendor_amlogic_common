@@ -138,7 +138,7 @@ public:
        For NanResponse, NanPublishTerminatedInd, NanSubscribeTerminatedInd,
        NanDisabledInd, NanTransmitFollowupInd:
        function to translate firmware specific errors
-       to generic freamework error along with the error string
+       to generic framework error along with the error string
     */
     void NanErrorTranslation(NanInternalStatusType firmwareErrorRecvd,
                              u32 valueRcvd,

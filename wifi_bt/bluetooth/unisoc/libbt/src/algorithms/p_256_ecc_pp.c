@@ -27,7 +27,7 @@
 
 #include "common.h"
 #include "p_256_ecc_pp.h"
-#include "p_256_multprecision.h"
+#include "p_256_multiprecision.h"
 
 elliptic_curve_t curve;
 elliptic_curve_t curve_p256;

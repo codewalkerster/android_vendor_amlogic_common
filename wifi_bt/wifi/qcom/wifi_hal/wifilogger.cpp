@@ -62,7 +62,7 @@ static int get_ring_id(hal_info *info, char *ring_name)
 
 //Implementation of the functions exposed in wifi_logger.h
 
-/* Function to intiate logging */
+/* Function to initiate logging */
 wifi_error wifi_start_logging(wifi_interface_handle iface,
                               u32 verbose_level, u32 flags,
                               u32 max_interval_sec, u32 min_data_size,

@@ -7,8 +7,8 @@
  *******************************************************************************
  */
 
-#ifndef CANITER_H
-#define CANITER_H
+#ifndef CANISTER_H
+#define CANISTER_H
 
 #include "unicode/utypes.h"
 
@@ -26,8 +26,8 @@
  *  Should be either TRUE or FALSE. This is a compile time option
  *  @stable ICU 2.4
  */
-#ifndef CANITER_SKIP_ZEROES
-#define CANITER_SKIP_ZEROES TRUE
+#ifndef CANISTER_SKIP_ZEROES
+#define CANISTER_SKIP_ZEROES TRUE
 #endif
 
 U_NAMESPACE_BEGIN

@@ -330,7 +330,7 @@ void DisplayMode::init() {
     }
 
     if (DISPLAY_TYPE_MBOX == mDisplayType) {
-        setSourceDisplay(OUPUT_MODE_STATE_INIT);
+        setSourceDisplay(OUTPUT_MODE_STATE_INIT);
     } else if (DISPLAY_TYPE_TV == mDisplayType) {
 #ifndef RECOVERY_MODE
         setSinkDisplay(true);
@@ -340,7 +340,7 @@ void DisplayMode::init() {
     } else if (DISPLAY_TYPE_TABLET == mDisplayType) {
 
     } else if (DISPLAY_TYPE_REPEATER == mDisplayType) {
-        setSourceDisplay(OUPUT_MODE_STATE_INIT);
+        setSourceDisplay(OUTPUT_MODE_STATE_INIT);
     }
 }
 
@@ -359,7 +359,7 @@ void DisplayMode::reInit() {
         SYS_LOGI("display mode reinit type: %d [0:none 1:tablet 2:mbox 3:tv], soc type:%s, default UI:%s",
             mDisplayType, mSocType, mDefaultUI);
         if ((DISPLAY_TYPE_MBOX == mDisplayType) || (DISPLAY_TYPE_REPEATER == mDisplayType)) {
-            setSourceDisplay(OUPUT_MODE_STATE_POWER);
+            setSourceDisplay(OUTPUT_MODE_STATE_POWER);
         } else if (DISPLAY_TYPE_TV == mDisplayType) {
             setSinkDisplay(false);
         }
@@ -531,8 +531,8 @@ void DisplayMode::sceneProcess(hdmi_data_t* data) {
     scene_input_info_t scene_input_info;
 
     //1.1 common input info
-    if ((data->state == OUPUT_MODE_STATE_INIT) ||
-        (data->state == OUPUT_MODE_STATE_POWER)) {
+    if ((data->state == OUTPUT_MODE_STATE_INIT) ||
+        (data->state == OUTPUT_MODE_STATE_POWER)) {
         strcpy(scene_input_info.cur_displaymode, data->ubootenv_hdmimode);
     } else if (OUPUT_MODE_STATE_SWITCH == data->state) {
         strcpy(scene_input_info.cur_displaymode, data->ui_hdmimode);
@@ -583,8 +583,8 @@ void DisplayMode::sceneProcess(hdmi_data_t* data) {
 }
 
 /*
-* OUPUT_MODE_STATE_INIT for boot
-* OUPUT_MODE_STATE_POWER for hdmi plug and suspend/resume
+* OUTPUT_MODE_STATE_INIT for boot
+* OUTPUT_MODE_STATE_POWER for hdmi plug and suspend/resume
 */
 void DisplayMode::setSourceDisplay(output_mode_state state) {
 #ifndef RECOVERY_MODE
@@ -628,8 +628,8 @@ void DisplayMode::setSourceDisplay(output_mode_state state) {
     }
 
     //3. update hdmi info when boot and hdmi plug/suspend/resume
-    if ((state == OUPUT_MODE_STATE_INIT) ||
-        (state == OUPUT_MODE_STATE_POWER)) {
+    if ((state == OUTPUT_MODE_STATE_INIT) ||
+        (state == OUTPUT_MODE_STATE_POWER)) {
         memset(&mHdmidata, 0, sizeof(hdmi_data_t));
         mHdmidata.state = state;
         getHdmiData(&mHdmidata);
@@ -638,7 +638,7 @@ void DisplayMode::setSourceDisplay(output_mode_state state) {
     //4. scene logic process
     sceneProcess(&mHdmidata);
 
-    if (OUPUT_MODE_STATE_INIT == state) {
+    if (OUTPUT_MODE_STATE_INIT == state) {
         updateDefaultUI();
     }
 
@@ -693,7 +693,7 @@ void DisplayMode::applyDisplaySetting(output_mode_state state) {
     char quiescent_mode[8] = {0};
     pSysWrite->getPropertyString("ro.boot.quiescent", quiescent_mode, "0");
     SYS_LOGI("quiescent_mode is %s\n", quiescent_mode);
-    if ((strcmp(quiescent_mode, "1") == 0) && (state == OUPUT_MODE_STATE_INIT)) {
+    if ((strcmp(quiescent_mode, "1") == 0) && (state == OUTPUT_MODE_STATE_INIT)) {
         SYS_LOGI("don't need to setting hdmi when quiescent mode\n");
         return;
     }
@@ -713,7 +713,7 @@ void DisplayMode::applyDisplaySetting(output_mode_state state) {
      * as phy will be enabled in driver when set mode
      * only enable phy if phy is disabled but not enabled
      */
-    //bool phy_enabled_already = true;
+    bool phy_enabled_already = true;
 
     // 1. update hdmi frac_rate_policy
     char frac_rate_policy[MODE_LEN]     = {0};
@@ -721,16 +721,16 @@ void DisplayMode::applyDisplaySetting(output_mode_state state) {
     bool frac_rate_policy_change        = false;
 
     if (mHdmidata.reason != OUPTUT_CHANGE_BY_HWC) {
-        pSysWrite->readSysfs(HDMI_TX_FRAMRATE_POLICY, cur_frac_rate_policy);
+        pSysWrite->readSysfs(HDMI_TX_FRAMERATE_POLICY, cur_frac_rate_policy);
         getBootEnv(UBOOTENV_FRAC_RATE_POLICY, frac_rate_policy);
         if (strstr(frac_rate_policy, cur_frac_rate_policy) == NULL) {
-            pSysWrite->writeSysfs(HDMI_TX_FRAMRATE_POLICY, frac_rate_policy);
+            pSysWrite->writeSysfs(HDMI_TX_FRAMERATE_POLICY, frac_rate_policy);
             frac_rate_policy_change = true;
         }  else {
             SYS_LOGI("cur frac_rate_policy is equals\n");
         }
     } else {
-         pSysWrite->readSysfs(HDMI_TX_FRAMRATE_POLICY, cur_frac_rate_policy);
+         pSysWrite->readSysfs(HDMI_TX_FRAMERATE_POLICY, cur_frac_rate_policy);
          pSysWrite->getPropertyString(HDMI_FRC_POLICY_PROP,frac_rate_policy,"2");
          if (strstr(frac_rate_policy,"2")) {
              getBootEnv(UBOOTENV_FRAC_RATE_POLICY, frac_rate_policy);
@@ -783,7 +783,7 @@ void DisplayMode::applyDisplaySetting(output_mode_state state) {
     if (isMboxSupportDolbyVision()
         && dv_change) {
         //4.1 set avmute when signal change at boot
-        if ((OUPUT_MODE_STATE_INIT == state)
+        if ((OUTPUT_MODE_STATE_INIT == state)
             && (strstr(hdr_policy, HDR_POLICY_SINK))) {
             pSysWrite->writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "1");
         }
@@ -830,17 +830,17 @@ void DisplayMode::applyDisplaySetting(output_mode_state state) {
     // 7. stop hdcp
     if (isNeedChange) {
         pSysWrite->writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "1");
-        if (OUPUT_MODE_STATE_POWER != state) {
+        if (OUTPUT_MODE_STATE_POWER != state) {
             usleep(100000);//100ms
             pSysWrite->writeSysfs(DISPLAY_HDMI_HDCP_MODE, "-1");
             //usleep(100000);//100ms
-            /*pSysWrite->writeSysfs(DISPLAY_HDMI_PHY, "0"); // Turn off TMDS PHY
-            phy_enabled_already = false;*/
+            pSysWrite->writeSysfs(DISPLAY_HDMI_PHY, "0"); /* Turn off TMDS PHY */
+            phy_enabled_already = false;
             usleep(50000);//50ms
         }
         // stop hdcp tx
         pTxAuth->stop();
-    } else if (OUPUT_MODE_STATE_INIT == state) {
+    } else if (OUTPUT_MODE_STATE_INIT == state) {
         // stop hdcp tx
         pTxAuth->stop();
     }
@@ -850,7 +850,7 @@ void DisplayMode::applyDisplaySetting(output_mode_state state) {
         //set hdmi mode
         setDisplayMode(final_displaymode);
         /* phy already turned on after write display/mode node */
-        //phy_enabled_already     = true;
+        phy_enabled_already     = true;
     } else {
         SYS_LOGI("curDisplayMode is equal  final_displaymode, Do not need set it\n");
     }
@@ -915,13 +915,13 @@ void DisplayMode::applyDisplaySetting(output_mode_state state) {
         if (!cvbsMode) {
             pTxAuth->start();
         }
-    } else if (OUPUT_MODE_STATE_INIT == state) {
+    } else if (OUTPUT_MODE_STATE_INIT == state) {
         if (!cvbsMode) {
             pTxAuth->start();
         }
     }
 
-    if (OUPUT_MODE_STATE_INIT == state) {
+    if (OUTPUT_MODE_STATE_INIT == state) {
 #ifdef RECOVERY_MODE
         startBootanimDetectThread();
 #endif
@@ -939,7 +939,7 @@ void DisplayMode::applyDisplaySetting(output_mode_state state) {
     getBootEnv(UBOOTENV_DIGITAUDIO, value);
     setDigitalMode(value);
 
-    pSysWrite->readSysfs(HDMI_TX_FRAMRATE_POLICY, cur_frac_rate_policy);
+    pSysWrite->readSysfs(HDMI_TX_FRAMERATE_POLICY, cur_frac_rate_policy);
     pSysWrite->setProperty(HDMI_FRC_POLICY_PROP,cur_frac_rate_policy);
 
 #ifndef RECOVERY_MODE
@@ -954,7 +954,7 @@ void DisplayMode::setSourceOutputMode(const char* outputmode, output_mode_state 
     char tmpMode[MODE_LEN] = {0};
 
     bool deepColorEnabled = pSysWrite->getPropertyBoolean(PROP_DEEPCOLOR, true);
-    pSysWrite->readSysfs(HDMI_TX_FRAMRATE_POLICY, value);
+    pSysWrite->readSysfs(HDMI_TX_FRAMERATE_POLICY, value);
     char curDisplayMode[MODE_LEN] = {0};
     getDisplayMode(curDisplayMode);
 
@@ -988,9 +988,9 @@ void DisplayMode::setSourceOutputMode(const char* outputmode, output_mode_state 
         }
     }
     // 1.set avmute and close phy
-    if (OUPUT_MODE_STATE_INIT != state) {
+    if (OUTPUT_MODE_STATE_INIT != state) {
         pSysWrite->writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "1");
-        if (OUPUT_MODE_STATE_POWER != state) {
+        if (OUTPUT_MODE_STATE_POWER != state) {
             usleep(50000);//50ms
             pSysWrite->writeSysfs(DISPLAY_HDMI_HDCP_MODE, "-1");
             //usleep(100000);//100ms
@@ -1079,7 +1079,7 @@ void DisplayMode::setSourceOutputMode(const char* outputmode, output_mode_state 
 
     SYS_LOGI("setMboxOutputMode cvbsMode = %d\n", cvbsMode);
     //4. turn on phy and clear avmute
-    if (OUPUT_MODE_STATE_INIT != state && !cvbsMode) {
+    if (OUTPUT_MODE_STATE_INIT != state && !cvbsMode) {
         pSysWrite->writeSysfs(DISPLAY_HDMI_PHY, "1"); /* Turn on TMDS PHY */
         usleep(20000);
         pSysWrite->writeSysfs(DISPLAY_HDMI_AUDIO_MUTE, "1");
@@ -1095,7 +1095,7 @@ void DisplayMode::setSourceOutputMode(const char* outputmode, output_mode_state 
         //pTxAuth->setBootAnimFinished(true);
     }
 
-    if (OUPUT_MODE_STATE_INIT == state) {
+    if (OUTPUT_MODE_STATE_INIT == state) {
 #ifdef RECOVERY_MODE
         startBootanimDetectThread();
 #endif
@@ -1433,7 +1433,7 @@ void DisplayMode::filterHdmiDispcap(hdmi_data_t* data) {
                 strcat(filter_dispcap, hdmi_mode);
                 if (recomMode)
                     strcat(filter_dispcap, "*");
-                strcat(filter_dispcap, delim);
+                    strcat(filter_dispcap, delim);
             } else {
                 SYS_LOGE("DisplayMode strcat overflow: src=%s, dst=%s\n", hdmi_mode, filter_dispcap);
                 break;
@@ -1924,7 +1924,7 @@ int DisplayMode::getBootenvInt(const char* key, int defaultVal) {
  * @params: outputmode state.
  * author: luan.yuan@amlogic.com
  *
- * only set 'null' to display/mode in switch adaper state.
+ * only set 'null' to display/mode in switch adapter state.
  * auto switch frame rate need set 1 to /sys/class/amhdmitx/amhdmitx0/frac_rate_policy, to get CLK 0.1% offset.
  * But only change frac_rate_policy can not update CLOCK, unless mode and frac_rate_policy.
  * and can not set same mode to mode node. so need like 1080p60hz--->null--->1080p60hz.
@@ -1935,14 +1935,14 @@ void DisplayMode::setAutoSwitchFrameRate(int state __unused) {
 //so you can control switch it from DroidTvSetings app.
 //#define DEFAULT_NO_CLK_OFFSET
 #ifdef DEFAULT_NO_CLK_OFFSET
-    if ((state == OUPUT_MODE_STATE_SWITCH_ADAPTER) || pFrameRateAutoAdaption->autoSwitchFlag == true) {
+    if ((state == OUTPUT_MODE_STATE_SWITCH_ADAPTER) || pFrameRateAutoAdaption->autoSwitchFlag == true) {
         SYS_LOGI("FrameRate video need set mode to null, and policy to 1 to into adapter policy\n");
-        pSysWrite->writeSysfs(HDMI_TX_FRAMRATE_POLICY, "1");
+        pSysWrite->writeSysfs(HDMI_TX_FRAMERATE_POLICY, "1");
     } else {
-        if (state == OUPUT_MODE_STATE_ADAPTER_END) {
+        if (state == OUTPUT_MODE_STATE_ADAPTER_END) {
             SYS_LOGI("End Hint FrameRate video need set mode to null to exit adapter policy\n");
         }
-        pSysWrite->writeSysfs(HDMI_TX_FRAMRATE_POLICY, "0");
+        pSysWrite->writeSysfs(HDMI_TX_FRAMERATE_POLICY, "0");
     }
 #endif
 }
@@ -2174,6 +2174,7 @@ void DisplayMode::setPosition(const char* curMode, int left, int top, int width,
     }
     pthread_mutex_unlock(&mEnvLock);
     DisplayModeMgr::getInstance().setDisplayRect({left, top, width , height});
+
 }
 
 void DisplayMode::saveDeepColorAttr(const char* mode, const char* dcValue) {
@@ -2579,7 +2580,7 @@ void DisplayMode::setHdrPriority(const char* type) {
     if  (strstr(type, "2"))  {
         //1. get final display mode and color format
         setBootEnv(UBOOTENV_ISBESTMODE, "true");
-        mHdmidata.state = OUPUT_MODE_STATE_INIT;
+        mHdmidata.state = OUTPUT_MODE_STATE_INIT;
         getCommonData(&mHdmidata);
         sceneProcess(&mHdmidata);
 
@@ -2596,7 +2597,7 @@ void DisplayMode::setHdrPriority(const char* type) {
     } else if  (strstr(type, "1")) {
         //1. get final display mode and color format
         setBootEnv(UBOOTENV_ISBESTMODE, "true");
-        mHdmidata.state = OUPUT_MODE_STATE_INIT;
+        mHdmidata.state = OUTPUT_MODE_STATE_INIT;
         getCommonData(&mHdmidata);
         sceneProcess(&mHdmidata);
 
@@ -2619,7 +2620,7 @@ void DisplayMode::setHdrPriority(const char* type) {
         SYS_LOGI("This TV dv cap: %s", dv_cap.c_str());
         //1. get final display mode and color format
         setBootEnv(UBOOTENV_ISBESTMODE, "true");
-        mHdmidata.state = OUPUT_MODE_STATE_INIT;
+        mHdmidata.state = OUTPUT_MODE_STATE_INIT;
         getCommonData(&mHdmidata);
         sceneProcess(&mHdmidata);
 
@@ -2723,7 +2724,7 @@ void DisplayMode::setDolbyVisionSupport() {
 }
 
 bool DisplayMode::getCurDolbyVisionState(int state, output_mode_state mode_state) {
-    if ((mode_state != OUPUT_MODE_STATE_INIT)
+    if ((mode_state != OUTPUT_MODE_STATE_INIT)
             || checkDolbyVisionStatusChanged(state)
             || checkDolbyVisionDeepColorChanged(state)) {
         return false;
@@ -2920,7 +2921,7 @@ void DisplayMode::setALLMMode(int state) {
      *     1: disable ALLM                                         *
      *     2: clean ALLM info in VSIF conflict bit                 *
      * when user set 0 to ALLM                                     *
-     * we will froce change 0 into -1 here                         *
+     * we will force change 0 into -1 here                         *
      *                                                             *
      ***************************************************************/
 
@@ -3305,7 +3306,7 @@ bool DisplayMode::getPrefHdmiDispMode(char* mode) {
 
     //1. get hdmi data
     memset(&mHdmidata, 0, sizeof(hdmi_data_t));
-    mHdmidata.state = OUPUT_MODE_STATE_INIT;
+    mHdmidata.state = OUTPUT_MODE_STATE_INIT;
     getHdmiData(&mHdmidata);
 
     //2. scene logic process

@@ -567,7 +567,7 @@
  *	reached.
  * @NL80211_CMD_SET_CHANNEL: Set the channel (using %NL80211_ATTR_WIPHY_FREQ
  *	and the attributes determining channel width) the given interface
- *	(identifed by %NL80211_ATTR_IFINDEX) shall operate on.
+ *	(identified by %NL80211_ATTR_IFINDEX) shall operate on.
  *	In case multiple channels are supported by the device, the mechanism
  *	with which it switches channels is implementation-defined.
  *	When a monitor interface is given, it can only switch channel while
@@ -624,7 +624,7 @@
  *	inform userspace of the new replay counter.
  *
  * @NL80211_CMD_PMKSA_CANDIDATE: This is used as an event to inform userspace
- *	of PMKSA caching dandidates.
+ *	of PMKSA caching candidates.
  *
  * @NL80211_CMD_TDLS_OPER: Perform a high-level TDLS command (e.g. link setup).
  *	In addition, this can be used as an event to request userspace to take
@@ -660,7 +660,7 @@
  *
  * @NL80211_CMD_PROBE_CLIENT: Probe an associated station on an AP interface
  *	by sending a null data frame to it and reporting when the frame is
- *	acknowleged. This is used to allow timing out inactive clients. Uses
+ *	acknowledged. This is used to allow timing out inactive clients. Uses
  *	%NL80211_ATTR_IFINDEX and %NL80211_ATTR_MAC. The command returns a
  *	direct reply with an %NL80211_ATTR_COOKIE that is later used to match
  *	up the event with the request. The event includes the same data and
@@ -1432,7 +1432,7 @@ enum nl80211_commands {
  *	the values passed in @NL80211_ATTR_SCAN_SSIDS (eg. if an SSID
  *	is included in the probe request, but the match attributes
  *	will never let it go through), -EINVAL may be returned.
- *	If ommited, no filtering is done.
+ *	If commited, no filtering is done.
  *
  * @NL80211_ATTR_INTERFACE_COMBINATIONS: Nested attribute listing the supported
  *	interface combinations. In each nested item, it contains attributes
@@ -2530,7 +2530,7 @@ enum nl80211_mpath_flags {
  * @NL80211_MPATH_INFO_DISCOVERY_TIMEOUT: total path discovery timeout, in msec
  * @NL80211_MPATH_INFO_DISCOVERY_RETRIES: mesh path discovery retries
  * @NL80211_MPATH_INFO_MAX: highest mesh path information attribute number
- *	currently defind
+ *	currently define
  * @__NL80211_MPATH_INFO_AFTER_LAST: internal use
  */
 enum nl80211_mpath_info {
@@ -2745,7 +2745,7 @@ enum nl80211_reg_type {
  * @NL80211_ATTR_REG_RULE_FLAGS: a set of flags which specify additional
  * 	considerations for a given frequency range. These are the
  * 	&enum nl80211_reg_rule_flags.
- * @NL80211_ATTR_FREQ_RANGE_START: starting frequencry for the regulatory
+ * @NL80211_ATTR_FREQ_RANGE_START: starting frequency for the regulatory
  * 	rule in KHz. This is not a center of frequency but an actual regulatory
  * 	band edge.
  * @NL80211_ATTR_FREQ_RANGE_END: ending frequency for the regulatory rule
@@ -4232,7 +4232,7 @@ enum nl80211_ap_sme_features {
  * @NL80211_FEATURE_INACTIVITY_TIMER: This driver takes care of freeing up
  *	the connected inactive stations in AP mode.
  * @NL80211_FEATURE_CELL_BASE_REG_HINTS: This driver has been tested
- *	to work properly to suppport receiving regulatory hints from
+ *	to work properly to support receiving regulatory hints from
  *	cellular base stations.
  * @NL80211_FEATURE_P2P_DEVICE_NEEDS_CHANNEL: (no longer available, only
  *	here to reserve the value for API/ABI compatibility)

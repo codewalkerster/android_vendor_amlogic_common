@@ -414,7 +414,7 @@ typedef struct {
     u8 flags;
 } RATE_CODE;
 
-/* bandwidht type*/
+/* bandwidth type*/
 typedef enum {
     BW_20MHZ,
     BW_40MHZ,

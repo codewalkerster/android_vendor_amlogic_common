@@ -26,7 +26,7 @@ interface ISubTitleService
     void option();
     int getSubType();
     String getSubTypeStr();
-    int getSubTypeDetial();
+    int getSubTypeDetail();
     void setTextColor(int color);
     void setTextSize(int size);
     void setGravity(int gravity);
@@ -54,5 +54,5 @@ interface ISubTitleService
     void setSubType(int type);
     void registerCallback(ISubTitleServiceCallback cb);
     void unregisterCallback();
-    void destory();
+    void destroy();
 }

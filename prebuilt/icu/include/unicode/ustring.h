@@ -884,7 +884,7 @@ u_memrchr32(const UChar *s, UChar32 c, int32_t count);
  * Unicode String literals in C.
  * We need one macro to declare a variable for the string
  * and to statically preinitialize it if possible,
- * and a second macro to dynamically intialize such a string variable if necessary.
+ * and a second macro to dynamically initialize such a string variable if necessary.
  *
  * The macros are defined for maximum performance.
  * They work only for strings that contain "invariant characters", i.e.,

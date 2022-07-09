@@ -58,8 +58,8 @@
  *   </tr>
  *   <tr>
  *     <td>I don't know</td>
- *     <td>I don't know OR<br> I don''t know</td>
- *     <td>I don''t know</td>
+ *     <td>I don't know OR<br> I don't know</td>
+ *     <td>I don't know</td>
  *   </tr>
  * </table>
  * @stable ICU 4.8
@@ -595,8 +595,8 @@ public:
      * Returns a version of the parsed pattern string where each ASCII apostrophe
      * is doubled (escaped) if it is not already, and if it is not interpreted as quoting syntax.
      * <p>
-     * For example, this turns "I don't '{know}' {gender,select,female{h''er}other{h'im}}."
-     * into "I don''t '{know}' {gender,select,female{h''er}other{h''im}}."
+     * For example, this turns "I don't '{know}' {gender,select,female{her}other{him}}."
+     * into "I don't '{know}' {gender,select,female{her}other{him}}."
      * @return the deep-auto-quoted version of the parsed pattern string.
      * @see MessageFormat.autoQuoteApostrophe()
      * @stable ICU 4.8

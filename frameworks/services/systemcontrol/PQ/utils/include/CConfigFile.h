@@ -42,17 +42,17 @@
 #define CFG_PQ_DV_CFG_PATH                      "pq_dv_cfg_path"
 
 #define CFG_BIG_SMALL_DB_ENABLE                 "pq.BigSmallDb.en"
-#define CFG_ALL_PQ_MOUDLE_ENABLE                "pq.AllPQMoudle.en"
+#define CFG_ALL_PQ_MODULE_ENABLE                "pq.AllPQModule.en"
 #define CFG_PQ_PARAM_CHECK_SOURCE_ENABLE        "pq.ParamCheckSource.en"
 #define CFG_TVHAL_ENABLE                        "pq.tvhal.en"
-//di moudle config
+//di module config
 #define CFG_DI_ENABLE                           "pq.di.en"
 #define CFG_MCDI_ENABLE                         "pq.mcdi.en"
 #define CFG_DEBLOCK_ENABLE                      "pq.deblock.en"
 #define CFG_NOISEREDUCTION_ENABLE               "pq.NoiseReduction.en"
 #define CFG_DEMOSQUITO_ENABLE                   "pq.DemoSquito.en"
 #define CFG_SMOOTHPLUS_ENABLE                   "pq.SmoothPlus.en"
-//amvecm moudle config
+//amvecm module config
 #define CFG_SHARPNESS0_ENABLE                   "pq.sharpness0.en"
 #define CFG_SHARPNESS1_ENABLE                   "pq.sharpness1.en"
 #define CFG_DNLP_ENABLE                         "pq.dnlp.en"
@@ -73,7 +73,7 @@
 #define CFG_AISR_ENABLE                         "pq.aisr.en"
 #define CFG_AAD_ENABLE                          "pq.aad.en"
 #define CFG_CABC_ENABLE                         "pq.cabc.en"
-//overscan moudle config
+//overscan module config
 #define CFG_DISPLAY_OVERSCAN_ENABLE             "pq.DisplayOverscan.en"
 
 //pq param default value

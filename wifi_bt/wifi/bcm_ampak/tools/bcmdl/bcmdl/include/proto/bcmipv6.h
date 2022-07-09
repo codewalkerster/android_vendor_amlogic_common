@@ -114,7 +114,7 @@ BWL_PRE_PACKED_STRUCT struct nd_msg {
 } BWL_POST_PACKED_STRUCT;
 
 
-/* Neighibor Solicitation/Advertisement Optional Structure */
+/* Neighbor Solicitation/Advertisement Optional Structure */
 BWL_PRE_PACKED_STRUCT struct nd_msg_opt {
 	uint8 type;
 	uint8 len;

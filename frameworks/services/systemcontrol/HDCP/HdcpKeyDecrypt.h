@@ -56,7 +56,7 @@ typedef struct pack_header{
 	unsigned int	dataOffset;	/* Item data offset*/
 	unsigned char   type;	/* Image Type, not used yet*/
 	unsigned char 	comp;	/* Compression Type	*/
-    unsigned short  reserv;
+    unsigned short  reserve;
 	char 	name[IH_NMLEN];	/* Image Name		*/
 }AmlResItemHead_t;
 #pragma pack(pop)
@@ -64,7 +64,7 @@ typedef struct pack_header{
 //typedef for amlogic resource image
 #pragma pack(push, 4)
 typedef struct {
-    __u32   crc;    //crc32 value for the resouces image
+    __u32   crc;    //crc32 value for the resources image
     __s32   version;//0x01 means 'AmlResItemHead_t' attach to each item , 0x02 means all 'AmlResItemHead_t' at the head
 
     __u8    magic[AML_RES_IMG_V1_MAGIC_LEN];  //resources images magic
@@ -75,7 +75,7 @@ typedef struct {
 }AmlResImgHead_t;
 #pragma pack(pop)
 
-/*The Amlogic resouce image is consisted of a AmlResImgHead_t and many
+/*The Amlogic resource image is consisted of a AmlResImgHead_t and many
  *
  * |<---AmlResImgHead_t-->|<--AmlResItemHead_t-->---...--|<--AmlResItemHead_t-->---...--|....
  *

@@ -505,14 +505,14 @@ public class BluetoothDevicePairer {
                             connected(RemoteDevice);
                         } else {
                             Log.d(TAG,"Remote Device no bond! try again");
-                            int mConnetFail=0;
+                            int mConnectFail=0;
                             while ( bondState != BluetoothDevice.BOND_BONDED ) {
                                 //createBond( RemoteDevice.getClass(), RemoteDevice );
-                                Log.d(TAG," add waitting BT bond...");
+                                Log.d(TAG," add waiting BT bond...");
                                 Thread.sleep(3000);
                                 bondState = RemoteDevice.getBondState();
-                                mConnetFail++;
-                                if ( mConnetFail > 5 ) {
+                                mConnectFail++;
+                                if ( mConnectFail > 5 ) {
                                     Log.d(TAG,"BT bond fail ...");
                                     setStatus(STATUS_BONDFAIL);
                                     mFindFlag = false;

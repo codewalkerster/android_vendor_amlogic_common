@@ -51,7 +51,7 @@
 #       |
 #       |--- Character or named character classes to test for.  If the current character being scanned
 #            matches, peform the actions and go to the state specified on this line.
-#            The input character is tested sequentally, in the order written.  The characters and
+#            The input character is tested sequentially, in the order written.  The characters and
 #            character classes tested for do not need to be mutually exclusive.  The first match wins.
 #            
 

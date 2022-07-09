@@ -188,7 +188,7 @@ static int IsPlatformMachWithZipArchiveImage(
     }
 
     if (imageBuffer == NULL) {
-        printf("havn't malloc space for %s\n",
+        printf("haven't malloc space for %s\n",
             imageName);
         return -1;
     }
@@ -279,7 +279,7 @@ static int IsBootloaderImageEncrypted(
     }
 
     if (imageBuffer == NULL) {
-        printf("havn't malloc space for %s\n",
+        printf("haven't malloc space for %s\n",
             imageName);
         return -1;
     }
@@ -399,7 +399,7 @@ static int IsZipArchiveImageEncrypted(
     }
 
     if (imageBuffer == NULL) {
-        printf("havn't malloc space for %s\n",
+        printf("haven't malloc space for %s\n",
             imageName);
         return -1;
     }

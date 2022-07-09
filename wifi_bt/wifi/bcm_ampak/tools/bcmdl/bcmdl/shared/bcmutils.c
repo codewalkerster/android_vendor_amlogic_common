@@ -436,7 +436,7 @@ bcmstrncat(char *dest, const char *src, uint size)
 * Function:   bcmstrtok
 *
 * Purpose:
-*  Tokenizes a string. This function is conceptually similiar to ANSI C strtok(),
+*  Tokenizes a string. This function is conceptually similar to ANSI C strtok(),
 *  but allows strToken() to be used by different strings or callers at the same
 *  time. Each call modifies '*string' by substituting a NULL character for the
 *  first delimiter that is encountered, and updates 'string' to point to the char
@@ -1029,7 +1029,7 @@ bcm_write_tlv(int type, const void *data, int datalen, uint8 *dst)
 			memcpy(dst_tlv->data, data, datalen);
 		}
 
-		/* update the output destination poitner to point past
+		/* update the output destination pointer to point past
 		 * the TLV written
 		 */
 		new_dst = dst + BCM_TLV_HDR_SIZE + datalen;
@@ -1714,7 +1714,7 @@ printbig(char *buf)
 	return;
 }
 
-/* routine to dump fields in a fileddesc structure */
+/* routine to dump fields in a file desc structure */
 uint
 bcmdumpfields(bcmutl_rdreg_rtn read_rtn, void *arg0, uint arg1, struct fielddesc *fielddesc_array,
 	char *buf, uint32 bufsize)

@@ -164,7 +164,7 @@ void FormatColorDepth::getHdmiColorAttribute(const char* outputmode, char* color
                 getBootEnv(UBOOTENV_COLORATTRIBUTE, colorAttribute);
             }
         } else {
-            getProperHdmiColorArrtibute(outputmode,  colorAttribute);
+            getProperHdmiColorAttribute(outputmode,  colorAttribute);
         }
     }
 
@@ -172,7 +172,7 @@ void FormatColorDepth::getHdmiColorAttribute(const char* outputmode, char* color
         colorAttribute, outputmode, supportedColorList);
 }
 
-void FormatColorDepth::getProperHdmiColorArrtibute(const char* outputmode, char* colorAttribute) {
+void FormatColorDepth::getProperHdmiColorAttribute(const char* outputmode, char* colorAttribute) {
     char ubootvar[MODE_LEN] = {0};
     char tmpValue[MODE_LEN] = {0};
     char isBestMode[MODE_LEN] = {0};

@@ -2590,7 +2590,7 @@ int fils_decrypt_assoc(struct wpa_state_machine *sm, const u8 *fils_session,
 
 	if (!sm || !sm->PTK_valid) {
 		wpa_printf(MSG_DEBUG,
-			   "FILS: No KEK to decrypt Assocication Request frame");
+			   "FILS: No KEK to decrypt Association Request frame");
 		return -1;
 	}
 

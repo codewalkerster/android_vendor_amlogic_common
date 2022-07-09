@@ -1511,7 +1511,7 @@ static void eap_sm_processIdentity(struct eap_sm *sm, const struct wpabuf *req)
 	 * RFC 3748 - 5.1: Identity
 	 * Data field may contain a displayable message in UTF-8. If this
 	 * includes NUL-character, only the data before that should be
-	 * displayed. Some EAP implementasitons may piggy-back additional
+	 * displayed. Some EAP implementations may piggy-back additional
 	 * options after the NUL.
 	 */
 	/* TODO: could save displayable message so that it can be shown to the

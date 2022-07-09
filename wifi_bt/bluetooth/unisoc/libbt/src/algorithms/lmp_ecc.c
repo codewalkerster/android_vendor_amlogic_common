@@ -1273,16 +1273,16 @@ void GF_Point_Jacobian_To_Affine(ECC_Jacobian_Point* pJacPoint,bigHex* pX_co_ord
  * a point addition is also performed.
  *
  * Scalar Multiplication: LSB first
- *   • Require k=(km-1,km-2,…,k0)2, km=1
- *   • Compute Q=kP
- * – Q=0, R=P
- * – For i=0 to m-1
- *   • If ki=1 then
- *      – Q=Q+R
- *   • End if
- *   • R=2R
- * – End for
- * – Return Q
+ *   ï¿½ Require k=(km-1,km-2,ï¿½,k0)2, km=1
+ *   ï¿½ Compute Q=kP
+ * ï¿½ Q=0, R=P
+ * ï¿½ For i=0 to m-1
+ *   ï¿½ If ki=1 then
+ *      ï¿½ Q=Q+R
+ *   ï¿½ End if
+ *   ï¿½ R=2R
+ * ï¿½ End for
+ * ï¿½ Return Q
  ******************************************************************************************/
 void ECC_Point_Multiplication(const bigHex* pk,const ECC_Point* pPointP, void* p_link,uint8_t blocking)
 {
@@ -1652,7 +1652,7 @@ void bigHexInversion( bigHex* bigHexA,bigHex* pResult)
 }
 
 /*******************************************************************
- * Funcion :- divideByTwo
+ * Function :- divideByTwo
  *
  * Parameters :- A - a bigHex pointer - which is the divided by two
  *

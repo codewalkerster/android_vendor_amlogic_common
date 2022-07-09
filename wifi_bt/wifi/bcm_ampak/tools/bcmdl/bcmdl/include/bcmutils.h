@@ -518,8 +518,8 @@ extern int bcm_format_ssid(char* buf, const uchar ssid[], uint ssid_len);
 #define ARRAYSIZE(a)		(sizeof(a) / sizeof(a[0]))
 #endif
 
-#ifndef ARRAYLAST
-#define ARRAYLAST(a)		(&a[ARRAYSIZE(a)-1])
+#ifndef ARRAY_LIST
+#define ARRAY_LIST(a)		(&a[ARRAYSIZE(a)-1])
 #endif
 
 

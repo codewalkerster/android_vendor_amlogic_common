@@ -523,7 +523,7 @@ static int op(bt_vendor_opcode_t opcode, void *param)
         case BT_VND_OP_LPM_SET_MODE:
             {
                 bt_vendor_lpm_mode_t mode = *(bt_vendor_lpm_mode_t *) param;
-                //for now if the mode is BT_VND_LPM_DISABLE, we guess the hareware bt
+                //for now if the mode is BT_VND_LPM_DISABLE, we guess the hardware bt
                 //interface is closing, we shall not send any cmd to the interface.
                 if(mode == BT_VND_LPM_DISABLE) {
                     userial_set_bt_interface_state(0);

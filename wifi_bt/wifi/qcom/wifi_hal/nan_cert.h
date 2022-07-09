@@ -168,10 +168,10 @@ typedef enum {
  * as indicated below.
  *
  * command: NAN_TEST_MODE_CMD_NAN_AVAILABILITY
- * content: NAN Avaiability attribute blob
+ * content: NAN Availability attribute blob
  *
  * command: NAN_TEST_MODE_CMD_NDP_INCLUDE_IMMUTABLE
- * content: u32 value (0 - Ignore 1 - Include immuatable,
+ * content: u32 value (0 - Ignore 1 - Include immutable,
  *                     2 - Don't include immutable)
  *
  * command: NAN_TEST_MODE_CMD_NDP_AVOID_CHANNEL

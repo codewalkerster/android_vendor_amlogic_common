@@ -25,7 +25,7 @@ Description:
 
 #define SECUREBOOT_MAGIC       "AMLSECU!"
 #define SECUREBOOT_MAGIC_SIZE  16
-#define SECUREBOOT_MAGIC_VESRION 0x0801
+#define SECUREBOOT_MAGIC_VERSION 0x0801
 
 #define DEFEND_KEY      "/dev/defendkey"
 #define DECRYPT_DTB    "/sys/class/defendkey/decrypt_dtb"
@@ -76,7 +76,7 @@ typedef struct {
 
         unsigned char magic[AML_SECU_BOOT_IMG_HDR_MAGIC_SIZE];//magic to identify whether it is a encrypted boot image
 
-        unsigned int  version;                  //ersion for this header struct
+        unsigned int  version;                  //erosion for this header struct
         unsigned int  nBlkCnt;
 
         unsigned char szTimeStamp[16];

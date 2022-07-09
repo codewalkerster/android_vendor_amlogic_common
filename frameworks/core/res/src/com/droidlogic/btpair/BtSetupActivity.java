@@ -63,7 +63,7 @@ public class BtSetupActivity extends Activity implements BluetoothDevicePairer.E
     private static final String STR_TIP_EXIT = "Press the <BACK> button or the <EXIT> button exit";
     private static final String STR_BONDFAIL = "   bond fail";
     private static final String STR_CONFAIL  = "   connect fail";
-    private static final String STR_SUCESS = "  paired successfully.";
+    private static final String STR_SUCCESS = "  paired successfully.";
     private static final String STR_ERROR = "  NO BLUETOOTH INSIDE";
     private static final String STR_PAIR = " pairing";
     private static final int DONE_MESSAGE_TIMEOUT = 3000;
@@ -176,7 +176,7 @@ public class BtSetupActivity extends Activity implements BluetoothDevicePairer.E
                mTextStatus.setText( RemoteName + STR_CONFAIL);
                 break;
             case BluetoothDevicePairer.STATUS_CONNECTED:
-                mTextStatus.setText(RemoteName + STR_SUCESS);
+                mTextStatus.setText(RemoteName + STR_SUCCESS);
                 mMsgHandler.sendEmptyMessageDelayed(MSG_FINISH,DONE_MESSAGE_TIMEOUT);
                  break;
             case BluetoothDevicePairer.STATUS_FINDED:

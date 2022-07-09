@@ -230,7 +230,7 @@ int traverse_dir(const char** const dirPath, __hdle *hdle, char* filePath)
 
         dirEntry = readdir(hDir);
         if (!dirEntry) {
-            debugP("travese end.\n");
+            debugP("traverse end.\n");
             closedir(hDir);
             return __LINE__;
         }
@@ -477,7 +477,7 @@ static int _img_pack(const char** const path_src, const char* const packedImg,
 
         itemBuf = new char[BufSz * 2];
         if (!itemBuf) {
-                errorP("Exception: fail to alloc buuffer\n");
+                errorP("Exception: fail to alloc buffer\n");
                 fclose(fd_dest); return __LINE__;
         }
         memset(itemBuf, 0, BufSz*2);

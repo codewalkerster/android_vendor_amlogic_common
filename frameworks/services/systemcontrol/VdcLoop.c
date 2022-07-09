@@ -76,7 +76,7 @@ static int do_cmd(int sock, int argc, char **argv) {
 
     if ((argc > 3) && (strcmp(argv[argc-2], "mount") == 0)) {
         if (strlen(argv[argc-1]) > 4096) {
-            ALOGE("The Path name lengh[%zu] is too long, exceed Linux limit 4096 byte\n", strlen(argv[argc-1]));
+            ALOGE("The Path name length[%zu] is too long, exceed Linux limit 4096 byte\n", strlen(argv[argc-1]));
             ALOGE("This is path:[%s]\n", argv[argc-1]);
             return errno;
         }
@@ -88,7 +88,7 @@ static int do_cmd(int sock, int argc, char **argv) {
                 while (*pathpoint != '/' && *pathpoint != '\0')
                     pathname[i++] = *pathpoint++;
                 if (strlen(pathname) > 255) {
-                    ALOGE("The File name lengh [%zu] is too long, exceed Linux limit 255 byte\n", strlen(pathname));
+                    ALOGE("The File name length [%zu] is too long, exceed Linux limit 255 byte\n", strlen(pathname));
                     ALOGE("This is file name:[%s]\n", pathname);
                     return errno;
                 }

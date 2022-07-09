@@ -80,7 +80,7 @@
   { *(p)++ = (uint8_t)(u8); }
 #define OpCodePack(ogf, ocf) (uint16_t)((ocf & 0x03ff) | (ogf << 10))
 
-/*If NXP_RESET_FW_IN_INITIA is defined, libbt will reset firmware during interface initializaion*/
+/*If NXP_RESET_FW_IN_INITIA is defined, libbt will reset firmware during interface initialization*/
 #define NXP_RESET_FW_IN_INITIA
 
 // 1 byte for event code, 1 byte for parameter length (Volume 2, Part E, 5.4.4)

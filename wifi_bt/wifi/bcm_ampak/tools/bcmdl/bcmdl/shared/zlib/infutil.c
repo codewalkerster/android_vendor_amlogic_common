@@ -11,7 +11,7 @@
 
 struct inflate_codes_state {int dummy;}; /* for buggy compilers */
 
-/* And'ing with mask[n] masks the lower n bits */
+/* with mask[n] masks the lower n bits */
 uInt inflate_mask[17] = {
     0x0000,
     0x0001, 0x0003, 0x0007, 0x000f, 0x001f, 0x003f, 0x007f, 0x00ff,

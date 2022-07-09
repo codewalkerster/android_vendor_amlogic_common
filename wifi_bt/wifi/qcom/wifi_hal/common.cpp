@@ -376,7 +376,7 @@ lowi_cb_table_t *getLowiCallbackTable(u32 requested_lowi_capabilities)
                       "get_lowi_capabilities() is not supported. Returning",
                       __FUNCTION__);
                 lowiSupportedCapabilities |=
-                    (ONE_SIDED_RANGING_SUPPORTED|DUAL_SIDED_RANGING_SUPPORED);
+                    (ONE_SIDED_RANGING_SUPPORTED|DUAL_SIDED_RANGING_SUPPORTED);
                 return LowiWifiHalApi;
         }
         ret =

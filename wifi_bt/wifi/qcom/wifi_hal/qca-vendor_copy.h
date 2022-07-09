@@ -2502,7 +2502,7 @@ enum qca_wlan_vendor_attr_ll_stats_clr {
 	 * All interface statistics                     0x00000010
 	 * All tx rate statistics (within interface statistics) 0x00000020
 	 * All ac statistics (with in interface statistics) 0x00000040
-	 * All contention (min, max, avg) statistics (within ac statisctics)
+	 * All contention (min, max, avg) statistics (within ac statistics)
 	 * 0x00000080.
 	 */
 	QCA_WLAN_VENDOR_ATTR_LL_STATS_CLR_CONFIG_REQ_MASK = 1,

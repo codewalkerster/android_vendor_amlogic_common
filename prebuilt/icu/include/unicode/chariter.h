@@ -91,7 +91,7 @@ U_NAMESPACE_BEGIN
 class U_COMMON_API ForwardCharacterIterator : public UObject {
 public:
     /**
-     * Value returned by most of ForwardCharacterIterator's functions
+     * Value returned by most of ForwardCHARACTER OPERATOR functions
      * when the iterator has reached the limits of its iteration.
      * @stable ICU 2.0
      */
@@ -135,7 +135,7 @@ public:
     /**
      * Returns a UClassID for this ForwardCharacterIterator ("poor man's
      * RTTI").<P> Despite the fact that this function is public,
-     * DO NOT CONSIDER IT PART OF CHARACTERITERATOR'S API!
+     * DO NOT CONSIDER IT PART OF CHARACTER OPERATOR API!
      * @return a UClassID for this ForwardCharacterIterator
      * @stable ICU 2.0
      */

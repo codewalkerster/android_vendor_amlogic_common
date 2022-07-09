@@ -122,7 +122,7 @@ struct bt_cfg_struct {
 };
 
 struct btmtk_usb_data {
-	struct usb_device	*udev;	/* store the usb device informaiton */
+	struct usb_device	*udev;	/* store the usb device information */
 	struct usb_interface	*intf;	/* current interface */
 	struct usb_interface	*isoc;	/* isochronous interface */
 	struct work_struct	waker;

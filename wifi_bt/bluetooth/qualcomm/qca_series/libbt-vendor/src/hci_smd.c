@@ -136,7 +136,7 @@ int bt_hci_init_transport_id (int chId )
 		return -1;
 	}
 
-	ALOGI("Done intiailizing UART\n");
+	ALOGI("Done initializing UART\n");
 	return fd;
 }
 

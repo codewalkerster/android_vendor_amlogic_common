@@ -5,7 +5,7 @@
  * file 'LICENSE' which is part of this source code package.
  *
  * Description:
- *     AMLOGIC DispayDensityManager
+ *     AMLOGIC DisplayDensityManager
  */
 package com.droidlogic.app;
 
@@ -61,7 +61,7 @@ public class DisplayDensityManager {
         mDisplayManager = (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
         mDefaultDensity = SystemProperties.getInt(DENSITY_PROP, DisplayMetrics.DENSITY_MEDIUM);
         SystemControlManager mSystemControlManager = SystemControlManager.getInstance();
-        intialDisplayManager();
+        initialDisplayManager();
         syncDensity(Display.DEFAULT_DISPLAY);
     }
 
@@ -92,7 +92,7 @@ public class DisplayDensityManager {
         return mInstance;
     }
 
-    private void intialDisplayManager() {
+    private void initialDisplayManager() {
         int mxHeight = SystemProperties.getInt(MAX_SIZE_HEIGHT_PROP,1920);
         int mxWidth = SystemProperties.getInt(MAX_SIZE_WIDTH_PROP,1080);
         mDefaultSize = new Size(mxWidth, mxHeight);

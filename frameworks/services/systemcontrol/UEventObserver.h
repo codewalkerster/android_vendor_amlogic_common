@@ -59,10 +59,10 @@ typedef struct {
 class UEventObserver
 {
 public:
-    class HDMITxUevntCallbak {
+    class HDMITxUevntCallback {
     public:
-        HDMITxUevntCallbak() {};
-        virtual ~HDMITxUevntCallbak() {};
+        HDMITxUevntCallback() {};
+        virtual ~HDMITxUevntCallback() {};
         virtual void onTxEvent (char* switchName, char* hpdstate, int outputState) = 0;
     };
 
@@ -70,7 +70,7 @@ public:
     ~UEventObserver();
 
     std::vector<std::string> strSplit(const std::string& s, const std::string& delim="=");
-    void setUevntCallback (HDMITxUevntCallbak *cb);
+    void setUevntCallback (HDMITxUevntCallback *cb);
     void setFRAutoAdpt (FrameRateAutoAdaption *mFRAutoAdpt);
     void setHDCPTxAuth(HDCPTxAuth *cb);
     void addMatch(const char *matchStr);
@@ -95,7 +95,7 @@ private:
     int mLogLevel;
     bool mSuspendResume;
 
-    HDMITxUevntCallbak *pmHDMITxUevntCallbak = NULL;
+    HDMITxUevntCallback *pmHDMITxUevntCallback = NULL;
     FrameRateAutoAdaption *pmFrameRateAutoAdaption = NULL;
     HDCPTxAuth *pmHDCPTxAuth = NULL;
 

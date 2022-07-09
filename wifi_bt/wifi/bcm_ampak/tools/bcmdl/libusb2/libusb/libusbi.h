@@ -566,7 +566,7 @@ struct usbi_os_backend {
 	 * This function should not generate any bus I/O and should not block.
 	 * Interface claiming is a logical operation that simply ensures that
 	 * no other drivers/applications are using the interface, and after
-	 * claiming, no other drivers/applicatiosn can use the interface because
+	 * claiming, no other drivers/applications can use the interface because
 	 * we now "own" it.
 	 *
 	 * Return:
@@ -794,7 +794,7 @@ struct usbi_os_backend {
 	 */
 	size_t transfer_priv_size;
 
-	/* Mumber of additional bytes for os_priv for each iso packet.
+	/* Member of additional bytes for os_priv for each iso packet.
 	 * Can your backend use this? */
 	/* FIXME: linux can't use this any more. if other OS's cannot either,
 	 * then remove this */

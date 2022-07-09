@@ -199,7 +199,7 @@ struct radius_server_data {
 	 *
 	 * This can be used to configure an optional, displayable message that
 	 * will be sent in EAP-Request/Identity. This string can contain an
-	 * ASCII-0 character (nul) to separate network infromation per RFC
+	 * ASCII-0 character (nul) to separate network information per RFC
 	 * 4284. The actual string length is explicit provided in
 	 * eap_req_id_text_len since nul character will not be used as a string
 	 * terminator.

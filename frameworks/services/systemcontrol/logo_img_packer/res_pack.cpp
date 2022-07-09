@@ -299,7 +299,7 @@ int img_pack(const char* const path_src, const char* const packedImg,
 
         itemBuf = new char[BufSz * 2];
         if (!itemBuf) {
-                SYS_LOGE("Exception: fail to alloc buuffer\n");
+                SYS_LOGE("Exception: fail to alloc buffer\n");
                 return __LINE__;
         }
         memset(itemBuf, 0, BufSz * 2);
@@ -324,7 +324,7 @@ int img_pack(const char* const path_src, const char* const packedImg,
         while ((ptr=readdir(dir)) != NULL)
         {
                 char filePath[MAX_PATH * 2];
-                if (strcmp(ptr->d_name,".") == 0 || strcmp(ptr->d_name,"..") == 0)    ///current dir OR parrent dir
+                if (strcmp(ptr->d_name,".") == 0 || strcmp(ptr->d_name,"..") == 0)    ///current dir OR parent dir
                     continue;
                 else if (ptr->d_type == 8)
                 {

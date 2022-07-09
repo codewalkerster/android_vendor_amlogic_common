@@ -175,7 +175,7 @@ void btm_vsc_complete (UINT8 *p, UINT16 opcode, UINT16 evt_len,
     /* If there was a callback address for vcs complete, call it */
     if (p_vsc_cplt_cback)
     {
-        /* Pass paramters to the callback function */
+        /* Pass parameters to the callback function */
         vcs_cplt_params.opcode = opcode;        /* Number of bytes in return info */
         vcs_cplt_params.param_len = evt_len;    /* Number of bytes in return info */
         vcs_cplt_params.p_param_buf = p;

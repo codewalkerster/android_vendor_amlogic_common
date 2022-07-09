@@ -354,7 +354,7 @@ public class CcImplement {
             }
             mMaxFontSize = mMaxFontHeight;
 
-            //This is used for postioning character in 608 mode.
+            //This is used for positioning character in 608 mode.
             mFixedCharWidth = mSafeTitleWidth / (mCcColCount + 1);
 
             mAnchorHorizon = ((mVideohvRateOrigin & 1) == 0)?210:160; //16:9 or 4:3
@@ -1373,7 +1373,7 @@ public class CcImplement {
                         mStrRight = mStrLeft + mStringLengthOnPaint;
                         mPriorStrPositionForDraw = mStrRight;
                     } else {
-                        /* default using left justfication */
+                        /* default using left justification */
                         if (mPriorStrPositionForDraw == -1) {
                             mPriorStrPositionForDraw = mWindowStartX + mStrStartX;
                         }

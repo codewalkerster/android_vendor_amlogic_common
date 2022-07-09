@@ -1328,7 +1328,7 @@ void eloop_wait_for_read_sock(int sock)
 #endif /* CONFIG_ELOOP_POLL */
 #if defined(CONFIG_ELOOP_SELECT) || defined(CONFIG_ELOOP_EPOLL)
 	/*
-	 * We can use epoll() here. But epoll() requres 4 system calls.
+	 * We can use epoll() here. But epoll() requires 4 system calls.
 	 * epoll_create1(), epoll_ctl() for ADD, epoll_wait, and close() for
 	 * epoll fd. So select() is better for performance here.
 	 */

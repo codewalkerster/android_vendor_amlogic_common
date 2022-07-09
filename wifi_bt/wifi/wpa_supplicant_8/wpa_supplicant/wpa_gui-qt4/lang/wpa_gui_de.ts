@@ -92,8 +92,8 @@
     </message>
     <message>
         <location filename="../networkconfig.ui" line="42"/>
-        <source>Network name (Service Set IDentifier)</source>
-        <translation>Netzwerkname (Service Set IDentifier)</translation>
+        <source>Network name (Service Set Identifier)</source>
+        <translation>Netzwerkname (Service Set Identifier)</translation>
     </message>
     <message>
         <location filename="../networkconfig.ui" line="52"/>

@@ -98,7 +98,7 @@ wifi_error wifi_reset_iface_event_handler(wifi_request_id id,
 }
 
 /* This function will be the main handler for the registered incoming
- * (from driver) Commads. Calls the appropriate callback handler after
+ * (from driver) commands. Calls the appropriate callback handler after
  * parsing the vendor data.
  */
 int IfaceEventHandlerCommand::handleEvent(WifiEvent &event)

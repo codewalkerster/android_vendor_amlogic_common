@@ -306,14 +306,14 @@ class AmlogicDevice : public Device {
         if (menu_position == 4) {
             //mount sdcard
             ret = ensure_storage_mounted(SDCARD_DEVICE, AML_SDCARD_ROOT);
-            _ui->Print("mount sdcard %s.\n", ret ? "failed" : "sucess");
+            _ui->Print("mount sdcard %s.\n", ret ? "failed" : "success");
             if (ret == 0) {
                 return g_menu_actions[menu_position].second;
             }
         } else if (menu_position == 5) {
             //mount udisk
             ret = ensure_storage_mounted(UDISK_DEVICE, AML_SDCARD_ROOT);
-            _ui->Print("mount udisk %s.\n", ret ? "failed" : "sucess");
+            _ui->Print("mount udisk %s.\n", ret ? "failed" : "success");
             if (ret == 0) {
                 return g_menu_actions[menu_position-1].second;
             }

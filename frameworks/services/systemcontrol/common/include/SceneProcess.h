@@ -123,7 +123,7 @@ public:
     void setTvSupportDV(const bool isEnable);
     void setHDRPriority(const hdr_priority_e value);
     void setHDRPolicy(const hdr_policy_e value);
-    void setCurrtenDisplayMode(const char* value);
+    void setCurrentDisplayMode(const char* value);
     void setIsSupport4K(const bool isEnable);
     void setIsSupport4K30(const bool isEnable);
     void setIsDeepColor(const bool isEnable);

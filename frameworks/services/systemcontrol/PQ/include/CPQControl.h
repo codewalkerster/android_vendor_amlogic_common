@@ -41,7 +41,7 @@
 #define TVIN_IOC_MAGIC 'T'
 #define TVIN_IOC_LOAD_REG           _IOW(TVIN_IOC_MAGIC, 0x20, struct am_regs_s)
 
-// screem mode index value
+// screen mode index value
 #define  SCREEN_MODE_NORMAL           0
 #define  SCREEN_MODE_FULL_STRETCH     1
 #define  SCREEN_MODE_4_3              2
@@ -143,7 +143,7 @@ public:
     virtual void onTXStatusChange();
     virtual void resetAllUserSettingParam();
     virtual void Set_Backlight(int value);
-    virtual void GetDynamicBacklighConfig(int *thtf, int *lut_mode, int *heigh_param, int *low_param);
+    virtual void GetDynamicBacklighConfig(int *thtf, int *lut_mode, int *height_param, int *low_param);
     virtual void GetDynamicBacklighParam(dynamic_backlight_Param_t *DynamicBacklightParam);
     int LoadPQSettings();
     int LoadCpqLdimRegs(void);
@@ -337,7 +337,7 @@ public:
     int FactorySetOverscanParam(source_input_param_t source_input_param, tvin_cutwin_t cutwin_t);
     tvin_cutwin_t FactoryGetOverscanParam(source_input_param_t source_input_param);
     int FactorySetGamma(int gamma_r_value, int gamma_g_value, int gamma_b_value);
-    int FcatorySSMRestore(void);
+    int FactorySSMRestore(void);
 
     int SetColorDemoMode(vpp_color_demomode_t demomode);
     int SetColorBaseMode(vpp_color_basemode_t basemode, int isSave);
@@ -473,7 +473,7 @@ private:
     int getSnowStatus();
     bool mInitialized;
     //cfg
-    bool mbCpqCfg_seperate_db_enable;
+    bool mbCpqCfg_separate_db_enable;
     bool mbCpqCfg_amvecm_basic_enable;
     bool mbCpqCfg_amvecm_basic_withOSD_enable;
     bool mbCpqCfg_contrast_rgb_enable;

@@ -124,15 +124,15 @@ public class BluetoothAutoPairService extends IntentService {
                                     connected(RemoteDevice);
                                 } else {
                                     Log("Remote Device has no bond!");
-                                    int mConnetFail=0;
+                                    int mConnectFail=0;
                                     while ( bondState != BluetoothDevice.BOND_BONDED ) {
                                         createBond( RemoteDevice.getClass(), RemoteDevice );
                                         Thread.sleep(1000);
                                         bondState = RemoteDevice.getBondState();
-                                        Log.d(TAG,"Renjun.xu add waitting BT bond...");
-                                        mConnetFail++;
-                                        if ( mConnetFail > 5 ) {
-                                            Log.d(TAG,"waitting BT bond fail ...");
+                                        Log.d(TAG,"Renjun.xu add waiting BT bond...");
+                                        mConnectFail++;
+                                        if ( mConnectFail > 5 ) {
+                                            Log.d(TAG,"waiting BT bond fail ...");
                                             break;
                                         }
                                     }

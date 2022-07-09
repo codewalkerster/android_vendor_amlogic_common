@@ -90,7 +90,7 @@ void BTM_SendHciCommand(UINT16 opcode, UINT8 param_len,
     if ((p_buf = GKI_getbuf((UINT16)(sizeof(BT_HDR) + sizeof (tBTM_CMPL_CB *) +
                             param_len + HCIC_PREAMBLE_SIZE))) != NULL)
     {
-        /* Send the HCI command (opcode will be OR'd with HCI_GRP_VENDOR_SPECIFIC) */
+        /* Send the HCI command (opcode will be or with HCI_GRP_VENDOR_SPECIFIC) */
         btsnd_hcic_send_cmd (p_buf, opcode, param_len, p_param_buf, (void *)p_cb);
     }
 }

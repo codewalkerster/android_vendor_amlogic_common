@@ -69,8 +69,8 @@
 
 namespace android {
 
-#define BOUNDRY 32
-#define ALIGN(x) (x + (BOUNDRY) - 1)& ~((BOUNDRY) - 1)
+#define BOUNDARY 32
+#define ALIGN(x) (x + (BOUNDARY) - 1)& ~((BOUNDARY) - 1)
 
 #define MAX_CLIENT 4
 #define PORTTYPE_VALUE_VIDEO_OSD  0x11000001

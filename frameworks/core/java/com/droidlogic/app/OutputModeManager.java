@@ -118,7 +118,7 @@ public class OutputModeManager {
     public static final String PROP_ALWAYS_DOLBY_VISION     = "vendor.system.always.dolbyvision";
     public static final String PROP_DTSDRCSCALE             = "persist.vendor.sys.dtsdrcscale";
     public static final String PROP_DTSEDID                 = "persist.vendor.sys.dts.edid";
-    public static final String DISPLY_DEBUG_PROP            = "vendor.display.debug";
+    public static final String DISPLAY_DEBUG_PROP            = "vendor.display.debug";
     public static final String PROP_LOG_LEVEL               = "persist.vendor.sc.log.level";
 
     public static final String FULL_WIDTH_480               = "720";
@@ -408,7 +408,7 @@ public class OutputModeManager {
     }
 
     public boolean isSupportDisplayDebug() {
-         return mSystemControl.getPropertyBoolean(DISPLY_DEBUG_PROP, false);
+         return mSystemControl.getPropertyBoolean(DISPLAY_DEBUG_PROP, false);
     }
 
     public boolean isDolbyVisionEnable() {
@@ -970,9 +970,9 @@ public class OutputModeManager {
         return getBootenv(ENV_DIGIT_AUDIO, PCM);
     }
 
-    public int autoSwitchHdmiPassthrough () {
+    public int autoSwitchHdmiPassthough () {
         String mAudioCapInfo = readSysfsTotal(SYS_AUDIO_CAP);
-        if (mAudioCapInfo.contains("Dolby_Digital+")) {
+        if (mAudioCapInfo.contains("Dobly_Digital+")) {
             setDigitalMode(HDMI_RAW);
             return IS_HDMI_RAW;
         } else if (mAudioCapInfo.contains("AC-3")

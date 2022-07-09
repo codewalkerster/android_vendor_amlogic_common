@@ -5849,7 +5849,7 @@ static void handle_disassoc(struct hostapd_data *hapd,
 		return;
 	}
 
-	wpa_printf(MSG_DEBUG, "disassocation: STA=" MACSTR " reason_code=%d",
+	wpa_printf(MSG_DEBUG, "dissociation: STA=" MACSTR " reason_code=%d",
 		   MAC2STR(mgmt->sa),
 		   le_to_host16(mgmt->u.disassoc.reason_code));
 
@@ -6677,7 +6677,7 @@ static void handle_action_cb(struct hostapd_data *hapd,
  * @buf: management frame data (starting from IEEE 802.11 header)
  * @len: length of frame data in octets
  * @stype: management frame subtype from frame control field
- * @ok: Whether the frame was ACK'ed
+ * @ok: Whether the frame was confirmed
  */
 void ieee802_11_mgmt_cb(struct hostapd_data *hapd, const u8 *buf, size_t len,
 			u16 stype, int ok)

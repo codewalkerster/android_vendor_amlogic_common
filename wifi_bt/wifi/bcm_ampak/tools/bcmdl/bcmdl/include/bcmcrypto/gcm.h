@@ -39,7 +39,7 @@ typedef uint8 gcm_block_t[GCM_BLOCK_SZ];
 #endif
 
 /* GCM works with block ciphers (e.g. AES) with block length of 128 bits, but
- * is independent of the cipher. We abstract the encryption functionlity
+ * is independent of the cipher. We abstract the encryption functionality
  * note: block cipher decryption function not needed  and that in and out
  * may overlap
  */

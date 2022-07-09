@@ -1179,7 +1179,7 @@ static void btusb_lite_av_pcm_cback(int pcm_stream, void *p_dev, void *p_data,
 #endif
             if (written_enc_size != p_av_cb->encoder.encoded_frame_size)
             {
-                BTUSB_ERR("Bad Encoded Fame lenght=%d (expected=%d)\n",
+                BTUSB_ERR("Bad Encoded Fame length=%d (expected=%d)\n",
                         written_enc_size, p_av_cb->encoder.encoded_frame_size);
             }
 

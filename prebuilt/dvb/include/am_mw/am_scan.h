@@ -253,13 +253,13 @@ typedef struct
 	char name[1024];     /**< Program name*/
 }AM_SCAN_ProgramProgress_t;
 
-/**\brief singnal and frequency info of current scan frequency*/
+/**\brief signal and frequency info of current scan frequency*/
 typedef struct
 {
-	AM_Bool_t locked;	/**< singnal lock*/
-	int snr;					/**< current singnal snr*/
-	int ber;					/**< current singnal ber*/
-	int strength;			/**< current singnal strength*/
+	AM_Bool_t locked;	/**< signal lock*/
+	int snr;					/**< current signal snr*/
+	int ber;					/**< current signal ber*/
+	int strength;			/**< current signal strength*/
 	int frequency;		/**< current frequency*/
 }AM_SCAN_DTVSignalInfo_t;
 

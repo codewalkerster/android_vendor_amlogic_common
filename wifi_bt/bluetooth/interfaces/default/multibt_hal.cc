@@ -61,7 +61,7 @@ struct device_info {
     unsigned short device_id;
 	char device_name[20];
     char vendor_lib_name[64];
-	char mudule_name[20];
+	char module_name[20];
 	unsigned short chip_id;
 	bool power_type;
 };
@@ -204,7 +204,7 @@ static int get_config(void)
 	return 0;
 }
 
-static void wirte_power_type(char * str)
+static void write_power_type(char * str)
 {
 	int ret;
 	int fd;
@@ -231,7 +231,7 @@ static char* get_power_type(void)
 	memset(module_name, 0, sizeof(module_name));
 	btvendor_hal.get_module_name(module_name);
 	if (!strncmp(module_name, "NULL", 4)) {
-		PR_INFO("dou't find module name");
+		PR_INFO("don't find module name");
 		return NULL;
 	}
 
@@ -271,7 +271,7 @@ static int set_power_type(void)
 	if (!str)
 		return 0;
 
-	wirte_power_type(str);
+	write_power_type(str);
 	return 0;
 }
 
@@ -288,7 +288,7 @@ static void get_product_device(void)
 	for (i = 0; p_pdt_name[i] != NULL; i++) {
 		if (!strcmp(p_pdt_name[i], pdt_name)) {
 			PR_INFO("product.device : %s", pdt_name);
-			wirte_power_type((char*)"1");
+			write_power_type((char*)"1");
 			break;
 		}
 	}
@@ -379,8 +379,8 @@ static int matching_usb_device(std::string path)
 	dongle_size = sizeof(bluetooth_dongle)/sizeof(struct device_info);
 	for (cnt = 0; cnt < dongle_size; cnt++) {
 		if (bluetooth_dongle[cnt].device_id == device_id && bluetooth_dongle[cnt].device_id > 0) {
-			if (strncmp(bluetooth_dongle[cnt].mudule_name, "NULL", sizeof("NULL")-1)) {
-				property_set(MULTIBT_MODULE_PROP_NAME, bluetooth_dongle[cnt].mudule_name);
+			if (strncmp(bluetooth_dongle[cnt].module_name, "NULL", sizeof("NULL")-1)) {
+				property_set(MULTIBT_MODULE_PROP_NAME, bluetooth_dongle[cnt].module_name);
 			}
 			property_set(MULTIBT_VENDOR_PROP_NAME, bluetooth_dongle[cnt].vendor_lib_name);
 			set_module_name(bluetooth_dongle[cnt].device_name);
@@ -454,8 +454,8 @@ static int enum_mmc_type(std::string path)
 	dongle_size = sizeof(bluetooth_dongle)/sizeof(struct device_info);
 	for (cnt = 0; cnt < dongle_size; cnt++) {
 		if (bluetooth_dongle[cnt].chip_id == chip_id && bluetooth_dongle[cnt].device_id <= 0) {
-			if (strncmp(bluetooth_dongle[cnt].mudule_name, "NULL", sizeof("NULL")-1)) {
-				property_set(MULTIBT_MODULE_PROP_NAME, bluetooth_dongle[cnt].mudule_name);
+			if (strncmp(bluetooth_dongle[cnt].module_name, "NULL", sizeof("NULL")-1)) {
+				property_set(MULTIBT_MODULE_PROP_NAME, bluetooth_dongle[cnt].module_name);
 			}
 			property_set(MULTIBT_VENDOR_PROP_NAME, bluetooth_dongle[cnt].vendor_lib_name);
 			set_module_name(bluetooth_dongle[cnt].device_name);
@@ -1126,7 +1126,7 @@ static int matching_vendor_lib(unsigned char * buf, int size)
 	}
 	else
 	{
-		PR_INFO("vendor dou't matching");
+		PR_INFO("vendor don't matching");
 		goto error;
 	}
 
@@ -1270,7 +1270,7 @@ H5:
 
 static int bluetooth_distinguish_module(void)
 {
-	/*pcie dou't need go power when uart dou't rsp cmd*/
+	/*pcie don't need go power when uart don't rsp cmd*/
 	if (btvendor_hal.pci_module()) {
 		return 1;
 	}

@@ -173,15 +173,15 @@ static int h4_read_length = 0;
 static int coex_packet_recv_state = RTKBT_PACKET_IDLE;
 static int coex_packet_bytes_need = 0;
 static serial_data_type_t coex_current_type = 0;
-static unsigned char coex_resvered_buffer[2048] = {0};
-static int coex_resvered_length = 0;
+static unsigned char coex_reserved_buffer[2048] = {0};
+static int coex_reserved_length = 0;
 
 #ifdef RTK_HANDLE_EVENT
 static int received_packet_state = RTKBT_PACKET_IDLE;
 static unsigned int received_packet_bytes_need = 0;
 static serial_data_type_t recv_packet_current_type = 0;
-static unsigned char received_resvered_header[2048] = {0};
-static int received_resvered_length = 0;
+static unsigned char received_reserved_header[2048] = {0};
+static int received_reserved_length = 0;
 static rtkbt_version_t rtkbt_version;
 static rtkbt_lescn_t  rtkbt_adv_con;
 #endif
@@ -287,7 +287,7 @@ static void userial_send_hw_error()
     unsigned char p_buf[100];
     int length;
     p_buf[0] = HCIT_TYPE_EVENT;//event
-    p_buf[1] = HCI_VSE_SUBCODE_DEBUG_INFO_SUB_EVT;//firmwre event log
+    p_buf[1] = HCI_VSE_SUBCODE_DEBUG_INFO_SUB_EVT;//firmware event log
     p_buf[3] = 0x01;// host log opcode
     length = sprintf((char *)&p_buf[4], "host stack: userial error \n");
     p_buf[2] = length + 2;//len
@@ -336,18 +336,18 @@ void userial_vendor_init(char *bt_device_node)
     vnd_userial.recv_data = RtbQueueInit();
     vnd_userial.send_data = RtbQueueInit();
 
-    //reset coex gloable variables
+    //reset coex global variables
     coex_packet_recv_state = RTKBT_PACKET_IDLE;
     coex_packet_bytes_need = 0;
     coex_current_type = 0;
-    coex_resvered_length = 0;
+    coex_reserved_length = 0;
 
 #ifdef RTK_HANDLE_EVENT
-    //reset handle event gloable variables
+    //reset handle event global variables
     received_packet_state = RTKBT_PACKET_IDLE;
     received_packet_bytes_need = 0;
     recv_packet_current_type = 0;
-    received_resvered_length = 0;
+    received_reserved_length = 0;
 #endif
 
 #ifdef CONFIG_SCO_OVER_HCI
@@ -788,13 +788,13 @@ done:;
     return transmitted_length;
 }
 
-static void userial_enqueue_coex_rawdata(unsigned char * buffer, int length, bool is_recved)
+static void userial_enqueue_coex_rawdata(unsigned char * buffer, int length, bool is_received)
 {
     RTK_BUFFER* skb_data = RtbAllocate(length, 0);
     RTK_BUFFER* skb_type = RtbAllocate(1, 0);
     memcpy(skb_data->Data, buffer, length);
     skb_data->Length = length;
-    if(is_recved) {
+    if (is_received) {
         *skb_type->Data = RTK_DATA_RECEIVED;
         skb_type->Length = 1;
         RtbQueueTail(vnd_userial.recv_data, skb_data);
@@ -887,20 +887,20 @@ static int userial_coex_recv_data_handler(unsigned char * recv_buffer, int total
             else {
                 coex_packet_bytes_need = 3;
             }
-            coex_resvered_length = 0;
+            coex_reserved_length = 0;
             coex_packet_recv_state = RTKBT_PACKET_HEADER;
             //fall through
 
         case RTKBT_PACKET_HEADER:
             if(length >= coex_packet_bytes_need) {
-                memcpy(&coex_resvered_buffer[coex_resvered_length], p_data, coex_packet_bytes_need);
-                coex_resvered_length += coex_packet_bytes_need;
+                memcpy(&coex_reserved_buffer[coex_reserved_length], p_data, coex_packet_bytes_need);
+                coex_reserved_length += coex_packet_bytes_need;
                 length -= coex_packet_bytes_need;
                 p_data += coex_packet_bytes_need;
             }
             else {
-                memcpy(&coex_resvered_buffer[coex_resvered_length], p_data, length);
-                coex_resvered_length += length;
+                memcpy(&coex_reserved_buffer[coex_reserved_length], p_data, length);
+                coex_reserved_length += length;
                 coex_packet_bytes_need -= length;
                 length = 0;
                 return total_length;
@@ -908,27 +908,27 @@ static int userial_coex_recv_data_handler(unsigned char * recv_buffer, int total
             coex_packet_recv_state = RTKBT_PACKET_CONTENT;
 
             if(coex_current_type == DATA_TYPE_ACL) {
-                coex_packet_bytes_need = *(uint16_t *)&coex_resvered_buffer[2];
+                coex_packet_bytes_need = *(uint16_t *)&coex_reserved_buffer[2];
             }
              else if(coex_current_type == DATA_TYPE_EVENT){
-                coex_packet_bytes_need = coex_resvered_buffer[1];
+                coex_packet_bytes_need = coex_reserved_buffer[1];
             }
             else {
-                coex_packet_bytes_need = coex_resvered_buffer[2];
+                coex_packet_bytes_need = coex_reserved_buffer[2];
             }
             //fall through
 
         case RTKBT_PACKET_CONTENT:
             if(length >= coex_packet_bytes_need) {
-                memcpy(&coex_resvered_buffer[coex_resvered_length], p_data, coex_packet_bytes_need);
+                memcpy(&coex_reserved_buffer[coex_reserved_length], p_data, coex_packet_bytes_need);
                 length -= coex_packet_bytes_need;
                 p_data += coex_packet_bytes_need;
-                coex_resvered_length += coex_packet_bytes_need;
+                coex_reserved_length += coex_packet_bytes_need;
                 coex_packet_bytes_need = 0;
             }
             else {
-                memcpy(&coex_resvered_buffer[coex_resvered_length], p_data, length);
-                coex_resvered_length += length;
+                memcpy(&coex_reserved_buffer[coex_reserved_length], p_data, length);
+                coex_reserved_length += length;
                 coex_packet_bytes_need -= length;
                 length = 0;
                 return total_length;
@@ -938,28 +938,28 @@ static int userial_coex_recv_data_handler(unsigned char * recv_buffer, int total
 
         case RTKBT_PACKET_END:
         {
-            len = BT_HC_HDR_SIZE + coex_resvered_length;
+            len = BT_HC_HDR_SIZE + coex_reserved_length;
             uint8_t packet[len];
             p_buf = (HC_BT_HDR *) packet;
             p_buf->offset = 0;
             p_buf->layer_specific = 0;
-            p_buf->len = coex_resvered_length;
-            memcpy((uint8_t *)(p_buf + 1), coex_resvered_buffer, coex_resvered_length);
+            p_buf->len = coex_reserved_length;
+            memcpy((uint8_t *)(p_buf + 1), coex_reserved_buffer, coex_reserved_length);
             switch (coex_current_type) {
                 case DATA_TYPE_EVENT:
                     p_buf->event = MSG_HC_TO_STACK_HCI_EVT;
                     if(rtk_parse_manager)
-                        rtk_parse_manager->rtk_parse_internal_event_intercept(coex_resvered_buffer);
+                        rtk_parse_manager->rtk_parse_internal_event_intercept(coex_reserved_buffer);
                 break;
 
                 case DATA_TYPE_ACL:
                     p_buf->event = MSG_HC_TO_STACK_HCI_ACL;
-                    handle =  *(uint16_t *)coex_resvered_buffer;
-                    acl_length = *(uint16_t *)&coex_resvered_buffer[2];
-                    l2cap_length = *(uint16_t *)&coex_resvered_buffer[4];
+                    handle =  *(uint16_t *)coex_reserved_buffer;
+                    acl_length = *(uint16_t *)&coex_reserved_buffer[2];
+                    l2cap_length = *(uint16_t *)&coex_reserved_buffer[4];
                     boundary_flag = RTK_GET_BOUNDARY_FLAG(handle);
                     if(rtk_parse_manager)
-                        rtk_parse_manager->rtk_parse_l2cap_data(coex_resvered_buffer, 0);
+                        rtk_parse_manager->rtk_parse_l2cap_data(coex_reserved_buffer, 0);
                 break;
 
                 case DATA_TYPE_SCO:
@@ -982,7 +982,7 @@ static int userial_coex_recv_data_handler(unsigned char * recv_buffer, int total
     coex_packet_recv_state = RTKBT_PACKET_IDLE;
     coex_packet_bytes_need = 0;
     coex_current_type = 0;
-    coex_resvered_length = 0;
+    coex_reserved_length = 0;
 
     return (total_length - length);
 }
@@ -2120,20 +2120,20 @@ static int userial_handle_recv_data(unsigned char * recv_buffer, unsigned int to
 
         case RTKBT_PACKET_TYPE:
             received_packet_bytes_need = hci_preamble_sizes[HCI_PACKET_TYPE_TO_INDEX(recv_packet_current_type)];
-            received_resvered_length = 0;
+            received_reserved_length = 0;
             received_packet_state = RTKBT_PACKET_HEADER;
             //fall through
 
         case RTKBT_PACKET_HEADER:
             if(length >= received_packet_bytes_need) {
-                memcpy(&received_resvered_header[received_resvered_length], p_data, received_packet_bytes_need);
-                received_resvered_length += received_packet_bytes_need;
+                memcpy(&received_reserved_header[received_reserved_length], p_data, received_packet_bytes_need);
+                received_reserved_length += received_packet_bytes_need;
                 length -= received_packet_bytes_need;
                 p_data += received_packet_bytes_need;
             }
             else {
-                memcpy(&received_resvered_header[received_resvered_length], p_data, length);
-                received_resvered_length += length;
+                memcpy(&received_reserved_header[received_reserved_length], p_data, length);
+                received_reserved_length += length;
                 received_packet_bytes_need -= length;
                 length = 0;
                 return total_length;
@@ -2141,46 +2141,46 @@ static int userial_handle_recv_data(unsigned char * recv_buffer, unsigned int to
             received_packet_state = RTKBT_PACKET_CONTENT;
 
             if(recv_packet_current_type == DATA_TYPE_ACL) {
-                received_packet_bytes_need = *(uint16_t *)&received_resvered_header[2];
+                received_packet_bytes_need = *(uint16_t *)&received_reserved_header[2];
             }
              else if(recv_packet_current_type == DATA_TYPE_EVENT){
-                received_packet_bytes_need = received_resvered_header[1];
+                received_packet_bytes_need = received_reserved_header[1];
             }
             else {
-                received_packet_bytes_need = received_resvered_header[2];
+                received_packet_bytes_need = received_reserved_header[2];
             }
             //fall through
 
         case RTKBT_PACKET_CONTENT:
-            if(recv_packet_current_type == DATA_TYPE_EVENT) {
-                event = received_resvered_header[0];
+            if (recv_packet_current_type == DATA_TYPE_EVENT) {
+                event = received_reserved_header[0];
 
-                if(event == HCI_COMMAND_COMPLETE_EVT) {
-                    if(received_resvered_length == 2) {
-                      if(length >= 1) {
+                if (event == HCI_COMMAND_COMPLETE_EVT) {
+                    if (received_reserved_length == 2) {
+                      if (length >= 1) {
                           *p_data = 1;
                       }
                     }
                 }
-                else if(event == HCI_COMMAND_STATUS_EVT) {
-                    if(received_resvered_length < 4) {
-                      unsigned int act_len = 4 - received_resvered_length;
-                      if(length >= act_len) {
+                else if (event == HCI_COMMAND_STATUS_EVT) {
+                    if (received_reserved_length < 4) {
+                      unsigned int act_len = 4 - received_reserved_length;
+                      if (length >= act_len) {
                           *(p_data + act_len -1) = 1;
                       }
                     }
                 }
             }
-            if(length >= received_packet_bytes_need) {
-                memcpy(&received_resvered_header[received_resvered_length], p_data, received_packet_bytes_need);
+            if (length >= received_packet_bytes_need) {
+                memcpy(&received_reserved_header[received_reserved_length], p_data, received_packet_bytes_need);
                 length -= received_packet_bytes_need;
                 p_data += received_packet_bytes_need;
-                received_resvered_length += received_packet_bytes_need;
+                received_reserved_length += received_packet_bytes_need;
                 received_packet_bytes_need = 0;
             }
             else {
-                memcpy(&received_resvered_header[received_resvered_length], p_data, length);
-                received_resvered_length += length;
+                memcpy(&received_reserved_header[received_reserved_length], p_data, length);
+                received_reserved_length += length;
                 received_packet_bytes_need -= length;
                 length = 0;
                 return total_length;
@@ -2191,11 +2191,11 @@ static int userial_handle_recv_data(unsigned char * recv_buffer, unsigned int to
         case RTKBT_PACKET_END:
             switch (recv_packet_current_type) {
                 case DATA_TYPE_EVENT :
-                    userial_handle_event(received_resvered_header, received_resvered_length);
+                    userial_handle_event(received_reserved_header, received_reserved_length);
                 break;
 #ifdef CONFIG_SCO_OVER_HCI
                 case DATA_TYPE_SCO :
-                    userial_enqueue_recv_sco_data(received_resvered_header, received_resvered_length);
+                    userial_enqueue_recv_sco_data(received_reserved_header, received_reserved_length);
                 break;
 #endif
                 default :
@@ -2212,7 +2212,7 @@ static int userial_handle_recv_data(unsigned char * recv_buffer, unsigned int to
     received_packet_state = RTKBT_PACKET_IDLE;
     received_packet_bytes_need = 0;
     recv_packet_current_type = 0;
-    received_resvered_length = 0;
+    received_reserved_length = 0;
 
     return (total_length - length);
 }

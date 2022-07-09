@@ -124,7 +124,7 @@ typedef enum
     NAN_MSG_ID_CAPABILITIES_REQ             = 33,
     NAN_MSG_ID_CAPABILITIES_RSP             = 34,
     NAN_MSG_ID_SELF_TRANSMIT_FOLLOWUP_IND   = 35,
-    NAN_MSG_ID_RANGING_REQUEST_RECEVD_IND   = 36,
+    NAN_MSG_ID_RANGING_REQUEST_RECEIVED_IND   = 36,
     NAN_MSG_ID_RANGING_RESULT_IND           = 37,
     NAN_MSG_ID_TESTMODE_REQ                 = 1025,
     NAN_MSG_ID_TESTMODE_RSP                 = 1026
@@ -302,7 +302,7 @@ typedef enum
 #define NAN_TTL_INFINITE            0
 #define NAN_REPLY_COUNT_INFINITE    0
 
-/* NAN Confguration 5G Channel Access Bit */
+/* NAN Configuration 5G Channel Access Bit */
 #define NAN_5G_CHANNEL_ACCESS_UNSUPPORTED   0
 #define NAN_5G_CHANNEL_ACCESS_SUPPORTED     1
 
@@ -1178,7 +1178,7 @@ typedef enum {
     NAN_I_STATUS_INVALID_POST_NAN_DISCOVERY_DEVICE_ROLE_VALUE = 4113,
     NAN_I_STATUS_INVALID_POST_NAN_DISCOVERY_DURATION_VALUE = 4114,
     NAN_I_STATUS_INVALID_POST_NAN_DISCOVERY_BITMAP_VALUE = 4115,
-    NAN_I_STATUS_MISSING_FUTHER_AVAILABILITY_MAP = 4116,
+    NAN_I_STATUS_MISSING_FURTHER_AVAILABILITY_MAP = 4116,
     NAN_I_STATUS_INVALID_BAND_CONFIG_FLAGS = 4117,
     NAN_I_STATUS_INVALID_RANDOM_FACTOR_UPDATE_TIME_VALUE = 4118,
     NAN_I_STATUS_INVALID_ONGOING_SCAN_PERIOD = 4119,
@@ -1276,7 +1276,7 @@ typedef struct PACKED
    For NanResponse, NanPublishTerminatedInd, NanSubscribeTerminatedInd,
    NanDisabledInd, NanTransmitFollowupInd:
    function to translate firmware specific errors
-   to generic freamework error along with the error string
+   to generic framework error along with the error string
 */
 void NanErrorTranslation(NanInternalStatusType firmwareErrorRecvd,
                          u32 valueRcvd,

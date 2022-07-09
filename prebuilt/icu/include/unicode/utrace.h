@@ -320,7 +320,7 @@ utrace_getFunctions(const void **context,
   *                 human readable form.  Note that a UTraceData function may choose
   *                 to not format the data;  it could, for example, save it in
   *                 in the raw form it was received (more compact), leaving
-  *                 formatting for a later trace analyis tool.
+  *                 formatting for a later trace analysis tool.
   *  @param outBuf  pointer to a buffer to receive the formatted output.  Output
   *                 will be nul terminated if there is space in the buffer -
   *                 if the length of the requested output < the output buffer size.

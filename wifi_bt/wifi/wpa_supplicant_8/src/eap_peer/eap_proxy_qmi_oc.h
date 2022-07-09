@@ -76,7 +76,7 @@ enum eap_proxy_status {
 };
 
 typedef enum {
-        EAP_IDENTITY_ANNONYMOUS = 0x00,
+        EAP_IDENTITY_ANONYMOUS = 0x00,
         EAP_IDENTITY_IMSI_RAW  = 0x02,
         EAP_IDENTITY_IMSI_3GPP_REALM = 0x03,
         EAP_IDENTITY_IMSI_REALM = 0x04,

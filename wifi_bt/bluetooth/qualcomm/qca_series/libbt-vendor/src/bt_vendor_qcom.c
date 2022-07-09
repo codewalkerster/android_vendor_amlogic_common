@@ -964,7 +964,7 @@ static void cleanup( void )
 #endif /* WIFI_BT_STATUS_SYNC */
 }
 
-/* Check for one of the cients ANT/BT patch download is already in
+/* Check for one of the clients ANT/BT patch download is already in
 ** progress if yes wait till complete
 */
 void wait_for_patch_download() {

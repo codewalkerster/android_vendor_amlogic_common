@@ -178,7 +178,7 @@
 #define WLAN_STATUS_CANNOT_FIND_ALT_TBTT 78
 #define WLAN_STATUS_TRANSMISSION_FAILURE 79
 #define WLAN_STATUS_REQ_TCLAS_NOT_SUPPORTED 80
-#define WLAN_STATUS_TCLAS_RESOURCES_EXCHAUSTED 81
+#define WLAN_STATUS_TCLAS_RESOURCES_EXHAUSTED 81
 #define WLAN_STATUS_REJECTED_WITH_SUGGESTED_BSS_TRANSITION 82
 #define WLAN_STATUS_REJECT_WITH_SCHEDULE 83
 #define WLAN_STATUS_REJECT_NO_WAKEUP_SPECIFIED 84
@@ -535,7 +535,7 @@
 /* 41-43 - Service Interval Granularity */
 #define WLAN_EXT_CAPAB_IDENTIFIER_LOCATION 44
 #define WLAN_EXT_CAPAB_U_APSD_COEX 45
-#define WLAN_EXT_CAPAB_WNM_NOTIFCATION 46
+#define WLAN_EXT_CAPAB_WNM_NOTIFICATION 46
 #define WLAN_EXT_CAPAB_QAB 47
 #define WLAN_EXT_CAPAB_UTF_8_SSID 48
 #define WLAN_EXT_CAPAB_QMF 49
@@ -1440,7 +1440,7 @@ struct wmm_ac_parameter {
 
 /*
  * WMM Parameter Element (used in Beacon, Probe Response, and (Re)Association
- * Response frmaes)
+ * Response frames)
  */
 struct wmm_parameter_element {
 	/* Element ID: 221 (0xdd); Length: 24 */

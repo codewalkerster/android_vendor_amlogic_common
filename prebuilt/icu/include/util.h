@@ -64,7 +64,7 @@ class U_COMMON_API ICU_Utility /* not : public UObject because all methods are s
 
     /**
      * Returns the index of a character, ignoring quoted text.
-     * For example, in the string "abc'hide'h", the 'h' in "hide" will not be
+     * For example, in the string "abc" hide, the 'h' in "hide" will not be
      * found by a search for 'h'.
      * @param text text to be searched
      * @param start the beginning index, inclusive; <code>0 <= start
@@ -183,7 +183,7 @@ class U_COMMON_API ICU_Utility /* not : public UObject because all methods are s
      * position.  Return the identifier, or an empty string if there
      * is no identifier.
      * @param str the string to parse
-     * @param pos INPUT-OUPUT parameter.  On INPUT, pos is the
+     * @param pos INPUT-OUTPUT parameter.  On INPUT, pos is the
      * first character to examine.  It must be less than str.length(),
      * and it must not point to a whitespace character.  That is, must
      * have pos < str.length() and

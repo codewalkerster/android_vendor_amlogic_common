@@ -397,7 +397,7 @@ static int tls_write_server_key_exchange(struct tlsv1_server *conn,
 	if (conn->cred == NULL || conn->cred->dh_p == NULL ||
 	    conn->cred->dh_g == NULL) {
 		wpa_printf(MSG_DEBUG, "TLSv1: No DH parameters available for "
-			   "ServerKeyExhcange");
+			   "ServerKeyExchange");
 		return -1;
 	}
 

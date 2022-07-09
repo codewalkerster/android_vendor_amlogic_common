@@ -99,7 +99,7 @@ int do_aes(bool isEncrypt, unsigned char* pIn, int nInLen, unsigned char* pOut, 
         data = transferBuf;
     }
 
-#if 0 // avoid GPL lisence
+#if 0 // avoid GPL license
     struct aes_context ctx;
     unsigned char iv[16];
     //memset(iv, 0, sizeof(iv));

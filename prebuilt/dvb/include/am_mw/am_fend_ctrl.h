@@ -200,7 +200,7 @@ typedef struct AM_SEC_DVBSatelliteRotorGotoxxParameters
 typedef struct AM_SEC_DVBSatelliteRotorParameters
 {
 	AM_SEC_DVBSatelliteRotorInputpowerParameters_t m_inputpower_parameters; /**< rotor input power parameters*/
-	AM_SEC_DVBSatelliteRotorGotoxxParameters_t m_gotoxx_parameters;         /**< rotor gotoxx? paramters*/
+	AM_SEC_DVBSatelliteRotorGotoxxParameters_t m_gotoxx_parameters;         /**< rotor gotoxx? parameters*/
 	AM_Bool_t m_reset_rotor_status_cache;								/**< rotor reset cache or not*/
 	unsigned int m_rotor_move_unit;  										/**< rotor move unit, 00 continuously 01-7F(unit second, e.g 01-one second 02-two second) 80-FF (unit step，e.g FF-one step FE-two step)*/
 }AM_SEC_DVBSatelliteRotorParameters_t;
@@ -288,7 +288,7 @@ typedef enum{
 	TYPE_SEC_POSITIONERGOTOX				/**< diseqc rotor positioner gotox(longitude/latitude)*/
 }AM_SEC_Cmd_t;
 
-/**\brief diseqc async infomation*/
+/**\brief diseqc async information*/
 typedef struct AM_SEC_AsyncInfo
 {
 	int                dev_no;        /**< device number*/
@@ -312,13 +312,13 @@ typedef struct AM_SEC_AsyncInfo
 /**\brief diseqc parameters*/
 typedef struct AM_SEC_DVBSatelliteEquipmentControl
 {
-	AM_SEC_DVBSatelliteLNBParameters_t m_lnbs; /**< LNB parmeters*/
+	AM_SEC_DVBSatelliteLNBParameters_t m_lnbs; /**< LNB parameters*/
 	AM_Bool_t m_canMeasureInputPower; /**< inputpower status*/
 	AM_SEC_Cmd_Param_t m_params[SEC_CMD_MAX_PARAMS]; /**< diseqc delay command*/
 
 	AM_SEC_Cmd_t sec_cmd; /**< diseqc command*/
 
-	AM_SEC_AsyncInfo_t m_sec_asyncinfo; /**< diseqc async infomation*/
+	AM_SEC_AsyncInfo_t m_sec_asyncinfo; /**< diseqc async information*/
 }AM_SEC_DVBSatelliteEquipmentControl_t;
 
 
@@ -370,7 +370,7 @@ extern void  AM_SEC_Cache_Reset(int dev_no);
  */
 extern AM_ErrorCode_t AM_SEC_PrepareBlindScan(int dev_no);
 
-/**\brief diseqc diseqc frequency convert fucntion(centre_freq -> tp_freq)
+/**\brief diseqc diseqc frequency convert function(centre_freq -> tp_freq)
  * \param dev_no frontend device number
  * \param centre_freq unit KHZ
  * \param[out] tp_freq unit KHZ

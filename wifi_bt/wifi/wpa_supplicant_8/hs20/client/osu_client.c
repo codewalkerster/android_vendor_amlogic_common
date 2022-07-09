@@ -2683,7 +2683,7 @@ static int cmd_sub_rem(struct hs20_osu_client *ctx, const char *address,
 		return -1;
 	}
 
-	write_summary(ctx, "Wait for IP address for subscriptiom remediation");
+	write_summary(ctx, "Wait for IP address for subscription remediation");
 	wpa_printf(MSG_INFO, "Wait for IP address before starting subscription remediation");
 
 	if (wait_ip_addr(ctx->ifname, 15) < 0) {

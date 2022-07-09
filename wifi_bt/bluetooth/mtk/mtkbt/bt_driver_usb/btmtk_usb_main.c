@@ -191,7 +191,7 @@ static struct btmtk_usb_data *g_data;
 static int probe_counter;
 static u8 need_reset_stack;
 static u8 need_reopen;
-/* bluetooth KPI feautre, bperf */
+/* bluetooth KPI feature, bperf */
 static u8 btmtk_bluetooth_kpi;
 static int leftHciEventSize;
 static int leftACLSize;
@@ -257,7 +257,7 @@ static set_gpio_low pf_lowFunc;
 static set_gpio_high pf_highFunc;
 
 /**
- * USB device ID configureation
+ * USB device ID configuration
  */
 static struct usb_device_id btmtk_usb_table[] = {
 #if SUPPORT_MT7662
@@ -1109,7 +1109,7 @@ static inline void btmtk_usb_unlock_unsleepable_lock(struct OSAL_UNSLEEPABLE_LOC
 static void btmtk_usb_free_fifo(void)
 {
 	if (g_data && g_data->bt_cfg.save_fw_dump_in_kernel && g_data->bt_fifo) {
-		/*set fifo TASK_SHUOLD_STOP bit =1 to stop fifo thread */
+		/*set fifo TASK_SHOULD_STOP bit =1 to stop fifo thread */
 		btmtk_fifo_deinit(g_data->bt_fifo);
 		g_data->bt_fifo = NULL;
 	}
@@ -2748,7 +2748,7 @@ static int btmtk_usb_handle_resume(void)
 		if (ret)
 			return WOBLE_FAIL;
 	} else {
-		/* radio on cmd with wobx_mode_disable, used when unify woble and leagacy woble off */
+		/* radio on cmd with wobx_mode_disable, used when unify woble and legacy woble off */
 		if ((is_mt7668(g_data) || is_mt7663(g_data)) && fstate == BTMTK_FOPS_STATE_OPENED) {
 			ret = btmtk_usb_send_leave_woble_suspend_cmd();
 			if (ret)
@@ -2812,7 +2812,7 @@ static int btmtk_usb_wait_until_event(u8 *wait_event, int wait_event_len, int to
 		btmtk_usb_dispatch_event(g_data->io_buf, len);
 	} while (time_before(jiffies, comp_event_timo));
 
-	BTUSB_ERR("%s: Get compelete event fail %d", __func__, ret);
+	BTUSB_ERR("%s: Get complete event fail %d", __func__, ret);
 	return ret;
 }
 
@@ -3123,7 +3123,7 @@ static int btmtk_usb_set_Woble_APCF(void)
 				0x4D, 0x49, 0x20, 0x52, 0x43 /*name*/
 				};
 	/*---manufacture data cmd---*/
-	u8 cmd_manufature[] = { 0x57, 0xFD, 0x07, 0x06, 0x00, 0x5B,
+	u8 cmd_manufacture[] = { 0x57, 0xFD, 0x07, 0x06, 0x00, 0x5B,
 					0x00, 0x01,/* manufacture data */
 					0x00, 0xFF /* manufacture data mask */
 					};
@@ -3146,7 +3146,7 @@ static int btmtk_usb_set_Woble_APCF(void)
 				0xFF
 				};
 #else
-	u8 manufactur_data[] = { 0x57, 0xfd, 0x27, 0x06, 0x00, 0x5a,
+	u8 manufacture_data[] = { 0x57, 0xfd, 0x27, 0x06, 0x00, 0x5a,
 		0x46, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x43, 0x52, 0x4B, 0x54, 0x4D,
 		0xFF, 0xFF, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
@@ -3184,7 +3184,7 @@ static int btmtk_usb_set_Woble_APCF(void)
 			ret = btmtk_usb_send_hci_cmd(g_data->woble_setting_apcf[i].content,
 					g_data->woble_setting_apcf[i].length, event, sizeof(event));
 			if (ret < 0) {
-				BTUSB_ERR("%s: manufactur_data error ret %d", __func__, ret);
+				BTUSB_ERR("%s: manufacture_data error ret %d", __func__, ret);
 				return ret;
 			}
 		}
@@ -3202,13 +3202,13 @@ static int btmtk_usb_set_Woble_APCF(void)
 			}
 			cmd_name[5]++; /* set RC name filter index */
 
-			/* manufactur data filter */
-			ret = btmtk_usb_send_hci_cmd(cmd_manufature, sizeof(cmd_manufature), event, sizeof(event));
+			/* manufacture data filter */
+			ret = btmtk_usb_send_hci_cmd(cmd_manufacture, sizeof(cmd_manufacture), event, sizeof(event));
 			if (ret < 0) {
-				BTUSB_ERR("%s: manufactur data error ret %d", __func__, ret);
+				BTUSB_ERR("%s: manufacture data error ret %d", __func__, ret);
 				return ret;
 			}
-			cmd_manufature[5]++; /* set manufactur data filter index */
+			cmd_manufacture[5]++; /* set manufacture data filter index */
 
 			/* RC Address filter */
 			BTUSB_ERR("%s: size of white list is %d,rc num is %d,rc list is %s", __func__, strlen(rc_white_list), rc_num, rc_white_list);
@@ -3244,12 +3244,12 @@ static int btmtk_usb_set_Woble_APCF(void)
 			return ret;
 		}
 #else
-		BTUSB_INFO("%s: use default manufactur data", __func__);
-		memcpy(manufactur_data + 9, g_data->bdaddr, BD_ADDRESS_SIZE);
+		BTUSB_INFO("%s: use default manufacture data", __func__);
+		memcpy(manufacture_data + 9, g_data->bdaddr, BD_ADDRESS_SIZE);
 		ret = btmtk_usb_send_hci_cmd(
-			manufactur_data, sizeof(manufactur_data), event, sizeof(event));
+			manufacture_data, sizeof(manufacture_data), event, sizeof(event));
 		if (ret < 0) {
-			BTUSB_ERR("%s: manufactur_data error ret %d", __func__, ret);
+			BTUSB_ERR("%s: manufacture_data error ret %d", __func__, ret);
 			return ret;
 		}
 #endif
@@ -4823,7 +4823,7 @@ static int btmtk_usb_load_rom_patch(void)
 static int btmtk_usb_send_woble_suspend_cmd(void)
 {
 	int ret = 0;	/* if successful, 0 */
-	/* radio off cmd with wobx_mode_disable, used when unify woble and leagacy woble off */
+	/* radio off cmd with wobx_mode_disable, used when unify woble and legacy woble off */
 	u8 radio_off_cmd[] = { 0xC9, 0xFC, 0x05, 0x01, 0x20, 0x02, 0x00, 0x00 };
 	u8 status_event[] = { 0x0F, 0x04, 0x00, 0x01, 0xC9, 0xFC };
 	u8 comp_event[] = { 0xE6, 0x02, 0x08, 0x00 };
@@ -5570,7 +5570,7 @@ static void btmtk_usb_intr_complete(struct urb *urb)
 			BTUSB_WARN("%s: Queue is full !!", __func__);
 
 		if (length + g_data->metabuffer->write_p < META_BUFFER_SIZE) {
-			/* only one interrupt event, not be splited */
+			/* only one interrupt event, not be splitted */
 			if (leftHciEventSize == 0) {
 				/* copy event header: 0x04 */
 				g_data->metabuffer->buffer[g_data->metabuffer->write_p] = HCI_EVENT_PKT;
@@ -5583,10 +5583,10 @@ static void btmtk_usb_intr_complete(struct urb *urb)
 			BTUSB_DBG("%s: back to meta buffer head", __func__);
 			last_len = META_BUFFER_SIZE - g_data->metabuffer->write_p;
 
-			/* only one interrupt event, not be splited */
+			/* only one interrupt event, not be splitted */
 			if (leftHciEventSize == 0) {
 				if (last_len != 0) {
-					/* copy evnet header: 0x04 */
+					/* copy event header: 0x04 */
 					g_data->metabuffer->buffer[g_data->metabuffer->write_p] = HCI_EVENT_PKT;
 					g_data->metabuffer->write_p += 1;
 					last_len--;
@@ -6764,7 +6764,7 @@ static int btmtk_usb_fops_open(struct inode *inode, struct file *file)
 	state = btmtk_usb_get_state();
 	USB_MUTEX_UNLOCK();
 	if (state == BTMTK_USB_STATE_INIT || state == BTMTK_USB_STATE_DISCONNECT) {
-		BTUSB_ERR("%s: usb state is incorrest, retry!", __func__);
+		BTUSB_ERR("%s: usb state is incorrect, retry!", __func__);
 		return -EAGAIN;
 	}
 
@@ -7004,7 +7004,7 @@ static ssize_t btmtk_usb_fops_readfwlog(struct file *filp, char __user *buf, siz
 	if (g_data == NULL)
 		return -ENODEV;
 
-	/* picus read a queue, it may occur performace issue */
+	/* picus read a queue, it may occur performance issue */
 	FWLOG_SPIN_LOCK(flags);
 	if (skb_queue_len(&g_data->fwlog_queue))
 		skb = skb_dequeue(&g_data->fwlog_queue);

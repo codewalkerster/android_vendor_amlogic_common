@@ -122,7 +122,7 @@ EAP-IKEv2		+10 -   -   -   -   -   -   -   -   -   +   -
    network configuration in wpa_supplicant.conf)
 2) used FreeRADIUS as inner auth server
 5) PEAPv1 required termination of negotiation on tunneled EAP-Success and new
-   label in key deriviation
+   label in key derivation
    (phase1="peap_outer_success=0 peaplabel=1") (in "IETF Draft 5" mode)
 6) Authenticator simulator required patching for handling Access-Accept within
    negotiation (for the first EAP-Success of LEAP)

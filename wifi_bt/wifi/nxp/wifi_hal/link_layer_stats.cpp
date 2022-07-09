@@ -66,7 +66,7 @@ typedef struct {
    u32 tx_time;                           // msecs the radio is transmitting (32 bits number accruing over time)
    u32 num_tx_levels;                     // number of radio transmit power levels
    //u32 *tx_time_per_levels;               // pointer to an array of radio transmit per power levels in
-                                          // msecs accured over time
+                                          // msecs accrued over time
    u32 rx_time;                           // msecs the radio is in active receive (32 bits number accruing over time)
    u32 on_time_scan;                      // msecs the radio is awake due to all scan (32 bits number accruing over time)
    u32 on_time_nbd;                       // msecs the radio is awake due to NAN (32 bits number accruing over time)
@@ -88,7 +88,7 @@ typedef struct {
                                          // typical beacon contention time on the channel as well may be
                                          // used to debug beacon synchronization and related power consumption issue
    u32 leaky_ap_detected;                // indicate that this AP typically leaks packets beyond the driver guard time.
-   u32 leaky_ap_avg_num_frames_leaked;  // average number of frame leaked by AP after frame with PM bit set was ACK'ed by AP
+   u32 leaky_ap_avg_num_frames_leaked;  // average number of frame leaked by AP after frame with PM bit set was confirmed by AP
    u32 leaky_ap_guard_time;              // guard time currently in force (when implementing IEEE power management based on
                                          // frame control PM bit), How long driver waits before shutting down the radio and
                                          // after receiving an ACK for a data frame with PM bit set)

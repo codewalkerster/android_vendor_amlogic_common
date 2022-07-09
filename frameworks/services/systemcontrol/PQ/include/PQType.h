@@ -636,13 +636,13 @@ typedef enum noline_params_type_e {
     NOLINE_PARAMS_TYPE_MAX,
 } noline_params_type_t;
 
-typedef enum Dynamic_contrst_status_e
+typedef enum Dynamic_contrast_status_e
 {
     DYNAMIC_CONTRAST_OFF,
     DYNAMIC_CONTRAST_LOW,
     DYNAMIC_CONTRAST_MID,
     DYNAMIC_CONTRAST_HIGH,
-} Dynamic_contrst_status_t;
+} Dynamic_contrast_status_t;
 
 typedef enum Dynamic_backlight_status_e
 {

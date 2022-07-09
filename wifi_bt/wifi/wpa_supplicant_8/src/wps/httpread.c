@@ -373,7 +373,7 @@ static void httpread_read_handler(int sd, void *eloop_ctx, void *sock_ctx)
 	char *bbp;      /* pointer into body buffer */
 	char readbuf[HTTPREAD_READBUF_SIZE];  /* temp use to read into */
 
-	/* read some at a time, then search for the interal
+	/* read some at a time, then search for the internal
 	 * boundaries between header and data and etc.
 	 */
 	wpa_printf(MSG_DEBUG, "httpread: Trying to read more data(%p)", h);

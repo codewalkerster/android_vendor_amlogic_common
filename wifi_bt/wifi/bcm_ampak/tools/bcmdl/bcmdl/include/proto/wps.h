@@ -72,7 +72,7 @@ extern "C" {
 #define WPS_ID_RADIO_ENABLED      0x1033
 #define WPS_ID_REBOOT             0x1034
 #define WPS_ID_REGISTRAR_CURRENT  0x1035
-#define WPS_ID_REGISTRAR_ESTBLSHD 0x1036
+#define WPS_ID_REGISTRAR_ESTABLISHED 0x1036
 #define WPS_ID_REGISTRAR_LIST     0x1037
 #define WPS_ID_REGISTRAR_MAX      0x1038
 #define WPS_ID_REGISTRAR_NONCE    0x1039
@@ -241,13 +241,13 @@ extern "C" {
 #define WPS_DEVICEPWDID_WFDS             0x0008	/* Wi-Fi Direct Services Specification */
 
 /* Encryption type */
-#define WPS_ENCRTYPE_NONE    0x0001
-#define WPS_ENCRTYPE_WEP     0x0002	/* Deprecated in WSC 2.0 */
-#define WPS_ENCRTYPE_TKIP    0x0004	/* Deprecated in version 2.0. TKIP can only
+#define WPS_ENCTYPE_NONE    0x0001
+#define WPS_ENCTYPE_WEP     0x0002	/* Deprecated in WSC 2.0 */
+#define WPS_ENCTYPE_TKIP    0x0004	/* Deprecated in version 2.0. TKIP can only
 					  * be advertised on the AP when Mixed Mode
 					  * is enabled (Encryption Type is 0x000c).
 					  */
-#define WPS_ENCRTYPE_AES     0x0008
+#define WPS_ENCTYPE_AES     0x0008
 
 
 /* WPS Message Types */

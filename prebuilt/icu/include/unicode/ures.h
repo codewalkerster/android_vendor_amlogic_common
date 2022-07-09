@@ -138,7 +138,7 @@ typedef enum {
 /**
  * Opens a UResourceBundle, from which users can extract strings by using
  * their corresponding keys.
- * Note that the caller is responsible of calling <TT>ures_close</TT> on each succesfully
+ * Note that the caller is responsible of calling <TT>ures_close</TT> on each successfully
  * opened resource bundle.
  * @param packageName   The packageName and locale together point to an ICU udata object,
  *                      as defined by <code> udata_open( packageName, "res", locale, err) </code>

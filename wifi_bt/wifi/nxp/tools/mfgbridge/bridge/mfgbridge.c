@@ -100,7 +100,7 @@ static char *usage[] = {
     "   -v = version",
     "   -B = run the process in background.",
 };
-extern int  WiFidevicecnt;
+extern int  WifiDeviceCnt;
 extern struct _new_drv_cb *Driver1, *MultiDevPtr;
 char multi_wlan_ifname[MAXBUF]="\n";
 /********************************************************
@@ -343,7 +343,7 @@ uart_download_image(uart_cb * uart, char *imag_file_name, int file_size)
         uart_wr_char(uart, ACK);
     }
     fclose(fd);
-    return (nSOH == EOT);       // return TRUE if transfer was succesfull
+    return (nSOH == EOT);       // return TRUE if transfer was successfully
 }
 
 int
@@ -497,7 +497,7 @@ uart_send_msg(uart_cb * uart, unsigned char *msg, int msglen)
 
     mfg_dprint(DBG_GINFO, "UART: send a msg.\n");
 
-    /* caculate CRC */
+    /* calculate CRC */
     bridge_chksum =
         uart_get_crc32(uart, msglen, uart_buf + sizeof(uart_header));
     index = sizeof(uart_header) + msglen;
@@ -622,7 +622,7 @@ int brdg_parse_config(bridge_cb * bridge, char *input_conf_file)
     int baud_in_num;
 #endif
     int multi_wifi_device_no=0;
-    
+
     if (!(input = fopen(input_conf_file, "rw"))) {
         printf("Failed to open file\n");
         goto error;
@@ -653,7 +653,7 @@ int brdg_parse_config(bridge_cb * bridge, char *input_conf_file)
                 goto invalid_format_error;
             net->server_port = atoi(++p);
             continue;
-        }        
+        }
         if (strstr(input_line, "Client_port")) {
             p = strchr(input_line, '=');
             if (!p)
@@ -686,40 +686,40 @@ int brdg_parse_config(bridge_cb * bridge, char *input_conf_file)
              p = strchr(input_line, '=');
             if (!p)
                 goto invalid_format_error;
-            WiFidevicecnt = atoi(++p);
-             printf("WiFidevicecnt=%d\n", WiFidevicecnt);
-           if(WiFidevicecnt)
-        	{
-        		  multi_wifi_device_no =0;
-        			Driver1 = (new_drv_cb *)malloc(sizeof(new_drv_cb) * WiFidevicecnt);  
-        			MultiDevPtr = Driver1;  		
-							sprintf(multi_wlan_ifname, "WLAN_interface_name_%d",multi_wifi_device_no);
-							printf("Serach %s\n",multi_wlan_ifname);  
-        	}
+            WifiDeviceCnt = atoi(++p);
+             printf("WifiDeviceCnt=%d\n", WifiDeviceCnt);
+           if (WifiDeviceCnt)
+            {
+                  multi_wifi_device_no =0;
+                    Driver1 = (new_drv_cb *)malloc(sizeof(new_drv_cb) * WifiDeviceCnt);
+                    MultiDevPtr = Driver1;
+                            sprintf(multi_wlan_ifname, "WLAN_interface_name_%d",multi_wifi_device_no);
+                            printf("Search %s\n",multi_wlan_ifname);
+            }
             continue;
-        } 
+        }
 
          if (strstr(input_line, multi_wlan_ifname)) {
 
             p = strchr(input_line, '=');
             if (!p)
                 goto invalid_format_error;
-            MultiDevPtr = Driver1; 
+            MultiDevPtr = Driver1;
                 MultiDevPtr +=multi_wifi_device_no;
             n = get_string(++p, &MultiDevPtr->wlan_ifname);
             if (n == -1)
                 goto invalid_format_error;
-            
-            printf("Found %s\n", &MultiDevPtr->wlan_ifname); 
+
+            printf("Found %s\n", &MultiDevPtr->wlan_ifname);
             multi_wifi_device_no++;
-            if(multi_wifi_device_no < WiFidevicecnt)
-            	{
-            		sprintf(multi_wlan_ifname, "WLAN_interface_name_%d",multi_wifi_device_no); 
-            		printf("DEBUG>>Serach %s\n",multi_wlan_ifname); 
-            	}
+            if (multi_wifi_device_no < WifiDeviceCnt)
+                {
+                    sprintf(multi_wlan_ifname, "WLAN_interface_name_%d",multi_wifi_device_no);
+                    printf("DEBUG>>Search %s\n",multi_wlan_ifname);
+                }
             continue;
         }
-       
+
 #ifdef NONPLUG_SUPPORT
         if (strstr(input_line, "BAUD")) {
             p = strchr(input_line, '=');
@@ -782,7 +782,7 @@ int brdg_parse_config(bridge_cb * bridge, char *input_conf_file)
                 goto invalid_format_error;
             continue;
         }
-	   if (strstr(input_line,  "BT_interface_name_Master")) {	
+       if (strstr(input_line,  "BT_interface_name_Master")) {
             p = strchr(input_line, '=');
             if (!p)
                 goto invalid_format_error;
@@ -791,7 +791,7 @@ int brdg_parse_config(bridge_cb * bridge, char *input_conf_file)
                 goto invalid_format_error;
             continue;
         }
-     if (strstr(input_line,  "BT_interface_name_Slave")) {	
+     if (strstr(input_line,  "BT_interface_name_Slave")) {
             p = strchr(input_line, '=');
             if (!p)
                 goto invalid_format_error;
@@ -869,7 +869,7 @@ error:
 }
 
 //The function may overwrite the request (input) msg buffer and msg length with a response message as follows:
-// paramters: msgbuf: input:  request cmd
+// parameters: msgbuf: input:  request cmd
 //                    output: response cmd
 //            msglen:
 //                    output: size of response cmd
@@ -888,7 +888,7 @@ brdg_process_msg(bridge_cb * bridge, unsigned char *msgbuf, int *msglen,
     cmd_header *cmd_hd = (cmd_header *) msgbuf;
     int cmdlen = cmd_hd->length;
     int ret = -1;
-	int HCIDeviceID =0;
+    int HCIDeviceID =0;
 
     *msglen = cmdlen;
 
@@ -909,11 +909,11 @@ brdg_process_msg(bridge_cb * bridge, unsigned char *msgbuf, int *msglen,
         switch (cmd_hd->sub_type) {
         case SUB_TYPE_LOAD_DRV:
             if ( bridge->drv_load(bridge->drv, DRV_IF_WLAN) == -1)
-		cmd_hd->status = 0xffff;	
+        cmd_hd->status = 0xffff;
             break;
         case SUB_TYPE_UNLOAD_DRV:
             if ( bridge->drv_unload(bridge->drv, DRV_IF_WLAN) == -1)
-		cmd_hd->status = 0xffff;	
+        cmd_hd->status = 0xffff;
             break;
         default:
             printf("Unknown local command subtype: %d\n", cmd_hd->sub_type);
@@ -1052,12 +1052,12 @@ main(int argc, char *argv[])
     }
     //Debug
     {
-    	MultiDevPtr = Driver1; 
-      for (a=0; a<WiFidevicecnt; a++)
-      {     
-    		printf("DEBUG>>%s\n", &MultiDevPtr->wlan_ifname);
-    		MultiDevPtr++;
-    	}
+        MultiDevPtr = Driver1;
+      for (a=0; a<WifiDeviceCnt; a++)
+      {
+            printf("DEBUG>>%s\n", &MultiDevPtr->wlan_ifname);
+            MultiDevPtr++;
+        }
     }
 #ifdef NONPLUG_SUPPORT
     if (bridge->mode == MODE_AUTO) {
@@ -1116,7 +1116,7 @@ main(int argc, char *argv[])
 
                 if ((j == net->skfd) && (net->proto == TCP)) {
                     addrlen = sizeof(struct sockaddr_storage);
-                    /* New client requect/reject */
+                    /* New client request/reject */
                     new_skfd = accept(net->skfd, (struct sockaddr *)
                                       &new_client, &addrlen);
                     if (new_skfd == -1) {
@@ -1155,11 +1155,11 @@ main(int argc, char *argv[])
                     }
 
                     if (bytes > 0) {
-                /** Initialize drvwrapper, if driver already loadded */
+                /** Initialize drvwrapper, if driver already loaded */
                         // ;drv_init(bridge, &Drv_Config);
 
                         brdg_process_msg(bridge, buf, &msglen, MAXBUF, NET);
-                        // send a response messge
+                        // send a response message
                         net->currfd = j;
                         net_send_msg(net, &client, buf, msglen);
                     }
@@ -1173,6 +1173,6 @@ main(int argc, char *argv[])
     close(net->skfd);
     free(buf);
     if(Driver1)
-    	free(Driver1);
+        free(Driver1);
     return 0;
 }

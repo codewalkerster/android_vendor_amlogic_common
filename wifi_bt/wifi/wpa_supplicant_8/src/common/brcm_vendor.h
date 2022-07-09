@@ -66,7 +66,7 @@ enum brcm_nl80211_vendor_subcmds {
 };
 
 /**
- * enum brcm_nl80211_vendor_events - BRCM nl80211 asynchoronous event identifiers
+ * enum brcm_nl80211_vendor_events - BRCM nl80211 asynchronous event identifiers
  *
  * @BRCM_VENDOR_EVENT_UNSPEC: Reserved value 0
  *

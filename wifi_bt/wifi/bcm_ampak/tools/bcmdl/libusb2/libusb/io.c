@@ -85,7 +85,7 @@
  * a single function call. When the function call returns, the transfer has
  * completed and you can parse the results.
  *
- * If you have used the libusb-0.1 before, this I/O style will seem familar to
+ * If you have used the libusb-0.1 before, this I/O style will seem familiar to
  * you. libusb-0.1 only offered a synchronous interface.
  *
  * In our input device example, to read button presses you might write code
@@ -383,7 +383,7 @@ if (r == 0 && actual_length == sizeof(data)) {
  * wLength of the setup packet, rather than the size of the data buffer. So,
  * if your wLength was 4, your transfer's <tt>length</tt> was 12, then you
  * should expect an <tt>actual_length</tt> of 4 to indicate that the data was
- * transferred in entirity.
+ * transferred in entirety.
  *
  * To simplify parsing of setup packets and obtaining the data from the
  * correct offset, you may wish to use the libusb_control_transfer_get_data()
@@ -703,7 +703,7 @@ while (user has not requested application exit) {
  * system calls. This is directly exposed at the
  * \ref asyncio "asynchronous interface" but it is important to note that the
  * \ref syncio "synchronous interface" is implemented on top of the
- * asynchonrous interface, therefore the same considerations apply.
+ * asynchronous interface, therefore the same considerations apply.
  *
  * The issue is that if two or more threads are concurrently calling poll()
  * or select() on libusb's file descriptors then only one of those threads
@@ -1591,7 +1591,7 @@ API_EXPORTED int libusb_event_handler_active(libusb_context *ctx)
  *
  * You only need to use this lock if you are developing an application
  * which calls poll() or select() on libusb's file descriptors directly,
- * <b>and</b> may potentially be handling events from 2 threads simultaenously.
+ * <b>and</b> may potentially be handling events from 2 threads simultaneously.
  * If you stick to libusb's event handling loop functions (e.g.
  * libusb_handle_events()) then you do not need to be concerned with this
  * locking.

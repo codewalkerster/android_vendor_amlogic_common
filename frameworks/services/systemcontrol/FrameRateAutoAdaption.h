@@ -34,7 +34,7 @@ duration time use this time base as unit.
 For example frame rate is 23.976 fps
 FRAME_RATE_DURATION_23.97 = 96000/23.976 = 4004
 */
-#define HDMI_TX_FRAMRATE_POLICY                 "/sys/class/amhdmitx/amhdmitx0/frac_rate_policy"
+#define HDMI_TX_FRAMERATE_POLICY                 "/sys/class/amhdmitx/amhdmitx0/frac_rate_policy"
 
 //Frame rate switch
 #define HDMI_TVOUT_FRAME_RATE_UEVENT            "DEVPATH=/devices/virtual/tv/tv"
@@ -77,14 +77,14 @@ enum {
 class FrameRateAutoAdaption
 {
 public:
-    class Callbak {
+    class Callback {
     public:
-        Callbak() {};
-        virtual ~Callbak() {};
+        Callback() {};
+        virtual ~Callback() {};
         virtual void onDispModeSyncEvent (const char* outputmode, int state) = 0;
     };
 
-    FrameRateAutoAdaption(Callbak *cb);
+    FrameRateAutoAdaption(Callback *cb);
     ~FrameRateAutoAdaption();
 
     void onTxUeventReceived(uevent_data_t* ueventData);
@@ -94,7 +94,7 @@ private:
     void readSinkEdid(char *edid);
     void getMatchDurOutputMode (int dur, char *curMode, char *frameRateMode, char *newMode, bool *pulldown);
 
-    Callbak *mCallback;
+    Callback *mCallback;
     SysWrite mSysWrite;
     char mLastVideoMode[MODE_LEN] = {0};
 };

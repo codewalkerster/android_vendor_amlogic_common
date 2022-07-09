@@ -600,7 +600,7 @@ static void hostapd_dpp_reply_wait_timeout(void *eloop_ctx, void *timeout_ctx)
 		   wait_time, diff_ms);
 
 	if (auth->auth_req_ack && diff_ms >= wait_time) {
-		/* Peer ACK'ed Authentication Request frame, but did not reply
+		/* Peer confirmed Authentication Request frame, but did not reply
 		 * with Authentication Response frame within two seconds. */
 		wpa_printf(MSG_INFO,
 			   "DPP: No response received from responder - stopping initiation attempt");
@@ -613,7 +613,7 @@ static void hostapd_dpp_reply_wait_timeout(void *eloop_ctx, void *timeout_ctx)
 	}
 
 	if (diff_ms >= wait_time) {
-		/* Authentication Request frame was not ACK'ed and no reply
+		/* Authentication Request frame was not confirmed and no reply
 		 * was receiving within two seconds. */
 		wpa_printf(MSG_DEBUG,
 			   "DPP: Continue Initiator channel iteration");

@@ -970,7 +970,7 @@ static void eap_peap_process_phase2_response(struct eap_sm *sm,
 
 	if (wpabuf_len(in_data) > sizeof(*hdr) && *pos == EAP_TYPE_NAK) {
 		left = wpabuf_len(in_data) - sizeof(*hdr);
-		wpa_hexdump(MSG_DEBUG, "EAP-PEAP: Phase2 type Nak'ed; "
+		wpa_hexdump(MSG_DEBUG, "EAP-PEAP: Phase2 type Naked; "
 			    "allowed types", pos + 1, left - 1);
 		eap_sm_process_nak(sm, pos + 1, left - 1);
 		if (sm->user && sm->user_eap_method_index < EAP_MAX_METHODS &&

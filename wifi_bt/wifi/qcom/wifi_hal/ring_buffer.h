@@ -47,7 +47,7 @@ struct rb_stats {
 
 typedef void (*threshold_call_back) (void *cb_ctx);
 
-/* intiitalizes the ring buffer and returns the context to it */
+/* initializes the ring buffer and returns the context to it */
 void * ring_buffer_init(size_t size_of_buf, int num_bufs);
 
 /* Frees up the mem allocated for this ring buffer operation */
@@ -69,7 +69,7 @@ size_t rb_read(void *ctx, u8 *buf, size_t max_length);
  */
 u8 *rb_get_read_buf(void *ctx, size_t *length);
 
-/* calls callback whenever ring_buffer reaches percent percentage of it'ss
+/* calls callback whenever ring_buffer reaches percent percentage of it's
  * full size
  */
 void rb_config_threshold(void *ctx,

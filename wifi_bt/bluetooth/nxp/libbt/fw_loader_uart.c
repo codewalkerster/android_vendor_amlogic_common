@@ -100,7 +100,7 @@ static int made_table = 0;
 static unsigned long crc_table[256];
 static BOOLEAN cmd7_Req = FALSE;
 static BOOLEAN EntryPoint_Req = FALSE;
-static uint32 change_baudrata_buffer_len = 0;
+static uint32 change_baudrate_buffer_len = 0;
 
 
 // CMD5 Header to change bootload baud rate
@@ -313,7 +313,7 @@ static unsigned char crc8(unsigned char *array, unsigned char len) {
 static BOOLEAN
 fw_upload_WaitForHeaderSignature(uint32 uiMs)
 {
-  uint8 ucDone = 0;	// signature not Received Yet.
+  uint8 ucDone = 0; // signature not Received Yet.
   uint64 startTime = 0;
   uint64 currTime = 0;
   BOOLEAN bResult = TRUE;
@@ -331,7 +331,7 @@ fw_upload_WaitForHeaderSignature(uint32 uiMs)
         uiProVer = Ver1;
       } else {
           uiProVer = Ver3;
-	}
+    }
       bVerChecked = TRUE;
     }
   } else {
@@ -339,11 +339,11 @@ fw_upload_WaitForHeaderSignature(uint32 uiMs)
         currTime = fw_upload_GetTime();
         if (currTime - startTime > uiMs) {
 #ifdef DEBUG_PRINT
-	  PRINT("WaitForHeaderSignature time out");
+      PRINT("WaitForHeaderSignature time out");
 #endif
           bResult = FALSE;
-	  break;
-	}
+      break;
+    }
       }
     fw_upload_DelayInMs(1);
     }
@@ -828,7 +828,7 @@ static uint16 fw_upload_SendBuffer(uint16 uiLenToSend, uint8 *ucBuf, BOOLEAN uiH
           uiFirstChunkSent = 1;
           // We should expect 16, then next block will start
           uiBytesToSend = HDR_LEN;
-		  b16BytesData = FALSE;
+          b16BytesData = FALSE;
           if (uiHighBaudrate) {
             return 0;
           }
@@ -973,7 +973,7 @@ static uint16 fw_upload_V1SendLenBytes(uint8 * pFileBuffer, uint16 uiLenToSend) 
  *
  *****************************************************************************/
 static void fw_upload_V3SendLenBytes(uint8 * pFileBuffer, uint16 uiLenToSend, uint32 ulOffset) {
-  // Retransmittion of previous block
+  // Retransmission of previous block
   if (ulOffset == ulLastOffsetToSend) {
 #ifdef DEBUG_PRINT
     printf("\nResend offset %d...\n", ulOffset);
@@ -987,8 +987,8 @@ static void fw_upload_V3SendLenBytes(uint8 * pFileBuffer, uint16 uiLenToSend, ui
     // was error free (CRC ok) or this is the first packet received.
     //  We can clear the ucByteBuffer and populate fresh data.
     memset(ucByteBuffer, 0, sizeof(ucByteBuffer));
-    memcpy(ucByteBuffer,pFileBuffer + ulOffset - change_baudrata_buffer_len,uiLenToSend);
-    ulCurrFileSize =ulOffset - change_baudrata_buffer_len + uiLenToSend;
+    memcpy(ucByteBuffer,pFileBuffer + ulOffset - change_baudrate_buffer_len,uiLenToSend);
+    ulCurrFileSize =ulOffset - change_baudrate_buffer_len + uiLenToSend;
     fw_upload_ComWriteChars(mchar_fd, (uint8 *)&ucByteBuffer, uiLenToSend);
     ulLastOffsetToSend = ulOffset;
   }
@@ -1093,10 +1093,10 @@ static int32 fw_Change_Baudrate(int8 *pPortName, int32 iFirstBaudRate, int32 iSe
     // If the second baudrate is used, wait for 2s to check 0xa5
     if (fw_upload_WaitForHeaderSignature(waitHeaderSigTime)) {
       if (ucLoadPayload) {
-	  	if (uiProVer == Ver3) {
-					change_baudrata_buffer_len =
-						HDR_LEN + uiNewLen;
-				}
+        if (uiProVer == Ver3) {
+                    change_baudrate_buffer_len =
+                        HDR_LEN + uiNewLen;
+                }
         break;
       }
     } else {
@@ -1309,7 +1309,7 @@ static BOOLEAN fw_upload_FW(int8 *pPortName, int32 iBaudRate, int8 *pFileName, i
 #endif
           fw_upload_Send_Ack(V3_REQUEST_ACK);
           fseek(pFile, 0, SEEK_SET);
-		  change_baudrata_buffer_len = 0;
+          change_baudrate_buffer_len = 0;
           ulCurrFileSize = 0;
           ulLastOffsetToSend = 0xFFFF;
         }

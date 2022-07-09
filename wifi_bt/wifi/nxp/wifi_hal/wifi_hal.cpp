@@ -352,7 +352,7 @@ wifi_error wifi_initialize(wifi_handle *handle)
 
     info->nl80211_family_id = genl_ctrl_resolve(cmd_sock, "nl80211");
     if (info->nl80211_family_id < 0) {
-        ALOGE("Could not resolve nl80211 familty id");
+        ALOGE("Could not resolve nl80211 family id");
         ret = WIFI_ERROR_UNKNOWN;
         goto exit;
     }

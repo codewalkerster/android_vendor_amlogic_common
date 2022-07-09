@@ -120,7 +120,7 @@ int HDCPTxAuth::stop() {
     return ret;
 }
 
-//Define to force authentiation regardless of keys presence
+//Define to force authentication regardless of keys presence
 //#define HDCP_AUTHENTICATION_NO_KEYS
 
 void HDCPTxAuth::mute(bool mute __unused) {
@@ -200,7 +200,7 @@ bool HDCPTxAuth::authInit(bool *pHdcp22, bool *pHdcp14) {
     if ((strlen(hdcpTxKey) == 0) || !(strcmp(hdcpTxKey, "00")))
         return false;
 
-    //HDCP RX: get currtent TV[RX] device contains which RX key. Values:[14/22, 00 is no key]
+    //HDCP RX: get current TV[RX] device contains which RX key. Values:[14/22, 00 is no key]
     //Values is the hightest key. if value is 22, means the devices supports 22 and 14.
     mSysWrite.readSysfs(DISPLAY_HDMI_HDCP_VER, hdcpRxVer);
     SYS_LOGI("hdcp_tx remote version:%s\n", hdcpRxVer);

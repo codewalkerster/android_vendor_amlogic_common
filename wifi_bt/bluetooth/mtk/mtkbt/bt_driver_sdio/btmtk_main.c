@@ -247,9 +247,9 @@ static int btmtk_service_main_thread(void *data)
 
 		if (skb) {
 			if (skb->len < 16)
-				btmtk_print_buffer_conent(skb->data, skb->len);
+				btmtk_print_buffer_content(skb->data, skb->len);
 			else
-				btmtk_print_buffer_conent(skb->data, 16);
+				btmtk_print_buffer_content(skb->data, 16);
 
 			ret = btmtk_tx_pkt(priv, skb);
 			if (ret && (ret != (-EINVAL))) {

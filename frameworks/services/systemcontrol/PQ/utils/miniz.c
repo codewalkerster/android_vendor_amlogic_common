@@ -26,7 +26,7 @@
        - Retested this build under Windows (VS 2010, including static analysis), tcc  0.9.26, gcc v4.6 and clang v3.3.
        - Added example6.c, which dumps an image of the mandelbrot set to a PNG file.
        - Modified example2 to help test the MZ_ZIP_FLAG_DO_NOT_SORT_CENTRAL_DIRECTORY flag more.
-       - In r3: Bugfix to mz_zip_writer_add_file() found during merge: Fix possible src file fclose() leak if alignment bytes+local header file write faiiled
+       - In r3: Bugfix to mz_zip_writer_add_file() found during merge: Fix possible src file fclose() leak if alignment bytes+local header file write failed
          - In r4: Minor bugfix to mz_zip_writer_add_from_zip_reader(): Was pushing the wrong central dir header offset, appears harmless in this release, but it became a problem in the zip64 branch
      5/20/12 v1.14 - MinGW32/64 GCC 4.6.1 compiler fixes: added MZ_FORCEINLINE, #include <time.h> (thanks fermtect).
      5/19/12 v1.13 - From jason@cornsyrup.org and kelwert@mtu.edu - Fix mz_crc32() so it doesn't compute the wrong CRC-32's when mz_ulong is 64-bit.
@@ -640,13 +640,13 @@ mz_bool mz_zip_writer_init_from_reader(mz_zip_archive *pZip, const char *pFilena
 
 // Adds the contents of a memory buffer to an archive. These functions record the current local time into the archive.
 // To add a directory entry, call this method with an archive name ending in a forwardslash with empty buffer.
-// level_and_flags - compression level (0-10, see MZ_BEST_SPEED, MZ_BEST_COMPRESSION, etc.) logically OR'd with zero or more mz_zip_flags, or just set to MZ_DEFAULT_COMPRESSION.
+// level_and_flags - compression level (0-10, see MZ_BEST_SPEED, MZ_BEST_COMPRESSION, etc.) logically or with zero or more mz_zip_flags, or just set to MZ_DEFAULT_COMPRESSION.
 mz_bool mz_zip_writer_add_mem(mz_zip_archive *pZip, const char *pArchive_name, const void *pBuf, size_t buf_size, mz_uint level_and_flags);
 mz_bool mz_zip_writer_add_mem_ex(mz_zip_archive *pZip, const char *pArchive_name, const void *pBuf, size_t buf_size, const void *pComment, mz_uint16 comment_size, mz_uint level_and_flags, mz_uint64 uncomp_size, mz_uint32 uncomp_crc32);
 
 #ifndef MINIZ_NO_STDIO
 // Adds the contents of a disk file to an archive. This function also records the disk file's modified time into the archive.
-// level_and_flags - compression level (0-10, see MZ_BEST_SPEED, MZ_BEST_COMPRESSION, etc.) logically OR'd with zero or more mz_zip_flags, or just set to MZ_DEFAULT_COMPRESSION.
+// level_and_flags - compression level (0-10, see MZ_BEST_SPEED, MZ_BEST_COMPRESSION, etc.) logically or with zero or more mz_zip_flags, or just set to MZ_DEFAULT_COMPRESSION.
 mz_bool mz_zip_writer_add_file(mz_zip_archive *pZip, const char *pArchive_name, const char *pSrc_filename, const void *pComment, mz_uint16 comment_size, mz_uint level_and_flags);
 #endif
 
@@ -667,7 +667,7 @@ mz_bool mz_zip_writer_end(mz_zip_archive *pZip);
 // Misc. high-level helper functions:
 
 // mz_zip_add_mem_to_archive_file_in_place() efficiently (but not atomically) appends a memory blob to a ZIP archive.
-// level_and_flags - compression level (0-10, see MZ_BEST_SPEED, MZ_BEST_COMPRESSION, etc.) logically OR'd with zero or more mz_zip_flags, or just set to MZ_DEFAULT_COMPRESSION.
+// level_and_flags - compression level (0-10, see MZ_BEST_SPEED, MZ_BEST_COMPRESSION, etc.) logically or with zero or more mz_zip_flags, or just set to MZ_DEFAULT_COMPRESSION.
 mz_bool mz_zip_add_mem_to_archive_file_in_place(const char *pZip_filename, const char *pArchive_name, const void *pBuf, size_t buf_size, const void *pComment, mz_uint16 comment_size, mz_uint level_and_flags);
 
 // Reads a single file from an archive into a heap block.
@@ -777,7 +777,7 @@ struct tinfl_decompressor_tag
 // Set TDEFL_LESS_MEMORY to 1 to use less memory (compression will be slightly slower, and raw/dynamic blocks will be output more frequently).
 #define TDEFL_LESS_MEMORY 0
 
-// tdefl_init() compression flags logically OR'd together (low 12 bits contain the max. number of probes per dictionary search):
+// tdefl_init() compression flags logically or together (low 12 bits contain the max. number of probes per dictionary search):
 // TDEFL_DEFAULT_MAX_PROBES: The compressor defaults to 128 dictionary probes per dictionary search. 0=Huffman only, 1=Huffman+LZ (fastest/crap compression), 4095=Huffman+LZ (slowest/best compression).
 enum
 {
@@ -809,7 +809,7 @@ enum
 // tdefl_compress_mem_to_heap() compresses a block in memory to a heap block allocated via malloc().
 // On entry:
 //  pSrc_buf, src_buf_len: Pointer and size of source block to compress.
-//  flags: The max match finder probes (default is 128) logically OR'd against the above flags. Higher probes are slower but improve compression.
+//  flags: The max match finder probes (default is 128) logically or against the above flags. Higher probes are slower but improve compression.
 // On return:
 //  Function returns a pointer to the compressed data, or NULL on failure.
 //  *pOut_len will be set to the compressed data's size, which could be larger than src_buf_len on uncompressible data.

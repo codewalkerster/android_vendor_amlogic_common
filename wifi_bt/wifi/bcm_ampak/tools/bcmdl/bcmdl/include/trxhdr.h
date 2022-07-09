@@ -45,7 +45,7 @@
  * as below where size of "offsets" field will vary as per the TRX version.
  * Currently, BMAC host driver and bcmdl are modified to support TRXV2 as well.
  * To make sure, other applications like "dhdl" which are yet to be enhanced to support
- * TRXV2 are not broken, new macro and structure defintion take effect only when BCMTRXV2
+ * TRXV2 are not broken, new macro and structure definition take effect only when BCMTRXV2
  * is defined.
  */
 struct trx_header {

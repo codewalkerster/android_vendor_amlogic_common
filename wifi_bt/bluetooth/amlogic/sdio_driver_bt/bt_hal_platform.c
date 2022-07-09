@@ -1,4 +1,4 @@
-#include "bt_hal_plateform.h"
+#include "bt_hal_platform.h"
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>
 #include <linux/cdev.h>
@@ -186,7 +186,7 @@ static int config_bt_pmu_reg(bool is_power_on)
 		PRINT("BT power off:RG_BT_PMU_A16 = 0x%x\n", g_w1_hif_ops.bt_hi_read_word(RG_BT_PMU_A16));
 
 		PRINT("Check whether is active mode\n");
-		while(g_w1_hif_ops.bt_hi_read_word(RG_BT_PMU_A15) != 0x6)
+		while (g_w1_hif_ops.bt_hi_read_word(RG_BT_PMU_A15) != 0x6)
 		{
 			msleep(10);
 			PRINT("wait wakeup, RG_BT_PMU_A15 = 0x%x\n", g_w1_hif_ops.bt_hi_read_word(RG_BT_PMU_A15));

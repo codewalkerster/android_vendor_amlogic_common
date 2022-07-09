@@ -23,7 +23,7 @@ endif
 
 endif
 
-####################################################################muiti bt
+####################################################################multi bt
 ifeq ($(BLUETOOTH_MODULE), multibt)
 	BOARD_VENDOR_KERNEL_MODULES += \
 		$(PRODUCT_OUT)/obj/lib_vendor/rtk_btusb.ko \

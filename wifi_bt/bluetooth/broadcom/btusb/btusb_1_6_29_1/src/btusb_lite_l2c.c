@@ -239,7 +239,7 @@ UINT16 btusb_lite_l2c_nocp_hdlr(struct btusb_cb *p_dev, UINT16 con_hdl, UINT16 n
     struct btusb_lite_l2c_cb *p_l2c;
     struct btusb_lite_l2c_ccb *p_l2c_ccb;
     int i;
-    UINT16 num_cplt_pck_caugth;
+    UINT16 num_cplt_pck_caught;
 
     /* Look for the L2CAP channel matching the Connection Handle */
     p_l2c = &p_dev->lite_cb.l2c;
@@ -265,14 +265,14 @@ UINT16 btusb_lite_l2c_nocp_hdlr(struct btusb_cb *p_dev, UINT16 con_hdl, UINT16 n
     GKI_disable();      /* tx_pending field can be updated by another context */
 
     /* Take the min between the number of pending packet and the number of acked packet */
-    num_cplt_pck_caugth = min(p_l2c_ccb->tx_pending, num_cplt_pck);
+    num_cplt_pck_caught = min(p_l2c_ccb->tx_pending, num_cplt_pck);
 
     /* Update the number of pending packet */
-    p_l2c_ccb->tx_pending-= num_cplt_pck_caugth;
+    p_l2c_ccb->tx_pending-= num_cplt_pck_caught;
 
     BTUSB_DBG("L2C NOCP Tx Pending=%d\n", p_l2c_ccb->tx_pending);
 
     GKI_enable();
 
-    return num_cplt_pck_caugth;
+    return num_cplt_pck_caught;
 }

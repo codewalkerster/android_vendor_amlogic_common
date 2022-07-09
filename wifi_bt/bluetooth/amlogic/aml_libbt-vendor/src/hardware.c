@@ -114,7 +114,7 @@ static int callback_flag;
 
 #define ICCM_RAM_BASE           (0x000000)
 #define DCCM_RAM_BASE           (0xd00000)
-#define RW_OPERTION_SIZE        (248)
+#define RW_OPERATION_SIZE        (248)
 #define TCI_READ_REG                            0xfef0
 #define TCI_WRITE_REG                           0xfef1
 #define TCI_UPDATE_UART_BAUDRATE        0xfef2
@@ -297,7 +297,7 @@ static const fw_settlement_entry_t fw_settlement_table[] = {
  * NOTICE:
  *     If the platform plans to run I2S interface bus over I2S/PCM port of the
  *     BT Controller with the Host AP, explicitly set "SCO_USE_I2S_INTERFACE = TRUE"
- *     in the correspodning include/vnd_<target>.txt file.
+ *     in the corresponding include/vnd_<target>.txt file.
  *     Otherwise, leave SCO_USE_I2S_INTERFACE undefined in the vnd_<target>.txt file.
  *     And, PCM interface will be set as the default bus format running over I2S/PCM
  *     port.
@@ -522,7 +522,7 @@ static uint8_t hw_config_findpatch(char *p_chip_id_str)
 			if ((hw_strncmp(dp->d_name, p_chip_id_str, strlen(p_chip_id_str)) \
 			     ) == 0)
 			{
-				/* Check if it has .hcd extenstion */
+				/* Check if it has .hcd extension */
 				filenamelen = strlen(dp->d_name);
 				if ((filenamelen >= FW_PATCHFILE_EXTENSION_LEN) &&
 				    ((hw_strncmp(
@@ -1002,7 +1002,7 @@ void hw_config_cback(void *p_mem)
 				cnt = 0;
 				break;
 			}
-			data_len_iccm = (len_iccm > RW_OPERTION_SIZE) ? RW_OPERTION_SIZE : len_iccm;
+			data_len_iccm = (len_iccm > RW_OPERATION_SIZE) ? RW_OPERATION_SIZE : len_iccm;
 			cmd_len_iccm = data_len_iccm + 4;         // addr
 
 
@@ -1039,7 +1039,7 @@ void hw_config_cback(void *p_mem)
 				hw_cfg_cb.state = HW_CFG_AML_DOWNLOAD_FIRMWARE_CLOSE_EVENT;
 				break;
 			}
-			data_len_dccm = (len_dccm > RW_OPERTION_SIZE) ? RW_OPERTION_SIZE : len_dccm;
+			data_len_dccm = (len_dccm > RW_OPERATION_SIZE) ? RW_OPERATION_SIZE : len_dccm;
 			cmd_len_dccm = data_len_dccm + 4;
 
 
@@ -1571,7 +1571,7 @@ void hw_config_start(void)
 **
 ** Function        hw_lpm_enable
 **
-** Description     Enalbe/Disable LPM
+** Description     Enable/Disable LPM
 **
 ** Returns         TRUE/FALSE
 **
@@ -1888,7 +1888,7 @@ static int hw_set_SCO_codec(uint16_t codec)
 **
 ** Description      This function configures audio base on provided audio state
 **
-** Paramters        pointer to audio state structure
+** Parameters        pointer to audio state structure
 **
 ** Returns          0: ok, -1: error
 **

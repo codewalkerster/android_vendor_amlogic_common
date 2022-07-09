@@ -192,13 +192,13 @@ struct eap_peer_cert_config {
 	/**
 	 * domain_suffix_match - Constraint for server domain name
 	 *
-	 * If set, this semicolon deliminated list of FQDNs is used as suffix
+	 * If set, this semicolon delaminated list of FQDNs is used as suffix
 	 * match requirements for the server certificate in SubjectAltName
 	 * dNSName element(s). If a matching dNSName is found against any of the
 	 * specified values, this constraint is met. If no dNSName values are
 	 * present, this constraint is matched against SubjectName CN using same
 	 * suffix match comparison. Suffix match here means that the host/domain
-	 * name is compared case-insentively one label at a time starting from
+	 * name is compared case-intensively one label at a time starting from
 	 * the top-level domain and all the labels in domain_suffix_match shall
 	 * be included in the certificate. The certificate may include
 	 * additional sub-level labels in addition to the required labels.

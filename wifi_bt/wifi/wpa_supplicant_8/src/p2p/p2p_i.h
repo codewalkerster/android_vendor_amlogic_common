@@ -139,7 +139,7 @@ struct p2p_device {
 	u8 go_neg_conf_sent;
 
 	/**
-	 * freq - Frquency on which the GO Negotiation Confirmation is sent
+	 * freq - Frequency on which the GO Negotiation Confirmation is sent
 	 */
 	int go_neg_conf_freq;
 

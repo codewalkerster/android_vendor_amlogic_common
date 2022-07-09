@@ -18,19 +18,19 @@
 
 /******************************************************************************
 *
-*	Module Name:
-*		rtk_parse.c
+*   Module Name:
+*       rtk_parse.c
 *
-*	Abstract:
-*		Contains wifi-bt coex functions implemented by bluedroid stack
+*   Abstract:
+*       Contains wifi-bt coex functions implemented by bluedroid stack
 *
-*	Major Change History:
-*	      When             Who       What
-*	 	---------------------------------------------------------------
-*	    2015-12-15      lamparten   modified
-*	    2014-10-23       kyle_xu    modified
-*	Notes:
-*		  This is designed for wifi-bt Coex in Android 6.0.
+*   Major Change History:
+*         When             Who       What
+*       ---------------------------------------------------------------
+*       2015-12-15      lamparten   modified
+*       2014-10-23       kyle_xu    modified
+*   Notes:
+*         This is designed for wifi-bt Coex in Android 6.0.
 *
 ******************************************************************************/
 #define LOG_TAG "rtk_parse"
@@ -1170,7 +1170,7 @@ static void Rtk_Role_switch_Event_Cback(void *arg)
         uint8_t *p = p_buf->data;
         ALOGE( " Rtk_Role_switch_Event_Cback event_code = %d length = %d",p[0],p[1]);
 
-        /*find out which one inititor this process*/
+        /*find out which one initiator this process*/
         int index = find_pending_role_switch_process();
         if(index == -1)
             return;
@@ -1184,7 +1184,7 @@ static void Rtk_Role_switch_Event_Cback(void *arg)
         }
 
     }else{
-        ALOGE("%s Rtk_Role_switch_Event_Cback arg == NULL, it should not happend", __func__);
+        ALOGE("%s Rtk_Role_switch_Event_Cback arg == NULL, it should not happened", __func__);
     }
 }
 
@@ -1766,7 +1766,7 @@ static void timeout_handler(int signo, siginfo_t * info, void *context)
     }
     else
     {
-        ALOGE("rtk_parse_data timer unspported signo(%d)", signo);
+        ALOGE("rtk_parse_data timer unsupported signo(%d)", signo);
     }
 }
 
@@ -2014,7 +2014,7 @@ void rtk_notify_btoperation_to_wifi(uint8_t operation, uint8_t append_data_lengt
     if(append_data_length)
         memcpy(p, append_data, append_data_length);
 
-    RtkLogMsg("btoperation, opration is 0x%x, append_data_length is 0x%x", operation, append_data_length);
+    RtkLogMsg("btoperation, operation is 0x%x, append_data_length is 0x%x", operation, append_data_length);
     uint8_t kk = 0;
     if(append_data_length)
     {
@@ -2110,8 +2110,8 @@ static void rtk_handle_bt_info_control(uint8_t* p)
 static void rtk_handle_bt_coex_control(uint8_t* p)
 {
     uint8_t opcode = *p++;
-	uint8_t op_len = 0;
-    RtkLogMsg("receive bt coex control event from wifi, opration is 0x%x", opcode);
+    uint8_t op_len = 0;
+    RtkLogMsg("receive bt coex control event from wifi, operation is 0x%x", opcode);
     switch (opcode)
     {
         case BT_PATCH_VERSION_QUERY:
@@ -2125,7 +2125,7 @@ static void rtk_handle_bt_coex_control(uint8_t* p)
             uint8_t opcode_len = *p++;
             uint8_t value = *p++;
             uint8_t temp_cmd[3];
-			op_len = opcode_len;
+            op_len = opcode_len;
             temp_cmd[0] = HCI_VENDOR_SUB_CMD_BT_ENABLE_IGNORE_WLAN_ACT_CMD;
             temp_cmd[1] = 1;
             temp_cmd[2] = value;
@@ -2138,7 +2138,7 @@ static void rtk_handle_bt_coex_control(uint8_t* p)
             uint8_t opcode_len = *p++;
             uint8_t value = *p++;
             uint8_t temp_cmd[3];
-			op_len = opcode_len;
+            op_len = opcode_len;
             temp_cmd[0] = HCI_VENDOR_SUB_CMD_SET_BT_LNA_CONSTRAINT;
             temp_cmd[1] = 1;
             temp_cmd[2] = value;
@@ -2151,7 +2151,7 @@ static void rtk_handle_bt_coex_control(uint8_t* p)
             uint8_t opcode_len = *p++;
             uint8_t power_decrease = *p++;
             uint8_t temp_cmd[3];
-			op_len = opcode_len;
+            op_len = opcode_len;
             temp_cmd[0] = HCI_VENDOR_SUB_CMD_WIFI_FORCE_TX_POWER_CMD;
             temp_cmd[1] = 1;
             temp_cmd[2] = power_decrease;
@@ -2164,7 +2164,7 @@ static void rtk_handle_bt_coex_control(uint8_t* p)
             uint8_t opcode_len = *p++;
             uint8_t psd_mode = *p++;
             uint8_t temp_cmd[3];
-			op_len = opcode_len;
+            op_len = opcode_len;
             temp_cmd[0] = HCI_VENDOR_SUB_CMD_SET_BT_PSD_MODE;
             temp_cmd[1] = 1;
             temp_cmd[2] = psd_mode;
@@ -2176,10 +2176,10 @@ static void rtk_handle_bt_coex_control(uint8_t* p)
         {
             uint8_t opcode_len = *p++;
             uint8_t temp_cmd[5];
-			op_len = opcode_len;
+            op_len = opcode_len;
             temp_cmd[0] = HCI_VENDOR_SUB_CMD_WIFI_CHANNEL_AND_BANDWIDTH_CMD;
             temp_cmd[1] = 3;
-            memcpy(temp_cmd+2, p, 3);//wifi_state, wifi_centralchannel, chnnels_btnotuse
+            memcpy(temp_cmd+2, p, 3);//wifi_state, wifi_centralchannel, channels_btnotuse
             rtk_vendor_cmd_to_fw(HCI_VENDOR_MAILBOX_CMD, 5, temp_cmd, NULL);
             break;
         }
@@ -2190,7 +2190,7 @@ static void rtk_handle_bt_coex_control(uint8_t* p)
             rtk_prof.piconet_id = *p++;
             rtk_prof.mode = *p++;
             uint8_t temp_cmd[4];
-			op_len = opcode_len;
+            op_len = opcode_len;
             temp_cmd[0] = HCI_VENDOR_SUB_CMD_GET_AFH_MAP_L;
             temp_cmd[1] = 2;
             temp_cmd[2] = rtk_prof.piconet_id;
@@ -2203,7 +2203,7 @@ static void rtk_handle_bt_coex_control(uint8_t* p)
         {
             uint8_t opcode_len = *p++;
             uint8_t access_type = *p++;
-			op_len = opcode_len;
+            op_len = opcode_len;
             if(access_type == 0) //read
             {
                 uint8_t temp_cmd[7];
@@ -2286,7 +2286,7 @@ void rtk_handle_event_from_wifi(uint8_t* msg)
             case  RTK_HS_EXTENSION_EVENT_WIFI_SCAN:
             {
                 uint8_t operation = *p;
-                RtkLogMsg("receive wifi scan notify evnet from wifi, operation is 0x%x", operation);
+                RtkLogMsg("receive wifi scan notify event from wifi, operation is 0x%x", operation);
                 break;
             }
 

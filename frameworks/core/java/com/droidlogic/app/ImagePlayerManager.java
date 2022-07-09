@@ -108,7 +108,7 @@ public class ImagePlayerManager {
     }
 
     private IBinder getHttpServiceBinder(String url) {
-        /* can not get method, because method is package visiable region
+        /* can not get method, because method is package visible region
         try {
             Object object = Class.forName("android.media.MediaHTTPService")
                     .getMethod("createHttpServiceBinderIfNecessary", new Class[] { String.class })

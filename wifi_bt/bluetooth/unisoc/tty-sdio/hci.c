@@ -357,7 +357,7 @@ int hci_init(void)
     return 0;
 }
 
-int hci_destory(void)
+int hci_destroy(void)
 {
     //sema_destroy(&hci_cmd.wait);
     memset(&hci_cmd, 0, sizeof(struct hci_cmd_t));

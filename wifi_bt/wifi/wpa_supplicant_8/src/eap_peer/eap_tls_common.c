@@ -171,7 +171,7 @@ static int eap_tls_params_from_conf(struct eap_sm *sm,
 		 * handle the TLS Session Ticket extension (they are supposed
 		 * to ignore unrecognized TLS extensions, but end up rejecting
 		 * the ClientHello instead). As a workaround, disable use of
-		 * TLS Sesson Ticket extension for EAP-TLS, EAP-PEAP, and
+		 * TLS Session Ticket extension for EAP-TLS, EAP-PEAP, and
 		 * EAP-TTLS (EAP-FAST uses session ticket, so any server that
 		 * supports EAP-FAST does not need this workaround).
 		 */

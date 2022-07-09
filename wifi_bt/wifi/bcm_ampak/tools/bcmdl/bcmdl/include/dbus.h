@@ -118,7 +118,7 @@ typedef struct {
 	int vid;
 	int pid;
 	int devid;
-	int chiprev; /* chip revsion number */
+	int chiprev; /* chip revision number */
 	int mtu;
 	int nchan; /* Data Channels */
 	int has_2nd_bulk_in_ep;
@@ -138,13 +138,13 @@ typedef struct {
  * Configurable BUS parameters
  */
 enum {
-	DBUS_CONFIG_ID_RXCTL_DEFERRES = 1,
+	DBUS_CONFIG_ID_RXCTL_DEFERRED = 1,
 	DBUS_CONFIG_ID_TXRXQUEUE
 };
 typedef struct {
 	uint32 config_id;
 	union {
-		bool rxctl_deferrespok;
+		bool rxctl_deferred_pok;
 		struct {
 			int maxrxq;
 			int rxbufsize;
@@ -350,7 +350,7 @@ typedef struct dbus_irb_tx {
 	int retry_count;
 	void *info;
 	void *arg;
-	void *send_buf; /* linear  bufffer for LINUX when aggreagtion is enabled */
+	void *send_buf; /* linear  buffer for LINUX when aggregation is enabled */
 } dbus_irb_tx_t;
 
 /* DBUS interface callbacks are different from user callbacks
@@ -469,7 +469,7 @@ struct ehci_qtd {
 #define EHCI_QTD_SET_PID(x)     ((x) <<  8)
 #define EHCI_QTD_ACTIVE         0x80
 #define EHCI_QTD_HALTED         0x40
-#define EHCI_QTD_BUFERR         0x20
+#define EHCI_QTD_BUFFER         0x20
 #define EHCI_QTD_BABBLE         0x10
 #define EHCI_QTD_XACTERR        0x08
 #define EHCI_QTD_MISSEDMICRO    0x04

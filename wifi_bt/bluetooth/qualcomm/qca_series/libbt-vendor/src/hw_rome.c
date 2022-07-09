@@ -234,7 +234,7 @@ case EDL_CMD_REQ_RES_EVT:
 
 		ALOGI("BT SoC FW SU Build info: %s, %d", build_label, build_lbl_len);
 		if (NULL != (btversionfile = fopen(BT_VERSION_FILEPATH, "a+b"))) {
-			fprintf(btversionfile, "Bluetooth Contoller SU Build info  : %s\n", build_label);
+			fprintf(btversionfile, "Bluetooth Controller SU Build info  : %s\n", build_label);
 			fclose(btversionfile);
 		} else {
 			ALOGI("Failed to dump  FW SU build info. Errno:%d", errno);
@@ -261,7 +261,7 @@ case EDL_WIP_QUERY_CHARGING_STATUS_EVT:
 	0 - in embedded mode not charging
 	1 - in embedded mode and charging
 	2 - hadofff completed and in normal mode
-	3 - no wipower supported on mtp. so irrepective of charging
+	3 - no wipower supported on mtp. so irrespective of charging
 	handoff command has to be sent if return values are 0 or 1.
 	These change include logic to enable generic BT turn on sequence.*/
 	if (rsp[4] < EMBEDDED_MODE_CHECK)
@@ -598,7 +598,7 @@ unsigned char rsp[HCI_MAX_EVENT_SIZE];
 
 no_of_patch_segment = (rampatch_patch_info.patch_length /
 					   MAX_DATA_PER_SEGMENT);
-ALOGI("%s: %d patch segments to be d'loaded from patch base addr: 0x%x",
+ALOGI("%s: %d patch segments to be loaded from patch base addr: 0x%x",
 	  __FUNCTION__, no_of_patch_segment,
 	  rampatch_patch_info.patch_base_addr);
 
@@ -633,7 +633,7 @@ for (index = 1; index <= no_of_patch_segment; index++) {
 	/* Read Command Complete Event */
 	err = read_hci_event(fd, rsp, HCI_MAX_EVENT_SIZE);
 	if ( err < 0) {
-		ALOGE("%s: Failed to downlaod patch segment: %d!",
+		ALOGE("%s: Failed to download patch segment: %d!",
 			  __FUNCTION__, index);
 		goto error;
 	}
@@ -667,7 +667,7 @@ if (size)
 	/* Read Command Complete Event */
 	err = read_hci_event(fd, rsp, HCI_MAX_EVENT_SIZE);
 	if ( err < 0) {
-		ALOGE("%s: Failed to downlaod patch segment: %d!",
+		ALOGE("%s: Failed to download patch segment: %d!",
 			  __FUNCTION__, index);
 		goto error;
 	}
@@ -976,7 +976,7 @@ if ( err != size) {
 if (wait_cc_evt) {
 	err = read_hci_event(fd, rsp, HCI_MAX_EVENT_SIZE);
 	if ( err < 0) {
-		ALOGE("%s: Failed to downlaod patch segment: %d!",  __FUNCTION__, index);
+		ALOGE("%s: Failed to download patch segment: %d!",  __FUNCTION__, index);
 		return err;
 	}
 }
