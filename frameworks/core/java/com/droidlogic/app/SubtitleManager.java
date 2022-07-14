@@ -406,10 +406,10 @@ public class SubtitleManager {
         return displayType;
     }
 
-    private void updateChannedId(int event, int channelId) {
+    private void updateChannelId(int event, int channelId) {
         int idx = -1;
         mDisplayType = SUBTITLE_CC_JASON;
-        LOGI("[updateChannedId]event:" + event + ",channedId:" + channelId);
+        LOGI("[updateChannelId]event:" + event + ",channedId:" + channelId);
         if (event == 1 && !mChalIdList.contains(channelId)) { //1:add
             mChalIdList.add(channelId);
             if (mMonitorCCchannel == channelId && mCurrentCCchannel != channelId) {
@@ -423,7 +423,7 @@ public class SubtitleManager {
             int auth = channelId >> 16;
             int id = channelId >> 8 &0xff;
             int dlsv = channelId&0x0f;
-            LOGI("updateChannedId  auth="+auth+";id="+id+";dlsv="+dlsv);
+            LOGI("updateChannelId  auth="+auth+";id="+id+";dlsv="+dlsv);
             if (mHidlCallback != null) {
                 Log.d(TAG, "onSubtitleEvent: mHidlCallback=" + mHidlCallback);
                 mHidlCallback.onSubtitleEvent(SUBTITLE_VCHIP_RATE, null, null, auth, id, dlsv, 0, 0, 0, false);
@@ -434,7 +434,7 @@ public class SubtitleManager {
                 Log.e(TAG, "Cannot handle events!");
             }
         } else if (event == -2) {
-            LOGI("updateChannedId  mask ="+channelId);
+            LOGI("updateChannelId  mask ="+channelId);
             if (mHidlCallback != null) {
                 Log.d(TAG, "onSubtitleEvent: mHidlCallback = " + mHidlCallback);
                 mHidlCallback.onSubtitleEvent(SUBTITLE_VCHIP_RATE,  null, null, -1, -1, -1, channelId, 0, 0, false);
