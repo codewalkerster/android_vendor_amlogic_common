@@ -134,6 +134,8 @@ typedef enum {
     HDMI_CONTENT_TYPE,
     DV_SUPPORT_INFO,
     PQ_DISPLAY_HDR_POLICY,
+    AMDOLBY_VISION_HDR10_POLICY,
+    AML_AUTO_NR_PARAMS,
     NodeIndexMax,
 } ConstCharforSysNodeIndex;
 

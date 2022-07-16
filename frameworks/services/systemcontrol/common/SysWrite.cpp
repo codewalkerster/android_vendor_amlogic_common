@@ -710,6 +710,8 @@ void SysWrite::initConstCharforSysNode() {
         mPathforSysNode[LCD_SS]                      = "/sys/class/aml_lcd/ss";
         mPathforSysNode[DISPLAY_MODE]                = "/sys/class/display/mode";
         mPathforSysNode[VDETECT_AIPQ_ENABLE]         = "/sys/class/vdetect/aipq_enable";
+        mPathforSysNode[AMDOLBY_VISION_HDR10_POLICY] = "/sys/module/aml_media/parameters/dolby_vision_hdr10_policy";
+        mPathforSysNode[AML_AUTO_NR_PARAMS]          = "/sys/class/deinterlace/di0/autonr_param";
         //parameter
         mPathforSysNode[DI_PARAMETERS_DNR_DM_EN]     = "/sys/module/aml_media/parameters/dnr_dm_en";
         mPathforSysNode[DI_PARAMETERS_DNR_EN]        = "/sys/module/aml_media/parameters/dnr_en";
@@ -755,6 +757,7 @@ void SysWrite::initConstCharforSysNode() {
         mPathforSysNode[LCD_SS]                      = "/sys/class/lcd/ss";
         mPathforSysNode[DISPLAY_MODE]                = "/sys/class/display/mode";
         mPathforSysNode[VDETECT_AIPQ_ENABLE]         = "/sys/class/vdetect/aipq_enable";
+        mPathforSysNode[AML_AUTO_NR_PARAMS]          = "/sys/class/deinterlace/di0/autonr_param";
         //parameter
         mPathforSysNode[DI_PARAMETERS_DNR_DM_EN]     = "/sys/module/di/parameters/dnr_dm_en";
         mPathforSysNode[DI_PARAMETERS_DNR_EN]        = "/sys/module/di/parameters/dnr_en";

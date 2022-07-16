@@ -278,7 +278,7 @@ void CPQControl::CPQControlInit()
     mCDevicePollCheckThread->setObserver(this);
     mCDevicePollCheckThread->StartCheck();
     mInitialized = true;
-
+    InitAutoNr();
     //for tconless
     InitTconGamma();
     InitLocalDimmingBin();
@@ -2834,6 +2834,84 @@ int CPQControl::Cpq_SetSharpness1VariableParam(source_input_param_t source_input
     }
 
     return ret;
+}
+void CPQControl::InitAutoNr(void)
+{
+    int ret = -1;
+    const char *buff = NULL;
+    int buf[128] = {0};
+
+    buff = mPQConfigFile->GetString(CFG_SECTION_AUTO_NR, CFG_AUTO_NR_MOTION_TH, NULL);
+    pqTransformStringToInt(buff, buf);
+    if (buff != NULL) {
+        char str1[128] = {0};
+        sprintf(str1, "%s %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d", "motion_th",
+            buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6], buf[7], buf[8], buf[9],
+            buf[10], buf[11], buf[12], buf[13], buf[14]);
+        SYS_LOGE("%s str1 = %s\n", __FUNCTION__, str1);
+        ret = pqWriteSys(AML_AUTO_NR_PARAMS, str1);
+    }
+
+    buff = mPQConfigFile->GetString(CFG_SECTION_AUTO_NR, CFG_AUTO_NR_MOTION_LP_YGAIN, NULL);
+    pqTransformStringToInt(buff, buf);
+    if (buff != NULL) {
+        char str2[128] = {0};
+        sprintf(str2, "%s %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d", "motion_lp_ygain",
+            buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6], buf[7], buf[8], buf[9],
+            buf[10], buf[11], buf[12], buf[13], buf[14], buf[15]);
+        SYS_LOGE("%s str2 = %s\n", __FUNCTION__, str2);
+        ret |= pqWriteSys(AML_AUTO_NR_PARAMS, str2);
+    }
+
+    buff = mPQConfigFile->GetString(CFG_SECTION_AUTO_NR, CFG_AUTO_NR_MOTION_HP_YGAIN, NULL);
+    pqTransformStringToInt(buff, buf);
+    if (buff != NULL) {
+        char str3[128] = {0};
+        sprintf(str3, "%s %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d", "motion_hp_ygain",
+            buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6], buf[7], buf[8], buf[9],
+            buf[10], buf[11], buf[12], buf[13], buf[14], buf[15]);
+        SYS_LOGE("%s str3 = %s\n", __FUNCTION__, str3);
+        ret |= pqWriteSys(AML_AUTO_NR_PARAMS, str3);
+    }
+
+    buff = mPQConfigFile->GetString(CFG_SECTION_AUTO_NR, CFG_AUTO_NR_MOTION_LP_CGAIN, NULL);
+    pqTransformStringToInt(buff, buf);
+    if (buff != NULL) {
+        char str4[128] = {0};
+        sprintf(str4, "%s %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d", "motion_lp_cgain",
+            buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6], buf[7], buf[8], buf[9],
+            buf[10], buf[11], buf[12], buf[13], buf[14], buf[15]);
+        SYS_LOGE("%s str4 = %s\n", __FUNCTION__, str4);
+
+        ret |= pqWriteSys(AML_AUTO_NR_PARAMS, str4);
+    }
+
+    buff = mPQConfigFile->GetString(CFG_SECTION_AUTO_NR, CFG_AUTO_NR_MOTION_HP_CGAIN, NULL);
+    pqTransformStringToInt(buff, buf);
+    if (buff != NULL) {
+        char str5[128] = {0};
+        sprintf(str5, "%s %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d", "motion_hp_cgain",
+            buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6], buf[7], buf[8], buf[9],
+            buf[10], buf[11], buf[12], buf[13], buf[14], buf[15]);
+        SYS_LOGE("%s str5 = %s\n", __FUNCTION__, str5);
+        ret |= pqWriteSys(AML_AUTO_NR_PARAMS, str5);
+    }
+
+    buff = mPQConfigFile->GetString(CFG_SECTION_AUTO_NR, CFG_AUTO_NR_APL_GAIN, NULL);
+    pqTransformStringToInt(buff, buf);
+    if (buff != NULL) {
+        char str6[128] = {0};
+        sprintf(str6, "%s %d %d %d %d %d %d %d %d", "apl_gain",
+            buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], buf[6], buf[7]);
+        SYS_LOGE("%s str6 = %s\n", __FUNCTION__, str6);
+        ret |= pqWriteSys(AML_AUTO_NR_PARAMS, str6);
+    }
+
+    if (ret < 0) {
+        SYS_LOGE("%s failed\n", __FUNCTION__);
+    }
+
+    return;
 }
 
 int CPQControl::Cpq_SetSharpnessPiFixedParam(source_input_param_t source_input_param)

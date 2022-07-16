@@ -298,6 +298,7 @@ public:
     int Cpq_SetSharpnessPiFixedParam(source_input_param_t source_input_param);
     int Cpq_SetSharpnessPiVariableParam(source_input_param_t source_input_param);
     //NoiseReductionMode
+    void InitAutoNr(void);
     int SetNoiseReductionMode(int nr_mode, int is_save);
     int GetNoiseReductionMode(void);
     int SaveNoiseReductionMode(int nr_mode);
