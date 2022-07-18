@@ -424,23 +424,23 @@ int DisplayMode::parseConfigFile(){
                     mDisplayType = DISPLAY_TYPE_MBOX;
 
                     tokenizer->skipDelimiters(WHITESPACE);
-                    strcpy(mSocType, tokenizer->nextToken(WHITESPACE));
+                    strncpy(mSocType, tokenizer->nextToken(WHITESPACE), sizeof(mSocType));
                     tokenizer->skipDelimiters(WHITESPACE);
-                    strcpy(mDefaultUI, tokenizer->nextToken(WHITESPACE));
+                    strncpy(mDefaultUI, tokenizer->nextToken(WHITESPACE), sizeof(mDefaultUI));
                 } else if (!strcmp(token, DEVICE_STR_TV)) {
                     mDisplayType = DISPLAY_TYPE_TV;
 
                     tokenizer->skipDelimiters(WHITESPACE);
-                    strcpy(mSocType, tokenizer->nextToken(WHITESPACE));
+                    strncpy(mSocType, tokenizer->nextToken(WHITESPACE), sizeof(mSocType));
                     tokenizer->skipDelimiters(WHITESPACE);
-                    strcpy(mDefaultUI, tokenizer->nextToken(WHITESPACE));
+                    strncpy(mDefaultUI, tokenizer->nextToken(WHITESPACE), sizeof(mDefaultUI));
                 } else if (!strcmp(token, DEVICE_STR_MID)) {
                     mDisplayType = DISPLAY_TYPE_TABLET;
 
                     tokenizer->skipDelimiters(WHITESPACE);
-                    strcpy(mSocType, tokenizer->nextToken(WHITESPACE));
+                    strncpy(mSocType, tokenizer->nextToken(WHITESPACE), sizeof(mSocType));
                     tokenizer->skipDelimiters(WHITESPACE);
-                    strcpy(mDefaultUI, tokenizer->nextToken(WHITESPACE));
+                    strncpy(mDefaultUI, tokenizer->nextToken(WHITESPACE), sizeof(mDefaultUI));
                 } else {
                     SYS_LOGE("%s: Expected keyword, got '%s'.", tokenizer->getLocation(), token);
                     break;

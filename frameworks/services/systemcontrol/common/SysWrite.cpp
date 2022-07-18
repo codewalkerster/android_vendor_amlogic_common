@@ -139,6 +139,7 @@ void SysWrite::setProperty(const char *key, const char *value){
 bool SysWrite::readSysfs(const char *path, char *value){
     char buf[MAX_STR_LEN+1] = {0};
     readSys(path, (char*)buf, MAX_STR_LEN, false);
+    buf[MAX_STR_LEN] = '\0';
     strcpy(value, buf);
     return true;
 }
@@ -152,6 +153,7 @@ bool SysWrite::readSysfs(ConstCharforSysNodeIndex index, char *value){
 bool SysWrite::readSysfsOriginal(const char *path, char *value){
     char buf[MAX_STR_LEN+1] = {0};
     readSys(path, (char*)buf, MAX_STR_LEN, true);
+    buf[MAX_STR_LEN] = '\0';
     strcpy(value, buf);
     return true;
 }
