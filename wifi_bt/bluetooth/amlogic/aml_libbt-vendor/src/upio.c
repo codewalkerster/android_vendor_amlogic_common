@@ -527,6 +527,10 @@ void upio_set(uint8_t pio, uint8_t action, uint8_t polarity __unused)
 		{
 			ALOGE("upio_set : write(%s) failed: %s (%d)",
 			      VENDOR_BTWRITE_PROC_NODE, strerror(errno), errno);
+
+			if (fd >= 0)
+				close(fd);
+
 			return;
 		}
 

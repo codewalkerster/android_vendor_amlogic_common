@@ -678,8 +678,8 @@ static uint8_t hw_config_set_rf_params(HC_BT_HDR *p_buf)
 	uint8_t *p = (uint8_t *)(p_buf + 1);
 	uint8_t antenna_num = 0;
 	int fd = 0;
-	uint8_t size = 0;
-	char buffer[255] = { 0 };
+	ssize_t size = 0;
+	char buffer[256] = {"\0"};
 	char c='=';
 
 	fd = open("/vendor/etc/bluetooth/w1/aml_bt_rf.txt", O_RDONLY);
@@ -689,14 +689,24 @@ static uint8_t hw_config_set_rf_params(HC_BT_HDR *p_buf)
 		return FALSE;
 	}
 
-	size = read(fd, buffer, sizeof(buffer));
+	size = read(fd, buffer, (sizeof(buffer) - 1));
 	if (size < 0)
 	{
 		ALOGE("In %s, Read failed:%s", __FUNCTION__, strerror(errno));
+		close(fd);
 		return FALSE;
 	}
 
+	buffer[(sizeof(buffer) - 1)] = '\0';
+
 	char *ptr = strchr(buffer, c);
+	if (ptr == NULL)
+	{
+		ALOGE("In %s, strchr failed:%s", __FUNCTION__, strerror(errno));
+		close(fd);
+		return FALSE;
+	}
+
 	ptr++;
 	antenna_num = atoi(ptr);
 
@@ -743,7 +753,7 @@ void hw_config_cback(void *p_mem)
 	HC_BT_HDR *p_buf = NULL;
 	uint8_t is_proceeding = FALSE;
 	int i;
-	int delay = 100;
+	int delay;
 #ifdef AML_DOWNLOADFW_UART
 	callback_flag = 1;
 	if (!flag) {
@@ -1615,8 +1625,10 @@ uint8_t hw_lpm_enable(uint8_t turn_on)
 			ALOGD("LPM enabled!!");
 	}
 
+#if 0
 	if ((ret == FALSE) && bt_vendor_cbacks)
 		bt_vendor_cbacks->lpm_cb(BT_VND_OP_RESULT_FAIL);
+#endif
 
 	return ret;
 }
@@ -1632,8 +1644,6 @@ uint8_t hw_lpm_enable(uint8_t turn_on)
 *******************************************************************************/
 uint32_t hw_lpm_get_idle_timeout(void)
 {
-	return 3000;
-
 	uint32_t timeout_ms;
 
 	/* set idle time to be LPM_IDLE_TIMEOUT_MULTIPLE times of
