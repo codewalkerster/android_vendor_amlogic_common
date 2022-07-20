@@ -195,7 +195,7 @@ int res_img_unpack(const char* const path_src, const char* const unPackDirPath, 
         const unsigned   itemAlignMod = itemAlignSz - 1;
         const unsigned   itemSzAlignMask = ~itemAlignMod;
         unsigned totalReadItemNum = 0;
-        const AmlResItemHeadLogo_t* pItemHead = NULL;
+        AmlResItemHeadLogo_t* pItemHead = NULL;
 
         SYS_LOGI("imgItemNum: %d\n", pImgHead->imgItemNum);
 
@@ -209,6 +209,7 @@ int res_img_unpack(const char* const path_src, const char* const unPackDirPath, 
                 goto _exit;
             }
 
+            pItemHead->name[sizeof(pItemHead->name) - 1] = '\0';
             sprintf(itemFullPath, "%s/%s", unPackDirPath, pItemHead->name);
             SYS_LOGI("item %s\n", itemFullPath);
 
@@ -235,18 +236,32 @@ int res_img_unpack(const char* const path_src, const char* const unPackDirPath, 
 
                 //SYS_LOGI("leftLen = 0x%x, thisReadSz = 0x%x, rdOff = 0x%x\n", leftLen, thisReadSz, rdOff);
 
-                lseek(fdResImg, rdOff, SEEK_SET);
+                ret = lseek(fdResImg, rdOff, SEEK_SET);
+                if (ret < 0) {
+                    SYS_LOGE("%d:lseek %s.\n", __LINE__, strerror(errno));
+                    fclose(fp_item), fp_item = NULL;
+                    goto _exit;
+                }
                 actualReadSz = read(fdResImg, itemReadBuf, thisReadSz);
                 if (thisReadSz != actualReadSz) {
                     SYS_LOGE("thisReadSz 0x%x != actualReadSz 0x%zx\n", thisReadSz, actualReadSz);
+                    fclose(fp_item), fp_item = NULL;
                     ret = __LINE__;goto _exit;
                 }
 
                 itemTotalReadLen += thisReadSz;
                 const unsigned thisWriteSz = itemTotalReadLen < thisItemBodySz ? thisReadSz : (thisReadSz - stuffLen);
+                itemReadBuf[sizeof(itemReadBuf) - 1] = '\0';
+                if (thisWriteSz > strlen(itemReadBuf)) {
+                    SYS_LOGE("thisWriteSz: 0x%x\n", thisWriteSz);
+                    fclose(fp_item), fp_item = NULL;
+                    ret = __LINE__;goto _exit;
+                }
+
                 actualReadSz = fwrite(itemReadBuf, 1, thisWriteSz, fp_item);
                 if (thisWriteSz != actualReadSz) {
                     SYS_LOGE("want write 0x%x, but 0x%zx\n", thisWriteSz, actualReadSz);
+                    fclose(fp_item), fp_item = NULL;
                     ret = __LINE__;goto _exit;
                 }
 
@@ -309,6 +324,7 @@ int img_pack(const char* const path_src, const char* const packedImg,
         if (write(fd_dest, aAmlResImgHead, HeadLen) != HeadLen) {
             SYS_LOGE("fail to write head, want 0x%x, but 0x%x\n", HeadLen, actualWriteLen);
             delete[] itemBuf;
+            close(fd_dest);
             return __LINE__;
         }
 
@@ -379,7 +395,12 @@ int img_pack(const char* const path_src, const char* const packedImg,
                                 ret = __LINE__; goto _exit;
                         }
 
-                        lseek(fd_dest, offset, SEEK_SET);
+                        ret = lseek(fd_dest, offset, SEEK_SET);
+                        if (ret < 0) {
+                            SYS_LOGE("%d:lseek %s.\n", __LINE__, strerror(errno));
+                            goto _exit;
+                        }
+
                         if (write(fd_dest, itemBuf, thisWriteLen) != thisWriteLen) {
                                 SYS_LOGE("Want to write 0x%x but actual 0x%x\n", thisWriteLen, actualWriteLen);
                                 ret = __LINE__; goto _exit;
@@ -390,7 +411,12 @@ int img_pack(const char* const path_src, const char* const packedImg,
                 offset = HeadLen + itemOffsetLen;
                 memset(itemBuf, 0, itemStuffSz);
                 thisWriteLen = itemStuffSz;
-                lseek(fd_dest, offset, SEEK_SET);
+                ret = lseek(fd_dest, offset, SEEK_SET);
+                if (ret < 0) {
+                    SYS_LOGE("%d:lseek %s.\n", __LINE__, strerror(errno));
+                    goto _exit;
+                }
+
                 if (write(fd_dest, itemBuf, thisWriteLen) != thisWriteLen) {
                     SYS_LOGE("Want to write 0x%x but actual 0x%x\n", thisWriteLen, actualWriteLen);
                     ret = __LINE__; goto _exit;
@@ -427,6 +453,7 @@ _exit:
         if (itemBuf) delete[] itemBuf, itemBuf = NULL;
         if (fd_src) fclose(fd_src), fd_src = NULL;
         closedir(dir);
+        close(fd_dest);
         return ret;
 }
 
@@ -442,6 +469,8 @@ int copyLogoFiles(const char *srcPath, const char *dstPath)
 
     if ((dstFd = open(dstPath, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR)) == -1) {
         SYS_LOGE("Open %s Error:%s/n", dstPath, strerror(errno));
+        close(mFd);
+        return -1;
     }
 
     int bytes_read, bytes_write;
@@ -481,6 +510,7 @@ int copyLogoFiles(const char *srcPath, const char *dstPath)
     }
     fsync(dstFd);
     close(dstFd);
+    close(mFd);
     return ret;
 }
 

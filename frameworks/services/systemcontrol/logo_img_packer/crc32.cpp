@@ -79,11 +79,16 @@ unsigned calc_logoimg_crc(int fd, off_t offset, unsigned checkSz)
     while (totalLenToCheck < checkSz)
     {
         int nread;
+        int ret = 0;
         unsigned leftLen = checkSz - totalLenToCheck;
         int thisReadSz = leftLen > BUFSIZE ? BUFSIZE : leftLen;
 
         off_set = offset + totalLenToCheck;
-        lseek(fd,off_set,SEEK_SET);
+        ret = lseek(fd,off_set,SEEK_SET);
+        if (ret < 0) {
+            SYS_LOGE("%d:lseek %s.\n", __LINE__, strerror(errno));
+            return 0;
+        }
         nread = read(fd, buf, thisReadSz);
         if (nread < 0) {
             SYS_LOGE("%d:read %s.\n", __LINE__, strerror(errno));
