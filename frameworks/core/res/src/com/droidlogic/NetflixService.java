@@ -58,6 +58,7 @@ public class NetflixService extends Service {
     private static final String NRDP_AUDIO_PLATFORM_CAP_MS12 = "nrdp_audio_platform_capabilities_ms12";
     private static final String NRDP_PLATFORM_CONFIG_DIR = "/vendor/etc/";
     private static final String NRDP_EXTERNAL_SURROUND = "nrdp_external_surround_sound_enabled";
+    private static final String FIRST_BOOT_COUNT = "FirstBootCount";
     private static final int WAKEUP_REASON_CUSTOM = 9;
     private static boolean atmosSupported = false;
     private static boolean doblySupported = false;
@@ -200,6 +201,7 @@ public class NetflixService extends Service {
         } catch (RemoteException e) {
             Log.e(TAG, "could not get IActivityManager");
         }
+        setNfrDisable();
     }
 
     @Override
@@ -260,6 +262,16 @@ public class NetflixService extends Service {
             i.putExtra("power_on", isPowerOn);  //"power_on" Boolean Extra must be presented
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             mContext.startActivity(i);
+        }
+    }
+
+
+    private void setNfrDisable(){
+        int mFirstBootCount = Settings.Global.getInt(mContext.getContentResolver(), FIRST_BOOT_COUNT, 0);
+        if (mFirstBootCount == 0) {
+            Settings.Secure.putInt(mContext.getContentResolver(),Settings.Secure.MATCH_CONTENT_FRAME_RATE,
+                Settings.Secure.MATCH_CONTENT_FRAMERATE_NEVER);
+            Settings.Global.putInt(mContext.getContentResolver(), FIRST_BOOT_COUNT, 1);
         }
     }
 
