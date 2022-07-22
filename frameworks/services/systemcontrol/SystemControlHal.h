@@ -137,6 +137,9 @@ class SystemControlHal : public ISystemControl, public SystemControlNotify, publ
     Return<Result> getModeSupportDeepColorAttr(const hidl_string& mode, const hidl_string& color) override;
     Return<void> setHdrStrategy(const hidl_string &value) override;
     Return<void> setHdrPriority(const hidl_string &value) override;
+    Return<void> clearBootDisplayConfig(const hidl_string &value) override;
+    Return<void> setBootDisplayConfig(const hidl_string &savemode) override;
+    Return<void> getPreferredDisplayConfig(getPreferredDisplayConfig_cb _hidl_cb) override;
     Return<void> setGraphicsPriority(const hidl_string& mode) override;
     Return<void> getGraphicsPriority(getGraphicsPriority_cb _hidl_cb) override;
     Return<void> getDolbyVisionType(getDolbyVisionType_cb _hidl_cb) override;

@@ -313,6 +313,9 @@ public:
 
     void setHdrStrategy(const std::string& value);
     void setHdrPriority(const std::string& value);
+    void clearBootDisplayConfig(const std::string& value);
+    void setBootDisplayConfig(const std::string& savemode);
+    bool getPreferredDisplayConfig(std::string *prefDispMode);
     int setColorGamutMode(int mode, int is_save);
     int getColorGamutMode(void);
     bool syncDensity(int displayid, int width, int height);

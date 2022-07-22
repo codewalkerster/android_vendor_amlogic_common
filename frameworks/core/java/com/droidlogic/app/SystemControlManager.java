@@ -1010,6 +1010,45 @@ public class SystemControlManager {
         }
             return false;
     }
+
+     public boolean clearBootDisplayConfig(String type) {
+        synchronized (mLock) {
+           try {
+               mProxy.clearBootDisplayConfig(type);
+           } catch (RemoteException e) {
+               Log.e(TAG, "clearBootDisplayConfig:" + e);
+           }
+        }
+            return false;
+    }
+
+    public void setBootDisplayConfig(String mode) {
+        synchronized (mLock) {
+            try {
+                mProxy.setBootDisplayConfig(mode);
+            } catch (RemoteException e) {
+                Log.e(TAG, "setBootDisplayConfig:" + e);
+            }
+        }
+    }
+
+    public String getPreferredDisplayConfig() {
+        synchronized (mLock) {
+            Mutable<String> resultVal = new Mutable<>();
+            try {
+                mProxy.getPreferredDisplayConfig((int ret, String v) -> {
+                                if (Result.OK == ret) {
+                                    resultVal.value = v;
+                                }
+                            });
+                return resultVal.value;
+            } catch (RemoteException e) {
+                Log.e(TAG, "getPreferredDisplayConfig:" + e);
+            }
+        }
+        return "";
+    }
+
     public boolean GetModeSupportDeepColorAttr(String mode, String value) {
         synchronized (mLock) {
             try {

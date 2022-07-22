@@ -729,14 +729,22 @@ interface ISystemControl {
 
   getScreenColorForSignalChange()
       generates (int32_t ret);
-	  
+
 //set test pattern
   setVideoScreenColor(int32_t color)
       generates (int32_t ret);
-	  
+
   setHdrStrategy(string value);
 
   setHdrPriority(string value);
+
+  clearBootDisplayConfig(string value);
+
+  setBootDisplayConfig(string savemode);
+
+  getPreferredDisplayConfig()
+      generates (Result result, string prefDispMode);
+
 //FBC
   StartUpgradeFBC(string fileName, int32_t mode, int32_t upgrade_blk_size)
     generates (int32_t ret);

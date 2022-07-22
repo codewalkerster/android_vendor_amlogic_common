@@ -540,6 +540,9 @@ public:
     void isHDCPTxAuthSuccess( int *status);
     static void* bootanimDetect(void *data);
     void setSourceDisplay(output_mode_state state);
+    void clearBootDisplayConfig(const char*value);
+    void setBootDisplayConfig(const char*value);
+    bool getPreferredDisplayConfig(char* mode);
     bool isHdmiEdidParseOK(void);
     bool isHdmiHpd(void);
     bool isHdmiUsed(void);

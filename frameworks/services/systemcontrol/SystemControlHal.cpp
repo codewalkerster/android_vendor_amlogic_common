@@ -786,6 +786,31 @@ Return<void> SystemControlHal::setHdrPriority(const hidl_string &value) {
     return Void();
 }
 
+Return<void> SystemControlHal::clearBootDisplayConfig(const hidl_string &value) {
+    mSysControl->clearBootDisplayConfig(value);
+    if (ENABLE_LOG_PRINT)
+        ALOGI("clearBootDisplayConfig value:%s",value.c_str());
+    return Void();
+}
+
+Return<void> SystemControlHal::setBootDisplayConfig(const hidl_string &savemode) {
+    if (ENABLE_LOG_PRINT)
+        ALOGI("setBootDisplayConfig mode:%s",savemode.c_str());
+    mSysControl->setBootDisplayConfig(savemode);
+    return Void();
+}
+
+Return<void> SystemControlHal::getPreferredDisplayConfig(getPreferredDisplayConfig_cb _hidl_cb) {
+    std::string mode;
+    bool ret = mSysControl->getPreferredDisplayConfig(&mode);
+    if (ENABLE_LOG_PRINT) ALOGI("getPreferredDisplayConfig mode :%s", mode.c_str());
+    if (ret == true)
+        _hidl_cb(Result::OK, mode);
+    else
+        _hidl_cb(Result::FAIL, mode);
+    return Void();
+}
+
 Return<Result> SystemControlHal::getModeSupportDeepColorAttr(const hidl_string &mode, const hidl_string &color) {
     if (ENABLE_LOG_PRINT) ALOGI("getModeSupportDeepColorAttr mode = %s color = %s", mode.c_str(), color.c_str());
     return mSysControl->getModeSupportDeepColorAttr(mode, color)?Result::OK:Result::FAIL;

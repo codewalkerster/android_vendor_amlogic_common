@@ -569,6 +569,21 @@ void SystemControlService::setHdrPriority(const std::string& value) {
     pDisplayMode->setHdrPriority(value.c_str());
 }
 
+void SystemControlService::clearBootDisplayConfig(const std::string& value) {
+    pDisplayMode->clearBootDisplayConfig(value.c_str());
+}
+
+void SystemControlService::setBootDisplayConfig(const std::string& savemode) {
+    pDisplayMode->setBootDisplayConfig(savemode.c_str());
+}
+
+bool SystemControlService::getPreferredDisplayConfig(std::string *prefDispMode) {
+    char mode[MODE_LEN] = {0};
+    bool ret = pDisplayMode->getPreferredDisplayConfig(mode);
+    *prefDispMode = mode;
+    return ret;
+}
+
 void SystemControlService::getDroidDisplayInfo(int &type __unused, std::string& socType __unused, std::string& defaultUI __unused,
         int &fb0w __unused, int &fb0h __unused, int &fb0bits __unused, int &fb0trip __unused,
         int &fb1w __unused, int &fb1h __unused, int &fb1bits __unused, int &fb1trip __unused) {

@@ -598,6 +598,30 @@ void SystemControlClient::setHdrPriority(const std::string& value) {
     mSysCtrl->setHdrPriority(value);
 }
 
+void SystemControlClient::clearBootDisplayConfig(const std::string& value) {
+    mSysCtrl->clearBootDisplayConfig(value);
+}
+
+void SystemControlClient::setBootDisplayConfig(const std::string& savemode) {
+    mSysCtrl->setBootDisplayConfig(savemode);
+}
+
+bool SystemControlClient::getPreferredDisplayConfig(std::string& prefDispMode) {
+    mSysCtrl->getPreferredDisplayConfig([&prefDispMode](const Result &ret, const hidl_string& mode) {
+        if (Result::OK == ret)
+            prefDispMode = mode.c_str();
+        else
+            prefDispMode.clear();
+    });
+
+    if (prefDispMode.empty()) {
+        LOG(ERROR) << "system control client getPreferredDisplayConfig FAIL.";
+        return false;
+    }
+
+    return true;
+}
+
 bool SystemControlClient::getModeSupportDeepColorAttr(const std::string& mode, const std::string& color) {
     Result rtn;
     rtn = mSysCtrl->getModeSupportDeepColorAttr(mode,color);

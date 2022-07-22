@@ -687,6 +687,41 @@ void DisplayMode::setSourceDisplay(output_mode_state state) {
     applyDisplaySetting(state);
 }
 
+void DisplayMode::clearBootDisplayConfig(const char*value) {
+    SYS_LOGI("%s set bestmode to %s\n", __func__, value);
+    setBootEnv(UBOOTENV_ISBESTMODE, value);
+    // after clear boot config, need save the bestMode to uenv
+    if (!strcmp(value, "true")) {
+        char bestMode[MODE_LEN]    = {0};
+        getPrefHdmiDispMode(bestMode);
+        setBootEnv(UBOOTENV_HDMIMODE, bestMode);
+    }
+}
+
+void DisplayMode::setBootDisplayConfig(const char* savemode) {
+    SYS_LOGI("set bestmode to false, savemode is %s\n", savemode);
+    setBootEnv(UBOOTENV_ISBESTMODE, "false");
+    setBootEnv(UBOOTENV_HDMIMODE, savemode);
+}
+
+bool DisplayMode::getPreferredDisplayConfig(char* mode) {
+    bool ret = isBestOutputmode();
+    bool flag = false;
+
+    if (!ret) {
+        setBootEnv(UBOOTENV_ISBESTMODE, "true");
+        flag = true;
+    }
+
+    ret = getPrefHdmiDispMode(mode);
+    if (flag) {
+        setBootEnv(UBOOTENV_ISBESTMODE, "false");
+    }
+    SYS_LOGI("getPreferredDisplayConfig [%s]", mode);
+
+    return ret;
+}
+
 void DisplayMode::setActiveDispMode(const char*value) {
     mHdmidata.reason = OUPTUT_CHANGE_BY_HWC;
     SYS_LOGI("setDisplayed by hwc %s", value);
@@ -984,7 +1019,10 @@ void DisplayMode::applyDisplaySetting(output_mode_state state) {
     pSysWrite->setProperty(HDMI_FRC_POLICY_PROP,cur_frac_rate_policy);
 
 #ifndef RECOVERY_MODE
-    saveHdmiParamToEnv();
+    if ((state == OUTPUT_MODE_STATE_INIT) ||
+         (state == OUTPUT_MODE_STATE_POWER)) {
+        saveHdmiParamToEnv();
+    }
 #endif
 }
 
@@ -3333,9 +3371,6 @@ void DisplayMode::saveHdmiParamToEnv() {
         SYS_LOGI("colorattr: %s, outputMode %s, cd %s, cs %s\n",
             colorAttr.c_str(), outputMode, colorDepth, colorSpace);
     }
-    // for debugging, print all logoparam
-    if (pSysWrite->getPropertyBoolean("persist.systemcontrol.debug", false))
-        mUbootenv->printValues();
 }
 
 /* *

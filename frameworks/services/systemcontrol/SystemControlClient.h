@@ -159,6 +159,9 @@ public:
     bool getModeSupportDeepColorAttr(const std::string& mode, const std::string& color);
     void setHdrStrategy(const std::string& value);
     void setHdrPriority(const std::string& value);
+    void clearBootDisplayConfig(const std::string& value);
+    void setBootDisplayConfig(const std::string& savemode);
+    bool getPreferredDisplayConfig(std::string& prefDispMode);
     //PQ
     int loadPQSettings(source_input_param_t srcInputParam);
     int setPQmode(int mode, int isSave, int is_autoswitch);
