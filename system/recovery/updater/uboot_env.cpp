@@ -28,18 +28,17 @@ Description:
 
 int set_bootloader_env(const char* name, const char* value)
 {
-    Ubootenv *ubootenv = new Ubootenv();
-
+    int ret = 0;
     char ubootenv_name[128] = {0};
     const char *ubootenv_var = "ubootenv.var.";
+    Ubootenv *ubootenv = new Ubootenv();
     sprintf(ubootenv_name, "%s%s", ubootenv_var, name);
-
     if (ubootenv->updateValue(ubootenv_name, value)) {
         fprintf(stderr,"could not set boot env\n");
-        return -1;
+        ret = -1;
     }
-
-    return 0;
+    delete ubootenv;
+    return ret;
 }
 
 int set_attestationkey(const char* value)
@@ -53,11 +52,13 @@ int set_attestationkey(const char* value)
 
 char *get_bootloader_env(const char * name)
 {
-    Ubootenv *ubootenv = new Ubootenv();
-     char ubootenv_name[128] = {0};
+    char ubootenv_name[128] = {0};
     const char *ubootenv_var = "ubootenv.var.";
+    Ubootenv *ubootenv = new Ubootenv();
     sprintf(ubootenv_name, "%s%s", ubootenv_var, name);
-    return (char *)ubootenv->getValue(ubootenv_name);
+    const char *ret = ubootenv->getValue(ubootenv_name);
+    delete ubootenv;
+    return (char*)ret;
 }
 
 
