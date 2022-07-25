@@ -206,6 +206,7 @@ public class SubtitleManager {
 
     private SubtitleViewAdaptor mUI;
     private boolean mShowFlag = false;
+    private boolean mSurfaceRectFlag = false;
     private Handler mHandler;
 
     //ext sub
@@ -222,6 +223,14 @@ public class SubtitleManager {
     //teletext loading resource id
     private int mResId = 0;
 
+    private static final String DISPLAY_MODE_SYSFS = "/sys/class/display/mode";
+    private SystemControlManager mSystemControl;
+    private DisplayMetrics mDm;
+    //sub screen axis
+    private int mSubScreenWidth = 0;
+    private int mSubScreenHeight = 0;
+    private int mSubScreenX = 0;
+    private int mSubScreenY = 0;
 
     private int mSubTotal = 0;
 
@@ -337,6 +346,7 @@ public class SubtitleManager {
         mContext = context;
         mChalIdList = new ArrayList<Integer>();
         mInnerTrackIdx = new ArrayList<Integer>();
+        mSystemControl = SystemControlManager.getInstance();
         mDebug = false;
         checkDebug();
         initDefaultResolution();
@@ -374,10 +384,10 @@ public class SubtitleManager {
      */
     private void initDefaultResolution(){
         WindowManager wm = (WindowManager)mContext.getSystemService (Context.WINDOW_SERVICE);
-        DisplayMetrics dm = new DisplayMetrics();
-        wm.getDefaultDisplay().getMetrics(dm);
-        mDisplayRect = new Rect(0, 0, dm.widthPixels, dm.heightPixels);
-        //Log.e(TAG, "initResolution mScreenWidth:" + mScreenWidth +";mScreenHeight = "+mScreenHeight);
+        mDm = new DisplayMetrics();
+        wm.getDefaultDisplay().getMetrics(mDm);
+        mDisplayRect = new Rect(0, 0, mDm.widthPixels, mDm.heightPixels);
+        Log.e(TAG, "initResolution mScreenWidth:" + mDm.widthPixels +";mScreenHeight = "+mDm.heightPixels);
     }
 
     //get the subtitle display type by parse type : image or text
@@ -450,6 +460,47 @@ public class SubtitleManager {
     private void notifyAvailable(int avail) {
         LOGI("[notifyAvailable]avail:" + avail);
     }
+
+
+    //param: video axis from sysfs video/axis
+    public void computeSubScreenAxisWithParam(int x, int y, int w, int h) {
+        String mode = mSystemControl.readSysFs(DISPLAY_MODE_SYSFS).replaceAll("\n","");
+        int[] curPosition = mSystemControl.getPosition(mode);
+        int modeX = curPosition[0];
+        int modeY = curPosition[1];
+        int modeW = curPosition[2];
+        int modeH = curPosition[3];
+        int fbW = mDm.widthPixels;
+        int fbH = mDm.heightPixels;
+
+        if (modeW == 0 || modeH == 0 || w == 0 || h  == 0) {
+            LOGE("error, w or h shoult not zero here!");
+            return;
+        }
+
+        float ratioViewW = ((float)w) / modeW;
+        float ratioViewH = ((float)h) / modeH;
+        float ratioFBW = ((float)fbW) /modeW;
+        float ratioFBH = ((float)fbH) /modeH;
+
+        x = x > curPosition[0] ?( x - curPosition[0]) : 0;
+        y = y > curPosition[1] ?( y - curPosition[1]) : 0;
+
+        //sub screen axis
+        mSubScreenX = (int)(x * ratioFBW);
+        mSubScreenY = (int)(y * ratioFBH);
+        mSubScreenWidth = (int)(w * ratioFBW);
+        mSubScreenHeight = (int)(h * ratioFBH);
+
+        LOGI("computeSubScreenAxisWithParam-x:" + x + ",y:" + y + ",w:" + w + ",h:" + h
+           + ",modeX:" + modeX + ",modeY:" + modeY + ",modeW:" + modeW + ",modeH:" + modeH + ",fbW:" + fbW + ",fbH:" + fbH
+           + ",ratioViewW:" + ratioViewW + ",ratioViewH:" + ratioViewH + ",ratioFBW:" + ratioFBW + ",ratioFBH:" + ratioFBH
+           + ",mSubScreenX:" + mSubScreenX + ",mSubScreenY:" + mSubScreenY + ",mSubScreenWidth:" + mSubScreenWidth + ",mSubScreenHeight:" + mSubScreenHeight);
+
+        setDisplayRect(mSubScreenX, mSubScreenY, mSubScreenWidth, mSubScreenHeight);
+        setDisplayWindow(mSubScreenX, mSubScreenY, mSubScreenWidth, mSubScreenHeight);
+    }
+
 
     public int getDisplayType () {
         return mDisplayType;
@@ -546,17 +597,18 @@ public class SubtitleManager {
             public void onSubtitleEvent(int type, Object data, byte[] subdata, int x, int y,
                     int width ,int height, int videoWidth, int videoHeight, boolean show) {
                 Log.d(TAG, "in SubtitleManager.java onSubtitleEvent:" + type+"; height="+height+"; width="+width+", show="+show);
+                // check window created or not
+                runOnMainThread(() -> {
+                mShowFlag = true;
+                    if (!mUI.isDisplayWindowAdded()) {
+                        mUI.addSubtitleView("In-App-subtitle");
+                    }
+                });
 
                 processSubtileEvent(type, data, subdata, x, y, width, height, videoWidth, videoHeight, show);
             }
         };
-        // check window created or not
-        runOnMainThread(() -> {
-            mShowFlag = true;
-            if (!mUI.isDisplayWindowAdded()) {
-                mUI.addSubtitleView("In-App-subtitle");
-            }
-        });
+
         return true;
     }
 
@@ -565,13 +617,17 @@ public class SubtitleManager {
         mHidlFallbackDisplay = new FallbackDisplayListener() {
             public void onSubtitleEvent(int type, Object data, byte[] subdata, int x, int y,
                     int width ,int height, int videoWidth, int videoHeight, boolean show) {
-                Log.d(TAG, "here, FallbackDisplayListener: onSubtitleEvent");
+                Log.d(TAG, "here, FallbackDisplayListener: onSubtitleEvent mSurfaceRectFlag:" + mSurfaceRectFlag);
 
                 // Check subtitle view created or not, if not, create it
                 runOnMainThread(() -> {
                     mShowFlag = true;
                     if (!mUI.isDisplayWindowAdded()) {
-                        mUI.addSystemSubtitleView("Fallback-system-overlay-subtitle");
+                        if (!mSurfaceRectFlag) {
+                            mUI.addSystemSubtitleView("Fallback-system-overlay-subtitle");
+                        } else {
+                            mUI.addSystemSurfaceRectView("Fallback-system-overlay-subtitle");
+                        }
                     }
                 });
 
@@ -581,16 +637,20 @@ public class SubtitleManager {
                 Log.d(TAG, "receive message:" + cmd);
                 switch (cmd) {
                     case CMD_UI_SHOW:
+                        Log.d(TAG, "CMD_UI_SHOW");
                         enableDisplay();
                         display();
                         break;
                     case CMD_UI_HIDE:
+                        Log.d(TAG, "CMD_UI_HIDE");
+                        mSurfaceRectFlag = false;
                         hide();
                         disableDisplay();
                         runOnMainThread(() -> {
                             mUI.stopTtxLoading();
                             mUI.removeSubtitleView();
                         });
+                        initDefaultResolution();
                         break;
                     case CMD_UI_SET_TEXTCOLOR:
                         setTextColor(params[0]);
@@ -614,10 +674,11 @@ public class SubtitleManager {
                         Log.e(TAG, "Error! should not here!");
                         break;
                     case CMD_UI_SET_SURFACERECT:
-                        setDisplayRect(params[0], params[1], params[2], params[3]);
+                        mSurfaceRectFlag = true;
+                        computeSubScreenAxisWithParam(params[0], params[1], params[2], params[3]);
                         runOnMainThread(() -> {
                             mUI.hideView(); // View Rect changed, hide, let refresh when received new subtitle
-                            mUI.setSurfaceDisplayRect(params[0], params[1], params[2], params[3]);
+                            mUI.setSurfaceDisplayRect(mSubScreenX, mSubScreenY, mSubScreenWidth, mSubScreenHeight, "Fallback-system-overlay-subtitle");
                         });
                         break;
                     default:
@@ -1146,6 +1207,9 @@ public class SubtitleManager {
         runOnMainThread(() -> { mUI.setImgSubRatio(ratioW, ratioH, maxW, maxH); });
     }
 
+    public void setDisplayWindow(int x, int y, int w, int h) {
+        runOnMainThread(() -> { mUI.setSurfaceDisplayParam(x, y, w, h); });
+    }
     //add region id param
     public int ttControl(int teletxtEvent, int magazine, int page, int regionId) {
         return nativeTtControl(teletxtEvent, magazine, page, regionId);

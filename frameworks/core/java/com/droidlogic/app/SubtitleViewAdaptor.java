@@ -40,6 +40,10 @@ class SubtitleViewAdaptor {
     //fallback display window media overlay type
     private int TYPE_APPLICATION_MEDIA_OVERLAY = 1004;
 
+    private int HEIGHT_DVB_SUBTITLE_ADJUST = 10;
+    private float RATIO_DVB_SUBTITLE_SCALE = 0.8f;
+    private float WIDTH_RATIO_DVB_SUBTITLE_EXTEND = (1.0f - RATIO_DVB_SUBTITLE_SCALE) / 2.0f;
+
     private Display mDisplay;
     private WindowManager mWindowManager;
     private WindowManager.LayoutParams mWindowLayoutParams;
@@ -58,6 +62,12 @@ class SubtitleViewAdaptor {
     private int mDisplayFlag = 0;
     private int mSubtitleType = -1;
     private boolean mDisableDisplay = false;
+
+    //surface rect axis.
+    private int mWindowX = 0;
+    private int mWindowY = 0;
+    private int mWindowW = 0;
+    private int mWindowH = 0;
 
     private Bitmap interBitmap ;
     private String mTitle;
@@ -207,6 +217,10 @@ class SubtitleViewAdaptor {
         }
 
         Log.d(TAG, "addSystemSubtitleView:"+title);
+    }
+
+    public void addSystemSurfaceRectView(String title) {
+        setSurfaceDisplayRect(mWindowX, mWindowY, mWindowW, mWindowH, title);
     }
 
     public void removeSubtitleView() {
@@ -468,6 +482,11 @@ class SubtitleViewAdaptor {
             tempwScale = ((float)mWindowLayoutParams.width/w) * 0.8f;
             temphScale = ((float)mWindowLayoutParams.height/h) * 0.8f;
         }
+
+        if (mSubtitleType == SubtitleManager.TYPE_SUBTITLE_DVB) {
+            tempwScale = wScale * RATIO_DVB_SUBTITLE_SCALE;
+            temphScale = hScale * RATIO_DVB_SUBTITLE_SCALE;
+        }
         Matrix matrix = new Matrix();
         matrix.postScale(tempwScale, temphScale);
         Log.d(TAG, "showBitmap:matrix-"+matrix+", tempwScale="+tempwScale+", temphScale="+temphScale);
@@ -500,8 +519,16 @@ class SubtitleViewAdaptor {
         if ((mSubtitleType == SubtitleManager.TYPE_SUBTITLE_DVB)
             || (mSubtitleType == SubtitleManager.TYPE_SUBTITLE_SCTE27)
             || (mSubtitleType == SubtitleManager.TYPE_SUBTITLE_PGS)) {
-            mCoordinateX = (int)(mCoordinateX*wScale);
-            mCoordinateY = (int)(mCoordinateY*hScale);
+            //Log.d(TAG, "mCordinateX="+mCordinateX+", mCordinateY="+mCordinateY + ",wScale:" + wScale + ",hScale:" + hScale);
+            if (mSubtitleType == SubtitleManager.TYPE_SUBTITLE_DVB && interBitmap != null) {
+                mCoordinateX = (int)(mCoordinateX*wScale)
+                            + (int)((float)interBitmap.getWidth()/RATIO_DVB_SUBTITLE_SCALE
+                            * WIDTH_RATIO_DVB_SUBTITLE_EXTEND);
+                mCoordinateY = (int)(mCoordinateY*hScale) - HEIGHT_DVB_SUBTITLE_ADJUST;
+            } else {
+                mCoordinateX = (int)(mCoordinateX*wScale);
+                mCoordinateY = (int)(mCoordinateY*hScale);
+            }
             params.setMargins(mCoordinateX, mCoordinateY, 0, 0);
             mImageView.setLayoutParams(params);
 
@@ -525,7 +552,15 @@ class SubtitleViewAdaptor {
         if (DEBUG_LAYOUT) dumpViewHirarchy(mSubLayout);
     }
 
-    public void setSurfaceDisplayRect(int x, int y, int w, int h) {
+    public void setSurfaceDisplayParam(int x, int y, int w, int h) {
+        Log.d(TAG, "setSurfaceDisplayParam x:" + x + ",y:" + y + ",w:" + w +",h:" + h);
+        mWindowX = x;
+        mWindowY = y;
+        mWindowW = w;
+        mWindowH = h;
+    }
+
+    public void setSurfaceDisplayRect(int x, int y, int w, int h, String title) {
         checkCallerOnUIThread();
 
         if (mIsWindowCreated) {
@@ -533,7 +568,7 @@ class SubtitleViewAdaptor {
         }
 
         ensureSubLayoutCreated();
-        initialLayoutParams(LayoutParams.TYPE_APPLICATION_OVERLAY, mTitle, x, y, w, h);
+        initialLayoutParams(LayoutParams.TYPE_APPLICATION_OVERLAY, title, x, y, w, h);
 
         // Add window for subtitle
         mWindowManager.addView(mSubLayout, mWindowLayoutParams);
