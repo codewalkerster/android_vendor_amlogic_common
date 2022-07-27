@@ -42,7 +42,7 @@ dhd_pcie_build_path ?=
 dhd_pcie_args ?= CONFIG_BCMDHD_PCIE=y
 
 WIFI_SUPPORT_DRIVERS += qca6174
-qca6174_build ?= false
+qca6174_build ?= true
 qca6174_modules ?= qca6174
 qca6174_src_path ?= $(DRIVER_DIR)/qualcomm/qca6174
 qca6174_copy_path ?=
