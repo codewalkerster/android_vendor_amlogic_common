@@ -155,7 +155,7 @@ void FormatColorDepth::getHdmiColorAttribute(const char* outputmode, char* color
 
         // if only change deepcolor in Droid Settings
         // get color format from ubootenv, it was set in Droid Settings
-        if ((state == OUPUT_MODE_STATE_SWITCH) && (!strcmp(curMode, outputmode))
+        if ((state == OUTPUT_MODE_STATE_SWITCH) && (!strcmp(curMode, outputmode))
             && getBootEnv(UBOOTENV_ISBESTMODE, isBestMode) && (strcmp(isBestMode, "false") == 0)) {
             //note: "outputmode" should be the second parameter of "strcmp", because it maybe prefix of "curMode".
             SYS_LOGI("Only modify deep color mode, get colorAttr from ubootenv.var.colorattribute\n");

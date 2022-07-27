@@ -534,7 +534,7 @@ void DisplayMode::sceneProcess(hdmi_data_t* data) {
     if ((data->state == OUTPUT_MODE_STATE_INIT) ||
         (data->state == OUTPUT_MODE_STATE_POWER)) {
         strcpy(scene_input_info.cur_displaymode, data->ubootenv_hdmimode);
-    } else if (OUPUT_MODE_STATE_SWITCH == data->state) {
+    } else if (OUTPUT_MODE_STATE_SWITCH == data->state) {
         strcpy(scene_input_info.cur_displaymode, data->ui_hdmimode);
     }
 
@@ -660,7 +660,7 @@ void DisplayMode::notifyPlugin() {
 }
 
 /*
-* OUPUT_MODE_STATE_SWITCH for UI set
+* OUTPUT_MODE_STATE_SWITCH for UI set
 */
 void DisplayMode::setSourceOutputMode(const char* outputmode) {
 #ifndef RECOVERY_MODE
@@ -668,7 +668,7 @@ void DisplayMode::setSourceOutputMode(const char* outputmode) {
 #endif
 
     //1. get hdmi data
-    mHdmidata.state = OUPUT_MODE_STATE_SWITCH;
+    mHdmidata.state = OUTPUT_MODE_STATE_SWITCH;
     strcpy(mHdmidata.ui_hdmimode, outputmode);
 
     if (DISPLAY_TYPE_TABLET == mDisplayType) {
@@ -788,7 +788,7 @@ void DisplayMode::applyDisplaySetting(output_mode_state state) {
             pSysWrite->writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "1");
         }
         //4.2 set dummy_l mode when dv change at UI switch
-        if ((OUPUT_MODE_STATE_SWITCH == state) && dv_change) {
+        if ((OUTPUT_MODE_STATE_SWITCH == state) && dv_change) {
             setDisplayMode("dummy_l");
         }
         //4.3 enable or disable dolby vision core
@@ -958,7 +958,7 @@ void DisplayMode::setSourceOutputMode(const char* outputmode, output_mode_state 
     char curDisplayMode[MODE_LEN] = {0};
     getDisplayMode(curDisplayMode);
 
-    if ((OUPUT_MODE_STATE_SWITCH == state) && (strcmp(value, "0") == 0)) {
+    if ((OUTPUT_MODE_STATE_SWITCH == state) && (strcmp(value, "0") == 0)) {
         if (!strcmp(outputmode, curDisplayMode)) {
             //if cur mode is cvbsmode, and same to outputmode, return.
             if (!strcmp(outputmode, MODE_480CVBS) || !strcmp(outputmode, MODE_576CVBS)
@@ -1084,7 +1084,7 @@ void DisplayMode::setSourceOutputMode(const char* outputmode, output_mode_state 
         usleep(20000);
         pSysWrite->writeSysfs(DISPLAY_HDMI_AUDIO_MUTE, "1");
         pSysWrite->writeSysfs(DISPLAY_HDMI_AUDIO_MUTE, "0");
-        if ((state == OUPUT_MODE_STATE_SWITCH) && isDolbyVisionEnable())
+        if ((state == OUTPUT_MODE_STATE_SWITCH) && isDolbyVisionEnable())
             usleep(20000);
         pSysWrite->writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "-1");
     }
@@ -2945,8 +2945,8 @@ void DisplayMode::setALLMMode(int state) {
             if (isTVSupportDV) {
                 // reset doblyvision when set -1/0 to ALLM
                 //setBootEnv(UBOOTENV_BESTDOLBYVISION, "true");
-                //initDolbyVision(OUPUT_MODE_STATE_SWITCH);
-                setDolbyVisionEnable(DOLBY_VISION_SET_ENABLE,OUPUT_MODE_STATE_SWITCH);
+                //initDolbyVision(OUTPUT_MODE_STATE_SWITCH);
+                setDolbyVisionEnable(DOLBY_VISION_SET_ENABLE,OUTPUT_MODE_STATE_SWITCH);
             }
             break;
         case 1:
@@ -2957,7 +2957,7 @@ void DisplayMode::setALLMMode(int state) {
             if (isTVSupportDV && isDolbyVisionEnable()) {
                 // disable the doblyvision when ALLM enable
                // setBootEnv(UBOOTENV_BESTDOLBYVISION, "false");
-                setDolbyVisionEnable(DOLBY_VISION_SET_DISABLE,OUPUT_MODE_STATE_SWITCH);
+                setDolbyVisionEnable(DOLBY_VISION_SET_DISABLE,OUTPUT_MODE_STATE_SWITCH);
             }
             break;
         default:

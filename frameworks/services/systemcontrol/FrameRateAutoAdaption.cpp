@@ -206,7 +206,7 @@ void FrameRateAutoAdaption::onTxUeventReceived(uevent_data_t* ueventData){
         }
         else if (strlen(newDisplayMode) != 0) {
             strcpy(mLastVideoMode, curDisplayMode);
-            mCallback->onDispModeSyncEvent(newDisplayMode, OUPUT_MODE_STATE_SWITCH);
+            mCallback->onDispModeSyncEvent(newDisplayMode, OUTPUT_MODE_STATE_SWITCH);
         }
     }
 }
