@@ -571,6 +571,10 @@ bool SceneProcess::isLowPowerMode() {
     return mScene_Input_Info.hdmi_input_info.isLowPowerMode;
 }
 
+scene_state SceneProcess::getSceneState() {
+    return mScene_Input_Info.state;
+}
+
 void SceneProcess::updateDolbyVisionDisplayMode(char * cur_outputmode, int dv_type, char * final_displaymode) {
     char dv_displaymode[MODE_LEN] = {0};
 
@@ -582,8 +586,11 @@ void SceneProcess::updateDolbyVisionDisplayMode(char * cur_outputmode, int dv_ty
     }
 
     //2. find prefer dolby vision resolution
-    if (IsBestPolicy()) {
+    if (IsBestPolicy() &&
+        ((getSceneState() == SCENE_STATE_INIT) ||
+        (getSceneState() == SCENE_STATE_POWER))) {
         //2.1 best policy enable case
+        //and except from third apk or framework set mode.
         if (!strcmp(dv_displaymode, DV_MODE_4K2K60HZ)) {
             //TV support dolby vision 2160p60hz case
             if (dv_type == DOLBY_VISION_LL_RGB) {

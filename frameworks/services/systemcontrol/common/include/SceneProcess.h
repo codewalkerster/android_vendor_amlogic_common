@@ -160,6 +160,7 @@ private:
     bool IsSupport4K30Hz();
     bool IsSupportDeepColor();
     bool isLowPowerMode();
+    scene_state getSceneState();
     int64_t resolveResolutionValue(const char *mode, int flag = FRAMERATE_PRIORITY);
     bool isModeSupportDeepColorAttr(const char *mode, const char * color);
     void getBestHdmiDeepColorAttr(const char *outputmode, char* colorAttribute);
