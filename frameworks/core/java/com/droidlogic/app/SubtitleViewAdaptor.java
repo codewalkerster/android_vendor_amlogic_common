@@ -519,7 +519,7 @@ class SubtitleViewAdaptor {
         if ((mSubtitleType == SubtitleManager.TYPE_SUBTITLE_DVB)
             || (mSubtitleType == SubtitleManager.TYPE_SUBTITLE_SCTE27)
             || (mSubtitleType == SubtitleManager.TYPE_SUBTITLE_PGS)) {
-            //Log.d(TAG, "mCordinateX="+mCordinateX+", mCordinateY="+mCordinateY + ",wScale:" + wScale + ",hScale:" + hScale);
+            //Log.d(TAG, "mCoordinateX="+mCoordinateX+", mCoordinateY="+mCoordinateY + ",wScale:" + wScale + ",hScale:" + hScale);
             if (mSubtitleType == SubtitleManager.TYPE_SUBTITLE_DVB && interBitmap != null) {
                 mCoordinateX = (int)(mCoordinateX*wScale)
                             + (int)((float)interBitmap.getWidth()/RATIO_DVB_SUBTITLE_SCALE

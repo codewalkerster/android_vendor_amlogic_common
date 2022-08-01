@@ -474,7 +474,7 @@ public class SubtitleManager {
         int fbH = mDm.heightPixels;
 
         if (modeW == 0 || modeH == 0 || w == 0 || h  == 0) {
-            LOGE("error, w or h shoult not zero here!");
+            LOGE("error, w or h should not zero here!");
             return;
         }
 

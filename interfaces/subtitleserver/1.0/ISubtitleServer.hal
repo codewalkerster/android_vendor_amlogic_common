@@ -41,7 +41,7 @@ interface ISubtitleServer {
   open(int32_t sId, handle file, int32_t ioType, OpenType openType) generates (Result result);
   close(int32_t sId) generates (Result result);
   resetForSeek(int32_t sId) generates (Result result);
-  /* for extenal subtitle update pts */
+  /* for external subtitle update pts */
   updateVideoPos(int32_t sId, int32_t pos) generates (Result result);
 
   // some stream,set secure level
