@@ -63,6 +63,9 @@ public class AudioSystemCmdManager {
     public static final int AUDIO_SERVICE_CMD_SET_SPDIF_PROTECTION_MODE             = 27;
     public static final int AUDIO_SERVICE_CMD_SET_TSPLAYER_CLIENT_DIED              = 28;
 
+    public static final int AUDIO_SERVICE_CMD_SET_MEDIA_FIRST_LANG                  = 29;
+    public static final int AUDIO_SERVICE_CMD_SET_MEDIA_SECOND_LANG                 = 30;
+
     private static AudioSystemCmdManager mInstance;
 
     public static AudioSystemCmdManager getInstance(Context context) {
@@ -174,6 +177,10 @@ public class AudioSystemCmdManager {
                 return temp + "SET_SPDIF_PROTECTION_MODE";
             case AUDIO_SERVICE_CMD_SET_TSPLAYER_CLIENT_DIED:
                 return temp + "SET_TSPLAYER_CLIENT_DIED";
+            case AUDIO_SERVICE_CMD_SET_MEDIA_FIRST_LANG:
+                return temp + "SET_MEDIA_FIRST_LANG";
+            case AUDIO_SERVICE_CMD_SET_MEDIA_SECOND_LANG:
+                return temp + "SET_MEDIA_SECOND_LANG";
             default:
                 return temp + "invalid cmd";
         }
