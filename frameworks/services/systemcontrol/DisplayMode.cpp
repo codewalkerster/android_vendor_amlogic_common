@@ -182,6 +182,7 @@ static const char* CONTENT_TYPE[] = {
     "game",
 };
 
+#define SYS_BOOT_COMPLETE       "/sys/class/tee_info/sys_boot_complete"
 
 /**
  * strstr - Find the first substring in a %NUL terminated string
@@ -224,6 +225,28 @@ DisplayMode::DisplayMode(const char *path) {
     memset(&mHdmidata, 0, sizeof(hdmi_data_t));
     mScene_output_info.dv_type = DOLBY_VISION_SET_DISABLE;
     DisplayMode(path, NULL);
+}
+
+static int set_sys_boot_complete(void)
+{
+    int fd;
+    int len;
+    char buf[] = "1";
+
+    fd = open(SYS_BOOT_COMPLETE, O_WRONLY);
+    if (fd < 0) {
+        SYS_LOGE("open %s failed", SYS_BOOT_COMPLETE);
+        return -1;
+    }
+
+    len = write(fd, buf, sizeof(buf));
+
+    close(fd);
+
+    if (len != sizeof(buf))
+        return -1;
+    else
+        return 0;
 }
 
 DisplayMode::DisplayMode(const char *path, Ubootenv *ubootenv)
@@ -313,13 +336,22 @@ DisplayMode::~DisplayMode() {
 
 void DisplayMode::init() {
     /* enter gpio key to power on
-    * for ohm: boot_flag = 0 will enter recovery mode
-    *                      1 will enter update mode
-    *                      2 will enter fastboot mode
-    * for other board: boot_flag = 0 will enter fastboot mode
-    *                              1 will enter update mode
-    *                              2 will enter recovery mode
-    */
+     * for ohm: boot_flag = 0 will enter recovery mode
+     *                      1 will enter update mode
+     *                      2 will enter fastboot mode
+     * for other board: boot_flag = 0 will enter fastboot mode
+     *                              1 will enter update mode
+     *                              2 will enter recovery mode
+     */
+    char buf[PROPERTY_VALUE_MAX];
+
+    property_get("ro.boot.slot_suffix", buf, "");
+    SYS_LOGI("buf :%s\n", buf);
+    if ((strcmp(buf, "_a") != 0) && (strcmp(buf, "_b") != 0)) {
+        set_sys_boot_complete();
+        SYS_LOGI("call set_sys_boot_complete in systemcontrol");
+    }
+
     if (mIsRecovery) {
         mUbootenv->updateValue("ubootenv.var.boot_flag", "0");
     }
