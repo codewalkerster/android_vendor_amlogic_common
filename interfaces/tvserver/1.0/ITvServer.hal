@@ -97,8 +97,7 @@ interface ITvServer {
   getMiscCfg(string key, string def)
       generates (string value);
 
-
-  isDviSIgnal()
+  isDviSignal()
       generates (int32_t signal);
 
   isVgaTimingInHdmi()
@@ -164,7 +163,7 @@ interface ITvServer {
   atvAutoScan(int32_t videoStd, int32_t audioStd, int32_t searchType, int32_t procMode)
       generates (int32_t ret);
 
-  atvMunualScan(int32_t startFreq, int32_t endFreq, int32_t videoStd, int32_t audioStd)
+  atvManualScan(int32_t startFreq, int32_t endFreq, int32_t videoStd, int32_t audioStd)
       generates (int32_t ret);
 
   Scan(string feparas, string scanparas)
@@ -253,10 +252,10 @@ interface ITvServer {
   searchRrtInfo(int32_t rating_region_id, int32_t dimension_id, int32_t value_id, int32_t program_id)
     generates (RRTSearchInfo info);
 
-  updateRRT(int32_t freq, int32_t moudle, int32_t mode)
+  updateRRT(int32_t freq, int32_t modulation, int32_t mode)
     generates (int32_t value);
 
-  updateEAS(int32_t freq, int32_t moudle, int32_t mode)
+  updateEAS(int32_t freq, int32_t modulation, int32_t mode)
     generates (int32_t value);
 
   sendRecordingCmd(int32_t cmd, string id, string param)
