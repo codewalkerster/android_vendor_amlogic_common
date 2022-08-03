@@ -308,6 +308,7 @@ DisplayMode::~DisplayMode() {
     delete pSysWrite;
     delete pmDeepColor;
     delete mpSceneProcess;
+    delete pFrameRateAutoAdaption;
 }
 
 void DisplayMode::init() {
@@ -1433,7 +1434,7 @@ void DisplayMode::filterHdmiDispcap(hdmi_data_t* data) {
                 strcat(filter_dispcap, hdmi_mode);
                 if (recomMode)
                     strcat(filter_dispcap, "*");
-                    strcat(filter_dispcap, delim);
+                strcat(filter_dispcap, delim);
             } else {
                 SYS_LOGE("DisplayMode strcat overflow: src=%s, dst=%s\n", hdmi_mode, filter_dispcap);
                 break;

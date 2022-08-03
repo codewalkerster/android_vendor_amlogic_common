@@ -1765,6 +1765,7 @@ noline_params_t SystemControlService::factoryGetNolineParams(int inputSrc, int s
     source_input_param.sig_fmt = (tvin_sig_fmt_t)sigFmt;
     source_input_param.trans_fmt= (tvin_trans_fmt_t)transFmt;
     noline_params_t param;
+    memset(&param, 0, sizeof(noline_params_t));
 
     if (pCPQControl != NULL) {
         pCPQControl->FactoryGetNolineParams(source_input_param, type);
@@ -2504,6 +2505,7 @@ void SystemControlService::getChipVersionInfo(std::string& chiversion) {
 
 tvpq_databaseinfo_t SystemControlService::getPQDatabaseInfo(int dataBaseName) {
     tvpq_databaseinfo_t pq_databaseinfo;
+    memset(&pq_databaseinfo, 0, sizeof(tvpq_databaseinfo_t));
     if (pCPQControl != NULL) {
         pq_databaseinfo = pCPQControl->GetDBVersionInfo((db_name_t)dataBaseName);
     }

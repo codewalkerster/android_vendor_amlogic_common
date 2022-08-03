@@ -74,6 +74,7 @@ int UEventObserver::ueventInit() {
     int ret = setsockopt(s, SOL_SOCKET, SO_RCVBUFFORCE, &sz, sizeof(sz));
     if (ret != 0) {
         SYS_LOGE("setsockopt fail.\n");
+        close(s);
         return 0;
     }
 

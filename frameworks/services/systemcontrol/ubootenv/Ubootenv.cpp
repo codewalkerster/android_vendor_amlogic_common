@@ -253,6 +253,7 @@ int Ubootenv::init() {
 int Ubootenv::readPartitionData() {
     int fd;
     int flag = 0;
+    int seeknum;
     if ((fd = open(mEnvPartitionName, O_RDONLY)) < 0) {
         SYS_LOGE("[ubootenv] open devices error: %s\n", strerror(errno));
         return -1;
@@ -288,7 +289,10 @@ int Ubootenv::readPartitionData() {
 
     if (flag != 0) {
         SYS_LOGI("first env error, try second....\n");
-        lseek(fd, CONFIG_ENV_OFFSET_REDUND, SEEK_SET);
+        seeknum = lseek(fd, CONFIG_ENV_OFFSET_REDUND, SEEK_SET);
+        if (seeknum != CONFIG_ENV_OFFSET_REDUND) {
+            SYS_LOGE("[ubootenv] lseek error, seeknum = %d \n", seeknum);
+        }
         int ret2 = read(fd ,mEnvData.image, CONFIG_ENV_OFFSET_REDUND);
         if (ret2 == (int)mEnvPartitionSize) {
             uint32_t crcCalc = crc32(0, (uint8_t *)mEnvData.data, mEnvSize);
@@ -395,6 +399,7 @@ int Ubootenv::set(const char * key,  const char * value, bool createNew) {
 int Ubootenv::save() {
     int fd;
     int err;
+    int lseeknum;
 
     formatAttribute();
     *(mEnvData.crc) = crc32(0, (uint8_t *)mEnvData.data, mEnvSize);
@@ -458,7 +463,10 @@ int Ubootenv::save() {
         }
         else {
             err = write(fd ,mEnvData.image, mEnvPartitionSize);
-            lseek(fd, CONFIG_ENV_OFFSET_REDUND, SEEK_SET);
+            lseeknum = lseek(fd, CONFIG_ENV_OFFSET_REDUND, SEEK_SET);
+            if (lseeknum != CONFIG_ENV_OFFSET_REDUND) {
+                SYS_LOGE("[ubootenv] can not lseek, seek num = %d \n", lseeknum);
+            }
             err = write(fd ,mEnvData.image, mEnvPartitionSize);
         }
 
@@ -466,7 +474,10 @@ int Ubootenv::save() {
         //emmc and nand needn't erase
         lseek(fd, 0L, SEEK_SET);
         err = write(fd, mEnvData.image, mEnvPartitionSize);
-        lseek(fd, CONFIG_ENV_OFFSET_REDUND, SEEK_SET);
+        lseeknum = lseek(fd, CONFIG_ENV_OFFSET_REDUND, SEEK_SET);
+        if (lseeknum != CONFIG_ENV_OFFSET_REDUND) {
+            SYS_LOGE("[ubootenv] lseek error, seek num = %d \n", lseeknum);
+        }
         err = write(fd ,mEnvData.image, mEnvPartitionSize);
     }
 

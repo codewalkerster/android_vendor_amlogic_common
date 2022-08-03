@@ -463,6 +463,7 @@ int SysWrite::readAttestationKeyfs(const char * node, const char *name, char *va
     unsigned long ppos;
     int readsize = 0;
     int fp;
+    int seek_num;
     struct key_item_info_t key_item_info;
     if ((NULL == node) || (NULL == name)) {
         SYS_LOGE("%s() %d: invalid param!\n", __func__, __LINE__);
@@ -477,7 +478,10 @@ int SysWrite::readAttestationKeyfs(const char * node, const char *name, char *va
     strcpy(key_item_info.name, name);
     ret = ioctl(fp, KEYUNIFY_GET_INFO, &key_item_info);
     ppos = key_item_info.id;
-    lseek(fp, ppos, SEEK_SET);
+    seek_num = lseek(fp, ppos, SEEK_SET);
+    if (seek_num != ppos) {
+        SYS_LOGI("%s() %d: Can not set offset to %d\n", __func__, __LINE__, seek_num);
+    }
     SYS_LOGI("%s() %d: key ioctl  KEYUNIFY_GET_INFO is %d\n", __func__, __LINE__, ret);
     if (ret < 0) {
         close(fp);
@@ -499,6 +503,7 @@ int SysWrite::writeAttestationKeyfs(const char * node, const char *name, const c
     unsigned long ppos;
     int writesize;
     int fp;
+    int seek_num;
     struct key_item_info_t key_item_info;
     if ((NULL == node) || (NULL == buff) || (NULL == name)) {
         SYS_LOGE("%s() %d: invalid param!\n", __func__, __LINE__);
@@ -514,7 +519,11 @@ int SysWrite::writeAttestationKeyfs(const char * node, const char *name, const c
     strcpy(key_item_info.name, name);
     ret = ioctl(fp, KEYUNIFY_GET_INFO, &key_item_info);
     ppos = key_item_info.id;
-    lseek(fp, ppos, SEEK_SET);
+    seek_num = lseek(fp, ppos, SEEK_SET);
+    if (seek_num != ppos) {
+        SYS_LOGI("%s() %d: Can not set offset to %d\n", __func__, __LINE__, seek_num);
+    }
+
     SYS_LOGI("%s() %d: ret is %d\n", __func__, __LINE__, ret);
     if (ret < 0) {
         close(fp);

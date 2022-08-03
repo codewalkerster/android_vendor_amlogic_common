@@ -144,7 +144,7 @@ void FrameRateAutoAdaption::getMatchDurOutputMode (int dur, char *curMode, char 
             *pulldown = needPulldown;
         }
         else if (strstr(sinkEdid, secondMode)) {
-            strncpy(newMode, secondMode, strlen(firstMode));
+            strncpy(newMode, secondMode, strlen(secondMode));
             *pulldown = needPulldown;
         }
         else if (strstr(curMode, "24hz")
