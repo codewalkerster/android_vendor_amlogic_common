@@ -37,7 +37,12 @@
 #include "wps_supplicant.h"
 #include "p2p_supplicant.h"
 #include "wifi_display.h"
-
+#if defined(ANDROID)
+#include <cutils/properties.h>
+#if defined(__BIONIC_FORTIFY)
+#include <sys/system_properties.h>
+#endif
+#endif
 
 /*
  * How many times to try to scan to find the GO before giving up on join
@@ -5087,6 +5092,9 @@ static void wpas_p2p_deinit_global(struct wpa_global *global)
 
 static int wpas_p2p_create_iface(struct wpa_supplicant *wpa_s)
 {
+	char wifi_status[PROPERTY_VALUE_MAX] = {'\0'};
+	if (property_get("vendor.wifi_name", wifi_status, NULL) && strcmp(wifi_status, "bcm") != 0 && strcmp(wifi_status, "uwe") != 0)
+		wpa_s->conf->p2p_no_group_iface=1;
 	if (wpa_s->conf->p2p_no_group_iface)
 		return 0; /* separate interface disabled per configuration */
 	if (wpa_s->drv_flags &

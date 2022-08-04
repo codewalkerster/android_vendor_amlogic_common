@@ -16,6 +16,13 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
+#if defined(ANDROID)
+#include <cutils/properties.h>
+#if defined(__BIONIC_FORTIFY)
+#include <sys/system_properties.h>
+#endif
+#endif
+
 namespace {
 
 // Pre-populated interface params for interfaces controlled by wpa_supplicant.
@@ -316,6 +323,7 @@ std::pair<std::shared_ptr<ISupplicantP2pIface>, ndk::ScopedAStatus>
 Supplicant::addP2pInterfaceInternal(const std::string& name)
 {
 	std::shared_ptr<ISupplicantP2pIface> iface;
+	char wifi_status[PROPERTY_VALUE_MAX] = {'\0'};
 
 	// Check if required |ifname| argument is empty.
 	if (name.empty()) {
@@ -341,10 +349,11 @@ Supplicant::addP2pInterfaceInternal(const std::string& name)
 			SupplicantStatusCode::FAILURE_UNKNOWN, "Conf file does not exist")};
 	}
 	iface_params.confname = kP2pIfaceConfPath;
+	property_get("vendor.wifi_name", wifi_status, NULL);
 	const char* path = resolvePath(
 		    kP2pIfaceConfOverlayPaths,
 		    sizeof(kP2pIfaceConfOverlayPaths)/sizeof(kP2pIfaceConfOverlayPaths[0]));
-	if (path != nullptr) {
+	if (path != nullptr && strcmp(wifi_status, "bcm") != 0 && strcmp(wifi_status, "uwe") != 0) {
 		iface_params.confanother = path;
 	}
 
@@ -376,6 +385,7 @@ std::pair<std::shared_ptr<ISupplicantStaIface>, ndk::ScopedAStatus>
 Supplicant::addStaInterfaceInternal(const std::string& name)
 {
 	std::shared_ptr<ISupplicantStaIface> iface;
+	char wifi_status[PROPERTY_VALUE_MAX] = {'\0'};
 
 	// Check if required |ifname| argument is empty.
 	if (name.empty()) {
@@ -401,10 +411,11 @@ Supplicant::addStaInterfaceInternal(const std::string& name)
 			SupplicantStatusCode::FAILURE_UNKNOWN, "Conf file does not exist")};
 	}
 	iface_params.confname = kStaIfaceConfPath;
+	property_get("vendor.wifi_name", wifi_status, NULL);
 	const char* path = resolvePath(
 		    kStaIfaceConfOverlayPaths,
 		    sizeof(kStaIfaceConfOverlayPaths)/sizeof(kStaIfaceConfOverlayPaths[0]));
-	if (path != nullptr) {
+	if (path != nullptr && strcmp(wifi_status, "bcm") != 0 && strcmp(wifi_status, "uwe") != 0) {
 		iface_params.confanother = path;
 	}
 
