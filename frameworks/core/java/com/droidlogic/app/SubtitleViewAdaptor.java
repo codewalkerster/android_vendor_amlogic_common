@@ -74,6 +74,9 @@ class SubtitleViewAdaptor {
     // To support setDisplayRect.
     private int mDisplayBoundWidth;
     private int mDisplayBoundHeight;
+
+    private static final String[] NEW_LINE_FLAG = {"\\N","|"};
+
     /**
      *
      *    WARNING: ALL public method in this class MUST called in main(UI) thread!
@@ -283,10 +286,11 @@ class SubtitleViewAdaptor {
         mTextView.setVisibility(View.VISIBLE);
         //mCcSubtitleView.hide();
         mCcSubtitleView.setVisibility(View.INVISIBLE);
-        text = text.replace("\\N", "\n");
+        for (int i=0; i<NEW_LINE_FLAG.length; i++) {
+            text = text.replace(NEW_LINE_FLAG[i], "\n");
+        }
         Pattern pattern1 = Pattern.compile("(?<=\\{)[^\\}]+");
         Matcher m = pattern1.matcher(text);
-        int i =0;
         while (m.find()) {
             text = text.replace("{"+m.group()+"}", "");
         }

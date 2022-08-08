@@ -41,21 +41,33 @@ public class CharsetDetector {
 
     String[] mCharsetsToBeTested = {
         "UTF8",
-        "GBK",
-        "BIG5",
-        "cp932",
-        "cp949",
-        "Windows-1255",
-        "cp1250",
-        "cp1254",
-        "cp1098",
-        "iso 8859-2",
-        "UTF-16LE",
-        "CP1256",
-        "cp1252",
-        "iso 8859-8",
         "UTF-16BE",
-        "iso-8859-1"
+        "UTF-16LE",
+        "UTF-32BE",
+        "UTF-32LE",
+        "GBK",
+        "Shift_JIS",
+        "ISO-2022-JP",
+        "ISO-2022-CN",
+        "ISO-2022-KR",
+        "GB18030",
+        "EUC-JP",
+        "EUC-KR",
+        "BIG5",
+        "ISO-8859-1",
+        "ISO-8859-2",
+        "ISO-8859-5",
+        "ISO-8859-6",
+        "ISO-8859-7",
+        "ISO-8859-8",
+        "Windows-1251",
+        "Windows-1256",
+        "KOI8-R",
+        "ISO-8859-9",
+        "IBM424_ltr",
+        "IBM424_rtr",
+        "IBM420_rtr",
+        "IBM420_ltr"
     };
 
 
@@ -83,7 +95,7 @@ public class CharsetDetector {
                 break;
             }
         }
-
+        Log.e(TAG,"charsetName:"+charset);
         return charset;
     }
 
@@ -115,7 +127,27 @@ public class CharsetDetector {
         if (pathName.contains("Windows-1250") || pathName.contains("1250")) {
             return "Windows-1250";
         }
-
+        if (pathName.contains("Windows-1251") || pathName.contains("1251")) {
+            return "Windows-1251";
+        }
+        if (pathName.contains("Windows-1252") || pathName.contains("1252")) {
+            return "Windows-1252";
+        }
+        if (pathName.contains("Windows-1253") || pathName.contains("1253")) {
+            return "Windows-1253";
+        }
+        if (pathName.contains("Windows-1254") || pathName.contains("1254")) {
+            return "Windows-1254";
+        }
+        if (pathName.contains("Windows-1255") || pathName.contains("1255")) {
+            return "Windows-1255";
+        }
+        if (pathName.contains("Windows-1256") || pathName.contains("1256")) {
+            return "Windows-1256";
+        }
+        if (pathName.contains("Windows-1257") || pathName.contains("1257")) {
+            return "Windows-1257";
+        }
         return null;
     }
 
