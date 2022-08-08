@@ -1,0 +1,621 @@
+From 65315a50a151eea35e4e8356beb350a99d2d8887 Mon Sep 17 00:00:00 2001
+From: Qiang Guo <qiang.guo@amlogic.com>
+Date: Mon, 8 Aug 2022 19:36:49 +0800
+Subject: [PATCH] mediaext: porting for Andorid T [1/1]
+
+PD#SWPL-89926
+
+Problem:
+add mediaext for Android T
+
+Solution:
+porting patches from Android S
+
+Verify:
+Android T ohm
+
+Signed-off-by: Qiang Guo <qiang.guo@amlogic.com>
+Change-Id: I7c3d87cde9e6ac41963cbdc5f59b4a2d1e94a446
+---
+ media/extractors/tests/Android.bp             |   2 +
+ media/libdatasource/Android.bp                |  18 +++
+ .../MetadataRetrieverClient.cpp               |  35 +++++
+ media/libstagefright/ACodec.cpp               |  27 +++-
+ media/libstagefright/Android.bp               |   2 +
+ media/libstagefright/Utils.cpp                |  12 +-
+ media/libstagefright/rtsp/Android.bp          |   1 +
+ .../tests/extractorFactory/Android.bp         |   3 +
+ media/libstagefright/tests/writer/Android.bp  |   3 +
+ media/libstagefright/webm/tests/Android.bp    |   3 +
+ .../libstagefright/writer_fuzzers/Android.bp  |  25 ++++
+ .../xmlparser/MediaCodecsXmlParser.cpp        | 133 +++++++++++++++++-
+ media/mediaserver/Android.bp                  |   2 +-
+ 13 files changed, 258 insertions(+), 8 deletions(-)
+
+diff --git a/media/extractors/tests/Android.bp b/media/extractors/tests/Android.bp
+index 3c3bbdc0e9..5d0afc8653 100644
+--- a/media/extractors/tests/Android.bp
++++ b/media/extractors/tests/Android.bp
+@@ -57,6 +57,7 @@ cc_test {
+         "libvorbisidec",
+         "libwebm",
+         "libFLAC",
++        "//vendor/amlogic/common:libmediavendor_default",
+     ],
+ 
+     shared_libs: [
+@@ -77,6 +78,7 @@ cc_test {
+         "libhidlmemory",
+         "libhidlbase",
+         "libbase",
++        "libstagefright_omx",
+     ],
+ 
+     compile_multilib: "first",
+diff --git a/media/libdatasource/Android.bp b/media/libdatasource/Android.bp
+index e0c6808cdf..f3da7c9457 100644
+--- a/media/libdatasource/Android.bp
++++ b/media/libdatasource/Android.bp
+@@ -7,6 +7,24 @@ package {
+     default_applicable_licenses: ["frameworks_av_license"],
+ }
+ 
++cc_library_headers {
++    name: "libdatasource_headers",
++    export_include_dirs: ["include"],
++    vendor_available: true,
++    apex_available: [
++        "//apex_available:platform",
++        "com.android.media",
++        "com.android.media.swcodec",
++    ],
++    min_sdk_version: "29",
++    host_supported: true,
++    target: {
++        darwin: {
++            enabled: false,
++        },
++    },
++}
++
+ cc_library {
+     name: "libdatasource",
+ 
+diff --git a/media/libmediaplayerservice/MetadataRetrieverClient.cpp b/media/libmediaplayerservice/MetadataRetrieverClient.cpp
+index fb228ca297..5552bf6552 100644
+--- a/media/libmediaplayerservice/MetadataRetrieverClient.cpp
++++ b/media/libmediaplayerservice/MetadataRetrieverClient.cpp
+@@ -42,6 +42,7 @@
+ #include "MetadataRetrieverClient.h"
+ #include "StagefrightMetadataRetriever.h"
+ #include "MediaPlayerFactory.h"
++#include <dlfcn.h>
+ 
+ namespace android {
+ 
+@@ -81,9 +82,43 @@ void MetadataRetrieverClient::disconnect()
+     IPCThreadState::self()->flushCommands();
+ }
+ 
++static sp<MediaMetadataRetrieverBase> getExtendMetadataRetriever()
++{
++     void *libHandle = dlopen("libmetadataretriever_ext.so", RTLD_NOW|RTLD_NODELETE);
++
++    if (libHandle == NULL) {
++        ALOGE("unable to dlopen metadata_retriever extension: %s", dlerror());
++        return NULL;
++    }
++
++    typedef MediaMetadataRetrieverBase *(*GetExtendMetadataRetrieverFunc)();
++
++    GetExtendMetadataRetrieverFunc getExtendMetadataRetriever =
++        (GetExtendMetadataRetrieverFunc)dlsym(
++                libHandle,
++                "_Z26getExtendMetadataRetrieverv");
++
++    if (getExtendMetadataRetriever == NULL) {
++        dlclose(libHandle);
++        libHandle = NULL;
++
++        return NULL;
++    }
++
++    return getExtendMetadataRetriever();
++}
++
++
+ static sp<MediaMetadataRetrieverBase> createRetriever(player_type playerType)
+ {
+     sp<MediaMetadataRetrieverBase> p;
++        if (playerType == 112) {
++        p = getExtendMetadataRetriever();
++        if (p == NULL) {
++            p = new StagefrightMetadataRetriever;
++        }
++        return p;
++    }
+     switch (playerType) {
+         case STAGEFRIGHT_PLAYER:
+         case NU_PLAYER:
+diff --git a/media/libstagefright/ACodec.cpp b/media/libstagefright/ACodec.cpp
+index 52c4c0f523..6d2a8afcc3 100644
+--- a/media/libstagefright/ACodec.cpp
++++ b/media/libstagefright/ACodec.cpp
+@@ -63,6 +63,8 @@
+ #include "include/SecureBuffer.h"
+ #include "include/SharedMemoryBuffer.h"
+ #include <media/stagefright/omx/OMXUtils.h>
++#include <MediaVendorExt.h>
++
+ 
+ namespace android {
+ 
+@@ -593,7 +595,7 @@ ACodec::ACodec()
+       mDescribeHDR10PlusInfoIndex((OMX_INDEXTYPE)0),
+       mStateGeneration(0),
+       mVendorExtensionsStatus(kExtensionsUnchecked) {
+-    memset(&mLastHDRStaticInfo, 0, sizeof(mLastHDRStaticInfo));
++      memset(&mLastHDRStaticInfo, 0, sizeof(mLastHDRStaticInfo));
+ 
+     mUninitializedState = new UninitializedState(this);
+     mLoadedState = new LoadedState(this);
+@@ -1713,7 +1715,7 @@ status_t ACodec::fillBuffer(BufferInfo *info) {
+ 
+ status_t ACodec::setComponentRole(
+         bool isEncoder, const char *mime) {
+-    const char *role = GetComponentRole(isEncoder, mime);
++    const char *role = MediaVendorExt::imp()->getComponentRole(isEncoder, mime);
+     if (role == NULL) {
+         return BAD_VALUE;
+     }
+@@ -2089,7 +2091,7 @@ status_t ACodec::configureCodec(
+                 requiresSwRenderer = true;
+             }
+ 
+-            if (mComponentName.startsWith("OMX.google.") || requiresSwRenderer) {
++            if ((mComponentName.startsWith("OMX.google.") ||  MediaVendorExt::imp()->isVendorSoftDecoder(mComponentName.c_str())) || requiresSwRenderer) {
+                 usingSwRenderer = true;
+                 haveNativeWindow = false;
+                 (void)setPortMode(kPortIndexOutput, IOMX::kPortModePresetByteBuffer);
+@@ -2335,6 +2337,11 @@ status_t ACodec::configureCodec(
+             err = setupAC4Codec(encoder, numChannels, sampleRate);
+         }
+     }
++    if ( MediaVendorExt::imp()->isAudioExtendFormat(mime))
++        err = MediaVendorExt::imp()->setAudioExtendParameter(mime ,mOMXNode, msg);
++
++    if ( MediaVendorExt::imp()->isExtendFormat(mime))
++        err = MediaVendorExt::imp()->handleExtendParameter(mime ,mOMXNode, msg);
+ 
+     if (err != OK) {
+         return err;
+@@ -3559,9 +3566,12 @@ status_t ACodec::setupVideoDecoder(
+     status_t err = GetVideoCodingTypeFromMime(mime, &compressionFormat);
+ 
+     if (err != OK) {
+-        return err;
++        err = MediaVendorExt::imp()->getVideoCodingTypeFromMimeEx(mime, &compressionFormat);
+     }
+ 
++    if (err != OK) {
++        return err;
++    }
+     if (compressionFormat == OMX_VIDEO_CodingHEVC) {
+         int32_t profile;
+         if (msg->findInt32("profile", &profile)) {
+@@ -5662,6 +5672,13 @@ status_t ACodec::getPortFormat(OMX_U32 portIndex, sp<AMessage> &notify) {
+                 }
+ 
+                 default:
++                    if ( MediaVendorExt::imp()->isAudioExtendCoding((int)audioDef->eEncoding)) {
++                        err =  MediaVendorExt::imp()->getAudioExtendParameter((int)audioDef->eEncoding,
++                        portIndex ,mOMXNode, notify);
++                        if (err != OK)
++                        return err;
++                        break;
++                    }
+                     ALOGE("Unsupported audio coding: %s(%d)\n",
+                             asString(audioDef->eEncoding), audioDef->eEncoding);
+                     return BAD_TYPE;
+@@ -9013,7 +9030,7 @@ void ACodec::FlushingState::changeStateIfWeOwnAllBuffers() {
+ status_t ACodec::queryCapabilities(
+         const char* owner, const char* name, const char* mime, bool isEncoder,
+         MediaCodecInfo::CapabilitiesWriter* caps) {
+-    const char *role = GetComponentRole(isEncoder, mime);
++    const char *role = MediaVendorExt::imp()->getComponentRole(isEncoder, mime);
+     if (role == NULL) {
+         return BAD_VALUE;
+     }
+diff --git a/media/libstagefright/Android.bp b/media/libstagefright/Android.bp
+index 10baec47f9..37c455661f 100644
+--- a/media/libstagefright/Android.bp
++++ b/media/libstagefright/Android.bp
+@@ -183,6 +183,7 @@ cc_library_static {
+         "-Werror",
+         "-Wno-error=deprecated-declarations",
+         "-Wall",
++        "-DMPEG2EXTRACTOR",
+     ],
+ 
+     sanitize: {
+@@ -391,6 +392,7 @@ cc_library {
+         "framework-permission-aidl-cpp",
+         "libmediandk_format",
+         "libmedia_ndkformatpriv",
++        "//vendor/amlogic/common:libmediavendor_default",
+     ],
+ 
+     header_libs:[
+diff --git a/media/libstagefright/Utils.cpp b/media/libstagefright/Utils.cpp
+index a443ed9268..49b51b5bdf 100644
+--- a/media/libstagefright/Utils.cpp
++++ b/media/libstagefright/Utils.cpp
+@@ -43,6 +43,9 @@
+ #include <media/stagefright/Utils.h>
+ #include <media/AudioParameter.h>
+ #include <system/audio.h>
++#if (!defined STAGEFRIGHT_PLAYER2) && (!defined MPEG2EXTRACTOR)
++#include <MediaVendorExt.h>
++#endif
+ 
+ // TODO : Remove the defines once mainline media is built against NDK >= 31.
+ // The mp4 extractor is part of mainline and builds against NDK 29 as of
+@@ -1547,6 +1550,10 @@ status_t convertMetaDataToMessage(
+         msg->setBuffer("csd-2", buffer);
+     }
+ 
++#if (!defined STAGEFRIGHT_PLAYER2) && (!defined MPEG2EXTRACTOR)
++    MediaVendorExt::imp()->convertMetaDataToMessage(new MetaData(*meta), msg);
++#endif
++
+     *format = msg;
+ 
+     return OK;
+@@ -1749,6 +1756,10 @@ status_t convertMessageToMetaData(const sp<AMessage> &msg, sp<MetaData> &meta) {
+     }
+ 
+     convertMessageToMetaDataFromMappings(msg, meta);
++        // XXX TODO add whatever other keys there are
++#if (!defined STAGEFRIGHT_PLAYER2) && (!defined MPEG2EXTRACTOR)
++    MediaVendorExt::imp()->convertMessageToMetaData(msg, meta);
++#endif
+ 
+     int32_t systemId;
+     if (msg->findInt32("ca-system-id", &systemId)) {
+@@ -2246,7 +2257,6 @@ status_t convertMessageToMetaData(const sp<AMessage> &msg, sp<MetaData> &meta) {
+             meta->setData(kKeyHVCC, kTypeHVCC, csd0->data(), csd0->size());
+         }
+     }
+-    // XXX TODO add whatever other keys there are
+ 
+ #if 0
+     ALOGI("converted %s to:", msg->debugString(0).c_str());
+diff --git a/media/libstagefright/rtsp/Android.bp b/media/libstagefright/rtsp/Android.bp
+index 5b63cc2e3c..619b6f3be8 100644
+--- a/media/libstagefright/rtsp/Android.bp
++++ b/media/libstagefright/rtsp/Android.bp
+@@ -126,6 +126,7 @@ cc_test {
+     header_libs: [
+         "libstagefright_headers",
+         "libstagefright_rtsp_headers",
++        "libdatasource_headers",
+     ],
+ 
+     cflags: [
+diff --git a/media/libstagefright/tests/extractorFactory/Android.bp b/media/libstagefright/tests/extractorFactory/Android.bp
+index a067284025..9819c7c807 100644
+--- a/media/libstagefright/tests/extractorFactory/Android.bp
++++ b/media/libstagefright/tests/extractorFactory/Android.bp
+@@ -44,11 +44,14 @@ cc_test {
+         "libdl_android",
+         "libdatasource",
+         "libmediametrics",
++        "libstagefright_omx",
++
+     ],
+ 
+     static_libs: [
+         "libstagefright",
+         "libstagefright_foundation",
++        "//vendor/amlogic/common:libmediavendor_default",
+     ],
+ 
+     // TODO: (b/150181583)
+diff --git a/media/libstagefright/tests/writer/Android.bp b/media/libstagefright/tests/writer/Android.bp
+index 49fb5695ee..6f79b63f0a 100644
+--- a/media/libstagefright/tests/writer/Android.bp
++++ b/media/libstagefright/tests/writer/Android.bp
+@@ -42,6 +42,8 @@ cc_test {
+         "libmedia",
+         "libmediandk",
+         "libstagefright",
++        "libstagefright_omx",
++
+     ],
+ 
+     static_libs: [
+@@ -50,6 +52,7 @@ cc_test {
+         "libdatasource",
+         "libstagefright_esds",
+         "libogg",
++        "//vendor/amlogic/common:libmediavendor_default",
+     ],
+ 
+     cflags: [
+diff --git a/media/libstagefright/webm/tests/Android.bp b/media/libstagefright/webm/tests/Android.bp
+index 629ee4781e..741d6a1522 100644
+--- a/media/libstagefright/webm/tests/Android.bp
++++ b/media/libstagefright/webm/tests/Android.bp
+@@ -40,12 +40,15 @@ cc_test {
+         "libstagefright",
+         "libstagefright_webm",
+         "libstagefright_foundation",
++        "//vendor/amlogic/common:libmediavendor_default",
+     ],
+ 
+     shared_libs: [
+         "libbinder",
+         "liblog",
+         "libutils",
++        "libstagefright_omx",
++
+     ],
+ 
+     cflags: [
+diff --git a/media/libstagefright/writer_fuzzers/Android.bp b/media/libstagefright/writer_fuzzers/Android.bp
+index b81f27e80d..af12ce9b52 100644
+--- a/media/libstagefright/writer_fuzzers/Android.bp
++++ b/media/libstagefright/writer_fuzzers/Android.bp
+@@ -74,6 +74,12 @@ cc_fuzz {
+     srcs: [
+         "amr_writer_fuzzer.cpp",
+     ],
++    shared_libs: [
++        "libstagefright_omx_utils",
++    ],
++    static_libs: [
++        "//vendor/amlogic/common:libmediavendor_default",
++    ],
+     cflags: [
+         "-DAMRNB",
+     ],
+@@ -85,6 +91,12 @@ cc_fuzz {
+     srcs: [
+         "amr_writer_fuzzer.cpp",
+     ],
++    shared_libs: [
++	"libstagefright_omx_utils",
++    ],
++    static_libs: [
++        "//vendor/amlogic/common:libmediavendor_default",
++    ],
+ }
+ 
+ cc_fuzz {
+@@ -93,7 +105,11 @@ cc_fuzz {
+     srcs : [
+         "mpeg4_writer_fuzzer.cpp",
+     ],
++    shared_libs: [
++        "libstagefright_omx_utils",
++    ],
+     static_libs: [
++        "//vendor/amlogic/common:libmediavendor_default",
+         "libstagefright_esds",
+     ],
+ }
+@@ -104,7 +120,11 @@ cc_fuzz {
+     srcs : [
+         "ogg_writer_fuzzer.cpp",
+     ],
++    shared_libs: [
++        "libstagefright_omx_utils",
++    ],
+     static_libs: [
++        "//vendor/amlogic/common:libmediavendor_default",
+         "libogg",
+     ],
+ }
+@@ -115,7 +135,12 @@ cc_fuzz {
+     srcs : [
+         "webm_writer_fuzzer.cpp",
+     ],
++
++    shared_libs: [
++        "libstagefright_omx_utils",
++    ],
+     static_libs: [
++        "//vendor/amlogic/common:libmediavendor_default",
+         "libstagefright_webm",
+         "libdatasource",
+     ],
+diff --git a/media/libstagefright/xmlparser/MediaCodecsXmlParser.cpp b/media/libstagefright/xmlparser/MediaCodecsXmlParser.cpp
+index 67c6102aff..3b7f091448 100644
+--- a/media/libstagefright/xmlparser/MediaCodecsXmlParser.cpp
++++ b/media/libstagefright/xmlparser/MediaCodecsXmlParser.cpp
+@@ -138,15 +138,18 @@ MediaCodecsXmlParser::StringSet parseCommaSeparatedStringSet(const char *s) {
+ std::vector<std::string> MediaCodecsXmlParser::getDefaultXmlNames() {
+     static constexpr char const* prefixes[] = {
+             "media_codecs",
++            "media_codecs_ext.xml",
+             "media_codecs_performance"
+         };
+     static std::vector<std::string> variants = {
+             android::base::GetProperty("ro.media.xml_variant.codecs", ""),
++            android::base::GetProperty("ro.media.xml_variant.codecs_ext", ""),
+             android::base::GetProperty("ro.media.xml_variant.codecs_performance", "")
+         };
+     static std::vector<std::string> names = {
+             prefixes[0] + variants[0] + ".xml",
+             prefixes[1] + variants[1] + ".xml",
++            prefixes[2] + variants[2] + ".xml",
+ 
+             // shaping information is not currently variant specific.
+             "media_codecs_shaping.xml"
+@@ -430,6 +433,8 @@ status_t MediaCodecsXmlParser::Impl::parseXmlFilesInSearchDirs(
+     for (const std::string fileName : fileNames) {
+         status_t err = NO_INIT;
+         std::string path;
++        std::string xmlstr = "/vendor/etc/media_codecs_ext.xml";
++        parseXmlPath(xmlstr);
+         if (findFileInDirs(searchDirs, fileName, &path)) {
+             err = parseXmlPath(path);
+         } else {
+@@ -1562,6 +1567,132 @@ status_t MediaCodecsXmlParser::getParsingStatus() const {
+     return mImpl->getParsingStatus();
+ }
+ 
++const char *MEDIA_MIMETYPE_VIDEO_MJPEG = "video/x-motion-jpeg";
++const char *MEDIA_MIMETYPE_VIDEO_MSMPEG4 = "video/x-msmpeg";
++const char *MEDIA_MIMETYPE_VIDEO_SORENSON_SPARK = "video/x-sorenson-spark";
++const char *MEDIA_MIMETYPE_VIDEO_WMV = "video/x-ms-wmv";
++const char *MEDIA_MIMETYPE_VIDEO_VC1 = "video/vc1";
++const char *MEDIA_MIMETYPE_VIDEO_WVC1 = "video/wvc1";
++const char *MEDIA_MIMETYPE_VIDEO_VPX = "video/x-vnd.on2.vp8";
++const char *MEDIA_MIMETYPE_VIDEO_RM10 = "video/rm10";
++const char *MEDIA_MIMETYPE_VIDEO_RM20 = "video/rm20";
++const char *MEDIA_MIMETYPE_VIDEO_RM30 = "video/rm30";
++const char *MEDIA_MIMETYPE_VIDEO_RM40 = "video/rm40";
++const char *MEDIA_MIMETYPE_VIDEO_VP6 = "video/x-vnd.on2.vp6";
++const char *MEDIA_MIMETYPE_VIDEO_VP6F = "video/x-vnd.on2.vp6f";
++const char *MEDIA_MIMETYPE_VIDEO_VP6A = "video/x-vnd.on2.vp6a";
++const char *MEDIA_MIMETYPE_VIDEO_WMV1 = "video/wmv1";
++const char *MEDIA_MIMETYPE_VIDEO_WMV2 = "video/wmv2";
++const char *MEDIA_MIMETYPE_VIDEO_WMV3 = "video/wmv3";
++const char *MEDIA_MIMETYPE_VIDEO_MSWMV3 = "video/x-ms-wmv";
++const char *MEDIA_MIMETYPE_VIDEO_AVS = "video/avs";
++const char *MEDIA_MIMETYPE_VIDEO_AVS2 = "video/avs2";
++const char *MEDIA_MIMETYPE_AUDIO_DTS = "audio/vnd.dts";
++const char *MEDIA_MIMETYPE_AUDIO_MP1 = "audio/mp1";
++const char *MEDIA_MIMETYPE_AUDIO_MP2 = "audio/mp2";
++const char *MEDIA_MIMETYPE_AUDIO_ADPCM_IMA = "audio/adpcm-ima";
++const char *MEDIA_MIMETYPE_AUDIO_ADPCM_MS = "audio/adpcm-ms";
++const char *MEDIA_MIMETYPE_AUDIO_ALAC = "audio/alac";
++const char *MEDIA_MIMETYPE_AUDIO_AAC_ADIF = "audio/aac-adif";
++const char *MEDIA_MIMETYPE_AUDIO_AAC_LATM = "audio/aac-latm";
++const char *MEDIA_MIMETYPE_AUDIO_ADTS_PROFILE = "audio/adts";
++const char *MEDIA_MIMETYPE_AUDIO_WMA = "audio/wma";
++const char *MEDIA_MIMETYPE_AUDIO_WMAPRO = "audio/wmapro";
++const char *MEDIA_MIMETYPE_AUDIO_DTSHD  = "audio/vnd.dts.hd";
++const char *MEDIA_MIMETYPE_AUDIO_DTS_EXPRESS  = "audio/vnd.dts.hd;profile=lbr";
++const char *MEDIA_MIMETYPE_AUDIO_TRUEHD = "audio/truehd";
++const char *MEDIA_MIMETYPE_AUDIO_AC3 = "audio/ac3";
++const char *MEDIA_MIMETYPE_AUDIO_EC3 = "audio/eac3";
++const char *MEDIA_MIMETYPE_AUDIO_FFMPEG = "audio/ffmpeg";
++
++const char*  AGetComponentRole(bool isEncoder, const char *mime) {
++    const char *role = GetComponentRole(isEncoder, mime);
++    if (role != NULL) {
++        return role;
++    }
++
++    struct MimeToRole {
++        const char *mime;
++        const char *decoderRole;
++        const char *encoderRole;
++    };
++
++    static const MimeToRole kMimeToRole[] = {
++         {MEDIA_MIMETYPE_AUDIO_DTS,
++         "audio_decoder.dts",  "audio_encoder.dts" },
++         {MEDIA_MIMETYPE_AUDIO_DTSHD,
++         "audio_decoder.dtshd",  "audio_encoder.dtshd" },
++         {MEDIA_MIMETYPE_AUDIO_DTS_EXPRESS,
++         "audio_decoder.dtse",  "audio_encoder.dtse" },
++         { MEDIA_MIMETYPE_AUDIO_AAC_ADIF,
++         "audio_decoder.adif", "audio_encoder.adif" },
++         { MEDIA_MIMETYPE_AUDIO_AAC_LATM,
++         "audio_decoder.latm", "audio_encoder.latm" },
++         { MEDIA_MIMETYPE_AUDIO_ADTS_PROFILE,
++         "audio_decoder.adts", "audio_encoder.adts" },
++         { MEDIA_MIMETYPE_VIDEO_MJPEG,
++         "video_decoder.mjpeg", "video_encoder.mjpeg" },
++         { MEDIA_MIMETYPE_VIDEO_WMV3,
++         "video_decoder.wmv", "video_encoder.wmv" },
++         { MEDIA_MIMETYPE_VIDEO_MSWMV3,
++         "video_decoder.wmv3", "video_encoder.wmv3" },
++         { MEDIA_MIMETYPE_AUDIO_WMA,
++         "audio_decoder.wma", "audio_encoder.wma" },
++         { MEDIA_MIMETYPE_AUDIO_WMAPRO,
++         "audio_decoder.wmapro", "audio_encoder.wmapro" },
++         { MEDIA_MIMETYPE_AUDIO_TRUEHD,
++         "audio_decoder.truehd", "audio_encoder.truehd" },
++         { MEDIA_MIMETYPE_VIDEO_VC1,
++         "video_decoder.vc1", "video_encoder.vc1" },
++         { MEDIA_MIMETYPE_VIDEO_WVC1,
++         "video_decoder.wvc1", "video_encoder.wvc1" },
++         { MEDIA_MIMETYPE_VIDEO_VP6,
++         "video_decoder.amvp6", "video_encoder.amvp6" },
++         { MEDIA_MIMETYPE_VIDEO_VP6A,
++         "video_decoder.amvp6a", "video_encoder.amvp6a" },
++         { MEDIA_MIMETYPE_VIDEO_VP6F,
++         "video_decoder.amvp6f", "video_encoder.amvp6f" },
++         { MEDIA_MIMETYPE_VIDEO_RM10,
++         "video_decoder.rm10", "video_encoder.rm10"},
++         { MEDIA_MIMETYPE_VIDEO_RM20,
++         "video_decoder.rm20", "video_encoder.rm20"},
++         { MEDIA_MIMETYPE_VIDEO_RM30,
++         "video_decoder.rm30", "video_encoder.rm30"},
++         { MEDIA_MIMETYPE_VIDEO_RM40,
++         "video_decoder.rm40", "video_encoder.rm40"},
++         { MEDIA_MIMETYPE_VIDEO_WMV2,
++         "video_decoder.wmv2", "video_encoder.wmv2"},
++         { MEDIA_MIMETYPE_VIDEO_WMV1,
++         "video_decoder.wmv1", "video_encoder.wmv1"},
++         { MEDIA_MIMETYPE_AUDIO_FFMPEG,
++         "audio_decoder.ffmpeg", "audio_encoder.ffmpeg" },
++         { MEDIA_MIMETYPE_AUDIO_ADTS_PROFILE,
++         "audio_decoder.adts", "audio_encoder.adts" },
++         { MEDIA_MIMETYPE_VIDEO_AVS,
++         "video_decoder.avs", "video_encoder.avs"},
++         { MEDIA_MIMETYPE_VIDEO_AVS2,
++         "video_decoder.avs2", "video_encoder.avs2"},
++    };
++
++    static const size_t kNumMimeToRole =
++        sizeof(kMimeToRole) / sizeof(kMimeToRole[0]);
++
++    size_t i;
++    for (i = 0; i < kNumMimeToRole; ++i) {
++        if (!strcasecmp(mime, kMimeToRole[i].mime)) {
++            ALOGI("AmAVUtils::getComponentRole break\n");
++            break;
++        }
++    }
++    if (i == kNumMimeToRole) {
++        ALOGE("AmAVUtils::have no Component role isEncoder :%d mime:%s",isEncoder,mime);
++        return NULL;
++    }
++    return isEncoder ? kMimeToRole[i].encoderRole
++            : kMimeToRole[i].decoderRole;
++
++}
++
+ void MediaCodecsXmlParser::Impl::generateRoleMap() const {
+     for (const auto& codec : mData.mCodecMap) {
+         const auto &codecName = codec.first;
+@@ -1574,7 +1705,7 @@ void MediaCodecsXmlParser::Impl::generateRoleMap() const {
+         const auto& typeMap = codec.second.typeMap;
+         for (const auto& type : typeMap) {
+             const auto& typeName = type.first;
+-            const char* roleName = GetComponentRole(isEncoder, typeName.data());
++            const char* roleName = AGetComponentRole(isEncoder, typeName.data());
+             if (roleName == nullptr) {
+                 ALOGE("Cannot find the role for %s of type %s",
+                         isEncoder ? "an encoder" : "a decoder",
+diff --git a/media/mediaserver/Android.bp b/media/mediaserver/Android.bp
+index edddaa4f90..d8165e66c7 100644
+--- a/media/mediaserver/Android.bp
++++ b/media/mediaserver/Android.bp
+@@ -44,7 +44,7 @@ cc_binary {
+     ],
+ 
+     static_libs: [
+-        "libregistermsext",
++        "//vendor/amlogic/common:libregistermsext_aml"
+     ],
+ 
+     // By default mediaserver runs in 32-bit to save memory, except
+-- 
+2.37.1
+
