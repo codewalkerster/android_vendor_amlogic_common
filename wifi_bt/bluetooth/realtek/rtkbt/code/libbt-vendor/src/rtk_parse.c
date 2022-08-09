@@ -104,7 +104,7 @@ typedef struct
 BD_ADDR EMPTY_ADDR = {0,0,0,0,0,0};
 role_monitor_cb  role_monitor_pool[MAX_LINKS];   /* Role Switch Control Block pool  */
 #define          TIME_LIMIT_FOR_ROLE_SWITCH  (60*5)   /*5 minutes*/
-#define          UNKOWN_HANDLE              (0XFF)
+#define          UNKNOWN_HANDLE              (0XFF)
 #define          HCI_CMD_VNDR_ROLESWITCH       0xFCAD
 
 typedef void (*tTIMER_HANDLE_ROLE_SWITCH)(union sigval sigval_value);
@@ -1081,8 +1081,8 @@ int allocate_role_switch_pool_by_handle(uint16_t handle,BD_ADDR remote_address)
     int  index = 0;
     role_monitor_cb    *p_cb = &(role_monitor_pool[0]);
     /*check there is no same address exist*/
-    if(((index = find_remote_device_by_address(remote_address)) != -1)){
-        if(role_monitor_pool[index].handle == UNKOWN_HANDLE){
+    if (((index = find_remote_device_by_address(remote_address)) != -1)) {
+       if (role_monitor_pool[index].handle == UNKNOWN_HANDLE) {
             ALOGI( "allocate_role_switch_pool_by_handle slot has been exist and is waiting update\n");
             role_monitor_pool[index].handle = handle;
             return index;
@@ -1255,7 +1255,7 @@ static void rtk_handle_role_change_evt(uint8_t* p){
         index = find_remote_device_by_address(remote_address);
         if(index < 0){
             ALOGE("rtk_handle_role_change_evt device not found ,maybe role change comming first and alloc one libs_liu");
-            index = allocate_role_switch_pool_by_handle(UNKOWN_HANDLE,remote_address);
+            index = allocate_role_switch_pool_by_handle(UNKNOWN_HANDLE,remote_address);
              if(index <0){
                 ALOGE("allocate_role_switch_pool_by_handle failed  index = 0x%x libs_liu",index);
                 return;
@@ -2582,7 +2582,7 @@ void rtk_parse_cleanup()
     memset(&rtk_prof, 0, sizeof(rtk_prof));
 }
 
-static void rtk_handle_vender_mailbox_cmp_evt(uint8_t* p, uint8_t len)
+static void rtk_handle_vendor_mailbox_cmp_evt(uint8_t* p, uint8_t len)
 {
     uint8_t status = *p++;
     if(len <= 4)
@@ -2598,7 +2598,7 @@ static void rtk_handle_vender_mailbox_cmp_evt(uint8_t* p, uint8_t len)
             if(status == 0) //success
             {
                 if((len-5) != 8)
-                    RtkLogMsg("rtk_handle_vender_mailbox_cmp_evt:HCI_VENDOR_SUB_CMD_BT_REPORT_CONN_SCO_INQ_INFO len=%d", len);
+                    RtkLogMsg("rtk_handle_vendor_mailbox_cmp_evt:HCI_VENDOR_SUB_CMD_BT_REPORT_CONN_SCO_INQ_INFO len=%d", len);
                 rtk_notify_info_to_wifi(POLLING_RESPONSE, (len-5), (uint8_t*)p);
             }
             break;
@@ -2756,7 +2756,7 @@ static void rtk_handle_cmd_complete_evt(uint8_t*p, uint8_t len)
             break;
 
         case HCI_VENDOR_MAILBOX_CMD:
-            rtk_handle_vender_mailbox_cmp_evt(p, len);
+            rtk_handle_vendor_mailbox_cmp_evt(p, len);
             break;
 
         case HCI_VENDOR_ADD_BITPOOL_FW:

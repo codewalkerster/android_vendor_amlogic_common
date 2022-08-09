@@ -166,7 +166,7 @@ int rx_data_recv(const unsigned char *buf, int count,
             break;
 
         default:
-            pr_err("%s unknow package left_length %d last %d data %x %x %x %x!!!!!\n", __func__, left_length, last, rxmsg[0], rxmsg[1], rxmsg[2], rxmsg[3]);
+            pr_err("%s unknown package left_length %d last %d data %x %x %x %x!!!!!\n", __func__, left_length, last, rxmsg[0], rxmsg[1], rxmsg[2], rxmsg[3]);
 
             if (0)
             {
@@ -181,7 +181,7 @@ int rx_data_recv(const unsigned char *buf, int count,
                     strcat(dump, hexx);
                 }
 
-                pr_err("unknow package detail %s!!!\n", dump);
+                pr_err("unknown package detail %s!!!\n", dump);
 
                 mdbg_assert_interface("detect dirty data!!!!\n");
             }

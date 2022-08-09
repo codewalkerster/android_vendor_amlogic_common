@@ -2,11 +2,11 @@
  * pcicfg.h: PCI configuration constants and structures.
  *
  * Copyright (C) 2014, Broadcom Corporation. All Rights Reserved.
- * 
+ *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
  * copyright notice and this permission notice appear in all copies.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
  * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
@@ -43,15 +43,15 @@
 
 
 
-#define	PCICFG_BUS_SHIFT	16	
-#define	PCICFG_SLOT_SHIFT	11	
-#define	PCICFG_FUN_SHIFT	8	
-#define	PCICFG_OFF_SHIFT	0	
+#define	PCICFG_BUS_SHIFT	16
+#define	PCICFG_SLOT_SHIFT	11
+#define	PCICFG_FUN_SHIFT	8
+#define	PCICFG_OFF_SHIFT	0
 
-#define	PCICFG_BUS_MASK		0xff	
-#define	PCICFG_SLOT_MASK	0x1f	
-#define	PCICFG_FUN_MASK		7	
-#define	PCICFG_OFF_MASK		0xff	
+#define	PCICFG_BUS_MASK		0xff
+#define	PCICFG_SLOT_MASK	0x1f
+#define	PCICFG_FUN_MASK		7
+#define	PCICFG_OFF_MASK		0xff
 
 #define	PCI_CONFIG_ADDR(b, s, f, o)					\
 		((((b) & PCICFG_BUS_MASK) << PCICFG_BUS_SHIFT)		\
@@ -66,15 +66,15 @@
 
 
 
-#define	PCIECFG_BUS_SHIFT	24	
-#define	PCIECFG_SLOT_SHIFT	19	
-#define	PCIECFG_FUN_SHIFT	16	
-#define	PCIECFG_OFF_SHIFT	0	
+#define	PCIECFG_BUS_SHIFT	24
+#define	PCIECFG_SLOT_SHIFT	19
+#define	PCIECFG_FUN_SHIFT	16
+#define	PCIECFG_OFF_SHIFT	0
 
-#define	PCIECFG_BUS_MASK	0xff	
-#define	PCIECFG_SLOT_MASK	0x1f	
-#define	PCIECFG_FUN_MASK	7	
-#define	PCIECFG_OFF_MASK	0xfff	
+#define	PCIECFG_BUS_MASK	0xff
+#define	PCIECFG_SLOT_MASK	0x1f
+#define	PCIECFG_FUN_MASK	7
+#define	PCIECFG_OFF_MASK	0xfff
 
 #define	PCIE_CONFIG_ADDR(b, s, f, o)					\
 		((((b) & PCIECFG_BUS_MASK) << PCIECFG_BUS_SHIFT)		\
@@ -135,9 +135,9 @@ typedef struct _pci_config_regs {
 } pci_config_regs;
 
 #define	SZPCR		(sizeof (pci_config_regs))
-#define	MINSZPCR	64		
+#define	MINSZPCR	64
 
-#endif 
+#endif
 
 #define	PCI_CFG_VID		0
 #define	PCI_CFG_DID		2
@@ -395,7 +395,7 @@ typedef struct _pciconfig_cap_msi {
 	uint16	msgctrl;
 	uint32	msgaddr;
 } pciconfig_cap_msi;
-#define MSI_ENABLE	0x1		
+#define MSI_ENABLE	0x1
 
 
 typedef struct _pciconfig_cap_pwrmgmt {
@@ -407,10 +407,10 @@ typedef struct _pciconfig_cap_pwrmgmt {
 	uint8	data;
 } pciconfig_cap_pwrmgmt;
 
-#define PME_CAP_PM_STATES (0x1f << 27)	
-#define PME_CSR_OFFSET	    0x4		
-#define PME_CSR_PME_EN	  (1 << 8)	
-#define PME_CSR_PME_STAT  (1 << 15)	
+#define PME_CAP_PM_STATES (0x1f << 27)
+#define PME_CSR_OFFSET	    0x4
+#define PME_CSR_PME_EN	  (1 << 8)
+#define PME_CSR_PME_STAT  (1 << 15)
 
 
 typedef struct _pciconfig_cap_pcie {
@@ -440,11 +440,11 @@ typedef struct _pciconfig_cap_pcie {
 
 
 #define PCIE_ADV_CORR_ERR_MASK	0x114
-#define CORR_ERR_RE	(1 << 0) 
-#define CORR_ERR_BT 	(1 << 6) 
-#define CORR_ERR_BD	(1 << 7) 
-#define CORR_ERR_RR	(1 << 8) 
-#define CORR_ERR_RT	(1 << 12) 
+#define CORR_ERR_RE	(1 << 0)
+#define CORR_ERR_BT 	(1 << 6)
+#define CORR_ERR_BD	(1 << 7)
+#define CORR_ERR_RR	(1 << 8)
+#define CORR_ERR_RT	(1 << 12)
 #define ALL_CORR_ERRORS (CORR_ERR_RE | CORR_ERR_BT | CORR_ERR_BD | \
 			 CORR_ERR_RR | CORR_ERR_RT)
 
@@ -474,22 +474,22 @@ typedef struct _pcie_enhanced_caphdr {
 #define bar0_window	dev_dep[0x80 - 0x40]
 #define bar1_window	dev_dep[0x84 - 0x40]
 #define sprom_control	dev_dep[0x88 - 0x40]
-#endif 
-#define	PCI_BAR0_WIN		0x80	
-#define	PCI_BAR1_WIN		0x84	
-#define	PCI_SPROM_CONTROL	0x88	
-#define	PCI_BAR1_CONTROL	0x8c	
-#define	PCI_INT_STATUS		0x90	
-#define	PCI_INT_MASK		0x94	
-#define PCI_TO_SB_MB		0x98	
-#define PCI_BACKPLANE_ADDR	0xa0	
-#define PCI_BACKPLANE_DATA	0xa4	
-#define	PCI_CLK_CTL_ST		0xa8	
-#define	PCI_BAR0_WIN2		0xac	
-#define	PCI_GPIO_IN		0xb0	
-#define	PCI_GPIO_OUT		0xb4	
-#define	PCI_GPIO_OUTEN		0xb8	
-#define	PCI_L1SS_CTRL2		0x24c	
+#endif
+#define	PCI_BAR0_WIN		0x80
+#define	PCI_BAR1_WIN		0x84
+#define	PCI_SPROM_CONTROL	0x88
+#define	PCI_BAR1_CONTROL	0x8c
+#define	PCI_INT_STATUS		0x90
+#define	PCI_INT_MASK		0x94
+#define PCI_TO_SB_MB		0x98
+#define PCI_BACKPLANE_ADDR	0xa0
+#define PCI_BACKPLANE_DATA	0xa4
+#define	PCI_CLK_CTL_ST		0xa8
+#define	PCI_BAR0_WIN2		0xac
+#define	PCI_GPIO_IN		0xb0
+#define	PCI_GPIO_OUT		0xb4
+#define	PCI_GPIO_OUTEN		0xb8
+#define	PCI_L1SS_CTRL2		0x24c
 
 
 #define	PCI_STAT_CTRL		0xa80
@@ -504,59 +504,59 @@ typedef struct _pcie_enhanced_caphdr {
 #define	PCI_L2_EVENTCNT		0xaa4
 #define	PCI_L2_STATETMR		0xaa8
 
-#define	PCI_PMCR_REFUP		0x1814	
-#define	PCI_PMCR_REFUP_EXT	0x1818	
+#define	PCI_PMCR_REFUP		0x1814
+#define	PCI_PMCR_REFUP_EXT	0x1818
 #define PCI_TPOWER_SCALE_MASK 0x3
-#define PCI_TPOWER_SCALE_SHIFT 3 
+#define PCI_TPOWER_SCALE_SHIFT 3
 
 
-#define	PCI_BAR0_SHADOW_OFFSET	(2 * 1024)	
-#define	PCI_BAR0_SPROM_OFFSET	(4 * 1024)	
-#define	PCI_BAR0_PCIREGS_OFFSET	(6 * 1024)	
-#define	PCI_BAR0_PCISBR_OFFSET	(4 * 1024)	
+#define	PCI_BAR0_SHADOW_OFFSET	(2 * 1024)
+#define	PCI_BAR0_SPROM_OFFSET	(4 * 1024)
+#define	PCI_BAR0_PCIREGS_OFFSET	(6 * 1024)
+#define	PCI_BAR0_PCISBR_OFFSET	(4 * 1024)
 
-#define PCIE2_BAR0_WIN2		0x70 
-#define PCIE2_BAR0_CORE2_WIN	0x74 
-#define PCIE2_BAR0_CORE2_WIN2	0x78 
+#define PCIE2_BAR0_WIN2		0x70
+#define PCIE2_BAR0_CORE2_WIN	0x74
+#define PCIE2_BAR0_CORE2_WIN2	0x78
 
-#define PCI_BAR0_WINSZ		(16 * 1024)	
+#define PCI_BAR0_WINSZ		(16 * 1024)
 
-#define	PCI_16KB0_PCIREGS_OFFSET (8 * 1024)	
-#define	PCI_16KB0_CCREGS_OFFSET	(12 * 1024)	
-#define PCI_16KBB0_WINSZ	(16 * 1024)	
-
-#ifndef LINUX_POSTMOGRIFY_REMOVAL
-
-#define	PCI_16KB0_WIN2_OFFSET	(4 * 1024)	
-
-
-#define	PCI_SBIM_STATUS_SERR	0x4	
-
-
-#define	PCI_SBIM_SHIFT		8	
-#define	PCI_SBIM_MASK		0xff00	
-#define	PCI_SBIM_MASK_SERR	0x4	
+#define	PCI_16KB0_PCIREGS_OFFSET (8 * 1024)
+#define	PCI_16KB0_CCREGS_OFFSET	(12 * 1024)
+#define PCI_16KBB0_WINSZ	(16 * 1024)
 
 #ifndef LINUX_POSTMOGRIFY_REMOVAL
 
-#define SPROM_SZ_MSK		0x02	
-#define SPROM_LOCKED		0x08	
-#define	SPROM_BLANK		0x04	
-#define SPROM_WRITEEN		0x10	
-#define SPROM_BOOTROM_WE	0x20	
-#define SPROM_BACKPLANE_EN	0x40	
-#define SPROM_OTPIN_USE		0x80	
-#endif 
+#define	PCI_16KB0_WIN2_OFFSET	(4 * 1024)
 
 
-#define PCI_CMD_IO		0x00000001	
-#define PCI_CMD_MEMORY		0x00000002	
-#define PCI_CMD_MASTER		0x00000004	
-#define PCI_CMD_SPECIAL		0x00000008	
-#define PCI_CMD_INVALIDATE	0x00000010	
-#define PCI_CMD_VGA_PAL		0x00000040	
-#define PCI_STAT_TA		0x08000000	
-#endif 
+#define	PCI_SBIM_STATUS_SERR	0x4
+
+
+#define	PCI_SBIM_SHIFT		8
+#define	PCI_SBIM_MASK		0xff00
+#define	PCI_SBIM_MASK_SERR	0x4
+
+#ifndef LINUX_POSTMOGRIFY_REMOVAL
+
+#define SPROM_SZ_MSK		0x02
+#define SPROM_LOCKED		0x08
+#define	SPROM_BLANK		0x04
+#define SPROM_WRITTEN		0x10
+#define SPROM_BOOTROM_WE	0x20
+#define SPROM_BACKPLANE_EN	0x40
+#define SPROM_OTPIN_USE		0x80
+#endif
+
+
+#define PCI_CMD_IO		0x00000001
+#define PCI_CMD_MEMORY		0x00000002
+#define PCI_CMD_MASTER		0x00000004
+#define PCI_CMD_SPECIAL		0x00000008
+#define PCI_CMD_INVALIDATE	0x00000010
+#define PCI_CMD_VGA_PAL		0x00000040
+#define PCI_STAT_TA		0x08000000
+#endif
 
 #define PCI_CONFIG_SPACE_SIZE	256
-#endif	
+#endif

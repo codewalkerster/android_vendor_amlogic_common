@@ -40,7 +40,7 @@
  * @BRCM_VENDOR_SCMD_SET_CONNECT_PARAMS: Set some connect parameters.
  *      Used for the case that FW handle SAE.
  *
- * @BRCM_VENDOR_SCMD_SET_START_AP_PARAMS: Set SoftAP paramters.
+ * @BRCM_VENDOR_SCMD_SET_START_AP_PARAMS: Set SoftAP parameters.
  *      Used for the case that FW handle SAE.
  *
  * @BRCM_VENDOR_SCMD_ACS: ACS command/event which is used to

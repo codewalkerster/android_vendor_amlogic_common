@@ -77,7 +77,7 @@ struct rtk_bt_vendor_config{
 #define CHIPTYPE_NONE           (0x1F)      //Chip Type's range: 0x0 ~ 0xF
 #define CHIP_TYPE_MASK_ALL      (0xFFFFFFFF)
 
-#define PROJECT_ID_MASK_ALL     (0xFFFFFFFF)    // temp used for unknow project id for a new chip
+#define PROJECT_ID_MASK_ALL     (0xFFFFFFFF)    // temp used for unknown project id for a new chip
 
 #define PATCH_OPTIONAL_MATCH_FLAG_CHIPTYPE   (0x1)
 

@@ -79,7 +79,7 @@ int isSsidValid(const std::vector<uint8_t>& ssid)
 }
 
 /**
- * Check if the provided psk passhrase is valid or not.
+ * Check if the provided psk passphrase is valid or not.
  *
  * Returns 1 if valid, 0 otherwise.
  */
@@ -1761,7 +1761,7 @@ ndk::ScopedAStatus P2pIface::setWfdDeviceInfoInternal(
 		wfd_device_info_hex.data(), wfd_device_info_hex.size(), info.data(),
 		info.size());
 	// |wifi_display_subelem_set| expects the first 2 bytes
-	// to hold the lenght of the subelement. In this case it's
+	// to hold the length of the subelement. In this case it's
 	// fixed to 6, so prepend that.
 	std::string wfd_device_info_set_cmd_str =
 		std::to_string(kWfdDeviceInfoSubelemId) + " " +

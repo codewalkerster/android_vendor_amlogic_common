@@ -390,7 +390,7 @@ extern AM_ErrorCode_t AM_SEC_FreqConvert(int dev_no, unsigned int centre_freq, u
 extern AM_Bool_t AM_SEC_FilterInvalidTp(int dev_no, unsigned int tp_freq);
 
 /**\brief diseqc execute command
- * \param dev_no frontend device commond
+ * \param dev_no frontend device command
  * \param para diseqc frontend parameters
  * \return
  *   - AM_SUCCESS On success

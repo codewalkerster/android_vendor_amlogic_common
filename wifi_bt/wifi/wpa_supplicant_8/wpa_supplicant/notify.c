@@ -911,7 +911,7 @@ void wpas_notify_certification(struct wpa_supplicant *wpa_s,
 		wpa_msg(wpa_s, MSG_INFO, WPA_EVENT_EAP_PEER_ALT
 			"depth=%d %s", cert->depth, cert->altsubject[i]);
 
-	wpas_aidl_notify_ceritification(wpa_s, cert->depth, cert->subject,
+	wpas_aidl_notify_certification(wpa_s, cert->depth, cert->subject,
 				       cert->altsubject, cert->num_altsubject,
 				       cert_hash, cert->cert);
 

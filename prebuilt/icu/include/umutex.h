@@ -389,7 +389,7 @@ struct UConditionVar {
 #else
 
 /*
- *  Unknow platform type.
+ *  Unknown platform type.
  *      This is an error condition. ICU requires mutexes.
  */
 

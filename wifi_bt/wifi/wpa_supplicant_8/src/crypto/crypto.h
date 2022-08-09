@@ -785,7 +785,7 @@ const struct crypto_bignum * crypto_ec_get_order(struct crypto_ec *e);
 const struct crypto_bignum * crypto_ec_get_a(struct crypto_ec *e);
 
 /**
- * crypto_ec_get_b - Get 'b' coeffiecient of an EC group's curve
+ * crypto_ec_get_b - Get 'b' coefficient of an EC group's curve
  * @e: EC context from crypto_ec_init()
  * Returns: 'b' coefficient (bignum) of the group
  */
@@ -1254,7 +1254,7 @@ int crypto_csr_set_attribute(struct crypto_csr *csr, enum crypto_csr_attr attr,
 /**
  * crypto_csr_get_attribute - Get attribute from CSR
  * @csr: CSR structure from @crypto_csr_verify()
- * @attr: Updated with atribute identifier
+ * @attr: Updated with attribute identifier
  * @len: Updated with length of returned buffer
  * @type: ASN.1 type of the attribute buffer
  * Returns: Type, length, and pointer on attribute value or %NULL on failure

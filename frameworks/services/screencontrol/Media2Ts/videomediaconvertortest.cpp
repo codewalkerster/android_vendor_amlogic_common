@@ -110,7 +110,7 @@ int main(int argc, char **argv) {
            "time     =%ds\n"
            "save as [%s]\n",
            outWidth, outHeight, framerate, bitrate,
-           type==AML_CAPTURE_OSD_VIDEO?"video+osd":(type==AML_CAPTURE_VIDEO?"video only":"unknow"),
+           type==AML_CAPTURE_OSD_VIDEO?"video+osd":(type==AML_CAPTURE_VIDEO?"video only":"unknown"),
            timeSecond, filename);
 
 

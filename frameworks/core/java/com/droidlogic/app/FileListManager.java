@@ -126,7 +126,7 @@ public class FileListManager {
         mStorageManager = (StorageManager) mContext.getSystemService(Context.STORAGE_SERVICE);
         mSystemControl =  SystemControlManager.getInstance();
 
-        //remove droidvold from andorid p
+        //remove droidvold from android p
         /*try {
             mDroidVold = IDroidVold.getService();
         } catch (NoSuchElementException e) {

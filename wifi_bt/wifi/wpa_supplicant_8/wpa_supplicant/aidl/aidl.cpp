@@ -65,7 +65,7 @@ struct wpas_aidl_priv *wpas_aidl_init(struct wpa_global *global)
 		goto err;
 	}
 	// We may not need to store this aidl manager reference in the
-	// global data strucure because we've made it a singleton class.
+	// global data structure because we've made it a singleton class.
 	priv->aidl_manager = (void *)aidl_manager;
 
 	return priv;
@@ -937,7 +937,7 @@ void wpas_aidl_notify_bss_freq_changed(struct wpa_supplicant *wpa_s)
 	aidl_manager->notifyBssFreqChanged(wpa_s);
 }
 
-void wpas_aidl_notify_ceritification(struct wpa_supplicant *wpa_s,
+void wpas_aidl_notify_certification(struct wpa_supplicant *wpa_s,
 		int depth, const char *subject,
 		const char *altsubject[],
 		int num_altsubject,

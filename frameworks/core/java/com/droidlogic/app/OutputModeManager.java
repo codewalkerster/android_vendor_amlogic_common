@@ -73,11 +73,11 @@ public class OutputModeManager {
 
     public static final String SYS_DIGITAL_RAW              = "/sys/class/audiodsp/digital_raw";
     public static final String SYS_AUDIO_CAP                = "/sys/class/amhdmitx/amhdmitx0/aud_cap";
-    public static final String SYS_AUIDO_HDMI               = "/sys/class/amhdmitx/amhdmitx0/config";
-    public static final String SYS_AUIDO_SPDIF              = "/sys/devices/platform/spdif-dit.0/spdif_mute";
+    public static final String SYS_AUDIO_HDMI               = "/sys/class/amhdmitx/amhdmitx0/config";
+    public static final String SYS_AUDIO_SPDIF              = "/sys/devices/platform/spdif-dit.0/spdif_mute";
 
-    public static final String AUIDO_DSP_AC3_DRC            = "/sys/class/audiodsp/ac3_drc_control";
-    public static final String AUIDO_DSP_DTS_DEC            = "/sys/class/audiodsp/dts_dec_control";
+    public static final String AUDIO_DSP_AC3_DRC            = "/sys/class/audiodsp/ac3_drc_control";
+    public static final String AUDIO_DSP_DTS_DEC            = "/sys/class/audiodsp/dts_dec_control";
 
     public static final String HDMI_STATE                   = "/sys/class/amhdmitx/amhdmitx0/hpd_state";
     public static final String HDMI_SUPPORT_LIST            = "/sys/class/amhdmitx/amhdmitx0/disp_cap";
@@ -990,11 +990,11 @@ public class OutputModeManager {
 
     public void enableDobly_DRC (boolean enable) {
         if (enable) {       //open DRC
-            writeSysfs(AUIDO_DSP_AC3_DRC, "drchighcutscale 0x64");
-            writeSysfs(AUIDO_DSP_AC3_DRC, "drclowboostscale 0x64");
+            writeSysfs(AUDIO_DSP_AC3_DRC, "drchighcutscale 0x64");
+            writeSysfs(AUDIO_DSP_AC3_DRC, "drclowboostscale 0x64");
         } else {           //close DRC
-            writeSysfs(AUIDO_DSP_AC3_DRC, "drchighcutscale 0");
-            writeSysfs(AUIDO_DSP_AC3_DRC, "drclowboostscale 0");
+            writeSysfs(AUDIO_DSP_AC3_DRC, "drchighcutscale 0");
+            writeSysfs(AUDIO_DSP_AC3_DRC, "drclowboostscale 0");
         }
     }
 
@@ -1002,9 +1002,9 @@ public class OutputModeManager {
         //"CUSTOM_0","CUSTOM_1","LINE","RF"; default use "LINE"
         int i = Integer.parseInt(mode);
         if (i >= 0 && i <= 3) {
-            writeSysfs(AUIDO_DSP_AC3_DRC, "drcmode" + " " + mode);
+            writeSysfs(AUDIO_DSP_AC3_DRC, "drcmode" + " " + mode);
         } else {
-            writeSysfs(AUIDO_DSP_AC3_DRC, "drcmode" + " " + DEFAULT_DRCMODE);
+            writeSysfs(AUDIO_DSP_AC3_DRC, "drcmode" + " " + DEFAULT_DRCMODE);
         }
     }
 
@@ -1022,7 +1022,7 @@ public class OutputModeManager {
     public void setDtsDrcScaleSysfs() {
         String prop = getPropertyString(PROP_DTSDRCSCALE, DEFAULT_DRC_SCALE);
         int val = Integer.parseInt(prop);
-        writeSysfs(AUIDO_DSP_DTS_DEC, String.format("0x%02x", val));
+        writeSysfs(AUDIO_DSP_DTS_DEC, String.format("0x%02x", val));
     }
     /**
     * @Deprecated
@@ -1031,9 +1031,9 @@ public class OutputModeManager {
         // 0: Lo/Ro;   1: Lt/Rt;  default 0
         int i = Integer.parseInt(mode);
         if (i >= 0 && i <= 1) {
-            writeSysfs(AUIDO_DSP_DTS_DEC, "dtsdmxmode" + " " + mode);
+            writeSysfs(AUDIO_DSP_DTS_DEC, "dtsdmxmode" + " " + mode);
         } else {
-            writeSysfs(AUIDO_DSP_DTS_DEC, "dtsdmxmode" + " " + "0");
+            writeSysfs(AUDIO_DSP_DTS_DEC, "dtsdmxmode" + " " + "0");
         }
     }
     /**
@@ -1041,9 +1041,9 @@ public class OutputModeManager {
     **/
     public void enableDTS_DRC_scale_control (boolean enable) {
         if (enable) {
-            writeSysfs(AUIDO_DSP_DTS_DEC, "dtsdrcscale 0x64");
+            writeSysfs(AUDIO_DSP_DTS_DEC, "dtsdrcscale 0x64");
         } else {
-            writeSysfs(AUIDO_DSP_DTS_DEC, "dtsdrcscale 0");
+            writeSysfs(AUDIO_DSP_DTS_DEC, "dtsdrcscale 0");
         }
     }
     /**
@@ -1051,9 +1051,9 @@ public class OutputModeManager {
     **/
     public void enableDTS_Dial_Norm_control (boolean enable) {
         if (enable) {
-            writeSysfs(AUIDO_DSP_DTS_DEC, "dtsdialnorm 1");
+            writeSysfs(AUDIO_DSP_DTS_DEC, "dtsdialnorm 1");
         } else {
-            writeSysfs(AUIDO_DSP_DTS_DEC, "dtsdialnorm 0");
+            writeSysfs(AUDIO_DSP_DTS_DEC, "dtsdialnorm 0");
         }
     }
 

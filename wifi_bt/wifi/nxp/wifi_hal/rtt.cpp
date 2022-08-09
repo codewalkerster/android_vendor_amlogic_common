@@ -307,7 +307,7 @@ public:
                             }
                             default:
                             {
-                                ALOGE("Unknow attribute data\n");
+                                ALOGE("Unknown attribute data\n");
                                 return NL_SKIP;
                             }
                         }
@@ -659,7 +659,7 @@ public:
                 break;
             }
             default:
-                ALOGE("Unknow command");
+                ALOGE("Unknown command");
                 return WIFI_ERROR_UNKNOWN;
         }
         return WIFI_SUCCESS;

@@ -555,7 +555,7 @@ typedef enum UErrorCode {
     U_BRK_HEX_DIGITS_EXPECTED,             /**< Hex digits expected as part of a escaped char in a rule. */
     U_BRK_SEMICOLON_EXPECTED,              /**< Missing ';' at the end of a RBBI rule.            */
     U_BRK_RULE_SYNTAX,                     /**< Syntax error in RBBI rule.                        */
-    U_BRK_UNCLOSED_SET,                    /**< UnicodeSet witing an RBBI rule missing a closing ']'.  */
+    U_BRK_UNCLOSED_SET,                    /**< UnicodeSet writing an RBBI rule missing a closing ']'.  */
     U_BRK_ASSIGN_ERROR,                    /**< Syntax error in RBBI rule assignment statement.   */
     U_BRK_VARIABLE_REDEFINITION,            /**< RBBI rule $Variable redefined.                    */
     U_BRK_MISMATCHED_PAREN,                /**< Mis-matched parentheses in an RBBI rule.          */

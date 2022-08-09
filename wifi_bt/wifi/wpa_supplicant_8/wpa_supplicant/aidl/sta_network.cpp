@@ -2257,7 +2257,7 @@ struct wpa_supplicant *StaNetwork::retrieveIfacePtr()
 }
 
 /**
- * Check if the provided psk passhrase is valid or not.
+ * Check if the provided psk passphrase is valid or not.
  *
  * Returns 0 if valid, 1 otherwise.
  */
@@ -2301,7 +2301,7 @@ void StaNetwork::resetInternalStateAfterParamsUpdate()
 }
 
 /**
- * Helper function to set value in a string field in |wpa_ssid| structue
+ * Helper function to set value in a string field in |wpa_ssid| structure
  * instance for this network.
  * This function frees any existing data in these fields.
  */
@@ -2313,7 +2313,7 @@ int StaNetwork::setStringFieldAndResetState(
 }
 
 /**
- * Helper function to set value in a string field in |wpa_ssid| structue
+ * Helper function to set value in a string field in |wpa_ssid| structure
  * instance for this network.
  * This function frees any existing data in these fields.
  */
@@ -2335,7 +2335,7 @@ int StaNetwork::setStringFieldAndResetState(
 }
 
 /**
- * Helper function to set value in a string key field in |wpa_ssid| structue
+ * Helper function to set value in a string key field in |wpa_ssid| structure
  * instance for this network.
  * This function frees any existing data in these fields.
  */
@@ -2384,7 +2384,7 @@ int StaNetwork::setByteArrayFieldAndResetState(
 
 /**
  * Helper function to set value in a string key field with a corresponding
- * length field in |wpa_ssid| structue instance for this network.
+ * length field in |wpa_ssid| structure instance for this network.
  * This function frees any existing data in these fields.
  */
 int StaNetwork::setByteArrayKeyFieldAndResetState(

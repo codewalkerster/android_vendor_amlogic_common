@@ -358,7 +358,7 @@ static void parse_frame(packet_receive_data_t *receive_data, data_ready_cb data_
         switch (receive_data->state) {
             case BRAND_NEW:
                 if (byte > DATA_TYPE_EVENT || byte < DATA_TYPE_COMMAND) {
-                    SITME("unknow head: 0x%02x", byte);
+                    SITME("unknown head: 0x%02x", byte);
                     break;
                 }
                 receive_data->type = byte;

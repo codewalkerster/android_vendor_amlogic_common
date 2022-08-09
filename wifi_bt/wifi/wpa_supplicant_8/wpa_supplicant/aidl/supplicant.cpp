@@ -135,7 +135,7 @@ int ensureConfigFileExists(
 		}
 	} else if (errno != ENOENT) {
 		wpa_printf(
-			MSG_ERROR, "Cannot acces %s. Errno: %s",
+			MSG_ERROR, "Cannot access %s. Errno: %s",
 			config_file_path.c_str(), strerror(errno));
 		return -1;
 	}

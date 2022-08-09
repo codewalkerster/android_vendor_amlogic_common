@@ -537,7 +537,7 @@ typedef struct dot11_extcap dot11_extcap_t;
 
 #define DOT11_MEASURE_BASIC_MAP_BSS	((uint8)(1<<0))
 #define DOT11_MEASURE_BASIC_MAP_OFDM	((uint8)(1<<1))
-#define DOT11_MEASURE_BASIC_MAP_UKNOWN	((uint8)(1<<2))
+#define DOT11_MEASURE_BASIC_MAP_UNKNOWN	((uint8)(1<<2))
 #define DOT11_MEASURE_BASIC_MAP_RADAR	((uint8)(1<<3))
 #define DOT11_MEASURE_BASIC_MAP_UNMEAS	((uint8)(1<<4))
 

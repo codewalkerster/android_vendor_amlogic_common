@@ -17,7 +17,7 @@ extern "C"
 	/**
 	 * This is the aidl RPC interface entry point to the wpa_supplicant
 	 * core. This initializes the aidl driver & AidlManager instance and
-	 * then forwards all the notifcations from the supplicant core to the
+	 * then forwards all the notifications from the supplicant core to the
 	 * AidlManager.
 	 */
 	struct wpas_aidl_priv;
@@ -127,7 +127,7 @@ extern "C"
 		struct wpa_supplicant *wpa_s, struct wpa_ssid *ssid, u8 bitmap);
 	void wpas_aidl_notify_network_not_found(struct wpa_supplicant *wpa_s);
 	void wpas_aidl_notify_bss_freq_changed(struct wpa_supplicant *wpa_s);
-	void wpas_aidl_notify_ceritification(struct wpa_supplicant *wpa_s,
+	void wpas_aidl_notify_certification(struct wpa_supplicant *wpa_s,
 		int depth, const char *subject,
 		const char *altsubject[],
 		int num_altsubject,
@@ -286,7 +286,7 @@ static void wpas_aidl_notify_network_not_found(struct wpa_supplicant *wpa_s)
 {}
 void wpas_aidl_notify_bss_freq_changed(struct wpa_supplicant *wpa_s)
 {}
-void wpas_aidl_notify_ceritification(struct wpa_supplicant *wpa_s,
+void wpas_aidl_notify_certification(struct wpa_supplicant *wpa_s,
 	int depth, const char *subject,
 	const char *altsubject[],
 	int num_altsubject,

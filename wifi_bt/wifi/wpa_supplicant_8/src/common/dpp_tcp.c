@@ -1838,7 +1838,7 @@ int dpp_tcp_pkex_init(struct dpp_global *dpp, struct dpp_pkex *pkex,
 
 	hdr = wpabuf_head(pkex->exchange_req);
 	end = hdr + wpabuf_len(pkex->exchange_req);
-	hdr += 2; /* skip Category and Actiom */
+	hdr += 2; /* skip Category and Action */
 	pos = hdr + DPP_HDR_LEN;
 	conn->msg_out = dpp_tcp_encaps(hdr, pos, end - pos);
 	if (!conn->msg_out)
@@ -1862,7 +1862,7 @@ static int dpp_tcp_auth_start(struct dpp_connection *conn,
 
 	hdr = wpabuf_head(auth->req_msg);
 	end = hdr + wpabuf_len(auth->req_msg);
-	hdr += 2; /* skip Category and Actiom */
+	hdr += 2; /* skip Category and Action */
 	pos = hdr + DPP_HDR_LEN;
 	conn->msg_out = dpp_tcp_encaps(hdr, pos, end - pos);
 	if (!conn->msg_out)

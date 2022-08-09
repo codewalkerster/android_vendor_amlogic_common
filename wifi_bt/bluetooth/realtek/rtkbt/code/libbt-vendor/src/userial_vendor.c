@@ -1084,7 +1084,7 @@ static void* userial_recv_sco_thread(void *arg)
     //uint16_t sco_packet_len = 60;
     uint8_t * p_data = NULL;
     int res = 0;
-    size_t writen = 0;
+    size_t written = 0;
     prctl(PR_SET_NAME, (unsigned long)"userial_recv_sco_thread", 0, 0, 0);
     sco_cb.pcm_dec_seq = -1;
     sco_cb.pcm_dec_frame = 0;
@@ -1138,12 +1138,12 @@ static void* userial_recv_sco_thread(void *arg)
         /*
         if(fread(enc_data, 1, 60, file) > 0) {
             ALOGE("userial_recv_sco_thread, fread data");
-            res = sbc_decode(&sco_cb.sbc_dec, &enc_data[2], 58, dec_data, 240, &writen);
+            res = sbc_decode(&sco_cb.sbc_dec, &enc_data[2], 58, dec_data, 240, &written);
         }
         else {
             fseek(file, 0L, SEEK_SET);
             if(fread(enc_data, 1, 60, file) > 0) {
-                res = sbc_decode(&sco_cb.sbc_dec, &enc_data[2], 58, dec_data, 240, &writen);
+                res = sbc_decode(&sco_cb.sbc_dec, &enc_data[2], 58, dec_data, 240, &written);
             }
         }
         */
@@ -1167,7 +1167,7 @@ static void* userial_recv_sco_thread(void *arg)
                 uint8_t lost_frame = sco_cb.pcm_dec_frame - last_dec_frame - 1;
                 int i = 0;
                 for(i = 0; i < lost_frame; i++) {
-                    sbc_decode(&sco_cb.sbc_dec, indices0, 58, dec_data, 240, &writen);
+                    sbc_decode(&sco_cb.sbc_dec, indices0, 58, dec_data, 240, &written);
                     PLC_bad_frame(&plc_state, (short*)dec_data, (short*)plc_data);
                     memcpy(&pcm_data[240 * index], plc_data, 240);
                     index = (index + 1) % 4;
@@ -1179,7 +1179,7 @@ static void* userial_recv_sco_thread(void *arg)
               }
             }
 
-            res = sbc_decode(&sco_cb.sbc_dec, (p_data + 2), 58, dec_data, 240, &writen);
+            res = sbc_decode(&sco_cb.sbc_dec, (p_data + 2), 58, dec_data, 240, &written);
             if(res > 0) {
 #ifdef CONFIG_SCO_MSBC_PLC
                 PLC_good_frame(&plc_state, (short*)dec_data, (short*)plc_data);
@@ -1198,7 +1198,7 @@ static void* userial_recv_sco_thread(void *arg)
             else {
                 ALOGE("msbc decode fail! May use PLC function");
 #ifdef CONFIG_SCO_MSBC_PLC
-                sbc_decode(&sco_cb.sbc_dec, indices0, 58, dec_data, 240, &writen);
+                sbc_decode(&sco_cb.sbc_dec, indices0, 58, dec_data, 240, &written);
                 PLC_bad_frame(&plc_state, (short*)dec_data, (short*)plc_data);
                 memcpy(&pcm_data[240 * index], plc_data, 240);
                 index = (index + 1) % 4;
@@ -1222,7 +1222,7 @@ static void* userial_send_sco_thread(void *arg)
     unsigned char enc_data[240];
     unsigned char pcm_data[960 * 2];
     unsigned char send_data[100];
-    int writen = 0;
+    int written = 0;
     int num_read;
     prctl(PR_SET_NAME, (unsigned long)"userial_send_sco_thread", 0, 0, 0);
     sco_cb.pcm_enc_seq = 0;
@@ -1281,7 +1281,7 @@ static void* userial_send_sco_thread(void *arg)
             if(!num_read)
                 continue;
             for(i = 0; i < 4; i++) {
-                if(sbc_encode(&sco_cb.sbc_enc, &pcm_data[240*i], 240, &enc_data[i*60 +2], 58, (ssize_t *)&writen) <= 0) {
+                if (sbc_encode(&sco_cb.sbc_enc, &pcm_data[240*i], 240, &enc_data[i*60 +2], 58, (ssize_t *)&written) <= 0) {
                     ALOGE("sbc encode error!");
                 }
                 else {

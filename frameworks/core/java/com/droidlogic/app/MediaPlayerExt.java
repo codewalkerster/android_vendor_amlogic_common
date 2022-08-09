@@ -189,7 +189,7 @@ public class MediaPlayerExt extends MediaPlayer {
     /**
      * The function should be invoked after a player was created. (after setDataSource)
      * In this case, the client (data.writeStrongBinder(null)) will get the running one.
-     * Otherwise will throw "unknow error"
+     * Otherwise will throw "unknown error"
      */
     private void prepareIBinder() {
         if (mIBinderService == null) {

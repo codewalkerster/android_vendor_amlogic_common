@@ -5431,7 +5431,7 @@ typedef struct wl_wsec_info {
 #include <packed_section_end.h>
 
 enum rssi_reason {
-	RSSI_REASON_UNKNOW = 0,
+	RSSI_REASON_UNKNOWN = 0,
 	RSSI_REASON_LOWRSSI = 1,
 	RSSI_REASON_NSYC = 2,
 	RSSI_REASON_TIMEOUT = 3

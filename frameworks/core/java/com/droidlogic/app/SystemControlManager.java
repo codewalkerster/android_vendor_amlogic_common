@@ -4504,7 +4504,7 @@ public class SystemControlManager {
     * @Function: setScreenColorForSignalChange
     * @Description: set screen color for switch source/switch channal/no signal
     * @Param: screenColor:screen color:0 is black screen; 1 is blue screen
-    * @Param: isSave:wthether want to save setting
+    * @Param: isSave:whether want to save setting
     * @Return: 0 ok or -1 error
     */
     public int setScreenColorForSignalChange(int screenColor, int isSave) {
@@ -4539,7 +4539,7 @@ public class SystemControlManager {
     * @Description: update status of static frame:when enable it,
                     can black video for switching program
     * @Param: status: 0 is disable, 1 is enable
-    * @Param: isSave:wthether want to save setting
+    * @Param: isSave:whether want to save setting
     * @Return: 0 ok or -1 error
     */
     public int setStaticFrameStatus(int status, int isSave){

@@ -1005,7 +1005,7 @@ ucnv_getUnicodeSet(const UConverter *cnv,
                    UErrorCode *pErrorCode);
 
 /**
- * Gets the current calback function used by the converter when an illegal
+ * Gets the current callback function used by the converter when an illegal
  *  or invalid codepage sequence is found.
  * Context pointers are always owned by the caller.
  *

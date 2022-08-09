@@ -150,7 +150,7 @@ public:
                  break;
             }
             default:
-                ALOGE("Unknow command");
+                ALOGE("Unknown command");
                 return WIFI_ERROR_UNKNOWN;
         }
         return WIFI_SUCCESS;

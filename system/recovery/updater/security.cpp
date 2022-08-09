@@ -523,7 +523,7 @@ int IsPlatformEncrypted(void)
         return ret;
     }
 
-    property_get("ro.build.product", platform, "unknow");
+    property_get("ro.build.product", platform, "unknown");
     count = read(fd, rBuf, sizeof(rBuf) - 1);
     if (count <= 0) {
         printf("read %s failed (count:%d)\n", SECURE_CHECK, count);
