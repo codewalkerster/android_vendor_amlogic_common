@@ -2907,7 +2907,14 @@ int CPQControl::Cpq_SetDisplayModeAllTiming(tv_source_input_t source_input, vpp_
                                         ((source_input & 0x7f) << 16 ) |
                                         (flag[i]);
             source_input_param.sig_fmt = sig_fmt[i];
-            if (mbCpqCfg_display_overscan_enable) {
+            if  (display_mode >= VPP_DISPLAY_MODE_FULL_STRETCH && display_mode <= VPP_DISPLAY_MODE_169_COMBINED) {
+                SYS_LOGI("%s: Project mode!\n", __FUNCTION__);
+                ret = 0;
+                cutwin[i].he = 0;
+                cutwin[i].hs = 0;
+                cutwin[i].ve = 0;
+                cutwin[i].vs = 0;
+            } else if (mbCpqCfg_display_overscan_enable) {
                 if (mbCpqCfg_separate_db_enable) {
                     ret = mpOverScandb->PQ_GetOverscanParams(source_input_param, display_mode, cutwin+i);
                 } else {
@@ -3024,6 +3031,33 @@ int CPQControl::Cpq_GetScreenModeValue(vpp_display_mode_t display_mode)
         break;
     case VPP_DISPLAY_MODE_NOSCALEUP:
         value = SCREEN_MODE_NORMAL_NOSCALEUP;
+        break;
+    case VPP_DISPLAY_MODE_FULL_STRETCH:
+        value = SCREEN_MODE_FULL_STRETCH;
+        break;
+    case VPP_DISPLAY_MODE_43_IGNORE:
+        value = SCREEN_MODE_4_3_IGNORE;
+        break;
+    case VPP_DISPLAY_MODE_43_LETTER_BOX:
+        value = SCREEN_MODE_4_3_LETTER_BOX;
+        break;
+    case VPP_DISPLAY_MODE_43_PAN_SCAN:
+        value = SCREEN_MODE_4_3_PAN_SCAN;
+        break;
+    case VPP_DISPLAY_MODE_43_COMBINED:
+        value = SCREEN_MODE_4_3_COMBINED;
+        break;
+    case VPP_DISPLAY_MODE_169_IGNORE:
+        value = SCREEN_MODE_16_9_IGNORE;
+        break;
+    case VPP_DISPLAY_MODE_169_LETTER_BOX:
+        value = SCREEN_MODE_16_9_LETTER_BOX;
+        break;
+    case VPP_DISPLAY_MODE_169_PAN_SCAN:
+        value = SCREEN_MODE_16_9_PAN_SCAN;
+        break;
+    case VPP_DISPLAY_MODE_169_COMBINED:
+        value = SCREEN_MODE_16_9_COMBINED;
         break;
     case VPP_DISPLAY_MODE_MOVIE:
     case VPP_DISPLAY_MODE_PERSON:
