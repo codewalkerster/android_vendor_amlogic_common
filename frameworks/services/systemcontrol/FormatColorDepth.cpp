@@ -44,8 +44,8 @@ static const char* COLOR_ATTRIBUTE_LIST[] = {
     COLOR_YCBCR422_8BIT,
 };
 
-//this is check hdmi mode(4k30/4k25/4k24) list
-static const char* COLOR_ATTRIBUTE_LIST_NON4K[] = {
+//this is check hdmi mode list
+static const char* COLOR_ATTRIBUTE_LIST_8BIT[] = {
     COLOR_RGB_8BIT,
     COLOR_YCBCR444_8BIT,
     COLOR_YCBCR422_8BIT,
@@ -299,14 +299,9 @@ bool FormatColorDepth::isSupportHdmiMode(const char *hdmi_mode, const char *supp
             }
         }
         return false;
-    }
-    else if (strstr(hdmi_mode,"2160p30hz")  != NULL
-            || strstr(hdmi_mode,"2160p25hz") != NULL
-            || strstr(hdmi_mode,"2160p24hz") != NULL
-            || strstr(hdmi_mode,"smpte24hz") != NULL) {
-
-        colorList = COLOR_ATTRIBUTE_LIST_NON4K;
-        length    = ARRAY_SIZE(COLOR_ATTRIBUTE_LIST_NON4K);
+    } else {
+        colorList = COLOR_ATTRIBUTE_LIST_8BIT;
+        length    = ARRAY_SIZE(COLOR_ATTRIBUTE_LIST_8BIT);
 
         for (int j = 0; j < length; j++) {
             if (strstr(supportedColorList, colorList[j]) != NULL) {
@@ -317,8 +312,6 @@ bool FormatColorDepth::isSupportHdmiMode(const char *hdmi_mode, const char *supp
         }
         return false;
     }
-
-    return true;
 }
 
 bool FormatColorDepth::getBootEnv(const char* key, char* value) {

@@ -345,7 +345,7 @@ public class OutputModeManager {
         "rgb,8bit"
     };
 
-    private static final String[] HDMI_COLOR_LIST_NON4K = {
+    private static final String[] HDMI_COLOR_LIST_8BIT = {
         "444,8bit",
         "422,8bit",
         "rgb,8bit"
@@ -803,7 +803,17 @@ public class OutputModeManager {
         if (curMode.contains("2160p60hz") || curMode.contains("2160p50hz")
             || curMode.contains("smpte60hz") || curMode.contains("smpte50hz")) {
             for (int j = 0; j < HDMI_COLOR_LIST.length; j++) {
-                colorvalue                = HDMI_COLOR_LIST[j];
+                colorvalue = HDMI_COLOR_LIST[j];
+                if (colorvalue.contains("8bit"))  {
+                    if (isModeSupportColor(curMode, colorvalue)) {
+                        return true ;
+                    }
+                }
+            }
+            return false ;
+        } else {
+            for (int i = 0; i < HDMI_COLOR_LIST_8BIT.length; i++) {
+                colorvalue = HDMI_COLOR_LIST_8BIT[i];
                 if (colorvalue.contains("8bit"))  {
                     if (isModeSupportColor(curMode, colorvalue)) {
                         return true ;
@@ -812,19 +822,6 @@ public class OutputModeManager {
             }
             return false ;
         }
-        else if (curMode.contains("2160p30hz") || curMode.contains("2160p25hz")
-                || curMode.contains("2160p24hz") || curMode.contains("smpte24hz")) {
-            for (int i = 0; i < HDMI_COLOR_LIST_NON4K.length; i++) {
-                colorvalue                = HDMI_COLOR_LIST_NON4K[i];
-                if (colorvalue.contains("8bit"))  {
-                    if (isModeSupportColor(curMode, colorvalue)) {
-                        return true ;
-                    }
-                }
-            }
-            return false ;
-        }
-        return true ;
     }
 
     private String readSupportList(String path) {
