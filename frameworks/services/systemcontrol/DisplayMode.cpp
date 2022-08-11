@@ -2388,6 +2388,18 @@ bool DisplayMode::isDolbyVisionEnable() {
     }
 }
 
+void DisplayMode::setDvHdrPolicy(const char* policy) {
+    char dv_hdr10_policy[MODE_LEN] = {0};
+    int target_dv_hdr10_policy = 0;
+
+    std::string cur_dv_hdr10_policy;
+    DisplayModeMgr::getInstance().getDisplayAttribute(DISPLAY_DOLBY_VISION_HDR_10_POLICY, cur_dv_hdr10_policy);
+
+    target_dv_hdr10_policy = atoi(cur_dv_hdr10_policy.c_str()) | atoi(policy);
+    sprintf(dv_hdr10_policy, "%d", target_dv_hdr10_policy);
+    DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_HDR_10_POLICY, dv_hdr10_policy, ConnectorType::CONN_TYPE_HDMI);
+}
+
 void DisplayMode::setTvDolbyVisionEnable(void) {
     //if TV
     setHdrMode(HDR_MODE_OFF);
@@ -2486,8 +2498,8 @@ void DisplayMode::enableDolbyVision(int DvMode) {
                 DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_POLICY, HDR_POLICY_SOURCE, ConnectorType::CONN_TYPE_HDMI);
             }
         }
-
-        DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_HDR_10_POLICY, DV_HDR_SINK_PROCESS, ConnectorType::CONN_TYPE_HDMI);
+        //use driver default value,doesn't update
+        //setDvHdrPolicy(DV_HDR_SINK_PROCESS);
     }
 
     usleep(100000);//100ms

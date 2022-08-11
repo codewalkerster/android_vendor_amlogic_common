@@ -549,6 +549,7 @@ private:
     bool isLowPowerMode();
     bool isBestOutputmode();
     bool modeSupport(char *mode, int sinkType);
+    void setDvHdrPolicy(const char* policy);
     void setSourceOutputMode(const char* outputmode, output_mode_state state);
     int64_t resolveResolutionValue(const char *mode, int flag);
     int modeToIndex(const char *mode);
