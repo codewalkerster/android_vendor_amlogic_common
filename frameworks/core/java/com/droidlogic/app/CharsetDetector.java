@@ -39,13 +39,36 @@ import android.util.Log;
 public class CharsetDetector {
     private static final String TAG = "CharsetDetector";
 
+    private static final int UTF8_FLAG    = 0xefbb;
+    private static final int UNICODE_FLAG = 0xfffe;
+    private static final int UTF16BE_FLAG = 0xfeff;
+    private static final int ANSI_FLAG    = 0x5c75;
+    private static final int BIG5_FLAG    = 0x310d;
+    private static final int GB2312_FLAG  = 0x5b53;
+
+
     String[] mCharsetsToBeTested = {
         "UTF8",
+        "GB2312",
+        "Big5",
+        "GBK",
+        "cp932",
+        "cp949",
+        "cp874",
+        "cp1255",
+        "cp1250",
+        "cp1254",
+        "cp1098",
+        "ISO-8859-1",
+        "ISO-8859-2",
+        "ISO-8859-5",
+        "ISO-8859-6",
+        "ISO-8859-7",
+        "ISO-8859-8",
         "UTF-16BE",
         "UTF-16LE",
         "UTF-32BE",
         "UTF-32LE",
-        "GBK",
         "Shift_JIS",
         "ISO-2022-JP",
         "ISO-2022-CN",
@@ -53,13 +76,6 @@ public class CharsetDetector {
         "GB18030",
         "EUC-JP",
         "EUC-KR",
-        "BIG5",
-        "ISO-8859-1",
-        "ISO-8859-2",
-        "ISO-8859-5",
-        "ISO-8859-6",
-        "ISO-8859-7",
-        "ISO-8859-8",
         "Windows-1251",
         "Windows-1256",
         "KOI8-R",
@@ -79,6 +95,7 @@ public class CharsetDetector {
 
         fileDetect = detectCharsetFromFilePath(f);
         if (fileDetect != null) {
+            Log.i(TAG,"fileDetect:"+fileDetect);
             return Charset.forName(fileDetect);
         }
 
@@ -95,7 +112,7 @@ public class CharsetDetector {
                 break;
             }
         }
-        Log.e(TAG,"charsetName:"+charset);
+        Log.i(TAG,"charsetName:"+charset);
         return charset;
     }
 
@@ -148,9 +165,42 @@ public class CharsetDetector {
         if (pathName.contains("Windows-1257") || pathName.contains("1257")) {
             return "Windows-1257";
         }
-        return null;
-    }
 
+        if (pathName.contains("Windows-874") || pathName.contains("CP874")) {
+            return "x-IBM874";
+        }
+
+        String code = null;
+        try {
+            BufferedInputStream bin = new BufferedInputStream(new FileInputStream(file));
+            int p = (bin.read() << 8) + bin.read();
+            bin.close();
+            switch (p) {
+                case UTF8_FLAG:
+                    code = "UTF-8";
+                    break;
+                case UNICODE_FLAG:
+                    code = "Unicode";
+                    break;
+                case UTF16BE_FLAG:
+                    code = "UTF-16BE";
+                    break;
+                case BIG5_FLAG:
+                    code = "Big5";
+                    break;
+                case GB2312_FLAG:
+                    code = "GB2312";
+                    break;
+                case ANSI_FLAG:
+                    code = "ANSI|ASCII" ;
+                    break;
+            }
+        } catch (Exception e) {
+            return null;
+        }
+
+        return code != null ? code : null;
+    }
 
     private Charset detectCharset(File f, Charset charset, int len) {
         try {
