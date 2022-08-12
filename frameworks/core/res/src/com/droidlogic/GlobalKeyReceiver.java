@@ -128,14 +128,16 @@ public class GlobalKeyReceiver extends BroadcastReceiver {
                     break;
 
                 case KeyEvent.KEYCODE_F3:
+                case KeyEvent.KEYCODE_BUTTON_6:
                     if (keyAction == KeyEvent.ACTION_UP) {
-                        intent1.setComponent(new ComponentName("com.android.vending", "com.google.android.finsky.tvmainactivity.TvMainActivity"));
+                        intent1.setComponent(new ComponentName("com.amazon.amazonvideo.livingroom", "com.amazon.ignition.IgnitionActivity"));
                     }
                     break;
 
                 case KeyEvent.KEYCODE_F4:
+                case KeyEvent.KEYCODE_BUTTON_7:
                     if (keyAction == KeyEvent.ACTION_UP) {
-                        intent1.setComponent(new ComponentName(PACKAGE_NAME_PLAYMOVIE, "com.google.android.apps.play.movies.tv.usecase.home.TvHomeActivity"));
+                        intent1.setComponent(new ComponentName("com.android.vending", "com.google.android.finsky.tvmainactivity.TvMainActivity"));
                     }
                     break;
 
