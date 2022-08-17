@@ -455,11 +455,7 @@ public class OutputModeManager {
     public void setBestMode(String mode) {
         if (mode == null) {
             mSystemControl.setBootenv(ENV_IS_BEST_MODE, "true");
-            if (SystemControlManager.USE_BEST_MODE) {
-                setOutputMode(getBestMatchResolution());
-            } else {
-                setOutputMode(getHighestMatchResolution());
-            }
+            setOutputMode(getHighestMatchResolution());
         } else {
             mSystemControl.setBootenv(ENV_IS_BEST_MODE, "false");
             mSystemControl.setBootenv(ENV_IS_BEST_DOLBYVISION, "false");
@@ -481,7 +477,7 @@ public class OutputModeManager {
         mSystemControl.setBootenv(ENV_COLORATTRIBUTE, colorValue);
     }
 
-    public String getCurrentColorAttribute(){
+    public String getCurrentColorAttribute() {
        String colorValue = mSystemControl.getDeepColorAttr(getCurrentOutputMode());
        return colorValue;
     }
@@ -721,8 +717,6 @@ public class OutputModeManager {
     }
 
     public String getHdmiSupportList() {
-        //String list = readSupportList(HDMI_SUPPORT_LIST).replaceAll("[*]", "");
-
         RefreshOutModeList();
         String list = "";
         if (mOutModeList != null && !mOutModeList.isEmpty()) {
@@ -738,28 +732,6 @@ public class OutputModeManager {
         return mSystemControl.getPrefHdmiDispMode();
     }
 
-    public String getBestMatchResolution() {
-        if (isLogPrint(3))
-            Log.d(TAG, "get best mode, if support mode contains *, that is best mode, otherwise use: " + PROP_BEST_OUTPUT_MODE);
-
-        String[] supportList = null;
-        String value = readSupportList(HDMI_SUPPORT_LIST);
-        if (value.indexOf(HDMI_480) >= 0 || value.indexOf(HDMI_576) >= 0
-            || value.indexOf(HDMI_720) >= 0 || value.indexOf(HDMI_1080) >= 0
-            || value.indexOf(HDMI_4K2K) >= 0 || value.indexOf(HDMI_SMPTE) >= 0) {
-            supportList = (value.substring(0, value.length()-1)).split(",");
-        }
-
-        if (supportList != null) {
-            for (int i = 0; i < supportList.length; i++) {
-                if (supportList[i].contains("*")) {
-                    return supportList[i].substring(0, supportList[i].length()-1);
-                }
-            }
-        }
-
-        return getPropertyString(PROP_BEST_OUTPUT_MODE, DEFAULT_OUTPUT_MODE);
-    }
 
     public boolean isAudioSupportMs12System() {
         return mAudioManager.getParameters(PARA_AUDIO_DOLBY_MS12).contains(PARA_AUDIO_DOLBY_MS12_ENABLE);
@@ -771,28 +743,13 @@ public class OutputModeManager {
         if (isLogPrint(3))
             Log.d(TAG, "get supported resolution curMode: " + curMode);
 
-        String value = readSupportList(HDMI_SUPPORT_LIST);
-        String[] supportList = null;
+        ArrayList<String> HdmiSupportModeList = new ArrayList<String>();
+        mSystemControl.getSupportDispModeList(HdmiSupportModeList);
 
-        if (value.indexOf(HDMI_480) >= 0 || value.indexOf(HDMI_576) >= 0
-            || value.indexOf(HDMI_720) >= 0 || value.indexOf(HDMI_1080) >= 0
-            || value.indexOf(HDMI_4K2K) >= 0 || value.indexOf(HDMI_SMPTE) >= 0) {
-            supportList = (value.substring(0, value.length()-1)).split(",");
-        }
-
-        if (supportList == null) {
+        if (HdmiSupportModeList.contains(curMode)) {
             return curMode;
         }
 
-        for (int i = 0; i < supportList.length; i++) {
-            if (supportList[i].equals(curMode)) {
-                return curMode;
-            }
-        }
-
-        if (SystemControlManager.USE_BEST_MODE) {
-            return getBestMatchResolution();
-        }
         return getHighestMatchResolution();
     }
 
@@ -825,32 +782,9 @@ public class OutputModeManager {
     }
 
     private String readSupportList(String path) {
-        String value = "";
-        String fullStr = mSystemControl.readSysFsOri(path).replaceAll("\n", "#");
-        String[] substrs = fullStr.split("#");
-
-        boolean support4k = getPropertyBoolean(PROP_SUPPORT_4K, true);
-        boolean supportOver4k30 = getPropertyBoolean(PROP_SUPPORT_OVER_4K30, true);
-
-        for(String str:substrs){
-            if (str != null) {
-                if (!support4k && (str.contains("2160") || str.contains("smpte"))) {
-                    continue;
-                }
-                if (!supportOver4k30 && (str.contains("2160p50") || str.contains("2160p60") || str.contains("smpte"))) {
-                    continue;
-                }
-
-                if (!isSupportHdmiMode(str)) {
-                   continue;
-                }
-
-                value += str + ",";
-            }
-        }
-        Log.d(TAG, "TV support list is :" + value);
-
-        return value;
+        String fullStr = mSystemControl.readSysFsOri(path).replaceAll("\n", ",");
+        Log.d(TAG, "TV support list is :" + fullStr);
+        return fullStr;
     }
 
     public void initOutputMode(){
@@ -875,16 +809,12 @@ public class OutputModeManager {
     }
 
     public void setHdmiPlugged() {
-        boolean isAutoMode = isBestOutputmode() || readSupportList(HDMI_SUPPORT_LIST).contains("null edid");
+        boolean isAutoMode = isBestOutputmode();
 
         Log.d(TAG, "setHdmiPlugged auto mode: " + isAutoMode);
         if (getPropertyBoolean(PROP_HDMI_ONLY, true)) {
             if (isAutoMode) {
-                if (SystemControlManager.USE_BEST_MODE) {
-                    setOutputMode(getBestMatchResolution());
-                } else {
-                    setOutputMode(getHighestMatchResolution());
-                }
+                setOutputMode(getHighestMatchResolution());
             } else {
                 String mode = getSupportedResolution();
                 setOutputMode(mode);
