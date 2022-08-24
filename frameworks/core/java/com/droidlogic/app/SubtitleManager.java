@@ -20,6 +20,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.os.Process;
 import android.os.RemoteException;
 
 import android.os.SystemProperties;
@@ -63,6 +64,7 @@ import java.util.ArrayList;
 import java.util.List;
 import android.app.ActivityManager;
 import java.io.UnsupportedEncodingException;
+import android.os.Build;
 
 
 import com.droidlogic.app.MediaPlayerExt;
@@ -242,16 +244,37 @@ public class SubtitleManager {
         "/system_ext/lib/libsubtitlemanager_jni.so",
         "/system/lib/libsubtitlemanager_jni.so" };
 
+    private static final String[] sJNI_LIBRARY_64 = {
+            "/vendor/lib64/libsubtitlemanager_jni.so",
+            "/product/lib64/libsubtitlemanager_jni.so",
+            "/system_ext/lib64/libsubtitlemanager_jni.so",
+            "/system/lib64/libsubtitlemanager_jni.so" };
+
     static {
-        for (String s:sJNI_LIBRARY) {
-            try {
-                System.load(s);
-            } catch (UnsatisfiedLinkError e) {
-                Log.d(TAG, "Error try next!", e);
-                continue;
+        if (Process.is64Bit()) {
+            Log.d(TAG,"is 64bit process");
+            for (String s:sJNI_LIBRARY_64) {
+                try {
+                    System.load(s);
+                } catch (UnsatisfiedLinkError e) {
+                    Log.d(TAG, "Error try next!", e);
+                    continue;
+                }
+                Log.d(TAG, "Loaded library:" + s);
+                break;
             }
-            Log.d(TAG, "Loaded library:" + s);
-            break;
+        } else {
+            Log.d(TAG,"is 32bit process");
+            for (String s:sJNI_LIBRARY) {
+                try {
+                    System.load(s);
+                } catch (UnsatisfiedLinkError e) {
+                    Log.d(TAG, "Error try next!", e);
+                    continue;
+                }
+                Log.d(TAG, "Loaded library:" + s);
+                break;
+            }
         }
     }
 
