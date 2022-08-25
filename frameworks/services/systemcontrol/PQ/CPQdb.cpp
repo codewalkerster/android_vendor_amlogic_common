@@ -637,12 +637,27 @@ int CPQdb::PQ_GetHDRTMOParams(source_input_param_t source_input_param, hdr_tmo_t
     CSqlite::Cursor c;
     char sqlmaster[256];
     int rval = -1;
+    char buf[512];
+    char *buffer = NULL;
+    char *aa = NULL;
+    char *aa_save[100];
+    unsigned int index = 0;
+
+    if (CheckHdrStatus("GeneralHDRNodeTable"))
+        source_input_param.sig_fmt = TVIN_SIG_FMT_HDMI_HDR;
+
+    String8 TableName = GetTableName("GeneralHDRNodeTable", source_input_param);
+    if ((TableName.string() == NULL) || (TableName.length() == 0) ) {
+        SYS_LOGD("%s, GeneralHDRNodeTable don't have this table!\n", __FUNCTION__);
+        return -1;
+    }
 
     memset(newParams, 0, sizeof(hdr_tmo_sw_s));
 
     {// for param
-        getSqlParams(__FUNCTION__, sqlmaster, "select value from %s where level = %d",
-                    PQ_DB_HDRTMO_TABLE_NAME, mode);
+        getSqlParams(__FUNCTION__, sqlmaster, "select value from %s where regnum < %d and level = %d",
+                    TableName.string(), HDR_oo_init_lut,mode);
+
         rval = this->select(sqlmaster, c);
 
         if (c.moveToFirst()) {
@@ -679,6 +694,8 @@ int CPQdb::PQ_GetHDRTMOParams(source_input_param_t source_input_param, hdr_tmo_t
             newParams->reg_high_maxdiff  = c.getInt(30);
             newParams->reg_high_mindiff  = c.getInt(31);
             newParams->alpha             = c.getInt(32);
+            newParams->reg_ratio         = c.getInt(33);
+            newParams->reg_max_th3       = c.getInt(34);
 
         }else {
             SYS_LOGE("%s, read hdr tmo param fail\n", __FUNCTION__);
@@ -700,6 +717,29 @@ int CPQdb::PQ_GetHDRTMOParams(source_input_param_t source_input_param, hdr_tmo_t
             newParams->reg_hl3, newParams->reg_display_adj, newParams->reg_avg_th, newParams->reg_avg_adj, newParams->reg_low_adj,
             newParams->reg_high_en, newParams->reg_high_adj1, newParams->reg_high_adj2, newParams->reg_high_maxdiff,
             newParams->reg_high_mindiff, newParams->alpha);
+    }
+
+    //HDR_oo_init_lut
+    {
+        index = 0;
+        aa = NULL;
+        getSqlParams(__FUNCTION__, sqlmaster, "select value from %s where "
+                    "regnum = %d and level = %d",
+                    TableName.string(), HDR_oo_init_lut, mode);
+
+        rval = this->select(sqlmaster, c);
+        memset(buf, 0, sizeof(buf));
+        strcpy(buf, c.getString(index).c_str());
+        //SYS_LOGD ("%s - HDR_oo_init_lut is %s\n", __FUNCTION__, buf);
+        buffer = buf;
+        while ((aa_save[index] = strtok_r(buffer, ",", &aa)) != NULL) {
+            newParams->oo_init_lut[index] = atoi(aa_save[index]);
+            index ++;
+            if (index >= sizeof(newParams->oo_init_lut)/sizeof(unsigned int)) {
+                break;
+            }
+            buffer = NULL;
+        }
     }
 
     return rval;

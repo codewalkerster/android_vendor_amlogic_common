@@ -439,7 +439,15 @@ typedef struct hdr_tmo_sw_s {
     int reg_high_maxdiff;    //u7
     int reg_high_mindiff;    //u7
     unsigned int alpha;
+    int reg_ratio;           //u10
+    int reg_max_th3;         //s11
+    int oo_init_lut[13];     //u10
 }hdr_tmo_sw_t;
+
+typedef enum hdr_lut_e {
+    HDR_oo_init_lut = 35,
+    HDR_lut_res,
+} hdr_lut_t;
 
 //////////for customer DNLP
 typedef struct ve_dnlp_curve_param_s {
