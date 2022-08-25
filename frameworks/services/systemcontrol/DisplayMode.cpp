@@ -2670,7 +2670,7 @@ void DisplayMode::setHdrPriority(const char* type) {
 
         // 2.3 save dolby status/dv_type
         // In follow sink mode: 0:disable 1:STD(or enable dv) 2:LL YUV 3: LL RGB
-        // In follow source mode: dv is diable in uboot.
+        // In follow source mode: dv is disable  in uboot.
         if (!(strstr(dv_cap.c_str(), "The Rx don't support DolbyVision")) &&
             (isMboxSupportDolbyVision() == true)) {
             getHdrStrategy(hdr_policy);
@@ -3299,7 +3299,7 @@ void DisplayMode::saveHdmiParamToEnv() {
 
         // 2.3 save dolby status/dv_type
         // In follow sink mode: 0:disable 1:STD(or enable dv) 2:LL YUV 3: LL RGB
-        // In follow source mode: dv is diable in uboot.
+        // In follow source mode: dv is disable  in uboot.
         if (isMboxSupportDolbyVision()) {
             getHdrStrategy(hdr_policy);
             if (!strcmp(hdr_policy, HDR_POLICY_SOURCE)) {

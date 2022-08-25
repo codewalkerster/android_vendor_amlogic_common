@@ -32,21 +32,21 @@ extern "C" {
 /**\brief Error code of the ci module*/
 enum AM_CI_ErrorCode
 {
-	AM_CI_ERROR_BASE=AM_ERROR_BASE(AM_MOD_CI),
-	AM_CI_ERROR_INVALID_DEV_NO, 							/**< Invalid device number*/
-	AM_CI_ERROR_BAD_PARAM,										/**< Invalid parameter*/
-	AM_CI_ERROR_NOT_OPEN,											/**< The device is not yet open */
-	AM_CI_ERROR_NOT_START,										/**< The device is already start*/
-	AM_CI_ERROR_ALREADY_OPEN,									/**< The device is not yet open*/
-	AM_CI_ERROR_ALREADY_START,								/**< The device is already start*/
-	AM_CI_ERROR_CANNOT_CREATE_THREAD,					/**< Cannot creat thread*/
-	AM_CI_ERROR_USED_BY_CAMAN,								/**< CAMAN error */
-	AM_CI_ERROR_PROTOCOL,											/**< Protocol error*/
-	AM_CI_ERROR_BAD_PMT,											/**< PMT is bad error*/
-	AM_CI_ERROR_MAX_DEV,											/**< already open max device,need close other device*/
-	AM_CI_ERROR_BAD_CAM,											/**< Cam card is bad*/
-	AM_CI_ERROR_UNAVAILABLE,									/**< ci unavailable error*/
-	AM_CI_ERROR_UNKOWN,												/**< Unkown error*/
+    AM_CI_ERROR_BASE = AM_ERROR_BASE(AM_MOD_CI),
+    AM_CI_ERROR_INVALID_DEV_NO,       /**< Invalid device number*/
+    AM_CI_ERROR_BAD_PARAM,            /**< Invalid parameter*/
+    AM_CI_ERROR_NOT_OPEN,             /**< The device is not yet open */
+    AM_CI_ERROR_NOT_START,            /**< The device is already start*/
+    AM_CI_ERROR_ALREADY_OPEN,         /**< The device is not yet open*/
+    AM_CI_ERROR_ALREADY_START,        /**< The device is already start*/
+    AM_CI_ERROR_CANNOT_CREATE_THREAD, /**< Cannot creat thread*/
+    AM_CI_ERROR_USED_BY_CAMAN,        /**< CAMAN error */
+    AM_CI_ERROR_PROTOCOL,             /**< Protocol error*/
+    AM_CI_ERROR_BAD_PMT,              /**< PMT is bad error*/
+    AM_CI_ERROR_MAX_DEV,              /**< already open max device,need close other device*/
+    AM_CI_ERROR_BAD_CAM,              /**< Cam card is bad*/
+    AM_CI_ERROR_UNAVAILABLE,          /**< ci unavailable error*/
+    AM_CI_ERROR_UNKNOWN,              /**< Unknown error*/
 };
 /**\brief callback id of the ci module*/
 enum AM_CI_CBID
@@ -152,7 +152,7 @@ typedef int (*mmi_display_control_callback)(void *arg, uint8_t slot_id, uint16_t
  * \param[in] slot_id ci slot id
  * \param[in] session_number	ci session number
  * \param[in] blind_answer	set to 1 menus that user input has not to be displayed
- * \param[in] expected_answer_length expected length,if set to FF if unkown
+ * \param[in] expected_answer_length expected length,if set to FF if unknown
  * \param[in] text	input text string
  * \param[in] text_size input text length
  * \retval AM_SUCCESS On success

@@ -2507,7 +2507,7 @@ static wifi_error wifi_read_packet_filter(wifi_interface_handle handle,
     if (length == 0)
         return  WIFI_ERROR_INVALID_ARGS;
 
-    /*Temporary varibles to support the read complete length in chunks */
+    /*Temporary variables to support the read complete length in chunks */
     u8 *temp_host_dst;
     u32 remainingLengthBeRead, currentLength;
     u8 apf_locally_disabled = 0;

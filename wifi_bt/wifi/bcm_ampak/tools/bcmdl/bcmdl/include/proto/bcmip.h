@@ -1,10 +1,10 @@
 /*
  * Copyright (C) 2014, Broadcom Corporation. All Rights Reserved.
- * 
+ *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
  * copyright notice and this permission notice appear in all copies.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
  * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
@@ -30,41 +30,41 @@
 
 
 
-#define IP_VER_OFFSET		0x0	
-#define IP_VER_MASK		0xf0	
-#define IP_VER_SHIFT		4	
-#define IP_VER_4		4	
-#define IP_VER_6		6	
+#define IP_VER_OFFSET		0x0
+#define IP_VER_MASK		0xf0
+#define IP_VER_SHIFT		4
+#define IP_VER_4		4
+#define IP_VER_6		6
 
 #define IP_VER(ip_body) \
 	((((uint8 *)(ip_body))[IP_VER_OFFSET] & IP_VER_MASK) >> IP_VER_SHIFT)
 
-#define IP_PROT_ICMP		0x1	
-#define IP_PROT_IGMP		0x2	
-#define IP_PROT_TCP		0x6	
-#define IP_PROT_UDP		0x11	
-#define IP_PROT_ICMP6		0x3a	
+#define IP_PROT_ICMP		0x1
+#define IP_PROT_IGMP		0x2
+#define IP_PROT_TCP		0x6
+#define IP_PROT_UDP		0x11
+#define IP_PROT_ICMP6		0x3a
 
 
-#define IPV4_VER_HL_OFFSET      0       
-#define IPV4_TOS_OFFSET         1       
-#define IPV4_PKTLEN_OFFSET      2       
-#define IPV4_PKTFLAG_OFFSET     6       
-#define IPV4_PROT_OFFSET        9       
-#define IPV4_CHKSUM_OFFSET      10      
-#define IPV4_SRC_IP_OFFSET      12      
-#define IPV4_DEST_IP_OFFSET     16      
-#define IPV4_OPTIONS_OFFSET     20      
-#define IPV4_MIN_HEADER_LEN     20      
+#define IPV4_VER_HL_OFFSET      0
+#define IPV4_TOS_OFFSET         1
+#define IPV4_PKTLEN_OFFSET      2
+#define IPV4_PKTFLAG_OFFSET     6
+#define IPV4_PROT_OFFSET        9
+#define IPV4_CHKSUM_OFFSET      10
+#define IPV4_SRC_IP_OFFSET      12
+#define IPV4_DEST_IP_OFFSET     16
+#define IPV4_OPTIONS_OFFSET     20
+#define IPV4_MIN_HEADER_LEN     20
 
 
-#define IPV4_VER_MASK		0xf0	
-#define IPV4_VER_SHIFT		4	
+#define IPV4_VER_MASK		0xf0
+#define IPV4_VER_SHIFT		4
 
-#define IPV4_HLEN_MASK		0x0f	
+#define IPV4_HLEN_MASK		0x0f
 #define IPV4_HLEN(ipv4_body)	(4 * (((uint8 *)(ipv4_body))[IPV4_VER_HL_OFFSET] & IPV4_HLEN_MASK))
 
-#define IPV4_ADDR_LEN		4	
+#define IPV4_ADDR_LEN		4
 
 #define IPV4_ADDR_NULL(a)	((((uint8 *)(a))[0] | ((uint8 *)(a))[1] | \
 				  ((uint8 *)(a))[2] | ((uint8 *)(a))[3]) == 0)
@@ -72,17 +72,17 @@
 #define IPV4_ADDR_BCAST(a)	((((uint8 *)(a))[0] & ((uint8 *)(a))[1] & \
 				  ((uint8 *)(a))[2] & ((uint8 *)(a))[3]) == 0xff)
 
-#define	IPV4_TOS_DSCP_MASK	0xfc	
-#define	IPV4_TOS_DSCP_SHIFT	2	
+#define	IPV4_TOS_DSCP_MASK	0xfc
+#define	IPV4_TOS_DSCP_SHIFT	2
 
 #define	IPV4_TOS(ipv4_body)	(((uint8 *)(ipv4_body))[IPV4_TOS_OFFSET])
 
-#define	IPV4_TOS_PREC_MASK	0xe0	
-#define	IPV4_TOS_PREC_SHIFT	5	
+#define	IPV4_TOS_PREC_MASK	0xe0
+#define	IPV4_TOS_PREC_SHIFT	5
 
-#define IPV4_TOS_LOWDELAY	0x10	
-#define IPV4_TOS_THROUGHPUT	0x8	
-#define IPV4_TOS_RELIABILITY	0x4	
+#define IPV4_TOS_LOWDELAY	0x10
+#define IPV4_TOS_THROUGHPUT	0x8
+#define IPV4_TOS_RELIABILITY	0x4
 
 #define IPV4_TOS_ROUTINE        0
 #define IPV4_TOS_PRIORITY       1
@@ -95,12 +95,12 @@
 
 #define IPV4_PROT(ipv4_body)	(((uint8 *)(ipv4_body))[IPV4_PROT_OFFSET])
 
-#define IPV4_FRAG_RESV		0x8000	
-#define IPV4_FRAG_DONT		0x4000	
-#define IPV4_FRAG_MORE		0x2000	
-#define IPV4_FRAG_OFFSET_MASK	0x1fff	
+#define IPV4_FRAG_RESV		0x8000
+#define IPV4_FRAG_DO_NOT		0x4000
+#define IPV4_FRAG_MORE		0x2000
+#define IPV4_FRAG_OFFSET_MASK	0x1fff
 
-#define IPV4_ADDR_STR_LEN	16	
+#define IPV4_ADDR_STR_LEN	16
 
 
 BWL_PRE_PACKED_STRUCT struct ipv4_addr {
@@ -108,24 +108,24 @@ BWL_PRE_PACKED_STRUCT struct ipv4_addr {
 } BWL_POST_PACKED_STRUCT;
 
 BWL_PRE_PACKED_STRUCT struct ipv4_hdr {
-	uint8	version_ihl;		
-	uint8	tos;			
-	uint16	tot_len;		
+	uint8	version_ihl;
+	uint8	tos;
+	uint16	tot_len;
 	uint16	id;
-	uint16	frag;			
-	uint8	ttl;			
-	uint8	prot;			
-	uint16	hdr_chksum;		
-	uint8	src_ip[IPV4_ADDR_LEN];	
-	uint8	dst_ip[IPV4_ADDR_LEN];	
+	uint16	frag;
+	uint8	ttl;
+	uint8	prot;
+	uint16	hdr_chksum;
+	uint8	src_ip[IPV4_ADDR_LEN];
+	uint8	dst_ip[IPV4_ADDR_LEN];
 } BWL_POST_PACKED_STRUCT;
 
 
-#define IPV6_PAYLOAD_LEN_OFFSET	4	
-#define IPV6_NEXT_HDR_OFFSET	6	
-#define IPV6_HOP_LIMIT_OFFSET	7	
-#define IPV6_SRC_IP_OFFSET	8	
-#define IPV6_DEST_IP_OFFSET	24	
+#define IPV6_PAYLOAD_LEN_OFFSET	4
+#define IPV6_NEXT_HDR_OFFSET	6
+#define IPV6_HOP_LIMIT_OFFSET	7
+#define IPV6_SRC_IP_OFFSET	8
+#define IPV6_DEST_IP_OFFSET	24
 
 
 #define IPV6_TRAFFIC_CLASS(ipv6_body) \
@@ -146,7 +146,7 @@ BWL_PRE_PACKED_STRUCT struct ipv4_hdr {
 
 #define IPV6_PROT(ipv6_body)	IPV6_NEXT_HDR(ipv6_body)
 
-#define IPV6_ADDR_LEN		16	
+#define IPV6_ADDR_LEN		16
 
 
 #define IP_TOS46(ip_body) \
@@ -236,4 +236,4 @@ ipv6_exthdr_len(uint8 *h, uint8 *proto)
 								((uint32)addr & 0x0000ff00) >> 8, \
 								((uint32)addr & 0x000000ff)
 
-#endif	
+#endif

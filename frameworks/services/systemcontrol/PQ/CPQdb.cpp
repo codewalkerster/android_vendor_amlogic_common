@@ -2783,7 +2783,7 @@ int CPQdb::PQ_GetGammaTable(int panel_id, source_input_param_t source_input_para
     return rval;
 }
 
-int CPQdb::PQ_GetVGAAjustPara(tvin_sig_fmt_t vga_fmt, tvafe_vga_parm_t *adjparam)
+int CPQdb::PQ_GetVGAAdjustPara(tvin_sig_fmt_t vga_fmt, tvafe_vga_parm_t *adjparam)
 {
     CSqlite::Cursor c;
     char sqlmaster[256];
@@ -2826,7 +2826,7 @@ int CPQdb::PQ_GetVGAAjustPara(tvin_sig_fmt_t vga_fmt, tvafe_vga_parm_t *adjparam
     return rval;
 }
 
-int CPQdb::PQ_SetVGAAjustPara(tvin_sig_fmt_t vga_fmt, tvafe_vga_parm_t adjparam)
+int CPQdb::PQ_SetVGAAdjustPara(tvin_sig_fmt_t vga_fmt, tvafe_vga_parm_t adjparam)
 {
     CSqlite::Cursor c;
     char sql[256];

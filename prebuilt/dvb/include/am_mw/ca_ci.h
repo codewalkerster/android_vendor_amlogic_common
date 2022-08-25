@@ -86,8 +86,8 @@ struct ca_ci_mmi_display_control_s {
 /**\brief mmi enquire info of ci,used to notify app to show mmi eng menu*/
 struct ca_ci_mmi_enq_s {
 	uint8_t blind_answer;						/**< set to 1 menus that user input has not to be displayed*/
-	uint8_t expected_answer_length;	/**< expected length,if set to FF means unkown*/
-	uint32_t text_size;							/**< input text string length*/
+    uint8_t expected_answer_length;             /**< expected length,if set to FF means unknown*/
+    uint32_t text_size;							/**< input text string length*/
 	uint8_t text[0];								/**< input text string*/
 };
 
@@ -108,7 +108,7 @@ struct ca_ci_mmi_menu_list_s {
 	uint8_t items_raw[0];
 };
 */
-/**\brief mmi answer enquire info of ci,uesd to answer or cancel ca_ci_msg_type_mmi_enq type message*/
+/**\brief mmi answer enquire info of ci,used to answer or cancel ca_ci_msg_type_mmi_enq type message*/
 struct ca_ci_answer_enq_s {
 	int answer_id;		/**< set 1 means answer,set 0 means cancel*/
 	int size;					/**< answer text string length*/

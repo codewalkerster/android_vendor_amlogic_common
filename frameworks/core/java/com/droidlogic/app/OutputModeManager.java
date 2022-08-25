@@ -1395,12 +1395,12 @@ public class OutputModeManager {
         return Settings.Global.getInt(mResolver, DB_ID_SOUND_SPDIF_OUTPUT_ENABLE, 1) != 0;
     }
 
-    public void setAdSurportEnable(boolean newVal) {
+    public void setAdSupportEnable(boolean newVal) {
         DataProviderManager.putIntValue(mContext, DB_ID_SOUND_AD_SWITCH, newVal ? 1 : 0);
         mAudioManager.setParameters(HAL_PARAM_AD_SWITCH + (newVal ? 1 : 0));
     }
 
-    public boolean getAdSurportEnable() {
+    public boolean getAdSupportEnable() {
         DataProviderManager.getIntValue(mContext, DB_ID_SOUND_AD_SWITCH, 0) ;
         return DataProviderManager.getIntValue(mContext, DB_ID_SOUND_AD_SWITCH, 0) != 0;
     }
@@ -1418,7 +1418,7 @@ public class OutputModeManager {
             enableBoxHdmiAudio(boxhdmi == BOX_HDMI_ON);
         }
         setSoundSpdifEnable(getSoundSpdifEnable());
-        setAdSurportEnable(getAdSurportEnable());
+        setAdSupportEnable(getAdSupportEnable());
         setAc4DialogEnhancer(getAc4DialogEnhancer());
         setForceDDPEnable(getForceDDPEnable());
         AudioConfigManager.getInstance(mContext).initAudioConfigSettings();

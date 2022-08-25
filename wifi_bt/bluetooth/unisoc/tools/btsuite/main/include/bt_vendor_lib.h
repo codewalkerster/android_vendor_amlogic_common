@@ -342,7 +342,7 @@ typedef struct {
  * Bluetooth Host/Controller VENDOR Interface
  */
 typedef struct {
-    /** Set to sizeof(bt_vndor_interface_t) */
+    /** Set to sizeof(bt_vendor_interface_t) */
     size_t          size;
 
     /*

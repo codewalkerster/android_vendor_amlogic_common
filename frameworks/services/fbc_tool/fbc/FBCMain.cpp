@@ -63,11 +63,11 @@ int main(int argc, char **argv)
             write_buf[9] = (value >> 24) & 0xFF;
             break;
         case suspend:
-            LOGE("Unsurport command!!!");
+            LOGE("Unsupport command!!!");
             return -1;
             break;
         default:
-            LOGE("Unsurport command!!!");
+            LOGE("Unsupport command!!!");
             return -1;
             break;
     }

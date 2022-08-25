@@ -121,8 +121,8 @@ interface ISubtitleServer {
   setPosHeight(int32_t sId, int32_t height) generates (Result result);
   setImgRatio(int32_t sId, float ratioW, float ratioH, int32_t maxW, int32_t maxH)
     generates (Result result);
-  getSubDemision(int32_t sId) generates (Result result, int32_t width, int32_t height);
-  setSubDemision(int32_t sId, int32_t width, int32_t height) generates (Result result);
+  getSubDimension(int32_t sId) generates (Result result, int32_t width, int32_t height);
+  setSubDimension(int32_t sId, int32_t width, int32_t height) generates (Result result);
   setSurfaceViewRect(int32_t sId, int32_t x, int32_t y, int32_t w, int32_t h)
     generates (Result result);
 

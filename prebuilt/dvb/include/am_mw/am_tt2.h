@@ -40,7 +40,7 @@ enum AM_TT2_ErrorCode
 	AM_TT2_ERROR_BASE=AM_ERROR_BASE(AM_MOD_SUB2),
 	AM_TT2_ERR_INVALID_PARAM,   /**< Invalid parameter*/
 	AM_TT2_ERR_INVALID_HANDLE,  /**< Invalid handle*/
-	AM_TT2_ERR_NOT_SUPPORTED,   /**< not surport action*/
+	AM_TT2_ERR_NOT_SUPPORTED,   /**< not support action*/
 	AM_TT2_ERR_CREATE_DECODE,   /**< open Teletext decode error*/
 	AM_TT2_ERR_OPEN_PES,        /**< open pes filter error*/
 	AM_TT2_ERR_SET_BUFFER,      /**< set pes buffer error*/

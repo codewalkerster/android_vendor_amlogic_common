@@ -1297,7 +1297,7 @@
 #define HCI_SUSPEND_INQUIRY_SCAN        0x02
 #define HCI_SUSPEND_PERIODIC_INQUIRIES  0x04
 
-/* Default Link Supervision timeoout */
+/* Default Link Supervision timeout */
 #define HCI_DEFAULT_INACT_TOUT          0x7D00  /* BR/EDR (20 seconds) */
 #define HCI_DEFAULT_AMP_INACT_TOUT      0x3E80  /* AMP    (10 seconds) */
 

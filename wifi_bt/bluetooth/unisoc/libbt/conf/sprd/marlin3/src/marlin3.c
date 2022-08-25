@@ -172,7 +172,7 @@ void hw_core_enable(unsigned char enable)
         /* Send command via HC's xmit_cb API */
         bt_vendor_cbacks->xmit_cb(HCI_VSC_ENABLE_COMMMAND, p_buf, hw_core_cback);
     } else {
-        ALOGI("hw_pskey_send dont send pskey");
+        ALOGI("hw_pskey_send don't send pskey");
         if (bt_vendor_cbacks) {
             ALOGE("vendor lib hw_pskey_send aborted [no buffer]");
         }

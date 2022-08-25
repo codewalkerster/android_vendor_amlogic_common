@@ -809,7 +809,7 @@
 #define HCI_SUSPEND_INQUIRY_SCAN        0x02
 #define HCI_SUSPEND_PERIODIC_INQUIRIES  0x04
 
-/* Default Link Supervision timeoout */
+/* Default Link Supervision timeout */
 #define HCI_DEFAULT_INACT_TOUT          0x7D00  /* 20 seconds */
 
 /* Read transmit power level parameter */

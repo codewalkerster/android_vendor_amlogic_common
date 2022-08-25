@@ -210,7 +210,7 @@ enum AM_SI_ErrorCode
 {
 	AM_SI_ERROR_BASE=AM_ERROR_BASE(AM_MOD_SI),
 	AM_SI_ERR_INVALID_HANDLE,          /**< Invalid handle*/
-	AM_SI_ERR_NOT_SUPPORTED,           /**< not surport action*/
+	AM_SI_ERR_NOT_SUPPORTED,           /**< not support action*/
 	AM_SI_ERR_NO_MEM,                  /**< out of native memory*/
 	AM_SI_ERR_INVALID_SECTION_DATA,		   /**< data error of the section*/
 	AM_SI_ERR_END
@@ -336,7 +336,7 @@ extern AM_ErrorCode_t AM_SI_Create(AM_SI_Handle_t *handle);
  */
 extern AM_ErrorCode_t AM_SI_Destroy(AM_SI_Handle_t handle);
 
-/**\brief parse a section,surport si table:
+/**\brief parse a section,support si table:
  * CAT(dvbpsi_cat_t) PAT(dvbpsi_pat_t) PMT(dvbpsi_pmt_t)
  * SDT(dvbpsi_sdt_t) EIT(dvbpsi_eit_t) TOT(dvbpsi_tot_t)
  *  NIT(dvbpsi_nit_t).

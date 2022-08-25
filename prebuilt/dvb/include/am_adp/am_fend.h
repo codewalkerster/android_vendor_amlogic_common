@@ -168,7 +168,7 @@ extern AM_ErrorCode_t AM_FEND_GetInfo(int dev_no, struct dvb_frontend_info *info
 
 /**\brief get a frontend device's ts source
  * \param dev_no frontend device number
- * \param[out] src retrun device's ts source
+ * \param[out] src return device's ts source
  * \return
  *   - AM_SUCCESS On success
  *   - or error code

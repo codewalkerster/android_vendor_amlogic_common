@@ -150,8 +150,8 @@ public:
     int PQ_GetGammaTableG(int panel_id, source_input_param_t source_input_param, tcon_gamma_table_t *gamma_g);
     int PQ_GetGammaTableB(int panel_id, source_input_param_t source_input_param, tcon_gamma_table_t *gamma_b);
     int PQ_GetGammaSpecialTable(vpp_gamma_curve_t gamma_curve, const char *f_name, tcon_gamma_table_t *gamma_r);
-    int PQ_GetVGAAjustPara(tvin_sig_fmt_t vga_fmt, tvafe_vga_parm_t *adjparam);
-    int PQ_SetVGAAjustPara(tvin_sig_fmt_t vga_fmt, tvafe_vga_parm_t adjparam);
+    int PQ_GetVGAAdjustPara(tvin_sig_fmt_t vga_fmt, tvafe_vga_parm_t *adjparam);
+    int PQ_SetVGAAdjustPara(tvin_sig_fmt_t vga_fmt, tvafe_vga_parm_t adjparam);
     int PQ_GetPhaseArray(am_phase_t *am_phase);
     int PQ_GetPLLParams(source_input_param_t source_input_param, am_regs_t *regs);
     int PQ_GetAIParams(source_input_param_t source_input_param, ai_pic_table_t *regs);

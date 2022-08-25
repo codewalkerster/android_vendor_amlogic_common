@@ -180,7 +180,7 @@ typedef enum {
    *      pointer to bt_vendor_op_a2dp_offload_start_t containing elements
    *      required for VND FW to setup a2dp offload.
    *  [return]
-   *      0  - default, dont care.
+   *      0  - default, don't care.
    *  [callback]
    *      Must call a2dp_offload_start_cb to notify the stack of the
    *      completion of vendor specific setup process once it has been done.
@@ -194,7 +194,7 @@ typedef enum {
    *      pointer to bt_vendor_op_a2dp_offload_t containing elements
    *      required for VND FW to setup a2dp offload.
    *  [return]
-   *      0  - default, dont care.
+   *      0  - default, don't care.
    *  [callback]
    *      Must call a2dp_offload_cb to notify the stack of the
    *      completion of vendor specific setup process once it has been done.
@@ -380,7 +380,7 @@ typedef struct {
  * Bluetooth Host/Controller VENDOR Interface
  */
 typedef struct {
-  /** Set to sizeof(bt_vndor_interface_t) */
+  /** Set to sizeof(bt_vendor_interface_t) */
   size_t size;
 
   /*

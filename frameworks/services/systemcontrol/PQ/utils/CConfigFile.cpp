@@ -434,7 +434,7 @@ void CConfigFile::GetPqdbPath(char *file_path)
         } else {
             SYS_LOGE("no pq.db in %s, %s and %s\n", pqDBConfigPath, pqDBDefaultPath0, pqDBDefaultPath1);
         }
-        SYS_LOGI("%s:bin flie path: %s\n", __FUNCTION__, pqBinFilePath);
+        SYS_LOGI("%s:bin file path: %s\n", __FUNCTION__, pqBinFilePath);
 
         //Uncompress pq.bin
         if (!isFileExist(pqBinFilePath)) {

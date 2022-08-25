@@ -205,11 +205,11 @@ typedef UPlugTokenReturn (U_EXPORT2 UPlugEntrypoint) (
  * This is appropriate for plugins which cannot be cleaned up.
  * @see u_cleanup()
  * @param plug plugin
- * @param dontUnload  set true if this plugin can't be unloaded
+ * @param doNotUnload  set true if this plugin can't be unloaded
  * @internal ICU 4.4 Technology Preview
  */
 U_INTERNAL void U_EXPORT2
-uplug_setPlugNoUnload(UPlugData *plug, UBool dontUnload);
+uplug_setPlugNoUnload(UPlugData *plug, UBool doNotUnload);
 
 /**
  * Set the level of this plugin.

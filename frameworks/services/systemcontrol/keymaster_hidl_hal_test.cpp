@@ -840,7 +840,7 @@ class KeymasterHidlTest : public ::testing::VtsHalHidlTargetTestBase {
                 *cert_chain = hidl_cert_chain;
             });
         if (!rc.isOk()) {
-            ALOGE("AttestKey %s unkown", key_blob.to_string().c_str());
+            ALOGE("AttestKey %s unknown", key_blob.to_string().c_str());
             error = ErrorCode::UNKNOWN_ERROR;
         }
 

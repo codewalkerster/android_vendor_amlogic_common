@@ -1094,19 +1094,19 @@ int CPQControl::Cpq_CheckColorTemperatureParamAlldata(source_input_param_t sourc
     int ret= -1;
     unsigned short ret1 = 0, ret2 = 0;
 
-    ret = Cpq_CheckTemperatureDataLable();
+    ret = Cpq_CheckTemperatureDataLabel();
     ret1 = Cpq_CalColorTemperatureParamsChecksum();
     ret2 = Cpq_GetColorTemperatureParamsChecksum();
 
     if (ret && (ret1 == ret2)) {
-        SYS_LOGI("%s, color temperature param lable & checksum ok.\n",__FUNCTION__);
+        SYS_LOGI("%s, color temperature param label & checksum ok.\n", __FUNCTION__);
         if (Cpq_CheckColorTemperatureParams() == 0) {
             SYS_LOGI("%s, color temperature params check failed.\n", __FUNCTION__);
             Cpq_RestoreColorTemperatureParamsFromDB(source_input_param);
          }
     } else {
         SYS_LOGI("%s, color temperature param data error.\n", __FUNCTION__);
-        Cpq_SetTemperatureDataLable();
+        Cpq_SetTemperatureDataLabel();
         Cpq_RestoreColorTemperatureParamsFromDB(source_input_param);
     }
 
@@ -1290,7 +1290,7 @@ int CPQControl::Cpq_RestoreColorTemperatureParamsFromDB(source_input_param_t sou
     return 0;
 }
 
-int CPQControl::Cpq_CheckTemperatureDataLable(void)
+int CPQControl::Cpq_CheckTemperatureDataLabel(void)
 {
     USUC usuc;
     USUC ret;
@@ -1301,15 +1301,15 @@ int CPQControl::Cpq_CheckTemperatureDataLable(void)
     usuc.c[1] = 0xAA;
 
     if ((usuc.c[0] == ret.c[0]) && (usuc.c[1] == ret.c[1])) {
-        SYS_LOGI("%s, lable ok.\n", __FUNCTION__);
+        SYS_LOGI("%s, label ok.\n", __FUNCTION__);
         return 1;
     } else {
-        SYS_LOGE("%s, lable error.\n", __FUNCTION__);
+        SYS_LOGE("%s, label error.\n", __FUNCTION__);
         return 0;
     }
 }
 
-int CPQControl::Cpq_SetTemperatureDataLable(void)
+int CPQControl::Cpq_SetTemperatureDataLabel(void)
 {
     USUC usuc;
     int ret = 0;
@@ -4693,7 +4693,7 @@ int CPQControl::SetAad(void)
     if (ret < 0) {
         SYS_LOGE("%s failed\n",__FUNCTION__);
     } else {
-        SYS_LOGI("%s succes\n",__FUNCTION__);
+        SYS_LOGI("%s success\n",__FUNCTION__);
     }
 
     return ret;
@@ -4753,7 +4753,7 @@ int CPQControl::SetCabc(void)
     if (ret < 0) {
         SYS_LOGE("%s failed\n",__FUNCTION__);
     } else {
-        SYS_LOGI("%s succes\n",__FUNCTION__);
+        SYS_LOGI("%s success\n",__FUNCTION__);
     }
 
     return ret;

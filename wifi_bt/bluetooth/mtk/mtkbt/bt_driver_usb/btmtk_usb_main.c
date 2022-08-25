@@ -985,7 +985,7 @@ static int btmtk_usb_send_assert_cmd(void)
 	/*if (ret < 0)*/
 		ret = btmtk_usb_send_assert_cmd_bulk();
 	if (ret < 0) {
-		BTUSB_ERR("%s: send assert cmd fail, tigger hw reset only", __func__);
+		BTUSB_ERR("%s: send assert cmd fail, trigger hw reset only", __func__);
 		btmtk_usb_start_reset_dongle_progress();
 		return ret;
 	}
@@ -993,14 +993,14 @@ static int btmtk_usb_send_assert_cmd(void)
 	/* submit URB since btmtk_usb_send_hci_cmd would stop it */
 	ret = btmtk_usb_start_intr_traffic();
 	if (ret < 0) {
-		BTUSB_ERR("%s: Start interrupt traffic fail, tigger hw reset directly", __func__);
+		BTUSB_ERR("%s: Start interrupt traffic fail, trigger hw reset directly", __func__);
 		btmtk_usb_start_reset_dongle_progress();
 		return ret;
 	}
 
 	ret = btmtk_usb_start_acl_traffic();
 	if (ret < 0) {
-		BTUSB_ERR("%s: Start acl traffic fail, tigger hw reset directly", __func__);
+		BTUSB_ERR("%s: Start acl traffic fail, trigger hw reset directly", __func__);
 		btmtk_usb_start_reset_dongle_progress();
 	}
 	return ret;

@@ -178,8 +178,8 @@ public:
     int Cpq_GetColorTemperatureUser(tv_source_input_t source_input, tcon_rgb_ogo_t *p_tcon_rgb_ogo);
     int Cpq_SaveColorTemperatureUser(tv_source_input_t source_input, rgb_ogo_type_t rgb_ogo_type, int value);
     int Cpq_RestoreColorTemperatureParamsFromDB(source_input_param_t source_input_param);
-    int Cpq_CheckTemperatureDataLable(void);
-    int Cpq_SetTemperatureDataLable(void);
+    int Cpq_CheckTemperatureDataLabel(void);
+    int Cpq_SetTemperatureDataLabel(void);
     int SetColorTemperatureParams(vpp_color_temperature_mode_t Tempmode, tcon_rgb_ogo_t params);
     int GetColorTemperatureParams(vpp_color_temperature_mode_t Tempmode, tcon_rgb_ogo_t *params);
     int SaveColorTemperatureParams(vpp_color_temperature_mode_t Tempmode, tcon_rgb_ogo_t params);

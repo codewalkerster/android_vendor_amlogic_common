@@ -837,7 +837,7 @@ static const struct option long_option[] = {
 
 static void print_usage(const char* name) {
     printf("Usage: %s \n"
-            "test systemcontrol clinet api\n"
+            "test systemcontrol client api\n"
             "Options:\n"
             "        --help        \tlist all cmd\n"
             "        --keytest     \t cmd  keypath\n"

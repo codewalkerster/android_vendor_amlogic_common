@@ -33,15 +33,15 @@ extern "C"
 /**\brief Error code of the CA manage module*/
 enum AM_CAMAN_ErrorCode
 {
-	AM_CAMAN_ERROR_BASE=AM_ERROR_BASE(AM_MOD_CAMAN),
-	AM_CAMAN_ERROR_CA_UNKOWN,                         /**< Unknown CA*/
-	AM_CAMAN_ERROR_CA_EXISTS,                         /**< CA already exists*/
-	AM_CAMAN_ERROR_CA_ERROR,                          /**< CA error*/
-	AM_CAMAN_ERROR_NO_MEM,                            /**< out of memory*/
-	AM_CAMAN_ERROR_CANNOT_CREATE_THREAD,              /**< Thread creation failed*/
-	AM_CAMAN_ERROR_BADPARAM,                          /**< Parameter error*/
-	AM_CAMAN_ERROR_NOTOPEN,                           /**< CA management module is not open*/
-	AM_CAMAN_ERROR_END
+    AM_CAMAN_ERROR_BASE = AM_ERROR_BASE(AM_MOD_CAMAN),
+    AM_CAMAN_ERROR_CA_UNKNOWN,           /**< Unknown CA*/
+    AM_CAMAN_ERROR_CA_EXISTS,            /**< CA already exists*/
+    AM_CAMAN_ERROR_CA_ERROR,             /**< CA error*/
+    AM_CAMAN_ERROR_NO_MEM,               /**< out of memory*/
+    AM_CAMAN_ERROR_CANNOT_CREATE_THREAD, /**< Thread creation failed*/
+    AM_CAMAN_ERROR_BADPARAM,             /**< Parameter error*/
+    AM_CAMAN_ERROR_NOTOPEN,              /**< CA management module is not open*/
+    AM_CAMAN_ERROR_END
 };
 
 /****************************************************************************

@@ -416,7 +416,7 @@ inline const char* stringify(KeyOrigin origin) {
     case KeyOrigin::UNKNOWN:
         return "UNKNOWN (keymaster0 didn't record it)";
     }
-    return "UNKOWN KEY ORIGIN VALUE";
+    return "UNKNOWN KEY ORIGIN VALUE";
 }
 
 inline const char* stringify(KeyPurpose purpose) {

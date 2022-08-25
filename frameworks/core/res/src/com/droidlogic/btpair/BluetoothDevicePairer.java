@@ -201,7 +201,7 @@ public class BluetoothDevicePairer {
 
     public void RestartScan() {
         if (mFindFlag) {
-            Log("find remote! dont rescan");
+            Log("find remote! don't rescan");
         }
         else{
             Log("RestartScan");

@@ -145,11 +145,11 @@ typedef enum {
 /*                                        */
 class RBBIDataWrapper : public UMemory {
 public:
-    enum EDontAdopt {
-        kDontAdopt
+    enum EDoNotAdopt {
+        kDoNotAdopt
     };
     RBBIDataWrapper(const RBBIDataHeader *data, UErrorCode &status);
-    RBBIDataWrapper(const RBBIDataHeader *data, enum EDontAdopt dontAdopt, UErrorCode &status);
+    RBBIDataWrapper(const RBBIDataHeader *data, enum EDoNotAdopt do_notAdopt, UErrorCode &status);
     RBBIDataWrapper(UDataMemory* udm, UErrorCode &status);
     ~RBBIDataWrapper();
 
@@ -190,7 +190,7 @@ private:
     u_atomic_int32_t    fRefCount;
     UDataMemory        *fUDataMem;
     UnicodeString       fRuleString;
-    UBool               fDontFreeData;
+    UBool               fDoNotFreeData;
 
     RBBIDataWrapper(const RBBIDataWrapper &other); /*  forbid copying of this class */
     RBBIDataWrapper &operator=(const RBBIDataWrapper &other); /*  forbid copying of this class */

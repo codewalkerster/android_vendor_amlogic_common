@@ -110,7 +110,7 @@ int Ubootenv::updateValue(const char* name, const char* value) {
 const char * Ubootenv::getValue(const char * key) {
     if (!isEnv(key)) {
         //should assert here.
-        SYS_LOGE("[ubootenv] %s is not a ubootenv varible and need prefix:ubootenv.var.xxx\n", key);
+        SYS_LOGE("[ubootenv] %s is not a ubootenv variable and need prefix:ubootenv.var.xxx\n", key);
         //print all env
         printValues();
         return NULL;
@@ -230,20 +230,20 @@ int Ubootenv::init() {
 
 #if 0
     char prefix[PROP_VALUE_MAX] = {0};
-    property_get("ro.ubootenv.varible.prefix", prefix, "");
+    property_get("ro.ubootenv.variable.prefix", prefix, "");
     if (prefix[0] == 0) {
         strcpy(prefix , "ubootenv.var");
-        SYS_LOGI("[ubootenv] set property ro.ubootenv.varible.prefix: %s\n", prefix);
-        property_set("ro.ubootenv.varible.prefix", prefix);
+        SYS_LOGI("[ubootenv] set property ro.ubootenv.variable.prefix: %s\n", prefix);
+        property_set("ro.ubootenv.variable.prefix", prefix);
     }
 
     if (strlen(prefix) > 16) {
-        SYS_LOGE("[ubootenv] Cannot r/w ubootenv varibles - prefix length > 16.\n");
+        SYS_LOGE("[ubootenv] Cannot r/w ubootenv variables - prefix length > 16.\n");
         return -4;
     }
 
     sprintf(PROFIX_UBOOTENV_VAR, "%s.", prefix);
-    SYS_LOGI("[ubootenv] ubootenv varible prefix is: %s\n", prefix);
+    SYS_LOGI("[ubootenv] ubootenv variable prefix is: %s\n", prefix);
 #endif
 
     propertyLoad();
@@ -533,13 +533,13 @@ void Ubootenv::propertyListCallback(const prop_info* pi, void* data) {
 
 void Ubootenv::propertyInit(const char *key, const char *value, void *cookie) {
     if (isEnv(key)) {
-        const char* varible_name = key + strlen(PROFIX_UBOOTENV_VAR);
-        const char *varible_value = get(varible_name);
-        if (!varible_value)
-            varible_value = "";
-        if (strcmp(varible_value, value)) {
-            property_set(key, varible_value);
-            SYS_LOGI("[ubootenv] bootenv_prop_init set property key:%s value:%s\n", key, varible_value);
+        const char* variable_name = key + strlen(PROFIX_UBOOTENV_VAR);
+        const char *variable_value = get(variable_name);
+        if (!variable_value)
+            variable_value = "";
+        if (strcmp(variable_value, value)) {
+            property_set(key, variable_value);
+            SYS_LOGI("[ubootenv] bootenv_prop_init set property key:%s value:%s\n", key, variable_value);
             (*((int*)cookie))++;
         }
     }

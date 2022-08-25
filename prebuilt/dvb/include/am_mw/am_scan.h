@@ -49,7 +49,7 @@ enum AM_SCAN_ErrorCode
 	AM_SCAN_ERROR_BASE=AM_ERROR_BASE(AM_MOD_SCAN),
 	AM_SCAN_ERR_INVALID_PARAM,			 /**< Invalid parameter*/
 	AM_SCAN_ERR_INVALID_HANDLE,          /**< Invalid handle*/
-	AM_SCAN_ERR_NOT_SUPPORTED,           /**< not surport action*/
+	AM_SCAN_ERR_NOT_SUPPORTED,           /**< not support action*/
 	AM_SCAN_ERR_NO_MEM,                  /**< out of memory*/
 	AM_SCAN_ERR_CANNOT_LOCK,             /**< cannot lock*/
 	AM_SCAN_ERR_CANNOT_GET_NIT,			 /**< Receive NIT faile*/
@@ -95,10 +95,10 @@ enum AM_SCAN_EventType
 /**\brief service type*/
 enum AM_SCAN_ServiceType
 {
-	AM_SCAN_SRV_UNKNOWN	= 0,	/**< unkown type*/
-	AM_SCAN_SRV_DTV		= 1,	/**< Digital TV type*/
-	AM_SCAN_SRV_DRADIO	= 2,	/**< Digital broadcast type*/
-	AM_SCAN_SRV_ATV		= 3,	/**< Analog TV type*/
+    AM_SCAN_SRV_UNKNOWN = 0, /**< unknown type*/
+    AM_SCAN_SRV_DTV = 1,     /**< Digital TV type*/
+    AM_SCAN_SRV_DRADIO = 2,  /**< Digital broadcast type*/
+    AM_SCAN_SRV_ATV = 3,     /**< Analog TV type*/
 };
 
 /**\brief DTV standard */
@@ -237,8 +237,8 @@ typedef struct
 typedef struct
 {
 	int	progress;	/**< Blind progress，0-100*/
-	int	polar;		/**< The polarization mode of the current blind scan，see AM_FEND_Polarisation_t，-1 means unkown type*/
-	int lo;			/**< Current vibration frequency of blind sweep，see AM_FEND_Localoscollatorfreq_t， -1 means unknown current local oscillator*/
+    int polar;      /**< The polarization mode of the current blind scan，see AM_FEND_Polarisation_t，-1 means unknown type*/
+    int lo;			/**< Current vibration frequency of blind sweep，see AM_FEND_Localoscollatorfreq_t， -1 means unknown current local oscillator*/
 	int freq;		/**< Current scan frequency point*/
 	int new_tp_cnt;	/**< the new TP number to search, <=0 means no new search to the TP*/
 	struct dvb_frontend_parameters	*new_tps;	/**<the new TP information*/

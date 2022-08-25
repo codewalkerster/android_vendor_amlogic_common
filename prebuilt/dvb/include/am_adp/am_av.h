@@ -761,7 +761,7 @@ extern AM_ErrorCode_t AM_AV_StartAudioESData(int dev_no, AM_AV_AFormat_t format,
  */
 extern AM_ErrorCode_t AM_AV_StopAudioES(int dev_no);
 
-/**\brief Enable/diable decoder's DRM mode
+/**\brief Enable/disable  decoder's DRM mode
  * \param dev_no AV decoder device number
  * \param[in] enable enable or disable DRM mode
  * \retval AM_SUCCESS On success

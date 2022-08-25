@@ -909,7 +909,7 @@ public class SubtitleManager {
     public boolean open(String path, int ioType) {
         boolean r = false;
         //Log.d(TAG, "[open] path:" + path, new Throwable());
-        mInterSubTotal = -1;//need clear, or else may be used the old vlaue which cause outofindex error
+        mInterSubTotal = -1;//need clear, or else may be used the old value which cause outofindex error
         r = nativeOpen(path, ioType);
 
         LOGI("[open] innerTotal:" + innerTotal() +", mIOType:" + mIOType);
@@ -977,7 +977,7 @@ public class SubtitleManager {
     }
 
     public void startCCchanel(int channel) {
-        LOGI("[startCCchanel] channel:" + channel);
+        LOGI("[startCCchannel] channel:" + channel);
         if ((channel&0xff) < 0 || (channel&0xff) > 15) {
             return;
         }

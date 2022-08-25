@@ -359,7 +359,7 @@ void wifi_cleanup(wifi_handle handle, wifi_cleaned_up_handler handler)
         ALOGE("could not write to the cleanup socket");
     } else {
         // Listen to the response
-        // Hopefully we dont get errors or get hung up
+        // Hopefully we don't get errors or get hung up
         // Not much can be done in that case, but assume that
         // it has accepted the Exit message to exit the thread.
         // As a fallback set the cleanup flag to TRUE

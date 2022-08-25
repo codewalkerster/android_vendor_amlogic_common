@@ -137,7 +137,7 @@ char bt_leave[] =   "BT_LEAVE";
 #define TIMER_POLLING               (SIGRTMAX -8)
 
 #define PAN_PACKET_COUNT                5
-#define PACKET_COUNT_TIOMEOUT_VALUE     1000//ms
+#define PACKET_COUNT_TIMEOUT_VALUE     1000//ms
 
 //vendor cmd to fw
 #define HCI_VENDOR_ENABLE_PROFILE_REPORT_COMMAND        (0x0018 | HCI_GRP_VENDOR_SPECIFIC)
@@ -541,7 +541,7 @@ int stop_hogp_packet_count_timer()
 int start_hogp_packet_count_timer()
 {
     RtkLogMsg("start hogp packet");
-    return OsStartTimer(rtk_prof.timer_hogp_packet_count, PACKET_COUNT_TIOMEOUT_VALUE, 1);
+    return OsStartTimer(rtk_prof.timer_hogp_packet_count, PACKET_COUNT_TIMEOUT_VALUE, 1);
 }
 
 int alloc_a2dp_packet_count_timer()
@@ -583,7 +583,7 @@ int stop_a2dp_packet_count_timer()
 int start_a2dp_packet_count_timer()
 {
     RtkLogMsg("start a2dp packet");
-    return OsStartTimer(rtk_prof.timer_a2dp_packet_count, PACKET_COUNT_TIOMEOUT_VALUE, 1);
+    return OsStartTimer(rtk_prof.timer_a2dp_packet_count, PACKET_COUNT_TIMEOUT_VALUE, 1);
 }
 
 int alloc_pan_packet_count_timer()
@@ -625,7 +625,7 @@ int stop_pan_packet_count_timer()
 int start_pan_packet_count_timer()
 {
     RtkLogMsg("start pan packet");
-    return OsStartTimer(rtk_prof.timer_pan_packet_count, PACKET_COUNT_TIOMEOUT_VALUE, 1);
+    return OsStartTimer(rtk_prof.timer_pan_packet_count, PACKET_COUNT_TIMEOUT_VALUE, 1);
 }
 
 static int8_t psm_to_profile_index(uint16_t psm)
