@@ -24,7 +24,7 @@
 #include "PqNotify.h"
 #include "CHlgToneMapping.h"
 #include "CDolbyVision.h"
-#include "SysFs.h"
+#include "SysWrite.h"
 
 #define LDIM_PATH                 "/dev/aml_ldim"
 #define VPP_DEV_PATH              "/dev/amvecm"
@@ -456,8 +456,8 @@ private:
     int AFEDeviceIOCtl ( int request, ... );
     tvin_sig_fmt_t getVideoResolutionToFmt();
     int Cpq_SetXVYCCMode(vpp_xvycc_mode_t xvycc_mode, source_input_param_t source_input_param);
-    int pqWriteSys(ConstCharforSysFsNodeIndex index, const char *val);
-    int pqReadSys(ConstCharforSysFsNodeIndex index, char *buf, int count);
+    int pqWriteSys(ConstCharforSysNodeIndex index, const char *val);
+    int pqReadSys(ConstCharforSysNodeIndex index, char *buf, int count);
     void pqTransformStringToInt(const char *buf, int *val);
     unsigned int GetSharpnessRegVal(int addr);
     int Cpq_SetLocalContrastMode(local_contrast_mode_t mode);
@@ -506,7 +506,7 @@ private:
     CPQdb *mPQdb;
     COverScandb *mpOverScandb;
     SSMAction *mSSMAction;
-    SysFs *mSysFs;
+    SysWrite *pqSysWrite;
     static CPQControl *mInstance;
     sp<CDevicePollCheckThread> mCDevicePollCheckThread;
     sp<CDynamicBackLight> mDynamicBackLight;

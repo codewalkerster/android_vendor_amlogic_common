@@ -67,11 +67,8 @@ using namespace android;
 #define DISPLAY_CFG_FILE                "/vendor/etc/mesondisplay.cfg"
 #define FILTER_EDID_CFG_FILE            "/vendor/etc/filteredid.cfg"
 
-#define SYSFS_BOOT_TYPE                 "/sys/power/boot_type"
-
 //when close freescale, will enable display axis, cut framebuffer output
 //when open freescale, will enable window axis, scale framebuffer output
-#define SYS_DISPLAY_RESOLUTION          "/sys/class/video/device_resolution"
 #define PROP_DISPLAY_SIZE               "vendor.display-size"
 #define PROP_DISPLAY_ALLM               "vendor.allm.support"
 #define PROP_DISPLAY_GAME               "vendor.contenttype_game.support"
@@ -81,78 +78,15 @@ using namespace android;
 #define DISPLAY_HDMI_HDCP22_STOP        "stop22" //stop HDCP2.2 authenticate
 #define DISPLAY_HDMI_HDCP_14            "1"
 #define DISPLAY_HDMI_HDCP_22            "2"
-#define DISPLAY_HDMI_HDCP_VER           "/sys/class/amhdmitx/amhdmitx0/hdcp_ver"//RX support HDCP version
-#define DISPLAY_HDMI_HDCP_MODE          "/sys/class/amhdmitx/amhdmitx0/hdcp_mode"//set HDCP mode
-#define DISPLAY_HDMI_HDCP_CONF          "/sys/class/amhdmitx/amhdmitx0/hdcp_ctrl" //HDCP config
-#define DISPLAY_HDMI_HDCP_KEY           "/sys/class/amhdmitx/amhdmitx0/hdcp_lstore"//TX have 22 or 14 or none key
-#define DISPLAY_HDMI_HDCP_POWER         "/sys/class/amhdmitx/amhdmitx0/hdcp_pwr"//write to 1, force hdcp_tx22 quit safely
-
-#define DISPLAY_FB0_BLANK               "/sys/class/graphics/fb0/blank"
-#define DISPLAY_FB1_BLANK               "/sys/class/graphics/fb1/blank"
-
-#define DISPLAY_FB0_FREESCALE           "/sys/class/graphics/fb0/free_scale"
-#define DISPLAY_FB1_FREESCALE           "/sys/class/graphics/fb1/free_scale"
-#define DISPLAY_FB0_FREESCALE_AXIS      "/sys/class/graphics/fb0/free_scale_axis"
-#define DISPLAY_FB0_WINDOW_AXIS         "/sys/class/graphics/fb0/window_axis"
-
-#define DISPLAY_HDMI_SYSCTRL_READY      "/sys/class/amhdmitx/amhdmitx0/sysctrl_enable"
-
-#define DISPLAY_HPD_STATE               "/sys/class/amhdmitx/amhdmitx0/hpd_state"
-#define DISPLAY_HDMI_DISP_CAP           "/sys/class/amhdmitx/amhdmitx0/disp_cap"//RX support display mode
-#define DISPLAY_HDMI_DISP_CAP_3D        "/sys/class/amhdmitx/amhdmitx0/disp_cap_3d"//RX support display 3d mode
-#define DISPLAY_HDMI_DEEP_COLOR         "/sys/class/amhdmitx/amhdmitx0/dc_cap"//RX support deep color
-#define DISPLAY_HDMI_HDR                "/sys/class/amhdmitx/amhdmitx0/hdr_cap"
-#define DISPLAY_HDMI_HDR_CAP2           "/sys/class/amhdmitx/amhdmitx0/hdr_cap2"
-
-#define DISPLAY_HDMI_AUDIO              "/sys/class/amhdmitx/amhdmitx0/aud_cap"
-#define DISPLAY_HDMI_AUDIO_MUTE         "/sys/class/amhdmitx/amhdmitx0/aud_mute"
-#define DISPLAY_HDMI_VIDEO_MUTE         "/sys/class/amhdmitx/amhdmitx0/vid_mute"
-#define DISPLAY_HDMI_MODE_PREF          "/sys/class/amhdmitx/amhdmitx0/preferred_mode"
-#define DISPLAY_HDMI_SINK_TYPE          "/sys/class/amhdmitx/amhdmitx0/sink_type"
-#define DISPLAY_HDMI_VIC                "/sys/class/amhdmitx/amhdmitx0/vic"//if switch between 8bit and 10bit, clear mic first
-#define DISPLAY_HDMI_USED               "/sys/class/amhdmitx/amhdmitx0/hdmi_used"
-
-#define DISPLAY_HDMI_AVMUTE_SYSFS       "/sys/devices/virtual/amhdmitx/amhdmitx0/avmute"
-#define DISPLAY_EDID_VALUE              "/sys/class/amhdmitx/amhdmitx0/edid"
-#define DISPLAY_EDID_STATUS             "/sys/class/amhdmitx/amhdmitx0/edid_parsing"
-#define DISPLAY_EDID_RAW                "/sys/class/amhdmitx/amhdmitx0/rawedid"
-#define DISPLAY_HDMI_PHY                "/sys/class/amhdmitx/amhdmitx0/phy"
-
-#define AUDIO_DSP_DIGITAL_RAW           "/sys/class/audiodsp/digital_raw"
-#define AV_HDMI_CONFIG                  "/sys/class/amhdmitx/amhdmitx0/config"
-#define AV_HDMI_3D_SUPPORT              "/sys/class/amhdmitx/amhdmitx0/support_3d"
 
 #define HDMI_TX_PLUG_UEVENT             "DEVPATH=/devices/virtual/amhdmitx/amhdmitx0/hdmi"//hdmi hot plug event
 #define HDMI_TX_POWER_UEVENT            "DEVPATH=/devices/virtual/amhdmitx/amhdmitx0/hdmi_power"
-#define HDMI_TX_PLUG_STATE              "/sys/class/extcon/hdmi/state"
 #define HDMI_TX_HDR_UEVENT              "DEVPATH=/devices/virtual/amhdmitx/amhdmitx0/hdmi_hdr"
 #define HDMI_TX_HDCP_UEVENT             "DEVPATH=/devices/virtual/amhdmitx/amhdmitx0/hdcp"
 #define HDMI_TX_HDCP14_LOG_UEVENT       "DEVPATH=/devices/virtual/amhdmitx/amhdmitx0/hdcp_log"
-#define HDMI_TX_HDCP14_LOG_SYS          "/sys/kernel/debug/hdcp/log"
-#define HDMI_TX_SWITCH_HDR              "/sys/class/extcon/hdmi_hdr/state"
 #define HDMI_TX_HDMI_AUDIO_UEVENT       "DEVPATH=/devices/virtual/amhdmitx/amhdmitx0/hdmi_audio"
 
 #define HDMI_FRC_POLICY_PROP            "vendor.sys.frc_policy"
-/*
- * MesonDisplay module provide below display attribute to access related sysfs node, here is the map
- * DISPLAY_DOLBY_VISION_CAP               |  "/sys/class/amhdmitx/amhdmitx0/dv_cap";
- * DISPLAY_DOLBY_VISION_CAP2              |  "/sys/class/amhdmitx/amhdmitx0/dv_cap2"
- * DISPLAY_DOLBY_VISION_MODE              |  "/sys/class/amdolby_vision/dv_mode";
- * DISPLAY_DOLBY_VISION_STATUS            |  "/sys/module/aml_media/parameters/dolby_vision_status";
- * DISPLAY_DOLBY_VISION_POLICY            |  "/sys/module/aml_media/parameters/dolby_vision_policy";
- * DISPLAY_DOLBY_VISION_LL_POLICY         |  "/sys/module/aml_media/parameters/dolby_vision_ll_policy";
- * DISPLAY_DOLBY_VISION_HDR_10_POLICY     |  "/sys/module/aml_media/parameters/dolby_vision_hdr10_policy";
- * DISPLAY_DOLBY_VISION_GRAPHICS_PRIORITY |  "/sys/module/aml_media/parameters/dolby_vision_graphics_priority";
- * DISPLAY_HDR_POLICY                     |  "/sys/module/aml_media/parameters/hdr_policy";
- * DISPLAY_HDR_MODE                       |  "/sys/module/aml_media/parameters/hdr_mode";
- * DISPLAY_SDR_MODE                       |  "/sys/module/aml_media/parameters/sdr_mode";
- * DISPLAY_HDR_CAP                        |  "/sys/class/amhdmitx/amhdmitx0/hdr_cap"
- * DISPLAY_HDMI_COLOR_ATTR                |  "/sys/class/amhdmitx/amhdmitx0/attr";
- * DISPLAY_HDMI_AVMUTE_SYSFS                    |  "/sys/devices/virtual/amhdmitx/amhdmitx0/avmute";
- * DISPLAY_DOLBY_VISION_ENABLE            |  "/sys/module/aml_media/parameters/dolby_vision_enable"
-*/
-
-#define DOLBY_VISION_SUPPORT_INFO            "/sys/class/amdolby_vision/support_info"
 
 #define DOLBY_VISION_KO_DIR0                 "/odm/lib/modules/dovi.ko"
 #define DOLBY_VISION_KO_DIR0_TV              "/odm/lib/modules/dovi_tv.ko"
@@ -164,12 +98,6 @@ using namespace android;
 #define DOLBY_VISION_SET_ENABLE_LL_YUV      2
 #define DOLBY_VISION_SET_ENABLE             1
 #define DOLBY_VISION_SET_DISABLE            0
-
-//auto low latency mode
-#define AUTO_LOW_LATENCY_MODE_CAP       "/sys/class/amhdmitx/amhdmitx0/allm_cap"
-#define AUTO_LOW_LATENCY_MODE           "/sys/class/amhdmitx/amhdmitx0/allm_mode"
-#define HDMI_CONTENT_TYPE_CAP           "/sys/class/amhdmitx/amhdmitx0/contenttype_cap"
-#define HDMI_CONTENT_TYPE               "/sys/class/amhdmitx/amhdmitx0/contenttype_mode"
 
 #define DV_ENABLE                       "Y"
 #define DV_DISABLE                      "N"
@@ -630,7 +558,7 @@ private:
     static void* HdmiUenventThreadLoop(void* data);
     void setSinkDisplay(bool initState);
     int getBootenvInt(const char* key, int defaultVal);
-    void dumpCap(const char * path, const char * hint, char *result);
+    void dumpCap(const ConstCharforSysNodeIndex index, const char * hint, char *result);
     void dumpCaps(char *result=NULL);
     void saveHdmiParamToEnv();
     bool checkDolbyVisionStatusChanged(int state);

@@ -62,7 +62,6 @@ cc_library_static {
         "CSqlite.cpp",
         "SSMAction.cpp",
         "SSMHandler.cpp",
-        "SysFs.cpp",
     ],
 
     export_include_dirs: [

@@ -46,15 +46,25 @@
 //#include <ta.h>
 #endif
 
+SysWrite *SysWrite::mInstance = NULL;
+SysWrite *SysWrite::GetInstance() {
+    if (NULL == mInstance) {
+        mInstance = new SysWrite();
+    }
+
+    return mInstance;
+}
+
+
 SysWrite::SysWrite()
-    :mLogLevel(LOG_LEVEL_DEFAULT){
+    :mLogLevel(LOG_LEVEL_DEFAULT) {
     initConstCharforSysNode();
 }
 
 SysWrite::~SysWrite() {
 }
 
-bool SysWrite::getProperty(const char *key, char *value){
+bool SysWrite::getProperty(const char *key, char *value) {
     property_get(key, value, "");
     /*
     char buf[PROPERTY_VALUE_MAX] = {0};
@@ -64,12 +74,12 @@ bool SysWrite::getProperty(const char *key, char *value){
     return true;
 }
 
-bool SysWrite::getPropertyString(const char *key, char *value,  const char *def){
+bool SysWrite::getPropertyString(const char *key, char *value,  const char *def) {
     property_get(key, value, def);
     return true;
 }
 
-int32_t SysWrite::getPropertyInt(const char *key, int32_t def){
+int32_t SysWrite::getPropertyInt(const char *key, int32_t def) {
     int len;
     char* end;
     char buf[PROPERTY_VALUE_MAX] = {0};
@@ -86,7 +96,7 @@ int32_t SysWrite::getPropertyInt(const char *key, int32_t def){
     return result;
 }
 
-int64_t SysWrite::getPropertyLong(const char *key, int64_t def){
+int64_t SysWrite::getPropertyLong(const char *key, int64_t def) {
 
     int len;
     char buf[PROPERTY_VALUE_MAX] = {0};
@@ -104,7 +114,7 @@ int64_t SysWrite::getPropertyLong(const char *key, int64_t def){
     return result;
 }
 
-bool SysWrite::getPropertyBoolean(const char *key, bool def){
+bool SysWrite::getPropertyBoolean(const char *key, bool def) {
 
     int len;
     char buf[PROPERTY_VALUE_MAX] = {0};
@@ -128,7 +138,7 @@ bool SysWrite::getPropertyBoolean(const char *key, bool def){
     return result;
 }
 
-void SysWrite::setProperty(const char *key, const char *value){
+void SysWrite::setProperty(const char *key, const char *value) {
     int err;
     err = property_set(key, value);
     if (err < 0) {
@@ -136,7 +146,7 @@ void SysWrite::setProperty(const char *key, const char *value){
     }
 }
 
-bool SysWrite::readSysfs(const char *path, char *value){
+bool SysWrite::readSysfs(const char *path, char *value) {
     char buf[MAX_STR_LEN+1] = {0};
     readSys(path, (char*)buf, MAX_STR_LEN, false);
     buf[MAX_STR_LEN] = '\0';
@@ -144,13 +154,23 @@ bool SysWrite::readSysfs(const char *path, char *value){
     return true;
 }
 
-bool SysWrite::readSysfs(ConstCharforSysNodeIndex index, char *value){
+bool SysWrite::readSysfs(ConstCharforSysNodeIndex index, char *value) {
     readSysfs(mPathforSysNode[index], value);
     return true;
 }
 
+int SysWrite::readSysfs(ConstCharforSysNodeIndex index, char *buf, int count) {
+    int len = -1;
+
+    SYS_LOGD("index %d path:%s count:%d\n", index, mPathforSysNode[index], count);
+
+    len = readSys(mPathforSysNode[index], (char*)buf, count, false);
+
+    return len;
+}
+
 // get the original data from sysfs without any change.
-bool SysWrite::readSysfsOriginal(const char *path, char *value){
+bool SysWrite::readSysfsOriginal(const char *path, char *value) {
     char buf[MAX_STR_LEN+1] = {0};
     readSys(path, (char*)buf, MAX_STR_LEN, true);
     buf[MAX_STR_LEN] = '\0';
@@ -158,12 +178,27 @@ bool SysWrite::readSysfsOriginal(const char *path, char *value){
     return true;
 }
 
-bool SysWrite::writeSysfs(const char *path, const char *value){
+bool SysWrite::readSysfsOriginal(ConstCharforSysNodeIndex index, char *value) {
+    readSysfsOriginal(mPathforSysNode[index], value);
+    return true;
+}
+
+int SysWrite::readSysfsOriginal(ConstCharforSysNodeIndex index, char *buf, int count) {
+    int len = -1;
+
+    SYS_LOGD("index:%d path:%s count:%d\n", index, mPathforSysNode[index], count);
+
+    len = readSys(mPathforSysNode[index], (char*)buf, count, true);
+
+    return len;
+}
+
+bool SysWrite::writeSysfs(const char *path, const char *value) {
     writeSys(path, value);
     return true;
 }
 
-bool SysWrite::writeSysfs(const char *path, const char *value, const int size){
+bool SysWrite::writeSysfs(const char *path, const char *value, const int size) {
     int ret;
     ret = writeSys(path, value, size);
 
@@ -173,13 +208,17 @@ bool SysWrite::writeSysfs(const char *path, const char *value, const int size){
         return false;
 }
 
-bool SysWrite::writeSysfs(ConstCharforSysNodeIndex index, const char *value){
-    writeSys(mPathforSysNode[index], value);
-    return true;
+int SysWrite::writeSysfs(ConstCharforSysNodeIndex index, const char *value) {
+    int len = -1;
+
+    SYS_LOGD("index %d path:%s value:%s\n", index, mPathforSysNode[index], value);
+
+    len = writeSys(mPathforSysNode[index], value);
+    return len;
 }
 
 //key start
-bool SysWrite::writeUnifyKey(const char *path, const char *value){
+bool SysWrite::writeUnifyKey(const char *path, const char *value) {
     int ret;
     ret = writeUnifyKeyfs(path, value);
     if (ret == 0)
@@ -203,26 +242,34 @@ bool SysWrite::readUnifyKey(const char *path, char *value) {
 }
 //key end
 
-void SysWrite::setLogLevel(int level){
+void SysWrite::setLogLevel(int level) {
     mLogLevel = level;
 }
 
-void SysWrite::writeSys(const char *path, const char *val){
+const char *SysWrite::getSysNode(ConstCharforSysNodeIndex index) {
+    return mPathforSysNode[index];
+}
+
+int  SysWrite::writeSys(const char *path, const char *val) {
     int fd;
+    int len = -1;
 
     if ((fd = open(path, O_RDWR)) < 0) {
         SYS_LOGE("writeSysFs, open %s fail.", path);
-        return;
+        return -1;
     }
 
     SYS_LOGD("write %s, val:%s\n", path, val);
-   if (write(fd, val, strlen(val)) != strlen(val))
+
+    len = write(fd, val, strlen(val));
+    if (len != strlen(val))
         SYS_LOGE("write %s failed!\n", path);
 
     close(fd);
+    return len;
 }
 
-int SysWrite::writeSys(const char *path, const char *val, const int size){
+int SysWrite::writeSys(const char *path, const char *val, const int size) {
     int fd;
 
     SYS_LOGD("writeSysFs, size = %d \n", size);
@@ -566,17 +613,17 @@ int SysWrite::readSys(const char *path, char *buf, int count) {
 }
 
 
-void SysWrite::readSys(const char *path, char *buf, int count, bool needOriginalData){
+int SysWrite::readSys(const char *path, char *buf, int count, bool needOriginalData) {
     int fd, len;
 
     if ( NULL == buf ) {
         SYS_LOGE("buf is NULL");
-        return;
+        return -1;
     }
 
     if ((fd = open(path, O_RDONLY)) < 0) {
         SYS_LOGE("readSysFs, open %s fail. Error info [%s]", path, strerror(errno));
-        return;
+        return -1;
     }
 
     len = read(fd, buf, count);
@@ -609,6 +656,7 @@ void SysWrite::readSys(const char *path, char *buf, int count, bool needOriginal
 
 exit:
     close(fd);
+    return len;
 }
 
 int SysWrite::getKernelReleaseVersion() {
@@ -636,13 +684,128 @@ void SysWrite::initConstCharforSysNode() {
         mPathforSysNode[DET3D_MODE_SYSFS] = "/sys/module/aml_media/parameters/det3d_mode";
         mPathforSysNode[PROG_PROC_SYSFS] = "/sys/module/aml_media/parameters/prog_proc_config";
         mPathforSysNode[DISPLAY_HDMI_HDCP_AUTH] = "/sys/module/aml_media/parameters/hdmi_authenticated";
+        //sysfs point
+        mPathforSysNode[VIDEO_POLL_STATUS_CHANGE]   = "/sys/class/video_poll/status_changed";
+        mPathforSysNode[VIDEO_POLL_PRIMARY_SRC_FMT] = "/sys/class/video_poll/primary_src_fmt";
+        mPathforSysNode[VIDEO_CROP]                 = "/sys/class/video/crop";
+        mPathforSysNode[VIDEO_SCREEN_MODE]          = "/sys/class/video/screen_mode";
+        mPathforSysNode[VIDEO_NONLINEAR_FACTOR]     = "/sys/class/video/nonlinear_factor";
+        mPathforSysNode[VIDEO_RGB_SCREEN]           = "/sys/class/video/rgb_screen";
+        mPathforSysNode[VIDEO_TEST_SCREEN]          = "/sys/class/video/test_screen";
+        mPathforSysNode[VIDEO_FRAME_HEIGHT]         = "/sys/class/video/frame_height";
+        mPathforSysNode[VIDEO_AISR_ENABLE]          = "/sys/module/aml_media/parameters/uvm_open_nn";
+        mPathforSysNode[VIDEO_SR_ENABLE]            = "/sys/class/video/sr";
+        mPathforSysNode[AMVECM_PQ_REG_RW]           = "/sys/class/amvecm/pq_reg_rw";
+        mPathforSysNode[AMVECM_PQ_DNLP_DEBUG]       = "/sys/class/amvecm/dnlp_debug";
+        mPathforSysNode[AMVECM_PQ_USER_SET]         = "/sys/class/amvecm/pq_user_set";
+        mPathforSysNode[AMVECM_PQ_CM2_SAT]          = "/sys/class/amvecm/cm2_sat";
+        mPathforSysNode[AMVECM_PQ_CM2_HUE_BY_HS]    = "/sys/class/amvecm/cm2_hue_by_hs";
+        mPathforSysNode[AMVECM_PQ_CM2_LUMA]         = "/sys/class/amvecm/cm2_luma";
+        mPathforSysNode[AML_LDIM_FUNC_EN]           = "/sys/class/aml_ldim/func_en";
+        mPathforSysNode[BACKLIGHT_AML_BL_BRIGHTNESS] = "/sys/class/backlight/aml-bl/brightness";
+        mPathforSysNode[VFM_MAP]                     = "/sys/class/vfm/map";
+        mPathforSysNode[TVAFE_TVAFE0_REG]            = "/sys/class/tvafe/tvafe0/reg";
+        mPathforSysNode[LCD_SS]                      = "/sys/class/aml_lcd/ss";
+        mPathforSysNode[DISPLAY_MODE]                = "/sys/class/display/mode";
+        mPathforSysNode[VDETECT_AIPQ_ENABLE]         = "/sys/class/vdetect/aipq_enable";
+        //parameter
+        mPathforSysNode[DI_PARAMETERS_DNR_DM_EN]     = "/sys/module/aml_media/parameters/dnr_dm_en";
+        mPathforSysNode[DI_PARAMETERS_DNR_EN]        = "/sys/module/aml_media/parameters/dnr_en";
+        mPathforSysNode[DI_PARAMETERS_NR2_EN]        = "/sys/module/aml_media/parameters/nr2_en";
+        mPathforSysNode[DI_PARAMETERS_MCEN_MODE]     = "/sys/module/aml_media/parameters/mcen_mode";
+        mPathforSysNode[AISR_PARAMETERS_UVM_OPEN_NN] = "/sys/module/aml_media/parameters/uvm_open_nn";
+        mPathforSysNode[DECODER_COMMON_PARAMETERS_DEBUG_VDETECT] = "/sys/module/decoder_common/parameters/debug_vdetect";
+        mPathforSysNode[VIDEO_BACKGROUND_COLOR]      = "/sys/class/video/video_background";
+        mPathforSysNode[VIDEO_BLACKOUT_POLICY]       = "/sys/class/video/blackout_policy";
+        mPathforSysNode[VIDEO_DISABLE_VIDEO]         = "/sys/class/video/disable_video";
+        mPathforSysNode[VDIN_SNOW_FLAG]              = "/sys/class/vdin/vdin0/snow_flag";
+        mPathforSysNode[VPP_AFD_MODULE_ASPECT_MODE]  = "/sys/class/afd_module/aspect_mode";
     } else {
         mPathforSysNode[DI_BYPASS_ALL] = "/sys/module/di/parameters/bypass_all";
         mPathforSysNode[DI_BYPASS_POST] = "/sys/module/di/parameters/bypass_post";
         mPathforSysNode[DET3D_MODE_SYSFS] = "/sys/module/di/parameters/det3d_mode";
         mPathforSysNode[PROG_PROC_SYSFS] = "/sys/module/di/parameters/prog_proc_config";
         mPathforSysNode[DISPLAY_HDMI_HDCP_AUTH] = "/sys/module/hdmitx20/parameters/hdmi_authenticated";
+        //sysfs point
+        mPathforSysNode[VIDEO_POLL_STATUS_CHANGE]   = "/sys/class/video_poll/status_changed";
+        mPathforSysNode[VIDEO_POLL_PRIMARY_SRC_FMT] = "/sys/class/video_poll/primary_src_fmt";
+        mPathforSysNode[VIDEO_CROP]                 = "/sys/class/video/crop";
+        mPathforSysNode[VIDEO_SCREEN_MODE]          = "/sys/class/video/screen_mode";
+        mPathforSysNode[VIDEO_NONLINEAR_FACTOR]     = "/sys/class/video/nonlinear_factor";
+        mPathforSysNode[VIDEO_RGB_SCREEN]           = "/sys/class/video/rgb_screen";
+        mPathforSysNode[VIDEO_TEST_SCREEN]          = "/sys/class/video/test_screen";
+        mPathforSysNode[VIDEO_FRAME_HEIGHT]         = "/sys/class/video/frame_height";
+        mPathforSysNode[VIDEO_AISR_ENABLE]          = "/sys/module/aml_media/parameters/uvm_open_nn";
+        mPathforSysNode[VIDEO_SR_ENABLE]            = "/sys/class/video/sr";
+        mPathforSysNode[AMVECM_PQ_REG_RW]           = "/sys/class/amvecm/pq_reg_rw";
+        mPathforSysNode[AMVECM_PQ_DNLP_DEBUG]       = "/sys/class/amvecm/dnlp_debug";
+        mPathforSysNode[AMVECM_PQ_USER_SET]         = "/sys/class/amvecm/pq_user_set";
+        mPathforSysNode[AMVECM_PQ_CM2_SAT]          = "/sys/class/amvecm/cm2_sat";
+        mPathforSysNode[AMVECM_PQ_CM2_HUE_BY_HS]    = "/sys/class/amvecm/cm2_hue_by_hs";
+        mPathforSysNode[AMVECM_PQ_CM2_LUMA]         = "/sys/class/amvecm/cm2_luma";
+        mPathforSysNode[AML_LDIM_FUNC_EN]           = "/sys/class/aml_ldim/func_en";
+        mPathforSysNode[BACKLIGHT_AML_BL_BRIGHTNESS] = "/sys/class/backlight/aml-bl/brightness";
+        mPathforSysNode[VFM_MAP]                     = "/sys/class/vfm/map";
+        mPathforSysNode[TVAFE_TVAFE0_REG]            = "/sys/class/tvafe/tvafe0/reg";
+        mPathforSysNode[LCD_SS]                      = "/sys/class/lcd/ss";
+        mPathforSysNode[DISPLAY_MODE]                = "/sys/class/display/mode";
+        mPathforSysNode[VDETECT_AIPQ_ENABLE]         = "/sys/class/vdetect/aipq_enable";
+        //parameter
+        mPathforSysNode[DI_PARAMETERS_DNR_DM_EN]     = "/sys/module/di/parameters/dnr_dm_en";
+        mPathforSysNode[DI_PARAMETERS_DNR_EN]        = "/sys/module/di/parameters/dnr_en";
+        mPathforSysNode[DI_PARAMETERS_NR2_EN]        = "/sys/module/di/parameters/nr2_en";
+        mPathforSysNode[DI_PARAMETERS_MCEN_MODE]     = "/sys/module/di/parameters/mcen_mode";
+        mPathforSysNode[AISR_PARAMETERS_UVM_OPEN_NN] = "/sys/module/aml_media/parameters/uvm_open_nn";
+        mPathforSysNode[DECODER_COMMON_PARAMETERS_DEBUG_VDETECT] = "/sys/module/decoder_common/parameters/debug_vdetect";
+        mPathforSysNode[VIDEO_BACKGROUND_COLOR]      = "/sys/class/video/video_background";
+        mPathforSysNode[VIDEO_BLACKOUT_POLICY]       = "/sys/class/video/blackout_policy";
+        mPathforSysNode[VIDEO_DISABLE_VIDEO]         = "/sys/class/video/disable_video";
+        mPathforSysNode[VDIN_SNOW_FLAG]              = "/sys/class/vdin/vdin0/snow_flag";
+        mPathforSysNode[VPP_AFD_MODULE_ASPECT_MODE]  = "/sys/class/afd_module/aspect_mode";
     }
+    mPathforSysNode[SYSFS_BOOT_TYPE]            = "/sys/power/boot_type";
+    mPathforSysNode[SYS_DISPLAY_RESOLUTION]     = "/sys/class/video/device_resolution";
+    mPathforSysNode[DISPLAY_HDMI_HDCP_VER]      = "/sys/class/amhdmitx/amhdmitx0/hdcp_ver";
+    mPathforSysNode[DISPLAY_HDMI_HDCP_MODE]     = "/sys/class/amhdmitx/amhdmitx0/hdcp_mode";
+    mPathforSysNode[DISPLAY_HDMI_HDCP_CONF]     = "/sys/class/amhdmitx/amhdmitx0/hdcp_ctrl";
+    mPathforSysNode[DISPLAY_HDMI_HDCP_KEY]      = "/sys/class/amhdmitx/amhdmitx0/hdcp_lstore";
+    mPathforSysNode[DISPLAY_HDMI_HDCP_POWER]    = "/sys/class/amhdmitx/amhdmitx0/hdcp_pwr";
+    mPathforSysNode[DISPLAY_FB0_BLANK]          = "/sys/class/graphics/fb0/blank";
+    mPathforSysNode[DISPLAY_FB1_BLANK]          = "/sys/class/graphics/fb1/blank";
+    mPathforSysNode[DISPLAY_FB0_FREESCALE]      = "/sys/class/graphics/fb0/free_scale";
+    mPathforSysNode[DISPLAY_FB1_FREESCALE]      = "/sys/class/graphics/fb1/free_scale";
+    mPathforSysNode[DISPLAY_FB0_FREESCALE_AXIS] = "/sys/class/graphics/fb0/free_scale_axis";
+    mPathforSysNode[DISPLAY_FB0_WINDOW_AXIS]    = "/sys/class/graphics/fb0/window_axis";
+    mPathforSysNode[DISPLAY_HDMI_SYSCTRL_READY] = "/sys/class/amhdmitx/amhdmitx0/sysctrl_enable";
+    mPathforSysNode[DISPLAY_HPD_STATE]          = "/sys/class/amhdmitx/amhdmitx0/hpd_state";
+    mPathforSysNode[DISPLAY_HDMI_DISP_CAP]      = "/sys/class/amhdmitx/amhdmitx0/disp_cap";
+    mPathforSysNode[DISPLAY_HDMI_DISP_CAP_3D]   = "/sys/class/amhdmitx/amhdmitx0/disp_cap_3d";
+    mPathforSysNode[DISPLAY_HDMI_DEEP_COLOR]    = "/sys/class/amhdmitx/amhdmitx0/dc_cap";
+    mPathforSysNode[DISPLAY_HDMI_HDR]           = "/sys/class/amhdmitx/amhdmitx0/hdr_cap";
+    mPathforSysNode[DISPLAY_HDMI_HDR_CAP2]      = "/sys/class/amhdmitx/amhdmitx0/hdr_cap2";
+    mPathforSysNode[DISPLAY_HDMI_AUDIO]         = "/sys/class/amhdmitx/amhdmitx0/aud_cap";
+    mPathforSysNode[DISPLAY_HDMI_AUDIO_MUTE]    = "/sys/class/amhdmitx/amhdmitx0/aud_mute";
+    mPathforSysNode[DISPLAY_HDMI_VIDEO_MUTE]    = "/sys/class/amhdmitx/amhdmitx0/vid_mute";
+    mPathforSysNode[DISPLAY_HDMI_MODE_PREF]     = "/sys/class/amhdmitx/amhdmitx0/preferred_mode";
+    mPathforSysNode[DISPLAY_HDMI_SINK_TYPE]     = "/sys/class/amhdmitx/amhdmitx0/sink_type";
+    mPathforSysNode[DISPLAY_HDMI_USED]          = "/sys/class/amhdmitx/amhdmitx0/hdmi_used";
+    mPathforSysNode[DISPLAY_HDMI_AVMUTE_SYSFS]  = "/sys/devices/virtual/amhdmitx/amhdmitx0/avmute";
+    mPathforSysNode[DISPLAY_EDID_VALUE]         = "/sys/class/amhdmitx/amhdmitx0/edid";
+    mPathforSysNode[DISPLAY_EDID_STATUS]        = "/sys/class/amhdmitx/amhdmitx0/edid_parsing";
+    mPathforSysNode[DISPLAY_EDID_RAW]           = "/sys/class/amhdmitx/amhdmitx0/rawedid";
+    mPathforSysNode[DISPLAY_HDMI_PHY]           = "/sys/class/amhdmitx/amhdmitx0/phy";
+    mPathforSysNode[AUDIO_DSP_DIGITAL_RAW]      = "/sys/class/audiodsp/digital_raw";
+    mPathforSysNode[AV_HDMI_CONFIG]             = "/sys/class/amhdmitx/amhdmitx0/config";
+    mPathforSysNode[AV_HDMI_3D_SUPPORT]         = "/sys/class/amhdmitx/amhdmitx0/support_3d";
+    mPathforSysNode[HDMI_TX_PLUG_STATE]         = "/sys/class/extcon/hdmi/state";
+    mPathforSysNode[HDMI_TX_SWITCH_HDR]         = "/sys/class/extcon/hdmi_hdr/state";
+    //auto low latency mode
+    mPathforSysNode[AUTO_LOW_LATENCY_MODE_CAP]  = "/sys/class/amhdmitx/amhdmitx0/allm_cap";
+    mPathforSysNode[AUTO_LOW_LATENCY_MODE]      = "/sys/class/amhdmitx/amhdmitx0/allm_mode";
+    mPathforSysNode[HDMI_CONTENT_TYPE_CAP]      = "/sys/class/amhdmitx/amhdmitx0/contenttype_cap";
+    mPathforSysNode[HDMI_CONTENT_TYPE]          = "/sys/class/amhdmitx/amhdmitx0/contenttype_mode";
+
+    mPathforSysNode[DV_SUPPORT_INFO]            = "/sys/class/amdolby_vision/support_info";
 }
 #if 0
 status_t SysWrite::dump(int fd, const Vector<String16>& args){

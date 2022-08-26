@@ -2781,9 +2781,9 @@ bool DisplayMode::isLoadDovi() {
     int len;
     char dv_info[MODE_LEN] = {0};
 
-    len = pSysWrite->readSysfs(DOLBY_VISION_SUPPORT_INFO, dv_info);
+    len = pSysWrite->readSysfs(DV_SUPPORT_INFO, dv_info);
     if (len < 0) {
-        SYS_LOGI("read %s error: %s\n", DOLBY_VISION_SUPPORT_INFO, strerror(errno));
+        SYS_LOGI("read %s error: %s\n", pSysWrite->getSysNode(DV_SUPPORT_INFO), strerror(errno));
         return false;
     } else {
         SYS_LOGI("dv_info:%s\n", dv_info);
@@ -3284,9 +3284,9 @@ void DisplayMode::setListener(const sp<SystemControlNotify>& listener) {
 }
 #endif
 
-void DisplayMode::dumpCap(const char * path, const char * hint, char *result) {
+void DisplayMode::dumpCap(const ConstCharforSysNodeIndex index, const char * hint, char *result) {
     char logBuf[MAX_STR_LEN];
-    pSysWrite->readSysfsOriginal(path, logBuf);
+    pSysWrite->readSysfsOriginal(index, logBuf);
 
     if (NULL != result) {
         strcat(result, hint);

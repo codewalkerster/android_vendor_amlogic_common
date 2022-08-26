@@ -70,7 +70,7 @@ void CPQControl::CPQControlInit()
     }
 
     //open Sys fs
-    mSysFs = SysFs::GetInstance();
+    pqSysWrite = SysWrite::GetInstance();
 
     //Load config file
     mPQConfigFile = CConfigFile::GetInstance();
@@ -169,7 +169,7 @@ void CPQControl::CPQControlInit()
     //auto backlight
     if (isFileExist(LDIM_PATH)) {
         SetDynamicBacklight((Dynamic_backlight_status_t)GetDynamicBacklight(), 1);
-    } else if (isFileExist(mSysFs->getSysNode(BACKLIGHT_AML_BL_BRIGHTNESS))) {//local diming or pwm
+    } else if (isFileExist(pqSysWrite->getSysNode(BACKLIGHT_AML_BL_BRIGHTNESS))) {//local diming or pwm
         mDynamicBackLight = sp<CDynamicBackLight>::make();
         mDynamicBackLight->setObserver(this);
         mDynamicBackLight->startDected();
@@ -224,20 +224,20 @@ void CPQControl::CPQControlUnInit()
 
 }
 
-int CPQControl::pqWriteSys(ConstCharforSysFsNodeIndex index, const char *val)
+int CPQControl::pqWriteSys(ConstCharforSysNodeIndex index, const char *val)
 {
     int len = -1;
 
-    len = mSysFs->writeSysfs(index, val);
+    len = pqSysWrite->writeSysfs(index, val);
 
     return len;
 }
 
-int CPQControl::pqReadSys(ConstCharforSysFsNodeIndex index, char *buf, int count)
+int CPQControl::pqReadSys(ConstCharforSysNodeIndex index, char *buf, int count)
 {
     int len = -1;
 
-    len = mSysFs->readSysfs(index, buf, count);
+    len = pqSysWrite->readSysfs(index, buf, count);
 
     return len;
 }
@@ -6648,7 +6648,7 @@ int CPQControl::AiParamLoad(void)
  bool CPQControl::hasAisrFunc() {
     int ret = -1;
 
-    if (mbCpqCfg_aisr_enable && isFileExist(mSysFs->getSysNode(AISR_PARAMETERS_UVM_OPEN_NN))) {
+    if (mbCpqCfg_aisr_enable && isFileExist(pqSysWrite->getSysNode(AISR_PARAMETERS_UVM_OPEN_NN))) {
         ret = true;
     } else {
         ret = false;

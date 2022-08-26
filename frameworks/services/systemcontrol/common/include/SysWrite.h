@@ -29,6 +29,8 @@
 #define UNIFYKEY_EXIST       "/sys/class/unifykeys/exist"
 #define UNIFYKEY_LOCK        "/sys/class/unifykeys/lock"
 
+#define HDMI_OUTPUT_CHECK_PATH    "/sys/class/amhdmitx"    //if this dir exist,is hdmi output
+
 #define KEYUNIFY_ATTACH      _IO('f', 0x60)
 #define KEYUNIFY_GET_INFO    _IO('f', 0x62)
 #define KEY_UNIFY_NAME_LEN   (48)
@@ -53,6 +55,82 @@ typedef enum {
     DET3D_MODE_SYSFS,
     PROG_PROC_SYSFS,
     DISPLAY_HDMI_HDCP_AUTH,
+    VIDEO_POLL_STATUS_CHANGE,
+    VIDEO_POLL_PRIMARY_SRC_FMT,
+    VIDEO_CROP,
+    VIDEO_SCREEN_MODE,
+    VIDEO_NONLINEAR_FACTOR,
+    VIDEO_RGB_SCREEN,
+    VIDEO_TEST_SCREEN,
+    VIDEO_FRAME_HEIGHT,
+    VIDEO_SR_ENABLE,
+    VIDEO_AISR_ENABLE,
+    AMVECM_PQ_REG_RW,
+    AMVECM_PQ_DNLP_DEBUG,
+    AMVECM_PQ_USER_SET,
+    AMVECM_PQ_CM2_SAT,
+    AMVECM_PQ_CM2_HUE_BY_HS,
+    AMVECM_PQ_CM2_LUMA,
+    AML_LDIM_FUNC_EN,
+    BACKLIGHT_AML_BL_BRIGHTNESS,
+    VFM_MAP,
+    TVAFE_TVAFE0_REG,
+    LCD_SS,
+    DISPLAY_MODE,
+    AMHDMITX,
+    VDETECT_AIPQ_ENABLE,
+    DI_PARAMETERS_DNR_DM_EN,
+    DI_PARAMETERS_DNR_EN,
+    DI_PARAMETERS_NR2_EN,
+    DI_PARAMETERS_MCEN_MODE,
+    AISR_PARAMETERS_UVM_OPEN_NN,
+    DECODER_COMMON_PARAMETERS_DEBUG_VDETECT,
+    VIDEO_BACKGROUND_COLOR,
+    VIDEO_BLACKOUT_POLICY,
+    VIDEO_DISABLE_VIDEO,
+    VDIN_SNOW_FLAG,
+    VPP_AFD_MODULE_ASPECT_MODE,
+    SYSFS_BOOT_TYPE,
+    SYS_DISPLAY_RESOLUTION,
+    DISPLAY_HDMI_HDCP_VER,    //RX support HDCP version
+    DISPLAY_HDMI_HDCP_MODE,   //set HDCP mode
+    DISPLAY_HDMI_HDCP_CONF,   //HDCP config
+    DISPLAY_HDMI_HDCP_KEY,    //TX have 22 or 14 or none key
+    DISPLAY_HDMI_HDCP_POWER,  //write to 1, force hdcp_tx22 quit safely
+    DISPLAY_FB0_BLANK,
+    DISPLAY_FB1_BLANK,
+    DISPLAY_FB0_FREESCALE,
+    DISPLAY_FB1_FREESCALE,
+    DISPLAY_FB0_FREESCALE_AXIS,
+    DISPLAY_FB0_WINDOW_AXIS,
+    DISPLAY_HDMI_SYSCTRL_READY,
+    DISPLAY_HPD_STATE,
+    DISPLAY_HDMI_DISP_CAP,    //RX support display mode
+    DISPLAY_HDMI_DISP_CAP_3D, //RX support display 3d mode
+    DISPLAY_HDMI_DEEP_COLOR,  //RX support deep color
+    DISPLAY_HDMI_HDR,
+    DISPLAY_HDMI_HDR_CAP2,
+    DISPLAY_HDMI_AUDIO,
+    DISPLAY_HDMI_AUDIO_MUTE,
+    DISPLAY_HDMI_VIDEO_MUTE,
+    DISPLAY_HDMI_MODE_PREF,
+    DISPLAY_HDMI_SINK_TYPE,
+    DISPLAY_HDMI_USED,
+    DISPLAY_HDMI_AVMUTE_SYSFS,
+    DISPLAY_EDID_VALUE,
+    DISPLAY_EDID_STATUS,
+    DISPLAY_EDID_RAW,
+    DISPLAY_HDMI_PHY,
+    AUDIO_DSP_DIGITAL_RAW,
+    AV_HDMI_CONFIG,
+    AV_HDMI_3D_SUPPORT,
+    HDMI_TX_PLUG_STATE,
+    HDMI_TX_SWITCH_HDR,
+    AUTO_LOW_LATENCY_MODE_CAP,
+    AUTO_LOW_LATENCY_MODE,
+    HDMI_CONTENT_TYPE_CAP,
+    HDMI_CONTENT_TYPE,
+    DV_SUPPORT_INFO,
     NodeIndexMax,
 } ConstCharforSysNodeIndex;
 
@@ -61,6 +139,7 @@ class SysWrite
 public:
     SysWrite();
     ~SysWrite();
+    static SysWrite *GetInstance();
 
     bool getProperty(const char *key, char *value);
     bool getPropertyString(const char *key, char *value, const char *def);
@@ -72,10 +151,13 @@ public:
 
     bool readSysfs(const char *path, char *value);
     bool readSysfs(ConstCharforSysNodeIndex index, char *value);
+    int readSysfs(ConstCharforSysNodeIndex index, char *buf, int count);
     bool readSysfsOriginal(const char *path, char *value);
+    bool readSysfsOriginal(ConstCharforSysNodeIndex index, char *value);
+    int readSysfsOriginal(ConstCharforSysNodeIndex index, char *value, int count);
     bool writeSysfs(const char *path, const char *value);
     bool writeSysfs(const char *path, const char *value, const int size);
-    bool writeSysfs(ConstCharforSysNodeIndex index, const char *value);
+    int writeSysfs(ConstCharforSysNodeIndex index, const char *value);
 
     //key start
     bool writeUnifyKey(const char *path, const char *value);
@@ -83,10 +165,12 @@ public:
     //key end
 
     void setLogLevel(int level);
+    const char *getSysNode(ConstCharforSysNodeIndex index);
 private:
-    void writeSys(const char *path, const char *val);
+    static SysWrite *mInstance;
+    int writeSys(const char *path, const char *val);
     int writeSys(const char *path, const char *val, const int size);
-    void readSys(const char *path, char *buf, int count, bool needOriginalData);
+    int readSys(const char *path, char *buf, int count, bool needOriginalData);
     int readSys(const char *path, char *buf, int count);
 
     //key start
