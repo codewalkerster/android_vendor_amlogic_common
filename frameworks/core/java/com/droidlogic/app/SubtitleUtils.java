@@ -44,6 +44,7 @@ public class SubtitleUtils {
         private String mFileName = null;
         private int mCurrentSubIdx = 0;
         private File mSubfile = null;
+        private File mAdditionalSubfile = null;
         private List<SubID> mStrlist = new ArrayList<SubID>();
         private int mExSubtotle = 0;
         private boolean supportLrc = true;//false; //lrc support
@@ -93,6 +94,14 @@ public class SubtitleUtils {
             }
         }
 
+        public void loadSubtitleFile(String path){
+            String fileName = path;
+            mAdditionalSubfile = new File (fileName);
+            mStrlist.add (new SubID (mAdditionalSubfile.getAbsolutePath(), mStrlist.size()));
+            mExSubtotle++;
+            Log.i ("SubtitleUtils","[loadSubtitleFile] mExSubtotle: " + mExSubtotle);
+        }
+
         public int getExSubTotal() {
             return mExSubtotle;
         }
@@ -108,7 +117,7 @@ public class SubtitleUtils {
             return accountInSubtitleNumber();
         }
         public String getSubPath (int index) {
-            if (mSubfile == null) {
+            if ((mSubfile == null) && (mAdditionalSubfile == null)) {
                 return null ;
             }
             if (index < getInSubTotal() ) {
@@ -187,12 +196,12 @@ public class SubtitleUtils {
             return language;
         }
 
-        public SubID getSubID (int index) {
+        public SubID getSubID(int index) {
             if (index < getInSubTotal() ) {
                 return new SubID ("INSUB", index);
-            } else if (index < getSubTotal() ) {
+            } else if (index < getSubTotal()) {
                 mCurrentSubIdx = index - getInSubTotal();
-                return mStrlist.get (index - getInSubTotal() );
+                return mStrlist.get(index - getInSubTotal() );
             }
             return null;
         }

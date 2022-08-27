@@ -182,6 +182,7 @@ public class SubtitleManager {
     private boolean mInvokeFromMp = false;
     private boolean mThreadStop = true;
     private String mPath = null;
+    private List<String> mAdditionalPathlist = new ArrayList<String>();
     private String mExtFilePath = null;
     private Thread mThread = null;
 
@@ -212,7 +213,7 @@ public class SubtitleManager {
     private Handler mHandler;
 
     //ext sub
-    private SubtitleUtils mSubtitleUtils;
+    private SubtitleUtils mSubtitleUtils = null;
     private static final String[] mExternalExtension = {
         ".txt",".srt", ".smi", ".sami",".rt", ".ssa", ".ass",".lrc", ".xml",
         ".idx",".sub", ".pjs",".aqt", ".mpl", ".vtt",".js", ".jss"};
@@ -906,6 +907,33 @@ public class SubtitleManager {
         }
     }
 
+    public void loadSubtitleFile(String path) {
+        String additionalPath = null;
+
+        if (path == null) {
+            return;
+        }
+        try {
+            final Uri uri = Uri.parse(path);
+            if ("file".equals (uri.getScheme())) {
+                path = uri.getPath();
+            }
+            additionalPath = path;
+        } catch (Exception e) {
+            Log.e(TAG, "Exception:" +e);
+        }
+
+        LOGI("[loadSubtitleFile] additionalPath:" + additionalPath);
+        if (additionalPath == null) {
+            return;
+        }
+        mAdditionalPathlist.add(additionalPath);
+        if (mSubtitleUtils != null) {
+            mSubtitleUtils.loadSubtitleFile(additionalPath);
+        }
+
+    }
+
     public boolean open(String path, int ioType) {
         boolean r = false;
         //Log.d(TAG, "[open] path:" + path, new Throwable());
@@ -954,6 +982,9 @@ public class SubtitleManager {
                 mSubtitleUtils.resetCharset();
                 LOGI("[openIdx] ext sub switch idx:" + idx+" mPath:"+mPath);
                 mSubtitleUtils = new SubtitleUtils(mPath);
+                for (String path : mAdditionalPathlist) {
+                    mSubtitleUtils.loadSubtitleFile(path);
+                }
                 mExtFilePath = mSubtitleUtils.getSubID(idx - builtInSubs).mFileName;
                 int trackId = mSubtitleUtils.getSubID(idx - builtInSubs).mIndex;
                 LOGI("[openIdx] ext sub switch idx:" + idx + "-" + trackId +" mExtFilePath:"+mExtFilePath+" mInterSubTotal:" + mInterSubTotal);
@@ -976,8 +1007,8 @@ public class SubtitleManager {
         }
     }
 
-    public void startCCchanel(int channel) {
-        LOGI("[startCCchannel] channel:" + channel);
+    public void startClosedCaptionChannel(int channel) {
+        LOGI("[startClosedCaptionChannel] channel:" + channel);
         if ((channel&0xff) < 0 || (channel&0xff) > 15) {
             return;
         }
@@ -993,6 +1024,7 @@ public class SubtitleManager {
     public void start() {
         LOGI("[start]mPath:" + mPath);
 
+        mAdditionalPathlist.clear();
         if (disable()) {
             return;
         }
@@ -1027,7 +1059,7 @@ public class SubtitleManager {
         }
     }
 
-    public void close() {
+    public synchronized void close() {
         mDisplayType = -1;
         mCurrentTrack = 0;
         mCurrentCCchannel = 15;
@@ -1036,7 +1068,7 @@ public class SubtitleManager {
         nativeClose();
     }
 
-    public void destory() {
+    public void destroy() {
         Log.d(TAG, "destroy:", new Throwable());
         mDisplayType = -1;
         mCurrentTrack = 0;
@@ -1434,7 +1466,7 @@ public class SubtitleManager {
         }
     };
 
-    public void setSubtitleDataListner(SubtitleDataListener cb) {
+    public void setSubtitleDataListener(SubtitleDataListener cb) {
         mHidlCallback= cb;
     }
 
