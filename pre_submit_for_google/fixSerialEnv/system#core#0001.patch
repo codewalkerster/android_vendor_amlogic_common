@@ -1,0 +1,41 @@
+From 2ff1a2b58d196e73da06e1a235278ea1d8553085 Mon Sep 17 00:00:00 2001
+From: "gaoyue.huang" <gaoyue.huang@amlogic.com>
+Date: Tue, 30 Aug 2022 18:43:46 +0800
+Subject: [PATCH] Test: fix serial's env [1/1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+PD#SWPL-92606
+
+Problem:
+Unable to use monkey command on serial port，but adb shell is ok
+
+Solution:
+console start after env settings
+
+Verify:
+ohm Android T
+
+Signed-off-by: gaoyue.huang <gaoyue.huang@amlogic.com>
+Change-Id: I4e7ed4be224950c0e847bdd162ae628a2f763b7d
+---
+ rootdir/init.rc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/rootdir/init.rc b/rootdir/init.rc
+index cd71aa8aa..3ebd6c254 100644
+--- a/rootdir/init.rc
++++ b/rootdir/init.rc
+@@ -1268,7 +1268,7 @@ on property:ro.debuggable=1
+     # Give reads to anyone for the accessibility trace folder on debug builds.
+     chmod 0775 /data/misc/a11ytrace
+ 
+-on init && property:ro.debuggable=1
++on post-fs-data && property:ro.debuggable=1
+     start console
+ 
+ on userspace-reboot-requested
+-- 
+2.25.1
+
