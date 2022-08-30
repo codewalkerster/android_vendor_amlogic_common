@@ -258,6 +258,8 @@ DisplayMode::DisplayMode(const char *path, Ubootenv *ubootenv)
 
     memset(&mHdmidata, 0, sizeof(hdmi_data_t));
     mScene_output_info.dv_type = DOLBY_VISION_SET_DISABLE;
+    strcpy(mSocType, "meson8");
+    strcpy(mDefaultUI, "4k2k");
 
     if (NULL == path) {
         pConfigPath = DISPLAY_CFG_FILE;
@@ -456,24 +458,30 @@ int DisplayMode::parseConfigFile(){
                 if (!strcmp(token, DEVICE_STR_MBOX)) {
                     mDisplayType = DISPLAY_TYPE_MBOX;
 
+                    memset(mSocType, 0, sizeof(mSocType));
+                    memset(mDefaultUI, 0, sizeof(mDefaultUI));
                     tokenizer->skipDelimiters(WHITESPACE);
-                    strncpy(mSocType, tokenizer->nextToken(WHITESPACE), sizeof(mSocType));
+                    strncpy(mSocType, tokenizer->nextToken(WHITESPACE), sizeof(mSocType)-1);
                     tokenizer->skipDelimiters(WHITESPACE);
-                    strncpy(mDefaultUI, tokenizer->nextToken(WHITESPACE), sizeof(mDefaultUI));
+                    strncpy(mDefaultUI, tokenizer->nextToken(WHITESPACE), sizeof(mDefaultUI)-1);
                 } else if (!strcmp(token, DEVICE_STR_TV)) {
                     mDisplayType = DISPLAY_TYPE_TV;
 
+                    memset(mSocType, 0, sizeof(mSocType));
+                    memset(mDefaultUI, 0, sizeof(mDefaultUI));
                     tokenizer->skipDelimiters(WHITESPACE);
-                    strncpy(mSocType, tokenizer->nextToken(WHITESPACE), sizeof(mSocType));
+                    strncpy(mSocType, tokenizer->nextToken(WHITESPACE), sizeof(mSocType)-1);
                     tokenizer->skipDelimiters(WHITESPACE);
-                    strncpy(mDefaultUI, tokenizer->nextToken(WHITESPACE), sizeof(mDefaultUI));
+                    strncpy(mDefaultUI, tokenizer->nextToken(WHITESPACE), sizeof(mDefaultUI)-1);
                 } else if (!strcmp(token, DEVICE_STR_MID)) {
                     mDisplayType = DISPLAY_TYPE_TABLET;
 
+                    memset(mSocType, 0, sizeof(mSocType));
+                    memset(mDefaultUI, 0, sizeof(mDefaultUI));
                     tokenizer->skipDelimiters(WHITESPACE);
-                    strncpy(mSocType, tokenizer->nextToken(WHITESPACE), sizeof(mSocType));
+                    strncpy(mSocType, tokenizer->nextToken(WHITESPACE), sizeof(mSocType)-1);
                     tokenizer->skipDelimiters(WHITESPACE);
-                    strncpy(mDefaultUI, tokenizer->nextToken(WHITESPACE), sizeof(mDefaultUI));
+                    strncpy(mDefaultUI, tokenizer->nextToken(WHITESPACE), sizeof(mDefaultUI)-1);
                 } else {
                     SYS_LOGE("%s: Expected keyword, got '%s'.", tokenizer->getLocation(), token);
                     break;
