@@ -36,16 +36,13 @@ endif
 PRODUCT_PROPERTY_OVERRIDES += persist.vendor.wifibt_name = "$(CONFIG_WIFIBT_NAME)"
 
 ifeq ($(BOARD_HAVE_BLUETOOTH),true)
-    PRODUCT_PROPERTY_OVERRIDES += config.disable_bluetooth=false \
+    PRODUCT_PROPERTY_OVERRIDES += \
     ro.vendor.autoconnectbt.isneed=false \
     ro.vendor.autoconnectbt.macprefix=00:CD:FF \
     ro.vendor.autoconnectbt.btclass=50c \
     ro.vendor.autoconnectbt.nameprefix?=Amlogic_RC \
     ro.vendor.autoconnectbt.rssilimit=70 \
     persist.bluetooth.bluetooth_audio_hal.disabled = false
-
-else
-    PRODUCT_PROPERTY_OVERRIDES += config.disable_bluetooth=true
 
 endif
 

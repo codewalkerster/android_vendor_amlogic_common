@@ -30,5 +30,5 @@ else
 endif
 
 # Overrides
-PRODUCT_PROPERTY_OVERRIDES += \
+PRODUCT_PRODUCT_PROPERTIES += \
     ro.com.google.gmsversion=S_amlogic

@@ -17,7 +17,7 @@ PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/qcom/config/qca9377/bt/
 PRODUCT_COPY_FILES += frameworks/native/data/etc/android.hardware.bluetooth.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.bluetooth.xml \
                       frameworks/native/data/etc/android.hardware.bluetooth_le.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.bluetooth_le.xml
 
-PRODUCT_PROPERTY_OVERRIDES += poweroff.doubleclick=1
-PRODUCT_PROPERTY_OVERRIDES += qcom.bluetooth.soc=rome_uart
-PRODUCT_PROPERTY_OVERRIDES += wc_transport.soc_initialized=0
+#PRODUCT_PROPERTY_OVERRIDES += poweroff.doubleclick=1
+#PRODUCT_PROPERTY_OVERRIDES += qcom.bluetooth.soc=rome_uart
+#PRODUCT_PROPERTY_OVERRIDES += wc_transport.soc_initialized=0
 
