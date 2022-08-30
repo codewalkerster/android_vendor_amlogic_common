@@ -2628,6 +2628,9 @@ int CPQControl::SetDisplayMode(vpp_display_mode_t display_mode, int is_save)
     int ret = -1;
 
     //dtvkit process afd function,driver need output full
+    if (display_mode == VPP_DISPLAY_MODE_NORMAL) {
+        pqWriteSys(VPP_AFD_MODULE_ASPECT_MODE, "0 0");//set auto to afd before pq display
+    }
     if (mbDtvKitEnable && (display_mode == VPP_DISPLAY_MODE_NORMAL)) {
         ret = Cpq_SetDisplayModeAllTiming(mCurentSourceInputInfo.source_input, display_mode);
         ret = Cpq_SetDisplayModeScreenMode(mCurentSourceInputInfo.source_input, display_mode);
@@ -2639,6 +2642,9 @@ int CPQControl::SetDisplayMode(vpp_display_mode_t display_mode, int is_save)
     } else {
         ret = Cpq_SetDisplayModeAllTiming(mCurentSourceInputInfo.source_input, display_mode);
         ret = Cpq_SetDisplayModeOneTiming(mCurentSourceInputInfo.source_input, display_mode);
+    }
+    if (display_mode != VPP_DISPLAY_MODE_NORMAL) {
+        pqWriteSys(VPP_AFD_MODULE_ASPECT_MODE, "0 5");//set custom to afd after pq display
     }
 
     if ((ret == 0) && (is_save == 1)) {

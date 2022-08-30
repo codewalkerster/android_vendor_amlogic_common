@@ -92,6 +92,7 @@ typedef enum {
     VIDEO_BLACKOUT_POLICY,
     VIDEO_DISABLE_VIDEO,
     VDIN_SNOW_FLAG,
+    VPP_AFD_MODULE_ASPECT_MODE,
     SysFsNodeIndexMax,
 } ConstCharforSysFsNodeIndex;
 

@@ -273,6 +273,7 @@ void SysFs::initConstCharforSysNode()
         mPathforSysNode[VIDEO_BLACKOUT_POLICY]       = "/sys/class/video/blackout_policy";
         mPathforSysNode[VIDEO_DISABLE_VIDEO]         = "/sys/class/video/disable_video";
         mPathforSysNode[VDIN_SNOW_FLAG]              = "/sys/class/vdin/vdin0/snow_flag";
+        mPathforSysNode[VPP_AFD_MODULE_ASPECT_MODE]  = "/sys/class/afd_module/aspect_mode";
     } else {
         //sysfs point
         mPathforSysNode[VIDEO_POLL_STATUS_CHANGE]   = "/sys/class/video_poll/status_changed";
@@ -309,5 +310,6 @@ void SysFs::initConstCharforSysNode()
         mPathforSysNode[VIDEO_BLACKOUT_POLICY]       = "/sys/class/video/blackout_policy";
         mPathforSysNode[VIDEO_DISABLE_VIDEO]         = "/sys/class/video/disable_video";
         mPathforSysNode[VDIN_SNOW_FLAG]              = "/sys/class/vdin/vdin0/snow_flag";
+        mPathforSysNode[VPP_AFD_MODULE_ASPECT_MODE]  = "/sys/class/afd_module/aspect_mode";
     }
 }
