@@ -803,6 +803,7 @@ void SysWrite::initConstCharforSysNode() {
     mPathforSysNode[DISPLAY_EDID_STATUS]        = "/sys/class/amhdmitx/amhdmitx0/edid_parsing";
     mPathforSysNode[DISPLAY_EDID_RAW]           = "/sys/class/amhdmitx/amhdmitx0/rawedid";
     mPathforSysNode[DISPLAY_HDMI_PHY]           = "/sys/class/amhdmitx/amhdmitx0/phy";
+    mPathforSysNode[DISPLAY_HDMI_FRL_RATE]      = "/sys/class/amhdmitx/amhdmitx0/frl_rate";
     mPathforSysNode[AUDIO_DSP_DIGITAL_RAW]      = "/sys/class/audiodsp/digital_raw";
     mPathforSysNode[AV_HDMI_CONFIG]             = "/sys/class/amhdmitx/amhdmitx0/config";
     mPathforSysNode[AV_HDMI_3D_SUPPORT]         = "/sys/class/amhdmitx/amhdmitx0/support_3d";

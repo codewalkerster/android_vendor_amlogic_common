@@ -239,10 +239,14 @@ using namespace android;
 #define FULL_HEIGHT_768                 768
 #define FULL_WIDTH_1080                 1920
 #define FULL_HEIGHT_1080                1080
+#define FULL_WIDTH_1440                 2560
+#define FULL_HEIGHT_1440                1440
 #define FULL_WIDTH_4K2K                 3840
 #define FULL_HEIGHT_4K2K                2160
 #define FULL_WIDTH_4K2KSMPTE            4096
 #define FULL_HEIGHT_4K2KSMPTE           2160
+#define FULL_WIDTH_8K4K                 7680
+#define FULL_HEIGHT_8K4K                4320
 #define FULL_WIDTH_PANEL                1024
 #define FULL_HEIGHT_PANEL               600
 
@@ -280,25 +284,41 @@ enum {
 #define MODE_576CVBS                    "576cvbs"
 #define MODE_720P50HZ                   "720p50hz"
 #define MODE_720P                       "720p60hz"
+#define MODE_720P100HZ                  "1280x720p100hz"
+#define MODE_720P120HZ                  "1280x720p120hz"
 #define MODE_768P                       "768p60hz"
 #define MODE_1080P24HZ                  "1080p24hz"
 #define MODE_1080I50HZ                  "1080i50hz"
 #define MODE_1080P50HZ                  "1080p50hz"
 #define MODE_1080I                      "1080i60hz"
 #define MODE_1080P                      "1080p60hz"
+#define MODE_1080P100HZ                 "1920x1080p100hz"
+#define MODE_1080P120HZ                 "1920x1080p120hz"
+#define MODE_1440P50HZ                  "2560x1440p50hz"
+#define MODE_1440P60HZ                  "2560x1440p60hz"
+#define MODE_1440P100HZ                 "2560x1440p100hz"
+#define MODE_1440P120HZ                 "2560x1440p120hz"
 #define MODE_4K2K24HZ                   "2160p24hz"
 #define MODE_4K2K25HZ                   "2160p25hz"
 #define MODE_4K2K30HZ                   "2160p30hz"
 #define MODE_4K2K50HZ                   "2160p50hz"
 #define MODE_4K2K60HZ                   "2160p60hz"
+#define MODE_4K2K100HZ                  "3840x2160p100hz"
+#define MODE_4K2K120HZ                  "3840x2160p120hz"
 #define MODE_4K2KSMPTE                  "smpte24hz"
 #define MODE_4K2KSMPTE30HZ              "smpte30hz"
 #define MODE_4K2KSMPTE50HZ              "smpte50hz"
 #define MODE_4K2KSMPTE60HZ              "smpte60hz"
+#define MODE_8K4K24HZ                   "7680x4320p24hz"
+#define MODE_8K4K25HZ                   "7680x4320p25hz"
+#define MODE_8K4K30HZ                   "7680x4320p30hz"
+#define MODE_8K4K48HZ                   "7680x4320p48hz"
+#define MODE_8K4K50HZ                   "7680x4320p50hz"
+#define MODE_8K4K60HZ                   "7680x4320p60hz"
 #define MODE_PANEL                      "panel"
 #define MODE_PAL_M                      "pal_m"
 #define MODE_PAL_N                      "pal_n"
-#define MODE_NTSC_M                      "ntsc_m"
+#define MODE_NTSC_M                     "ntsc_m"
 
 #define MODE_480I_PREFIX                "480i"
 #define MODE_480P_PREFIX                "480p"
@@ -308,8 +328,10 @@ enum {
 #define MODE_768P_PREFIX                "768p"
 #define MODE_1080I_PREFIX               "1080i"
 #define MODE_1080P_PREFIX               "1080p"
+#define MODE_1440P_PREFIX               "1440p"
 #define MODE_4K2K_PREFIX                "2160p"
 #define MODE_4K2KSMPTE_PREFIX           "smpte"
+#define MODE_8K4K_PREFIX                "4320p"
 
 #define DV_HDR_SINK_SOURCE_BYPASS       "0"
 #define DV_HDR_SINK_PROCESS             "1"
@@ -342,12 +364,26 @@ enum {
     DISPLAY_MODE_4K2KSMPTE30HZ          = 19,
     DISPLAY_MODE_4K2KSMPTE50HZ          = 20,
     DISPLAY_MODE_4K2KSMPTE60HZ          = 21,
-    DISPLAY_MODE_768P                   = 22,
-    DISPLAY_MODE_PANEL                  = 23,
-    DISPLAY_MODE_PAL_M                  = 24,
-    DISPLAY_MODE_PAL_N                  = 25,
-    DISPLAY_MODE_NTSC_M                 = 26,
-    DISPLAY_MODE_TOTAL                  = 27
+    DISPLAY_MODE_8K4K24HZ               = 22,
+    DISPLAY_MODE_8K4K25HZ               = 23,
+    DISPLAY_MODE_8K4K30HZ               = 24,
+    DISPLAY_MODE_8K4K48HZ               = 25,
+    DISPLAY_MODE_8K4K50HZ               = 26,
+    DISPLAY_MODE_8K4K60HZ               = 27,
+    DISPLAY_MODE_1080P100HZ             = 30,
+    DISPLAY_MODE_1080P120HZ             = 31,
+    DISPLAY_MODE_1440P50HZ              = 32,
+    DISPLAY_MODE_1440P60HZ              = 33,
+    DISPLAY_MODE_1440P100HZ             = 34,
+    DISPLAY_MODE_1440P120HZ             = 35,
+    DISPLAY_MODE_4K2K100HZ              = 36,
+    DISPLAY_MODE_4K2K120HZ              = 37,
+    DISPLAY_MODE_768P                   = 38,
+    DISPLAY_MODE_PANEL                  = 39,
+    DISPLAY_MODE_PAL_M                  = 40,
+    DISPLAY_MODE_PAL_N                  = 41,
+    DISPLAY_MODE_NTSC_M                 = 42,
+    DISPLAY_MODE_TOTAL                  = 43
 };
 
 typedef enum {

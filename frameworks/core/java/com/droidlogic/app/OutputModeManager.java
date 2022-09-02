@@ -233,6 +233,8 @@ public class OutputModeManager {
     public static final String HDMI_1080                    = "1080";
     public static final String HDMI_4K2K                    = "2160p";
     public static final String HDMI_SMPTE                   = "smpte";
+    public static final String HDMI_7680x4320               = "4320p";
+    public static final String HDMI_2560X1440               = "1440p";
 
     private static final String HDR_POLICY_SOURCE           = "1";
     private static final String HDR_POLICY_SINK             = "0";
@@ -261,15 +263,31 @@ public class OutputModeManager {
 
     //hdmi mode list
     private static final String[] HDMI_LIST = {
+        "7680x4320p60hz",
+        "7680x4320p50hz",
+        "7680x4320p48hz",
+        "7680x4320p30hz",
+        "7680x4320p25hz",
+        "7680x4320p24hz",
+        "3840x2160p120hz",
+        "3840x2160p100hz",
         "2160p60hz",
         "2160p50hz",
         "2160p30hz",
         "2160p25hz",
         "2160p24hz",
         "smpte24hz",
+        "2560x1440p120hz",
+        "2560x1440p100hz",
+        "2560x1440p60hz",
+        "2560x1440p50hz",
+        "1920x1080p120hz",
+        "1920x1080p100hz",
         "1080p60hz",
         "1080p50hz",
         "1080p24hz",
+        "1280x720p120hz",
+        "1280x720p100hz",
         "720p60hz",
         "720p50hz",
         "1080i60hz",
@@ -280,23 +298,39 @@ public class OutputModeManager {
         "480i60hz"
     };
     private static final String[] HDMI_TITLE = {
-        "4k2k-60hz",
-        "4k2k-50hz",
-        "4k2k-30hz",
-        "4k2k-25hz",
-        "4k2k-24hz",
-        "4k2k-smpte",
-        "1080p-60hz",
-        "1080p-50hz",
-        "1080p-24hz",
-        "720p-60hz",
-        "720p-50hz",
-        "1080i-60hz",
-        "1080i-50hz",
-        "576p-50hz",
-        "480p-60hz",
-        "576i-50hz",
-        "480i-60hz"
+        "7680x4320p60hz",
+        "7680x4320p50hz",
+        "7680x4320p48hz",
+        "7680x4320p30hz",
+        "7680x4320p25hz",
+        "7680x4320p24hz",
+        "3840x2160p120hz",
+        "3840x2160p100hz",
+        "3840x2160p60hz",
+        "3840x2160p50hz",
+        "3840x2160p30hz",
+        "3840x2160p25hz",
+        "3840x2160p24hz",
+        "4096x2160p24hz",
+        "2560x1440p120hz",
+        "2560x1440p100hz",
+        "2560x1440p60hz",
+        "2560x1440p50hz",
+        "1920x1080p120hz",
+        "1920x1080p100hz",
+        "1920x1080p60hz",
+        "1920x1080p50hz",
+        "1920x1080p24hz",
+        "1280x720p120hz",
+        "1280x720p100hz",
+        "1280x720p60hz",
+        "1280x720p50hz",
+        "1920x1080i60hz",
+        "1920x1080i50hz",
+        "720x576p50hz",
+        "720x480p60hz",
+        "720x576i50hz",
+        "720x480i60hz"
     };
 
     //cvbs mode list

@@ -53,15 +53,15 @@ using namespace android;
 #include <DisplayAdapter.h>
 using ConnectorType = meson::DisplayAdapter::ConnectorType;
 
-static const char* DISPLAY_MODE_LIST[DISPLAY_MODE_TOTAL] = {
+static const char* DISPLAY_MODE_LIST[] = {
     MODE_480I,
     MODE_480P,
     MODE_480CVBS,
     MODE_576I,
     MODE_576P,
     MODE_576CVBS,
-    MODE_720P,
     MODE_720P50HZ,
+    MODE_720P,
     MODE_1080P24HZ,
     MODE_1080I50HZ,
     MODE_1080P50HZ,
@@ -76,6 +76,14 @@ static const char* DISPLAY_MODE_LIST[DISPLAY_MODE_TOTAL] = {
     MODE_4K2KSMPTE30HZ,
     MODE_4K2KSMPTE50HZ,
     MODE_4K2KSMPTE60HZ,
+    MODE_4K2K100HZ,
+    MODE_4K2K120HZ,
+    MODE_8K4K24HZ,
+    MODE_8K4K25HZ,
+    MODE_8K4K30HZ,
+    MODE_8K4K48HZ,
+    MODE_8K4K50HZ,
+    MODE_8K4K60HZ,
     MODE_768P,
     MODE_PANEL,
     MODE_PAL_M,
@@ -98,6 +106,14 @@ static const char* MODE_RESOLUTION_FIRST[] = {
     MODE_4K2K30HZ,
     MODE_4K2K50HZ,
     MODE_4K2K60HZ,
+    MODE_4K2K100HZ,
+    MODE_4K2K120HZ,
+    MODE_8K4K24HZ,
+    MODE_8K4K25HZ,
+    MODE_8K4K30HZ,
+    MODE_8K4K48HZ,
+    MODE_8K4K50HZ,
+    MODE_8K4K60HZ,
 };
 static const char* MODE_FRAMERATE_FIRST[] = {
     MODE_480I,
@@ -115,6 +131,14 @@ static const char* MODE_FRAMERATE_FIRST[] = {
     MODE_1080P,
     MODE_4K2K50HZ,
     MODE_4K2K60HZ,
+    MODE_4K2K100HZ,
+    MODE_4K2K120HZ,
+    MODE_8K4K24HZ,
+    MODE_8K4K25HZ,
+    MODE_8K4K30HZ,
+    MODE_8K4K48HZ,
+    MODE_8K4K50HZ,
+    MODE_8K4K60HZ,
 };
 
 // Sink reference table, sorted by priority, per CDF
@@ -1074,6 +1098,12 @@ void DisplayMode::applyDisplaySetting(hdmi_output_info_t* output_info) {
 
     // 8. set hdmi final output mode
     if (isNeedChange) {
+        //need drive to do
+        if (strstr(final_displaymode, MODE_8K4K_PREFIX)) {
+            pSysWrite->writeSysfs(DISPLAY_HDMI_FRL_RATE, "4");
+        } else {
+            pSysWrite->writeSysfs(DISPLAY_HDMI_FRL_RATE, "0");
+        }
         //apply driver sysfs
         if (hdr_policy_change) {
             if (strstr(hdr_policy, HDR_POLICY_SINK)) {
@@ -1505,7 +1535,7 @@ int64_t DisplayMode::resolveResolutionValue(const char *mode) {
 int64_t DisplayMode::resolveResolutionValue(const char *mode, int flag) {
     bool validMode = false;
     if (strlen(mode) != 0) {
-        for (int i = 0; i < DISPLAY_MODE_TOTAL; i++) {
+        for (int i = 0; i < sizeof(DISPLAY_MODE_LIST)/sizeof(char *); i++) {
             if (strcmp(mode, DISPLAY_MODE_LIST[i]) == 0) {
                 validMode = true;
                 break;
@@ -1808,7 +1838,7 @@ void DisplayMode::getHdmiDvCap(hdmi_data_t* data) {
     strcpy(data->dv_info.dv_cap, dv_cap.c_str());
 
     if (strstr(data->dv_info.dv_cap, "DolbyVision RX support list") != NULL) {
-        for (int i = DISPLAY_MODE_TOTAL - 1; i >= 0; i--) {
+        for (int i = sizeof(DISPLAY_MODE_LIST)/sizeof(char *) - 1; i >= 0; i--) {
             if (strstr(data->dv_info.dv_cap, DISPLAY_MODE_LIST[i]) != NULL) {
                 if ((strlen(data->dv_info.dv_displaymode) + strlen(DISPLAY_MODE_LIST[i]) + 1) < sizeof(data->dv_info.dv_displaymode)) {
                     strcat(data->dv_info.dv_displaymode, DISPLAY_MODE_LIST[i]);
@@ -2370,6 +2400,10 @@ void DisplayMode::getPosition(const char* curMode, int *position) {
         strcpy(keyValue, MODE_1080P_PREFIX);
         defaultWidth = FULL_WIDTH_1080;
         defaultHeight = FULL_HEIGHT_1080;
+    } else if (strstr(curMode, MODE_1440P_PREFIX)) {
+        strcpy(keyValue, MODE_1440P_PREFIX);
+        defaultWidth = FULL_WIDTH_1440;
+        defaultHeight = FULL_HEIGHT_1440;
     } else if (strstr(curMode, MODE_4K2K_PREFIX)) {
         strcpy(keyValue, MODE_4K2K_PREFIX);
         defaultWidth = FULL_WIDTH_4K2K;
@@ -2378,6 +2412,10 @@ void DisplayMode::getPosition(const char* curMode, int *position) {
         strcpy(keyValue, "4k2ksmpte");
         defaultWidth = FULL_WIDTH_4K2KSMPTE;
         defaultHeight = FULL_HEIGHT_4K2KSMPTE;
+    } else if (strstr(curMode, MODE_8K4K_PREFIX)) {
+        strcpy(keyValue, MODE_8K4K_PREFIX);
+        defaultWidth = FULL_WIDTH_8K4K;
+        defaultHeight = FULL_HEIGHT_8K4K;
     } else if (strstr(curMode, MODE_PANEL)) {
         strcpy(keyValue, MODE_PANEL);
         defaultWidth = FULL_WIDTH_PANEL;
@@ -2440,10 +2478,14 @@ void DisplayMode::setPosition(const char* curMode, int left, int top, int width,
         strcpy(keyValue, MODE_1080I_PREFIX);
     } else if (strstr(curMode, MODE_1080P_PREFIX)) {
         strcpy(keyValue, MODE_1080P_PREFIX);
+    } else if (strstr(curMode, MODE_1440P_PREFIX)) {
+        strcpy(keyValue, MODE_1440P_PREFIX);
     } else if (strstr(curMode, MODE_4K2K_PREFIX)) {
         strcpy(keyValue, MODE_4K2K_PREFIX);
     } else if (strstr(curMode, MODE_4K2KSMPTE_PREFIX)) {
         strcpy(keyValue, "4k2ksmpte");
+    } else if (strstr(curMode, MODE_8K4K_PREFIX)) {
+        strcpy(keyValue, MODE_8K4K_PREFIX);
     } else if (strstr(curMode, MODE_PANEL)) {
         strcpy(keyValue, MODE_PANEL);
     }
@@ -3289,7 +3331,7 @@ void DisplayMode::setALLMMode(int state) {
             DisplayModeMgr::getInstance().getDisplayAttribute(DISPLAY_HDMI_COLOR_ATTR, cur_ColorAttribute);
             strcpy(curColorAttribute, cur_ColorAttribute.c_str());
             //2.4 get dv max support resolution
-            for (int i = DISPLAY_MODE_TOTAL - 1; i >= 0; i--) {
+            for (int i = sizeof(DISPLAY_MODE_LIST)/sizeof(char *) - 1; i >= 0; i--) {
                 if (strstr(mHdmidata.dv_info.dv_displaymode, DISPLAY_MODE_LIST[i]) != NULL) {
                     strcpy(dv_displaymode, DISPLAY_MODE_LIST[i]);
                     break;
@@ -3435,7 +3477,7 @@ void DisplayMode::initHdrSdrMode() {
 
 int DisplayMode::modeToIndex(const char *mode) {
     int index = DISPLAY_MODE_1080P;
-    for (int i = 0; i < DISPLAY_MODE_TOTAL; i++) {
+    for (int i = 0; i < sizeof(DISPLAY_MODE_LIST)/sizeof(char *); i++) {
         if (!strcmp(mode, DISPLAY_MODE_LIST[i])) {
             index = i;
             break;

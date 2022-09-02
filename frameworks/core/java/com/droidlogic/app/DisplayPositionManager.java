@@ -118,25 +118,31 @@ public class DisplayPositionManager {
 
     private void initStep(String mode) {
         if (mode.contains(OutputModeManager.HDMI_480)) {
-            mMaxRight = 719;
+            mMaxRight  = 719;
             mMaxBottom = 479;
-        }else if (mode.contains(OutputModeManager.HDMI_576)) {
-            mMaxRight = 719;
+        } else if (mode.contains(OutputModeManager.HDMI_576)) {
+            mMaxRight  = 719;
             mMaxBottom = 575;
-        }else if (mode.contains(OutputModeManager.HDMI_720)) {
-            mMaxRight = 1279;
+        } else if (mode.contains(OutputModeManager.HDMI_720)) {
+            mMaxRight  = 1279;
             mMaxBottom = 719;
-        }else if (mode.contains(OutputModeManager.HDMI_1080)) {
-            mMaxRight = 1919;
+        } else if (mode.contains(OutputModeManager.HDMI_1080)) {
+            mMaxRight  = 1919;
             mMaxBottom = 1079;
-        }else if (mode.contains(OutputModeManager.HDMI_4K2K)) {
-            mMaxRight = 3839;
+        } else if (mode.contains(OutputModeManager.HDMI_4K2K)) {
+            mMaxRight  = 3839;
             mMaxBottom = 2159;
         } else if (mode.contains(OutputModeManager.HDMI_SMPTE)) {
-            mMaxRight = 4095;
+            mMaxRight  = 4095;
             mMaxBottom = 2159;
+        } else if (mode.contains(OutputModeManager.HDMI_7680x4320)) {
+            mMaxRight  = 7679;
+            mMaxBottom = 4319;
+        } else if (mode.contains(OutputModeManager.HDMI_2560X1440)) {
+            mMaxRight  = 2559;
+            mMaxBottom = 1439;
         } else {
-            mMaxRight = 1919;
+            mMaxRight  = 1919;
             mMaxBottom = 1079;
         }
     }

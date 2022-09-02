@@ -63,6 +63,8 @@
 #define MODE_576CVBS                    "576cvbs"
 #define MODE_720P50HZ                   "720p50hz"
 #define MODE_720P                       "720p60hz"
+#define MODE_720P100HZ                  "1280x720p100hz"
+#define MODE_720P120HZ                  "1280x720p120hz"
 #define MODE_768P                       "768p60hz"
 #define MODE_1080P24HZ                  "1080p24hz"
 #define MODE_1080P25HZ                  "1080p25hz"
@@ -71,15 +73,29 @@
 #define MODE_1080P50HZ                  "1080p50hz"
 #define MODE_1080I                      "1080i60hz"
 #define MODE_1080P                      "1080p60hz"
+#define MODE_1080P100HZ                 "1920x1080p100hz"
+#define MODE_1080P120HZ                 "1920x1080p120hz"
+#define MODE_1440P50HZ                  "2560x1440p50hz"
+#define MODE_1440P60HZ                  "2560x1440p60hz"
+#define MODE_1440P100HZ                 "2560x1440p100hz"
+#define MODE_1440P120HZ                 "2560x1440p120hz"
 #define MODE_4K2K24HZ                   "2160p24hz"
 #define MODE_4K2K25HZ                   "2160p25hz"
 #define MODE_4K2K30HZ                   "2160p30hz"
 #define MODE_4K2K50HZ                   "2160p50hz"
 #define MODE_4K2K60HZ                   "2160p60hz"
+#define MODE_4K2K100HZ                  "3840x2160p100hz"
+#define MODE_4K2K120HZ                  "3840x2160p120hz"
 #define MODE_4K2KSMPTE                  "smpte24hz"
 #define MODE_4K2KSMPTE30HZ              "smpte30hz"
 #define MODE_4K2KSMPTE50HZ              "smpte50hz"
 #define MODE_4K2KSMPTE60HZ              "smpte60hz"
+#define MODE_8K4K24HZ                   "7680x4320p24hz"
+#define MODE_8K4K25HZ                   "7680x4320p25hz"
+#define MODE_8K4K30HZ                   "7680x4320p30hz"
+#define MODE_8K4K48HZ                   "7680x4320p48hz"
+#define MODE_8K4K50HZ                   "7680x4320p50hz"
+#define MODE_8K4K60HZ                   "7680x4320p60hz"
 #define MODE_PANEL                      "panel"
 #define MODE_PAL_M                      "pal_m"
 #define MODE_PAL_N                      "pal_n"
@@ -131,7 +147,23 @@ enum {
     DISPLAY_MODE_PAL_M                  = 26,
     DISPLAY_MODE_PAL_N                  = 27,
     DISPLAY_MODE_NTSC_M                 = 28,
-    DISPLAY_MODE_TOTAL                  = 29
+    DISPLAY_MODE_8K4K24HZ               = 29,
+    DISPLAY_MODE_8K4K25HZ               = 30,
+    DISPLAY_MODE_8K4K30HZ               = 31,
+    DISPLAY_MODE_8K4K48HZ               = 32,
+    DISPLAY_MODE_8K4K50HZ               = 33,
+    DISPLAY_MODE_8K4K60HZ               = 34,
+    DISPLAY_MODE_720P100HZ              = 35,
+    DISPLAY_MODE_720P120HZ              = 36,
+    DISPLAY_MODE_1080P100HZ             = 37,
+    DISPLAY_MODE_1080P120HZ             = 38,
+    DISPLAY_MODE_1440P50HZ              = 39,
+    DISPLAY_MODE_1440P60HZ              = 40,
+    DISPLAY_MODE_1440P100HZ             = 41,
+    DISPLAY_MODE_1440P120HZ             = 42,
+    DISPLAY_MODE_4K2K100HZ              = 43,
+    DISPLAY_MODE_4K2K120HZ              = 44,
+    DISPLAY_MODE_TOTAL                  = 45
 };
 
 static const char* DV_MODE_LIST[] = {
@@ -156,6 +188,8 @@ static const char* DISPLAY_MODE_LIST[DISPLAY_MODE_TOTAL] = {
     MODE_576CVBS,
     MODE_720P,
     MODE_720P50HZ,
+    MODE_720P100HZ,
+    MODE_720P120HZ,
     MODE_1080P24HZ,
     MODE_1080P25HZ,
     MODE_1080P30HZ,
@@ -163,6 +197,12 @@ static const char* DISPLAY_MODE_LIST[DISPLAY_MODE_TOTAL] = {
     MODE_1080P50HZ,
     MODE_1080I,
     MODE_1080P,
+    MODE_1080P100HZ,
+    MODE_1080P120HZ,
+    MODE_1440P50HZ,
+    MODE_1440P60HZ,
+    MODE_1440P100HZ,
+    MODE_1440P120HZ,
     MODE_4K2K24HZ,
     MODE_4K2K25HZ,
     MODE_4K2K30HZ,
@@ -172,6 +212,14 @@ static const char* DISPLAY_MODE_LIST[DISPLAY_MODE_TOTAL] = {
     MODE_4K2KSMPTE30HZ,
     MODE_4K2KSMPTE50HZ,
     MODE_4K2KSMPTE60HZ,
+    MODE_4K2K100HZ,
+    MODE_4K2K120HZ,
+    MODE_8K4K24HZ,
+    MODE_8K4K25HZ,
+    MODE_8K4K30HZ,
+    MODE_8K4K48HZ,
+    MODE_8K4K50HZ,
+    MODE_8K4K60HZ,
     MODE_768P,
     MODE_PANEL,
     MODE_PAL_M,
@@ -195,6 +243,12 @@ static const char* MODE_RESOLUTION_FIRST[] = {
     MODE_4K2K30HZ,
     MODE_4K2K50HZ,
     MODE_4K2K60HZ,
+    MODE_8K4K24HZ,
+    MODE_8K4K25HZ,
+    MODE_8K4K30HZ,
+    MODE_8K4K48HZ,
+    MODE_8K4K50HZ,
+    MODE_8K4K60HZ,
 };
 
 static const char* MODE_FRAMERATE_FIRST[] = {
@@ -213,6 +267,8 @@ static const char* MODE_FRAMERATE_FIRST[] = {
     MODE_1080P,
     MODE_4K2K50HZ,
     MODE_4K2K60HZ,
+    MODE_8K4K50HZ,
+    MODE_8K4K60HZ,
 };
 
 //for check hdr 4k support or not
@@ -831,7 +887,11 @@ void SceneProcess::getBestHdmiDeepColorAttr(const char *outputmode, char* colorA
     //return and use default color format(444 8bit)
     if (!strlen(supportedColorList)) {
         if (!strcmp(outputmode, MODE_4K2K60HZ) || !strcmp(outputmode, MODE_4K2K50HZ)
-            || !strcmp(outputmode, MODE_4K2KSMPTE60HZ) || !strcmp(outputmode, MODE_4K2KSMPTE50HZ)) {
+            || !strcmp(outputmode, MODE_4K2KSMPTE60HZ) || !strcmp(outputmode, MODE_4K2KSMPTE50HZ)
+            || !strcmp(outputmode, MODE_4K2K100HZ) || !strcmp(outputmode, MODE_4K2K120HZ)
+            || !strcmp(outputmode, MODE_8K4K60HZ) || !strcmp(outputmode, MODE_8K4K50HZ)
+            || !strcmp(outputmode, MODE_8K4K48HZ) || !strcmp(outputmode, MODE_8K4K30HZ)
+            || !strcmp(outputmode, MODE_8K4K25HZ) || !strcmp(outputmode, MODE_8K4K24HZ)) {
             strcpy(colorAttribute, DEFAULT_COLOR_FORMAT_4K);
         } else {
             strcpy(colorAttribute, DEFAULT_COLOR_FORMAT);
@@ -843,7 +903,11 @@ void SceneProcess::getBestHdmiDeepColorAttr(const char *outputmode, char* colorA
 
     //1. select the color format table for different resolution or scene.
     if (!strcmp(outputmode, MODE_4K2K60HZ) || !strcmp(outputmode, MODE_4K2K50HZ)
-        || !strcmp(outputmode, MODE_4K2KSMPTE60HZ) || !strcmp(outputmode, MODE_4K2KSMPTE50HZ)) {
+        || !strcmp(outputmode, MODE_4K2KSMPTE60HZ) || !strcmp(outputmode, MODE_4K2KSMPTE50HZ)
+        || !strcmp(outputmode, MODE_4K2K100HZ) || !strcmp(outputmode, MODE_4K2K120HZ)
+        || !strcmp(outputmode, MODE_8K4K60HZ) || !strcmp(outputmode, MODE_8K4K50HZ)
+        || !strcmp(outputmode, MODE_8K4K48HZ) || !strcmp(outputmode, MODE_8K4K30HZ)
+        || !strcmp(outputmode, MODE_8K4K25HZ) || !strcmp(outputmode, MODE_8K4K24HZ)) {
         //2160p50hz 2160p60hz 3840x2160p60hz 3840x2160p50hz case
         if (isLowPowerMode()) {
             colorList = COLOR_ATTRIBUTE_LIST3;
@@ -894,7 +958,11 @@ void SceneProcess::getHdmiColorAttribute(const char* outputmode, char* colorAttr
     //use default color format
     if (!strlen(supportedColorList)) {
         if (!strcmp(outputmode, MODE_4K2K60HZ) || !strcmp(outputmode, MODE_4K2K50HZ)
-            || !strcmp(outputmode, MODE_4K2KSMPTE60HZ) || !strcmp(outputmode, MODE_4K2KSMPTE50HZ)) {
+            || !strcmp(outputmode, MODE_4K2KSMPTE60HZ) || !strcmp(outputmode, MODE_4K2KSMPTE50HZ)
+            || !strcmp(outputmode, MODE_4K2K100HZ) || !strcmp(outputmode, MODE_4K2K120HZ)
+            || !strcmp(outputmode, MODE_8K4K60HZ) || !strcmp(outputmode, MODE_8K4K50HZ)
+            || !strcmp(outputmode, MODE_8K4K48HZ) || !strcmp(outputmode, MODE_8K4K30HZ)
+            || !strcmp(outputmode, MODE_8K4K25HZ) || !strcmp(outputmode, MODE_8K4K24HZ)) {
             strcpy(colorAttribute, DEFAULT_COLOR_FORMAT_4K);
         } else {
             strcpy(colorAttribute, DEFAULT_COLOR_FORMAT);

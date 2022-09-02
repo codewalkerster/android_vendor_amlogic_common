@@ -286,7 +286,8 @@ bool FormatColorDepth::isSupportHdmiMode(const char *hdmi_mode, const char *supp
     if (strstr(hdmi_mode, "2160p60hz")  != NULL
         || strstr(hdmi_mode,"2160p50hz") != NULL
         || strstr(hdmi_mode,"smpte50hz") != NULL
-        || strstr(hdmi_mode,"smpte60hz") != NULL) {
+        || strstr(hdmi_mode,"smpte60hz") != NULL
+        || strstr(hdmi_mode,"4320p") != NULL) {
 
         colorList = COLOR_ATTRIBUTE_LIST;
         length    = ARRAY_SIZE(COLOR_ATTRIBUTE_LIST);
