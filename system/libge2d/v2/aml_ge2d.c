@@ -151,9 +151,10 @@ int aml_ge2d_init(aml_ge2d_t *pge2d)
     if (fd_ge2d < 0)
         return GE2D_FAIL;
     ion_fd = ion_mem_init();
-    if (ion_fd < 0)
+    if (ion_fd < 0) {
+        close(fd_ge2d);
         return GE2D_FAIL;
-
+    }
     pge2d->ge2dinfo.ge2d_fd = fd_ge2d;
     pge2d->ge2dinfo.ion_fd = ion_fd;
     pge2d->ge2dinfo.cap_attr = aml_ge2d_get_cap(fd_ge2d);
