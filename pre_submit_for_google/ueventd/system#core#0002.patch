@@ -1,0 +1,40 @@
+From 4e1a06e9f25bc1525f643e669d2b2fb809ede4e2 Mon Sep 17 00:00:00 2001
+From: "gaoyue.huang" <gaoyue.huang@amlogic.com>
+Date: Mon, 5 Sep 2022 19:29:35 +0800
+Subject: [PATCH] ueventd: add parallel processing configuration file [1/2]
+
+PD#SWPL-92971
+
+Problem:
+ueventd: coldboot took too much time
+
+Solution:
+1.The parallel restorecon dirs can be configured in ueventd.rc
+2.Add 'parallel_restorecon_dirs' keywords
+parallel_restorecon_dirs <directory>
+
+Verify:
+android T
+
+Signed-off-by: gaoyue.huang <gaoyue.huang@amlogic.com>
+Change-Id: Idd72a19b5b7cd6e36f8965978de897a1c386bc11
+---
+ init/ueventd.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/init/ueventd.cpp b/init/ueventd.cpp
+index c6bf708a3..b677696f6 100644
+--- a/init/ueventd.cpp
++++ b/init/ueventd.cpp
+@@ -303,7 +303,7 @@ static UeventdConfiguration GetConfiguration() {
+ 
+     std::vector<std::string> canonical{"/system/etc/ueventd.rc"};
+ 
+-    if (android::base::GetIntProperty("ro.product.first_api_level", 10000) < __ANDROID_API_T__) {
++    if (android::base::GetIntProperty("ro.product.first_api_level", 10000) <= __ANDROID_API_T__) {
+         // TODO: Remove these legacy paths once Android S is no longer supported.
+         canonical.insert(canonical.end(), legacy_paths.begin(), legacy_paths.end());
+     } else {
+-- 
+2.25.1
+
