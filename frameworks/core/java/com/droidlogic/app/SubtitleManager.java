@@ -113,6 +113,9 @@ public class SubtitleManager {
     static public final int CMD_UI_SET_SUBDEMISION = 8;
     static public final int CMD_UI_SET_SURFACERECT = 9;
 
+    //for subtitle encoding
+    public static String mEncoding = null;
+
 
     /*****************teletext event*********************/
     public static final int TT_EVENT_INVALID = -1;
@@ -573,7 +576,11 @@ public class SubtitleManager {
                       //Log.d(TAG, "startSubtitle TEXT: " + isExtSubtitle() + ", getExtSubCharset:" + mSubtitleUtils.getExtSubCharset());
                     if (isExtSubtitle()) {
                         try {
-                            text = new String (subdata, mSubtitleUtils.getExtSubCharset());
+                            if (mEncoding == null) {
+                                text = new String (subdata, mSubtitleUtils.getExtSubCharset());
+                            }else {
+                                text = new String (subdata, mEncoding);
+                            }
                         }
                         catch (UnsupportedEncodingException e) {
                             LOGI("ext subtitle byte to string err!!!");
@@ -613,6 +620,12 @@ public class SubtitleManager {
                     break;
             }
         });
+    }
+
+    //set subtitle encoding
+    public boolean setSubtitleEnc(String encoding){
+        mEncoding = encoding;
+        return true;
     }
 
     // TODO: how to design API use default impl
