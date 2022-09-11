@@ -178,6 +178,12 @@ PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/bcm_ampak/config/AP6398
 PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/bcm_ampak/config/AP6398/Wi-Fi/fw_bcm4359c0_ag_apsta.bin:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/4359/fw_bcm4359c0_ag_apsta.bin
 PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/bcm_ampak/config/AP6398/Wi-Fi/fw_bcm4359c0_ag_p2p.bin:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/4359/fw_bcm4359c0_ag_p2p.bin
 PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/bcm_ampak/config/AP6398/Wi-Fi/nvram_ap6398s.txt:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/4359/nvram_ap6398s.txt
+
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/bcm_ampak/config/AP6398/Wi-Fi/fw_bcm4359c0_ag.bin:$(TARGET_COPY_OUT_VENDOR)/lib/firmware/ap6398sa/fw_bcm4359c0_ag.bin
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/bcm_ampak/config/AP6398/Wi-Fi/fw_bcm4359c0_ag_apsta.bin:$(TARGET_COPY_OUT_VENDOR)/lib/firmware/ap6398sa/fw_bcm4359c0_ag_apsta.bin
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/bcm_ampak/config/AP6398/Wi-Fi/fw_bcm4359c0_ag_p2p.bin:$(TARGET_COPY_OUT_VENDOR)/lib/firmware/ap6398sa/fw_bcm4359c0_ag_p2p.bin
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/bcm_ampak/config/AP6398/Wi-Fi/nvram_ap6398s.txt:$(TARGET_COPY_OUT_VENDOR)/lib/firmware/ap6398sa/nvram_ap6398s.txt
+
 endif
 
 ifneq ($(filter ap6275s,$(WIFI_MODULES)),)
@@ -186,6 +192,13 @@ PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/bcm_ampak/config/AP6275
 PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/bcm_ampak/config/AP6275/Wi-Fi/fw_bcm43752a2_ag_p2p.bin:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/43752a2/fw_bcm43752a2_ag_p2p.bin
 PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/bcm_ampak/config/AP6275/Wi-Fi/clm_bcm43752a2_ag.blob:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/43752a2/clm_bcm43752a2_ag.blob
 PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/bcm_ampak/config/AP6275/Wi-Fi/nvram_ap6275s.txt:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/43752a2/nvram_ap6275s.txt
+
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/bcm_ampak/config/AP6275/Wi-Fi/fw_bcm43752a2_ag.bin:$(TARGET_COPY_OUT_VENDOR)/lib/firmware/ap6275s/fw_bcm43752a2_ag.bin
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/bcm_ampak/config/AP6275/Wi-Fi/fw_bcm43752a2_ag_apsta.bin:$(TARGET_COPY_OUT_VENDOR)/lib/firmware/ap6275s/fw_bcm43752a2_ag_apsta.bin
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/bcm_ampak/config/AP6275/Wi-Fi/fw_bcm43752a2_ag_p2p.bin:$(TARGET_COPY_OUT_VENDOR)/lib/firmware/ap6275s/fw_bcm43752a2_ag_p2p.bin
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/bcm_ampak/config/AP6275/Wi-Fi/clm_bcm43752a2_ag.blob:$(TARGET_COPY_OUT_VENDOR)/lib/firmware/ap6275s/clm_bcm43752a2_ag.blob
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/bcm_ampak/config/AP6275/Wi-Fi/nvram_ap6275s.txt:$(TARGET_COPY_OUT_VENDOR)/lib/firmware/ap6275s/nvram_ap6275s.txt
+
 endif
 
 ifneq ($(filter bcm43458_s,$(WIFI_MODULES)),)
