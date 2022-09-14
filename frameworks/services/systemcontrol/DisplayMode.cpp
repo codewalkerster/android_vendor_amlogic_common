@@ -3004,40 +3004,85 @@ void DisplayMode::setALLMMode(int state) {
      *                                                             *
      ***************************************************************/
 
-    int perState = pSysWrite->getPropertyInt("persist.vendor.sys.display.allm", -1);
+    if (!isTvSupportALLM()) {
+        SYS_LOGI("setALLMMode: TV not support ALLM\n");
+        return;
+    }
+
+    int perState = -1;
+    char cur_allm_state[MODE_LEN] = {0};
+    pSysWrite->readSysfs(AUTO_LOW_LATENCY_MODE, cur_allm_state);
+    perState = atoi(cur_allm_state);
     if (perState == state) {
-        SYS_LOGI("setALLMMode: the ALLM_Mode is not changed");
+        SYS_LOGI("setALLMMode: the ALLM_Mode is not changed :%d\n", state);
         return;
     }
 
     char dv_mode[MAX_STR_LEN];
     bool isTVSupportDV = isTvSupportDolbyVision(dv_mode);
 
+    char ubootenv_dv_enable[MODE_LEN] = {0};
+    char cur_displaymode[MODE_LEN] = {0};
+    char dv_displaymode[MODE_LEN] = {0};
+    char ubootenv_dv_type[MODE_LEN] = {0};
+    char curColorAttribute[MODE_LEN] = {0};
+    std::string cur_ColorAttribute;
+
     switch (state) {
         case -1:
             [[fallthrough]];
         case 0:
+            //1. disable allm
             pSysWrite->writeSysfs(AUTO_LOW_LATENCY_MODE, ALLM_MODE[0]);
-            pSysWrite->setProperty("persist.vendor.sys.display.allm", ALLM_MODE[0]);
             SYS_LOGI("setALLMMode: ALLM_Mode: %s", ALLM_MODE[0]);
-
-            if (isTVSupportDV) {
-                // reset doblyvision when set -1/0 to ALLM
-                //setBootEnv(UBOOTENV_BESTDOLBYVISION, "true");
-                //initDolbyVision(OUTPUT_MODE_STATE_SWITCH);
-                setDolbyVisionEnable(DOLBY_VISION_SET_ENABLE,OUTPUT_MODE_STATE_SWITCH);
+            //2.1 get dv status before enable allm
+            getBootEnv(UBOOTENV_DV_ENABLE, ubootenv_dv_enable);
+            //2.2 get current hdmi output resolution
+            getDisplayMode(cur_displaymode);
+            //2.3 get current hdmi output color space
+            DisplayModeMgr::getInstance().getDisplayAttribute(DISPLAY_HDMI_COLOR_ATTR, cur_ColorAttribute);
+            strcpy(curColorAttribute, cur_ColorAttribute.c_str());
+            //2.4 get dv max support resolution
+            for (int i = DISPLAY_MODE_TOTAL - 1; i >= 0; i--) {
+                if (strstr(mHdmidata.dv_info.dv_displaymode, DISPLAY_MODE_LIST[i]) != NULL) {
+                    strcpy(dv_displaymode, DISPLAY_MODE_LIST[i]);
+                    break;
+                }
+            }
+            //2.4 get dv type before enable allm
+            getBootEnv(UBOOTENV_DV_TYPE, ubootenv_dv_type);
+            //3 enable dv
+            //when TV and current resolution support dv and dv is enable before enable allm
+            if (isTVSupportDV
+                && !strcmp(ubootenv_dv_enable, "1")
+                && (resolveResolutionValue(cur_displaymode, RESOLUTION_PRIORITY) <= resolveResolutionValue(dv_displaymode, RESOLUTION_PRIORITY))) {
+                pSysWrite->writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "1");
+                // restore doblyvision when set -1/0 to ALLM
+                if (!strcmp(ubootenv_dv_type, "2") && strstr(curColorAttribute, "422,12bit") != NULL) {
+                    enableDolbyVision(DOLBY_VISION_SET_ENABLE_LL_YUV);
+                    mHdmidata.dv_info.dv_type = DOLBY_VISION_SET_ENABLE_LL_YUV;
+                } else if (!strcmp(ubootenv_dv_type, "1") && strstr(curColorAttribute, "444,8bit") != NULL) {
+                    enableDolbyVision(DOLBY_VISION_SET_ENABLE);
+                    mHdmidata.dv_info.dv_type = DOLBY_VISION_SET_ENABLE;
+                } else {
+                    SYS_LOGE("can't enable dv for curColorAttribute: %s\n", curColorAttribute);
+                }
+                pSysWrite->writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "-1");
             }
             break;
         case 1:
-            pSysWrite->writeSysfs(AUTO_LOW_LATENCY_MODE, ALLM_MODE[2]);
-            pSysWrite->setProperty("persist.vendor.sys.display.allm", ALLM_MODE[2]);
-            SYS_LOGI("setALLMMode: ALLM_Mode: %s", ALLM_MODE[2]);
-
+            //1 disable dv
+            //when TV support dv and dv is enable
             if (isTVSupportDV && isDolbyVisionEnable()) {
+                mHdmidata.dv_info.dv_type = DOLBY_VISION_SET_DISABLE;
                 // disable the doblyvision when ALLM enable
-               // setBootEnv(UBOOTENV_BESTDOLBYVISION, "false");
-                setDolbyVisionEnable(DOLBY_VISION_SET_DISABLE,OUTPUT_MODE_STATE_SWITCH);
+                pSysWrite->writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "1");
+                disableDolbyVision(DOLBY_VISION_SET_DISABLE);
+                pSysWrite->writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "-1");
             }
+            //2. enable allm
+            pSysWrite->writeSysfs(AUTO_LOW_LATENCY_MODE, ALLM_MODE[2]);
+            SYS_LOGI("setALLMMode: ALLM_Mode: %s", ALLM_MODE[2]);
             break;
         default:
             SYS_LOGE("setALLMMode: ALLM_Mode: error state[%d]", state);
