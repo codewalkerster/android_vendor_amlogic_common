@@ -21,7 +21,7 @@ ifeq ($(PRODUCT_USE_PREBUILT_GTVS), yes)
     $(call inherit-product, vendor/google_gtvs_gtv/products/gtvs_gtv.mk)
   endif
 else
-  $(call inherit-product-if-exists, vendor/google_atv/products/atv_flatten_mainline_modules.mk)
+  $(call inherit-product-if-exists, vendor/google_atv/products/atv_mainline_modules.mk)
   ifeq ($(ATV_LAUNCHER),amati)
     $(call inherit-product-if-exists, vendor/google_atv/products/atv_google_amati_3p.mk)
   else
