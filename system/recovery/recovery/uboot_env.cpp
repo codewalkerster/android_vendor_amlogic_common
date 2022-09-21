@@ -85,10 +85,6 @@ int set_env_optarg(char * optarg)
         goto END;
     }
 
-    if (!value) {
-        goto END;
-    }
-
     if (strlen(value) == 0) {
         printf("value is NULL\n");
         goto END;
