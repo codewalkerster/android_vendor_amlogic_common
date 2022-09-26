@@ -487,10 +487,7 @@ class SubtitleViewAdaptor {
             temphScale = ((float)mWindowLayoutParams.height/h) * 0.8f;
         }
 
-        if (mSubtitleType == SubtitleManager.TYPE_SUBTITLE_DVB) {
-            tempwScale = wScale * RATIO_DVB_SUBTITLE_SCALE;
-            temphScale = hScale * RATIO_DVB_SUBTITLE_SCALE;
-        }
+
         Matrix matrix = new Matrix();
         matrix.postScale(tempwScale, temphScale);
         Log.d(TAG, "showBitmap:matrix-"+matrix+", tempwScale="+tempwScale+", temphScale="+temphScale);
@@ -524,15 +521,10 @@ class SubtitleViewAdaptor {
             || (mSubtitleType == SubtitleManager.TYPE_SUBTITLE_SCTE27)
             || (mSubtitleType == SubtitleManager.TYPE_SUBTITLE_PGS)) {
             //Log.d(TAG, "mCoordinateX="+mCoordinateX+", mCoordinateY="+mCoordinateY + ",wScale:" + wScale + ",hScale:" + hScale);
-            if (mSubtitleType == SubtitleManager.TYPE_SUBTITLE_DVB && interBitmap != null) {
-                mCoordinateX = (int)(mCoordinateX*wScale)
-                            + (int)((float)interBitmap.getWidth()/RATIO_DVB_SUBTITLE_SCALE
-                            * WIDTH_RATIO_DVB_SUBTITLE_EXTEND);
-                mCoordinateY = (int)(mCoordinateY*hScale) - HEIGHT_DVB_SUBTITLE_ADJUST;
-            } else {
-                mCoordinateX = (int)(mCoordinateX*wScale);
-                mCoordinateY = (int)(mCoordinateY*hScale);
-            }
+
+            mCoordinateX = (int)(mCoordinateX*wScale);
+            mCoordinateY = (int)(mCoordinateY*hScale);
+
             params.setMargins(mCoordinateX, mCoordinateY, 0, 0);
             mImageView.setLayoutParams(params);
 
