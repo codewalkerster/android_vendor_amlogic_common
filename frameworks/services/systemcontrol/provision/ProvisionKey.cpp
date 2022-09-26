@@ -196,26 +196,26 @@ bool ProvisionKey::writeHdcpRX22Key(const char *value, const int size){
 
 
 bool ProvisionKey::writePFIDKey(const char *value, const int size) {
-    int ret = -1;
+    bool ret = false;
     SYS_LOGE("come to ProvisionKey::writePFIDKey size = %d\n", size);
     #ifndef RECOVERY_MODE
         ret = keyProvisionStore(value, size);
     #endif
     SYS_LOGI("writePFIDKey ret = %d\n", ret);
-    if (ret == 0)
+    if (ret)
         return true;
     else
         return false;
 }
 
 bool ProvisionKey::writePFPKKey(const char *value, const int size) {
-    int ret = -1;
-    SYS_LOGE("come to ProvisionKey::writePFPKKey size = %d\n", size);
+    bool ret = false;
+    SYS_LOGI("come to ProvisionKey::writePFPKKey size = %d\n", size);
     #ifndef RECOVERY_MODE
         ret = keyProvisionStore(value, size);
     #endif
     SYS_LOGI("writePFPKKey ret = %d\n", ret);
-    if (ret == 0)
+    if (ret)
         return true;
     else
         return false;
@@ -359,6 +359,7 @@ bool ProvisionKey::checkHDCP14KeyIsExist(const uint32_t key_type) {
     #ifndef RECOVERY_MODE
         ret = keyProvisionQuery(key_type, 0);
     #endif
+    SYS_LOGI("[%s, %d] ret:%d", __FUNCTION__, __LINE__,ret);
     return ret;
 }
 
@@ -379,11 +380,12 @@ bool ProvisionKey::checkHDCP22Key(const char *path, const char *value, const uin
 }
 
 bool ProvisionKey::checkHDCP22KeyIsExist(const uint32_t key_type_first, const uint32_t key_type_second) {
-    int ret = -1;
+    bool ret = false;
     #ifndef RECOVERY_MODE
         ret = keyProvisionQuery(key_type_first, 0);
     #endif
-    if (0 != ret) {
+    SYS_LOGI("[%s, %d] ret:%d", __FUNCTION__, __LINE__,ret);
+    if (!ret) {
         SYS_LOGE("[%s, %d] RX22_FW is not exist", __FUNCTION__, __LINE__);
         return false;
     }
@@ -391,7 +393,8 @@ bool ProvisionKey::checkHDCP22KeyIsExist(const uint32_t key_type_first, const ui
     #ifndef RECOVERY_MODE
         ret = keyProvisionQuery(key_type_second, 0);
     #endif
-    if (0 != ret) {
+    SYS_LOGI("[%s, %d] ret:%d", __FUNCTION__, __LINE__,ret);
+    if (!ret) {
         SYS_LOGE("[%s, %d] RX22_FW_PR is not exist", __FUNCTION__, __LINE__);
         return false;
     }
@@ -402,22 +405,22 @@ bool ProvisionKey::checkHDCP22KeyIsExist(const uint32_t key_type_first, const ui
 }
 
 bool ProvisionKey::checkPFIDKeyIsExist(const uint32_t key_type){
-    int ret = -1;
+    bool ret = false;
     #ifndef RECOVERY_MODE
         ret = keyProvisionQuery(key_type, 0);
     #endif
-    if (ret == 0)
+    if (ret)
         return true;
     else
         return false;
 }
 
 bool ProvisionKey::checkPFPKKeyIsExist(const uint32_t key_type){
-    int ret = -1;
+    bool ret = false;
     #ifndef RECOVERY_MODE
         ret = keyProvisionQuery(key_type, 0);
     #endif
-    if (ret == 0)
+    if (ret)
         return true;
     else
         return false;
@@ -429,6 +432,23 @@ bool ProvisionKey::calcChecksumKey(const char *value, const int size, char *keyC
     #endif
     return false;
 }
+
+bool ProvisionKey::getKeyProvisionChecksum(int type, char *keyCheckSum){
+    bool ret = false;
+    char buf[PROVISION_KEY_CHECKSUM_LENGTH+1] = {0};
+    #ifndef RECOVERY_MODE
+        ret = keyProvisionChecksum(type, buf);
+    #endif
+    if (ret) {
+        char *pTmp = keyCheckSum;
+        for (int i=0; i < PROVISION_KEY_CHECKSUM_LENGTH; i++) {
+            sprintf(pTmp, "%02X", (unsigned char)buf[i]);
+            pTmp+=2;
+        }
+        return true;
+    }
+    return false;
+}
 //key end
 
 void ProvisionKey::setLogLevel(int level){
@@ -436,11 +456,12 @@ void ProvisionKey::setLogLevel(int level){
 }
 
 bool ProvisionKey::keyProvisionStore(const char *value, const int size) {
-    SYS_LOGI("keyProvisionStore keybox: %s key_size: %d\n", value,size);
+    SYS_LOGI("keyProvisionStore key_size: %d\n", size);
     int ret = -1;
     #ifndef RECOVERY_MODE
         ret = key_provision_store(NULL, 0, (uint8_t*)value, (uint32_t)size);
     #endif
+    SYS_LOGI("keyProvisionStore ret = %d, %08X\n", ret, ret);
     if (ret == 0)
         return true;
     else
@@ -454,6 +475,7 @@ bool ProvisionKey::keyProvisionQuery (const uint32_t key_type, const int size) {
     #ifndef RECOVERY_MODE
         ret = key_provision_query(NULL, 0, key_type, &default_storage_location, &key_size);
     #endif
+    SYS_LOGI("keyProvisionQuery ret: %d\n",ret);
     if (ret == 0)
         return true;
     else
@@ -461,11 +483,12 @@ bool ProvisionKey::keyProvisionQuery (const uint32_t key_type, const int size) {
 }
 
 bool ProvisionKey::keyProvisionChecksum (const uint32_t key_type, const char *value) {
-    SYS_LOGI("keyProvisionChecksum key_type: %d checksum: %s \n", key_type,value);
+    SYS_LOGI("keyProvisionChecksum key_type: 0x%08x \n", key_type);
     int ret = -1;
     #ifndef RECOVERY_MODE
         ret = key_provision_checksum(key_type, NULL, 0, (uint8_t*)value);
     #endif
+    SYS_LOGI("keyProvisionChecksum ret = %d, %08X\n", ret, ret);
     if (ret == 0)
         return true;
     else

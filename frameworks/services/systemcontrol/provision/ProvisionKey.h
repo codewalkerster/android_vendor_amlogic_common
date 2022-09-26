@@ -115,6 +115,7 @@ public:
     bool checkPFIDKeyIsExist(const uint32_t key_type);
     bool checkPFPKKeyIsExist(const uint32_t key_type);
     bool calcChecksumKey(const char *value, const int size, char *keyCheckSum);
+    bool getKeyProvisionChecksum(int type, char *keyCheckSum);
     //key end
 
     void setLogLevel(int level);

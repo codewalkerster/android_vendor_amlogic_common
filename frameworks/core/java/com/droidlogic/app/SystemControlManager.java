@@ -574,6 +574,24 @@ public class SystemControlManager {
         return "";
     }
 
+    public String getKeyProvisionChecksum(int type) {
+        synchronized (mLock) {
+            Mutable<String> resultVal = new Mutable<>();
+            try {
+                mProxy.getKeyProvisionChecksum(type, (int ret, String v) -> {
+                    if (Result.OK == ret) {
+                        resultVal.value = v;
+                    }
+                });
+                return resultVal.value;
+            } catch (RemoteException e) {
+                Log.e(TAG, "getKeyProvisionChecksum:" + e);
+            }
+        }
+
+        return "";
+    }
+
     /*
      *usage: readPlayreadyKey("widevinekeybox", keyContent, keyContent.length);
      * use it read keys that contain Special characters, If key is secure, it only return the hash data

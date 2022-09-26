@@ -559,6 +559,16 @@ bool SystemControlClient::calcChecksumKey(const char *value, const int size, std
 
     return true;
   }
+
+bool SystemControlClient::getKeyProvisionChecksum(int type, std::string& keyCheckSum) {
+    mSysCtrl->getKeyProvisionChecksum(type, [&keyCheckSum](const Result &ret, const hidl_string& v) {
+        if (Result::OK == ret) {
+            keyCheckSum = v;
+        }
+    });
+
+    return true;
+}
 //key end
 
 bool SystemControlClient::writeHdcpRXImg(const std::string& path) {

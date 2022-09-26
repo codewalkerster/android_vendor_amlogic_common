@@ -746,6 +746,20 @@ Return<void> SystemControlHal::calcChecksumKey(const hidl_array<int32_t, 10240>&
         _hidl_cb(Result::FAIL, keyCheckSum);
     return Void();
 }
+
+Return<void> SystemControlHal::getKeyProvisionChecksum(int32_t type, getKeyProvisionChecksum_cb _hidl_cb) {
+    bool result = false;
+    std::string keyCheckSum;
+    result = mSysControl->getKeyProvisionChecksum(type, keyCheckSum);
+
+    if (ENABLE_LOG_PRINT)
+        ALOGI("getKeyProvisionChecksum type :0x%08x, keyCheckSum:%s", type, keyCheckSum.c_str());
+    if (result)
+        _hidl_cb(Result::OK, keyCheckSum);
+    else
+        _hidl_cb(Result::FAIL, keyCheckSum);
+    return Void();
+}
 //Provision key end
 
 

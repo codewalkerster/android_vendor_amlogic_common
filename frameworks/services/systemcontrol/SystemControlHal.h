@@ -110,6 +110,7 @@ class SystemControlHal : public ISystemControl, public SystemControlNotify, publ
     Return<Result> checkPFPKKeyIsExist(const uint32_t key_type) override;
     Return<void> calcChecksumKey(const hidl_array<int32_t, 10240>& value, int32_t size, calcChecksumKey_cb _hidl_cb) override;
 
+    Return<void> getKeyProvisionChecksum(int32_t type, getKeyProvisionChecksum_cb _hidl_cb) override;
     //Provision key end
 
     Return<Result> updataLogoBmp(const hidl_string &path) override;

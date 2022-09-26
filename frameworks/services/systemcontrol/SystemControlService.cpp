@@ -480,7 +480,7 @@ bool SystemControlService::checkHDCP22Key(const std::string& path, const char *v
 
 bool SystemControlService::checkHDCP22KeyIsExist(const uint32_t key_type_first, const uint32_t key_type_second) {
     if (NO_ERROR == permissionCheck()) {
-        ALOGD("SystemControlService checkHDCP14KeyIsExist \n");
+        ALOGD("SystemControlService checkHDCP22KeyIsExist \n");
         return pProvisionKey->checkHDCP22KeyIsExist(key_type_first, key_type_second);
     }
     return false;
@@ -510,6 +510,17 @@ bool SystemControlService::calcChecksumKey(const char *value, const int size, st
         return ret;
     }
     *keyCheckSum = buf;
+    return false;
+}
+
+bool SystemControlService::getKeyProvisionChecksum(int type, std::string& keyCheckSum) {
+    if (NO_ERROR == permissionCheck()) {
+        char buf[MAX_STR_LEN] = {0};
+        bool ret = pProvisionKey->getKeyProvisionChecksum(type, buf);
+        keyCheckSum = buf;
+        return ret;
+    }
+
     return false;
 }
 // key end

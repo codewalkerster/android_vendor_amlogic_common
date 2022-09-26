@@ -108,6 +108,7 @@ public:
     bool checkPFIDKeyIsExist(const uint32_t key_type);
     bool checkPFPKKeyIsExist(const uint32_t key_type);
     bool calcChecksumKey(const char *value, const int size, std::string *keyCheckSum);
+    bool getKeyProvisionChecksum(int type, std::string& keyCheckSum);
     //key end
 
     bool updataLogoBmp(const std::string& path);
