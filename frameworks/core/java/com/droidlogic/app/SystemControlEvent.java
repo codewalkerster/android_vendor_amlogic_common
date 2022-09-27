@@ -38,6 +38,8 @@ public class SystemControlEvent extends ISystemControlCallback.Stub {
     public static final int EVENT_HDMI_PLUG_IN                  = 3;
     public static final int EVENT_HDMI_AUDIO_OUT                = 4;
     public static final int EVENT_HDMI_AUDIO_IN                 = 5;
+    public static final int EVENT_HDMI_TX_AUTH_FAIL             = 6;
+    public static final int EVENT_HDMI_TX_AUTH_SUCCESS          = 7;
 
     // AudioManager.DEVICE_OUT_HDMI
     public static final int DEVICE_OUT_AUX_DIGITAL              = 0x400;

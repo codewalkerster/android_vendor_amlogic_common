@@ -37,6 +37,8 @@
 #define HDCP_TX_FW_PATH_1         "/odm/etc/firmware/firmware.le"
 #define HDCP_TX_FW_PATH_2         "/vendor/etc/firmware/firmware.le"
 
+#define HDCP_TX_AUTH_FAIL         "persist.vendor.hdcptx.auth.fail"
+
 enum {
     REPEATER_RX_VERSION_NONE        = 0,
     REPEATER_RX_VERSION_14          = 1,
@@ -45,16 +47,24 @@ enum {
 
 class HDCPTxAuth {
 public:
+    class HDCPTxAuthCallback {
+    public:
+        HDCPTxAuthCallback() {};
+        virtual ~HDCPTxAuthCallback() {};
+        virtual void onHdcpTxAuthEvent (const char* status) = 0;
+    };
     HDCPTxAuth();
 
     ~HDCPTxAuth();
 
+    void setHDCPCallback(HDCPTxAuthCallback *cb);
     void setBootAnimFinished(bool finished);
     void setRepeaterRxVersion(int ver);
     int start();
     int stop();
     void stopVerAll();
     void isAuthSuccess(int *status);
+    void AuthResult(bool result);
 
     #ifndef RECOVERY_MODE
     void sfRepaintEverything();
@@ -71,6 +81,7 @@ private:
     static void* authThread(void* data);
 
     SysWrite mSysWrite;
+    HDCPTxAuthCallback *pmHDCPTxAuthCallback = NULL;
     int mRepeaterRxVer;
 
     bool mMute;
@@ -80,6 +91,7 @@ private:
     sem_t pthreadTxSem;
     pthread_t pthreadIdHdcpTx;
     bool mExitHdcpTxThread;
+    bool mFallbackDefault;
 
     std::mutex mMutex;
     std::condition_variable mCv;

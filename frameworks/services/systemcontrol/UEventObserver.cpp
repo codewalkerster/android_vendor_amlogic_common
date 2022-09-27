@@ -474,7 +474,13 @@ void* UEventObserver::HDMITxUenventThreadLoop(void* data) {
             }
         }
         else if (!strcmp(ueventData.matchName, HDMI_TX_HDCP_UEVENT) && !strcmp(ueventData.switchName, HDMI_UEVENT_HDCP)) {
-
+            if (!strcmp(ueventData.switchState, "1")) {
+                SYS_LOGD("hdcp_tx authenticate success.\n");
+                pThiz->pmHDCPTxAuth->AuthResult(true);
+            } else {
+                SYS_LOGD("hdcp_tx authenticate fail.\n");
+                pThiz->pmHDCPTxAuth->AuthResult(false);
+            }
         }
         else if (!strcmp(ueventData.matchName, HDMI_TX_HDCP14_LOG_UEVENT) && !strcmp(ueventData.switchName, HDMI_UEVENT_HDCP_LOG)) {
 

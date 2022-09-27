@@ -129,6 +129,8 @@ using namespace android;
 #define HDMI_TX_PLUG_IN                 "1"
 #define HDMI_TX_SUSPEND                 "0"
 #define HDMI_TX_RESUME                  "1"
+#define HDMI_TX_AUTH_FAIL               "0"
+#define HDMI_TX_AUTH_SUCCESS            "1"
 
 //HDCP RX
 #define HDMI_RX_PLUG_UEVENT             "DEVPATH=/devices/platform/ffd26000.hdmirx/hdmirx/hdmirx0/rx22"               //"DEVPATH=/devices/virtual/switch/hdmirx_hpd"//1:plugin 0:plug out
@@ -250,6 +252,8 @@ enum {
     EVENT_HDMI_PLUG_IN                  = 3,
     EVENT_HDMI_AUDIO_OUT                = 4,
     EVENT_HDMI_AUDIO_IN                 = 5,
+    EVENT_HDMI_TX_AUTH_FAIL             = 6,
+    EVENT_HDMI_TX_AUTH_SUCCESS          = 7,
 };
 
 enum {
@@ -420,7 +424,8 @@ namespace meson {
 }
 
 class DisplayMode : public UEventObserver::HDMITxUevntCallback,
-                                      private FrameRateAutoAdaption::Callback
+                                      private FrameRateAutoAdaption::Callback,
+                                      public HDCPTxAuth::HDCPTxAuthCallback
 {
 public:
     DisplayMode(const char *path);
@@ -503,6 +508,7 @@ public:
     void notifyEvent(int event);
     void setListener(const sp<SystemControlNotify>& listener);
 #endif
+    virtual void onHdcpTxAuthEvent (const char* status);
     virtual void onTxEvent (char* switchName, char* hpdstate, int outputState);
     virtual void onDispModeSyncEvent (const char* outputmode, int state);
     void hdcpSwitch();

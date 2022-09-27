@@ -48,7 +48,8 @@ HDCPTxAuth::HDCPTxAuth() :
     mRepeaterRxVer(REPEATER_RX_VERSION_NONE),
     mMute(false),
     mBootAnimFinished(false),
-    pthreadIdHdcpTx(0) {
+    pthreadIdHdcpTx(0),
+    mFallbackDefault(false) {
 
     if (sem_init(&pthreadTxSem, 0, 0) < 0) {
         SYS_LOGE("HDCPTxAuth, sem_init failed\n");
@@ -67,6 +68,11 @@ void HDCPTxAuth::setBootAnimFinished(bool finished) {
 void HDCPTxAuth::setRepeaterRxVersion(int ver) {
     mRepeaterRxVer = ver;
 }
+
+void HDCPTxAuth::setHDCPCallback(HDCPTxAuthCallback *cb) {
+    pmHDCPTxAuthCallback = cb;
+}
+
 
 //start HDCP TX authenticate
 int HDCPTxAuth::start() {
@@ -97,6 +103,9 @@ int HDCPTxAuth::stop() {
     int ret = -1;
 
     stopVerAll();
+#ifndef RECOVERY_MODE
+    mFallbackDefault = false;
+#endif
     if (0 != pthreadIdHdcpTx) {
         mExitHdcpTxThread = true;
         mCv.notify_all();
@@ -180,6 +189,7 @@ void* HDCPTxAuth::authThread(void* data) {
     if (pThiz->authInit(&hdcp22, &hdcp14)) {
         if (!pThiz->authLoop(hdcp22, hdcp14)) {
             SYS_LOGE("HDCP authenticate fail\n");
+            pThiz->AuthResult(false);
         }
     }
     return NULL;
@@ -197,15 +207,19 @@ bool HDCPTxAuth::authInit(bool *pHdcp22, bool *pHdcp14) {
     //HDCP TX: get current MBOX[TX] device contains which TX keys. Values:[14/22, 00 is no key]
     mSysWrite.readSysfs(DISPLAY_HDMI_HDCP_KEY, hdcpTxKey);
     SYS_LOGI("hdcp_tx key:%s\n", hdcpTxKey);
-    if ((strlen(hdcpTxKey) == 0) || !(strcmp(hdcpTxKey, "00")))
+    if ((strlen(hdcpTxKey) == 0) || !(strcmp(hdcpTxKey, "00"))) {
+        AuthResult(false);
         return false;
+    }
 
     //HDCP RX: get current TV[RX] device contains which RX key. Values:[14/22, 00 is no key]
     //Values is the hightest key. if value is 22, means the devices supports 22 and 14.
     mSysWrite.readSysfs(DISPLAY_HDMI_HDCP_VER, hdcpRxVer);
     SYS_LOGI("hdcp_tx remote version:%s\n", hdcpRxVer);
-    if ((strlen(hdcpRxVer) == 0) || !(strcmp(hdcpRxVer, "00")))
+    if ((strlen(hdcpRxVer) == 0) || !(strcmp(hdcpRxVer, "00"))) {
+        AuthResult(false);
         return false;
+    }
 
     //stop hdcp_tx
     stopVerAll();
@@ -235,6 +249,7 @@ bool HDCPTxAuth::authInit(bool *pHdcp22, bool *pHdcp14) {
     if (!useHdcp22 && !useHdcp14) {
         //do not support hdcp1.4 and hdcp2.2
         SYS_LOGE("device do not support hdcp1.4 or hdcp2.2\n");
+        AuthResult(false);
         return false;
     }
 
@@ -265,7 +280,7 @@ bool HDCPTxAuth::authLoop(bool useHdcp22, bool useHdcp14) {
         mSysWrite.readSysfs(DISPLAY_HDMI_HDCP_AUTH, auth);
         if (strstr(auth, (char *)"1")) {//Authenticate is OK
             success = true;
-            mSysWrite.writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "-1");
+            AuthResult(true);
             break;
         }
 
@@ -286,7 +301,6 @@ bool HDCPTxAuth::authLoop(bool useHdcp22, bool useHdcp14) {
                 SYS_LOGE("hdcp_tx 1.4 authenticate fail, 8s timeout\n");
                 startVer14();
             }
-            mSysWrite.writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "-1");
             break;
         }
     }
@@ -323,6 +337,39 @@ void HDCPTxAuth::stopVerAll() {
     mSysWrite.writeSysfs(DISPLAY_HDMI_HDCP_CONF, DISPLAY_HDMI_HDCP14_STOP);
     mSysWrite.writeSysfs(DISPLAY_HDMI_HDCP_CONF, DISPLAY_HDMI_HDCP22_STOP);
     usleep(2000);
+}
+
+void HDCPTxAuth::AuthResult(bool result) {
+    char fail_case[8] = {0};
+    mSysWrite.getPropertyString(HDCP_TX_AUTH_FAIL, fail_case, "4");
+    if (result) {
+        mSysWrite.writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "-1");
+        if (!strcmp(fail_case, "1") || !strcmp(fail_case, "2")) {
+            mSysWrite.writeSysfs(DISPLAY_HDMI_VIDEO_MUTE, "0");
+            mSysWrite.writeSysfs(DISPLAY_HDMI_AUDIO_MUTE, "0");
+            mSysWrite.writeSysfs(DISPLAY_MEDIA_VIDEO_MUTE, "0");
+        } else if (!strcmp(fail_case, "3") && mFallbackDefault) {
+#ifndef RECOVERY_MODE
+            SYS_LOGD("send hdcp auth success event.\n");
+            pmHDCPTxAuthCallback->onHdcpTxAuthEvent(HDMI_TX_AUTH_SUCCESS);
+            mFallbackDefault = false;
+#endif
+        }
+    } else {
+        if (!strcmp(fail_case, "1")) {
+            mSysWrite.writeSysfs(DISPLAY_HDMI_VIDEO_MUTE, "1");
+            mSysWrite.writeSysfs(DISPLAY_HDMI_AUDIO_MUTE, "1");
+        } else if (!strcmp(fail_case, "2")) {
+            mSysWrite.writeSysfs(DISPLAY_HDMI_AUDIO_MUTE, "1");
+            mSysWrite.writeSysfs(DISPLAY_MEDIA_VIDEO_MUTE, "1");
+       } else if (!strcmp(fail_case, "3") && !mFallbackDefault) {
+#ifndef RECOVERY_MODE
+            SYS_LOGD("send hdcp auth fail event.\n");
+            pmHDCPTxAuthCallback->onHdcpTxAuthEvent(HDMI_TX_AUTH_FAIL);
+            mFallbackDefault = true;
+#endif
+        }
+    }
 }
 
 #ifndef RECOVERY_MODE

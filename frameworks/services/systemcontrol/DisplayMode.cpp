@@ -313,6 +313,7 @@ DisplayMode::DisplayMode(const char *path, Ubootenv *ubootenv)
 
     if (DISPLAY_TYPE_MBOX == mDisplayType) {
         pTxAuth = new HDCPTxAuth();
+        pTxAuth->setHDCPCallback(this);
         pUEventObserver = new UEventObserver();
         pUEventObserver->setUevntCallback(this);
         pUEventObserver->setFRAutoAdpt(pFrameRateAutoAdaption);
@@ -324,6 +325,7 @@ DisplayMode::DisplayMode(const char *path, Ubootenv *ubootenv)
 #ifndef RECOVERY_MODE
         SYS_LOGI("init: not RECOVERY_MODE\n");
         pTxAuth = new HDCPTxAuth();
+        pTxAuth->setHDCPCallback(this);
         pUEventObserver = new UEventObserver();
         pUEventObserver->setUevntCallback(this);
         pUEventObserver->setFRAutoAdpt(pFrameRateAutoAdaption);
@@ -333,6 +335,7 @@ DisplayMode::DisplayMode(const char *path, Ubootenv *ubootenv)
 #endif
     } else if (DISPLAY_TYPE_TABLET == mDisplayType) {
         pTxAuth = new HDCPTxAuth();
+        pTxAuth->setHDCPCallback(this);
         pUEventObserver = new UEventObserver();
         pUEventObserver->setUevntCallback(this);
         pUEventObserver->setFRAutoAdpt(pFrameRateAutoAdaption);
@@ -341,6 +344,7 @@ DisplayMode::DisplayMode(const char *path, Ubootenv *ubootenv)
         dumpCaps();
     } else if (DISPLAY_TYPE_REPEATER == mDisplayType) {
         pTxAuth = new HDCPTxAuth();
+        pTxAuth->setHDCPCallback(this);
         pUEventObserver = new UEventObserver();
         pUEventObserver->setUevntCallback(this);
         pUEventObserver->setFRAutoAdpt(pFrameRateAutoAdaption);
@@ -761,15 +765,43 @@ bool DisplayMode::getPreferredDisplayConfig(char* mode) {
 }
 
 void DisplayMode::setActiveDispMode(const char*value) {
-    mHdmidata.reason = OUPTUT_CHANGE_BY_HWC;
-    SYS_LOGI("setDisplayed by hwc %s", value);
-    setSourceOutputMode(value);
-    mHdmidata.reason = OUTPUT_CHANGE_BY_INIT;
+    char hdcpauth[8] = {0};
+    pSysWrite->getPropertyString("vendor.sys.hdcp_result", hdcpauth, "1");
+
+    if (!strcmp(hdcpauth, "0")) {
+        SYS_LOGD("hdcp auth fail, set default mode.\n");
+        pSysWrite->writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "1");
+        DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDMI_COLOR_ATTR, DEFAULT_COLOR_FORMAT);
+        //set hdmi default mode
+        setDisplayMode(DEFAULT_HDMI_MODE);
+
+        //update display position
+        int position[4] = { 0, 0, 0, 0 };//x,y,w,h
+        getPosition(DEFAULT_HDMI_MODE, position);
+        setPosition(DEFAULT_HDMI_MODE, position[0], position[1],position[2], position[3]);
+        pSysWrite->writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "-1");
+        pSysWrite->setProperty("vendor.sys.hdcp_result", "1");
+    } else {
+        mHdmidata.reason = OUPTUT_CHANGE_BY_HWC;
+        SYS_LOGI("setDisplayed by hwc %s", value);
+        setSourceOutputMode(value);
+        mHdmidata.reason = OUTPUT_CHANGE_BY_INIT;
+    }
 }
 
 void DisplayMode::notifyPlugin() {
 #ifndef RECOVERY_MODE
     notifyEvent(EVENT_HDMI_PLUG_IN);
+#endif
+}
+
+void DisplayMode::onHdcpTxAuthEvent(const char* status) {
+#ifndef RECOVERY_MODE
+    if (!strcmp(status, HDMI_TX_AUTH_SUCCESS)) {
+        notifyEvent(EVENT_HDMI_TX_AUTH_SUCCESS);
+    } else if (!strcmp(status, HDMI_TX_AUTH_FAIL)) {
+        notifyEvent(EVENT_HDMI_TX_AUTH_FAIL);
+    }
 #endif
 }
 
@@ -958,6 +990,15 @@ void DisplayMode::applyDisplaySetting(output_mode_state state) {
     } else if (OUTPUT_MODE_STATE_INIT == state) {
         // stop hdcp tx
         pTxAuth->stop();
+        char fail_case[8] = {0};
+        pSysWrite->getPropertyString(HDCP_TX_AUTH_FAIL, fail_case, "4");
+        if (!strcmp(fail_case, "1")) {
+            pSysWrite->writeSysfs(DISPLAY_HDMI_VIDEO_MUTE, "1");
+            pSysWrite->writeSysfs(DISPLAY_HDMI_AUDIO_MUTE, "1");
+        } else if (!strcmp(fail_case, "2")) {
+            pSysWrite->writeSysfs(DISPLAY_HDMI_AUDIO_MUTE, "1");
+            pSysWrite->writeSysfs(DISPLAY_MEDIA_VIDEO_MUTE, "1");
+        }
     }
 
     // 8. set hdmi final output mode
@@ -1015,8 +1056,18 @@ void DisplayMode::applyDisplaySetting(output_mode_state state) {
             pSysWrite->writeSysfs(DISPLAY_HDMI_PHY, "1"); // Turn on TMDS PHY
         }*/
         usleep(20000);
-        pSysWrite->writeSysfs(DISPLAY_HDMI_AUDIO_MUTE, "1");
-        pSysWrite->writeSysfs(DISPLAY_HDMI_AUDIO_MUTE, "0");
+        char fail_case[8] = {0};
+        pSysWrite->getPropertyString(HDCP_TX_AUTH_FAIL, fail_case, "4");
+        if (!strcmp(fail_case, "1")) {
+            pSysWrite->writeSysfs(DISPLAY_HDMI_VIDEO_MUTE, "1");
+            pSysWrite->writeSysfs(DISPLAY_HDMI_AUDIO_MUTE, "1");
+        } else if (!strcmp(fail_case, "2")) {
+            pSysWrite->writeSysfs(DISPLAY_HDMI_AUDIO_MUTE, "1");
+            pSysWrite->writeSysfs(DISPLAY_MEDIA_VIDEO_MUTE, "1");
+        } else {
+            pSysWrite->writeSysfs(DISPLAY_HDMI_AUDIO_MUTE, "1");
+            pSysWrite->writeSysfs(DISPLAY_HDMI_AUDIO_MUTE, "0");
+        }
         if (isDolbyVisionEnable()) {
             usleep(20000);
         }
