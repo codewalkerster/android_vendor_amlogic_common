@@ -611,7 +611,7 @@ void rtk_btservice_internal_event_intercept(uint8_t *p_full_msg, uint8_t *p_msg)
 }
 
 
-static int rtk_socket_accept(socketfd)
+static int rtk_socket_accept(int socketfd)
 {
     struct sockaddr_un un;
     socklen_t len;
@@ -923,5 +923,3 @@ void RTK_btservice_destroyed()
     rtk_btservice = NULL;
     ALOGD("%s destroyed done!", __func__);
 }
-
-
