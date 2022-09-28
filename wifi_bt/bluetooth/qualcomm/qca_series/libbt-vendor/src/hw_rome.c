@@ -1858,7 +1858,7 @@ ALOGE("%s: wipower_flag: %d", __FUNCTION__, wipower_flag);
 return wipower_flag;
 }
 
-int rome_get_addon_feature_list(fd) {
+int rome_get_addon_feature_list(int fd) {
 int err = 0;
 
 /* Get addon features that are supported by FW */
