@@ -1,4 +1,4 @@
-ifeq ($(filter sabrina adt3 deadpool atom Beast,$(TARGET_DEVICE)),)
+ifeq ($(filter sabrina adt3 adt4 deadpool atom Beast,$(TARGET_DEVICE)),)
 
 LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
