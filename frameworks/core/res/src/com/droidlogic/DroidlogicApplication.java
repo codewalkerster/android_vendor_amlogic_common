@@ -71,13 +71,7 @@ public class DroidlogicApplication extends Application {
 
     private boolean isBootvideoStopped() {
         ContentProviderClient tvProvider = null;
-
-        if (mAudioSettingManager.isTunerAudio()) {
-            tvProvider = getContentResolver().acquireContentProviderClient(TvContract.AUTHORITY);
-        }
-
-        return (mAudioSettingManager.isTunerAudio() && tvProvider != null || !mAudioSettingManager.isTunerAudio()) &&
-                (((SystemProperties.getInt("persist.vendor.media.bootvideo", 50)  > 100)
+        return (((SystemProperties.getInt("persist.vendor.media.bootvideo", 50)  > 100)
                         && TextUtils.equals(SystemProperties.get("service.bootvideo.exit", "1"), "0"))
                 || ((SystemProperties.getInt("persist.vendor.media.bootvideo", 50)  <= 100)));
     }

@@ -31,6 +31,8 @@ android_library {
     name: "droidlogic-res-lib",
     srcs: [
         "**/*.java",
+        "src/com/droidlogic/audioservice/services/IAudioSystemCmdService.aidl",
+        "src/com/droidlogic/audioservice/services/IAudioEffectsService.aidl",
     ],
 
     manifest: "AndroidManifest_common.xml",
@@ -44,6 +46,7 @@ android_library {
     ],
 
     static_libs: [
+        "vendor.amlogic.hardware.tvserver-V1.0-java",
         "vendor.amlogic.hardware.droidvold-V1.0-java",
         "vendor.amlogic.hardware.systemcontrol-V1.0-java",
         "vendor.amlogic.hardware.systemcontrol-V1.1-java",
