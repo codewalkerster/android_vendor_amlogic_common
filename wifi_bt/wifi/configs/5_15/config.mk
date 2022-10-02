@@ -129,6 +129,14 @@ rtl8852be_copy_path ?=
 rtl8852be_build_path ?= rtl8852BE
 rtl8852be_args ?=
 
+WIFI_SUPPORT_DRIVERS += rtl8852bs
+rtl8852bs_build ?= true
+rtl8852bs_modules ?= rtl8852bs
+rtl8852bs_src_path ?= $(DRIVER_DIR)/realtek/8852bs
+rtl8852bs_copy_path ?=
+rtl8852bs_build_path ?= rtl8852BS
+rtl8852bs_args ?=
+
 WIFI_SUPPORT_DRIVERS += sd8987
 sd8987_build ?= false
 sd8987_modules ?= sd8987
