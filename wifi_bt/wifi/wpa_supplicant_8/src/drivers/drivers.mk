@@ -34,6 +34,7 @@ ifdef CONFIG_DRIVER_NL80211
 DRV_CFLAGS += -DCONFIG_DRIVER_NL80211
 DRV_OBJS += src/drivers/driver_nl80211.c
 DRV_OBJS += src/drivers/driver_nl80211_android.c
+DRV_OBJS += src/drivers/driver_cmd_nl80211.c 
 DRV_OBJS += src/drivers/driver_nl80211_capa.c
 DRV_OBJS += src/drivers/driver_nl80211_event.c
 DRV_OBJS += src/drivers/driver_nl80211_monitor.c

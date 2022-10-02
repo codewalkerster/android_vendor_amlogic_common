@@ -97,7 +97,7 @@ static const dongle_info dongle_registerd[]={\
     {"0000","0000","8192eu","/vendor/lib/modules/8192eu.ko","ifname=wlan0 if2name=ap0",no_base,"rtl8192eu",0x818b,""},\
     {"0000","0000","8192fu","/vendor/lib/modules/8192fu.ko","ifname=wlan0 if2name=ap0",no_base,"rtl8192fu",0xf192,""},\
     {"b822","0000","8822bs","/vendor/lib/modules/8822bs.ko","ifname=wlan0 if2name=ap0",no_base,"rtl8822bs",0x0,""},\
-    {"b852","0000","8852bs","/vendor/lib/modules/8852bs.ko","ifname=wlan0 if2name=ap0",no_base,"rtl8852bs",0x0,""},\
+    {"b852","0000","8852bs","/vendor/lib/modules/8852bs.ko","ifname=wlan0 if2name=p2p0",no_base,"rtl8852bs",0x0,""},\
     {"0000","0000","8733bu","/vendor/lib/modules/8733bu.ko","ifname=wlan0 if2name=ap0",no_base,"rtl8733bu",0xb733,""},\
     {"0000","0000","8852au","/vendor/lib/modules/8852au.ko","ifname=wlan0 if2name=ap0",no_base,"rtl8852au",0x885c,""},\
     {"0000","0000","8852au","/vendor/lib/modules/8852au.ko","ifname=wlan0 if2name=ap0",no_base,"rtl8852au",0x885a,""},\
