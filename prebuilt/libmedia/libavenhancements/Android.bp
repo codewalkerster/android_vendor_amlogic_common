@@ -41,7 +41,7 @@ cc_prebuilt_library_shared {
     name: "libamffmpegadapter",
     system_ext_specific: true,
     defaults: ["avenhancements_adapter_go_defaults"],
-    compile_multilib: "32",
+    compile_multilib: "both",
     check_elf_files: false,
 
     arch: {
@@ -49,7 +49,6 @@ cc_prebuilt_library_shared {
             srcs: ["lib/libamffmpegadapter.so"],
         },
         arm64: {
-            enabled: false,
             srcs: ["lib64/libamffmpegadapter.so"],
         },
         x86: {
@@ -77,79 +76,16 @@ cc_prebuilt_library_shared {
 }
 
 cc_prebuilt_library_shared {
-    name: "libavenhancements",
-    system_ext_specific: true,
-    defaults: ["avenhancements_adapter_go_defaults"],
-    compile_multilib: "32",
-    arch: {
-        arm: {
-            srcs: ["lib/libavenhancements.so"],
-        },
-        arm64: {
-            enabled: false,
-            srcs: ["lib64/libavenhancements.so"],
-        },
-        x86: {
-            enabled: false,
-        },
-        x86_64: {
-            enabled: false,
-        },
-    },
-    shared_libs: [
-        "libammediaext",
-        "libbinder",
-        "libc++",
-        "libc",
-        "libcutils",
-        "libdl",
-        "liblog",
-        "libm",
-        "libmedia_omx",
-        "libstagefright_foundation",
-        "libstagefright_omx",
-        "libstagefright_xmlparser",
-        "libutils",
-    ],
-
-}
-
-cc_prebuilt_library_shared {
-    name: "libavenhancements_vendor",
-    vendor: true,
-    stem: "libavenhancements",
-    check_elf_files: false,
-    arch: {
-        arm: {
-            srcs: ["lib/libavenhancements.so"],
-        },
-        arm64: {
-            enabled: false,
-            srcs: ["lib64/libavenhancements.so"],
-        },
-        x86: {
-            enabled: false,
-        },
-        x86_64: {
-            enabled: false,
-        },
-    },
-
-
-}
-
-cc_prebuilt_library_shared {
     name: "libmediavendor_ext",
     system_ext_specific: true,
     defaults: ["avenhancements_adapter_go_defaults"],
-    compile_multilib: "32",
+    compile_multilib: "both",
     arch: {
         arm: {
             srcs: ["lib/libmediavendor_ext.so"],
         },
         arm64: {
-            enabled: false,
-            //srcs: ["lib64/libmediavendor_ext.so"],
+            srcs: ["lib64/libmediavendor_ext.so"],
         },
         x86: {
             enabled: false,
@@ -186,7 +122,7 @@ cc_prebuilt_library_shared {
             srcs: ["lib/libamffmpegcodec.so"],
         },
         arm64: {
-           enabled: false,
+           srcs: ["lib64/libamffmpegcodec.so"],
         },
         x86: {
             enabled: false,
@@ -216,8 +152,10 @@ cc_prebuilt_library_shared {
         arm: {
             srcs: ["lib/libamextractor.so"],
         },
+        arm64: {
+            srcs: ["lib64/libamextractor.so"],
+        },
     },
-
     shared_libs: [
         "libbinder",
         "libc++",
@@ -242,6 +180,9 @@ cc_prebuilt_library_shared {
     arch: {
         arm: {
             srcs: ["lib/libamnuplayer.so"],
+        },
+        arm64: {
+            srcs: ["lib64/libamnuplayer.so"],
         },
     },
     shared_libs: [
@@ -286,6 +227,9 @@ cc_prebuilt_library_shared {
     arch: {
         arm: {
             srcs: ["lib/libwfd_hdcp_adaptor.so"],
+        },
+        arm64: {
+            srcs: ["lib64/libwfd_hdcp_adaptor.so"],
         },
     },
     shared_libs: [
