@@ -38,7 +38,7 @@ cc_library_headers {
 cc_prebuilt_library_static {
 
     name: "libicuuc_vendor_static",
-    compile_multilib: "32",
+    compile_multilib: "both",
     vendor: true,
     defaults: ["droidlogic_icu_go_defaults"],
     arch: {
@@ -65,7 +65,7 @@ cc_prebuilt_library_static {
 cc_prebuilt_library_shared {
 
     name: "libicuuc_vendor",
-    compile_multilib: "32",
+    compile_multilib: "both",
     vendor: true,
     defaults: ["droidlogic_icu_go_defaults"],
     arch: {
@@ -96,14 +96,14 @@ cc_prebuilt_library_shared {
     vendor: true,
     defaults: ["droidlogic_icu_go_defaults"],
 
-    compile_multilib: "32",
+    compile_multilib: "both",
     arch: {
         arm: {
             srcs: ["lib/libicui18n_vendor.so"],
         },
         arm64: {
-            enabled: false,
-            //srcs: ["lib64/libicui18n_vendor.so"],
+            enabled: true,
+            srcs: ["lib64/libicui18n_vendor.so"],
         },
         x86: {
             enabled: false,
@@ -168,8 +168,7 @@ cc_prebuilt_library_static {
             srcs: ["lib/libicuuc_stubdata_product.a"],
         },
         arm64: {
-            enabled: false,
-            //srcs: ["lib64/libicuuc_stubdata_product.a"],
+            srcs: ["lib64/libicuuc_stubdata_product.a"],
         },
         x86: {
             enabled: false,
@@ -192,7 +191,7 @@ cc_prebuilt_library_static {
 cc_prebuilt_library_static {
 
     name: "libicui18n_static_vendor",
-    compile_multilib: "32",
+    compile_multilib: "both",
     export_include_dirs: ["include"],
     vendor: true,
     defaults: ["droidlogic_icu_go_defaults"],
@@ -218,7 +217,7 @@ cc_prebuilt_library_static {
 cc_prebuilt_library_static {
 
     name: "libicui18n_product",
-    compile_multilib: "32",
+    compile_multilib: "both",
     export_include_dirs: ["include"],
     vendor: true,
     defaults: ["droidlogic_icu_go_defaults"],
@@ -244,7 +243,7 @@ cc_prebuilt_library_static {
 cc_prebuilt_library_static {
 
     name: "libicuuc_product",
-    compile_multilib: "32",
+    compile_multilib: "both",
     export_include_dirs: ["include"],
     defaults: ["droidlogic_icu_go_defaults"],
 

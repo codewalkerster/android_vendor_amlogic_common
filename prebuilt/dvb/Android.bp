@@ -53,7 +53,7 @@ cc_library_headers {
 
 cc_prebuilt_library_shared {
     name: "libam_adp",
-    compile_multilib: "32",
+    compile_multilib: "both",
 
     defaults: ["droidlogic_dvb_go_defaults"],
     proprietary: true,
@@ -75,7 +75,6 @@ cc_prebuilt_library_shared {
 
     header_libs: ["libam_adp_headers"],
     export_header_lib_headers: ["libam_adp_headers"],
-
     shared_libs: [
         "libcutils",
         "liblog",
@@ -88,7 +87,7 @@ cc_prebuilt_library_shared {
 cc_prebuilt_library_shared {
 
     name: "libam_mw",
-    compile_multilib: "32",
+    compile_multilib: "both",
     defaults: ["droidlogic_dvb_go_defaults"],
     arch: {
         arm: {
@@ -121,7 +120,7 @@ cc_prebuilt_library_shared {
 cc_prebuilt_library_shared {
 
     name: "libam_sysfs",
-    compile_multilib: "32",
+    compile_multilib: "both",
     defaults: ["droidlogic_dvb_go_defaults"],
     arch: {
         arm: {
@@ -157,7 +156,7 @@ cc_prebuilt_library_shared {
 cc_prebuilt_library_shared {
 
     name: "libam_ver",
-    compile_multilib: "32",
+    compile_multilib: "both",
     defaults: ["droidlogic_dvb_go_defaults"],
     arch: {
         arm: {
@@ -168,13 +167,8 @@ cc_prebuilt_library_shared {
         },
     },
 
-
     export_include_dirs: ["include", "include/am_ver"],
-
-    shared_libs: [
-        "libcutils",
-        "liblog",
-    ],
+    shared_libs: ["libam_adp", "libbinder", "libc++", "libcutils", "liblog", "libutils"],
     proprietary: true,
 
 }
@@ -215,7 +209,7 @@ cc_prebuilt_library_static {
 cc_prebuilt_library_static {
 
     name: "libam_mw_static",
-    compile_multilib: "32",
+    compile_multilib: "both",
     defaults: ["droidlogic_dvb_go_defaults"],
     arch: {
         arm: {
