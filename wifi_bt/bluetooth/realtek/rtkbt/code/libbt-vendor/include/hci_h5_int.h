@@ -42,15 +42,12 @@
 #define HCI_VSC_DOWNLOAD_FW_PATCH       0xFC20
 #define HCI_VSC_READ_ROM_VERSION        0xFC6D
 #define HCI_VSC_READ_CHIP_TYPE          0xFC61
+#define HCI_VSC_READ_KEY_ID             0xFC61
 #define HCI_VSC_SET_WAKE_UP_DEVICE      0xFC7B
 #define HCI_VSC_BT_OFF                  0xFC28
 #define HCI_READ_LMP_VERSION            0x1001
 #define HCI_VENDOR_RESET                0x0C03
 #define HCI_VENDOR_FORCE_RESET_AND_PATCHABLE 0xFC66
-//add rtk debug cmd by wms
-#define HCI_VENDOR_WRITE                0xFC62
-
-
 
 void ms_delay (uint32_t timeout);
 

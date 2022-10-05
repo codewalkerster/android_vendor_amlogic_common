@@ -173,7 +173,7 @@ void poll_cleanup(void)
 **
 ** Function        poll_enable
 **
-** Description     Enable/Disable poll
+** Description     Enalbe/Disable poll
 **
 ** Returns         None
 **

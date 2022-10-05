@@ -18,23 +18,23 @@
 
 /******************************************************************************
 *
-*   Module Name:
-*       rtk_parse.c
+*	Module Name:
+*		rtk_parse.c
 *
-*   Abstract:
-*       Contains wifi-bt coex functions implemented by bluedroid stack
+*	Abstract:
+*		Contains wifi-bt coex functions implemented by bluedroid stack
 *
-*   Major Change History:
-*         When             Who       What
-*       ---------------------------------------------------------------
-*       2015-12-15      lamparten   modified
-*       2014-10-23       kyle_xu    modified
-*   Notes:
-*         This is designed for wifi-bt Coex in Android 6.0.
+*	Major Change History:
+*	      When             Who       What
+*	 	---------------------------------------------------------------
+*	    2015-12-15      lamparten   modified
+*	    2014-10-23       kyle_xu    modified
+*	Notes:
+*		  This is designed for wifi-bt Coex in Android 6.0.
 *
 ******************************************************************************/
 #define LOG_TAG "rtk_parse"
-#define RTKBT_RELEASE_NAME "20200924_BT_ANDROID_10.0"
+#define RTKBT_RELEASE_NAME "20220901_BT_ANDROID_12.0"
 
 #include <utils/Log.h>
 #include <stdlib.h>
@@ -68,6 +68,7 @@
 #define RTK_COEX_VERSION "3.0"
 
 //#define RTK_ROLE_SWITCH_RETRY
+extern bool rtkbt_capture_fw_log;
 
 #ifdef RTK_ROLE_SWITCH_RETRY
 #ifndef MAX_LINKS
@@ -104,13 +105,14 @@ typedef struct
 BD_ADDR EMPTY_ADDR = {0,0,0,0,0,0};
 role_monitor_cb  role_monitor_pool[MAX_LINKS];   /* Role Switch Control Block pool  */
 #define          TIME_LIMIT_FOR_ROLE_SWITCH  (60*5)   /*5 minutes*/
-#define          UNKNOWN_HANDLE              (0XFF)
+#define          UNKOWN_HANDLE              (0XFF)
 #define          HCI_CMD_VNDR_ROLESWITCH       0xFCAD
 
 typedef void (*tTIMER_HANDLE_ROLE_SWITCH)(union sigval sigval_value);
 static void rtk_start_role_switch_schedule(role_monitor_cb  * p);
 #endif
 
+bool is_fw_log = FALSE;
 
 char invite_req[] = "INVITE_REQ";
 char invite_rsp[] = "INVITE_RSP";
@@ -137,7 +139,7 @@ char bt_leave[] =   "BT_LEAVE";
 #define TIMER_POLLING               (SIGRTMAX -8)
 
 #define PAN_PACKET_COUNT                5
-#define PACKET_COUNT_TIMEOUT_VALUE     1000//ms
+#define PACKET_COUNT_TIOMEOUT_VALUE     1000//ms
 
 //vendor cmd to fw
 #define HCI_VENDOR_ENABLE_PROFILE_REPORT_COMMAND        (0x0018 | HCI_GRP_VENDOR_SPECIFIC)
@@ -166,6 +168,7 @@ char bt_leave[] =   "BT_LEAVE";
 //sub event from fw
 #define HCI_VENDOR_PTA_REPORT_EVENT         0x24
 #define    HCI_VENDOR_PTA_AUTO_REPORT_EVENT    0x25
+#define    HCI_VENDOR_FW_LOG_REPORT_EVENT    0x20
 
 //vendor cmd to wifi driver
 #define HCI_OP_HCI_EXTENSION_VERSION_NOTIFY (0x0100 | HCI_GRP_VENDOR_SPECIFIC)
@@ -541,7 +544,7 @@ int stop_hogp_packet_count_timer()
 int start_hogp_packet_count_timer()
 {
     RtkLogMsg("start hogp packet");
-    return OsStartTimer(rtk_prof.timer_hogp_packet_count, PACKET_COUNT_TIMEOUT_VALUE, 1);
+    return OsStartTimer(rtk_prof.timer_hogp_packet_count, PACKET_COUNT_TIOMEOUT_VALUE, 1);
 }
 
 int alloc_a2dp_packet_count_timer()
@@ -583,7 +586,7 @@ int stop_a2dp_packet_count_timer()
 int start_a2dp_packet_count_timer()
 {
     RtkLogMsg("start a2dp packet");
-    return OsStartTimer(rtk_prof.timer_a2dp_packet_count, PACKET_COUNT_TIMEOUT_VALUE, 1);
+    return OsStartTimer(rtk_prof.timer_a2dp_packet_count, PACKET_COUNT_TIOMEOUT_VALUE, 1);
 }
 
 int alloc_pan_packet_count_timer()
@@ -625,7 +628,7 @@ int stop_pan_packet_count_timer()
 int start_pan_packet_count_timer()
 {
     RtkLogMsg("start pan packet");
-    return OsStartTimer(rtk_prof.timer_pan_packet_count, PACKET_COUNT_TIMEOUT_VALUE, 1);
+    return OsStartTimer(rtk_prof.timer_pan_packet_count, PACKET_COUNT_TIOMEOUT_VALUE, 1);
 }
 
 static int8_t psm_to_profile_index(uint16_t psm)
@@ -1081,8 +1084,8 @@ int allocate_role_switch_pool_by_handle(uint16_t handle,BD_ADDR remote_address)
     int  index = 0;
     role_monitor_cb    *p_cb = &(role_monitor_pool[0]);
     /*check there is no same address exist*/
-    if (((index = find_remote_device_by_address(remote_address)) != -1)) {
-       if (role_monitor_pool[index].handle == UNKNOWN_HANDLE) {
+    if(((index = find_remote_device_by_address(remote_address)) != -1)){
+        if(role_monitor_pool[index].handle == UNKOWN_HANDLE){
             ALOGI( "allocate_role_switch_pool_by_handle slot has been exist and is waiting update\n");
             role_monitor_pool[index].handle = handle;
             return index;
@@ -1170,7 +1173,7 @@ static void Rtk_Role_switch_Event_Cback(void *arg)
         uint8_t *p = p_buf->data;
         ALOGE( " Rtk_Role_switch_Event_Cback event_code = %d length = %d",p[0],p[1]);
 
-        /*find out which one initiator this process*/
+        /*find out which one inititor this process*/
         int index = find_pending_role_switch_process();
         if(index == -1)
             return;
@@ -1184,7 +1187,7 @@ static void Rtk_Role_switch_Event_Cback(void *arg)
         }
 
     }else{
-        ALOGE("%s Rtk_Role_switch_Event_Cback arg == NULL, it should not happened", __func__);
+        ALOGE("%s Rtk_Role_switch_Event_Cback arg == NULL, it should not happend", __func__);
     }
 }
 
@@ -1255,7 +1258,7 @@ static void rtk_handle_role_change_evt(uint8_t* p){
         index = find_remote_device_by_address(remote_address);
         if(index < 0){
             ALOGE("rtk_handle_role_change_evt device not found ,maybe role change comming first and alloc one libs_liu");
-            index = allocate_role_switch_pool_by_handle(UNKNOWN_HANDLE,remote_address);
+            index = allocate_role_switch_pool_by_handle(UNKOWN_HANDLE,remote_address);
              if(index <0){
                 ALOGE("allocate_role_switch_pool_by_handle failed  index = 0x%x libs_liu",index);
                 return;
@@ -1766,7 +1769,7 @@ static void timeout_handler(int signo, siginfo_t * info, void *context)
     }
     else
     {
-        ALOGE("rtk_parse_data timer unsupported signo(%d)", signo);
+        ALOGE("rtk_parse_data timer unspported signo(%d)", signo);
     }
 }
 
@@ -2014,7 +2017,7 @@ void rtk_notify_btoperation_to_wifi(uint8_t operation, uint8_t append_data_lengt
     if(append_data_length)
         memcpy(p, append_data, append_data_length);
 
-    RtkLogMsg("btoperation, operation is 0x%x, append_data_length is 0x%x", operation, append_data_length);
+    RtkLogMsg("btoperation, opration is 0x%x, append_data_length is 0x%x", operation, append_data_length);
     uint8_t kk = 0;
     if(append_data_length)
     {
@@ -2110,8 +2113,8 @@ static void rtk_handle_bt_info_control(uint8_t* p)
 static void rtk_handle_bt_coex_control(uint8_t* p)
 {
     uint8_t opcode = *p++;
-    uint8_t op_len = 0;
-    RtkLogMsg("receive bt coex control event from wifi, operation is 0x%x", opcode);
+	uint8_t op_len = 0;
+    RtkLogMsg("receive bt coex control event from wifi, opration is 0x%x", opcode);
     switch (opcode)
     {
         case BT_PATCH_VERSION_QUERY:
@@ -2125,7 +2128,7 @@ static void rtk_handle_bt_coex_control(uint8_t* p)
             uint8_t opcode_len = *p++;
             uint8_t value = *p++;
             uint8_t temp_cmd[3];
-            op_len = opcode_len;
+			op_len = opcode_len;
             temp_cmd[0] = HCI_VENDOR_SUB_CMD_BT_ENABLE_IGNORE_WLAN_ACT_CMD;
             temp_cmd[1] = 1;
             temp_cmd[2] = value;
@@ -2138,7 +2141,7 @@ static void rtk_handle_bt_coex_control(uint8_t* p)
             uint8_t opcode_len = *p++;
             uint8_t value = *p++;
             uint8_t temp_cmd[3];
-            op_len = opcode_len;
+			op_len = opcode_len;
             temp_cmd[0] = HCI_VENDOR_SUB_CMD_SET_BT_LNA_CONSTRAINT;
             temp_cmd[1] = 1;
             temp_cmd[2] = value;
@@ -2151,7 +2154,7 @@ static void rtk_handle_bt_coex_control(uint8_t* p)
             uint8_t opcode_len = *p++;
             uint8_t power_decrease = *p++;
             uint8_t temp_cmd[3];
-            op_len = opcode_len;
+			op_len = opcode_len;
             temp_cmd[0] = HCI_VENDOR_SUB_CMD_WIFI_FORCE_TX_POWER_CMD;
             temp_cmd[1] = 1;
             temp_cmd[2] = power_decrease;
@@ -2164,7 +2167,7 @@ static void rtk_handle_bt_coex_control(uint8_t* p)
             uint8_t opcode_len = *p++;
             uint8_t psd_mode = *p++;
             uint8_t temp_cmd[3];
-            op_len = opcode_len;
+			op_len = opcode_len;
             temp_cmd[0] = HCI_VENDOR_SUB_CMD_SET_BT_PSD_MODE;
             temp_cmd[1] = 1;
             temp_cmd[2] = psd_mode;
@@ -2176,10 +2179,10 @@ static void rtk_handle_bt_coex_control(uint8_t* p)
         {
             uint8_t opcode_len = *p++;
             uint8_t temp_cmd[5];
-            op_len = opcode_len;
+			op_len = opcode_len;
             temp_cmd[0] = HCI_VENDOR_SUB_CMD_WIFI_CHANNEL_AND_BANDWIDTH_CMD;
             temp_cmd[1] = 3;
-            memcpy(temp_cmd+2, p, 3);//wifi_state, wifi_centralchannel, channels_btnotuse
+            memcpy(temp_cmd+2, p, 3);//wifi_state, wifi_centralchannel, chnnels_btnotuse
             rtk_vendor_cmd_to_fw(HCI_VENDOR_MAILBOX_CMD, 5, temp_cmd, NULL);
             break;
         }
@@ -2190,7 +2193,7 @@ static void rtk_handle_bt_coex_control(uint8_t* p)
             rtk_prof.piconet_id = *p++;
             rtk_prof.mode = *p++;
             uint8_t temp_cmd[4];
-            op_len = opcode_len;
+			op_len = opcode_len;
             temp_cmd[0] = HCI_VENDOR_SUB_CMD_GET_AFH_MAP_L;
             temp_cmd[1] = 2;
             temp_cmd[2] = rtk_prof.piconet_id;
@@ -2203,7 +2206,7 @@ static void rtk_handle_bt_coex_control(uint8_t* p)
         {
             uint8_t opcode_len = *p++;
             uint8_t access_type = *p++;
-            op_len = opcode_len;
+			op_len = opcode_len;
             if(access_type == 0) //read
             {
                 uint8_t temp_cmd[7];
@@ -2286,7 +2289,7 @@ void rtk_handle_event_from_wifi(uint8_t* msg)
             case  RTK_HS_EXTENSION_EVENT_WIFI_SCAN:
             {
                 uint8_t operation = *p;
-                RtkLogMsg("receive wifi scan notify event from wifi, operation is 0x%x", operation);
+                RtkLogMsg("receive wifi scan notify evnet from wifi, operation is 0x%x", operation);
                 break;
             }
 
@@ -2582,7 +2585,7 @@ void rtk_parse_cleanup()
     memset(&rtk_prof, 0, sizeof(rtk_prof));
 }
 
-static void rtk_handle_vendor_mailbox_cmp_evt(uint8_t* p, uint8_t len)
+static void rtk_handle_vender_mailbox_cmp_evt(uint8_t* p, uint8_t len)
 {
     uint8_t status = *p++;
     if(len <= 4)
@@ -2598,7 +2601,7 @@ static void rtk_handle_vendor_mailbox_cmp_evt(uint8_t* p, uint8_t len)
             if(status == 0) //success
             {
                 if((len-5) != 8)
-                    RtkLogMsg("rtk_handle_vendor_mailbox_cmp_evt:HCI_VENDOR_SUB_CMD_BT_REPORT_CONN_SCO_INQ_INFO len=%d", len);
+                    RtkLogMsg("rtk_handle_vender_mailbox_cmp_evt:HCI_VENDOR_SUB_CMD_BT_REPORT_CONN_SCO_INQ_INFO len=%d", len);
                 rtk_notify_info_to_wifi(POLLING_RESPONSE, (len-5), (uint8_t*)p);
             }
             break;
@@ -2753,10 +2756,15 @@ static void rtk_handle_cmd_complete_evt(uint8_t*p, uint8_t len)
         case 0xfc1b:
             RtkLogMsg("received cmd complete event for fc1b");
             poweroff_allowed = 1;
+			if(rtkbt_capture_fw_log ){
+			ALOGE("%s, begin to enable fw log libs_liu", __func__);
+			 uint8_t enable_fw_log_param[4] = {0x00,0x00,0x00,0x01};
+			 rtk_vendor_cmd_to_fw(HCI_ENABLE_FW_LOG, 4, enable_fw_log_param, NULL);
+		 }
             break;
 
         case HCI_VENDOR_MAILBOX_CMD:
-            rtk_handle_vendor_mailbox_cmp_evt(p, len);
+            rtk_handle_vender_mailbox_cmp_evt(p, len);
             break;
 
         case HCI_VENDOR_ADD_BITPOOL_FW:
@@ -3143,6 +3151,8 @@ void rtk_parse_internal_event_intercept(uint8_t *p_msg)
                 if((len-2) != 8)
                     RtkLogMsg("rtk_parse_internal_event_intercept:HCI_VENDOR_SPECIFIC_EVT:HCI_VENDOR_PTA_AUTO_REPORT_EVENT len=%d", len);
                 rtk_notify_info_to_wifi(AUTO_REPORT, (len-2), (uint8_t *)p);
+            }else if(subcode == HCI_VENDOR_FW_LOG_REPORT_EVENT){
+				is_fw_log = TRUE;
             }
             break;
         }

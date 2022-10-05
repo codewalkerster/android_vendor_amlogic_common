@@ -329,6 +329,11 @@
 #define HCI_BLE_LTK_REQ_REPLY           (0x001A | HCI_GRP_BLE_CMDS)
 #define HCI_BLE_LTK_REQ_NEG_REPLY       (0x001B | HCI_GRP_BLE_CMDS)
 #define HCI_BLE_READ_SUPPORTED_STATES   (0x001C | HCI_GRP_BLE_CMDS)
+
+/* RTK mesh vendor cmd */
+#define HCI_VENDOR_LE_SCAN_PARAMETER    (0XFCA8)
+#define HCI_VENDOR_LE_SCAN_ENABLE       (0XFCA9)
+
                             /*0x001D, 0x001E and 0x001F are reserved*/
 #define HCI_BLE_RECEIVER_TEST           (0x001D | HCI_GRP_BLE_CMDS)
 #define HCI_BLE_TRANSMITTER_TEST        (0x001E | HCI_GRP_BLE_CMDS)
@@ -348,7 +353,7 @@
 #define HCI_BLE_READ_RESOLVABLE_ADDR_PEER   (0x002B | HCI_GRP_BLE_CMDS)
 #define HCI_BLE_READ_RESOLVABLE_ADDR_LOCAL  (0x002C | HCI_GRP_BLE_CMDS)
 #define HCI_BLE_SET_ADDR_RESOLUTION_ENABLE  (0x002D | HCI_GRP_BLE_CMDS)
-#define HCI_BLE_SET_RAND_PRIV_ADDR_TIMEOUT   (0x002E | HCI_GRP_BLE_CMDS)
+#define HCI_BLE_SET_RAND_PRIV_ADDR_TIMOUT   (0x002E | HCI_GRP_BLE_CMDS)
 #define HCI_BLE_READ_MAXIMUM_DATA_LENGTH    (0x002F | HCI_GRP_BLE_CMDS)
 #define HCI_BLE_READ_PHY                    (0x0030 | HCI_GRP_BLE_CMDS)
 #define HCI_BLE_SET_DEFAULT_PHY             (0x0031 | HCI_GRP_BLE_CMDS)
@@ -456,7 +461,7 @@
 #define HCI_SUPP_LE_STATES_NON_CONN_ADV_OFF           0
 #define HCI_LE_STATES_NON_CONN_ADV_SUPPORTED(x)      ((x)[HCI_SUPP_LE_STATES_NON_CONN_ADV_OFF] & HCI_SUPP_LE_STATES_NON_CONN_ADV_MASK)
 
-/*Scannable Connectable Adv state  is supported. 0x0000000000000002 */
+/*Scanneable Connectable Adv state  is supported. 0x0000000000000002 */
 #define HCI_SUPP_LE_STATES_SCAN_ADV_MASK          0x02
 #define HCI_SUPP_LE_STATESSCAN_ADV_OFF           0
 #define HCI_LE_STATES_SCAN_ADV_SUPPORTED(x)      ((x)[HCI_SUPP_LE_STATESSCAN_ADV_OFF] & HCI_SUPP_LE_STATES_SCAN_ADV_MASK)
@@ -719,6 +724,7 @@
 #define HCI_USER_PASSKEY_NOTIFY_EVT         0x3B
 #define HCI_KEYPRESS_NOTIFY_EVT             0x3C
 #define HCI_RMT_HOST_SUP_FEAT_NOTIFY_EVT    0x3D
+#define HCI_LE_META_EVT                     0x3E
 
 /*#define HCI_GENERIC_AMP_LINK_KEY_NOTIF_EVT  0x3E Removed from spec */
 #define HCI_PHYSICAL_LINK_COMP_EVT          0x40
@@ -760,7 +766,7 @@
                                                  specification compliant */
 
 /*
-**  Definitions for HCI Error Codes that are past in the events
+**  Defentions for HCI Error Codes that are past in the events
 */
 #define HCI_SUCCESS                                     0x00
 #define HCI_PENDING                                     0x00
@@ -810,7 +816,7 @@
 #define HCI_ERR_QOS_UNACCEPTABLE_PARAM                  0x2C
 #define HCI_ERR_QOS_REJECTED                            0x2D
 #define HCI_ERR_CHAN_CLASSIF_NOT_SUPPORTED              0x2E
-#define HCI_ERR_INSUFFICIENT_SECURITY                    0x2F
+#define HCI_ERR_INSUFFCIENT_SECURITY                    0x2F
 #define HCI_ERR_PARAM_OUT_OF_RANGE                      0x30
 #define HCI_ERR_UNDEFINED_0x31                          0x31
 #define HCI_ERR_ROLE_SWITCH_PENDING                     0x32
@@ -848,7 +854,7 @@
 #define HCI_DISCONNECTION_COMPLETE_EV(p)    (*((uint32_t *)(p)) & 0x00000010)
 #define HCI_AUTHENTICATION_COMPLETE_EV(p)   (*((uint32_t *)(p)) & 0x00000020)
 #define HCI_RMT_NAME_REQUEST_COMPL_EV(p)    (*((uint32_t *)(p)) & 0x00000040)
-#define HCI_CHANGE_CONN_ENCRYPT_ENABLE_EV(p) (*((uint32_t *)(p)) & 0x00000080)
+#define HCI_CHANGE_CONN_ENCRPT_ENABLE_EV(p) (*((uint32_t *)(p)) & 0x00000080)
 #define HCI_CHANGE_CONN_LINK_KEY_EV(p)      (*((uint32_t *)(p)) & 0x00000100)
 #define HCI_MASTER_LINK_KEY_COMPLETE_EV(p)  (*((uint32_t *)(p)) & 0x00000200)
 #define HCI_READ_RMT_FEATURES_COMPL_EV(p)   (*((uint32_t *)(p)) & 0x00000400)
@@ -1051,18 +1057,18 @@
 #define HCI_MIN_INQ_LAP                 0x9E8B00
 #define HCI_MAX_INQ_LAP                 0x9E8B3F
 
-/* HCI role definitions */
+/* HCI role defenitions */
 #define HCI_ROLE_MASTER                 0x00
 #define HCI_ROLE_SLAVE                  0x01
 #define HCI_ROLE_UNKNOWN                0xff
 
-/* HCI mode definitions */
+/* HCI mode defenitions */
 #define HCI_MODE_ACTIVE                 0x00
 #define HCI_MODE_HOLD                   0x01
 #define HCI_MODE_SNIFF                  0x02
 #define HCI_MODE_PARK                   0x03
 
-/* HCI Flow Control Mode definitions */
+/* HCI Flow Control Mode defenitions */
 #define HCI_PACKET_BASED_FC_MODE        0x00
 #define HCI_BLOCK_BASED_FC_MODE         0x01
 
@@ -1265,7 +1271,7 @@
 #define HCI_AIR_CODING_FORMAT_CVSD      0x0000 /* 0000000000 */
 #define HCI_AIR_CODING_FORMAT_U_LAW     0x0001 /* 0000000001 */
 #define HCI_AIR_CODING_FORMAT_A_LAW     0x0002 /* 0000000010 */
-#define HCI_AIR_CODING_FORMAT_TRANSPLANT  0x0003 /* 0000000011 */
+#define HCI_AIR_CODING_FORMAT_TRANSPNT  0x0003 /* 0000000011 */
 #define HCI_AIR_CODING_FORMAT_MASK      0x0003 /* 0000000011 */
 
 /* default                                        0001100000 */
@@ -1277,7 +1283,7 @@
 #define HCI_CVSD_SUPPORTED(x)       (((x) & HCI_AIR_CODING_FORMAT_MASK) == HCI_AIR_CODING_FORMAT_CVSD)
 #define HCI_U_LAW_SUPPORTED(x)      (((x) & HCI_AIR_CODING_FORMAT_MASK) == HCI_AIR_CODING_FORMAT_U_LAW)
 #define HCI_A_LAW_SUPPORTED(x)      (((x) & HCI_AIR_CODING_FORMAT_MASK) == HCI_AIR_CODING_FORMAT_A_LAW)
-#define HCI_TRANSPLANT_SUPPORTED(x)   (((x) & HCI_AIR_CODING_FORMAT_MASK) == HCI_AIR_CODING_FORMAT_TRANSPLANT)
+#define HCI_TRANSPNT_SUPPORTED(x)   (((x) & HCI_AIR_CODING_FORMAT_MASK) == HCI_AIR_CODING_FORMAT_TRANSPNT)
 
 /* Retransmit timer definitions in 0.625 */
 #define HCI_MAX_AUTO_FLUSH_TOUT         0x07FF
@@ -1297,7 +1303,7 @@
 #define HCI_SUSPEND_INQUIRY_SCAN        0x02
 #define HCI_SUSPEND_PERIODIC_INQUIRIES  0x04
 
-/* Default Link Supervision timeout */
+/* Default Link Supervision timeoout */
 #define HCI_DEFAULT_INACT_TOUT          0x7D00  /* BR/EDR (20 seconds) */
 #define HCI_DEFAULT_AMP_INACT_TOUT      0x3E80  /* AMP    (10 seconds) */
 
@@ -1333,7 +1339,7 @@
 /* Define an invalid value for a handle */
 #define HCI_INVALID_HANDLE              0xFFFF
 
-/* Define max amount of data in the HCI command */
+/* Define max ammount of data in the HCI command */
 #define HCI_COMMAND_SIZE        255
 
 /* Define the preamble length for all HCI Commands.
@@ -1429,6 +1435,7 @@ typedef struct
 #define LMP_TESTCTL_HOPMOD_HOP_FRANCE   3
 #define LMP_TESTCTL_HOPMOD_HOP_SPAIN    4
 #define LMP_TESTCTL_HOPMOD_REDUCED_HOP  5
+#define HCI_ENABLE_FW_LOG           		(0x0027 | HCI_GRP_VENDOR_SPECIFIC)
 
 #define LMP_TESTCTL_POWCTL_FIXEDTX_OP   0
 #define LMP_TESTCTL_POWCTL_ADAPTIVE     1
@@ -1572,9 +1579,9 @@ typedef struct
 #define HCI_FEATURE_POWER_CTRL_OFF      2
 #define HCI_POWER_CTRL_SUPPORTED(x)     ((x)[HCI_FEATURE_POWER_CTRL_OFF] & HCI_FEATURE_POWER_CTRL_MASK)
 
-#define HCI_FEATURE_TRANSPLANT_MASK       0x08
-#define HCI_FEATURE_TRANSPLANT_OFF        2
-#define HCI_LMP_TRANSPLANT_SUPPORTED(x)   ((x)[HCI_FEATURE_TRANSPLANT_OFF] & HCI_FEATURE_TRANSPLANT_MASK)
+#define HCI_FEATURE_TRANSPNT_MASK       0x08
+#define HCI_FEATURE_TRANSPNT_OFF        2
+#define HCI_LMP_TRANSPNT_SUPPORTED(x)   ((x)[HCI_FEATURE_TRANSPNT_OFF] & HCI_FEATURE_TRANSPNT_MASK)
 
 #define HCI_FEATURE_FLOW_CTRL_LAG_MASK  0x70
 #define HCI_FEATURE_FLOW_CTRL_LAG_OFF   2
@@ -2070,13 +2077,13 @@ typedef struct
 #define HCI_SUPP_COMMANDS_WRITE_PAGE_SCAN_ACTIVITY_OFF            8
 #define HCI_WRITE_PAGE_SCAN_ACTIVITY_SUPPORTED(x)           ((x)[HCI_SUPP_COMMANDS_WRITE_PAGE_SCAN_ACTIVITY_OFF] & HCI_SUPP_COMMANDS_WRITE_PAGE_SCAN_ACTIVITY_MASK)
 
-#define HCI_SUPP_COMMANDS_READ_INQUIRY_SCAN_ACTIVITY_MASK  0x04
-#define HCI_SUPP_COMMANDS_READ_INQUIRY_SCAN_ACTIVITY_OFF   8
-#define HCI_READ_INQUIRY_SCAN_ACTIVITY_SUPPORTED(x)  ((x)[HCI_SUPP_COMMANDS_READ_INQUIRY_SCAN_ACTIVITY_OFF] & HCI_SUPP_COMMANDS_READ_INQUIRY_SCAN_ACTIVITY_MASK)
+#define HCI_SUPP_COMMANDS_READ_INQURIY_SCAN_ACTIVITY_MASK  0x04
+#define HCI_SUPP_COMMANDS_READ_INQURIY_SCAN_ACTIVITY_OFF   8
+#define HCI_READ_INQURIY_SCAN_ACTIVITY_SUPPORTED(x)  ((x)[HCI_SUPP_COMMANDS_READ_INQURIY_SCAN_ACTIVITY_OFF] & HCI_SUPP_COMMANDS_READ_INQURIY_SCAN_ACTIVITY_MASK)
 
-#define HCI_SUPP_COMMANDS_WRITE_INQUIRY_SCAN_ACTIVITY_MASK       0x08
-#define HCI_SUPP_COMMANDS_WRITE_INQUIRY_SCAN_ACTIVITY_OFF        8
-#define HCI_WRITE_INQUIRY_SCAN_ACTIVITY_SUPPORTED(x)       ((x)[HCI_SUPP_COMMANDS_WRITE_INQUIRY_SCAN_ACTIVITY_OFF] & HCI_SUPP_COMMANDS_WRITE_INQUIRY_SCAN_ACTIVITY_MASK)
+#define HCI_SUPP_COMMANDS_WRITE_INQURIY_SCAN_ACTIVITY_MASK       0x08
+#define HCI_SUPP_COMMANDS_WRITE_INQURIY_SCAN_ACTIVITY_OFF        8
+#define HCI_WRITE_INQURIY_SCAN_ACTIVITY_SUPPORTED(x)       ((x)[HCI_SUPP_COMMANDS_WRITE_INQURIY_SCAN_ACTIVITY_OFF] & HCI_SUPP_COMMANDS_WRITE_INQURIY_SCAN_ACTIVITY_MASK)
 
 #define HCI_SUPP_COMMANDS_READ_AUTH_ENABLE_MASK    0x10
 #define HCI_SUPP_COMMANDS_READ_AUTH_ENABLE_OFF     8
@@ -2700,8 +2707,13 @@ typedef struct {
   uint8_t adverting_type;
   bool    adverting_enable;
   bool    adverting_start;
-  bool    connection_enable;
+  bool    connetion_enable;
 } rtkbt_lescn_t;
+
+typedef struct {
+  uint8_t addr[6];
+  volatile bool finded;
+} rtkbt_cts_info_t;
 
 #endif
 

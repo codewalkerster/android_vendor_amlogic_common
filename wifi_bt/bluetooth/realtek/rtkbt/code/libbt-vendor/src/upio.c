@@ -120,7 +120,7 @@ static int is_emulator_context(void)
 {
     char value[PROPERTY_VALUE_MAX];
 
-    property_get("ro.boot.qemu", value, "0");
+    property_get("ro.kernel.qemu", value, "0");
     UPIODBG("is_emulator_context : %s", value);
     if (strcmp(value, "1") == 0) {
         return 1;
@@ -461,7 +461,7 @@ void upio_set(uint8_t pio, uint8_t action, uint8_t polarity)
                     /*
                      * The proc btwrite node could have not been updated for
                      * certain time already due to heavy downstream path flow.
-                     * In this case, we want to explicitly touch proc btwrite
+                     * In this case, we want to explicity touch proc btwrite
                      * node to keep the bt_wake assertion in the LPM kernel
                      * driver. The current kernel bluesleep LPM code starts
                      * a 10sec internal in-activity timeout timer before it

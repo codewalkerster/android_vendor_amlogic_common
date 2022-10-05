@@ -21,7 +21,7 @@
 *	    bt_skbuff.h
 *
 *	Abstract:
-*	    Data buffer management through whole bluetooth stack.
+*	    Data buffer managerment through whole bluetooth stack.
 *
 *	Major Change History:
 *	      When             Who       What
@@ -143,7 +143,7 @@ RtbFree(
     );
 
 /**
-    increment reference count
+    increament reference count
 */
 void
 RtbIncreaseRefCount(
@@ -213,7 +213,7 @@ RtbRemoveTail(
 
 /**
     Initialize a rtb queue.
-    \return  Initialized rtb queue if succeed, otherwise NULL
+    \return  Initilized rtb queue if succeed, otherwise NULL
 */
 EXTERN RTB_QUEUE_HEAD*
 RtbQueueInit(

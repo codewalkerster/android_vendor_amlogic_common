@@ -144,8 +144,8 @@ typedef struct RTK_sco_card {
 
 #define HCI_CMD_READ_BD_ADDR 0x1009
 #define HCI_VENDOR_CHANGE_BDRATE 0xfc17
-#define HCI_VENDOR_READ_RTK_ROM_VERSION 0xfc6d
-#define HCI_VENDOR_READ_LMP_VERSION 0x1001
+#define HCI_VENDOR_READ_RTK_ROM_VERISION 0xfc6d
+#define HCI_VENDOR_READ_LMP_VERISION 0x1001
 #define HCI_VENDOR_FORCE_RESET_AND_PATCHABLE 0xfc66
 #define HCI_VENDOR_RESET                       0x0C03
 #define HCI_VENDOR_ADD_WAKE_UP_DEVICE       0xfc7b
@@ -177,10 +177,18 @@ int mp_drv_mode = 0; /* 1 Mptool Fw; 0 Normal Fw */
 #define ROM_LMP_8852a               0x8852
 #define ROM_LMP_8723f               0x8723
 #define ROM_LMP_8852b               0x8852
+#define ROM_LMP_8763c               0x8763
+#define ROM_LMP_8773b               0x8773
+#define ROM_LMP_8762a               0x8762
+#define ROM_LMP_8762b               0x8762
+#define ROM_LMP_8852c               0x8852
+#define ROM_LMP_8851a               0x8852
+#define ROM_LMP_8852bp              0x8852
+#define ROM_LMP_8851b               0x8851
 
 /* signature: Realtek */
 const uint8_t RTK_EPATCH_SIGNATURE[8] = {0x52,0x65,0x61,0x6C,0x74,0x65,0x63,0x68};
-/* Extension Section SIGNATURE:0x77FD0451 */
+/* Extension Section IGNATURE:0x77FD0451 */
 const uint8_t EXTENSION_SECTION_SIGNATURE[4] = {0x51,0x04,0xFD,0x77};
 
 uint16_t project_id[] = {
@@ -204,7 +212,12 @@ uint16_t project_id[] = {
     ROM_LMP_NONE,
     ROM_LMP_8852a,  //0x12
     ROM_LMP_8723f,
-    ROM_LMP_8852b
+    ROM_LMP_8852b,
+    ROM_LMP_8763c,  //bbpro2
+    ROM_LMP_8773b,  //bblite
+    ROM_LMP_8762a,  //bee
+    ROM_LMP_8762b,  //bee2
+    ROM_LMP_8852c
 };
 struct rtk_eversion_evt {
     uint8_t status;
@@ -268,7 +281,7 @@ struct rtk_bt_vendor_config{
 /***************************************
 ** Realtek - Integrate from bluetooth.h **
 *****************************************/
-/* Reserve for core and drivers use */
+/* Reserv for core and drivers use */
 #define BT_SKB_RESERVE    8
 
 /* BD Address */
@@ -595,7 +608,7 @@ static inline void hci_set_drvdata(struct hci_dev *hdev, void *data)
 #define MAX_PATCH_SIZE_25K (1024*25)
 #define MAX_PATCH_SIZE_40K (1024*40)
 
-enum rtk_endpoint {
+enum rtk_endpoit {
     CTRL_EP = 0,
     INTR_EP = 1,
     BULK_EP = 2,
@@ -660,6 +673,7 @@ typedef struct {
 
 static inline int getmacaddr(uint8_t * vnd_local_bd_addr)
 {
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 14)
     struct file  *bdaddr_file;
     mm_segment_t oldfs;
     char buf[FACTORY_BT_BDADDR_STORAGE_LEN];
@@ -695,6 +709,7 @@ static inline int getmacaddr(uint8_t * vnd_local_bd_addr)
         }
         return 0;
     }
+#endif
     return -1;
 }
 

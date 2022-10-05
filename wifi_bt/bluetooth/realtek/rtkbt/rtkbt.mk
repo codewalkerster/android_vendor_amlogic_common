@@ -1,4 +1,4 @@
-# RELEASE NAME: 20200924_BT_ANDROID_10.0
+# RELEASE NAME: 20220111_BT_ANDROID_11.0
 # RTKBT_API_VERSION=2.1.1.0
 
 BOARD_HAVE_BLUETOOTH := true
@@ -19,8 +19,8 @@ endif
 
 PRODUCT_COPY_FILES += \
        $(LOCAL_PATH)/vendor/etc/bluetooth/rtkbt.conf:vendor/etc/bluetooth/rtkbt.conf \
-       $(LOCAL_PATH)/system/etc/permissions/android.hardware.bluetooth_le.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.bluetooth_le.xml \
-       $(LOCAL_PATH)/system/etc/permissions/android.hardware.bluetooth.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.bluetooth.xml \
+       $(LOCAL_PATH)/system/etc/permissions/android.hardware.bluetooth_le.xml:system/etc/permissions/android.hardware.bluetooth_le.xml \
+       $(LOCAL_PATH)/system/etc/permissions/android.hardware.bluetooth.xml:system/etc/permissions/android.hardware.bluetooth.xml \
 
 ifeq ($(BOARD_HAVE_BLUETOOTH_RTK_TV), true)
 PRODUCT_COPY_FILES += \
@@ -39,6 +39,9 @@ PRODUCT_PROPERTY_OVERRIDES += \
                     persist.vendor.bluetooth.prefferedrole=master \
                     persist.vendor.rtkbtadvdisable=false
 
-PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.bluetooth.btsnoopsize=0xffff \
+PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.bluetooth.btsnooplogmode=disable \
+                    persist.bluetooth.btsnooppath=/data/misc/bluedroid/btsnoop_hci.cfa \
+                    persist.bluetooth.btsnoopsize=0xffff \
                     persist.bluetooth.showdeviceswithoutnames=false \
-                    vendor.bluetooth.enable_timeout_ms=11000
+                    vendor.bluetooth.enable_timeout_ms=11000 \
+                    vendor.realtek.bluetooth.en=false

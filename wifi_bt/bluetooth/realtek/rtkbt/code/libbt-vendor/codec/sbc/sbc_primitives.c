@@ -420,7 +420,7 @@ static SBC_ALWAYS_INLINE int sbc_encoder_process_input_s8_internal(
 
 /*
  * Input data processing functions. The data is endian converted if needed,
- * channels are deinterleaved and audio samples are reordered for use in
+ * channels are deintrleaved and audio samples are reordered for use in
  * SIMD-friendly analysis filter function. The results are put into "X"
  * array, getting appended to the previous data (or it is better to say
  * prepended, as the buffer is filled from top to bottom). Old data is
