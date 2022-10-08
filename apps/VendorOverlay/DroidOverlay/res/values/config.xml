@@ -117,10 +117,5 @@
       <item>"/system/framework/arm/boot-framework.oat"</item>
       <item>"/system/framework/boot-framework.vdex"</item>
    </string-array>
-    <!-- Maximum size, specified in pixels, to restrain the display space width to. Height and
-         density will be scaled accordingly to maintain aspect ratio. A value of 0 indicates no
-         constraint will be enforced.
-         We limit the UI graphics width to 1920 because higher resolution is unnecessary and causes
-         too much overhead on the GPU for Android TV devices. -->
-    <integer name="config_maxUiWidth">0</integer>
+
 </resources>
