@@ -147,6 +147,14 @@ int main(int /* argc */, char* /* argv */ []) {
                             "Could not register %s", interfaceFamilyName.c_str());
     }
 
+    /* CAP_IPC_LOCK required */
+    if (mlockall(MCL_CURRENT | MCL_FUTURE | MCL_ONFAULT) && (errno != EINVAL)) {
+        ALOGE(" audio_service-droidlogic   mlockall failed %s", strerror(errno));
+    } else {
+        ALOGD(" audio_service-droidlogic   mlockall successfully %s", strerror(errno));
+    }
+
+
     for (const auto& listIter : optionalInterfaces) {
         auto iter = listIter.begin();
         const std::string& interfaceFamilyName = *iter++;
