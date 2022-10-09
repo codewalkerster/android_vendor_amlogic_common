@@ -35,3 +35,17 @@ $(warning loading trunk wifi config: $(WIFI_TRUNK_CONFIG))
 
 $(warning loading wifi build rules: $(WIFI_BUILD_RULES))
 include $(WIFI_BUILD_RULES)
+
+modules_install: additional
+additional: all_modules_install
+	@echo "######wifi start additional processing.######"
+	@order_file="";\
+	modules_order_file=`find $(INSTALL_MOD_PATH)/lib/modules/*/$(INSTALL_MOD_DIR) -name "modules.order.*"`;\
+	for f in $$modules_order_file; do\
+	 if test -z "$$order_file";then\
+	  order_file=$$f;\
+	 else\
+	  cat $$f >> $$order_file;\
+	  rm -rf $$f;\
+	 fi;\
+	done
