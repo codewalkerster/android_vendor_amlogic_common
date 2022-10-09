@@ -2570,8 +2570,11 @@ void DisplayMode::setDolbyVisionEnable(int state,  output_mode_state mode_state)
         //save env
         setBootEnv(UBOOTENV_DV_ENABLE, mHdmidata.dv_info.dv_enable);
     } else {
-        //1. update uboot env
+        //1. update dv env
         char tmp[10];
+        char hdr_policy[MODE_LEN] = {0};
+        char dvstatus[MODE_LEN]   = {0};
+
         sprintf(tmp, "%d", state);
         strcpy(mHdmidata.dv_info.ubootenv_dv_type, tmp);
 
@@ -2583,6 +2586,31 @@ void DisplayMode::setDolbyVisionEnable(int state,  output_mode_state mode_state)
 
         setBootEnv(UBOOTENV_DV_TYPE, mHdmidata.dv_info.ubootenv_dv_type);
         setBootEnv(UBOOTENV_DV_ENABLE, mHdmidata.dv_info.dv_enable);
+
+        getHdrStrategy(hdr_policy);
+        if (!strcmp(hdr_policy, HDR_POLICY_SOURCE)) {
+            sprintf(dvstatus, "%d", 0);
+        } else {
+            sprintf(dvstatus, "%d", state);
+        }
+        setBootEnv(UBOOTENV_DOLBYSTATUS, dvstatus);
+
+        //2. get final display mode and color format
+        setBootEnv(UBOOTENV_ISBESTMODE, "false");
+        mHdmidata.state = OUTPUT_MODE_STATE_INIT;
+        getCommonData(&mHdmidata);
+        sceneProcess(&mHdmidata);
+
+        // 3. save uboot env
+        //3.1 save hdmimode
+        if (strstr(mHdmidata.final_displaymode, "cvbs") != NULL) {
+            setBootEnv(UBOOTENV_CVBSMODE, mHdmidata.final_displaymode);
+        } else if (strstr(mHdmidata.final_displaymode, "hz") != NULL) {
+            setBootEnv(UBOOTENV_HDMIMODE, mHdmidata.final_displaymode);
+        }
+        //3.2 save colorattribute
+        saveDeepColorAttr(mHdmidata.final_displaymode, mHdmidata.final_deepcolor);
+        setBootEnv(UBOOTENV_COLORATTRIBUTE, mHdmidata.final_deepcolor);
     }
 }
 
