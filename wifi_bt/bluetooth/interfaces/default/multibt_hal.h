@@ -26,12 +26,12 @@
 #endif
 
 #if (BT_DBG == TRUE)
-#define PR_INFO(param, ...) {if (VDBG) {ALOGD(param, ## __VA_ARGS__);}}
+#define PR_INFO(param, ...) {if (VDBG) {ALOGD("[%s-%d]: " param, __func__, __LINE__, ## __VA_ARGS__);}}
 #else
 #define PR_INFO(param, ...) {}
 #endif
 
-#define PR_ERR(param, ...) {if (VDBG) {ALOGE(param, ## __VA_ARGS__);}}
+#define PR_ERR(param, ...) {if (VDBG) {ALOGE("[%s-%d]: " param, __func__, __LINE__, ## __VA_ARGS__);}}
 
 #ifndef FALSE
 #define FALSE  0
@@ -47,6 +47,8 @@
 
 #define UPIO_BT_POWER_OFF 0
 #define UPIO_BT_POWER_ON  1
+#define SDIO_POWER_UP           _IO('m',3)
+#define SDIO_POWER_DOWN         _IO('m',4)
 #define SDIO_GET_DEV_TYPE       _IO('m',5)
 #define CLR_BT_POWER_BIT        _IO('m',6)
 

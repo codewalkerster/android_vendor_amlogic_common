@@ -16,7 +16,7 @@
  *
  ******************************************************************************/
 
-#define LOG_TAG "Multi_BT"
+#define LOG_TAG "multi_bt"
 #include <cutils/properties.h>
 #include <cutils/android_filesystem_config.h>
 
@@ -80,7 +80,7 @@ struct uart_device_info {
 static vnd_userial_cb_t vnd_userial;
 static int rfkill_id = -1;
 static char *rfkill_state_path = NULL;
-static int VDBG = 0;
+static int VDBG = 1;
 static const tUSERIAL_CFG userial_H5_cfg =
 {
     (USERIAL_DATABITS_8 | USERIAL_PARITY_EVEN | USERIAL_STOPBITS_1),
@@ -403,6 +403,32 @@ static int distinguish_vendorusb_module(void)
 		}
 	}
 	return 0;
+}
+
+static int set_wifi_power(int on)
+{
+    int fd = open("/dev/wifi_power", O_RDWR);
+    if (fd < 0) {
+        PR_ERR("/dev/wifi_power open fail : %s(%d)", strerror(errno), errno);
+        return -1;
+    }
+
+    if (on == SDIO_POWER_UP) {
+        if (ioctl (fd, SDIO_POWER_UP) < 0) {
+            PR_ERR("set sdio Wi-Fi power up error!!!");
+            close(fd);
+            return -1;
+       }
+    } else if(on== SDIO_POWER_DOWN) {
+        if (ioctl (fd, SDIO_POWER_DOWN) < 0) {
+            PR_ERR("set sdio Wi-Fi power down error!!!");
+            close(fd);
+            return -1;
+        }
+    }
+
+    close(fd);
+    return 0;
 }
 
 static int get_dev_type(char *dev_type)
@@ -1274,7 +1300,19 @@ static int bluetooth_distinguish_module(void)
 	if (btvendor_hal.pci_module()) {
 		return 1;
 	}
+	if (btvendor_hal.usb_module()) {
+		init_bt_status();
+		return 1;
+	}
+	if (btvendor_hal.mmc_module()) {
+		init_bt_status();
+		return 1;
+	}
+
+	write_power_type((char*)"1");
 	get_product_device();
+	set_wifi_power(SDIO_POWER_DOWN);
+	set_wifi_power(SDIO_POWER_UP);
 	upio_set_bluetooth_power(UPIO_BT_POWER_ON);
 
 	if (btvendor_hal.usb_module()) {
