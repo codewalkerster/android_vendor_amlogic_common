@@ -129,6 +129,7 @@ static const struct device_info bluetooth_dongle[] = {
 	{0xC82C, "rtl88x2cu", "libbt-vendor_rtlMulti.so", "rtk_btusb", 0x0000, true},
 	{0xB761, "rtl8761u",  "libbt-vendor_rtlMulti.so", "rtk_btusb", 0x0000, false},
 	{0x8771, "rtl8771u",  "libbt-vendor_rtlMulti.so", "rtk_btusb", 0x0000, false},
+	{0x0000, "ap6398s",   "libbt-vendor_bcmMulti.so", "NULL",      0x4359, false},
 	{0xBD27, "ap62x8",    "libbt-vendor_bcmMulti.so", "btusb",     0x0000, false},
 	{0x0BDC, "ap62x8",    "libbt-vendor_bcmMulti.so", "btusb",     0x0000, false},
 	{0x9378, "qca9379",   "libbt-vendor_qcaMulti.so", "bt_usb_qcom", 0x0000, true},
@@ -353,7 +354,7 @@ static unsigned short get_dev_info(std::string path)
     unsigned short val;
     int fp = open(path.c_str(), O_RDONLY);
     if (fp < 0) {
-        PR_ERR("Open file failed !!! %s(%d)", strerror(errno), errno);
+        PR_ERR("Open file(%s) failed !!! %s(%d)", path.c_str(), strerror(errno), errno);
         return 0xFF;
     }
     memset(info, 0, sizeof(info));
@@ -473,7 +474,7 @@ static int enum_mmc_type(std::string path)
 	int cnt;
 	int chip_id;
 	int dongle_size;
-	if ((chip_id = get_dev_info(path)) == 0XFF) {
+	if ((chip_id = get_dev_info(path)) == 0xFF) {
 		return 1;
 	}
 
@@ -1296,37 +1297,40 @@ H5:
 
 static int bluetooth_distinguish_module(void)
 {
+	int cnt = 2;
+
 	/*pcie don't need go power when uart don't rsp cmd*/
 	if (btvendor_hal.pci_module()) {
 		return 1;
 	}
-	if (btvendor_hal.usb_module()) {
-		init_bt_status();
-		return 1;
-	}
-	if (btvendor_hal.mmc_module()) {
-		init_bt_status();
-		return 1;
+
+	while(cnt) {
+		if (cnt == 1) {
+			PR_INFO("write_power_type 1");
+			write_power_type((char*)"1");
+			get_product_device();
+			PR_INFO("set_wifi_power down");
+			set_wifi_power(SDIO_POWER_DOWN);
+			PR_INFO("set_wifi_power up");
+			set_wifi_power(SDIO_POWER_UP);
+			PR_INFO("upio_set_bluetooth_power on");
+			upio_set_bluetooth_power(UPIO_BT_POWER_ON);
+		}
+		if (btvendor_hal.usb_module()) {
+			init_bt_status();
+			return 1;
+		}
+		if (btvendor_hal.mmc_module()) {
+			init_bt_status();
+			return 1;
+		}
+		if (btvendor_hal.uart_module()) {
+			init_bt_status();
+			return 1;
+		}
+		cnt--;
 	}
 
-	write_power_type((char*)"1");
-	get_product_device();
-	set_wifi_power(SDIO_POWER_DOWN);
-	set_wifi_power(SDIO_POWER_UP);
-	upio_set_bluetooth_power(UPIO_BT_POWER_ON);
-
-	if (btvendor_hal.usb_module()) {
-		init_bt_status();
-		return 1;
-	}
-	if (btvendor_hal.mmc_module()) {
-		init_bt_status();
-		return 1;
-	}
-	if (btvendor_hal.uart_module()) {
-		init_bt_status();
-		return 1;
-	}
 	return 0;
 }
 
