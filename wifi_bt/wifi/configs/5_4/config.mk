@@ -2,7 +2,7 @@ define to-root-path
 $(strip $(patsubst %/,%,$(shell echo\
  $(shell bash -c "\
  cd $(1);\
- while [[ ( ! ( -f build/core/envsetup.mk ) ) && ( \`pwd\` != "/" ) ]]; do\
+ while [[ ( ! ( -f build/gki/README.md ) ) && ( \`pwd\` != "/" ) ]]; do\
   cd ..;\
   echo \"../\";\
  done;"\

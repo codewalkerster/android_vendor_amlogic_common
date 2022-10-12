@@ -1,8 +1,8 @@
 ROOT_DIR := $(shell bash -c "\
- while [[ ( ! ( -f build/core/envsetup.mk ) ) && ( \`pwd\` != "/" ) ]]; do\
+ while [[ ( ! ( -f build/gki/README.md ) ) && ( \`pwd\` != "/" ) ]]; do\
   cd ..;\
  done;\
- if [[ -f \`pwd\`/build/core/envsetup.mk ]]; then\
+ if [[ -f \`pwd\`/build/gki/README.md ]]; then\
   echo \`pwd\`;\
  else\
   echo "";\
