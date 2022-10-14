@@ -89,7 +89,13 @@ public class AudioEffectManager {
             {4, 2, 2},  // advance mode default db value
     };
 
-    /* DAP effect cmd */
+    /****************************DAP effect cmd*******************************/
+    public static final int SOUND_EFFECT_DAP_VERSION_1_3_2  = 0;
+    public static final int SOUND_EFFECT_DAP_VERSION_2_4    = 1;
+    public static final int SOUND_EFFECT_DAP_VERSION        = SOUND_EFFECT_DAP_VERSION_2_4;
+
+    /* [DAP 1.3.2] */
+    public static final int CMD_DAP_1_3_2_BASE_VALUE        = 0;
     public static final int CMD_DAP_ENABLE                  = 0;
     public static final int CMD_DAP_EFFECT_MODE             = 1;
     public static final int CMD_DAP_GEQ_GAINS               = 2;
@@ -109,7 +115,65 @@ public class AudioEffectManager {
     public static final int SUBCMD_DAP_GEQ_BAND4            = 0x103;
     public static final int SUBCMD_DAP_GEQ_BAND5            = 0x104;
 
+    /* [DAP 2.4] */
+    public static final int CMD_DAP_2_4_BASE_VALUE                      = 1000;
 
+    public static final int CMD_DAP_2_4_PROFILE                         = 1000;
+    public static final int CMD_DAP_2_4_SURROUND_VIRTUALIZER            = 1004;
+    public static final int CMD_DAP_2_4_DIALOGUE_ENHANCER               = 1007;
+    public static final int CMD_DAP_2_4_BASS_ENHANCER                   = 1008;
+    public static final int CMD_DAP_2_4_MI_STEERING                     = 1012;
+    public static final int CMD_DAP_2_4_SURROUND_DECODER_ENABLE         = 1013;
+    public static final int CMD_DAP_2_4_LEVELER                         = 1015;
+
+    public static final int SUBCMD_DAP_2_4_BASE_VALUE                   = 2000;
+
+    public static final int SUBCMD_DAP_2_4_SURROUND_VIRTUALIZER_BOOST   = 2000;
+    public static final int SUBCMD_DAP_2_4_DIALOGUE_ENHANCER_AMOUNT     = 2001;
+    public static final int SUBCMD_DAP_2_4_BASS_ENHANCER_BOOST          = 2002;
+    public static final int SUBCMD_DAP_2_4_BASS_ENHANCER_CUTOFF_100     = 2003;
+    public static final int SUBCMD_DAP_2_4_BASS_ENHANCER_CUTOFF_1       = 2004;
+    public static final int SUBCMD_DAP_2_4_BASS_ENHANCER_WIDTH          = 2005;
+    public static final int SUBCMD_DAP_2_4_LEVELER_AMOUNT               = 2006;
+
+    /*************************************************************************/
+
+    /* [CMD_DAP_2_4_PROFILE] sound mode */
+    public static final int SOUND_EFFECT_DAP_2_4_PROFILE_MOVIE           = 0;
+    public static final int SOUND_EFFECT_DAP_2_4_PROFILE_MUSIC           = 1;
+    public static final int SOUND_EFFECT_DAP_2_4_PROFILE_GAME            = 2;
+    public static final int SOUND_EFFECT_DAP_2_4_PROFILE_NIGHT           = 3;
+    public static final int SOUND_EFFECT_DAP_2_4_PROFILE_VOICE           = 4;
+    public static final int SOUND_EFFECT_DAP_2_4_PROFILE_USER_SELECTABLE = 5;
+    public static final int SOUND_EFFECT_DAP_2_4_PROFILE_OFF             = 6;
+    public static final int SOUND_EFFECT_DAP_2_4_PROFILE_MIN             = SOUND_EFFECT_DAP_2_4_PROFILE_MOVIE;
+    public static final int SOUND_EFFECT_DAP_2_4_PROFILE_MAX             = SOUND_EFFECT_DAP_2_4_PROFILE_OFF;
+
+    public static final int SOUND_EFFECT_DAP_2_4_SURROUND_VIRTUALIZER_OFF      = 0;
+    public static final int SOUND_EFFECT_DAP_2_4_SURROUND_VIRTUALIZER_ON       = 1;
+    public static final int SOUND_EFFECT_DAP_2_4_SURROUND_VIRTUALIZER_AUTO     = 2;
+
+    public static final int SOUND_EFFECT_DAP_2_4_LEVELER_OFF                   = 0;
+    public static final int SOUND_EFFECT_DAP_2_4_LEVELER_ON                    = 1;
+    public static final int SOUND_EFFECT_DAP_2_4_LEVELER_AUTO                  = 2;
+
+
+    /* DAP 2.4 default setting */
+    public static final int DAP_2_4_SURROUND_VIRTUALIZER_DEFAULT               = 1;
+    public static final int DAP_2_4_SURROUND_VIRTUALIZER_BOOST_DEFAULT         = 96;
+    public static final int DAP_2_4_DIALOGUE_ENHANCER_DEFAULT                  = 0;
+    public static final int DAP_2_4_DIALOGUE_ENHANCER_AMOUNT_DEFAULT           = 0;
+    public static final int DAP_2_4_BASS_ENHANCER_DEFAULT                      = 0;
+    public static final int DAP_2_4_BASS_ENHANCER_BOOST_DEFAULT                = 192;
+    public static final int DAP_2_4_BASS_ENHANCER_CUTOFFX100_DEFAULT           = 2;//X100
+    public static final int DAP_2_4_BASS_ENHANCER_CUTOFFX1_DEFAULT             = 0;//X1
+    public static final int DAP_2_4_BASS_ENHANCER_WIDTH_DEFAULT                = 16;
+    public static final int DAP_2_4_MI_STEERING_DEFAULT                        = 0;
+    public static final int DAP_2_4_SURROUND_DECODER_ENABLE_DEFAULT            = 1;
+    public static final int DAP_2_4_LEVELER_DEFAULT                            = 0;
+    public static final int DAP_2_4_LEVELER_AMOUNT_DEFAULT                     = 4;
+
+    /* DAP 1.3.2 sound mode */
     public static final int DAP_MODE_OFF                    = 0;
     public static final int DAP_MODE_MOVIE                  = 1;
     public static final int DAP_MODE_MUSIC                  = 2;
@@ -139,6 +203,20 @@ public class AudioEffectManager {
     public static final int DAP_SURROUND_BOOST_DEFAULT      = 0;
     public static final int DAP_POST_GAIN_DEFAULT           = 0;
     public static final int DAP_GEQ_GAIN_DEFAULT            = 0;
+    //debug audio UI
+    public static final int DEBUG_UI_ON                                      = 1;
+    public static final int DEBUG_UI_OFF                                     = 0;
+
+    public static final int DEBUG_HPEQ_UI                                    = 0;
+    public static final int DEBUG_BALANCE_UI                                 = 1;
+    public static final int DEBUG_TREBLEBASS_UI                              = 2;
+    public static final int DEBUG_VIRTUAL_SURROUND_UI                        = 3;
+    public static final int DEBUG_DPE_UI                                     = 4;
+    public static final int DEBUG_AGC_UI                                     = 5; //no use
+    public static final int DEBUG_DBX_TV_UI                                  = 6;
+    public static final int DEBUG_TRUSURROUND_UI                             = 7; //no use
+    public static final int DEBUG_VIRTUAL_X_UI                               = 8;
+    public static final int DEBUG_DAP_2_UI                                   = 9;
     private static AudioEffectManager mInstance;
 
     public static AudioEffectManager getInstance(Context context) {
@@ -659,5 +737,23 @@ public class AudioEffectManager {
         } catch (RemoteException e) {
             Log.e(TAG, "initDapAudioEffect failed:" + e);
         }
+    }
+    public void setAudioEffectOn(int id, boolean dbSwitch) {
+        if (audioEffectServiceIsNull()) return;
+        try {
+            mAudioEffectsService.setAudioEffectOn(id, dbSwitch);
+        } catch (RemoteException e) {
+            Log.e(TAG, "setAudioEffectOn failed:" + e);
+        }
+    }
+
+    public boolean isAudioEffectOn(int id) {
+        if (audioEffectServiceIsNull()) return false;
+        try {
+            return mAudioEffectsService.isAudioEffectOn(id);
+        } catch (RemoteException e) {
+            Log.e(TAG, "isAudioEffectOn failed:" + e);
+        }
+        return false;
     }
 }

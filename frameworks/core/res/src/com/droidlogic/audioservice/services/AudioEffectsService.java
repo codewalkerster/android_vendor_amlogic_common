@@ -264,7 +264,7 @@ public class AudioEffectsService extends Service {
         }
 
         public void setDapParam(int id, int value) {
-            mSoundEffectManager.saveDapParam(id, value);
+            //mSoundEffectManager.saveDapParam(id, value);
             mSoundEffectManager.setDapParam(id, value);
         }
 
@@ -275,20 +275,21 @@ public class AudioEffectsService extends Service {
         public void initDapAudioEffect() {
             mSoundEffectManager.initDapAudioEffect();
         }
+        public void setAudioEffectOn(int id, boolean dbSwitch) {
+            mSoundEffectManager.setAudioEffectOn(id, dbSwitch);
+        }
+
+        public boolean isAudioEffectOn(int id) {
+            return mSoundEffectManager.isAudioEffectOn(id);
+        }
     };
 
     private void handleActionStartUp() {
         boolean isDapValid = OutputModeManager.getInstance(mContext).isAudioSupportMs12System();
         Log.i(TAG, "handleActionStartUp needAudioEffectFeture:" + DroidLogicUtils.isTv() + ", isDapValid:" + isDapValid);
-        if (DroidLogicUtils.isTv()) {
-            // This will apply the saved audio settings on boot
-            mSoundEffectManager.createAudioEffects();
-            mSoundEffectManager.initSoundEffectSettings();
-            registerCommandReceiver(this);
-        }
-        if (isDapValid) {
-            mSoundEffectManager.initDapAudioEffect();
-        }
+        // This will apply the saved audio settings on boot
+        mSoundEffectManager.createAudioEffectsByIndex();
+        registerCommandReceiver(this);
     }
 
     private static final String RESET_ACTION = "droid.action.resetsoundeffect";

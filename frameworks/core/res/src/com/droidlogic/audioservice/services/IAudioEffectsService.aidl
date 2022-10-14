@@ -65,4 +65,6 @@ interface IAudioEffectsService{
     void setDapParam(int id, int value);
     int getDapParam(int id);
     void initDapAudioEffect();
+    void setAudioEffectOn(int id, boolean dbSwitch);
+    boolean isAudioEffectOn(int id);
 }
