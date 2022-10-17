@@ -695,6 +695,8 @@ void DisplayMode::clearBootDisplayConfig(const char*value) {
         char bestMode[MODE_LEN]    = {0};
         getPrefHdmiDispMode(bestMode);
         setBootEnv(UBOOTENV_HDMIMODE, bestMode);
+        //need to keep the same value with the defaul value
+        setBootEnv(UBOOTENV_FRAC_RATE_POLICY, "1");
     }
 }
 
@@ -811,9 +813,10 @@ void DisplayMode::applyDisplaySetting(output_mode_state state) {
          if (strstr(frac_rate_policy,"2")) {
              getBootEnv(UBOOTENV_FRAC_RATE_POLICY, frac_rate_policy);
          }
-         SYS_LOGD("get frc policy from hwc is %s and save value is %s",cur_frac_rate_policy,frac_rate_policy);
-          if (strstr(frac_rate_policy, cur_frac_rate_policy) == NULL) {
-               frac_rate_policy_change = true;
+         SYS_LOGI("get frc policy from hwc is %s and current value is %s\n",frac_rate_policy, cur_frac_rate_policy);
+         if (strstr(frac_rate_policy, cur_frac_rate_policy) == NULL) {
+             pSysWrite->writeSysfs(HDMI_TX_FRAMERATE_POLICY, frac_rate_policy);
+             frac_rate_policy_change = true;
          }
     }
     // 2. set hdmi final color space
@@ -1014,9 +1017,6 @@ void DisplayMode::applyDisplaySetting(output_mode_state state) {
     memset(value, 0, sizeof(0));
     getBootEnv(UBOOTENV_DIGITAUDIO, value);
     setDigitalMode(value);
-
-    pSysWrite->readSysfs(HDMI_TX_FRAMERATE_POLICY, cur_frac_rate_policy);
-    pSysWrite->setProperty(HDMI_FRC_POLICY_PROP,cur_frac_rate_policy);
 
 #ifndef RECOVERY_MODE
     if ((state == OUTPUT_MODE_STATE_INIT) ||
