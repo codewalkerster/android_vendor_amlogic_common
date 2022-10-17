@@ -1306,16 +1306,17 @@ static int bluetooth_distinguish_module(void)
 
 	while(cnt) {
 		if (cnt == 1) {
-			PR_INFO("write_power_type 1");
-			write_power_type((char*)"1");
 			get_product_device();
 			PR_INFO("set_wifi_power down");
 			set_wifi_power(SDIO_POWER_DOWN);
 			PR_INFO("set_wifi_power up");
 			set_wifi_power(SDIO_POWER_UP);
-			PR_INFO("upio_set_bluetooth_power on");
-			upio_set_bluetooth_power(UPIO_BT_POWER_ON);
 		}
+		PR_INFO("write_power_type 1");
+		write_power_type((char*)"1");
+		PR_INFO("upio_set_bluetooth_power on");
+		upio_set_bluetooth_power(UPIO_BT_POWER_ON);
+
 		if (btvendor_hal.usb_module()) {
 			init_bt_status();
 			return 1;
