@@ -600,104 +600,6 @@ static int res_img_unpack(const char *path)
     return result;
 }
 
-static int read_write_test14(const char *path14)
-{
-    const uint32_t key_type =PROVISION_KEY_TYPE_HDCP_TX14;
-    int size = 4096;
-    int fdImg;
-    struct stat hdcprx14;
-    if ((fdImg = open(path14, O_RDONLY)) < 0) {
-        ALOGE("Fail to open res image at path %s\n", path14);
-        return -1;
-    }
-    fstat(fdImg, &hdcprx14);
-    ALOGE("size of %s is %d\n", path14, (int)hdcprx14.st_size);
-    char *writebuffer = (char *)malloc(hdcprx14.st_size);
-    if (!writebuffer) {
-        ALOGE("Fail to malloc buffer  \n");
-        return -1;
-    }
-
-    int actualReadSz = 0;
-    actualReadSz = read(fdImg, writebuffer, hdcprx14.st_size);
-
-    ALOGE("actualReadSz = %d\n", actualReadSz);
-    printf("*********************************************\n");
-    dump_mem(writebuffer, 32);
-
-    mSysClient->writeHdcpRX14Key(writebuffer, actualReadSz);
-    writeSys("/tee/read_write_test14_w.txt", writebuffer, actualReadSz);
-    free(writebuffer);
-    close(fdImg);
-    return mSysClient->readHDCP14Key(key_type, size);
-}
-
-static int read_write_test22(const char *path22)
-{
-    const uint32_t key_type = PROVISION_KEY_TYPE_HDCP_TX22;
-    int fdImg;
-    struct stat hdcprx22;
-    if ((fdImg = open(path22, O_RDONLY)) < 0) {
-        ALOGE("Fail to open res image at path %s\n", path22);
-        return -1;
-    }
-    fstat(fdImg, &hdcprx22);
-    ALOGE("size of %s is %d\n", path22, (int)hdcprx22.st_size);
-    char *writebuffer = (char *)malloc(hdcprx22.st_size);
-    if (!writebuffer) {
-        ALOGE("Fail to malloc buffer  \n");
-        return -1;
-    }
-
-    int actualReadSz = 0;
-    actualReadSz = read(fdImg, writebuffer, hdcprx22.st_size);
-
-    ALOGE("actualReadSz = %d\n", actualReadSz);
-
-    printf("*********************************************\n");
-    dump_mem(writebuffer, 32);
-
-    mSysClient->writeHdcpRX22Key(writebuffer, actualReadSz);
-    writeSys("/tee/read_write_test22_w.txt", writebuffer, actualReadSz);
-    free(writebuffer);
-    close(fdImg);
-    return mSysClient->readHDCP22Key(key_type, actualReadSz);
-}
-
-static int read_write_test_atte(const char *path)
-{
-    const uint32_t key_type = PROVISION_KEY_TYPE_KEYMASTER_3;
-    int fdImg;
-    struct stat atte;
-    if ((fdImg = open(path, O_RDONLY)) < 0) {
-        ALOGE("Fail to open res image at path %s\n", path);
-        return -1;
-    }
-    fstat(fdImg, &atte);
-    ALOGE("size of %s is %lld\n", path, atte.st_size);
-    char *writebuffer = (char *)malloc(atte.st_size);
-    if (!writebuffer) {
-        ALOGE("Fail to malloc buffer  \n");
-        return -1;
-    }
-
-    int actualReadSz = 0;
-    actualReadSz = read(fdImg, writebuffer, atte.st_size);
-
-    ALOGE("actualReadSz = %d\n", actualReadSz);
-
-    dump_mem(writebuffer, 32);
-
-    mSysClient->writeAttestationKey(writebuffer, actualReadSz);
-
-    //writeSys("/tee/read_write_test22_w.txt", writebuffer, actualReadSz);
-
-    printf("*********************************************\n");
-    free(writebuffer);
-    close(fdImg);
-    return mSysClient->readAttestationKey(key_type, actualReadSz);
-}
-
 static int read_write_bin(const char *path)
 {
     int fdImg;
@@ -728,31 +630,7 @@ static int read_write_bin(const char *path)
     return 0;
 }
 
-static int read_write_test(const char *path14)
-{
-    const uint32_t key_type = PROVISION_KEY_TYPE_HDCP_RX14;
-    int fdImg;
-    struct stat hdcprx14;
-    if ((fdImg = open(path14, O_RDONLY)) < 0) {
-        ALOGE("Fail to open res image at path %s\n", path14);
-        return -1;
-    }
-    fstat(fdImg, &hdcprx14);
-    ALOGE("size of %s is %d\n", path14, (int)hdcprx14.st_size);
-    char *writebuffer = (char *)malloc(hdcprx14.st_size);
-    if (!writebuffer) {
-        ALOGE("Fail to malloc buffer  \n");
-        return -1;
-    }
 
-    int actualReadSz = 0;
-    actualReadSz = read(fdImg, writebuffer, hdcprx14.st_size);
-    mSysClient->writeHdcpRX14Key(writebuffer, actualReadSz);
-    free(writebuffer);
-    close(fdImg);
-    return mSysClient->readHdcpRX14Key(key_type, actualReadSz);
-
-}
 
 static int read_write_test_widevine(const char *path)
 {
@@ -779,37 +657,6 @@ static int read_write_test_widevine(const char *path)
     dump_mem(writebuffer, actualReadSz);
 
     mSysClient->writeNetflixKey(writebuffer, actualReadSz);
-    free(writebuffer);
-    close(fdImg);
-    return mSysClient->readNetflixKey(key_type, actualReadSz);
-}
-
-static int read_write_test_netflix(const char *path)
-{
-    const uint32_t key_type = PROVISION_KEY_TYPE_NETFLIX_MGKID;
-    int fdImg;
-    struct stat netflix;
-    if ((fdImg = open(path, O_RDONLY)) < 0) {
-        ALOGE("Fail to open res image at path %s\n", path);
-        return -1;
-    }
-    fstat(fdImg, &netflix);
-    ALOGE("size of %s is %lld\n", path, netflix.st_size);
-    char *writebuffer = (char *)malloc(netflix.st_size);
-    if (!writebuffer) {
-        ALOGE("Fail to malloc buffer  \n");
-        return -1;
-    }
-
-    int actualReadSz = 0;
-    actualReadSz = read(fdImg, writebuffer, netflix.st_size);
-
-    ALOGE("actualReadSz = %d\n", actualReadSz);
-
-    dump_mem(writebuffer, actualReadSz);
-
-    mSysClient->writeNetflixKey(writebuffer, actualReadSz);
-
     free(writebuffer);
     close(fdImg);
     return mSysClient->readNetflixKey(key_type, actualReadSz);
@@ -882,18 +729,8 @@ int main(int argc __unused, char** argv __unused)
                     break;
                 }
 
-                if (strcmp(optarg, "test-RDWR-Atte") == 0) {
-                    read_write_test_atte(argv[optind]);
-                } else if (strcmp(optarg, "test-RDWR-hdcp14") == 0) {
-                    read_write_test14(argv[optind]);
-                } else if (strcmp(optarg, "test-RDWR-hdcp22") == 0) {
-                    read_write_test22(argv[optind]);
-                } else if (strcmp(optarg, "test-WR-bin") == 0) {
+                if (strcmp(optarg, "test-WR-bin") == 0) {
                     read_write_bin(argv[optind]);
-                } else if (strcmp(optarg, "test-RDWR-Netflix") == 0) {
-                    read_write_test_netflix(argv[optind]);
-                } else if (strcmp(optarg, "test-RDWR-Widevine") == 0) {
-                    read_write_test_widevine(argv[optind]);
                 } else {
                     printf("optarg: %s argv[%d]: %s\n", optarg, optind, argv[optind]);
                 }

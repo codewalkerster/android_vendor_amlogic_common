@@ -325,6 +325,52 @@ public class SystemControlManager {
     }
 
     //Provision key start
+    /*
+    *usage: writeProvisionKey(keyContent, keyContent.size, keyContent.type);
+    * use it write keys that contain Special characters
+    */
+    public boolean writeProvisionKey(int[] val, int size, int key_type) {
+        synchronized (mLock) {
+            try {
+                int[] data;
+                switch (key_type) {
+                    case PROVISION_KEY_TYPE_PLAYREADY_PRIVATE           :
+                    case PROVISION_KEY_TYPE_PLAYREADY_PUBLIC            :
+                    case PROVISION_KEY_TYPE_WIDEVINE                    :
+                    case PROVISION_KEY_TYPE_NETFLIX_MGKID               :
+                    case PROVISION_KEY_TYPE_WIDEVINE_CAS                :
+                    case PROVISION_KEY_TYPE_HDCP_TX14                   :
+                    case PROVISION_KEY_TYPE_HDCP_TX22                   :
+                    case PROVISION_KEY_TYPE_HDCP_RX14                   :
+                    case PROVISION_KEY_TYPE_HDCP_RX22_WFD               :
+                    case PROVISION_KEY_TYPE_HDCP_RX22_FW                :
+                    case PROVISION_KEY_TYPE_HDCP_RX22_FW_PRIVATE        :
+                        if (size > KEY_TYPE_LEN_FIRST) {
+                            Log.e(TAG, "The data len is too long, it cannot exceed " + (String.format("%d", size))+" key_type:"+key_type);
+                            return false;
+                        }
+                        data = paddingBuffer(val, size, KEY_TYPE_LEN_FIRST);
+                    break;
+                    case PROVISION_KEY_TYPE_PFID        :
+                        if (size > KEY_TYPE_LEN_SECOND) {
+                            Log.e(TAG, "The data len is too long, it cannot exceed " + (String.format("%d", size))+" key_type:"+key_type);
+                            return false;
+                        }
+                        data = paddingBuffer(val, size, KEY_TYPE_LEN_SECOND);
+                    break;
+                    default:
+                        Log.i(TAG, "The key is not match, try to write " + (String.format("%d", size))+" key_type:"+key_type);
+                        data = paddingBuffer(val, size, KEY_TYPE_LEN_SECOND);
+                    break;
+                }
+                int res = mProxy.writeProvisionKey(data, size);
+                return 0 == res;
+            } catch (Exception e) {
+                Log.e(TAG, "writeUnifyKey:" + e);
+            }
+        }
+        return true;
+    }
 
     /*
     *usage: writeUnifyKey("usid", val);
@@ -338,218 +384,6 @@ public class SystemControlManager {
                 Log.e(TAG, "setBootenv:" + e);
             }
         }
-    }
-
-    /*
-    *usage: writePlayreadyKey("widevinekeybox", keyContent, keyContent.length);
-    * use it write keys that contain Special characters
-    */
-    public boolean writePlayreadyKey(int[] val, int size) {
-        synchronized (mLock) {
-            try {
-                int[] data;
-                if (size > KEY_TYPE_LEN_FIRST) {
-                    Log.e(TAG, "The data len is too long, it cannot exceed " + (String.format("%d", size)));
-                    return false;
-                }
-                data = paddingBuffer(val, size, KEY_TYPE_LEN_FIRST);
-                int res = mProxy.writePlayreadyKey(data, size);
-                return 0 == res;
-            } catch (Exception e) {
-                Log.e(TAG, "writeUnifyKey:" + e);
-            }
-        }
-        return true;
-    }
-
-    public boolean writeWidevineKey(int[] val, int size) {
-        Log.d(TAG, "writeWidevineKey size: " + size);
-        synchronized (mLock) {
-            try {
-                int[] data;
-                if (size > KEY_TYPE_LEN_FIRST) {
-                    Log.e(TAG, "The data len is too long, it cannot exceed " + (String.format("%d", size)));
-                    return false;
-                }
-                data = paddingBuffer(val, size, KEY_TYPE_LEN_FIRST);
-                int res = mProxy.writeWidevineKey(data, size);
-                return 0 == res;
-            } catch (Exception e) {
-                Log.e(TAG, "writeUnifyKey:" + e);
-            }
-        }
-        return true;
-    }
-
-    public boolean writeNetflixKey(int[] val, int size) {
-        Log.d(TAG, "writeNetflixKey size: " + size);
-        synchronized (mLock) {
-            try {
-                int[] data;
-                if (size > KEY_TYPE_LEN_FIRST) {
-                    Log.e(TAG, "The data len is too long, it cannot exceed " + (String.format("%d", size)));
-                    return false;
-                }
-                data = paddingBuffer(val, size, KEY_TYPE_LEN_FIRST);
-                int res = mProxy.writeNetflixKey(data, size);
-                return 0 == res;
-            } catch (Exception e) {
-                Log.e(TAG, "writeUnifyKey:" + e);
-            }
-        }
-        return true;
-    }
-
-    /*
-    *usage: writeAttestationKey("/dev/unifykeys", "attestationkeybox", keyContent, keyContent.length);
-    * keyContent: the value of attestationkey
-    * keyContent.length: the size of keyContent
-    */
-    public boolean writeAttestationKey(int[] val, int size) {
-        synchronized (mLock) {
-            try {
-                int[] data;
-                if (size > KEY_TYPE_LEN_SECOND) {
-                    Log.e(TAG, "The data len is too long, it cannot exceed " + (String.format("%d", size)));
-                    return false;
-                }
-                data = paddingBuffer(val, size, KEY_TYPE_LEN_SECOND);
-                int res = mProxy.writeAttestationKey(data, size);
-                return 0 == res;
-            } catch (Exception e) {
-                Log.e(TAG, "writeAttestationKey:" + e);
-            }
-        }
-
-        return true;
-    }
-
-   /*
-    *usage: writeHDCP14Key("widevinekeybox", keyContent, keyContent.length);
-    * use it write keys that contain Special characters
-    */
-    public boolean writeHDCP14Key(int[] val, int size) {
-        synchronized (mLock) {
-            try {
-                int[] data;
-                if (size > KEY_TYPE_LEN_FIRST) {
-                    Log.e(TAG, "The data len is too long, it cannot exceed " + (String.format("%d", size)));
-                    return false;
-                }
-                data = paddingBuffer(val, size, KEY_TYPE_LEN_FIRST);
-                int res = mProxy.writeHDCP14Key(data, size);
-                return 0 == res;
-            } catch (Exception e) {
-                Log.e(TAG, "writeHDCP14Key:" + e);
-            }
-        }
-        return true;
-    }
-
-    /*
-    * usage: writeHdcpRX14Key(val, size);
-    * val: the value of hdcp rx 22 key, the key must be 328/348 byte, if not, ask sale to apply license.
-    * size: the size of val
-    */
-    public boolean writeHdcpRX14Key(int[] val, int size) {
-        synchronized (mLock) {
-            try {
-                int[] data;
-                if (size > KEY_TYPE_LEN_FIRST) {
-                    Log.e(TAG, "The data len is too long, it cannot exceed " + (String.format("%d", size)));
-                    return false;
-                }
-                data = paddingBuffer(val, size, KEY_TYPE_LEN_FIRST);
-                int res = mProxy.writeHdcpRX14Key(data, size);
-                return 0 == res;
-            } catch (Exception e) {
-                Log.e(TAG, "writeHdcpRX14Key:" + e);
-            }
-        }
-
-        return true;
-    }
-
-   /*
-    *usage: writeHDCP22Key("widevinekeybox", keyContent, keyContent.length);
-    * use it write keys that contain Special characters
-    */
-    public boolean writeHDCP22Key(int[] val, int size) {
-        synchronized (mLock) {
-            try {
-                int[] data;
-                if (size > KEY_TYPE_LEN_FIRST) {
-                    Log.e(TAG, "The data len is too long, it cannot exceed " + (String.format("%d", size)));
-                    return false;
-                }
-                data = paddingBuffer(val, size, KEY_TYPE_LEN_FIRST);
-                int res = mProxy.writeHDCP22Key(data, size);
-                return 0 == res;
-            } catch (Exception e) {
-                Log.e(TAG, "writeHDCP22Key:" + e);
-            }
-        }
-        return true;
-    }
-
-    /*
-    * usage: writeHdcpRX22Key(val, size);
-    * val: the value of key, such as 00000000_hdcp_key2.2.bin, ask sales to get it.
-    * size: the size of val
-    */
-    public boolean writeHdcpRX22Key(int[] val, int size) {
-        synchronized (mLock) {
-            try {
-                int[] data;
-                if (size > KEY_TYPE_LEN_FIRST) {
-                    Log.e(TAG, "The data len is too long, it cannot exceed " + (String.format("%d", size)));
-                    return false;
-                }
-                data = paddingBuffer(val, size, KEY_TYPE_LEN_FIRST);
-                int res = mProxy.writeHdcpRX22Key(data, size);
-                return 0 == res;
-            } catch (Exception e) {
-                Log.e(TAG, "writeHdcpRX22Key:" + e);
-            }
-        }
-
-        return true;
-    }
-
-    public boolean writePFIDKey(int[] val, int size) {
-        synchronized (mLock) {
-            try {
-                int[] data;
-                if (size > KEY_TYPE_LEN_SECOND) {
-                    Log.e(TAG, "The data len is too long, it cannot exceed " + (String.format("%d", size)));
-                    return false;
-                }
-                data = paddingBuffer(val, size, KEY_TYPE_LEN_SECOND);
-                int res = mProxy.writePFIDKey(data, size);
-                return 0 == res;
-            } catch (RemoteException e) {
-                Log.e(TAG, "writePFIDKey:" + e);
-            }
-        }
-        return true;
-    }
-
-    public boolean writePFPKKey(int[] val, int size) {
-        synchronized (mLock) {
-            try {
-                int[] data;
-                if (size > KEY_TYPE_LEN_FIRST) {
-                    Log.e(TAG, "The data len is too long, it cannot exceed " + (String.format("%d", size)));
-                    return false;
-                }
-                data = paddingBuffer(val, size, KEY_TYPE_LEN_FIRST);
-                int res = mProxy.writePFPKKey(data, size);
-                return 0 == res;
-            } catch (RemoteException e) {
-                Log.e(TAG, "writePFPKKey:" + e);
-            }
-        }
-        return true;
     }
 
     /*
@@ -592,329 +426,14 @@ public class SystemControlManager {
         return "";
     }
 
-    /*
-     *usage: readPlayreadyKey("widevinekeybox", keyContent, keyContent.length);
-     * use it read keys that contain Special characters, If key is secure, it only return the hash data
-     * by now the secure key contain: hdcp/secure_boot_set/widevinekeybox/hdcp22_fw_private/
-     *       hdcp22_rx_private/prpubkeybox/prprivkeybox/attestationkeybox/attestationdevidbox
-     */
-    public boolean readPlayreadyKey(String path, int key_type, int size) {
+    public boolean checkProvisionKey(int key_type) {
         synchronized (mLock) {
             try {
-                if (size > KEY_TYPE_LEN_FIRST) {
-                    Log.e(TAG, "The data len is too long, it cannot exceed " + (String.format("%d", size)));
-                    return false;
-                }
-                int res = mProxy.readPlayreadyKey(path, key_type, size);
-                Log.d(TAG, "readPlayreadyKey result " + res);
-                return 0 == res;
-            } catch (Exception e) {
-                Log.e(TAG, "readPlayreadyKey:" + e);
-            }
-        }
-        return false;
-    }
-
-    public boolean readWidevineKey(int key_type, int size) {
-        Log.d(TAG, "readWidevineKey key_type: "+ key_type + ";size: " + size);
-        synchronized (mLock) {
-            try {
-                if (size > KEY_TYPE_LEN_FIRST) {
-                    Log.e(TAG, "The data len is too long, it cannot exceed " + (String.format("%d", size)));
-                    return false;
-                }
-                int res = mProxy.readWidevineKey(key_type, size);
-                Log.d(TAG, "readWidevineKey result " + res);
-                return 0 == res;
-            } catch (Exception e) {
-                Log.e(TAG, "readWidevineKey:" + e);
-            }
-        }
-        return false;
-    }
-
-    public boolean readNetflixKey(int key_type, int size) {
-        Log.d(TAG, "readNetflixKey key_type: "+ key_type + ";size: " + size);
-        synchronized (mLock) {
-            try {
-                if (size > KEY_TYPE_LEN_FIRST) {
-                    Log.e(TAG, "The data len is too long, it cannot exceed " + (String.format("%d", size)));
-                    return false;
-                }
-                int res = mProxy.readNetflixKey(key_type, size);
-                Log.d(TAG, "readNetflixKey result " + res);
-                return 0 == res;
-            } catch (Exception e) {
-                Log.e(TAG, "readNetflixKey:" + e);
-            }
-        }
-        return false;
-    }
-
-    /*
-     *usage: readAttestationKey("/dev/unifykeys", "attestationkeybox", keyContent, keyContent.length);
-     * attestationkeybox is secure key, so it only return the hash data
-     */
-    public boolean readAttestationKey(int key_type, int size) {
-        synchronized (mLock) {
-            try {
-                if (size > KEY_TYPE_LEN_SECOND) {
-                    Log.e(TAG, "The data len is too long, it cannot exceed " + (String.format("%d", size)));
-                    return false;
-                }
-                int res = mProxy.readAttestationKey(key_type, size);
-                Log.d(TAG, "readAttestationKey result " + res);
-                return 0 == res;
-            } catch (Exception e) {
-                Log.e(TAG, "readAttestationKey:" + e);
-            }
-        }
-
-        return false;
-    }
-
-   /*
-    *usage: readHDCP14Key("widevinekeybox", keyContent, keyContent.length);
-    * use it read keys that contain Special characters, If key is secure, it only return the hash data
-    * by now the secure key contain: hdcp/secure_boot_set/widevinekeybox/hdcp22_fw_private/
-    *       hdcp22_rx_private/prpubkeybox/prprivkeybox/attestationkeybox/attestationdevidbox
-    */
-    public boolean readHDCP14Key(int key_type, int size) {
-        synchronized (mLock) {
-            try {
-                if (size > KEY_TYPE_LEN_FIRST) {
-                    Log.e(TAG, "The data len is too long, it cannot exceed " + (String.format("%d", size)));
-                    return false;
-                }
-                int res = mProxy.readHDCP14Key(key_type, size);
-                Log.d(TAG, "readHDCP14Key result " + res);
-                return 0 == res;
-            } catch (Exception e) {
-                Log.e(TAG, "readHDCP14Key:" + e);
-            }
-        }
-        return false;
-    }
-
-
-    public boolean readHdcpRX14Key(int key_type, int size) {
-        synchronized (mLock) {
-            try {
-                if (size > KEY_TYPE_LEN_FIRST) {
-                    Log.e(TAG, "The data len is too long, it cannot exceed " + (String.format("%d", size)));
-                    return false;
-                }
-                int res = mProxy.readHdcpRX14Key(key_type, size);
-                Log.d(TAG, "readHdcpRX14Key result " + res);
-                return 0 == res;
-            } catch (Exception e) {
-                Log.e(TAG, "readHdcpRX14Key:" + e);
-            }
-        }
-        return false;
-    }
-
-   /*
-    *usage: readHDCP22Key("widevinekeybox", keyContent, keyContent.length);
-    * use it read keys that contain Special characters, If key is secure, it only return the hash data
-    * by now the secure key contain: hdcp/secure_boot_set/widevinekeybox/hdcp22_fw_private/
-    *       hdcp22_rx_private/prpubkeybox/prprivkeybox/attestationkeybox/attestationdevidbox
-    */
-    public boolean readHDCP22Key(int key_type, int size) {
-        synchronized (mLock) {
-            try {
-                if (size > KEY_TYPE_LEN_FIRST) {
-                    Log.e(TAG, "The data len is too long, it cannot exceed " + (String.format("%d", size)));
-                    return false;
-                }
-                int res = mProxy.readHDCP22Key(key_type, size);
-                Log.d(TAG, "readHDCP22Key result " + res);
-                return 0 == res;
-            } catch (Exception e) {
-                Log.e(TAG, "readHDCP22Key:" + e);
-            }
-        }
-        return false;
-    }
-
-    public boolean readHdcpRX22Key(int key_type, int size) {
-        synchronized (mLock) {
-            try {
-                if (size > KEY_TYPE_LEN_FIRST) {
-                    Log.e(TAG, "The data len is too long, it cannot exceed " + (String.format("%d", size)));
-                    return false;
-                }
-                int res = mProxy.readHdcpRX22Key(key_type, size);
-                Log.d(TAG, "readHdcpRX22Key result " + res);
-                return 0 == res;
-            } catch (Exception e) {
-                Log.e(TAG, "readHdcpRX22Key:" + e);
-            }
-        }
-        return false;
-    }
-
-
-    public boolean checkPlayreadyKey(String path, int[] val, int key_type, int size) {
-        synchronized (mLock) {
-            try {
-                int[] data;
-                if (size > KEY_TYPE_LEN_FIRST) {
-                    Log.e(TAG, "The data len is too long, it cannot exceed " + (String.format("%d", size)));
-                    return false;
-                }
-                data = paddingBuffer(val, size, KEY_TYPE_LEN_FIRST);
-                int res = mProxy.checkPlayreadyKey(path, data, key_type, size);
+                int res = mProxy.checkProvisionKey(key_type);
                 Log.d(TAG, "checkPlayreadyKey result " + res);
                 return 0 == res;
             } catch (Exception e) {
                 Log.e(TAG, "checkPlayreadyKey:" + e);
-            }
-        }
-        return false;
-    }
-
-    public boolean checkWidevineKey(int[] val, int key_type, int size) {
-        synchronized (mLock) {
-            try {
-                int[] data;
-                if (size > KEY_TYPE_LEN_FIRST) {
-                    Log.e(TAG, "The data len is too long, it cannot exceed " + (String.format("%d", size)));
-                    return false;
-                }
-                data = paddingBuffer(val, size, KEY_TYPE_LEN_FIRST);
-                int res = mProxy.checkWidevineKey(data, key_type, size);
-                Log.d(TAG, "checkWidevineKey result " + res);
-                return 0 == res;
-            } catch (Exception e) {
-                Log.e(TAG, "checkWidevineKey:" + e);
-            }
-        }
-        return false;
-    }
-
-    public boolean checkNetflixKey(int[] val, int key_type, int size) {
-        synchronized (mLock) {
-            try {
-                int[] data;
-                if (size > KEY_TYPE_LEN_FIRST) {
-                    Log.e(TAG, "The data len is too long, it cannot exceed " + (String.format("%d", size)));
-                    return false;
-                }
-                data = paddingBuffer(val, size, KEY_TYPE_LEN_FIRST);
-                int res = mProxy.checkNetflixKey(data, key_type, size);
-                Log.d(TAG, "checkNetflixKey result " + res);
-                return 0 == res;
-            } catch (Exception e) {
-                Log.e(TAG, "checkNetflixKey:" + e);
-            }
-        }
-        return false;
-    }
-
-    /* check does AttestationKey ok*/
-    public boolean checkAttestationKey(int[] val, int key_type, int size) {
-        synchronized (mLock) {
-            try {
-                int[] data;
-                if (size > KEY_TYPE_LEN_SECOND) {
-                    Log.e(TAG, "The data len is too long, it cannot exceed " + (String.format("%d", size)));
-                    return false;
-                }
-                data = paddingBuffer(val, size, KEY_TYPE_LEN_SECOND);
-                int res = mProxy.checkAttestationKey(data,key_type,size);
-                Log.d(TAG, "checkAttestationKey result " + res);
-                return 0 == res;
-            } catch (Exception e) {
-                Log.e(TAG, "checkAttestationKey:" + e);
-            }
-        }
-        return false;
-    }
-
-    public boolean checkHDCP14Key(int[] val, int key_type, int size) {
-        synchronized (mLock) {
-            try {
-                int[] data;
-                if (size > KEY_TYPE_LEN_FIRST) {
-                    Log.e(TAG, "The data len is too long, it cannot exceed " + (String.format("%d", size)));
-                    return false;
-                }
-                data = paddingBuffer(val, size, KEY_TYPE_LEN_FIRST);
-                int res = mProxy.checkHDCP14Key(data, key_type, size);
-                Log.d(TAG, "checkHDCP14Key result " + res);
-                return 0 == res;
-            } catch (Exception e) {
-                Log.e(TAG, "checkHDCP14Key:" + e);
-            }
-        }
-        return false;
-    }
-
-    public boolean checkHDCP14KeyIsExist(int key_type) {
-        synchronized (mLock) {
-            try {
-                int res = mProxy.checkHDCP14KeyIsExist(key_type);
-                return 0 == res;
-            } catch (Exception e) {
-                Log.e(TAG, "checkHDCP14KeyIsExist:" + e);
-            }
-        }
-
-        return false;
-    }
-
-    public boolean checkHDCP22Key(String path, int[] val, int key_type, int size) {
-        synchronized (mLock) {
-            try {
-                int[] data;
-                if (size > KEY_TYPE_LEN_FIRST) {
-                    Log.e(TAG, "The data len is too long, it cannot exceed " + (String.format("%d", size)));
-                    return false;
-                }
-                data = paddingBuffer(val, size, KEY_TYPE_LEN_FIRST);
-                int res = mProxy.checkHDCP22Key(path, data, key_type, size);
-                Log.d(TAG, "checkHDCP22Key result " + res);
-                return 0 == res;
-            } catch (Exception e) {
-                Log.e(TAG, "checkHDCP22Key:" + e);
-            }
-        }
-        return false;
-    }
-
-    public boolean checkHDCP22KeyIsExist(int key_type_first, int key_type_second) {
-        synchronized (mLock) {
-            try {
-                int res = mProxy.checkHDCP22KeyIsExist(key_type_first, key_type_second);
-                return 0 == res;
-            } catch (Exception e) {
-                Log.e(TAG, "checkHDCP22KeyIsExist:" + e);
-            }
-        }
-
-        return false;
-    }
-
-    public boolean checkPFIDKeyIsExist(int key_type) {
-        synchronized (mLock) {
-            try {
-                int res = mProxy.checkPFIDKeyIsExist(key_type);
-                return 0 == res;
-            } catch (RemoteException e) {
-                Log.e(TAG, "checkPFIDKeyIsExist:" + e);
-            }
-        }
-        return false;
-    }
-
-    public boolean checkPFPKKeyIsExist(int key_type) {
-        synchronized (mLock) {
-            try {
-                int res = mProxy.checkPFPKKeyIsExist(key_type);
-                return 0 == res;
-            } catch (RemoteException e) {
-                Log.e(TAG, "checkPFPKKeyIsExist:" + e);
             }
         }
         return false;
@@ -948,6 +467,34 @@ public class SystemControlManager {
         return "";
     }
 
+    public boolean deleteProvisionKey(int key_type) {
+        synchronized (mLock) {
+            try {
+                int res = mProxy.deleteProvisionKey(key_type);
+                return 0 == res;
+            } catch (RemoteException e) {
+                Log.e(TAG, "deleteProvisionKey:" + e);
+            }
+        }
+        return false;
+    }
+
+    public boolean deleteProvisionKeyEx(int key_type, String uuid) {
+        synchronized (mLock) {
+            try {
+                if (uuid == null || uuid.isEmpty()) {
+                    Log.e(TAG, "The uuid is invalid ");
+                    return false;
+                }
+                int res = mProxy.deleteProvisionKeyEx(key_type, uuid);
+                Log.d(TAG, "deleteProvisionKeyEx result " + res + ",uuid:" + uuid);
+                return 0 == res;
+            } catch (RemoteException e) {
+                Log.e(TAG, "deleteProvisionKeyEx:" + e);
+            }
+        }
+        return false;
+    }
     //Provision key end
 
     /*

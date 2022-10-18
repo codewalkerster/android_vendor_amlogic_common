@@ -102,77 +102,20 @@ interface ISystemControl {
       generates (Result result);
 
   //Provision key start
+
+  writeProvisionKey(int32_t[10240] value, int32_t size)
+      generates (Result result);
+
   writeUnifyKey(string path, string value)
-      generates (Result result);
-
-  writePlayreadyKey(int32_t[4096] value, int32_t size)
-      generates (Result result);
-
-  writeWidevineKey(int32_t[4096] value, int32_t size)
-      generates (Result result);
-
-  writeNetflixKey(int32_t[4096] value, int32_t size)
-      generates (Result result);
-
-  writeAttestationKey(int32_t[10240] value, int32_t size)
-      generates (Result result);
-
-  writeHDCP14Key(int32_t[4096] value, int32_t size)
-      generates (Result result);
-
-  writeHdcpRX14Key(int32_t[4096] value, int32_t size)
-      generates (Result result);
-
-  writeHDCP22Key(int32_t[4096] value, int32_t size)
-      generates (Result result);
-
-  writeHdcpRX22Key(int32_t[4096] value, int32_t size)
-      generates (Result result);
-
-  writePFIDKey(int32_t[10240] value, int32_t size)
-      generates (Result result);
-
-  writePFPKKey(int32_t[4096] value, int32_t size)
       generates (Result result);
 
   readUnifyKey(string key)
       generates (Result result, string value);
 
-  readPlayreadyKey(string path, uint32_t key_type, int32_t size)
+  deleteProvisionKey(uint32_t key_type)
       generates (Result result);
 
-  readNetflixKey(uint32_t key_type, int32_t size)
-      generates (Result result);
-
-  readWidevineKey(uint32_t key_type, int32_t size)
-      generates (Result result);
-
-  readAttestationKey(uint32_t key_type, int32_t size)
-      generates (Result result);
-
-  readHDCP14Key(uint32_t key_type, int32_t size)
-      generates (Result result);
-
-  readHdcpRX14Key(uint32_t key_type, int32_t size)
-      generates (Result result);
-
-  readHDCP22Key(uint32_t key_type, int32_t size)
-      generates (Result result);
-
-  readHdcpRX22Key(uint32_t key_type, int32_t size)
-      generates (Result result);
-
-
-  checkHDCP14KeyIsExist(uint32_t key_type)
-      generates (Result result);
-
-  checkHDCP22KeyIsExist(uint32_t key_type_first, uint32_t key_type_second)
-      generates (Result result);
-
-  checkPFIDKeyIsExist(uint32_t key_type)
-      generates (Result result);
-
-  checkPFPKKeyIsExist(uint32_t key_type)
+  deleteProvisionKeyEx(uint32_t key_type, string uuid)
       generates (Result result);
   //Provision key end
 

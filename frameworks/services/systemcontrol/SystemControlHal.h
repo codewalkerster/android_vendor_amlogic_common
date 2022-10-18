@@ -76,41 +76,14 @@ class SystemControlHal : public ISystemControl, public SystemControlNotify, publ
     Return<Result> writeHdcpRXImg(const hidl_string &path) override;
 
     //Provision key start
+    Return<Result> writeProvisionKey(const hidl_array<int32_t, 10240>& value, int32_t size);
+    Return<Result> checkProvisionKey(const uint32_t key_type);
     Return<Result> writeUnifyKey(const hidl_string &path, const hidl_string &value) override;
-    Return<Result> writePlayreadyKey(const hidl_array<int32_t, 4096>& value, int32_t size) override;
-    Return<Result> writeNetflixKey(const hidl_array<int32_t, 4096>& value, int32_t size) override;
-    Return<Result> writeWidevineKey(const hidl_array<int32_t, 4096>& value, int32_t size) override;
-    Return<Result> writeAttestationKey(const hidl_array<int32_t, 10240>& value, int32_t size) override;
-    Return<Result> writeHDCP14Key(const hidl_array<int32_t, 4096>& value, int32_t size) override;
-    Return<Result> writeHdcpRX14Key(const hidl_array<int32_t, 4096>& value, int32_t size) override;
-    Return<Result> writeHDCP22Key(const hidl_array<int32_t, 4096>& value, int32_t size) override;
-    Return<Result> writeHdcpRX22Key(const hidl_array<int32_t, 4096>& value, int32_t size) override;
-    Return<Result> writePFIDKey(const hidl_array<int32_t, 10240>& value, int32_t size) override;
-    Return<Result> writePFPKKey(const hidl_array<int32_t, 4096>& value, int32_t size) override;
-
     Return<void> readUnifyKey(const hidl_string &path, readUnifyKey_cb _hidl_cb) override;
-    Return<Result> readPlayreadyKey(const hidl_string &path, const uint32_t key_type, int32_t size) override;
-    Return<Result> readNetflixKey(const uint32_t key_type, int32_t size) override;
-    Return<Result> readWidevineKey(const uint32_t key_type, int32_t size) override;
-    Return<Result> readAttestationKey(const uint32_t key_type, int32_t size) override;
-    Return<Result> readHDCP14Key(const uint32_t key_type, int32_t size) override;
-    Return<Result> readHdcpRX14Key(const uint32_t key_type, int32_t size) override;
-    Return<Result> readHDCP22Key(const uint32_t key_type, int32_t size) override;
-    Return<Result> readHdcpRX22Key(const uint32_t key_type, int32_t size) override;
-
-    Return<Result> checkPlayreadyKey(const hidl_string &path, const hidl_array<int32_t, 4096>& value, const uint32_t key_type, int32_t size) override;
-    Return<Result> checkNetflixKey(const hidl_array<int32_t, 4096>& value, const uint32_t key_type, int32_t size) override;
-    Return<Result> checkWidevineKey(const hidl_array<int32_t, 4096>& value, const uint32_t key_type, int32_t size) override;
-    Return<Result> checkAttestationKey(const hidl_array<int32_t, 10240>& value, const uint32_t key_type, int32_t size) override;
-    Return<Result> checkHDCP14Key(const hidl_array<int32_t, 4096>& value, const uint32_t key_type, int32_t size) override;
-    Return<Result> checkHDCP14KeyIsExist(const uint32_t key_type) override;
-    Return<Result> checkHDCP22Key(const hidl_string &path, const hidl_array<int32_t, 4096>& value, const uint32_t key_type, int32_t size) override;
-    Return<Result> checkHDCP22KeyIsExist(const uint32_t key_type_first, const uint32_t key_type_second) override;
-    Return<Result> checkPFIDKeyIsExist(const uint32_t key_type) override;
-    Return<Result> checkPFPKKeyIsExist(const uint32_t key_type) override;
     Return<void> calcChecksumKey(const hidl_array<int32_t, 10240>& value, int32_t size, calcChecksumKey_cb _hidl_cb) override;
-
     Return<void> getKeyProvisionChecksum(int32_t type, getKeyProvisionChecksum_cb _hidl_cb) override;
+    Return<Result> deleteProvisionKey(const uint32_t key_type) override;
+    Return<Result> deleteProvisionKeyEx(const uint32_t key_type, const hidl_string &uuid);
     //Provision key end
 
     Return<Result> updataLogoBmp(const hidl_string &path) override;

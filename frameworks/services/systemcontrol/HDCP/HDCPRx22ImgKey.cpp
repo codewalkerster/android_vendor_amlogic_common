@@ -733,7 +733,7 @@ int setImgPath(const char *path)
             }
 
             if(isTeeHdcp) {
-                result_provision = provisionKey.writeHDCP22Key(tmpbuffer, pItemHead->dataSz);
+                result_provision = provisionKey.writeProvisionKey(tmpbuffer, pItemHead->dataSz);
                 if (result_provision) {
                     result = 0;
                 } else {
@@ -775,7 +775,7 @@ int setImgPath(const char *path)
             }
 
             if(isTeeHdcp) {
-                result_provision = provisionKey.writeHDCP22Key(writebuffer, pItemHead->dataSz);
+                result_provision = provisionKey.writeProvisionKey(writebuffer, pItemHead->dataSz);
                 if (result_provision) {
                     result = 0;
                 } else {
@@ -813,7 +813,7 @@ int setImgPath(const char *path)
             }
 
             if(isTeeHdcp) {
-                result_provision = provisionKey.writeHDCP22Key(writebuffer, pItemHead->dataSz);
+                result_provision = provisionKey.writeProvisionKey(writebuffer, pItemHead->dataSz);
                 if (result_provision) {
                     result = 0;
                 } else {

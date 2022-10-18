@@ -74,42 +74,17 @@ public:
     bool writeSysfs(const std::string& path, const char *value, const int size);
     bool writeHdcpRXImg(const std::string& path);
 
-    //key start
+
+   //Provision key start
+    bool writeProvisionKey(const char *value, const int size);
+    bool checkProvisionKey(const uint32_t key_type);
     bool writeUnifyKey(const std::string& path, const std::string& value);
-    bool writePlayreadyKey(const char *value, const int size);
-    bool writeNetflixKey(const char *value, const int size);
-    bool writeWidevineKey(const char *value, const int size);
-    bool writeAttestationKey(const char *value, const int size);
-    bool writeHDCP14Key(const char *value, const int size);
-    bool writeHdcpRX14Key(const char *value, const int size);
-    bool writeHDCP22Key(const char *value, const int size);
-    bool writeHdcpRX22Key(const char *value, const int size);
-    bool writePFIDKey(const char *value, const int size);
-    bool writePFPKKey(const char *value, const int size);
-
     bool readUnifyKey(const std::string& path, std::string& value);
-    bool readPlayreadyKey(const std::string& path, uint32_t key_type, int size);
-    bool readNetflixKey(const uint32_t key_type, int size);
-    bool readWidevineKey(const uint32_t key_type, int size);
-    bool readAttestationKey(const uint32_t key_type, int size);
-    bool readHDCP14Key(const uint32_t key_type, int size);
-    bool readHdcpRX14Key(const uint32_t key_type, int size);
-    bool readHDCP22Key(const uint32_t key_type, int size);
-    bool readHdcpRX22Key(const uint32_t key_type, int size);
-
-    bool checkPlayreadyKey(const std::string& path, const char *value, uint32_t key_type);
-    bool checkNetflixKey(const char *value, const uint32_t key_type);
-    bool checkWidevineKey(const char *value, const uint32_t key_type);
-    bool checkAttestationKey(const char *value, const uint32_t key_type);
-    bool checkHDCP14Key(const char *value, const uint32_t key_type);
-    bool checkHDCP14KeyIsExist(const uint32_t key_type);
-    bool checkHDCP22Key(const std::string& path, const char *value, const uint32_t key_type);
-    bool checkHDCP22KeyIsExist(const uint32_t key_type_first, const uint32_t key_type_second);
-    bool checkPFIDKeyIsExist(const uint32_t key_type);
-    bool checkPFPKKeyIsExist(const uint32_t key_type);
     bool calcChecksumKey(const char *value, const int size, std::string *keyCheckSum);
     bool getKeyProvisionChecksum(int type, std::string& keyCheckSum);
-    //key end
+    bool deleteProvisionKey(const uint32_t key_type);
+    bool deleteProvisionKeyEx(const uint32_t key_type, const std::string& uuid);
+    //Provision key end
 
     bool updataLogoBmp(const std::string& path);
     bool getModeSupportDeepColorAttr(const std::string& mode,const std::string& color);

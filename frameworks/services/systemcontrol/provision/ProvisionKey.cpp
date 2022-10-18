@@ -138,292 +138,21 @@ void ProvisionKey::setProperty(const char *key, const char *value){
 
 
 //key start
-bool ProvisionKey::writePlayreadyKey(const char *value, const int size){
-    #ifndef RECOVERY_MODE
-        return keyProvisionStore(value, size);
-    #endif
-    return false;
-}
-
-bool ProvisionKey::writeNetflixKey(const char *value, const int size){
-    #ifndef RECOVERY_MODE
-        return keyProvisionStore(value, size);
-    #endif
-    return false;
-}
-
-bool ProvisionKey::writeWidevineKey(const char *value, const int size){
-    #ifndef RECOVERY_MODE
-        return keyProvisionStore(value, size);
-    #endif
-    return false;
-}
-
-bool ProvisionKey::writeAttestationKey(const char *value, const int size) {
-    #ifndef RECOVERY_MODE
-        return keyProvisionStore(value, size);
-    #endif
-    return false;
-}
-
-bool ProvisionKey::writeHDCP14Key(const char *value, const int size){
-    #ifndef RECOVERY_MODE
-        return keyProvisionStore(value, size);
-    #endif
-    return false;
-}
-
-bool ProvisionKey::writeHdcpRX14Key(const char *value, const int size){
-    #ifndef RECOVERY_MODE
-        return keyProvisionStore(value, size);
-    #endif
-    return false;
-}
-
-bool ProvisionKey::writeHDCP22Key(const char *value, const int size){
-    #ifndef RECOVERY_MODE
-        return keyProvisionStore(value, size);
-    #endif
-    return false;
-}
-
-bool ProvisionKey::writeHdcpRX22Key(const char *value, const int size){
-    #ifndef RECOVERY_MODE
-        return keyProvisionStore(value, size);
-    #endif
-    return false;
-}
-
-
-bool ProvisionKey::writePFIDKey(const char *value, const int size) {
+bool ProvisionKey::writeProvisionKey(const char *value, const int size) {
     bool ret = false;
-    SYS_LOGE("come to ProvisionKey::writePFIDKey size = %d\n", size);
     #ifndef RECOVERY_MODE
-        ret = keyProvisionStore(value, size);
-    #endif
-    SYS_LOGI("writePFIDKey ret = %d\n", ret);
-    if (ret)
-        return true;
-    else
-        return false;
-}
-
-bool ProvisionKey::writePFPKKey(const char *value, const int size) {
-    bool ret = false;
-    SYS_LOGI("come to ProvisionKey::writePFPKKey size = %d\n", size);
-    #ifndef RECOVERY_MODE
-        ret = keyProvisionStore(value, size);
-    #endif
-    SYS_LOGI("writePFPKKey ret = %d\n", ret);
-    if (ret)
-        return true;
-    else
-        return false;
-}
-
-bool ProvisionKey::readPlayreadyKey(const char *path, const uint32_t key_type, int size) {
-    SYS_LOGI("readPlayreadyKey");
-    bool ret = false;
-    //int ret = readUnifyKeyfs(path, (char*)buf, size);
-    #ifndef RECOVERY_MODE
-        if (((strncmp("prpubkeybox", path, 12) == 0) && (PROVISION_KEY_TYPE_PLAYREADY_PUBLIC == key_type)) ||
-            ((strncmp("prprivkeybox", path, 12)==0) && (PROVISION_KEY_TYPE_PLAYREADY_PRIVATE == key_type))) {
-                SYS_LOGI("readPlayreadyKey key_type ERROR");
-                return false;
-        }
-        ret = keyProvisionQuery(key_type,size);
+    ret = keyProvisionStore(value, size);
     #endif
     return ret;
 }
 
-bool ProvisionKey::readNetflixKey(const uint32_t key_type, int size) {
-    SYS_LOGI("readNetflixKey");
-    bool ret = false;
-    #ifndef RECOVERY_MODE
-        //int ret = readUnifyKeyfs(path, (char*)buf, size);
-        ret = keyProvisionQuery(key_type,size);
-    #endif
-    return ret;
-}
-
-bool ProvisionKey::readWidevineKey(const uint32_t key_type, int size) {
-    SYS_LOGI("readWidevineKey");
-    bool ret = false;
-    #ifndef RECOVERY_MODE
-        //int ret = readUnifyKeyfs(path, (char*)buf, size);
-        ret = keyProvisionQuery(key_type, size);
-    #endif
-    return ret;
-}
-
-
-bool ProvisionKey::readAttestationKey(const uint32_t key_type, int size) {
-    bool ret = false;
-    #ifndef RECOVERY_MODE
-        //int ret = readAttestationKeyfs(node, name, (char*)buf, size);
-        ret = keyProvisionQuery(key_type, size);
-    #endif
-    return ret;
-
-}
-
-bool ProvisionKey::readHDCP14Key(const uint32_t key_type, int size) {
-    bool ret = false;
-    #ifndef RECOVERY_MODE
-        ret = keyProvisionQuery(key_type, size);
-    #endif
-    return ret;
-}
-
-bool ProvisionKey::readHdcpRX14Key(const uint32_t key_type, int size) {
-    bool ret = false;
-    #ifndef RECOVERY_MODE
-        ret = keyProvisionQuery(key_type, size);
-    #endif
-    return ret;
-}
-
-bool ProvisionKey::readHDCP22Key(const uint32_t key_type, int size){
-    bool ret = false;
-    #ifndef RECOVERY_MODE
-        ret = keyProvisionQuery(key_type, size);
-    #endif
-    return ret;
-}
-
-bool ProvisionKey::readHdcpRX22Key(const uint32_t key_type, int size) {
-    bool ret = false;
-    #ifndef RECOVERY_MODE
-        ret = keyProvisionQuery(key_type, size);
-    #endif
-    return ret;
-}
-
-
-bool ProvisionKey::checkPlayreadyKey(const char *path, const char *value, const uint32_t key_type) {
-    bool ret = false;
-    SYS_LOGI("checkPlayreadyKey");
-    #ifndef RECOVERY_MODE
-        if (((strncmp("prpubkeybox", path, 12) == 0) && (PROVISION_KEY_TYPE_PLAYREADY_PUBLIC == key_type)) ||
-            ((strncmp("prprivkeybox", path, 12)==0) && (PROVISION_KEY_TYPE_PLAYREADY_PRIVATE == key_type))) {
-            SYS_LOGI("checkPlayreadyKey key_type ERROR");
-            return false;
-        }
-        ret = keyProvisionChecksum(key_type, value);
-    #endif
-    SYS_LOGI("checkPlayreadyKey ret = %d\n", ret);
-    return ret;
-}
-
-bool ProvisionKey::checkNetflixKey(const char *value, const uint32_t key_type) {
-    bool ret = false;
-    SYS_LOGI("checkNetflixKey");
-    #ifndef RECOVERY_MODE
-        ret = keyProvisionChecksum(key_type, value);
-    #endif
-    SYS_LOGI("checkNetflixKey ret = %d\n", ret);
-    return ret;
-}
-
-bool ProvisionKey::checkWidevineKey(const char *value, const uint32_t key_type) {
-    SYS_LOGI("checkWidevineKey");
-    bool ret = false;
-    #ifndef RECOVERY_MODE
-        ret = keyProvisionChecksum(key_type, value);
-    #endif
-    SYS_LOGI("checkWidevineKey ret = %d\n", ret);
-    return ret;
-}
-
-bool ProvisionKey::checkAttestationKey(const char *value, const uint32_t key_type){
-    bool ret = false;
-    SYS_LOGI("checkAttestationKey");
-    #ifndef RECOVERY_MODE
-        ret = keyProvisionChecksum(key_type, value);
-    #endif
-    SYS_LOGI("writeAttestationKey ret = %d\n", ret);
-    return ret;
-}
-
-bool ProvisionKey::checkHDCP14Key(const char *value, const uint32_t key_type) {
-    bool ret = false;
-    #ifndef RECOVERY_MODE
-        ret = keyProvisionChecksum(key_type, value);
-    #endif
-    SYS_LOGI("[%s, %d] key is exist", __FUNCTION__, __LINE__);
-    return ret;
-}
-
-bool ProvisionKey::checkHDCP14KeyIsExist(const uint32_t key_type) {
+bool ProvisionKey::checkProvisionKey(const uint32_t key_type) {
     bool ret = false;
     #ifndef RECOVERY_MODE
         ret = keyProvisionQuery(key_type, 0);
     #endif
     SYS_LOGI("[%s, %d] ret:%d", __FUNCTION__, __LINE__,ret);
     return ret;
-}
-
-bool ProvisionKey::checkHDCP22Key(const char *path, const char *value, const uint32_t key_type){
-    bool ret = false;
-    SYS_LOGI("checkHDCP22Key");
-    #ifndef RECOVERY_MODE
-        if (((strncmp("hdcp2_rx_fw", path, 11) == 0) && (PROVISION_KEY_TYPE_HDCP_RX22_FW == key_type)) ||
-            ((strncmp("hdcp22_rx_private", path, 17)==0) && (PROVISION_KEY_TYPE_HDCP_RX22_FW_PRIVATE == key_type)) ||
-            ((strncmp("hdcp22_rx", path, 8)==0) && (PROVISION_KEY_TYPE_HDCP_RX22_WFD == key_type))) {
-            SYS_LOGI("checkHDCP22Key key_type ERROR");
-            return false;
-        }
-        ret = keyProvisionChecksum(key_type, value);
-    #endif
-    SYS_LOGI("checkHDCP22Key ret = %d\n", ret);
-    return ret;
-}
-
-bool ProvisionKey::checkHDCP22KeyIsExist(const uint32_t key_type_first, const uint32_t key_type_second) {
-    bool ret = false;
-    #ifndef RECOVERY_MODE
-        ret = keyProvisionQuery(key_type_first, 0);
-    #endif
-    SYS_LOGI("[%s, %d] ret:%d", __FUNCTION__, __LINE__,ret);
-    if (!ret) {
-        SYS_LOGE("[%s, %d] RX22_FW is not exist", __FUNCTION__, __LINE__);
-        return false;
-    }
-
-    #ifndef RECOVERY_MODE
-        ret = keyProvisionQuery(key_type_second, 0);
-    #endif
-    SYS_LOGI("[%s, %d] ret:%d", __FUNCTION__, __LINE__,ret);
-    if (!ret) {
-        SYS_LOGE("[%s, %d] RX22_FW_PR is not exist", __FUNCTION__, __LINE__);
-        return false;
-    }
-
-    SYS_LOGI("[%s, %d] key is exist", __FUNCTION__, __LINE__);
-
-    return true;
-}
-
-bool ProvisionKey::checkPFIDKeyIsExist(const uint32_t key_type){
-    bool ret = false;
-    #ifndef RECOVERY_MODE
-        ret = keyProvisionQuery(key_type, 0);
-    #endif
-    if (ret)
-        return true;
-    else
-        return false;
-}
-
-bool ProvisionKey::checkPFPKKeyIsExist(const uint32_t key_type){
-    bool ret = false;
-    #ifndef RECOVERY_MODE
-        ret = keyProvisionQuery(key_type, 0);
-    #endif
-    if (ret)
-        return true;
-    else
-        return false;
 }
 
 bool ProvisionKey::calcChecksumKey(const char *value, const int size, char *keyCheckSum){
@@ -447,6 +176,28 @@ bool ProvisionKey::getKeyProvisionChecksum(int type, char *keyCheckSum){
         }
         return true;
     }
+    return false;
+}
+
+bool ProvisionKey::deleteProvisionKey(const uint32_t key_type){
+    bool ret = false;
+    #ifndef RECOVERY_MODE
+        ret = keyProvisionDelete(key_type);
+    #endif
+
+    return ret;
+}
+
+bool ProvisionKey::deleteProvisionKeyEx(const uint32_t key_type, const char *uuid) {
+    int ret = -1;
+    #ifndef RECOVERY_MODE
+    int key_size = 0;
+    ret = key_provision_delete(key_type, (const uint8_t *)uuid);
+    SYS_LOGI("key_provision_delete key_type: 0x%x uuid:%s ret:0x%x \n", key_type, uuid, ret);
+    if (ret == 0) {
+        return true;
+    }
+    #endif
     return false;
 }
 //key end

@@ -348,185 +348,38 @@ Return<Result> SystemControlHal::updataLogoBmp(const hidl_string &path) {
 }
 
 //Provision key start
+Return<Result> SystemControlHal::writeProvisionKey(const hidl_array<int32_t, 10240>& value, int32_t size) {
+    int i;
+    bool ret = false;
+    char *key = (char *)malloc(size);
+
+    memset(key, 0, size);
+    for (i = 0; i < size; ++i) {
+        key[i] = value[i];
+    }
+    ret = mSysControl->writeProvisionKey(key, size);
+    if (ENABLE_LOG_PRINT) ALOGI("writeProvisionKey:%d", ret);
+    free(key);
+    if (ret)
+        return Result::OK;
+    else
+        return Result::FAIL;
+}
+
+Return<Result> SystemControlHal::checkProvisionKey(const uint32_t key_type) {
+     bool ret = false;
+     ret = mSysControl->checkProvisionKey(key_type);
+     if (ENABLE_LOG_PRINT) ALOGI("checkProvisionKey:%d", ret);
+     if (ret)
+         return Result::OK;
+     else
+         return Result::FAIL;
+}
+
 Return<Result> SystemControlHal::writeUnifyKey(const hidl_string &path, const hidl_string &value) {
     if (ENABLE_LOG_PRINT) ALOGI("writeUnifyKey path :%s, value:%s", path.c_str(), value.c_str());
     return mSysControl->writeUnifyKey(path, value)?Result::OK:Result::FAIL;
 }
-
-Return<Result> SystemControlHal::writePlayreadyKey(const hidl_array<int32_t, 4096>& value, int32_t size) {
-    if (ENABLE_LOG_PRINT) ALOGI("writePlayreadyKey");
-    char *result = (char *)malloc(size);
-    memset(result, 0, size);
-    int i;
-    bool ret = false;
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-    ret = mSysControl->writePlayreadyKey(result, size);
-    free(result);
-    if(ret)
-        return Result::OK;
-    else
-        return Result::FAIL;
-}
-
-Return<Result> SystemControlHal::writeNetflixKey(const hidl_array<int32_t, 4096>& value, int32_t size) {
-    if (ENABLE_LOG_PRINT) ALOGI("writeNetflixKey");
-    char *result = (char *)malloc(size);
-    memset(result, 0, size);
-    int i;
-    bool ret = false;
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-    ret = mSysControl->writeNetflixKey(result, size);
-    free(result);
-    if(ret)
-        return Result::OK;
-    else
-        return Result::FAIL;
-}
-
-Return<Result> SystemControlHal::writeWidevineKey(const hidl_array<int32_t, 4096>& value, int32_t size) {
-    if (ENABLE_LOG_PRINT) ALOGI("writeWidevineKey");
-    char *result = (char *)malloc(size);
-    memset(result, 0, size);
-    int i;
-    bool ret = false;
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-    ret = mSysControl->writeWidevineKey(result, size);
-    free(result);
-    if(ret)
-        return Result::OK;
-    else
-        return Result::FAIL;
-}
-
-Return<Result> SystemControlHal::writeAttestationKey(const hidl_array<int32_t, 10240>& value, int32_t size) {
-    if (ENABLE_LOG_PRINT) ALOGI("writeAttestationKey");
-    char *result = (char *)malloc(size);
-    memset(result, 0, size);
-    int i;
-    bool ret = false;
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-    ret = mSysControl->writeAttestationKey(result, size);
-    free(result);
-    if(ret)
-        return Result::OK;
-    else
-        return Result::FAIL;
-}
-
-Return<Result> SystemControlHal::writeHDCP14Key(const hidl_array<int32_t, 4096>& value, int32_t size) {
-    if (ENABLE_LOG_PRINT) ALOGI("writeHDCP14Key");
-    char *result = (char *)malloc(size);
-    memset(result, 0, size);
-    int i;
-    bool ret = false;
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-    ret = mSysControl->writeHDCP14Key(result, size);
-    free(result);
-    if(ret)
-        return Result::OK;
-    else
-        return Result::FAIL;
-}
-
-Return<Result> SystemControlHal::writeHdcpRX14Key(const hidl_array<int32_t, 4096>& value, int32_t size) {
-    if (ENABLE_LOG_PRINT) ALOGI("writeHdcpRX14Key");
-    char *result = (char *)malloc(size);
-    memset(result, 0, size);
-    int i;
-    bool ret = false;
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-    ret = mSysControl->writeHdcpRX14Key(result, size);
-    free(result);
-    if(ret)
-        return Result::OK;
-    else
-        return Result::FAIL;
-}
-
-Return<Result> SystemControlHal::writeHDCP22Key(const hidl_array<int32_t, 4096>& value, int32_t size) {
-    if (ENABLE_LOG_PRINT) ALOGI("writeHDCP22Key");
-    char *result = (char *)malloc(size);
-    memset(result, 0, size);
-    int i;
-    bool ret = false;
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-    ret = mSysControl->writeHDCP22Key(result, size);
-    free(result);
-    if(ret)
-        return Result::OK;
-    else
-        return Result::FAIL;
-}
-
-Return<Result> SystemControlHal::writeHdcpRX22Key(const hidl_array<int32_t, 4096>& value, int32_t size) {
-    if (ENABLE_LOG_PRINT) ALOGI("writeHdcpRX22Key");
-    char *result = (char *)malloc(size);
-    memset(result, 0, size);
-    int i;
-    bool ret = false;
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-    ret = mSysControl->writeHdcpRX22Key(result, size);
-    free(result);
-    if(ret)
-        return Result::OK;
-    else
-        return Result::FAIL;
-}
-
-Return<Result> SystemControlHal::writePFIDKey(const hidl_array<int32_t, 10240>& value, int32_t size) {
-    if (ENABLE_LOG_PRINT) ALOGI("writePFIDKey");
-    char *result = (char *)malloc(size);
-    memset(result, 0, size);
-    int i;
-    bool ret = false;
-
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-
-    ret = mSysControl->writePFIDKey(result, size);
-    free(result);
-    if(ret)
-        return Result::OK;
-    else
-        return Result::FAIL;
-}
-
-Return<Result> SystemControlHal::writePFPKKey(const hidl_array<int32_t, 4096>& value, int32_t size) {
-    if (ENABLE_LOG_PRINT) ALOGI("writePFPKKey");
-    char *result = (char *)malloc(size);
-    memset(result, 0, size);
-    int i;
-    bool ret = false;
-
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-
-    ret = mSysControl->writePFPKKey(result, size);
-    free(result);
-    if(ret)
-        return Result::OK;
-    else
-        return Result::FAIL;
-}
-
 
 Return<void> SystemControlHal::readUnifyKey(const hidl_string &key, readUnifyKey_cb _hidl_cb) {
     std::string value;
@@ -535,197 +388,6 @@ Return<void> SystemControlHal::readUnifyKey(const hidl_string &key, readUnifyKey
     if (ENABLE_LOG_PRINT) ALOGI("readUnifyKey key :%s, value:%s", key.c_str(), value.c_str());
     _hidl_cb(Result::OK, value);
     return Void();
-}
-
-Return<Result> SystemControlHal::readPlayreadyKey(const hidl_string &path, const uint32_t key_type, int32_t size) {
-    bool ret = false;
-    ret = mSysControl->readPlayreadyKey(path, key_type, size);
-    if(ret)
-        return Result::OK;
-    else
-        return Result::FAIL;
-}
-
-Return<Result> SystemControlHal::readNetflixKey(const uint32_t key_type, int32_t size) {
-    bool ret = false;
-    ret = mSysControl->readNetflixKey(key_type, size);
-    if(ret)
-        return Result::OK;
-    else
-        return Result::FAIL;
-}
-
-Return<Result> SystemControlHal::readWidevineKey(const uint32_t key_type, int32_t size) {
-    bool ret = false;
-    ret = mSysControl->readWidevineKey(key_type, size);
-    if(ret)
-        return Result::OK;
-    else
-        return Result::FAIL;
-}
-
-Return<Result> SystemControlHal::readAttestationKey(const uint32_t key_type, int32_t size) {
-    bool ret = false;
-    ret = mSysControl->readAttestationKey(key_type, size);
-    if(ret)
-        return Result::OK;
-    else
-        return Result::FAIL;
-}
-
-Return<Result> SystemControlHal::readHDCP14Key(const uint32_t key_type, int32_t size) {
-    bool ret = false;
-    ret = mSysControl->readHDCP14Key(key_type, size);
-    if(ret)
-        return Result::OK;
-    else
-        return Result::FAIL;
-}
-
-Return<Result> SystemControlHal::readHdcpRX14Key(const uint32_t key_type, int32_t size) {
-    bool ret = false;
-    ret = mSysControl->readHdcpRX14Key(key_type, size);
-    if(ret)
-        return Result::OK;
-    else
-        return Result::FAIL;
-}
-
-Return<Result> SystemControlHal::readHDCP22Key(const uint32_t key_type, int32_t size) {
-    bool ret = false;
-    ret = mSysControl->readHDCP22Key(key_type, size);
-    if(ret)
-        return Result::OK;
-    else
-        return Result::FAIL;
-}
-
-Return<Result> SystemControlHal::readHdcpRX22Key(const uint32_t key_type, int32_t size) {
-    bool ret = false;
-    ret = mSysControl->readHdcpRX22Key(key_type, size);
-    if(ret)
-        return Result::OK;
-    else
-        return Result::FAIL;
-}
-
-
-Return<Result> SystemControlHal::checkPlayreadyKey(const hidl_string &path, const hidl_array<int32_t, 4096>& value, const uint32_t key_type, int32_t size) {
-    if (ENABLE_LOG_PRINT) ALOGI("SystemControlHal checkPlayreadyKey");
-    char *result = (char *)malloc(size);
-    memset(result, 0, size);
-    int i;
-    bool ret = false;
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-    ret = mSysControl->checkPlayreadyKey(path, result, key_type);
-    free(result);
-    if(ret)
-        return Result::OK;
-    else
-        return Result::FAIL;
-}
-
-Return<Result> SystemControlHal::checkNetflixKey(const hidl_array<int32_t, 4096>& value, const uint32_t key_type, int32_t size) {
-    if (ENABLE_LOG_PRINT) ALOGI("SystemControlHal checkNetflixKey");
-    char *result = (char *)malloc(size);
-    memset(result, 0, size);
-    int i;
-    bool ret = false;
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-    ret = mSysControl->checkNetflixKey(result, key_type);
-    free(result);
-    if(ret)
-        return Result::OK;
-    else
-        return Result::FAIL;
-}
-
-Return<Result> SystemControlHal::checkWidevineKey(const hidl_array<int32_t, 4096>& value, const uint32_t key_type, int32_t size) {
-    if (ENABLE_LOG_PRINT) ALOGI("SystemControlHal checkWidevineKey");
-    char *result = (char *)malloc(size);
-    memset(result, 0, size);
-    int i;
-    bool ret = false;
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-    ret = mSysControl->checkWidevineKey(result, key_type);
-    free(result);
-    if(ret)
-        return Result::OK;
-    else
-        return Result::FAIL;
-}
-
-Return<Result> SystemControlHal::checkAttestationKey(const hidl_array<int32_t, 10240>& value, const uint32_t key_type, int32_t size) {
-    if (ENABLE_LOG_PRINT) ALOGI("SystemControlHal checkAttestationKey");
-    char *result = (char *)malloc(size);
-    memset(result, 0, size);
-    int i;
-    bool ret = false;
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-    ret = mSysControl->checkAttestationKey(result, key_type);
-    free(result);
-    if(ret)
-        return Result::OK;
-    else
-        return Result::FAIL;
-}
-
-Return<Result> SystemControlHal::checkHDCP14Key(const hidl_array<int32_t, 4096>& value, const uint32_t key_type, int32_t size) {
-    if (ENABLE_LOG_PRINT) ALOGI("SystemControlHal checkHDCP14Key");
-    char *result = (char *)malloc(size);
-    memset(result, 0, size);
-    int i;
-    bool ret = false;
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-    ret = mSysControl->checkHDCP14Key(result, key_type);
-    free(result);
-    if(ret)
-        return Result::OK;
-    else
-        return Result::FAIL;
-}
-
-Return<Result> SystemControlHal::checkHDCP14KeyIsExist(const uint32_t key_type) {
-     return mSysControl->checkHDCP14KeyIsExist(key_type) ? Result::OK:Result::FAIL;
-}
-
-Return<Result> SystemControlHal::checkHDCP22Key(const hidl_string &path, const hidl_array<int32_t, 4096>& value, const uint32_t key_type, int32_t size) {
-    if (ENABLE_LOG_PRINT) ALOGI("SystemControlHal checkHDCP22Key");
-    char *result = (char *)malloc(size);
-    memset(result, 0, size);
-    int i;
-    bool ret = false;
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-    ret = mSysControl->checkHDCP22Key(path, result, key_type);
-    free(result);
-    if(ret)
-        return Result::OK;
-    else
-        return Result::FAIL;
-}
-
-Return<Result> SystemControlHal::checkHDCP22KeyIsExist(const uint32_t key_type_first, const uint32_t key_type_second) {
-     return mSysControl->checkHDCP22KeyIsExist(key_type_first, key_type_second) ? Result::OK:Result::FAIL;
-}
-
-Return<Result> SystemControlHal::checkPFIDKeyIsExist(const uint32_t key_type) {
-     return mSysControl->checkPFIDKeyIsExist(key_type) ? Result::OK:Result::FAIL;
-}
-
-Return<Result> SystemControlHal::checkPFPKKeyIsExist(const uint32_t key_type) {
-     return mSysControl->checkPFPKKeyIsExist(key_type) ? Result::OK:Result::FAIL;
 }
 
 Return<void> SystemControlHal::calcChecksumKey(const hidl_array<int32_t, 10240>& value, int32_t size, calcChecksumKey_cb _hidl_cb) {
@@ -759,6 +421,20 @@ Return<void> SystemControlHal::getKeyProvisionChecksum(int32_t type, getKeyProvi
     else
         _hidl_cb(Result::FAIL, keyCheckSum);
     return Void();
+}
+
+Return<Result> SystemControlHal::deleteProvisionKey(const uint32_t key_type) {
+    if (ENABLE_LOG_PRINT) ALOGI("deleteProvisionKey");
+    bool ret = false;
+    ret = mSysControl->deleteProvisionKey(key_type);
+    if (ret)
+        return Result::OK;
+    else
+        return Result::FAIL;
+}
+
+Return<Result> SystemControlHal::deleteProvisionKeyEx(const uint32_t key_type, const hidl_string &uuid) {
+     return mSysControl->deleteProvisionKeyEx(key_type, uuid) ? Result::OK:Result::FAIL;
 }
 //Provision key end
 

@@ -158,169 +158,34 @@ bool SystemControlClient::writeSysfs(const std::string& path, const char *value,
 }
 
 //key start
+
+bool SystemControlClient::writeProvisionKey(const char *value, const int size) {
+    int i;
+    hidl_array<int32_t, 10240> key;
+    for (i = 0; i < size; ++i) {
+        key[i] = value[i];
+    }
+
+    for (; i < 10240; ++i) {
+        key[i] = 0;
+    }
+    Result ret = mSysCtrl->writeProvisionKey(key, size);
+    if (ret == Result::OK) {
+        return true;
+    }
+    return false;
+}
+
+bool SystemControlClient::checkProvisionKey(const uint32_t key_type) {
+    Result ret = mSysCtrl->checkProvisionKey(key_type);
+    if (ret == Result::OK) {
+        return true;
+    }
+    return false;
+}
+
 bool SystemControlClient::writeUnifyKey(const std::string& path, const std::string& value) {
     Result ret = mSysCtrl->writeUnifyKey(path, value);
-    if (ret == Result::OK) {
-        return true;
-    }
-    return false;
-}
-
-bool SystemControlClient::writePlayreadyKey(const char *value, const int size) {
-    int i;
-    hidl_array<int32_t, 4096> result;
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-    for (; i < size; ++i) {
-        result[i] = 0;
-    }
-    Result ret = mSysCtrl->writePlayreadyKey(result, size);
-    if (ret == Result::OK) {
-        return true;
-    }
-    return false;
-}
-
-bool SystemControlClient::writeNetflixKey(const char *value, const int size) {
-    int i;
-    hidl_array<int32_t, 4096> result;
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-    for (; i < size; ++i) {
-        result[i] = 0;
-    }
-    Result ret = mSysCtrl->writeNetflixKey(result, size);
-    if (ret == Result::OK) {
-        return true;
-    }
-    return false;
-}
-
-bool SystemControlClient::writeWidevineKey(const char *value, const int size) {
-    int i;
-    hidl_array<int32_t, 4096> result;
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-    for (; i < size; ++i) {
-        result[i] = 0;
-    }
-    Result ret = mSysCtrl->writeWidevineKey(result, size);
-    if (ret == Result::OK) {
-        return true;
-    }
-    return false;
-}
-
-bool SystemControlClient::writeAttestationKey(const char *value, const int size) {
-    int i;
-    hidl_array<int32_t, 10240> result;
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-    for (; i < size; ++i) {
-        result[i] = 0;
-    }
-    Result ret = mSysCtrl->writeAttestationKey(result, size);
-    if (ret == Result::OK) {
-        return true;
-    }
-    return false;
-}
-
-bool SystemControlClient::writeHDCP14Key(const char *value, const int size) {
-    int i;
-    hidl_array<int32_t, 4096> result;
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-    for (; i < size; ++i) {
-        result[i] = 0;
-    }
-    Result ret = mSysCtrl->writeHDCP14Key(result, size);
-    if (ret == Result::OK) {
-        return true;
-    }
-    return false;
-}
-
-bool SystemControlClient::writeHdcpRX14Key(const char *value, const int size) {
-    int i;
-    hidl_array<int32_t, 4096> result;
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-    for (; i < size; ++i) {
-        result[i] = 0;
-    }
-    Result ret = mSysCtrl->writeHdcpRX14Key(result, size);
-    if (ret == Result::OK) {
-        return true;
-    }
-    return false;
-}
-
-bool SystemControlClient::writeHDCP22Key(const char *value, const int size) {
-    int i;
-    hidl_array<int32_t, 4096> result;
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-    for (; i < size; ++i) {
-        result[i] = 0;
-    }
-    Result ret = mSysCtrl->writeHDCP14Key(result, size);
-    if (ret == Result::OK) {
-        return true;
-    }
-    return false;
-}
-
-bool SystemControlClient::writeHdcpRX22Key(const char *value, const int size) {
-    int i;
-    hidl_array<int32_t, 4096> result;
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-    for (; i < size; ++i) {
-        result[i] = 0;
-    }
-    Result ret = mSysCtrl->writeHdcpRX22Key(result, size);
-    if (ret == Result::OK) {
-        return true;
-    }
-    return false;
-}
-
-bool SystemControlClient::writePFIDKey(const char *value, const int size) {
-    int i;
-    hidl_array<int32_t, 10240> result;
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-    for (; i < size; ++i) {
-        result[i] = 0;
-    }
-    Result ret = mSysCtrl->writePFIDKey(result, size);
-    if (ret == Result::OK) {
-        return true;
-    }
-    return false;
-}
-
-bool SystemControlClient::writePFPKKey(const char *value, const int size) {
-    int i;
-    hidl_array<int32_t, 4096> result;
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-
-    for (; i < size; ++i) {
-        result[i] = 0;
-    }
-    Result ret = mSysCtrl->writePFPKKey(result, size);
     if (ret == Result::OK) {
         return true;
     }
@@ -334,206 +199,6 @@ bool SystemControlClient::readUnifyKey(const std::string& path, std::string& val
         }
     });
     return true;
-}
-
-bool SystemControlClient::readPlayreadyKey(const std::string& path, uint32_t key_type, int size) {
-    Result ret = mSysCtrl->readPlayreadyKey(path, key_type, size);
-    if (ret == Result::OK) {
-        return true;
-    }
-    return false;
-}
-
-bool SystemControlClient::readNetflixKey(const uint32_t key_type, int size) {
-    Result ret = mSysCtrl->readNetflixKey(key_type, size);
-    if (ret == Result::OK) {
-        return true;
-    }
-    return false;
-}
-
-bool SystemControlClient::readWidevineKey(const uint32_t key_type, int size) {
-    Result ret = mSysCtrl->readWidevineKey(key_type, size);
-    if (ret == Result::OK) {
-        return true;
-    }
-    return false;
-}
-
-bool SystemControlClient::readAttestationKey(const uint32_t key_type, int size) {
-    Result ret = mSysCtrl->readAttestationKey(key_type, size);
-    if (ret == Result::OK) {
-        return true;
-    }
-    return false;
-}
-
-bool SystemControlClient::readHDCP14Key(const uint32_t key_type, int size) {
-    Result ret = mSysCtrl->readHDCP14Key(key_type, size);
-    if (ret == Result::OK) {
-        return true;
-    }
-    return false;
-}
-
-bool SystemControlClient::readHdcpRX14Key(const uint32_t key_type, int size) {
-    Result ret = mSysCtrl->readHdcpRX14Key(key_type, size);
-    if (ret == Result::OK) {
-        return true;
-    }
-    return false;
-}
-
-bool SystemControlClient::readHDCP22Key(const uint32_t key_type, int size) {
-    Result ret = mSysCtrl->readHDCP22Key(key_type, size);
-    if (ret == Result::OK) {
-        return true;
-    }
-    return false;
-}
-
-bool SystemControlClient::readHdcpRX22Key(const uint32_t key_type, int size) {
-    Result ret = mSysCtrl->readHdcpRX22Key(key_type, size);
-    if (ret == Result::OK) {
-        return true;
-    }
-    return false;
-}
-
-
-bool SystemControlClient::checkPlayreadyKey(const std::string& path, const char *value, uint32_t key_type, int size) {
-    LOG(INFO) << "SystemControlClient checkPlayreadyKey";
-    int i;
-    hidl_array<int32_t, 4096> result;
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-    for (; i < size; ++i) {
-        result[i] = 0;
-    }
-    Result ret = mSysCtrl->checkPlayreadyKey(path, result, key_type, size);
-    if (ret == Result::OK) {
-        return true;
-    }
-    return false;
-}
-
-bool SystemControlClient::checkNetflixKey(const char *value, const uint32_t key_type, int size) {
-    LOG(INFO) << "SystemControlClient checkNetflixKey";
-    int i;
-    hidl_array<int32_t, 4096> result;
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-    for (; i < size; ++i) {
-        result[i] = 0;
-    }
-    Result ret = mSysCtrl->checkNetflixKey(result, key_type, size);
-    if (ret == Result::OK) {
-        return true;
-    }
-    return false;
-}
-
-bool SystemControlClient::checkWidevineKey(const char *value, const uint32_t key_type, int size)  {
-    LOG(INFO) << "SystemControlClient checkWidevineKey";
-    int i;
-    hidl_array<int32_t, 4096> result;
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-    for (; i < size; ++i) {
-        result[i] = 0;
-    }
-    Result ret = mSysCtrl->checkWidevineKey(result, key_type, size);
-    if (ret == Result::OK) {
-        return true;
-    }
-    return false;
-}
-
-bool SystemControlClient::checkAttestationKey(const char *value, const uint32_t key_type, int size) {
-    LOG(INFO) << "SystemControlClient checkAttestationKey";
-    int i;
-    hidl_array<int32_t, 10240> result;
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-    for (; i < size; ++i) {
-        result[i] = 0;
-    }
-    Result ret = mSysCtrl->checkAttestationKey(result, key_type, size);
-    if (ret == Result::OK) {
-        return true;
-    }
-    return false;
-}
-
-bool SystemControlClient::checkHDCP14Key(const char *value, const uint32_t key_type, int size)  {
-    LOG(INFO) << "SystemControlClient checkWidevineKey";
-    int i;
-    hidl_array<int32_t, 4096> result;
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-
-    for (; i < size; ++i) {
-        result[i] = 0;
-    }
-    Result ret = mSysCtrl->checkHDCP14Key(result, key_type, size);
-    if (ret == Result::OK) {
-        return true;
-    }
-    return false;
-}
-
-bool SystemControlClient::checkHDCP14KeyIsExist(const uint32_t key_type) {
-    Result ret = mSysCtrl->checkHDCP14KeyIsExist(key_type);
-    if (ret == Result::OK) {
-        return true;
-    }
-    return false;
-}
-
-bool SystemControlClient::checkHDCP22Key(const std::string& path, const char *value, const uint32_t key_type, int size)  {
-    LOG(INFO) << "SystemControlClient checkWidevineKey";
-    int i;
-    hidl_array<int32_t, 4096> result;
-    for (i = 0; i < size; ++i) {
-        result[i] = value[i];
-    }
-    for (; i < size; ++i) {
-        result[i] = 0;
-    }
-    Result ret = mSysCtrl->checkHDCP22Key(path, result, key_type, size);
-    if (ret == Result::OK) {
-        return true;
-    }
-    return false;
-}
-
-bool SystemControlClient::checkHDCP22KeyIsExist(const uint32_t key_type_first, const uint32_t key_type_second) {
-    Result ret = mSysCtrl->checkHDCP22KeyIsExist(key_type_first, key_type_second);
-    if (ret == Result::OK) {
-        return true;
-    }
-    return false;
-}
-
-bool SystemControlClient::checkPFIDKeyIsExist(const uint32_t key_type) {
-    Result rtn = mSysCtrl->checkPFIDKeyIsExist(key_type);
-    if (rtn == Result::OK) {
-        return true;
-    }
-    return false;
-}
-
-bool SystemControlClient::checkPFPKKeyIsExist(const uint32_t key_type) {
-    Result rtn = mSysCtrl->checkPFPKKeyIsExist(key_type);
-    if (rtn == Result::OK) {
-        return true;
-    }
-    return false;
 }
 
 bool SystemControlClient::calcChecksumKey(const char *value, const int size, std::string& keyCheckSum) {
@@ -568,6 +233,18 @@ bool SystemControlClient::getKeyProvisionChecksum(int type, std::string& keyChec
     });
 
     return true;
+}
+
+bool SystemControlClient::deleteProvisionKey(const uint32_t key_type) {
+    Result rtn = mSysCtrl->deleteProvisionKey(key_type);
+    if (rtn == Result::OK) {
+        return true;
+    }
+    return false;
+}
+
+bool SystemControlClient::deleteProvisionKeyEx(const uint32_t key_type, const std::string& uuid) {
+    return (mSysCtrl->deleteProvisionKeyEx(key_type, uuid) == Result::OK) ? true : false;
 }
 //key end
 
