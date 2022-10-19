@@ -564,12 +564,12 @@ class SubtitleViewAdaptor {
         }
 
         ensureSubLayoutCreated();
-        initialLayoutParams(LayoutParams.TYPE_APPLICATION_OVERLAY, title, x, y, w, h);
+        initialLayoutParams(TYPE_APPLICATION_MEDIA_OVERLAY, title, x, y, w, h);
 
         // Add window for subtitle
         mWindowManager.addView(mSubLayout, mWindowLayoutParams);
         mIsWindowCreated = true;
-        Log.d(TAG, "addSystemSubtitleView:" + mTitle);
+        Log.d(TAG, "addSystemSubtitleView:" + title);
         displayView();
     }
 
