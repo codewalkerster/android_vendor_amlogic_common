@@ -44,7 +44,7 @@ WIFI_BUILT_MODULES += $(qca6174_modules)
 endif
 
 WIFI_SUPPORT_DRIVERS += w1
-w1_build ?= false
+w1_build ?= true
 w1_modules ?= w1
 w1_src_path ?= $(DRIVER_DIR)/amlogic/w1/wifi
 w1_copy_path ?=

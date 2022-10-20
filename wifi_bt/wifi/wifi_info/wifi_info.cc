@@ -68,7 +68,7 @@ static const dongle_info dongle_registerd[]={\
     {"4359","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=/vendor/etc/wifi/4359/fw_bcm4359c0_ag.bin nvram_path=/vendor/etc/wifi/4359/nvram.txt",no_base,"bcm4359",0x0,"/vendor/etc/wifi/4359/fw_bcm4359c0_ag"},\
     {"0000","4415","dhdpci","/vendor/lib/modules/dhdpci.ko","firmware_path=/vendor/etc/wifi/4359/fw_bcm4359c0_ag.bin nvram_path=/vendor/etc/wifi/4359/nvram.txt",no_base,"bcm4359",0x0,"/vendor/etc/wifi/4359/fw_bcm4359c0_ag"},\
     {"aa31","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=/vendor/etc/wifi/4358/fw_bcm4358_ag.bin nvram_path=/vendor/etc/wifi/4358/nvram_4358.txt",no_base,"bcm4358",0x0,"/vendor/etc/wifi/4358/fw_bcm4358_ag"},\
-    {"8888","0000","vlsicomm","/vendor/lib/modules/vlsicomm.ko","vmac0=wlan0 vmac1=ap0",aml_w1_base,"aml_w1",0x0,""},\
+    {"8888","0000","vlsicomm","/vendor/lib/modules/vlsicomm.ko","vmac0=wlan0 vmac1=ap0 conf_path=w1",aml_w1_base,"aml_w1",0x0,""},\
     {"8888","0000","w1u","/vendor/lib/modules/w1u.ko","vmac0=wlan0 vmac1=ap0",aml_w1u_s_base,"aml_w1u_s",0x0,""},\
     {"0000","0000","w1u","/vendor/lib/modules/w1u.ko","vmac0=wlan0 vmac1=ap0",aml_w1u_base,"aml_w1u",0x4c55,""},\
     {"8179","0000","8189es","/vendor/lib/modules/8189es.ko","ifname=wlan0 if2name=ap0",no_base,"rtl8189es",0x0,""},\
