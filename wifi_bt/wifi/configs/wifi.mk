@@ -14,19 +14,6 @@
 # limitations under the License.
 #
 
-define check-wifi-modules
-$(eval supported_drivers := $(strip $(foreach driver,$(WIFI_SUPPORT_DRIVERS),$(if $(filter true,$($(driver)_build)),$(driver)))))\
-$(eval supported_modules := $(strip $(foreach driver,$(supported_drivers),$($(driver)_modules))))\
-$(foreach module,$(1),$(if $(filter $(module),$(supported_modules)),,\
- $(warning wifi module "$(module)" has no driver support!)))
-endef
-
-define get-supported-wifi-modules
-$(strip $(foreach driver,$(WIFI_SUPPORT_DRIVERS),$($(driver)_modules)))
-endef
-
-WIFI_TRUNK_CONFIG ?= $(if $(PRODUCT_DIRNAME),$(PRODUCT_DIRNAME)/wifibt.build.config.trunk.mk,device/amlogic/$(PRODUCT_DIR)/wifibt.build.config.trunk.mk)
-
 ifeq ($(TARGET_BUILD_KERNEL_VERSION),4.9)
 WIFI_DEFAULT_CONFIG := vendor/amlogic/common/wifi_bt/wifi/configs/4_9/config.mk
 else ifeq ($(TARGET_BUILD_KERNEL_VERSION),5.4)
@@ -40,17 +27,13 @@ endif
 $(warning loading default wifi config: $(WIFI_DEFAULT_CONFIG))
 include $(WIFI_DEFAULT_CONFIG)
 
-$(warning loading trunk wifi config: $(WIFI_TRUNK_CONFIG))
--include $(WIFI_TRUNK_CONFIG)
+ifdef PRODUCT_DIRNAME
+-include $(PRODUCT_DIRNAME)/wifibt.build.config.trunk.mk
+else
+-include device/amlogic/$(PRODUCT_DIR)/wifibt.build.config.trunk.mk
+endif
 
-WIFI_MODULES := \
-$(strip \
- $(if $(CONFIG_WIFI_MODULES),\
-  $(if $(filter multiwifi,$(CONFIG_WIFI_MODULES)),$(call get-supported-wifi-modules),$(CONFIG_WIFI_MODULES)),\
-  $(call get-supported-wifi-modules)\
- )\
-)
-$(eval $(call check-wifi-modules,$(WIFI_MODULES)))
+WIFI_MODULES := $(CONFIG_WIFI_MODULES)
 
 PRODUCT_PROPERTY_OVERRIDES += persist.vendor.wifibt_name = "$(CONFIG_WIFIBT_NAME)"
 ifeq ($(WIFI_MODULES), multiwifi)
@@ -58,7 +41,7 @@ WIFI_MODULES := $(WIFI_BUILT_MODULES)
 else ifeq ($(WIFI_MODULES), )
 WIFI_MODULES := $(WIFI_BUILT_MODULES)
 else ifneq (,$(filter-out $(WIFI_BUILT_MODULES),$(WIFI_MODULES)))
-$(error wifi modules "$(filter-out $(WIFI_BUILT_MODULES),$(WIFI_MODULES))" have no driver support!)
+$(warning wifi modules "$(filter-out $(WIFI_BUILT_MODULES),$(WIFI_MODULES))" have no driver support!)
 endif
 
 #enable clang CFI for arm64

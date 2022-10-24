@@ -1,3 +1,22 @@
+define to-root-path
+$(strip $(patsubst %/,%,$(shell echo\
+ $(shell bash -c "\
+ cd $(1);\
+ while [[ ( ! ( -f build/gki/README.md ) ) && ( \`pwd\` != "/" ) ]]; do\
+  cd ..;\
+  echo \"../\";\
+ done;"\
+ )|sed 's/[[:space:]]//g'))\
+)
+endef
+
+####################################################################################
+DRIVER_DIR ?= vendor/wifi_driver
+ANDROID_ROOT_DIR     ?= $(shell cd $(call to-root-path,.) && pwd)
+KERNEL_TO_ROOT_PATH  ?= $(call to-root-path,$(KERNEL_SRC))
+WIFI_SUPPORT_DRIVERS ?= $(EXTRA_WIFI_SUPPORT_DRIVERS)
+####################################################################################
+
 define root-dir
 $(strip \
  $(shell bash -c "\

@@ -1,29 +1,3 @@
-define to-root-path
-$(strip $(patsubst %/,%,$(shell echo\
- $(shell bash -c "\
- cd $(1);\
- while [[ ( ! ( -f build/gki/README.md ) ) && ( \`pwd\` != "/" ) ]]; do\
-  cd ..;\
-  echo \"../\";\
- done;"\
- )|sed 's/[[:space:]]//g'))\
-)
-endef
-
-####################################################################################
-DRIVER_DIR ?= vendor/wifi_driver
-# Create a series of ../ equal in length to the parts of KERNEL_SRC without ROOT_DIR
-K_REL_DIR  ?= \
-$(patsubst %/,%,\
- $(subst $(space),,\
-  $(foreach word,\
-   $(subst /,$(space),$(subst $(ROOT_DIR),,$(KERNEL_SRC))),\
-   ../)))
-WIFI_SUPPORT_DRIVERS ?= $(EXTRA_WIFI_SUPPORT_DRIVERS)
-# WIFI_BUILT_MODULES will collect the values of all the _modules variables whose
-# equivalent _build variable is true. This is used in wifi.mk.
-WIFI_BUILT_MODULES :=
-####################################################################################
 
 WIFI_SUPPORT_DRIVERS += dhd_sdio
 dhd_sdio_build ?= true
