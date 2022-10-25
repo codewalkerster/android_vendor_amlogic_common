@@ -50,13 +50,14 @@ public class CharsetDetector {
     String[] mCharsetsToBeTested = {
         "UTF8",
         "GB2312",
-        "Big5",
         "GBK",
         "cp932",
         "cp949",
         "cp874",
         "cp1255",
+        "Windows-1256",
         "cp1250",
+        "Big5",
         "cp1254",
         "cp1098",
         "ISO-8859-1",
@@ -184,9 +185,6 @@ public class CharsetDetector {
                     break;
                 case UTF16BE_FLAG:
                     code = "UTF-16BE";
-                    break;
-                case BIG5_FLAG:
-                    code = "Big5";
                     break;
                 case GB2312_FLAG:
                     code = "GB2312";
