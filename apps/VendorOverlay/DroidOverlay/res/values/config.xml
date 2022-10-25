@@ -106,16 +106,6 @@
       <item>"/system/bin/logd"</item>
       <item>"/system/lib/libjavacrypto.so"</item>
       <item>"/system/lib/libhidltransport.so"</item>
-
-      <item>"/system/framework/arm/boot-ext.art"</item>
-      <item>"/system/framework/arm/boot-ext.oat"</item>
-      <item>"/system/framework/boot-ext.vdex"</item>
-      <item>"/system/framework/framework.jar"</item>
-      <item>"/system/framework/services.jar"</item>
-      <item>"/system/framework/oat/arm/services.odex"</item>
-      <item>"/system/framework/arm/boot-framework.art"</item>
-      <item>"/system/framework/arm/boot-framework.oat"</item>
-      <item>"/system/framework/boot-framework.vdex"</item>
    </string-array>
 
 </resources>
