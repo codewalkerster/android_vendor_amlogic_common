@@ -14,6 +14,9 @@ import android.app.ActivityManager;
 import android.app.IActivityManager;
 import android.app.IProcessObserver;
 import android.app.Service;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
@@ -59,6 +62,11 @@ public class NetflixService extends Service {
     private static final String NRDP_PLATFORM_CONFIG_DIR = "/vendor/etc/";
     private static final String NRDP_EXTERNAL_SURROUND = "nrdp_external_surround_sound_enabled";
     private static final String FIRST_BOOT_COUNT = "FirstBootCount";
+    private static final String NETFLIX_KEY_POWER_MODE = "power_on";
+    private static final String ACTION_LAUNCH_APP = "com.google.global_button.ACTION_LAUNCH_APP";
+    private static final String EXTRA_PACKAGE_NAME = "launchPackageName";
+    private static final String EXTRA_LAUNCH_INTENT = "launchIntent";
+    private static final String NETFLIX_INTENT = "com.netflix.action.NETFLIX_KEY_START";
     private static final int WAKEUP_REASON_CUSTOM = 9;
     private static boolean atmosSupported = false;
     private static boolean doblySupported = false;
@@ -256,13 +264,58 @@ public class NetflixService extends Service {
         }
 
         if (reason == WAKEUP_REASON_CUSTOM) {
-            boolean isPowerOn = true;  //false for netflixButton, true for powerOnFromNetflixButton
-            Intent i = new Intent("com.netflix.action.NETFLIX_KEY_START");
-            i.setPackage("com.netflix.ninja");
-            i.putExtra("power_on", isPowerOn);  //"power_on" Boolean Extra must be presented
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-            mContext.startActivity(i);
+            Log.i(TAG, "launchNetflix");
+            launchNetflix();
         }
+    }
+
+    private void launchNetflixAtv() {
+        Log.i(TAG, "launchNetflix atv from power on");
+        Intent netflixIntent = new Intent();
+        netflixIntent.setAction(NETFLIX_INTENT);
+        netflixIntent.setPackage(NETFLIX_PKG_NAME);
+        netflixIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        netflixIntent.putExtra(NETFLIX_KEY_POWER_MODE, true); //true for powerOnFromNetflixButton
+        mContext.startActivity(netflixIntent);
+    }
+
+    private void launchNetflix() {
+        PackageManager packageManager = mContext.getPackageManager();
+        if (packageManager.getLaunchIntentForPackage(NETFLIX_PKG_NAME) == null) {
+            Log.e(TAG, "Cannot find intent for Netlix package: " + NETFLIX_PKG_NAME);
+            return;
+        }
+        String globalButtonLaunch = mContext.getString(R.string.config_globalButtonLaunch);
+        Log.d(TAG, " globalButtonLaunch component: " + globalButtonLaunch);
+
+        Intent intent = new Intent(ACTION_LAUNCH_APP);
+        intent.setComponent(ComponentName.unflattenFromString(globalButtonLaunch));
+        intent.putExtra(EXTRA_PACKAGE_NAME, NETFLIX_PKG_NAME);
+        intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES | Intent.FLAG_RECEIVER_FOREGROUND);
+
+        Intent launchIntent  = new Intent(NETFLIX_INTENT);
+        launchIntent.setPackage(NETFLIX_PKG_NAME);
+        launchIntent.putExtra(NETFLIX_KEY_POWER_MODE, true);
+        launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_INCLUDE_STOPPED_PACKAGES
+            | Intent.FLAG_RECEIVER_FOREGROUND | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        intent.putExtra(EXTRA_LAUNCH_INTENT, launchIntent);
+
+        if (canIntentBeHandled(mContext, intent)) {
+            Log.d(TAG, "launchNetflix gtv from power on ");
+            mContext.sendBroadcast(intent);
+        } else {
+            launchNetflixAtv();
+        }
+    }
+
+    private  boolean canIntentBeHandled(Context context, Intent intent) {
+        List<ResolveInfo> receivers = context.getPackageManager().queryBroadcastReceivers(
+            intent, PackageManager.MATCH_ALL);
+        Log.d(TAG, "receivers " + receivers);
+        if (receivers != null && receivers.size() > 0) {
+            return true;
+        }
+        return false;
     }
 
 
