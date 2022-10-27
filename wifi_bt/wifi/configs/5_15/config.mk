@@ -99,7 +99,7 @@ WIFI_BUILT_MODULES += $(rtl8723bu_modules)
 endif
 
 WIFI_SUPPORT_DRIVERS += rtl8821cu
-rtl8821cu_build ?= false
+rtl8821cu_build ?= true
 rtl8821cu_modules ?= rtl8821cu
 rtl8821cu_src_path ?= $(DRIVER_DIR)/realtek/8821cu
 rtl8821cu_copy_path ?=
@@ -110,7 +110,7 @@ WIFI_BUILT_MODULES += $(rtl8821cu_modules)
 endif
 
 WIFI_SUPPORT_DRIVERS += rtl8822cu
-rtl8822cu_build ?= false
+rtl8822cu_build ?= true
 rtl8822cu_modules ?= rtl8822cu
 rtl8822cu_src_path ?= $(DRIVER_DIR)/realtek/8822cu
 rtl8822cu_copy_path ?=
