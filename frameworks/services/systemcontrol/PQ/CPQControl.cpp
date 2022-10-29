@@ -1080,6 +1080,7 @@ tcon_rgb_ogo_t CPQControl::GetColorTemperatureUserParam(void) {
 int CPQControl::Cpq_SetColorTemperatureWithoutSave(vpp_color_temperature_mode_t Tempmode, tv_source_input_t tv_source_input __unused)
 {
     tcon_rgb_ogo_t rgbogo;
+    memset(&rgbogo, 0, sizeof(tcon_rgb_ogo_t));
 
     GetColorTemperatureParams(Tempmode, &rgbogo);
 
@@ -2417,9 +2418,11 @@ bool CPQControl::hasMemcFunc() {
       int memDev = open(CPQ_MEMC_SYSFS, O_WRONLY);
       if (memDev > 0 && mbCpqCfg_memc_enable) {
           SYS_LOGI("%s, has memc\n", __FUNCTION__);
+          close(memDev);
           return true;
       }
       SYS_LOGI("%s, has NO memc\n", __FUNCTION__);
+      close(memDev);
       return false;
 }
 
@@ -2508,6 +2511,7 @@ int CPQControl::Cpq_SetMemcMode(vpp_memc_mode_t memc_mode, source_input_param_t 
         SYS_LOGE("Memc module disabled!!!\n");
     }
 
+    close(memDev);
     return ret;
 }
 
@@ -6146,7 +6150,7 @@ int CPQControl::SetFlagByCfg(void)
         pqControlVal.black_ext_en = 1;
     } else {
         mbCpqCfg_blackextension_enable = false;
-        pqControlVal.lc_en = 0;
+        pqControlVal.black_ext_en = 0;
     }
 
     config_value = mPQConfigFile->GetString(CFG_SECTION_PQ, CFG_XVYCC_ENABLE, "disable");
@@ -6630,8 +6634,8 @@ void CPQControl::GetChipVersionInfo(char* chip_version) {
         char* tempstr = new char[TempString.length() + 1];
         std::strcpy(tempstr, TempString.c_str());
         chip_version = strtok(tempstr, "_");
-
         SYS_LOGI("%s: versionStr is %s\n", __FUNCTION__, chip_version);
+        delete []tempstr;
     }
 }
 

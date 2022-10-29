@@ -28,6 +28,12 @@
 
 CPQdb::CPQdb()
 {
+    bri_nodes = 0;
+    con_nodes = 0;
+    hue_nodes = 0;
+    sat_nodes = 0;
+    sha0_nodes = 0;
+    sha1_nodes = 0;
     memset(pq_bri_data, 0, sizeof(pq_bri_data));
     memset(pq_con_data, 0, sizeof(pq_con_data));
     memset(pq_sat_data, 0, sizeof(pq_sat_data));
@@ -712,7 +718,7 @@ int CPQdb::PQ_GetAADParams(source_input_param_t source_input_param, aad_param_t 
     unsigned int index = 0;
     int rval = -1;
 
-    memset(newParams, 0, sizeof(db_aad_param_t));
+    memset(newParams, 0, sizeof(aad_param_t));
 
     {   // for base param
         index = 0;
@@ -748,7 +754,11 @@ int CPQdb::PQ_GetAADParams(source_input_param_t source_input_param, aad_param_t 
 
         rval = this->select(sqlmaster, c);
         memset(buf, 0, sizeof(buf));
-        strncpy(buf, c.getString(index).string(), sizeof(buf));
+        if (strlen(c.getString(index).string()) < sizeof(buf)) {
+            strncpy(buf, c.getString(index).string(), strlen(c.getString(index).string()));
+        } else {
+            strncpy(buf, c.getString(index).string(), sizeof(buf));
+        }
         SYS_LOGD ("%s - sensor_input is %s\n", __FUNCTION__, buf);
         buffer = buf;
         while ((aa_save[index] = strtok_r(buffer, delim, &aa)) != NULL) {
@@ -772,7 +782,11 @@ int CPQdb::PQ_GetAADParams(source_input_param_t source_input_param, aad_param_t 
 
         rval = this->select(sqlmaster, c);
         memset(buf, 0, sizeof(buf));
-        strncpy(buf, c.getString(index).string(), sizeof(buf));
+        if (strlen(c.getString(index).string()) < sizeof(buf)) {
+            strncpy(buf, c.getString(index).string(), strlen(c.getString(index).string()));
+        } else {
+            strncpy(buf, c.getString(index).string(), sizeof(buf));
+        }
         SYS_LOGD ("%s - LUT_Y_gain is %s\n", __FUNCTION__, buf);
         buffer = buf;
         while ((aa_save[index] = strtok_r(buffer, delim, &aa)) != NULL) {
@@ -796,7 +810,11 @@ int CPQdb::PQ_GetAADParams(source_input_param_t source_input_param, aad_param_t 
 
         rval = this->select(sqlmaster, c);
         memset(buf, 0, sizeof(buf));
-        strncpy(buf, c.getString(index).string(), sizeof(buf));
+        if (strlen(c.getString(index).string()) < sizeof(buf)) {
+            strncpy(buf, c.getString(index).string(), strlen(c.getString(index).string()));
+        } else {
+            strncpy(buf, c.getString(index).string(), sizeof(buf));
+        }
         SYS_LOGD ("%s - LUT_RG_gain is %s\n", __FUNCTION__, buf);
         buffer = buf;
         while ((aa_save[index] = strtok_r(buffer, delim, &aa)) != NULL) {
@@ -820,7 +838,11 @@ int CPQdb::PQ_GetAADParams(source_input_param_t source_input_param, aad_param_t 
 
         rval = this->select(sqlmaster, c);
         memset(buf, 0, sizeof(buf));
-        strncpy(buf, c.getString(index).string(), sizeof(buf));
+        if (strlen(c.getString(index).string()) < sizeof(buf)) {
+            strncpy(buf, c.getString(index).string(), strlen(c.getString(index).string()));
+        } else {
+            strncpy(buf, c.getString(index).string(), sizeof(buf));
+        }
         SYS_LOGD ("%s - LUT_BG_gain is %s\n", __FUNCTION__, buf);
         buffer = buf;
         while ((aa_save[index] = strtok_r(buffer, delim, &aa)) != NULL) {
@@ -844,7 +866,11 @@ int CPQdb::PQ_GetAADParams(source_input_param_t source_input_param, aad_param_t 
 
         rval = this->select(sqlmaster, c);
         memset(buf, 0, sizeof(buf));
-        strncpy(buf, c.getString(index).string(), sizeof(buf));
+        if (strlen(c.getString(index).string()) < sizeof(buf)) {
+            strncpy(buf, c.getString(index).string(), strlen(c.getString(index).string()));
+        } else {
+            strncpy(buf, c.getString(index).string(), sizeof(buf));
+        }
         SYS_LOGD ("%s - gain_lut is %s\n", __FUNCTION__, buf);
         buffer = buf;
         while ((aa_save[index] = strtok_r(buffer, delim, &aa)) != NULL) {
@@ -868,7 +894,11 @@ int CPQdb::PQ_GetAADParams(source_input_param_t source_input_param, aad_param_t 
 
         rval = this->select(sqlmaster, c);
         memset(buf, 0, sizeof(buf));
-        strncpy(buf, c.getString(index).string(), sizeof(buf));
+        if (strlen(c.getString(index).string()) < sizeof(buf)) {
+            strncpy(buf, c.getString(index).string(), strlen(c.getString(index).string()));
+        } else {
+            strncpy(buf, c.getString(index).string(), sizeof(buf));
+        }
         SYS_LOGD ("%s - xy_lut is %s\n", __FUNCTION__, buf);
         buffer = buf;
         while ((aa_save[index] = strtok_r(buffer, delim, &aa)) != NULL) {
@@ -890,7 +920,6 @@ int CPQdb::PQ_GetCABCParams(source_input_param_t source_input_param, cabc_param_
 {
     CSqlite::Cursor c;
     char sqlmaster[256];
-
     char buf[512];
     char *buffer = NULL;
     char *aa = NULL;
@@ -950,7 +979,11 @@ int CPQdb::PQ_GetCABCParams(source_input_param_t source_input_param, cabc_param_
 
         rval = this->select(sqlmaster, c);
         memset(buf, 0, sizeof(buf));
-        strncpy(buf, c.getString(index).string(), sizeof(buf));
+        if (strlen(c.getString(index).string()) < sizeof(buf)) {
+            strncpy(buf, c.getString(index).string(), strlen(c.getString(index).string()));
+        } else {
+            strncpy(buf, c.getString(index).string(), sizeof(buf));
+        }
         SYS_LOGD ("%s - db_o_bl_cv is %s\n", __FUNCTION__, buf);
         buffer = buf;
         while ((aa_save[index] = strtok_r(buffer, delim, &aa)) != NULL) {
@@ -973,7 +1006,11 @@ int CPQdb::PQ_GetCABCParams(source_input_param_t source_input_param, cabc_param_
 
         rval = this->select(sqlmaster, c);
         memset(buf, 0, sizeof(buf));
-        strncpy(buf, c.getString(index).string(), sizeof(buf));
+        if (strlen(c.getString(index).string()) < sizeof(buf)) {
+            strncpy(buf, c.getString(index).string(), strlen(c.getString(index).string()));
+        } else {
+            strncpy(buf, c.getString(index).string(), sizeof(buf));
+        }
         SYS_LOGD ("%s - db_o_bl_cv is %s\n", __FUNCTION__, buf);
         buffer = buf;
         while ((aa_save[index] = strtok_r(buffer, delim, &aa)) != NULL) {
@@ -1039,7 +1076,11 @@ int CPQdb::PQ_GetDNLPParams(source_input_param_t source_input_param, Dynamic_con
 
             rval = this->select(sqlmaster, c1);
             memset(buf, 0, sizeof(buf));
-            strncpy(buf, c1.getString(index).string(), sizeof(buf));
+            if (strlen(c1.getString(index).string()) < sizeof(buf)) {
+                strncpy(buf, c1.getString(index).string(), strlen(c1.getString(index).string()));
+            } else {
+                strncpy(buf, c1.getString(index).string(), sizeof(buf));
+            }
             //SYS_LOGD ("%s - ve_dnlp_scurv_low is %s+++++++++++++++++", __FUNCTION__, buf);
             buffer = buf;
             while ((aa_save[index] = strtok_r(buffer, " ", &aa)) != NULL) {
@@ -1061,7 +1102,11 @@ int CPQdb::PQ_GetDNLPParams(source_input_param_t source_input_param, Dynamic_con
 
             rval = this->select(sqlmaster, c1);
             memset(buf, 0, sizeof(buf));
-            strncpy(buf, c1.getString(index).string(), sizeof(buf));
+            if (strlen(c1.getString(index).string()) < sizeof(buf)) {
+                strncpy(buf, c1.getString(index).string(), strlen(c1.getString(index).string()));
+            } else {
+                strncpy(buf, c1.getString(index).string(), sizeof(buf));
+            }
             //SYS_LOGD ("%s - ve_dnlp_scurv_mid1 is %s+++++++++++++++++", __FUNCTION__, buf);
             buffer = buf;
             while ((aa_save[index] = strtok_r(buffer, " ", &aa)) != NULL) {
@@ -1083,7 +1128,11 @@ int CPQdb::PQ_GetDNLPParams(source_input_param_t source_input_param, Dynamic_con
 
             rval = this->select(sqlmaster, c1);
             memset(buf, 0, sizeof(buf));
-            strncpy(buf, c1.getString(index).string(), sizeof(buf));
+            if (strlen(c1.getString(index).string()) < sizeof(buf)) {
+                strncpy(buf, c1.getString(index).string(), strlen(c1.getString(index).string()));
+            } else {
+                strncpy(buf, c1.getString(index).string(), sizeof(buf));
+            }
             //SYS_LOGD ("%s - ve_dnlp_scurv_mid2 is %s+++++++++++++++++", __FUNCTION__, buf);
             buffer = buf;
             while ((aa_save[index] = strtok_r(buffer, " ", &aa)) != NULL) {
@@ -1105,7 +1154,11 @@ int CPQdb::PQ_GetDNLPParams(source_input_param_t source_input_param, Dynamic_con
 
             rval = this->select(sqlmaster, c1);
             memset(buf, 0, sizeof(buf));
-            strncpy(buf, c1.getString(index).string(), sizeof(buf));
+            if (strlen(c1.getString(index).string()) < sizeof(buf)) {
+                strncpy(buf, c1.getString(index).string(), strlen(c1.getString(index).string()));
+            } else {
+                strncpy(buf, c1.getString(index).string(), sizeof(buf));
+            }
             //SYS_LOGD ("%s - ve_dnlp_scurv_hgh1 is %s+++++++++++++++++", __FUNCTION__, buf);
             buffer = buf;
             while ((aa_save[index] = strtok_r(buffer, " ", &aa)) != NULL) {
@@ -1127,7 +1180,11 @@ int CPQdb::PQ_GetDNLPParams(source_input_param_t source_input_param, Dynamic_con
 
             rval = this->select(sqlmaster, c1);
             memset(buf, 0, sizeof(buf));
-            strncpy(buf, c1.getString(index).string(), sizeof(buf));
+            if (strlen(c1.getString(index).string()) < sizeof(buf)) {
+                strncpy(buf, c1.getString(index).string(), strlen(c1.getString(index).string()));
+            } else {
+                strncpy(buf, c1.getString(index).string(), sizeof(buf));
+            }
             //SYS_LOGD ("%s - ve_dnlp_scurv_hgh2 is %s+++++++++++++++++", __FUNCTION__, buf);
             buffer = buf;
             while ((aa_save[index] = strtok_r(buffer, " ", &aa)) != NULL) {
@@ -1149,7 +1206,11 @@ int CPQdb::PQ_GetDNLPParams(source_input_param_t source_input_param, Dynamic_con
 
             rval = this->select(sqlmaster, c1);
             memset(buf, 0, sizeof(buf));
-            strncpy(buf, c1.getString(index).string(), sizeof(buf));
+            if (strlen(c1.getString(index).string()) < sizeof(buf)) {
+                strncpy(buf, c1.getString(index).string(), strlen(c1.getString(index).string()));
+            } else {
+                strncpy(buf, c1.getString(index).string(), sizeof(buf));
+            }
             //SYS_LOGD ("%s - ve_gain_var_lut49 is %s+++++++++++++++++", __FUNCTION__, buf);
             buffer = buf;
             while ((aa_save[index] = strtok_r(buffer, " ", &aa)) != NULL) {
@@ -1171,7 +1232,11 @@ int CPQdb::PQ_GetDNLPParams(source_input_param_t source_input_param, Dynamic_con
 
             rval = this->select(sqlmaster, c1);
             memset(buf, 0, sizeof(buf));
-            strncpy(buf, c1.getString(index).string(), sizeof(buf));
+            if (strlen(c1.getString(index).string()) < sizeof(buf)) {
+                strncpy(buf, c1.getString(index).string(), strlen(c1.getString(index).string()));
+            } else {
+                strncpy(buf, c1.getString(index).string(), sizeof(buf));
+            }
             //SYS_LOGD ("%s - ve_wext_gain is %s+++++++++++++++++", __FUNCTION__, buf);
             buffer = buf;
             while ((aa_save[index] = strtok_r(buffer, " ", &aa)) != NULL) {
@@ -1193,7 +1258,11 @@ int CPQdb::PQ_GetDNLPParams(source_input_param_t source_input_param, Dynamic_con
 
             rval = this->select(sqlmaster, c1);
             memset(buf, 0, sizeof(buf));
-            strncpy(buf, c1.getString(index).string(), sizeof(buf));
+            if (strlen(c1.getString(index).string()) < sizeof(buf)) {
+                strncpy(buf, c1.getString(index).string(), strlen(c1.getString(index).string()));
+            } else {
+                strncpy(buf, c1.getString(index).string(), sizeof(buf));
+            }
             //SYS_LOGD ("%s - ve_adp_thrd is %s+++++++++++++++++", __FUNCTION__, buf);
             buffer = buf;
             while ((aa_save[index] = strtok_r(buffer, " ", &aa)) != NULL) {
@@ -1215,7 +1284,11 @@ int CPQdb::PQ_GetDNLPParams(source_input_param_t source_input_param, Dynamic_con
 
             rval = this->select(sqlmaster, c1);
             memset(buf, 0, sizeof(buf));
-            strncpy(buf, c1.getString(index).string(), sizeof(buf));
+            if (strlen(c1.getString(index).string()) < sizeof(buf)) {
+                strncpy(buf, c1.getString(index).string(), strlen(c1.getString(index).string()));
+            } else {
+                strncpy(buf, c1.getString(index).string(), sizeof(buf));
+            }
             //SYS_LOGD ("%s - ve_reg_blk_boost_12 is %s+++++++++++++++++", __FUNCTION__, buf);
             buffer = buf;
             while ((aa_save[index] = strtok_r(buffer, " ", &aa)) != NULL) {
@@ -1237,7 +1310,11 @@ int CPQdb::PQ_GetDNLPParams(source_input_param_t source_input_param, Dynamic_con
 
             rval = this->select(sqlmaster, c1);
             memset(buf, 0, sizeof(buf));
-            strncpy(buf, c1.getString(index).string(), sizeof(buf));
+            if (strlen(c1.getString(index).string()) < sizeof(buf)) {
+                strncpy(buf, c1.getString(index).string(), strlen(c1.getString(index).string()));
+            } else {
+                strncpy(buf, c1.getString(index).string(), sizeof(buf));
+            }
             //SYS_LOGD ("%s - ve_reg_adp_ofset_20 is %s+++++++++++++++++", __FUNCTION__, buf);
             buffer = buf;
             while ((aa_save[index] = strtok_r(buffer, " ", &aa)) != NULL) {
@@ -1259,7 +1336,11 @@ int CPQdb::PQ_GetDNLPParams(source_input_param_t source_input_param, Dynamic_con
 
             rval = this->select(sqlmaster, c1);
             memset(buf, 0, sizeof(buf));
-            strncpy(buf, c1.getString(index).string(), sizeof(buf));
+            if (strlen(c1.getString(index).string()) < sizeof(buf)) {
+                strncpy(buf, c1.getString(index).string(), strlen(c1.getString(index).string()));
+            } else {
+                strncpy(buf, c1.getString(index).string(), sizeof(buf));
+            }
             //SYS_LOGD ("%s - ve_reg_mono_protect is %s+++++++++++++++++", __FUNCTION__, buf);
             buffer = buf;
             while ((aa_save[index] = strtok_r(buffer, " ", &aa)) != NULL) {
@@ -1281,7 +1362,9 @@ int CPQdb::PQ_GetDNLPParams(source_input_param_t source_input_param, Dynamic_con
 
             rval = this->select(sqlmaster, c1);
             memset(buf, 0, sizeof(buf));
-            strncpy(buf, c1.getString(index).string(), sizeof(buf));
+            if (strlen(c1.getString(index).string()) < sizeof(buf)) {
+                strncpy(buf, c1.getString(index).string(), strlen(c1.getString(index).string()));
+            }
             //SYS_LOGD ("%s - ve_reg_trend_wht_expand_lut8 is %s+++++++++++++++++", __FUNCTION__, buf);
             buffer = buf;
             while ((aa_save[index] = strtok_r(buffer, " ", &aa)) != NULL) {
@@ -1345,7 +1428,11 @@ int CPQdb::PQ_GetLocalContrastNodeParams(source_input_param_t source_input_param
 
             rval = this->select(sqlmaster, c);
             memset(buf, 0, sizeof(buf));
-            strncpy(buf, c.getString(index).string(), sizeof(buf));
+            if (strlen(c.getString(index).string()) < sizeof(buf)) {
+                strncpy(buf, c.getString(index).string(), strlen(c.getString(index).string()));
+            } else {
+                strncpy(buf, c.getString(index).string(), sizeof(buf));
+            }
             //SYS_LOGD("%s: ve_lc_saturation is %s\n", __FUNCTION__, buf);
             buffer = buf;
             while ((aa_save[index] = strtok_r(buffer, " ", &aa)) != NULL) {
@@ -1367,7 +1454,9 @@ int CPQdb::PQ_GetLocalContrastNodeParams(source_input_param_t source_input_param
 
             rval = this->select(sqlmaster, c);
             memset(buf, 0, sizeof(buf));
-            strncpy(buf, c.getString(index).string(), sizeof(buf));
+            if (strlen(c.getString(index).string()) < sizeof(buf)) {
+                strncpy(buf, c.getString(index).string(), strlen(c.getString(index).string()));
+            }
             //SYS_LOGD ("%s: ve_lc_yminval_lmt is %s\n", __FUNCTION__, buf);
             buffer = buf;
             while ((aa_save[index] = strtok_r(buffer, " ", &aa)) != NULL) {
@@ -1389,7 +1478,11 @@ int CPQdb::PQ_GetLocalContrastNodeParams(source_input_param_t source_input_param
 
             rval = this->select(sqlmaster, c);
             memset(buf, 0, sizeof(buf));
-            strncpy(buf, c.getString(index).string(), sizeof(buf));
+            if (strlen(c.getString(index).string()) < sizeof(buf)) {
+                strncpy(buf, c.getString(index).string(), strlen(c.getString(index).string()));
+            } else {
+                strncpy(buf, c.getString(index).string(), sizeof(buf));
+            }
             //SYS_LOGD ("%s: ve_lc_ypkbv_ymaxval_lmt is %s\n", __FUNCTION__, buf);
             buffer = buf;
             while ((aa_save[index] = strtok_r(buffer, " ", &aa)) != NULL) {
@@ -1411,7 +1504,11 @@ int CPQdb::PQ_GetLocalContrastNodeParams(source_input_param_t source_input_param
 
             rval = this->select(sqlmaster, c);
             memset(buf, 0, sizeof(buf));
-            strncpy(buf, c.getString(index).string(), sizeof(buf));
+            if (strlen(c.getString(index).string()) < sizeof(buf)) {
+                strncpy(buf, c.getString(index).string(), strlen(c.getString(index).string()));
+            } else {
+                strncpy(buf, c.getString(index).string(), sizeof(buf));
+            }
             //SYS_LOGD ("%s: ve_lc_ypkbv_ratio is %s\n", __FUNCTION__, buf);
             buffer = buf;
             while ((aa_save[index] = strtok_r(buffer, " ", &aa)) != NULL) {
@@ -1437,7 +1534,11 @@ int CPQdb::PQ_GetLocalContrastNodeParams(source_input_param_t source_input_param
                 rval = 0;
             } else {
                 memset(buf, 0, sizeof(buf));
-                strncpy(buf, c.getString(index).string(), sizeof(buf));
+                if (strlen(c.getString(index).string()) < sizeof(buf)) {
+                    strncpy(buf, c.getString(index).string(), strlen(c.getString(index).string()));
+                } else {
+                    strncpy(buf, c.getString(index).string(), sizeof(buf));
+                }
                 //SYS_LOGD ("%s: ve_lc_ymaxval_lmt is %s\n", __FUNCTION__, buf);
                 buffer = buf;
                 while ((aa_save[index] = strtok_r(buffer, " ", &aa)) != NULL) {
@@ -1464,7 +1565,9 @@ int CPQdb::PQ_GetLocalContrastNodeParams(source_input_param_t source_input_param
                 rval = 0;
             } else {
                 memset(buf, 0, sizeof(buf));
-                strncpy(buf, c.getString(index).string(), sizeof(buf));
+                if (strlen(c.getString(index).string()) < sizeof(buf)) {
+                    strncpy(buf, c.getString(index).string(), strlen(c.getString(index).string()));
+                }
                 //SYS_LOGD ("%s: ve_lc_ypkbv_lmt is %s\n", __FUNCTION__, buf);
                 buffer = buf;
                 while ((aa_save[index] = strtok_r(buffer, " ", &aa)) != NULL) {
@@ -1882,7 +1985,9 @@ int CPQdb::PQ_GetAIParams(source_input_param_t source_input_param, ai_pic_table_
         if (c.moveToFirst()) {
             aiRegs->width = c.getInt(0);
             aiRegs->height = c.getInt(1);
-            strncpy(buf, c.getString(2).string(), sizeof(buf));
+            if (strlen(c.getString(2).string()) < sizeof(buf)) {
+                strncpy(buf, c.getString(2).string(), strlen(c.getString(2).string()));
+            }
             aiRegs->table_ptr = buf;
             ret = 0;
         } else {
@@ -3016,6 +3121,8 @@ am_regs_t CPQdb::MergeSameAddrVal(am_regs_t regs)
 {
     am_regs_t tmp_reg;
     unsigned int i = 0, k = 0;
+    memset(&tmp_reg, 0, sizeof(am_regs_t));
+
     for (i=0;i<regs.length;i++) {
         if (regs.am_reg[i].addr == regs.am_reg[i+1].addr) {
             regs.am_reg[i+1].mask |=  regs.am_reg[i].mask;
@@ -3442,12 +3549,13 @@ int CPQdb::GetFileAttrIntValue(const char *fp, int flag)
 
     fd = open(fp, flag);
 
-    if (fd <= 0) {
+    if (fd < 0) {
         SYS_LOGE("open %s ERROR(%s)!!\n", fp, strerror(errno));
         return -1;
     }
 
-    if (read(fd, temp_str, sizeof(temp_str)) > 0) {
+    ret = read(fd, temp_str, sizeof(temp_str));
+    if (ret > 0) {
         if (sscanf(temp_str, "%d", &temp) >= 0) {
             SYS_LOGD("get %s value =%d!\n", fp, temp);
             close(fd);

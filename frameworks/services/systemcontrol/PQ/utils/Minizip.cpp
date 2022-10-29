@@ -265,13 +265,13 @@ int Minizip::getFileSize(const char *file_path)
     dev_fd = open(file_path, O_RDONLY);
     if (dev_fd < 0)
     {
-        SYS_LOGE("%s, open \"%s\" ERROR(%s)!!\n", __FUNCTION__,
-              file_path, strerror(errno));
+        SYS_LOGE("%s, open \"%s\" ERROR(%s)!!\n", __FUNCTION__, file_path, strerror(errno));
         return 0;
     }
 
     file_size = lseek(dev_fd, 0L, SEEK_END);
     lseek(dev_fd, 0L, SEEK_SET);
+    close(dev_fd);
 
     return file_size;
 }
