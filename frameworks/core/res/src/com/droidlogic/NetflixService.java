@@ -60,7 +60,6 @@ public class NetflixService extends Service {
     private static final String NRDP_AUDIO_PLATFORM_CAP = "nrdp_audio_platform_capabilities";
     private static final String NRDP_AUDIO_PLATFORM_CAP_MS12 = "nrdp_audio_platform_capabilities_ms12";
     private static final String NRDP_PLATFORM_CONFIG_DIR = "/vendor/etc/";
-    private static final String NRDP_EXTERNAL_SURROUND = "nrdp_external_surround_sound_enabled";
     private static final String FIRST_BOOT_COUNT = "FirstBootCount";
     private static final String NETFLIX_KEY_POWER_MODE = "power_on";
     private static final String ACTION_LAUNCH_APP = "com.google.global_button.ACTION_LAUNCH_APP";
@@ -375,16 +374,8 @@ public class NetflixService extends Service {
     }
 
     private void refreshAudioCapabilities(boolean isHdmiPlugged) {
-        boolean isTv = DroidLogicUtils.isTv();
         int surround = mOutputModeManager.getDigitalAudioFormatOut();
-        Log.i(TAG, "onReceived HDMI_PLUGGED: " + isHdmiPlugged + ", isTv:" + isTv + ", surround:" +
-                DroidLogicUtils.audioFormatOutputToString(surround));
-        if (!isTv && (OutputModeManager.DIGITAL_AUDIO_FORMAT_MANUAL == surround)) {
-            Log.i(TAG, "Set " + NRDP_EXTERNAL_SURROUND + " to " + (isHdmiPlugged ? 1 : 0));
-            Settings.Global.putInt(mContext.getContentResolver(),
-                    NRDP_EXTERNAL_SURROUND, isHdmiPlugged ? 1 : 0);
-        }
-
+        Log.i(TAG, "onReceived HDMI_PLUGGED: " + isHdmiPlugged + ", surround:" + DroidLogicUtils.audioFormatOutputToString(surround));
         String audioSinkCap = mSCM.readSysFs(SYS_AUDIO_CAP);
         atmosSupported = audioSinkCap.contains("Dobly_Digital+/ATMOS");
         doblySupported = audioSinkCap.contains("Dobly_Digital");
