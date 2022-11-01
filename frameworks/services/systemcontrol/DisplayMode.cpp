@@ -3466,14 +3466,15 @@ bool DisplayMode::getPrefHdmiDispMode(char* mode) {
     bool ret = true;
 
     //1. get hdmi data
-    memset(&mHdmidata, 0, sizeof(hdmi_data_t));
-    mHdmidata.state = OUTPUT_MODE_STATE_INIT;
-    getHdmiData(&mHdmidata);
+    hdmi_data_t data;
+    memset(&data, 0, sizeof(hdmi_data_t));
+    data.state = OUTPUT_MODE_STATE_INIT;
+    getHdmiData(&data);
 
     //2. scene logic process
-    sceneProcess(&mHdmidata);
+    sceneProcess(&data);
 
-    strcpy(mode, mHdmidata.final_displaymode);
+    strcpy(mode, data.final_displaymode);
 
     SYS_LOGI("getPrefHdmiDispMode [%s]", mode);
     return ret;
