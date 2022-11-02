@@ -15,17 +15,14 @@
 #
 
 ifeq ($(TARGET_BUILD_KERNEL_VERSION),4.9)
-WIFI_DEFAULT_CONFIG := vendor/amlogic/common/wifi_bt/wifi/configs/4_9/config.mk
+include vendor/amlogic/common/wifi_bt/wifi/configs/4_9/config.mk
 else ifeq ($(TARGET_BUILD_KERNEL_VERSION),5.4)
-WIFI_DEFAULT_CONFIG := vendor/amlogic/common/wifi_bt/wifi/configs/5_4/config.mk
+include vendor/amlogic/common/wifi_bt/wifi/configs/5_4/config.mk
 else ifeq ($(TARGET_BUILD_KERNEL_VERSION),5.15)
-WIFI_DEFAULT_CONFIG := vendor/amlogic/common/wifi_bt/wifi/configs/5_15/config.mk
+include vendor/amlogic/common/wifi_bt/wifi/configs/5_15/config.mk
 else
-WIFI_DEFAULT_CONFIG := vendor/amlogic/common/wifi_bt/wifi/configs/5_4/config.mk
+include vendor/amlogic/common/wifi_bt/wifi/configs/5_4/config.mk
 endif
-
-$(warning loading default wifi config: $(WIFI_DEFAULT_CONFIG))
-include $(WIFI_DEFAULT_CONFIG)
 
 ifdef PRODUCT_DIRNAME
 -include $(PRODUCT_DIRNAME)/wifibt.build.config.trunk.mk
