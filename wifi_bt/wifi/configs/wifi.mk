@@ -79,8 +79,8 @@ PRODUCT_PACKAGES += \
     bcmdl \
 	wpa_cli
 
-PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/multi_wifi/config/regulatory.db:$(TARGET_COPY_OUT_VENDOR)/firmware/regulatory.db
-PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/multi_wifi/config/regulatory.db.p7s:$(TARGET_COPY_OUT_VENDOR)/firmware/regulatory.db.p7s
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/multi_wifi/config/regulatory.db:$(TARGET_COPY_OUT_VENDOR)/lib/firmware/regulatory.db
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/multi_wifi/config/regulatory.db.p7s:$(TARGET_COPY_OUT_VENDOR)/lib/firmware/regulatory.db.p7s
 
 PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/configs/init_rc/init.amlogic.wifi.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/hw/init.amlogic.wifi.rc
 
