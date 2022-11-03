@@ -238,8 +238,8 @@ int customize_smart_device_mounted(const char*blk_device, const char *mount_poin
             strncpy(device_name, blk_device, copy_len);
 
             if (!strncmp(device_name, sdcard_device, strlen(sdcard_device))) {
-                // start from '0' for mmcblk0p#
-                device_name[first_position] = '0' + i;
+                // start from '1' for mmcblk1p#
+                device_name[first_position] = '1' + i;
             } else if (!strncmp(device_name, usb_device, strlen(usb_device))) {
                 // start from 'a' for sda#
                 device_name[first_position] = 'a' + i;
