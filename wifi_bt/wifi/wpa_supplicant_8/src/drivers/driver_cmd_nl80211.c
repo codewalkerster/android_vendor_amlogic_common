@@ -480,7 +480,7 @@ int wpa_driver_nl80211_driver_cmd(void *priv, char *cmd, char *buf,
 					      " cmd (%s)", bss->ifname, cmd);
 		}
 	}
-
+#if 0
 	if (os_strncasecmp(wifi_status, "rtl", 3) != 0) {
 		if (os_strncasecmp(cmd, "COUNTRY", 7) == 0) {
 		    char alpha2[3];
@@ -511,6 +511,7 @@ int wpa_driver_nl80211_driver_cmd(void *priv, char *cmd, char *buf,
 		        return -EINVAL;
 		}
 	}
+#endif
 
        if (os_strncasecmp(cmd, "BTCOEXMODE", 10) == 0 || os_strncasecmp(cmd, "MIRACAST", 8) == 0 ||
         os_strncasecmp(cmd, "WLS_BATCHING", 12) == 0 || os_strcasecmp(cmd, "BTCOEXSCAN-STOP") == 0 ||
