@@ -64,3 +64,15 @@ struct RRTSearchInfo {
     string RatingValueText;
     int32_t status;
 };
+
+struct BasicVdecState {
+	int32_t decode_time_cost;	/*us*/
+	int32_t frame_width;
+	int32_t frame_height;
+	int32_t frame_rate;
+	int32_t error_count;
+	int32_t frame_count;
+	int32_t error_frame_count;
+	int32_t drop_frame_count;
+	int32_t double_write_mode;	//original samp_cnt;
+};

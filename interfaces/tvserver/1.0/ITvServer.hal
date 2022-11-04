@@ -237,6 +237,24 @@ interface ITvServer {
   vdinUpdateForPQ(int32_t gameStatus, int32_t pcStatus, int32_t autoSwitchFlag)
     generates (int32_t value);
 
+  Tv_SetDLGEnable(int32_t isEnable)
+    generates (int32_t value);
+
+  Tv_GetDLGEnable()
+    generates (int32_t value);
+
+  SetVRREnable(int32_t isEnable)
+    generates (int32_t value);
+
+  GetVRREnable()
+    generates (int32_t value);
+
+  GetVRRMode()
+    generates (int32_t value);
+
+  GetAllmInfo()
+    generates (int32_t value);
+
   DtvSetAudioAD(int32_t enable, int32_t audio_pid, int32_t audio_format)
     generates (int32_t value);
 
@@ -293,4 +311,9 @@ interface ITvServer {
   setPreviewWindowMode(int32_t enable)
     generates (int32_t ret);
 
+  request(string resource, string paras)
+    generates (string value);
+	
+  getBasicVdecStatusInfo(int32_t vdecId)
+    generates (BasicVdecState info);
 };
