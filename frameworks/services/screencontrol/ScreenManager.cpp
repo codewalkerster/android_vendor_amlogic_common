@@ -114,12 +114,17 @@ ScreenManager::ScreenManager() :
 
     mCorpX = mCorpY = mCorpWidth = mCorpHeight =0;
 
-    int fd = open("/dev/amvenc_avc", O_RDWR);
-    if (fd < 0) {
+   int fd1 = open("/dev/amvenc_avc", O_RDWR);
+    int fd2 = open("/dev/amvenc_multi", O_RDWR);
+    if (fd1 < 0 && fd2 < 0) {
         mIsSoftwareEncoder = true;
         ALOGW("%s Open /dev/amvenc_avc failed, use software encoder instead!\n", __FUNCTION__);
-    } else {
-        close(fd);
+    }
+    if (fd1 >= 0 ) {
+        close(fd1);
+    }
+    if (fd2 >= 0 ) {
+        close(fd2);
     }
 
     mRawBufferQueue.clear();
@@ -538,7 +543,7 @@ status_t ScreenManager::readBuffer(int32_t client_id, sp<IMemory> buffer, int64_
         buff_info[0] = kMetadataBufferTypeCanvasSource;
         buff_info[1] = (long)frame->buf_ptr;
         buff_info[2] = (long)frame->canvas;
-        memcpy((uint8_t *)buffer->unsecurePointer(), &buff_info[0],sizeof(buff_info));
+        memcpy((long *)buffer->unsecurePointer(), &buff_info[0],sizeof(buff_info));
 
         if (ScreenControlDebug::canDebug()) {
             // dump buffer to file
@@ -600,7 +605,7 @@ status_t ScreenManager::freeBuffer(int32_t client_id, sp<IMemory>buffer) {
 
     if (SCREENCONTROL_CANVAS_TYPE == source_data_type && buffer->unsecurePointer() != NULL) {
         long buff_info[3] = {0,0,0};
-        memcpy(&buff_info[0],(uint8_t *)buffer->unsecurePointer(), sizeof(buff_info));
+        memcpy(&buff_info[0],(long *)buffer->unsecurePointer(), sizeof(buff_info));
 
         if (mScreenDev)
             mScreenDev->ops.release_buffer(mScreenDev, (long *)buff_info[1]);

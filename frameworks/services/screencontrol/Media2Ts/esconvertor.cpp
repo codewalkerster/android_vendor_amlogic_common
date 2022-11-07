@@ -75,14 +75,14 @@ int ESConvertor::CanvasdataCallBack(const sp<IMemory>& data){
     Mutex::Autolock autoLock(mLock);
 
     if (mStarted == true && data->unsecurePointer() != NULL) {
-        MediaBuffer *tBuffer = new MediaBuffer(3*sizeof(unsigned));
+        MediaBuffer *tBuffer = new MediaBuffer(3*sizeof(long));
         if (tBuffer->data() == NULL ) {
             ALOGE("[%s %d] new  MediaBuffer fail\n", __FUNCTION__, __LINE__);
             tBuffer->release();
             /* coverity[leaked_storage] */
             return !OK;
         }
-        memcpy(tBuffer->data(), (uint8_t *)data->unsecurePointer(), 3*sizeof(unsigned));
+        memcpy(tBuffer->data(), (long *)data->unsecurePointer(), 3*sizeof(long));
         mFramesReceived.push_back(tBuffer);
     }else{
         mScreenManager->freeBuffer(mClientId, data);
@@ -134,12 +134,17 @@ ESConvertor::ESConvertor(int sourceType, int IsAudio) :
     mCorpY(-1),
     mCorpWidth(-1),
     mCorpHeight(-1) {
-    int fd = open("/dev/amvenc_avc", O_RDWR);
-    if (fd < 0) {
+    int fd1 = open("/dev/amvenc_avc", O_RDWR);
+    int fd2 = open("/dev/amvenc_multi", O_RDWR);
+    if (fd1 < 0 && fd2 < 0) {
         mIsSoftwareEncoder = true;
-        ALOGI("Open /dev/amvenc_avc failed, use software encoder instead!\n");
-    } else {
-        close(fd);
+        ALOGW("%s Open /dev/amvenc_avc failed, use software encoder instead,fd1=%d,fd2=%d\n", __FUNCTION__,fd1,fd2);
+    }
+    if (fd1 >= 0 ) {
+        close(fd1);
+    }
+    if (fd2 >= 0 ) {
+        close(fd2);
     }
     ALOGI("ESConvertor construct\n");
     ScreenControlDebug::initDebug();
@@ -307,16 +312,17 @@ status_t ESConvertor::initEncoder() {
         if (mIsSoftwareEncoder) {
             AMediaFormat_setInt32(mOutputFormat, AMEDIAFORMAT_KEY_I_FRAME_INTERVAL, 5);
             AMediaFormat_setInt32(mOutputFormat, AMEDIAFORMAT_KEY_COLOR_FORMAT, COLOR_FormatYUV420SemiPlanar);
-            AMediaFormat_setInt32(mOutputFormat, "store-MetaDataBase-in-buffers", false);
+            AMediaFormat_setInt32(mOutputFormat, "store-metadata-in-buffers", false);
             AMediaFormat_setInt32(mOutputFormat, "prepend-sps-pps-to-idr-frames", 0);
         } else {
             AMediaFormat_setInt32(mOutputFormat, AMEDIAFORMAT_KEY_I_FRAME_INTERVAL, 15);  // Iframes every 15 secs
             AMediaFormat_setInt32(mOutputFormat, AMEDIAFORMAT_KEY_COLOR_FORMAT, OMX_COLOR_FormatAndroidOpaque);
-            AMediaFormat_setInt32(mOutputFormat, "store-MetaDataBase-in-buffers", true);
+            AMediaFormat_setInt32(mOutputFormat, "store-metadata-in-buffers", true);
             AMediaFormat_setInt32(mOutputFormat, "prepend-sps-pps-to-idr-frames", 1);
+            AMediaFormat_setInt32(mOutputFormat, "vendor.venc.canvasmode.value", 1);
         }
         //mOutputFormat->setInt32("intra-refresh-mode", OMX_VIDEO_IntraRefreshCyclic);
-        //mOutputFormat->setInt32("store-MetaDataBase-in-buffers-output", 0);
+        //mOutputFormat->setInt32("store-metadata-in-buffers-output", 0);
 
         int width = 0, height = 0, mbs = 0;
         if (!AMediaFormat_getInt32(mOutputFormat, AMEDIAFORMAT_KEY_WIDTH, &width)
@@ -642,9 +648,9 @@ int ESConvertor::videoDequeueInputBuffer()
 int ESConvertor::videoFeedInputBuffer() {
 
     int err;
-    unsigned buff_info[3];
+    long buff_info[3] = {0, 0, 0};
     MediaBuffer* tBuffer = NULL;
-    int bufferSize = 3*sizeof(unsigned);
+    int bufferSize = 3*sizeof(long);
 
     if (mStarted == false)
         return !OK;
@@ -668,7 +674,7 @@ RETRY:
                         /* coverity[leaked_storage] */
                         return !OK;
                     }
-                    memcpy(tBuffer->data(), (uint8_t *)mBufferGet->unsecurePointer(), bufferSize);
+                    memcpy((long *)tBuffer->data(), (long *)mBufferGet->unsecurePointer(), bufferSize);
                     mFramesReceived.push_back(tBuffer);
                     mInFrameCounter ++;
                     goto RETRY;
@@ -690,10 +696,10 @@ RETRY:
         }
         mFramesReceived.erase(mFramesReceived.begin());
 
-        sp<ABuffer> accessUnit = new ABuffer(12);
+        sp<ABuffer> accessUnit = new ABuffer(bufferSize);
 
-        memcpy((uint8_t *)accessUnit->data(), (uint8_t *)tBuffer->data(), 12);
-        memcpy(&buff_info[0], (uint8_t *)tBuffer->data(), 12);
+        memcpy((long *)accessUnit->data(), (long *)tBuffer->data(), bufferSize);
+        memcpy(&buff_info[0], (long *)tBuffer->data(), bufferSize);
 
         int64_t timeNow64;
         struct timeval timeNow;
@@ -958,10 +964,10 @@ status_t ESConvertor::start(MetaDataBase *params) {
             mBufferGet = new MemoryBase(mNewMemoryHeap, 0, mWidth * mHeight * 3 >> 1);
         } else {
             sp<MemoryHeapBase> newMemoryHeap = NULL;
-            newMemoryHeap = new MemoryHeapBase(128*sizeof(unsigned));
-            mBufferGet = new MemoryBase(newMemoryHeap, 0, 3*sizeof(unsigned));
-            newMemoryHeap = new MemoryHeapBase(128*sizeof(unsigned));
-            mBufferRelease = new MemoryBase(newMemoryHeap, 0, 3*sizeof(unsigned));
+            newMemoryHeap = new MemoryHeapBase(128*sizeof(long));
+            mBufferGet = new MemoryBase(newMemoryHeap, 0, 3*sizeof(long));
+            newMemoryHeap = new MemoryHeapBase(128*sizeof(long));
+            mBufferRelease = new MemoryBase(newMemoryHeap, 0, 3*sizeof(long));
         }
     } else {
 #if 0
@@ -1086,7 +1092,7 @@ status_t ESConvertor::stop()
                 }
                 mFramesReceived.erase(mFramesReceived.begin());
                 if (mBufferRelease->unsecurePointer() != NULL ) {
-                    memcpy(mBufferRelease->unsecurePointer(), tBuffer->data(), 3*sizeof(unsigned));
+                    memcpy(mBufferRelease->unsecurePointer(), tBuffer->data(), 3*sizeof(long));
                     mScreenManager->freeBuffer(mClientId, mBufferRelease);
                 }
                 tBuffer->release();
@@ -1097,7 +1103,7 @@ status_t ESConvertor::stop()
                 accessUnit = *mInputBufferQueue.begin();
                 mInputBufferQueue.erase(mInputBufferQueue.begin());
                 if (mBufferRelease->unsecurePointer() != NULL ) {
-                    memcpy(mBufferRelease->unsecurePointer(), accessUnit->data(), 3*sizeof(unsigned));
+                    memcpy(mBufferRelease->unsecurePointer(), accessUnit->data(), 3*sizeof(long));
                     mScreenManager->freeBuffer(mClientId, mBufferRelease);
                 }
                 accessUnit.clear();
@@ -1267,9 +1273,9 @@ void ESConvertor::signalBufferReturned(MediaBufferBase *buffer) {
     buffer->meta_data().findInt32(kKeyBufferID, &bufferID);
     if (!mIsSoftwareEncoder) {
         if (bufferID == 0xf && mIsAudio == VIDEO_ENCODE && mBufferRelease->unsecurePointer() != NULL) {
-            unsigned buff_info[3] = {0,0,0};
-            memcpy(buff_info, buffer->data(), 3*sizeof(unsigned));
-            memcpy(mBufferRelease->unsecurePointer(), buffer->data(), 3*sizeof(unsigned));
+            long buff_info[3] = {0,0,0};
+            memcpy(buff_info, buffer->data(), 3*sizeof(long));
+            memcpy(mBufferRelease->unsecurePointer(), buffer->data(), 3*sizeof(long));
 
             //ALOGE("[%s %d] buff_info[0]:%x buff_info[1]:%x buff_info[2]:%x mClientId:%d pointer:%x",
             //__FUNCTION__, __LINE__, buff_info[0], buff_info[1], buff_info[2], mClientId, mBufferRelease->pointer());
