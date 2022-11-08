@@ -165,29 +165,11 @@ public class OutputModeManager {
     private static final int NRDP_ENABLE                                = 1;
     private static final int NRDP_DISABLE                               = 0;
 
-    public static final String BOX_LINE_OUT                             = "box_line_out";
-    public static final String PARA_BOX_LINE_OUT_OFF                    = "enable_line_out=false";
-    public static final String PARA_BOX_LINE_OUT_ON                     = "enable_line_out=true";
-    public static final int BOX_LINE_OUT_OFF                            = 0;
-    public static final int BOX_LINE_OUT_ON                             = 1;
-
     public static final String BOX_HDMI                                 = "box_hdmi";
     public static final String PARA_BOX_HDMI_OFF                        = "Audio hdmi-out mute=1";
     public static final String PARA_BOX_HDMI_ON                         = "Audio hdmi-out mute=0";
     public static final int BOX_HDMI_OFF                                = 0;
     public static final int BOX_HDMI_ON                                 = 1;
-
-    public static final String TV_SPEAKER                               = "tv_speaker";
-    public static final String PARA_TV_SPEAKER_OFF                      = "speaker_mute=1";
-    public static final String PARA_TV_SPEAKER_ON                       = "speaker_mute=0";
-    public static final int TV_SPEAKER_OFF                              = 0;
-    public static final int TV_SPEAKER_ON                               = 1;
-
-    public static final String TV_ARC                                   = "tv_arc";
-    public static final String PARA_TV_ARC_OFF                          = "HDMI ARC Switch=0";
-    public static final String PARA_TV_ARC_ON                           = "HDMI ARC Switch=1";
-    public static final int TV_ARC_OFF                                  = 0;
-    public static final int TV_ARC_ON                                   = 1;
 
     public static final String DB_ID_AUDIO_OUTPUT_DEVICE_ARC_ENABLE     = "db_id_audio_output_device_arc_enable";
 
@@ -216,12 +198,6 @@ public class OutputModeManager {
     public static final int ENCODED_SURROUND_OUTPUT_NEVER               = 1;
     public static final int ENCODED_SURROUND_OUTPUT_ALWAYS              = 2;
     public static final int ENCODED_SURROUND_OUTPUT_MANUAL              = 3;
-
-    public static final String SOUND_OUTPUT_DEVICE                      = "sound_output_device";
-    public static final String PARA_SOUND_OUTPUT_DEVICE_SPEAKER         = "sound_output_device=speak";
-    public static final String PARA_SOUND_OUTPUT_DEVICE_ARC             = "sound_output_device=arc";
-    public static final int SOUND_OUTPUT_DEVICE_SPEAKER                 = 0;
-    public static final int SOUND_OUTPUT_DEVICE_ARC                     = 1;
 
     public static final String DIGITAL_SOUND                = "digital_sound";
     public static final String PCM                          = "PCM";
@@ -1202,46 +1178,12 @@ public class OutputModeManager {
         return Settings.Global.getInt(mResolver, DIGITAL_AUDIO_FORMAT, DIGITAL_AUDIO_FORMAT_AUTO);
     }
 
-    public void enableBoxLineOutAudio(boolean value) {
-        if (value) {
-            mAudioManager.setParameters(PARA_BOX_LINE_OUT_ON);
-        } else {
-            mAudioManager.setParameters(PARA_BOX_LINE_OUT_OFF);
-        }
-    }
-
-    public void enableBoxHdmiAudio(boolean value) {
-        if (value) {
-            mAudioManager.setParameters(PARA_BOX_HDMI_ON);
-        } else {
-            mAudioManager.setParameters(PARA_BOX_HDMI_OFF);
-        }
-    }
-
-    public void enableTvSpeakerAudio(boolean value) {
-        if (value) {
-            mAudioManager.setParameters(PARA_TV_SPEAKER_ON);
-        } else {
-            mAudioManager.setParameters(PARA_TV_SPEAKER_OFF);
-        }
-    }
-
     private final SelectCallback mSelectCallback = new SelectCallback() {
         @Override
         public void onComplete(int result) {
             Log.d(TAG, "setSystemAudioMode onComplete result:" + result);
         }
     };
-
-    public void enableTvArcAudio(boolean value) {
-        if (value) {
-            mAudioManager.setParameters(PARA_TV_ARC_ON);
-        } else {
-            mAudioManager.setParameters(PARA_TV_ARC_OFF);
-        }
-        mTvClient.setSystemAudioMode(value, mSelectCallback);
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_AUDIO_OUTPUT_DEVICE_ARC_ENABLE, (value ? 1 : 0));
-    }
 
     public void setARCLatency(int value) {
         if (value > TV_ARC_LATENCY_MAX)
@@ -1256,19 +1198,6 @@ public class OutputModeManager {
             mAudioManager.setParameters(PARA_VIRTUAL_SURROUND_ON);
         } else {
             mAudioManager.setParameters(PARA_VIRTUAL_SURROUND_OFF);
-        }
-    }
-
-    public void setSoundOutputStatus (int mode) {
-        switch (mode) {
-            case SOUND_OUTPUT_DEVICE_SPEAKER:
-                enableTvSpeakerAudio(true);
-                enableTvArcAudio(false);
-                break;
-            case SOUND_OUTPUT_DEVICE_ARC:
-                enableTvSpeakerAudio(false);
-                enableTvArcAudio(true);
-                break;
         }
     }
 
@@ -1341,11 +1270,6 @@ public class OutputModeManager {
             //Settings.Global.putInt(mContext.getContentResolver(), DB_ID_AUDIO_OUTPUT_DEVICE_ARC_ENABLE, 0);
             final int virtualsurround = Settings.Global.getInt(mResolver, VIRTUAL_SURROUND, VIRTUAL_SURROUND_OFF);
             setVirtualSurround(virtualsurround);
-        } else {
-            final int boxlineout = Settings.Global.getInt(mResolver, BOX_LINE_OUT, BOX_LINE_OUT_OFF);
-            enableBoxLineOutAudio(boxlineout == BOX_LINE_OUT_ON);
-            final int boxhdmi = Settings.Global.getInt(mResolver, BOX_HDMI, BOX_HDMI_ON);
-            enableBoxHdmiAudio(boxhdmi == BOX_HDMI_ON);
         }
         setSoundSpdifEnable(getSoundSpdifEnable());
         setAdSupportEnable(getAdSupportEnable());
@@ -1356,13 +1280,7 @@ public class OutputModeManager {
 
     public void resetSoundParameters() {
         if (DroidLogicUtils.isTv()) {
-            enableTvSpeakerAudio(false);
-            enableTvArcAudio(false);
             setVirtualSurround(VIRTUAL_SURROUND_OFF);
-            setSoundOutputStatus(SOUND_OUTPUT_DEVICE_SPEAKER);
-        } else {
-            enableBoxLineOutAudio(false);
-            enableBoxHdmiAudio(false);
         }
     }
 }

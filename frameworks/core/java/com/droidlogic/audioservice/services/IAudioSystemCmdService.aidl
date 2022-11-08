@@ -23,4 +23,6 @@ interface IAudioSystemCmdService{
     void updateAudioPortGain(int sourceType);
     void openTvAudio(int sourceType);
     void closeTvAudio();
+    int setOutputDevices(in byte[] devices);
+    byte[] getOutputDevices();
 }

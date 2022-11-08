@@ -11,6 +11,7 @@
 package com.droidlogic.audioservice.services;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import android.app.Service;
@@ -20,6 +21,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.ContentObserver;
 
+import android.media.AudioDeviceInfo;
 import android.media.AudioDevicePort;
 import android.media.AudioFormat;
 import android.media.AudioGain;
@@ -28,14 +30,12 @@ import android.media.AudioManager;
 import android.media.AudioPatch;
 import android.media.AudioPort;
 import android.media.AudioPortConfig;
-import android.media.AudioRoutesInfo;
 import android.media.AudioSystem;
-import android.media.IAudioRoutesObserver;
-import android.media.IAudioService;
 import android.media.tv.TvInputManager;
 import android.net.Uri;
 import android.os.IBinder;
 
+import android.os.Binder;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.Bundle;
@@ -90,6 +90,7 @@ public class AudioSystemCmdService extends Service {
     private static final String ACTION_AUDIO_FORMAT_CHANGE = "droidlogic.audioservice.action.AUDIO_FORMAT";
     private static final String AUDIO_FORMAT_KEY = "audio_format";
     private static final String AUDIO_FORMAT_VALUE_KEY = "audio_format_value";
+    public static final String DB_ID_AUDIO_OUTPUT_DEVICES                = "db_id_audio_output_devices";
 
   //  Same as the contents of the DroidLogicUtils.java
     private static final int SOURCE_TYPE_START  = 0;
@@ -238,66 +239,56 @@ public class AudioSystemCmdService extends Service {
     private boolean  mMixAdSupported;
     private boolean  mNotImptTvHardwareInputService = false;
     private boolean mForceManagePatch = false;
-    private IAudioService mAudioService;
-    private AudioRoutesInfo mCurAudioRoutesInfo;
-    private Runnable mHandleAudioSinkUpdatedRunnable;
-
-    private Runnable mHandleTvAudioRunnable;
-    private int mDelayTime = 0;
-
-    final IAudioRoutesObserver.Stub mAudioRoutesObserver = new IAudioRoutesObserver.Stub() {
-        @Override
-        public void dispatchAudioRoutesChanged(final AudioRoutesInfo newRoutes) {
-            int mPreDigitalFormat = mDigitalFormat;
-            mDigitalFormat = getDigitalFormats();
-            Log.i(TAG, "dispatchAudioRoutesChanged cur device:" + newRoutes.mainType +
-                    ", pre device:" + mCurAudioRoutesInfo.mainType);
-            if (DroidLogicUtils.getAudioDebugEnable()) {
-                Log.d(TAG, "dispatchAudioRoutesChanged newRoutes:" + newRoutes.toString());
-                Log.d(TAG, "dispatchAudioRoutesChanged preRoutes:" + mCurAudioRoutesInfo.toString());
-                Log.d(TAG, "mDigitalFormat "+ mDigitalFormat + "mPreDigitalFormat " + mPreDigitalFormat);
-            }
-
-            if (newRoutes.mainType == mCurAudioRoutesInfo.mainType &&
-                newRoutes.toString().equals(mCurAudioRoutesInfo.toString())
-                && (mDigitalFormat == mPreDigitalFormat)) {
-                return;
-            }
-            if (DroidLogicUtils.isTv()) {
-                if (newRoutes.mainType == AudioRoutesInfo.MAIN_HDMI) {
-                    Settings.Global.putInt(mContext.getContentResolver(), OutputModeManager.SOUND_OUTPUT_DEVICE, OutputModeManager.SOUND_OUTPUT_DEVICE_ARC);
-                } else {
-                    Settings.Global.putInt(mContext.getContentResolver(), OutputModeManager.SOUND_OUTPUT_DEVICE, OutputModeManager.SOUND_OUTPUT_DEVICE_SPEAKER);
-                }
-            }
-            mCurAudioRoutesInfo = newRoutes;
-            mHasStartedDecoder = false;
-            mHandler.removeCallbacks(mHandleAudioSinkUpdatedRunnable);
-            mHandleAudioSinkUpdatedRunnable = new Runnable() {
-                public void run() {
-                    synchronized (mLock) {
-                        if (mHasReceivedStartDecoderCmd) {
-                            if (mNotImptTvHardwareInputService)
-                                handleAudioSinkUpdated();
-                            mHasOpenedDecoder = false;
-                            reStartAdecDecoderIfPossible();
-                            mHasOpenedDecoder = true;
-                        }
-                    }
-                }
-            };
-            if (mTvInputManager.getHardwareList() == null) {
-                mHandler.post(mHandleAudioSinkUpdatedRunnable);
-            } else {
-                try {
-                    mHandler.postDelayed(mHandleAudioSinkUpdatedRunnable,
-                        mAudioService.isBluetoothA2dpOn() ? 2500 : 500);
-                } catch (RemoteException e) {
-                    e.printStackTrace();
+    private Runnable mHandleAudioSinkUpdatedRunnable = new Runnable() {
+        public void run() {
+            synchronized (mLock) {
+                if (mHasReceivedStartDecoderCmd) {
+                    if (mNotImptTvHardwareInputService)
+                        handleAudioSinkUpdated();
+                    mHasOpenedDecoder = false;
+                    reStartAdecDecoderIfPossible();
+                    mHasOpenedDecoder = true;
                 }
             }
         }
     };
+
+
+    private final AudioManager.OnAudioPortUpdateListener mAudioListener =
+            new AudioManager.OnAudioPortUpdateListener() {
+                @Override
+                public void onAudioPortListUpdate(AudioPort[] portList) {
+                    Slog.i(TAG, "onAudioPortListUpdate ++++");
+                    mHasStartedDecoder = false;
+                    mHandler.removeCallbacks(mHandleAudioSinkUpdatedRunnable);
+                    if (mTvInputManager.getHardwareList() == null) {
+                        mHandler.post(mHandleAudioSinkUpdatedRunnable);
+                    } else {
+                        boolean isA2dpOutput = false;
+                        int curOutdevices = AudioSystem.getDevicesForStream(AudioSystem.STREAM_MUSIC);
+                        int i = 0;
+                        int device = 0;
+                        while ((device = 1 << i) != AudioSystem.DEVICE_OUT_DEFAULT) {
+                            if ((curOutdevices & device) != 0) {
+                                if (AudioSystem.DEVICE_OUT_ALL_A2DP_SET.contains(device)) {
+                                    isA2dpOutput = true;
+                                    break;
+                                }
+                            }
+                            i++;
+                        }
+                        mHandler.postDelayed(mHandleAudioSinkUpdatedRunnable, isA2dpOutput ? 2500 : 500);
+                    }
+                }
+
+                @Override
+                public void onAudioPatchListUpdate(AudioPatch[] patchList) {
+                }
+
+                @Override
+                public void onServiceDied() {
+                }
+            };
 
     private final class DtvKitAudioEvent implements SystemControlEvent.AudioEventListener {
         @Override
@@ -340,13 +331,7 @@ public class AudioSystemCmdService extends Service {
         mDtvKitAudioEvent = new DtvKitAudioEvent();
         mSystemControlEvent.SetAudioEventListener(mDtvKitAudioEvent);
         mSystemControlManager.setListener(mSystemControlEvent);
-        IBinder b = ServiceManager.getService(Context.AUDIO_SERVICE);
-        mAudioService = IAudioService.Stub.asInterface(b);
-        try {
-            mCurAudioRoutesInfo = mAudioService.startWatchingRoutes(mAudioRoutesObserver);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
+        mAudioManager.registerAudioPortUpdateListener(mAudioListener);
 
         final IntentFilter filter = new IntentFilter();
         filter.addAction(AudioManager.VOLUME_CHANGED_ACTION);
@@ -364,26 +349,14 @@ public class AudioSystemCmdService extends Service {
         mForceManagePatch =  SystemProperties.getBoolean("vendor.media.dtv.force.manage.patch", false);
         Log.d(TAG, "mForceManagePatch :" + mForceManagePatch);
         mCurrentIndex = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-        getContentResolver().registerContentObserver(Settings.Global.getUriFor(OutputModeManager.DB_ID_AUDIO_OUTPUT_DEVICE_ARC_ENABLE),
-                false, mAudioOutputParametersObserver);
         mDigitalFormat =  getDigitalFormats();
     }
-
-    private ContentObserver mAudioOutputParametersObserver = new ContentObserver(new Handler()) {
-        @Override
-        public void onChange(boolean selfChange, Uri uri) {
-            int currentArcEnable = Settings.Global.getInt(mContext.getContentResolver(), OutputModeManager.DB_ID_AUDIO_OUTPUT_DEVICE_ARC_ENABLE, 0);
-            Log.i(TAG, "onChange ARC enable:" + currentArcEnable + " changed");
-            if (uri != null && uri.equals(Settings.Global.getUriFor(OutputModeManager.DB_ID_AUDIO_OUTPUT_DEVICE_ARC_ENABLE))) {
-                mAudioManager.setHdmiSystemAudioSupported(currentArcEnable != 0);
-            }
-        }
-    };
 
     @Override
     public void onDestroy() {
         Log.i(TAG, "onDestroy");
         super.onDestroy();
+        mAudioManager.unregisterAudioPortUpdateListener(mAudioListener);
     }
 
     @Override
@@ -982,7 +955,6 @@ public class AudioSystemCmdService extends Service {
 
         public void openTvAudio(int sourceType) {
             Log.i(TAG, "openTvAudio set source type:" + sourceTypeToString(sourceType));
-            mHandler.removeCallbacks(mHandleTvAudioRunnable);
             if (sourceType == SOURCE_TYPE_ATV) {
                 mAudioManager.setParameters("hal_param_tuner_in=atv");
             } else if (sourceType == SOURCE_TYPE_DTV) {
@@ -995,10 +967,114 @@ public class AudioSystemCmdService extends Service {
 
         public void closeTvAudio() {
             Log.i(TAG, "closeTvAudio");
-            mHandler.removeCallbacks(mHandleTvAudioRunnable);
             mCurSourceType = SOURCE_TYPE_OTHER;
             mCurrentFmt = -1;
             mCurrentHasDtvVideo = -1;
+        }
+
+        public int setOutputDevices(byte[] devices) {
+            if (devices == null || devices.length == 0 || devices.length > 2) {
+                Log.w(TAG, "setOutputDevices devices is null or invalid dev len:" + devices.length);
+                return -1;
+            }
+
+            if (devices.length == 1 && devices[0] == AudioDeviceInfo.TYPE_UNKNOWN ) {
+                AudioSystem.setForceUse(AudioSystem.FOR_MEDIA, AudioSystem.FORCE_NONE);
+                Log.i(TAG, "setOutputDevices devices TYPE_UNKNOWN, setForceUse NONE.");
+                return 0;
+            }
+
+            ArrayList<Integer> allInternalDevicesList = new ArrayList<Integer>();
+            int allInternalDevicesMask = 0;
+            for (int i = 0; i < devices.length; i++) {
+                AudioDeviceInfo.enforceValidAudioDeviceTypeOut(devices[i]);
+                int intenalDev = AudioDeviceInfo.convertDeviceTypeToInternalDevice(devices[i]);
+                allInternalDevicesMask |= intenalDev;
+                allInternalDevicesList.add(intenalDev);
+                if (DroidLogicUtils.getAudioDebugEnable()) {
+                    Log.d(TAG, "setOutputDevices device[" + i + "]:" + AudioSystem.getOutputDeviceName(intenalDev)
+                            + "(0x" + Integer.toHexString(intenalDev) + ")");
+                }
+            }
+            if (DroidLogicUtils.getAudioDebugEnable()) {
+                Log.i(TAG, "pid:" + Binder.getCallingPid() + ", uid=" + Binder.getCallingUid() +
+                        ", allInternalDevicesMask:0x" + Integer.toHexString(allInternalDevicesMask));
+            }
+            int forceUse = 0;
+            if (allInternalDevicesList.size() == 2) {
+                if ((allInternalDevicesList.get(0) == AudioSystem.DEVICE_OUT_SPEAKER && allInternalDevicesList.get(1) == AudioSystem.DEVICE_OUT_SPDIF)
+                        || (allInternalDevicesList.get(0) == AudioSystem.DEVICE_OUT_SPDIF && allInternalDevicesList.get(1) == AudioSystem.DEVICE_OUT_SPEAKER)) {
+                    forceUse = AudioSystem.FORCE_SPEAKER_SPDIF;
+                } else {
+                    Log.w(TAG, "setOutputDevices not support dev0:" + Integer.toHexString(allInternalDevicesList.get(0))
+                            + ", dev1:" + Integer.toHexString(allInternalDevicesList.get(1)));
+                    return -1;
+                }
+            } else {
+                switch (allInternalDevicesList.get(0)) {
+                    case AudioSystem.DEVICE_OUT_SPEAKER:
+                        forceUse = AudioSystem.FORCE_SPEAKER;
+                        break;
+                    case AudioSystem.DEVICE_OUT_SPDIF:
+                        forceUse = AudioSystem.FORCE_SPDIF;
+                        break;
+                    case AudioSystem.DEVICE_OUT_HDMI:
+                        forceUse = AudioSystem.FORCE_HDMI_OUT;
+                        break;
+                    case AudioSystem.DEVICE_OUT_WIRED_HEADSET:
+                    case AudioSystem.DEVICE_OUT_WIRED_HEADPHONE:
+                        forceUse = AudioSystem.FORCE_HEADPHONES;
+                        break;
+                    case AudioSystem.DEVICE_OUT_HDMI_ARC:
+                        forceUse = AudioSystem.FORCE_HDMI_ARC;
+                        break;
+                    case AudioSystem.DEVICE_OUT_USB_DEVICE:
+                    case AudioSystem.DEVICE_OUT_USB_ACCESSORY:
+                    case AudioSystem.DEVICE_OUT_USB_HEADSET:
+                        forceUse = AudioSystem.FORCE_WIRED_ACCESSORY;
+                        break;
+                    case AudioSystem.DEVICE_OUT_BLUETOOTH_A2DP:
+                        forceUse = AudioSystem.FORCE_BT_A2DP;
+                        break;
+                    default:
+                        Log.w(TAG, "setOutputDevices unsupported dev0:" + Integer.toHexString(allInternalDevicesList.get(0)));
+                        return -1;
+                }
+            }
+            Log.i(TAG, "setOutputDevices setForceUse: " + AudioSystem.forceUseConfigToString(forceUse) + "(" + forceUse + ")");
+            AudioSystem.setForceUse(AudioSystem.FOR_MEDIA, forceUse);
+            mSystemControlManager.setProperty("persist.vendor.media.audio.forceuse", forceUse + "");
+            Settings.Global.putInt(mContext.getContentResolver(), DB_ID_AUDIO_OUTPUT_DEVICES, allInternalDevicesMask);
+            return 0;
+        }
+
+        public byte[] getOutputDevices() {
+            HashSet<Byte> tempDevices = new HashSet<Byte>();
+            int devicesMask = AudioSystem.getDevicesForStream(AudioSystem.STREAM_MUSIC);
+            int device;
+            if (DroidLogicUtils.getAudioDebugEnable()) {
+                Log.d(TAG, "getOutputDevice device mask: 0x" + Integer.toHexString(devicesMask));
+            }
+            if ((devicesMask & AudioSystem.DEVICE_OUT_EARPIECE) != 0) {
+                devicesMask = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_AUDIO_OUTPUT_DEVICES, AudioSystem.DEVICE_OUT_SPEAKER);
+                Log.i(TAG, "getOutputDevices current no output devices. Return user setting. devicesMask:" + Integer.toHexString(devicesMask));
+            }
+            int i = 0;
+            while ((device = 1 << i) != AudioSystem.DEVICE_OUT_DEFAULT) {
+                if ((devicesMask & device) != 0) {
+                    tempDevices.add(new Byte((byte)AudioDeviceInfo.convertInternalDeviceToDeviceType(device)));
+                    if (DroidLogicUtils.getAudioDebugEnable()) {
+                        Log.d(TAG, "getOutputDevice device: " + AudioSystem.getOutputDeviceName(device) + "(0x" + Integer.toHexString(device) + ")");
+                    }
+                }
+                i++;
+            }
+            i = 0;
+            byte[] devices = new byte[tempDevices.size()];
+            for (Byte dev : tempDevices) {
+                devices[i++] = dev;
+            }
+            return devices;
         }
     };
 }

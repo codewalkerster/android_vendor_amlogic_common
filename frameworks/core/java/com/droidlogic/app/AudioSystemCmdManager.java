@@ -26,7 +26,7 @@ import android.util.Log;
 import com.droidlogic.audioservice.services.IAudioSystemCmdService;
 
 public class AudioSystemCmdManager {
-    private String TAG = "AudioSystemCmdManager";
+    private static final String TAG = "AudioSystemCmdManager";
     public static final String SERVICE_PACKEGE_NANME = "com.droidlogic";
     public static final String SERVICE_NANME = "com.droidlogic.audioservice.services.AudioSystemCmdService";
     private IAudioSystemCmdService mAudioSystemCmdService = null;
@@ -66,16 +66,24 @@ public class AudioSystemCmdManager {
     public static final int AUDIO_SERVICE_CMD_SET_MEDIA_FIRST_LANG                  = 29;
     public static final int AUDIO_SERVICE_CMD_SET_MEDIA_SECOND_LANG                 = 30;
 
+    /* 0: Auto  1: Semi-Auto  2: Manual (refer to: audio_output_strategy enum in Engine.cpp) */
+    public static final int OUTPUT_STRATEGY_AUTO                                    = 0;
+    public static final int OUTPUT_STRATEGY_SEMI_AUTO                               = 1;
+    public static final int OUTPUT_STRATEGY_MANUAL                                  = 2;
     private static AudioSystemCmdManager mInstance;
 
     public static AudioSystemCmdManager getInstance(Context context) {
-        if (null == mInstance) {
-            mInstance = new AudioSystemCmdManager(context);
+        if (mInstance == null) {
+            synchronized (AudioSystemCmdManager.class) {
+                if (mInstance == null) {
+                    mInstance = new AudioSystemCmdManager(context);
+                }
+            }
         }
         return mInstance;
     }
 
-    public AudioSystemCmdManager(Context context) {
+    private AudioSystemCmdManager(Context context) {
         mContext = context;
         Log.i(TAG, "construction AudioSystemCmdManager");
         getService();
@@ -119,6 +127,20 @@ public class AudioSystemCmdManager {
 
     public void unBindService() {
         mContext.unbindService(serConn);
+    }
+
+    public static String strategyToString(int strategy) {
+        switch (strategy) {
+            case AudioSystemCmdManager.OUTPUT_STRATEGY_AUTO:
+                return "Auto";
+            case AudioSystemCmdManager.OUTPUT_STRATEGY_SEMI_AUTO:
+                return "Semi-Auto";
+            case AudioSystemCmdManager.OUTPUT_STRATEGY_MANUAL:
+                return "Manual";
+            default:
+                Log.w(TAG, "strategyToString invalid strategy:" + strategy);
+                return "None";
+        }
     }
 
     public static String AudioCmdToString(int cmd) {
@@ -229,7 +251,7 @@ public class AudioSystemCmdManager {
         try {
             mAudioSystemCmdService.updateAudioPortGain(sourceType);
         } catch (RemoteException e) {
-            Log.e(TAG, "openTvAudio failed:" + e);
+            Log.e(TAG, "updateAudioPortGain failed:" + e);
         }
     }
 
@@ -248,6 +270,26 @@ public class AudioSystemCmdManager {
             mAudioSystemCmdService.closeTvAudio();
         } catch (RemoteException e) {
             Log.e(TAG, "closeTvAudio failed:" + e);
+        }
+    }
+
+    public int setOutputDevices(byte[] devices) {
+        if (audioCmdServiceIsNull()) return 0;
+        try {
+            return mAudioSystemCmdService.setOutputDevices(devices);
+        } catch (RemoteException e) {
+            Log.e(TAG, "setOutputDevices failed:" + e);
+        }
+        return 0;
+    }
+
+    public byte[] getOutputDevices() {
+        if (audioCmdServiceIsNull()) return null;
+        try {
+            return mAudioSystemCmdService.getOutputDevices();
+        } catch (RemoteException e) {
+            Log.e(TAG, "getOutputDevices failed:" + e);
+            return null;
         }
     }
 }
