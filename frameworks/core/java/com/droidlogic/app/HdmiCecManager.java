@@ -12,6 +12,8 @@ package com.droidlogic.app;
 
 import android.content.Context;
 import android.content.ContentResolver;
+import android.hardware.hdmi.HdmiControlManager;
+import android.hardware.hdmi.HdmiTvClient;
 import android.provider.Settings;
 import android.util.Log;
 
@@ -37,79 +39,120 @@ public class HdmiCecManager {
     public static final int OFF = 0;
 
     private Context mContext;
-    //private SystemControlManager mSystemControlManager;
+    private HdmiControlManager mHdmiControlManager;
+    private HdmiTvClient mTvClient;
 
     public HdmiCecManager(Context context) {
         mContext = context;
-        //mSystemControlManager = SystemControlManager.getInstance();
+        mHdmiControlManager = context.getSystemService(HdmiControlManager.class);
+        if (mHdmiControlManager == null) {
+            Log.e(TAG, "cec service does not exist, no cec settings is needed!");
+            return;
+        }
+        mTvClient = mHdmiControlManager.getTvClient();
+    }
+
+    public boolean isTv() {
+        return mTvClient != null;
     }
 
     public boolean isHdmiControlEnabled() {
-        return readValue(SETTINGS_HDMI_CONTROL_ENABLED);
+        if (mHdmiControlManager == null) {
+            return false;
+        }
+        return mHdmiControlManager.getHdmiCecEnabled() == ON;
     }
 
     public boolean isOneTouchPlayEnabled() {
         return readValue(SETTINGS_ONE_TOUCH_PLAY);
     }
 
-    public boolean isAutoPowerOffEnabled(boolean def) {
-        return readValue(SETTINGS_AUTO_POWER_OFF, def ? ON : OFF);
-    }
-
     public boolean isAutoPowerOffEnabled() {
-        return readValue(SETTINGS_AUTO_POWER_OFF);
+        if (mHdmiControlManager == null) {
+            return false;
+        }
+        if (mTvClient != null) {
+            return mHdmiControlManager.getTvSendStandbyOnSleep() == ON;
+        }
+        return !HdmiControlManager.POWER_CONTROL_MODE_NONE
+            .equals(mHdmiControlManager.getPowerControlMode());
     }
 
     public boolean isAutoWakeUpEnabled() {
-        return readValue(SETTINGS_AUTO_WAKE_UP);
+        if (mHdmiControlManager == null) {
+            return false;
+        }
+        return mHdmiControlManager.getTvWakeOnOneTouchPlay() == ON;
     }
 
     public boolean isAutoChangeLanguageEnabled() {
-        return readValue(SETTINGS_AUTO_LANGUAGE_CHANGE, OFF);
+        return readValue(SETTINGS_AUTO_LANGUAGE_CHANGE, ON);
     }
 
     public boolean isArcEnabled() {
-        return readValue(SETTINGS_ARC_ENABLED);
+        if (mHdmiControlManager == null) {
+            return false;
+        }
+        return mHdmiControlManager.getSystemAudioControl() == ON;
     }
 
     public boolean isVolumeControlEnabled() {
-        return readValue(SETTINGS_HDMI_VOLUME_CONTROL);
+        if (mHdmiControlManager == null) {
+            return false;
+        }
+        return mHdmiControlManager.getHdmiCecVolumeControlEnabled() == ON;
     }
 
     public void enableHdmiControl(boolean value) {
-        writeValue(SETTINGS_HDMI_CONTROL_ENABLED, value);
+        if (mHdmiControlManager == null) {
+            return;
+        }
+        //writeValue(SETTINGS_HDMI_CONTROL_ENABLED, value);
+        mHdmiControlManager.setHdmiCecEnabled(value ? ON : OFF);
     }
 
     public void enableVolumeControl(boolean value) {
-        writeValue(SETTINGS_HDMI_VOLUME_CONTROL, value);
+        if (mHdmiControlManager == null) {
+            return;
+        }
+        mHdmiControlManager.setHdmiCecVolumeControlEnabled(value ? ON : OFF);
     }
 
     public void enableOneTouchPlay(boolean value) {
         writeValue(SETTINGS_ONE_TOUCH_PLAY, value);
-        /*mSystemControlManager.setProperty(PERSIST_HDMI_CEC_ONE_TOUCH_PLAY,
-                value ? "true" : "false");*/
     }
 
     public void enableAutoPowerOff(boolean value) {
-        writeValue(SETTINGS_AUTO_POWER_OFF, value);
-        /*mSystemControlManager.setProperty(PERSIST_HDMI_CEC_DEVICE_AUTO_POWEROFF,
-                value ? "true" : "false");*/
+        //writeValue(SETTINGS_AUTO_POWER_OFF, value);
+        if (mHdmiControlManager == null) {
+            return;
+        }
+        if (mTvClient != null) {
+            mHdmiControlManager.setTvSendStandbyOnSleep(value ? ON : OFF);
+        } else {
+            mHdmiControlManager.setPowerControlMode(value
+                ? HdmiControlManager.POWER_CONTROL_MODE_TV_AND_AUDIO_SYSTEM
+                : HdmiControlManager.POWER_CONTROL_MODE_NONE);
+        }
     }
 
     public void enableAutoWakeUp(boolean value) {
-        writeValue(SETTINGS_AUTO_WAKE_UP, value);
-        /*mSystemControlManager.setProperty(PERSIST_HDMI_CEC_AUTO_WAKEUP,
-                value ? "true" : "false");*/
+        //writeValue(SETTINGS_AUTO_WAKE_UP, value);
+        if (mHdmiControlManager == null) {
+            return;
+        }
+        mHdmiControlManager.setTvWakeOnOneTouchPlay(value ? ON : OFF);
     }
 
     public void enableAutoChangeLanguage(boolean value) {
         writeValue(SETTINGS_AUTO_LANGUAGE_CHANGE, value);
-        /*mSystemControlManager.setProperty(PERSIST_HDMI_CEC_SET_MENU_LANGUAGE,
-                value ? "true" : "false");*/
     }
 
     public void enableArc(boolean value) {
-        writeValue(SETTINGS_ARC_ENABLED, value);
+        if (mHdmiControlManager == null) {
+            return;
+        }
+        mHdmiControlManager.setSystemAudioControl(value ? ON : OFF);
     }
 
     private boolean readValue(String key) {
