@@ -1,0 +1,32 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "vendor_amlogic_common_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["vendor_amlogic_common_license"],
+}
+
+cc_binary {
+    name: "miracast_hdcp2",
+    init_rc: ["miracast_hdcp2.rc"],
+    vendor: true,
+    srcs: [
+        "hdcp2_service.cpp",
+        "HDCP.cpp",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    shared_libs: [
+        "libhidlbase",
+        "liblog",
+        "libutils",
+        "libcutils",
+        "vendor.amlogic.hardware.miracast_hdcp2@1.0",
+    ],
+    include_dirs: [
+        "frameworks/native/headers/media_plugin",
+    ],
+}
