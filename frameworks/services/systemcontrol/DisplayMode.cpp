@@ -623,6 +623,33 @@ void DisplayMode::sceneProcess(hdmi_data_t* data) {
         data->final_displaymode, data->final_deepcolor, data->dv_info.dv_type);
 }
 
+void DisplayMode::setDefaultMode() {
+    SYS_LOGE("EDID parsing error detected\n");
+
+    // check hdmi output mode
+    char curDisplayMode[MODE_LEN]    = {0};
+    getDisplayMode(curDisplayMode);
+
+    if (!isMatchMode(curDisplayMode, DEFAULT_HDMI_MODE)) {
+        //set avmute
+        pSysWrite->writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "1");
+        //set default color format
+        DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDMI_COLOR_ATTR, DEFAULT_COLOR_FORMAT);
+        //set default resolution
+        setDisplayMode(DEFAULT_HDMI_MODE);
+
+        //update display position
+        int position[4] = { 0, 0, 0, 0 };//x,y,w,h
+        getPosition(DEFAULT_HDMI_MODE, position);
+        setPosition(DEFAULT_HDMI_MODE, position[0], position[1],position[2], position[3]);
+
+        //clear avmute
+        pSysWrite->writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "-1");
+    } else {
+        SYS_LOGI("cur mode is default mode\n");
+    }
+}
+
 /*
 * OUTPUT_MODE_STATE_INIT for boot
 * OUTPUT_MODE_STATE_POWER for hdmi plug and suspend/resume
@@ -650,21 +677,7 @@ void DisplayMode::setSourceDisplay(output_mode_state state) {
     //set default reolsution and color format
     if ((isHdmiEdidParseOK() == false) &&
         (isHdmiHpd() == true)) {
-        //set avmute
-        pSysWrite->writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "1");
-        //set default color format
-        DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDMI_COLOR_ATTR, DEFAULT_COLOR_FORMAT);
-        //set default resolution
-        setDisplayMode(DEFAULT_HDMI_MODE);
-
-        //update display position
-        int position[4] = { 0, 0, 0, 0 };//x,y,w,h
-        getPosition(DEFAULT_HDMI_MODE, position);
-        setPosition(DEFAULT_HDMI_MODE, position[0], position[1],position[2], position[3]);
-
-        //clear avmute
-        pSysWrite->writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "-1");
-        SYS_LOGE("EDID parsing error detected\n");
+        setDefaultMode();
         return;
     }
 
@@ -3285,16 +3298,7 @@ void DisplayMode::onTxEvent (char* switchName, char* hpdstate, int outputState) 
     //set default reolsution and color format
     if ((isHdmiEdidParseOK() == false) &&
         (isHdmiHpd() == true)) {
-        pSysWrite->writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "1");
-        DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDMI_COLOR_ATTR, DEFAULT_COLOR_FORMAT);
-        //set hdmi default mode
-        setDisplayMode(DEFAULT_HDMI_MODE);
-
-        //update display position
-        int position[4] = { 0, 0, 0, 0 };//x,y,w,h
-        getPosition(DEFAULT_HDMI_MODE, position);
-        setPosition(DEFAULT_HDMI_MODE, position[0], position[1],position[2], position[3]);
-        pSysWrite->writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "-1");
+        setDefaultMode();
         return;
     }
 

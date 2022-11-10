@@ -551,6 +551,7 @@ private:
     bool modeSupport(char *mode, int sinkType);
     void setDvHdrPolicy(const char* policy);
     void setSourceOutputMode(const char* outputmode, output_mode_state state);
+    void setDefaultMode();
     int64_t resolveResolutionValue(const char *mode, int flag);
     int modeToIndex(const char *mode);
     void startHdmiPlugDetectThread();
