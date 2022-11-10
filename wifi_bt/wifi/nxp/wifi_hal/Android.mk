@@ -59,6 +59,8 @@ LOCAL_SHARED_LIBRARIES += libnetutils libnl liblog libcutils libutils libwpa_cli
 LOCAL_PROPRIETARY_MODULE := true
 
 LOCAL_MODULE := libwifi-hal-nxp
+LOCAL_LICENSE_KINDS := SPDX-license-identifier-Apache-2.0
+LOCAL_LICENSE_CONDITIONS := notice
 
 include $(BUILD_STATIC_LIBRARY)
 
