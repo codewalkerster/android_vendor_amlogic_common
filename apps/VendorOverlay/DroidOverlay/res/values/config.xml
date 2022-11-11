@@ -45,6 +45,10 @@
     </string-array>
 
 	<!-- CEC config values -->
+
+    <bool name="config_cecPowerStateChangeOnActiveSourceLostNone_default">false</bool>
+    <bool name="config_cecPowerStateChangeOnActiveSourceLostStandbyNow_default">true</bool>
+
     <!-- Which Short Audio Descriptors a TV should query via CEC -->
     <bool name="config_cecQuerySadLpcmEnabled_default">false</bool>
     <bool name="config_cecQuerySadLpcmDisabled_default">true</bool>
@@ -80,9 +84,9 @@
     <bool name="config_cecQuerySadDtshdEnabled_default">true</bool>
     <bool name="config_cecQuerySadDtshdDisabled_default">false</bool>
 
-	<!-- Truehd/MAT -->
-    <bool name="config_cecQuerySadTruehdEnabled_default">true</bool>
-    <bool name="config_cecQuerySadTruehdDisabled_default">false</bool>
+	<!-- Truehd/MAT not supported in ARC-->
+    <bool name="config_cecQuerySadTruehdEnabled_default">false</bool>
+    <bool name="config_cecQuerySadTruehdDisabled_default">true</bool>
 
     <bool name="config_cecQuerySadDstEnabled_default">false</bool>
     <bool name="config_cecQuerySadDstDisabled_default">true</bool>
