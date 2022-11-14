@@ -159,6 +159,7 @@ private:
     bool IsSupport4K30Hz();
     bool IsSupportDeepColor();
     bool isLowPowerMode();
+    bool isDVSupportMode(char *mode);
     scene_state getSceneState();
     int64_t resolveResolutionValue(const char *mode, int flag = FRAMERATE_PRIORITY);
     bool isModeSupportDeepColorAttr(const char *mode, const char * color);

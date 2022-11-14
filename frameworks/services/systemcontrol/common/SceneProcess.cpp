@@ -134,7 +134,7 @@ enum {
     DISPLAY_MODE_TOTAL                  = 29
 };
 
-static const char* DV_MODE_LIST[DV_MODE_LIST_SIZE] = {
+static const char* DV_MODE_LIST[] = {
     DV_MODE_720P,
     DV_MODE_720P50HZ,
     DV_MODE_1080P24HZ,
@@ -575,6 +575,18 @@ scene_state SceneProcess::getSceneState() {
     return mScene_Input_Info.state;
 }
 
+bool SceneProcess::isDVSupportMode(char *mode) {
+    bool validMode = false;
+    if (strlen(mode) != 0) {
+        if (strstr(mode, "hz") != NULL
+        && ((strstr(mode, "480p") == NULL) && (strstr(mode, "576p") == NULL))) {
+            validMode = true;
+        }
+    }
+
+    return validMode;
+}
+
 void SceneProcess::updateDolbyVisionDisplayMode(char * cur_outputmode, int dv_type, char * final_displaymode) {
     char dv_displaymode[MODE_LEN] = {0};
 
@@ -619,8 +631,7 @@ void SceneProcess::updateDolbyVisionDisplayMode(char * cur_outputmode, int dv_ty
         //hdmi output resolution need small than dolby vision resolution
         //ex:dolby vision support 1080p60hz,only can output small 1080p60hz resolution
         if ((resolveResolutionValue(cur_outputmode, RESOLUTION_PRIORITY) > resolveResolutionValue(dv_displaymode, RESOLUTION_PRIORITY))
-            || (strstr(cur_outputmode, "smpte") != NULL) || (strstr(cur_outputmode, "i") != NULL)
-            || (strstr(cur_outputmode, "480p") != NULL) || (strstr(cur_outputmode, "576p") != NULL)) {
+            || !isDVSupportMode(cur_outputmode)) {
             strcpy(final_displaymode, dv_displaymode);
         } else {
             strcpy(final_displaymode, cur_outputmode);
