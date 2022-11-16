@@ -438,6 +438,7 @@ public:
     int SetDtvKitSourceEnable(bool isEnable);
     //AI
     void AipqInit();
+    bool hasAipqFunc();
     int SetAipqEnable(bool isEnable);
     int GetAipqEnable(void);
     void enableAipq(bool isEnable);

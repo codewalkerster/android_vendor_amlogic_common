@@ -1484,6 +1484,13 @@ Return<int32_t> SystemControlHal::setDtvKitSourceEnable(int32_t isEnable) {
     return mSysControl->setDtvKitSourceEnable(isEnable);
 }
 
+Return<Result> SystemControlHal::hasAipqFunc() {
+    if (mSysControl->hasAipqFunc()) {
+        return Result::OK;
+    }
+    return Result::FAIL;
+}
+
 Return<int32_t> SystemControlHal::setAipqEnable(int32_t isEnable) {
     return mSysControl->setAipqEnable(isEnable);
 }
@@ -1491,6 +1498,15 @@ Return<int32_t> SystemControlHal::setAipqEnable(int32_t isEnable) {
 Return<int32_t> SystemControlHal::getAipqEnable() {
     return mSysControl->getAipqEnable();
 }
+
+Return<void> SystemControlHal::readAiPqTable(readAiPqTable_cb _hidl_cb) {
+    AutoMutex _l(mLock);
+    std::string aiPqTable;
+    mSysControl->readAiPqTable(&aiPqTable);
+    _hidl_cb(Result::OK, aiPqTable);
+    return Void();
+}
+
 
 Return<Result> SystemControlHal::aisrContrl(bool on) {
     if (mSysControl->aisrContrl(on)) {

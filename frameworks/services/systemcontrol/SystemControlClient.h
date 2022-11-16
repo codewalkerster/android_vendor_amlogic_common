@@ -286,8 +286,10 @@ public:
     void getChipVersionInfo(std::string& chipversion);
     PQDatabaseInfo getPQDatabaseInfo(int32_t dataBaseName);
     int setDtvKitSourceEnable(int isEnable);
+    bool hasAipqFunc();
     int setAipqEnable(int isEnable);
     int getAipqEnable();
+    bool readAiPqTable(std::string& aiPqTable);
     //aisr
     bool aisrContrl(int isEnable);
     bool hasAisrFunc();

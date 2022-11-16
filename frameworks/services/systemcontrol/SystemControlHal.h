@@ -286,8 +286,10 @@ class SystemControlHal : public ISystemControl, public SystemControlNotify, publ
     Return<void> getChipVersionInfo(getChipVersionInfo_cb _hidl_cb) override;
     Return<void> getPQDatabaseInfo(int32_t dataBaseName, getPQDatabaseInfo_cb _hidl_cb) override;
     Return<int32_t> setDtvKitSourceEnable(int32_t isEnable) override;
+    Return<Result> hasAipqFunc() override;
     Return<int32_t> setAipqEnable(int32_t isEnable) override;
     Return<int32_t> getAipqEnable() override;
+    Return<void> readAiPqTable(readAiPqTable_cb _hidl_cb) override;
     //aisr
     Return<Result> aisrContrl(bool on) override;
     Return<Result> hasAisrFunc() override;

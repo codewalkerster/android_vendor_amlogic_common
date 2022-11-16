@@ -288,6 +288,8 @@ public:
     int setDtvKitSourceEnable(int isEnable);
     int setAipqEnable(int isEnable);
     int getAipqEnable();
+    bool hasAipqFunc();
+    bool readAiPqTable(std::string *aiPqTable);
     //aisr
     bool aisrContrl(bool on);
     bool hasAisrFunc();

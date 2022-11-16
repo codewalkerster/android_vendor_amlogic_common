@@ -6715,13 +6715,30 @@ int CPQControl::SetDtvKitSourceEnable(bool isEnable)
 //AI
 void CPQControl::AipqInit()
 {
+    SYS_LOGI("%s, AipqInit\n", __FUNCTION__);
     if (GetAipqEnable() == 1) {
         enableAipq(true);
     }
 }
 
+bool CPQControl::hasAipqFunc()
+{
+    int ret = -1;
+    SYS_LOGI("%s, hasAipqFunc\n", __FUNCTION__);
+    if (mbCpqCfg_ai_enable && isFileExist(pqSysWrite->getSysNode(AIPQ_PARAMETERS_UVM_OPEN))) {
+        ret = true;
+    } else {
+        ret = false;
+    }
+
+    SYS_LOGI("%s, has aipq or not:%d\n", __FUNCTION__, ret);
+    return ret;
+}
+
 int CPQControl::SetAipqEnable(bool isEnable)
 {
+
+    SYS_LOGI("%s, SetAipqEnable isEnable:%d\n", __FUNCTION__, isEnable);
     enableAipq(isEnable);
     mSSMAction->SSMSaveAipqEnableVal(isEnable ? 1 : 0);
     return 0;
@@ -6730,6 +6747,7 @@ int CPQControl::SetAipqEnable(bool isEnable)
 int CPQControl::GetAipqEnable()
 {
     int data = 0;
+    SYS_LOGI("%s, GetAipqEnable\n", __FUNCTION__);
     mSSMAction->SSMReadAipqEnableVal(&data);
 
     if (data < 0 || data > 1) {
@@ -6740,8 +6758,10 @@ int CPQControl::GetAipqEnable()
 
 void CPQControl::enableAipq(bool isEnable)
 {
+    SYS_LOGI("%s, enableAipq\n", __FUNCTION__);
     pqWriteSys(DECODER_COMMON_PARAMETERS_DEBUG_VDETECT,  isEnable ? "1" : "0");
     pqWriteSys(VDETECT_AIPQ_ENABLE,  isEnable ? "1" : "0");
+    pqWriteSys(AIPQ_PARAMETERS_UVM_OPEN,  isEnable ? "1" : "0");
 }
 
 int CPQControl::AiParamLoad(void)
@@ -6778,6 +6798,7 @@ int CPQControl::AiParamLoad(void)
  bool CPQControl::hasAisrFunc() {
     int ret = -1;
 
+    SYS_LOGI("%s, hasAisrFunc\n", __FUNCTION__);
     if (mbCpqCfg_aisr_enable && isFileExist(pqSysWrite->getSysNode(AISR_PARAMETERS_UVM_OPEN_NN))) {
         ret = true;
     } else {
@@ -6839,6 +6860,7 @@ int CPQControl::SaveAiSrEnable(bool enable)
 int CPQControl::Cpq_SetAiSrEnable(bool enable)
 {
     int ret = 0;
+    SYS_LOGI("%s, Cpq_SetAiSrEnable\n", __FUNCTION__);
     if (mbCpqCfg_aisr_enable) {
         ret =pqWriteSys(VIDEO_AISR_ENABLE, enable ? "1" : "0");
     } else {

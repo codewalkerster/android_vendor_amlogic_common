@@ -654,11 +654,18 @@ interface ISystemControl {
   setDtvKitSourceEnable(int32_t isEnable)
       generates (int32_t ret);
 
+  //aipq
+  hasAipqFunc ()
+      generates (Result result);
+
   setAipqEnable(int32_t isEnable)
       generates (int32_t ret);
 
   getAipqEnable()
       generates (int32_t ret);
+
+  readAiPqTable()
+      generates (Result result, string aiPqTable);
 
   //aisr
   aisrContrl (bool on)

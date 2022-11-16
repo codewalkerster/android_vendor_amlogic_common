@@ -4058,9 +4058,22 @@ public class SystemControlManager {
          return -1;
      }
 
+     public boolean hasAipqFunc() {
+         synchronized (mLock) {
+             try {
+                 Log.i(TAG, "run hasAipqFunc");
+                 return (mProxy.hasAipqFunc() == Result.OK);
+             } catch (Exception e) {
+                 Log.e(TAG, "hasAipqFunc:" + e);
+             }
+         }
+         return false;
+     }
+
      public int setAipqEnable(boolean isEnable) {
          synchronized (mLock) {
              try {
+                 Log.i(TAG, "run setAipqEnable");
                  return mProxy.setAipqEnable(isEnable ? 1 : 0);
              } catch (Exception e) {
                  Log.e(TAG, "setAipqEnable:" + e);
@@ -4072,6 +4085,7 @@ public class SystemControlManager {
      public boolean getAipqEnable() {
          synchronized (mLock) {
              try {
+                 Log.i(TAG, "run getAipqEnable");
                  return mProxy.getAipqEnable() == 1;
              } catch (Exception e) {
                  Log.e(TAG, "getAipqEnable:" + e);
@@ -4080,9 +4094,30 @@ public class SystemControlManager {
          return false;
      }
 
+     public String getAipqTable() {
+        String val = null;
+        synchronized (mLock) {
+            try {
+                 Log.i(TAG, "run getAipqTable");
+                 Mutable<String> resultVal = new Mutable<>();
+                 mProxy.readAiPqTable((int ret, String v) -> {
+                     if (Result.OK == ret) {
+                        resultVal.value = v;
+                     }
+                 });
+                Log.d("AIPQ_TABLE", "getAipqTable value: " + resultVal.value);
+                return resultVal.value;
+            } catch (Exception e) {
+                Log.e(TAG, "getAipqTable:" + e);
+            }
+        }
+        return val;
+    }
+
      public boolean aisrContrl(boolean on) {
          synchronized (mLock) {
              try {
+                 Log.i(TAG, "run aisrContrl");
                  return (mProxy.aisrContrl(on) == Result.OK);
              } catch (Exception e) {
                  Log.e(TAG, "aisrContrl:" + e);
@@ -4094,6 +4129,7 @@ public class SystemControlManager {
      public boolean hasAisrFunc() {
          synchronized (mLock) {
              try {
+                 Log.i(TAG, "run hasAisrFunc");
                  return (mProxy.hasAisrFunc() == Result.OK);
              } catch (Exception e) {
                  Log.e(TAG, "hasAisrFunc:" + e);
@@ -4105,6 +4141,7 @@ public class SystemControlManager {
      public boolean GetAisr() {
          synchronized (mLock) {
              try {
+                 Log.i(TAG, "run GetAisr");
                  return (mProxy.getAisr() == Result.OK);
              } catch (Exception e) {
                  Log.e(TAG, "getAisr:" + e);

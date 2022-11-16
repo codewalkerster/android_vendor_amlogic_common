@@ -35,6 +35,9 @@
 #include "SystemControlService.h"
 #include "keymaster_hidl_hal_test.h"
 #include "DisplayModeMgr.h"
+#include "SysTokenizer.h"
+
+#define SCENSE_DATE_POLIY_COFIG "vendor/etc/scenes_data.txt"
 
 //using android::hardware::keymaster::V3_0::check_AttestationKey;
 namespace android {
@@ -1841,10 +1844,21 @@ int SystemControlService::setDtvKitSourceEnable(int isEnable)
     return ret;
 }
 
+bool SystemControlService::hasAipqFunc() {
+    int ret = -1;
+    if (pCPQControl != NULL) {
+        SYS_LOGI("%s:run hasAipqFunc\n", __FUNCTION__);
+        ret = pCPQControl->hasAipqFunc();
+    }
+
+    return ret;
+}
+
 int SystemControlService::setAipqEnable(int isEnable)
 {
     int ret = -1;
     if (pCPQControl != NULL) {
+        SYS_LOGI("%s:run setAipqEnable isEnable:%d\n", __FUNCTION__, isEnable);
         if (isEnable) {
             ret = pCPQControl->SetAipqEnable(true);
         } else {
@@ -1859,16 +1873,59 @@ int SystemControlService::getAipqEnable()
 {
     int ret = -1;
     if (pCPQControl != NULL) {
+        SYS_LOGI("%s:run getAipqEnable\n", __FUNCTION__);
         ret = pCPQControl->GetAipqEnable();
     }
 
     return ret;
 }
 
+bool SystemControlService::readAiPqTable(std::string *aiPqTable) {
+    const char* WHITESPACE = " \t\r";
+
+    SysTokenizer* tokenizer;
+    SYS_LOGI("%s:run readAiPqTable\n", __FUNCTION__);
+    int status = SysTokenizer::open(SCENSE_DATE_POLIY_COFIG, &tokenizer);
+    if (status) {
+        SYS_LOGE("Error %d opening aipq config file %s.", status, SCENSE_DATE_POLIY_COFIG);
+    } else {
+        while (!tokenizer->isEof()) {
+            tokenizer->skipDelimiters(WHITESPACE);
+            if (!tokenizer->isEol() && tokenizer->peekChar() != '#') {
+                char *token = tokenizer->nextToken(WHITESPACE);
+                if (NULL != token && !strcmp(token,"AIPQ_scenes_data:")) {
+                    tokenizer->nextLine();
+                    token = tokenizer->nextToken(WHITESPACE);
+                    int size  = 0;
+                    if (!strcmp(token,"scenes_count:")) {
+                         token = tokenizer->nextToken(",");
+                         size = atoi(token);
+                    }
+                    SYS_LOGD("Read Scenes Count %d",size);
+                    tokenizer->nextLine();//skip ==
+                    for (int i=0;i<size;i++) {
+                        tokenizer->nextLine();
+                        token = tokenizer->nextToken(":");
+                        token = tokenizer->nextToken(",");
+                        std::string str(token);
+                        *aiPqTable += token;
+                        //table->push_back(str);
+                    }
+                    break;
+                }
+            }
+            tokenizer->nextLine();
+        }
+        delete tokenizer;
+    }
+    return status;
+}
+
 bool SystemControlService::aisrContrl(bool on)
 {
     int ret = -1;
     if (pCPQControl != NULL) {
+        SYS_LOGI("%s:run aisrContrl\n", __FUNCTION__);
         ret = pCPQControl->SetAiSrEnable(on);
     }
 
@@ -1879,6 +1936,7 @@ bool SystemControlService::hasAisrFunc()
 {
     int ret = -1;
     if (pCPQControl != NULL) {
+        SYS_LOGI("%s:run hasAisrFunc\n", __FUNCTION__);
         ret = pCPQControl->hasAisrFunc();
     }
 
@@ -1888,6 +1946,7 @@ bool SystemControlService::hasAisrFunc()
 bool SystemControlService::getAisr()
 {
     if (pCPQControl != NULL) {
+        SYS_LOGI("%s:run getAisr\n", __FUNCTION__);
         if ((pCPQControl->GetAiSrEnable()) > 0) {
             return true;
         } else {

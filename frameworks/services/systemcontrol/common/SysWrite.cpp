@@ -713,6 +713,7 @@ void SysWrite::initConstCharforSysNode() {
         mPathforSysNode[DI_PARAMETERS_DNR_EN]        = "/sys/module/aml_media/parameters/dnr_en";
         mPathforSysNode[DI_PARAMETERS_NR2_EN]        = "/sys/module/aml_media/parameters/nr2_en";
         mPathforSysNode[DI_PARAMETERS_MCEN_MODE]     = "/sys/module/aml_media/parameters/mcen_mode";
+        mPathforSysNode[AIPQ_PARAMETERS_UVM_OPEN]    = "/sys/module/aml_media/parameters/uvm_open_aipq";
         mPathforSysNode[AISR_PARAMETERS_UVM_OPEN_NN] = "/sys/module/aml_media/parameters/uvm_open_nn";
         mPathforSysNode[DECODER_COMMON_PARAMETERS_DEBUG_VDETECT] = "/sys/module/decoder_common/parameters/debug_vdetect";
         mPathforSysNode[VIDEO_BACKGROUND_COLOR]      = "/sys/class/video/video_background";
@@ -755,6 +756,7 @@ void SysWrite::initConstCharforSysNode() {
         mPathforSysNode[DI_PARAMETERS_DNR_EN]        = "/sys/module/di/parameters/dnr_en";
         mPathforSysNode[DI_PARAMETERS_NR2_EN]        = "/sys/module/di/parameters/nr2_en";
         mPathforSysNode[DI_PARAMETERS_MCEN_MODE]     = "/sys/module/di/parameters/mcen_mode";
+        mPathforSysNode[AIPQ_PARAMETERS_UVM_OPEN]    = "/sys/module/aml_media/parameters/uvm_open_aipq";
         mPathforSysNode[AISR_PARAMETERS_UVM_OPEN_NN] = "/sys/module/aml_media/parameters/uvm_open_nn";
         mPathforSysNode[DECODER_COMMON_PARAMETERS_DEBUG_VDETECT] = "/sys/module/decoder_common/parameters/debug_vdetect";
         mPathforSysNode[VIDEO_BACKGROUND_COLOR]      = "/sys/class/video/video_background";

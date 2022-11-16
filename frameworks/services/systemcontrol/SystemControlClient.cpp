@@ -1307,12 +1307,32 @@ int SystemControlClient::setDtvKitSourceEnable(int isEnable) {
     return mSysCtrl->setDtvKitSourceEnable(isEnable);
 }
 
+bool SystemControlClient::hasAipqFunc() {
+   return (mSysCtrl->hasAipqFunc() == Result::OK);
+}
+
 int SystemControlClient::setAipqEnable(int isEnable) {
     return mSysCtrl->setAipqEnable(isEnable);
 }
 
 int SystemControlClient::getAipqEnable() {
     return mSysCtrl->getAipqEnable();
+}
+
+bool SystemControlClient::readAiPqTable(std::string& aiPqTable) {
+    mSysCtrl->readAiPqTable([&aiPqTable](const Result &ret, const hidl_string& getaiPqTable) {
+    if (Result::OK == ret)
+        aiPqTable = getaiPqTable.c_str();
+    else
+        aiPqTable.clear();
+    });
+
+    if (aiPqTable.empty()) {
+        LOG(ERROR) << "system control client readAiPqTable FAIL.";
+        return false;
+    }
+
+    return true;
 }
 
 bool SystemControlClient::aisrContrl(int isEnable) {
