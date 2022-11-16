@@ -992,20 +992,12 @@ int CPQControl::GetPQParams(source_input_param_t source_input_param, vpp_picture
     if (pq_para == NULL) {
         SYS_LOGE("%s: pq_para is NULL!\n", __FUNCTION__);
     } else {
-        if (pq_mode == VPP_PICTURE_MODE_USER) {
-            mSSMAction->SSMReadBrightness(mSourceInputForSaveParam, &pq_para->brightness);
-            mSSMAction->SSMReadContrast(mSourceInputForSaveParam, &pq_para->contrast);
-            mSSMAction->SSMReadSaturation(mSourceInputForSaveParam, &pq_para->saturation);
-            mSSMAction->SSMReadHue(mSourceInputForSaveParam, &pq_para->hue);
-            mSSMAction->SSMReadSharpness(mSourceInputForSaveParam, &pq_para->sharpness);
-            ret = 0;
-        } else {
-            if (mbCpqCfg_separate_db_enable) {
-                ret = mpOverScandb->PQ_GetPQModeParams(source_input_param.source_input, pq_mode, pq_para);
-            } else {
-                ret = mPQdb->PQ_GetPQModeParams(source_input_param.source_input, pq_mode, pq_para);
-            }
-        }
+        mSSMAction->SSMReadBrightness(mSourceInputForSaveParam, &pq_para->brightness);
+        mSSMAction->SSMReadContrast(mSourceInputForSaveParam, &pq_para->contrast);
+        mSSMAction->SSMReadSaturation(mSourceInputForSaveParam, &pq_para->saturation);
+        mSSMAction->SSMReadHue(mSourceInputForSaveParam, &pq_para->hue);
+        mSSMAction->SSMReadSharpness(mSourceInputForSaveParam, &pq_para->sharpness);
+        ret = 0;
     }
 
     if (ret != 0) {
