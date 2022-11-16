@@ -630,38 +630,6 @@ static int read_write_bin(const char *path)
     return 0;
 }
 
-
-
-static int read_write_test_widevine(const char *path)
-{
-    const uint32_t key_type = PROVISION_KEY_TYPE_WIDEVINE;
-    int fdImg;
-    struct stat widevine;
-    if ((fdImg = open(path, O_RDONLY)) < 0) {
-        ALOGE("Fail to open res image at path %s\n", path);
-        return -1;
-    }
-    fstat(fdImg, &widevine);
-    ALOGE("size of %s is %lld\n", path, widevine.st_size);
-    char *writebuffer = (char *)malloc(widevine.st_size);
-    if (!writebuffer) {
-        ALOGE("Fail to malloc buffer  \n");
-        return -1;
-    }
-
-    int actualReadSz = 0;
-    actualReadSz = read(fdImg, writebuffer, widevine.st_size);
-
-    ALOGE("actualReadSz = %d\n", actualReadSz);
-
-    dump_mem(writebuffer, actualReadSz);
-
-    mSysClient->writeNetflixKey(writebuffer, actualReadSz);
-    free(writebuffer);
-    close(fdImg);
-    return mSysClient->readNetflixKey(key_type, actualReadSz);
-}
-
 bool sc_read_bootenv(const char * key) {
     std::string env_value;
     mSysClient->getBootEnv(key, env_value);

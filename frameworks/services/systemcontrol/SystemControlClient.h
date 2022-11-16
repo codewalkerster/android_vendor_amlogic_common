@@ -81,6 +81,9 @@ public:
     bool calcChecksumKey(const char *value, const int size, std::string& keyCheckSum);
     bool getKeyProvisionChecksum(int type, std::string& keyCheckSum);
     bool writeProvisionKey(const char *value, const int size);
+    bool writeProvisionKey2(const char *value, const int size);
+    int32_t writeProvisionKeyWithResult(const char *value, const int size);
+    int32_t writeProvisionKeyWithResult2(const char *value, const int size);
     bool checkProvisionKey(const uint32_t key_type);
     bool deleteProvisionKey(const uint32_t key_type);
     bool deleteProvisionKeyEx(const uint32_t key_type, const std::string& uuid);

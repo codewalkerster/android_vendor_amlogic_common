@@ -329,10 +329,72 @@ public class SystemControlManager {
     *usage: writeProvisionKey(keyContent, keyContent.size, keyContent.type);
     * use it write keys that contain Special characters
     */
+
+    public int writeProvisionKeyWithResult(int[] val, int size, int key_type) {
+        Mutable<Integer> resultVal = new Mutable<>();
+        synchronized (mLock) {
+            try {
+                int[] data;
+                int res = -1;
+                switch (key_type) {
+                    case PROVISION_KEY_TYPE_PLAYREADY_PRIVATE           :
+                    case PROVISION_KEY_TYPE_PLAYREADY_PUBLIC            :
+                    case PROVISION_KEY_TYPE_WIDEVINE                    :
+                    case PROVISION_KEY_TYPE_NETFLIX_MGKID               :
+                    case PROVISION_KEY_TYPE_WIDEVINE_CAS                :
+                    case PROVISION_KEY_TYPE_HDCP_TX14                   :
+                    case PROVISION_KEY_TYPE_HDCP_TX22                   :
+                    case PROVISION_KEY_TYPE_HDCP_RX14                   :
+                    case PROVISION_KEY_TYPE_HDCP_RX22_WFD               :
+                    case PROVISION_KEY_TYPE_HDCP_RX22_FW                :
+                    case PROVISION_KEY_TYPE_HDCP_RX22_FW_PRIVATE        :
+                        if (size > KEY_TYPE_LEN_FIRST) {
+                            Log.e(TAG, "The data len is too long, it cannot exceed " + (String.format("%d", size))+" key_type:"+key_type);
+                            return res;
+                        }
+                        data = paddingBuffer(val, size, KEY_TYPE_LEN_FIRST);
+                        mProxy.writeProvisionKeyWithResult2(data, size, (int ret, int v) ->{
+                                if (Result.OK == ret) {
+                                    resultVal.value = v;
+                                }
+                            });
+                    break;
+                    case PROVISION_KEY_TYPE_PFID        :
+                        if (size > KEY_TYPE_LEN_SECOND) {
+                            Log.e(TAG, "The data len is too long, it cannot exceed " + (String.format("%d", size))+" key_type:"+key_type);
+                            return res;
+                        }
+                        data = paddingBuffer(val, size, KEY_TYPE_LEN_SECOND);
+                        mProxy.writeProvisionKeyWithResult(data, size, (int ret, int v) ->{
+                                if (Result.OK == ret) {
+                                    resultVal.value = v;
+                                }
+                        });
+                    break;
+                    default:
+                        Log.d(TAG, "The key is not match, try to write " + (String.format("%d", size))+" key_type:"+key_type);
+                        data = paddingBuffer(val, size, KEY_TYPE_LEN_SECOND);
+                        mProxy.writeProvisionKeyWithResult(data, size, (int ret, int v) ->{
+                                if (Result.OK == ret) {
+                                    resultVal.value = v;
+                                }
+                        });
+                    break;
+                }
+                return resultVal.value;
+            } catch (Exception e) {
+                Log.e(TAG, "writeProvisionKeyWithResult:" + e);
+            }
+        }
+        return resultVal.value;
+    }
+
+
     public boolean writeProvisionKey(int[] val, int size, int key_type) {
         synchronized (mLock) {
             try {
                 int[] data;
+                int res = -1;
                 switch (key_type) {
                     case PROVISION_KEY_TYPE_PLAYREADY_PRIVATE           :
                     case PROVISION_KEY_TYPE_PLAYREADY_PUBLIC            :
@@ -350,6 +412,7 @@ public class SystemControlManager {
                             return false;
                         }
                         data = paddingBuffer(val, size, KEY_TYPE_LEN_FIRST);
+                        res = mProxy.writeProvisionKey2(data, size);
                     break;
                     case PROVISION_KEY_TYPE_PFID        :
                         if (size > KEY_TYPE_LEN_SECOND) {
@@ -357,16 +420,17 @@ public class SystemControlManager {
                             return false;
                         }
                         data = paddingBuffer(val, size, KEY_TYPE_LEN_SECOND);
+                        res = mProxy.writeProvisionKey(data, size);
                     break;
                     default:
-                        Log.i(TAG, "The key is not match, try to write " + (String.format("%d", size))+" key_type:"+key_type);
+                        Log.d(TAG, "The key is not match, try to write " + (String.format("%d", size))+" key_type:"+key_type);
                         data = paddingBuffer(val, size, KEY_TYPE_LEN_SECOND);
+                        res = mProxy.writeProvisionKey(data, size);
                     break;
                 }
-                int res = mProxy.writeProvisionKey(data, size);
                 return 0 == res;
             } catch (Exception e) {
-                Log.e(TAG, "writeUnifyKey:" + e);
+                Log.e(TAG, "writeProvisionKey:" + e);
             }
         }
         return true;

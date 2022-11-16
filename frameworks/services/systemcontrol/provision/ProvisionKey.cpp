@@ -146,6 +146,31 @@ bool ProvisionKey::writeProvisionKey(const char *value, const int size) {
     return ret;
 }
 
+bool ProvisionKey::writeProvisionKey2(const char *value, const int size) {
+    bool ret = false;
+    #ifndef RECOVERY_MODE
+    ret = keyProvisionStore(value, size);
+    #endif
+    return ret;
+}
+
+int32_t ProvisionKey::writeProvisionKeyWithResult(const char *value, const int size) {
+    int32_t ret = -1;
+    #ifndef RECOVERY_MODE
+    ret = keyProvisionStoreWithResult(value, size);
+    #endif
+    return ret;
+}
+
+int32_t ProvisionKey::writeProvisionKeyWithResult2(const char *value, const int size) {
+    int32_t ret = -1;
+    #ifndef RECOVERY_MODE
+    ret = keyProvisionStoreWithResult(value, size);
+    #endif
+    return ret;
+}
+
+
 bool ProvisionKey::checkProvisionKey(const uint32_t key_type) {
     bool ret = false;
     #ifndef RECOVERY_MODE
@@ -218,6 +243,17 @@ bool ProvisionKey::keyProvisionStore(const char *value, const int size) {
     else
         return false;
 }
+
+int32_t ProvisionKey::keyProvisionStoreWithResult(const char *value, const int size) {
+    SYS_LOGI("keyProvisionStoreWithResult key_size: %d\n", size);
+    int32_t ret = -1;
+    #ifndef RECOVERY_MODE
+        ret = key_provision_store(NULL, 0, (uint8_t*)value, (uint32_t)size);
+    #endif
+    SYS_LOGI("keyProvisionStoreWithResult ret = %d, %08X\n", ret, ret);
+    return ret;
+}
+
 
 bool ProvisionKey::keyProvisionQuery (const uint32_t key_type, const int size) {
     uint32_t key_size = size;

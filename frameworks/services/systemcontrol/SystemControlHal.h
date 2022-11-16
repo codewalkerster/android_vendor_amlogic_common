@@ -76,7 +76,10 @@ class SystemControlHal : public ISystemControl, public SystemControlNotify, publ
     Return<Result> writeHdcpRXImg(const hidl_string &path) override;
 
     //Provision key start
-    Return<Result> writeProvisionKey(const hidl_array<int32_t, 10240>& value, int32_t size);
+    Return<Result> writeProvisionKey(const hidl_array<int32_t, 10240>& value, int32_t size) override;
+    Return<Result> writeProvisionKey2(const hidl_array<int32_t, 4096>& value, int32_t size) override;
+    Return<void> writeProvisionKeyWithResult(const hidl_array<int32_t, 10240>& value, int32_t size, writeProvisionKeyWithResult_cb _hidl_cb) override;
+    Return<void> writeProvisionKeyWithResult2(const hidl_array<int32_t, 4096>& value, int32_t size, writeProvisionKeyWithResult2_cb _hidl_cb) override;
     Return<Result> checkProvisionKey(const uint32_t key_type);
     Return<Result> writeUnifyKey(const hidl_string &path, const hidl_string &value) override;
     Return<void> readUnifyKey(const hidl_string &path, readUnifyKey_cb _hidl_cb) override;

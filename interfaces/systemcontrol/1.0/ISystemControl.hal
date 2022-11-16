@@ -106,6 +106,15 @@ interface ISystemControl {
   writeProvisionKey(int32_t[10240] value, int32_t size)
       generates (Result result);
 
+  writeProvisionKey2(int32_t[4096] value, int32_t size)
+      generates (Result result);
+
+  writeProvisionKeyWithResult(int32_t[10240] value, int32_t size)
+      generates (Result result, int32_t ret);
+
+  writeProvisionKeyWithResult2(int32_t[4096] value, int32_t size)
+      generates (Result result, int32_t ret);
+
   writeUnifyKey(string path, string value)
       generates (Result result);
 

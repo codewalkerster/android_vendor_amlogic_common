@@ -85,6 +85,9 @@ public:
 
     //key start
     bool writeProvisionKey(const char *value, const int size);
+    bool writeProvisionKey2(const char *value, const int size);
+    int32_t writeProvisionKeyWithResult(const char *value, const int size);
+    int32_t writeProvisionKeyWithResult2(const char *value, const int size);
     bool checkProvisionKey(const uint32_t key_type);
     bool calcChecksumKey(const char *value, const int size, char *keyCheckSum);
     bool getKeyProvisionChecksum(int type, char *keyCheckSum);
@@ -97,6 +100,7 @@ private:
 
     //key start
     bool keyProvisionStore(const char *value, const int size);
+    int32_t keyProvisionStoreWithResult(const char *value, const int size);
     bool keyProvisionQuery(const uint32_t key_type, const int size);
     bool keyProvisionChecksum (const uint32_t key_type, const char *value);
     bool keyProvisionDelete (const uint32_t key_type);

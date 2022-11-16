@@ -176,6 +176,61 @@ bool SystemControlClient::writeProvisionKey(const char *value, const int size) {
     return false;
 }
 
+bool SystemControlClient::writeProvisionKey2(const char *value, const int size) {
+    int i;
+    hidl_array<int32_t, 4096> key;
+    for (i = 0; i < size; ++i) {
+        key[i] = value[i];
+    }
+
+    for (; i < 4096; ++i) {
+        key[i] = 0;
+    }
+    Result ret = mSysCtrl->writeProvisionKey2(key, size);
+    if (ret == Result::OK) {
+        return true;
+    }
+    return false;
+}
+
+int32_t SystemControlClient::writeProvisionKeyWithResult(const char *value, const int size) {
+    int i;
+    int32_t result = -1;
+    hidl_array<int32_t, 10240> key;
+    for (i = 0; i < size; ++i) {
+        key[i] = value[i];
+    }
+
+    for (; i < 10240; ++i) {
+        key[i] = 0;
+    }
+    mSysCtrl->writeProvisionKeyWithResult(key, size,[&result](const Result &ret, const int32_t& v) {
+        if (Result::OK == ret) {
+            result = v;
+        }
+    });
+    return result;
+}
+
+int32_t SystemControlClient::writeProvisionKeyWithResult2(const char *value, const int size) {
+    int i;
+    int32_t result = -1;
+    hidl_array<int32_t, 4096> key;
+    for (i = 0; i < size; ++i) {
+        key[i] = value[i];
+    }
+
+    for (; i < 4096; ++i) {
+        key[i] = 0;
+    }
+    mSysCtrl->writeProvisionKeyWithResult2(key, size, [&result](const Result &ret, const int32_t& v) {
+        if (Result::OK == ret) {
+            result = v;
+        }
+    });
+    return result;
+}
+
 bool SystemControlClient::checkProvisionKey(const uint32_t key_type) {
     Result ret = mSysCtrl->checkProvisionKey(key_type);
     if (ret == Result::OK) {

@@ -268,6 +268,39 @@ bool SystemControlService::writeProvisionKey(const char *value, const int size) 
     return ret;
 }
 
+bool SystemControlService::writeProvisionKey2(const char *value, const int size) {
+    bool ret = false;
+
+    if (NO_ERROR == permissionCheck()) {
+        ret = pProvisionKey->writeProvisionKey2(value, size);
+        ALOGD("SystemControlService writeProvisionKey2:%d\n", ret);
+    }
+
+    return ret;
+}
+
+int32_t SystemControlService::writeProvisionKeyWithResult(const char *value, const int size) {
+    int32_t ret = -1;
+
+    if (NO_ERROR == permissionCheck()) {
+        ret = pProvisionKey->writeProvisionKeyWithResult(value, size);
+        ALOGD("SystemControlService writeProvisionKeyWithResult:%d\n", ret);
+    }
+
+    return ret;
+}
+
+int32_t SystemControlService::writeProvisionKeyWithResult2(const char *value, const int size) {
+    int32_t ret = -1;
+
+    if (NO_ERROR == permissionCheck()) {
+        ret = pProvisionKey->writeProvisionKeyWithResult2(value, size);
+        ALOGD("SystemControlService writeProvisionKeyWithResult2:%d\n", ret);
+    }
+
+    return ret;
+}
+
 bool SystemControlService::writeUnifyKey(const std::string& path, const std::string& value) {
     if (NO_ERROR == permissionCheck()) {
         traceValue("writeUnifyKey", path, value);

@@ -366,6 +366,56 @@ Return<Result> SystemControlHal::writeProvisionKey(const hidl_array<int32_t, 102
         return Result::FAIL;
 }
 
+Return<Result> SystemControlHal::writeProvisionKey2(const hidl_array<int32_t, 4096>& value, int32_t size) {
+    int i;
+    bool ret = false;
+    char *key = (char *)malloc(size);
+
+    memset(key, 0, size);
+    for (i = 0; i < size; ++i) {
+        key[i] = value[i];
+    }
+    ret = mSysControl->writeProvisionKey2(key, size);
+    if (ENABLE_LOG_PRINT) ALOGI("writeProvisionKey2:%d", ret);
+    free(key);
+    if (ret)
+        return Result::OK;
+    else
+        return Result::FAIL;
+}
+
+Return<void> SystemControlHal::writeProvisionKeyWithResult(const hidl_array<int32_t, 10240>& value, int32_t size, writeProvisionKeyWithResult_cb _hidl_cb) {
+    int i;
+    int32_t ret = -1;
+    char *key = (char *)malloc(size);
+
+    memset(key, 0, size);
+    for (i = 0; i < size; ++i) {
+        key[i] = value[i];
+    }
+    ret = mSysControl->writeProvisionKeyWithResult(key, size);
+    if (ENABLE_LOG_PRINT) ALOGI("writeProvisionKeyWithResult:%d", ret);
+    free(key);
+    _hidl_cb(Result::OK, ret);
+    return Void();
+}
+
+Return<void> SystemControlHal::writeProvisionKeyWithResult2(const hidl_array<int32_t, 4096>& value, int32_t size, writeProvisionKeyWithResult2_cb _hidl_cb) {
+    int i;
+    int32_t ret = -1;
+    char *key = (char *)malloc(size);
+
+    memset(key, 0, size);
+    for (i = 0; i < size; ++i) {
+        key[i] = value[i];
+    }
+    ret = mSysControl->writeProvisionKeyWithResult2(key, size);
+    if (ENABLE_LOG_PRINT) ALOGI("writeProvisionKeyWithResult2:%d", ret);
+    free(key);
+    _hidl_cb(Result::OK, ret);
+    return Void();
+}
+
 Return<Result> SystemControlHal::checkProvisionKey(const uint32_t key_type) {
      bool ret = false;
      ret = mSysControl->checkProvisionKey(key_type);

@@ -77,6 +77,9 @@ public:
 
    //Provision key start
     bool writeProvisionKey(const char *value, const int size);
+    bool writeProvisionKey2(const char *value, const int size);
+    int32_t writeProvisionKeyWithResult(const char *value, const int size);
+    int32_t writeProvisionKeyWithResult2(const char *value, const int size);
     bool checkProvisionKey(const uint32_t key_type);
     bool writeUnifyKey(const std::string& path, const std::string& value);
     bool readUnifyKey(const std::string& path, std::string& value);
