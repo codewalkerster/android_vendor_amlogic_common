@@ -353,7 +353,7 @@ Supplicant::addP2pInterfaceInternal(const std::string& name)
 	const char* path = resolvePath(
 		    kP2pIfaceConfOverlayPaths,
 		    sizeof(kP2pIfaceConfOverlayPaths)/sizeof(kP2pIfaceConfOverlayPaths[0]));
-	if (path != nullptr && strcmp(wifi_status, "bcm") != 0 && strcmp(wifi_status, "uwe") != 0) {
+	if (path != nullptr && os_strncasecmp(wifi_status, "bcm", 3) != 0 && os_strncasecmp(wifi_status, "uwe", 3) != 0) {
 		iface_params.confanother = path;
 	}
 
@@ -415,7 +415,7 @@ Supplicant::addStaInterfaceInternal(const std::string& name)
 	const char* path = resolvePath(
 		    kStaIfaceConfOverlayPaths,
 		    sizeof(kStaIfaceConfOverlayPaths)/sizeof(kStaIfaceConfOverlayPaths[0]));
-	if (path != nullptr && strcmp(wifi_status, "bcm") != 0 && strcmp(wifi_status, "uwe") != 0) {
+	if (path != nullptr && os_strncasecmp(wifi_status, "bcm", 3) != 0 && os_strncasecmp(wifi_status, "uwe", 3) != 0) {
 		iface_params.confanother = path;
 	}
 

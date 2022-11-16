@@ -5093,7 +5093,7 @@ static void wpas_p2p_deinit_global(struct wpa_global *global)
 static int wpas_p2p_create_iface(struct wpa_supplicant *wpa_s)
 {
 	char wifi_status[PROPERTY_VALUE_MAX] = {'\0'};
-	if (property_get("vendor.wifi_name", wifi_status, NULL) && strcmp(wifi_status, "bcm") != 0 && strcmp(wifi_status, "uwe") != 0)
+	if (property_get("vendor.wifi_name", wifi_status, NULL) && os_strncasecmp(wifi_status, "bcm", 3) != 0 && os_strncasecmp(wifi_status, "uwe", 3) != 0)
 		wpa_s->conf->p2p_no_group_iface=1;
 	if (wpa_s->conf->p2p_no_group_iface)
 		return 0; /* separate interface disabled per configuration */
