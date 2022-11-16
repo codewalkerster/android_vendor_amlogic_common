@@ -126,26 +126,6 @@ public class AudioEffectsService extends Service {
             return mSoundEffectManager.getBalanceStatus();
         }
 
-        public boolean getAgcEnableStatus () {
-            return mSoundEffectManager.getAgcEnableStatus();
-        }
-
-        public int getAgcMaxLevelStatus () {
-            return mSoundEffectManager.getAgcMaxLevelStatus();
-        }
-
-        public int getAgcAttackTimeStatus () {
-            return mSoundEffectManager.getAgcAttackTimeStatus();
-        }
-
-        public int getAgcReleaseTimeStatus () {
-            return mSoundEffectManager.getAgcReleaseTimeStatus();
-        }
-
-        public int getAgcSourceIdStatus () {
-            return mSoundEffectManager.getAgcSourceIdStatus();
-        }
-
         public int getVirtualSurroundStatus() {
             return mSoundEffectManager.getVirtualSurroundStatus();
         }
@@ -178,76 +158,8 @@ public class AudioEffectsService extends Service {
             mSoundEffectManager.setBalance (step);
         }
 
-        public void setSurroundEnable(boolean enable) {
-            mSoundEffectManager.setSurroundEnable(enable);
-        }
-
-        public boolean getSurroundEnable() {
-            return mSoundEffectManager.getSurroundEnable();
-        }
-
-        public void setDialogClarityMode(int mode) {
-            mSoundEffectManager.setDialogClarityMode(mode);
-        }
-
-        public int getDialogClarityMode() {
-            return mSoundEffectManager.getDialogClarityMode();
-        }
-
-        public void setTruBassEnable(boolean enable) {
-            mSoundEffectManager.setTruBassEnable(enable);
-        }
-
-        public boolean getTruBassEnable() {
-            return mSoundEffectManager.getTruBassEnable();
-        }
-
-        public void setAgcEnable (boolean enable) {
-            mSoundEffectManager.setAgcEnable(enable);
-        }
-
-        public void setAgcMaxLevel (int step) {
-            mSoundEffectManager.setAgcMaxLevel(step);
-        }
-
-        public void setAgcAttackTime (int step) {
-            mSoundEffectManager.setAgcAttackTime(step);
-        }
-
-        public void setAgcReleaseTime (int step) {
-            mSoundEffectManager.setAgcReleaseTime(step);
-        }
-
-        public void setSourceIdForAvl (int step) {
-            mSoundEffectManager.setSourceIdForAvl(step);
-        }
-
         public void setVirtualSurround (int mode) {
             mSoundEffectManager.setVirtualSurround (mode);
-        }
-
-        public void setDbxEnable(boolean enable) {
-            mSoundEffectManager.setDbxEnable(enable);
-        }
-
-        public boolean getDbxEnable() {
-            return mSoundEffectManager.getDbxEnable();
-        }
-
-        public void setDbxSoundMode(int dbxMode) {
-            mSoundEffectManager.setDbxSoundMode(dbxMode);
-        }
-
-        public int getDbxSoundMode() {
-            return mSoundEffectManager.getDbxSoundMode();
-        }
-
-        public void setDbxAdvancedModeParam(int paramType, int value) {
-            mSoundEffectManager.setDbxAdvancedModeParam(paramType, value);
-        }
-
-        public int getDbxAdvancedModeParam(int paramType) {
-            return mSoundEffectManager.getDbxAdvancedModeParam(paramType);
         }
 
         public void cleanupAudioEffects() {
@@ -293,12 +205,10 @@ public class AudioEffectsService extends Service {
     }
 
     private static final String RESET_ACTION = "droid.action.resetsoundeffect";
-    private static final String AVL_SOURCE_ACTION = "droid.action.avlmodule";
 
     private void registerCommandReceiver(Context context) {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(RESET_ACTION);
-        intentFilter.addAction(AVL_SOURCE_ACTION);
         context.registerReceiver(mSoundEffectSettingsReceiver, intentFilter);
         context.getContentResolver().registerContentObserver(Settings.Global.getUriFor(SoundEffectManager.DB_ID_SOUND_EFFECT_SOUND_MODE), false,
                 mSoundEffectParametersObserver);
@@ -335,8 +245,6 @@ public class AudioEffectsService extends Service {
             if (intent != null) {
                 if (RESET_ACTION.equals(intent.getAction())) {
                     mSoundEffectManager.resetSoundEffectSettings();
-                } else if (AVL_SOURCE_ACTION.equals(intent.getAction())) {
-                    mSoundEffectManager.setSourceIdForAvl(intent.getIntExtra("source_id", SoundEffectManager.DEFAULT_AGC_SOURCE_ID));
                 }
             }
         }

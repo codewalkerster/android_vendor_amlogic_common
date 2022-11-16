@@ -48,17 +48,14 @@ public class SoundEffectManager {
 
     public static final String TAG = "SoundEffectManager";
 
-    private static final UUID EFFECT_TYPE_TRUSURROUND           = UUID.fromString("1424f5a0-2457-11e6-9fe0-0002a5d5c51b");
     private static final UUID EFFECT_TYPE_BALANCE               = UUID.fromString("7cb34dc0-242e-11e6-bb63-0002a5d5c51b");
     private static final UUID EFFECT_TYPE_TREBLE_BASS           = UUID.fromString("7e282240-242e-11e6-bb63-0002a5d5c51b");
     private static final UUID EFFECT_TYPE_DAP_1_3_2             = UUID.fromString("3337b21d-c8e6-4bbd-8f24-698ade8491b9");
     private static final UUID EFFECT_TYPE_DAP_2_4               = UUID.fromString("34033483-c5e9-4ff6-8b6b-0002a5d5c51b");
 
     private static final UUID EFFECT_TYPE_EQ                    = UUID.fromString("ce2c14af-84df-4c36-acf5-87e428ed05fc");
-    private static final UUID EFFECT_TYPE_AGC                   = UUID.fromString("4a959f5c-e33a-4df2-8c3f-3066f9275edf");
     private static final UUID EFFECT_TYPE_VIRTUAL_SURROUND      = UUID.fromString("c656ec6f-d6be-4e7f-854b-1218077f3915");
     private static final UUID EFFECT_TYPE_VIRTUAL_X             = UUID.fromString("5112a99e-b8b9-4c5e-91fd-a804d29c36b2");
-    private static final UUID EFFECT_TYPE_DBX                   = UUID.fromString("a41cedc0-578e-11e5-9cb0-0002a5d5c51b");
 
     private static final UUID EFFECT_UUID_VIRTUAL_X             = UUID.fromString("61821587-ce3c-4aac-9122-86d874ea1fb1");
     private static final UUID EFFECT_UUID_DBX                   = UUID.fromString("07210842-7432-4624-8b97-35ac8782efa3");
@@ -67,9 +64,6 @@ public class SoundEffectManager {
     public static final String DB_ID_SOUND_EFFECT_BASS                          = "db_id_sound_effect_bass";
     public static final String DB_ID_SOUND_EFFECT_TREBLE                        = "db_id_sound_effect_treble";
     public static final String DB_ID_SOUND_EFFECT_BALANCE                       = "db_id_sound_effect_balance";
-    public static final String DB_ID_SOUND_EFFECT_DIALOG_CLARITY                = "db_id_sound_effect_dialog_clarity";
-    public static final String DB_ID_SOUND_EFFECT_SURROUND                      = "db_id_sound_effect_surround";
-    public static final String DB_ID_SOUND_EFFECT_TRUBASS                       = "db_id_sound_effect_tru_bass";
     public static final String DB_ID_SOUND_EFFECT_SOUND_MODE                    = "db_id_sound_effect_sound_mode";
     public static final String DB_ID_SOUND_EFFECT_SOUND_MODE_TYPE               = "db_id_sound_effect_sound_mode_type";
     public static final String DB_ID_SOUND_EFFECT_SOUND_MODE_TYPE_DAP           = "db_id_sound_effect_sound_mode_type_dap";
@@ -81,18 +75,8 @@ public class SoundEffectManager {
     public static final String DB_ID_SOUND_EFFECT_BAND3                         = "db_id_sound_effect_band3";
     public static final String DB_ID_SOUND_EFFECT_BAND4                         = "db_id_sound_effect_band4";
     public static final String DB_ID_SOUND_EFFECT_BAND5                         = "db_id_sound_effect_band5";
-    public static final String DB_ID_SOUND_EFFECT_AGC_ENABLE                    = "db_id_sound_effect_agc_on";
-    public static final String DB_ID_SOUND_EFFECT_AGC_MAX_LEVEL                 = "db_id_sound_effect_agc_level";
-    public static final String DB_ID_SOUND_EFFECT_AGC_ATTACK_TIME               = "db_id_sound_effect_agc_attack";
-    public static final String DB_ID_SOUND_EFFECT_AGC_RELEASE_TIME              = "db_id_sound_effect_agc_release";
-    public static final String DB_ID_SOUND_EFFECT_AGC_SOURCE_ID                 = "db_id_sound_avl_source_id";
     public static final String DB_ID_SOUND_EFFECT_VIRTUALX_MODE                 = "db_id_sound_effect_virtualx_mode";
     public static final String DB_ID_SOUND_EFFECT_TREVOLUME_HD                  = "db_id_sound_effect_truvolume_hd";
-    public static final String DB_ID_SOUND_EFFECT_DBX_ENABLE                    = "db_id_sound_effect_dbx_enable";
-    public static final String DB_ID_SOUND_EFFECT_DBX_SOUND_MODE                = "db_id_sound_effect_dbx_sound_mode";
-    public static final String DB_ID_SOUND_EFFECT_DBX_ADVANCED_MODE_SONICS      = "db_id_sound_effect_dbx_advanced_mode_sonics";
-    public static final String DB_ID_SOUND_EFFECT_DBX_ADVANCED_MODE_VOLUME      = "db_id_sound_effect_dbx_advanced_mode_volume";
-    public static final String DB_ID_SOUND_EFFECT_DBX_ADVANCED_MODE_SURROUND    = "db_id_sound_effect_dbx_advanced_mode_surround";
     public static final String DB_ID_SOUND_EFFECT_DAP_SAVED                     = "db_id_sound_effect_dap_saved";
     public static final String DB_ID_SOUND_EFFECT_DAP_MODE                      = "db_id_sound_effect_dap_mode";
     public static final String DB_ID_SOUND_EFFECT_DAP_GEQ_ENABLE                = "db_id_sound_effect_dap_geq";
@@ -132,9 +116,6 @@ public class SoundEffectManager {
     public static final String DB_ID_SOUND_EFFECT_TREBLEBASS_DEBUG                       = "db_id_sound_effect_treblebass_debug";
     public static final String DB_ID_SOUND_EFFECT_VIRTUAL_SURROUND_DEBUG                 = "db_id_sound_effect_virtual_surround_debug";
     public static final String DB_ID_SOUND_EFFECT_DPE_DEBUG                              = "db_id_sound_effect_dpe_debug";
-    public static final String DB_ID_SOUND_EFFECT_AGC_DEBUG                              = "db_id_sound_effect_agc_debug";
-    public static final String DB_ID_SOUND_EFFECT_DBX_TV_DEBUG                           = "db_id_sound_effect_dbx_tv_debug";
-    public static final String DB_ID_SOUND_EFFECT_TRUSURROUND_DEBUG                      = "db_id_sound_effect_trusurround_debug";
     public static final String DB_ID_SOUND_EFFECT_VIRTUAL_X_DEBUG                        = "db_id_sound_effect_virtual_x_debug";
     public static final String DB_ID_SOUND_EFFECT_DAP_2_DEBUG                            = "db_id_sound_effect_dap_2_debug";
 
@@ -142,34 +123,15 @@ public class SoundEffectManager {
     public static final int SET_BASS                                    = 0;
     public static final int SET_TREBLE                                  = 1;
     public static final int SET_BALANCE                                 = 2;
-    public static final int SET_DIALOG_CLARITY_MODE                     = 3;
-    public static final int SET_SURROUND_ENABLE                         = 4;
-    public static final int SET_TRUBASS_ENABLE                          = 5;
-    public static final int SET_SOUND_MODE                              = 6;
-    public static final int SET_EFFECT_BAND1                            = 7;
-    public static final int SET_EFFECT_BAND2                            = 8;
-    public static final int SET_EFFECT_BAND3                            = 9;
-    public static final int SET_EFFECT_BAND4                            = 10;
-    public static final int SET_EFFECT_BAND5                            = 11;
-    public static final int SET_AGC_ENABLE                              = 12;
-    public static final int SET_AGC_MAX_LEVEL                           = 13;
-    public static final int SET_AGC_ATTACK_TIME                         = 14;
-    public static final int SET_AGC_RELEASE_TIME                        = 15;
-    public static final int SET_AGC_SOURCE_ID                           = 16;
-    public static final int SET_VIRTUAL_SURROUND                        = 17;
-    public static final int SET_VIRTUALX_MODE                           = 18;
-    public static final int SET_TRUVOLUME_HD_ENABLE                     = 19;
-    public static final int SET_DBX_ENABLE                              = 20;
-    public static final int SET_DBX_SOUND_MODE                          = 21;
-    public static final int SET_DBX_SOUND_MODE_ADVANCED_SONICS          = 22;
-    public static final int SET_DBX_SOUND_MODE_ADVANCED_VOLUME          = 23;
-    public static final int SET_DBX_SOUND_MODE_ADVANCED_SURROUND        = 24;
-
-    //SoundMode mode.  Parameter ID
-    public static final int PARAM_SRS_PARAM_DIALOGCLARITY_MODE          = 1;
-    public static final int PARAM_SRS_PARAM_SURROUND_MODE               = 2;
-    public static final int PARAM_SRS_PARAM_VOLUME_MODE                 = 3;
-    public static final int PARAM_SRS_PARAM_TRUEBASS_ENABLE             = 5;
+    public static final int SET_SOUND_MODE                              = 3;
+    public static final int SET_EFFECT_BAND1                            = 4;
+    public static final int SET_EFFECT_BAND2                            = 5;
+    public static final int SET_EFFECT_BAND3                            = 6;
+    public static final int SET_EFFECT_BAND4                            = 7;
+    public static final int SET_EFFECT_BAND5                            = 8;
+    public static final int SET_VIRTUAL_SURROUND                        = 9;
+    public static final int SET_VIRTUALX_MODE                           = 10;
+    public static final int SET_TRUVOLUME_HD_ENABLE                     = 11;
 
     //Balance level.  Parameter ID
     public static final int PARAM_BALANCE_LEVEL                         = 0;
@@ -182,18 +144,7 @@ public class SoundEffectManager {
     public static final int PARAM_EQ_ENABLE                             = 0;
     public static final int PARAM_EQ_EFFECT                             = 1;
     public static final int PARAM_EQ_CUSTOM                             = 2;
-    //agc effect define
-    public static final int PARAM_AGC_ENABLE                            = 0;
-    public static final int PARAM_AGC_MAX_LEVEL                         = 1;
-    public static final int PARAM_AGC_ATTACK_TIME                       = 4;
-    public static final int PARAM_AGC_RELEASE_TIME                      = 5;
-    public static final int PARAM_AGC_SOURCE_ID                         = 6;
 
-    public static final boolean DEFAULT_AGC_ENABLE                      = false;//enable 1, disable 0
-    public static final int DEFAULT_AGC_MAX_LEVEL                       = -18;  //db
-    public static final int DEFAULT_AGC_ATTACK_TIME                     = 10;   //ms
-    public static final int DEFAULT_AGC_RELEASE_TIME                    = 2;    //s
-    public static final int DEFAULT_AGC_SOURCE_ID                       = 3;
     //virtual surround
     public static final int PARAM_VIRTUALSURROUND                       = 0;
 
@@ -216,10 +167,6 @@ public class SoundEffectManager {
     private static final int PARAM_DTS_PARAM_VX_ENABLE_I32              = 46;
     private static final int PARAM_DTS_PARAM_LOUDNESS_CONTROL_ENABLE_I32= 67;
 
-    // DBX effect param type
-    private static final int PARAM_DBX_PARAM_ENABLE                     = 0;
-    private static final int PARAM_DBX_SET_MODE                         = 1;
-
     private static final int DAP_CPDP_OUTPUT_2_SPEAKER      = 7;
     private static final int DAP_CPDP_OUTPUT_2_HEADPHONE    = 6;
 
@@ -228,13 +175,10 @@ public class SoundEffectManager {
 
     //sound effects
     private AudioEffect mVirtualX;
-    private AudioEffect mTruSurround;
     private AudioEffect mBalance;
     private AudioEffect mTrebleBass;
     private AudioEffect mSoundMode;
-    private AudioEffect mAgc;
     private AudioEffect mVirtualSurround;
-    private AudioEffect mDbx;
     private AudioEffect mDap;
 
     private boolean mSupportVirtualX;
@@ -265,18 +209,12 @@ public class SoundEffectManager {
         if (isDtsVXValid()) {
             mSupportVirtualX = creatVirtualXAudioEffects();
         }
-        if (!mSupportVirtualX) {
-            Log.i(TAG, "current not support Virtual X, begin to create TruSurround effect");
-            creatTruSurroundAudioEffects();
-        }
         creatVirtualSurroundAudioEffects();
         creatTrebleBassAudioEffects();
         if (!mSupportMs12Dap) {
             creatEqAudioEffects();
         }
-        creatDbxAudioEffects();
         creatBalanceAudioEffects();
-        creatAgcAudioEffects();
 
         mEffectInit = true;
     }
@@ -286,13 +224,10 @@ public class SoundEffectManager {
             Log.w(TAG, "cleanupAudioEffects effect not create, return.");
             return;
         }
-        cleanupAgcAudioEffects();
         cleanupBalanceAudioEffects();
         cleanupDapAudioEffects();
-        cleanupDbxAudioEffects();
         cleanupEqAudioEffects();
         cleanupTrebleBassAudioEffects();
-        cleanupTruSurroundAudioEffects();
         cleanupVirtualSurroundAudioEffects();
         cleanupVirtualXAudioEffects();
         mEffectInit = false;
@@ -308,20 +243,6 @@ public class SoundEffectManager {
             return true;
         } catch (RuntimeException e) {
             Log.e(TAG, "cleanup VirtualX effect fail", e);
-            return false;
-        }
-    }
-
-    public boolean cleanupTruSurroundAudioEffects() {
-        try {
-            if (mTruSurround != null) {
-                mTruSurround.setEnabled(false);
-                mTruSurround.release();
-                mTruSurround = null;
-            }
-            return true;
-        } catch (RuntimeException e) {
-            Log.e(TAG, "cleanup TruSurround effect fail", e);
             return false;
         }
     }
@@ -370,20 +291,6 @@ public class SoundEffectManager {
         }
     }
 
-    public boolean cleanupAgcAudioEffects() {
-        try {
-            if (mAgc != null) {
-                mAgc.setEnabled(false);
-                mAgc.release();
-                mAgc = null;
-            }
-            return true;
-        } catch (RuntimeException e) {
-            Log.e(TAG, "cleanup AGC effect fail", e);
-            return false;
-        }
-    }
-
     public boolean cleanupVirtualSurroundAudioEffects() {
         try {
             if (mVirtualSurround != null) {
@@ -394,20 +301,6 @@ public class SoundEffectManager {
             return true;
         } catch (RuntimeException e) {
             Log.e(TAG, "cleanup VirtualSurround effect fail", e);
-            return false;
-        }
-    }
-
-    public boolean cleanupDbxAudioEffects() {
-        try {
-            if (mDbx != null) {
-                mDbx.setEnabled(false);
-                mDbx.release();
-                mDbx = null;
-            }
-            return true;
-        } catch (RuntimeException e) {
-            Log.e(TAG, "cleanup DBX effect fail", e);
             return false;
         }
     }
@@ -439,23 +332,6 @@ public class SoundEffectManager {
             return true;
         } catch (RuntimeException e) {
             Log.e(TAG, "create VirtualX effect fail", e);
-            return false;
-        }
-    }
-
-    public boolean creatTruSurroundAudioEffects() {
-        try {
-            if (mTruSurround == null) {
-                if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "begin to create TruSurround effect");
-                mTruSurround = new AudioEffect(EFFECT_TYPE_TRUSURROUND, AudioEffect.EFFECT_TYPE_NULL, 0, 0);
-            }
-            int result = mTruSurround.setEnabled(true);
-            if (result != AudioEffect.SUCCESS) {
-                Log.e(TAG, "enable TruSurround effect fail, ret:" + result);
-            }
-            return true;
-        } catch (RuntimeException e) {
-            Log.e(TAG, "Unable to create mTruSurround audio effect", e);
             return false;
         }
     }
@@ -506,19 +382,6 @@ public class SoundEffectManager {
         }
     }
 
-    public boolean creatAgcAudioEffects() {
-        try {
-            if (mAgc == null) {
-                if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "creatAgcAudioEffects");
-                mAgc = new AudioEffect(EFFECT_TYPE_AGC, AudioEffect.EFFECT_TYPE_NULL, 0, 0);
-            }
-            return true;
-        } catch (RuntimeException e) {
-            Log.e(TAG, "Unable to create Agc audio effect", e);
-            return false;
-        }
-    }
-
     public boolean creatVirtualSurroundAudioEffects() {
         try {
             if (mVirtualSurround == null) {
@@ -528,23 +391,6 @@ public class SoundEffectManager {
             return true;
         } catch (RuntimeException e) {
             Log.e(TAG, "Unable to create VirtualSurround audio effect", e);
-            return false;
-        }
-    }
-
-    public boolean creatDbxAudioEffects() {
-        try {
-            if (mDbx == null) {
-                if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "begin to create DBX effect");
-                mDbx = new AudioEffect(EFFECT_TYPE_DBX, EFFECT_UUID_DBX, 0, 0);
-            }
-            int result = mDbx.setEnabled(true);
-            if (result != AudioEffect.SUCCESS) {
-                Log.e(TAG, "enable DBX effect fail, ret:" + result);
-            }
-            return true;
-        } catch (RuntimeException e) {
-            Log.e(TAG, "create DBX effect fail", e);
             return false;
         }
     }
@@ -682,94 +528,6 @@ public class SoundEffectManager {
             Log.d(TAG, "getBalanceStatus = " + saveresult);
         }
         return saveresult;
-    }
-
-    public boolean getAgcEnableStatus () {
-        int saveresult = -1;
-        if (!creatAgcAudioEffects()) {
-            Log.e(TAG, "getAgcEnableStatus mAgc creat fail");
-            return DEFAULT_AGC_ENABLE;
-        }
-        int[] value = new int[1];
-        mAgc.getParameter(PARAM_AGC_ENABLE, value);
-        saveresult = getSavedAudioParameters(SET_AGC_ENABLE);
-        if (saveresult != value[0]) {
-            Log.w(TAG, "getAgcEnableStatus erro get: " + value[0] + ", saved: " + saveresult);
-        } else if (DroidLogicUtils.getAudioDebugEnable()) {
-            Log.d(TAG, "getAgcEnableStatus = " + saveresult);
-        }
-        return saveresult == 1;
-    }
-
-    public int getAgcMaxLevelStatus () {
-        int saveresult = -1;
-        if (!creatAgcAudioEffects()) {
-            Log.e(TAG, "getAgcEnableStatus mAgc creat fail");
-            return DEFAULT_AGC_MAX_LEVEL;
-        }
-        int[] value = new int[1];
-        mAgc.getParameter(PARAM_AGC_MAX_LEVEL, value);
-        saveresult = getSavedAudioParameters(SET_AGC_MAX_LEVEL);
-        if (saveresult != value[0]) {
-            Log.w(TAG, "getAgcMaxLevelStatus erro get: " + value[0] + ", saved: " + saveresult);
-        } else if (DroidLogicUtils.getAudioDebugEnable()) {
-            Log.d(TAG, "getAgcMaxLevelStatus = " + saveresult);
-        }
-        return value[0];
-    }
-
-    public int getAgcAttackTimeStatus () {
-        int saveresult = -1;
-        if (!creatAgcAudioEffects()) {
-            Log.e(TAG, "getAgcAttackTimeStatus mAgc creat fail");
-            return DEFAULT_AGC_ATTACK_TIME;
-        }
-        int[] value = new int[1];
-        mAgc.getParameter(PARAM_AGC_ATTACK_TIME, value);
-        saveresult = getSavedAudioParameters(SET_AGC_ATTACK_TIME);
-        if (saveresult != value[0] / 48) {
-            Log.w(TAG, "getAgcAttackTimeStatus erro get: " + value[0] + ", saved: " + saveresult);
-        } else if (DroidLogicUtils.getAudioDebugEnable()) {
-            Log.d(TAG, "getAgcAttackTimeStatus = " + saveresult);
-        }
-        //value may be changed realtime
-        return value[0] / 48;
-    }
-
-    public int getAgcReleaseTimeStatus () {
-        int saveresult = -1;
-        if (!creatAgcAudioEffects()) {
-            Log.e(TAG, "getAgcReleaseTimeStatus mAgc creat fail");
-            return DEFAULT_AGC_RELEASE_TIME;
-        }
-        int[] value = new int[1];
-        mAgc.getParameter(PARAM_AGC_RELEASE_TIME, value);
-        saveresult = getSavedAudioParameters(SET_AGC_RELEASE_TIME);
-        if (saveresult != value[0]) {
-            Log.w(TAG, "getAgcReleaseTimeStatus erro get: " + value[0] + ", saved: " + saveresult);
-        } else if (DroidLogicUtils.getAudioDebugEnable()) {
-            Log.d(TAG, "getAgcReleaseTimeStatus = " + saveresult);
-        }
-        //value may be changed realtime
-        return value[0];
-    }
-
-    public int getAgcSourceIdStatus () {
-        int saveresult = -1;
-        if (!creatAgcAudioEffects()) {
-            Log.e(TAG, "getAgcSourceIdStatus mAgc creat fail");
-            return DEFAULT_AGC_RELEASE_TIME;
-        }
-        int[] value = new int[1];
-        mAgc.getParameter(PARAM_AGC_SOURCE_ID, value);
-        saveresult = getSavedAudioParameters(SET_AGC_SOURCE_ID);
-        if (saveresult != value[0]) {
-            Log.w(TAG, "getAgcSourceIdStatus erro get: " + value[0] + ", saved: " + saveresult);
-        } else if (DroidLogicUtils.getAudioDebugEnable()) {
-            Log.d(TAG, "getAgcSourceIdStatus = " + saveresult);
-        }
-        //value may be changed realtime
-        return value[0];
     }
 
     // 0 1 ~ off on
@@ -936,126 +694,6 @@ public class SoundEffectManager {
         }
     }
 
-    public void setSurroundEnable(boolean enable) {
-        if (null == mTruSurround) {
-            Log.e(TAG, "The Dts TruSurround effect is not created, the mode cannot be setSurroundEnable.");
-            return;
-        }
-        if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "setSurroundEnable = " + enable);
-        int dbSwitch = enable ? 1 : 0;
-        mTruSurround.setParameter(PARAM_SRS_PARAM_SURROUND_MODE, dbSwitch);
-        saveAudioParameters(SET_SURROUND_ENABLE, dbSwitch);
-    }
-
-    public boolean getSurroundEnable() {
-        int dbSwitch = getSavedAudioParameters(SET_SURROUND_ENABLE);
-        boolean enable = (1 == dbSwitch);
-        if (dbSwitch != 1 && dbSwitch != 0) {
-            Log.w(TAG, "DTS Surround enable db value invalid, db:" + dbSwitch + ", return default false");
-        }
-        return enable;
-    }
-
-    public void setDialogClarityMode(int mode) {
-        if (null == mTruSurround) {
-            Log.e(TAG, "The DTS TruSurround effect is not created, the mode cannot be setDialogClarityMode.");
-            return;
-        }
-        if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "setDialogClarityMode = " + mode);
-        mTruSurround.setParameter(PARAM_SRS_PARAM_DIALOGCLARITY_MODE, mode);
-        saveAudioParameters(SET_DIALOG_CLARITY_MODE, mode);
-    }
-
-    public int getDialogClarityMode() {
-        return getSavedAudioParameters(SET_DIALOG_CLARITY_MODE);
-    }
-
-    public void setTruBassEnable(boolean enable) {
-        if (null == mTruSurround) {
-            Log.e(TAG, "The DTS TruSurround effect is not created, the mode cannot be setTruBassEnable.");
-            return;
-        }
-        if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "setTruBassEnable = " + enable);
-        int dbSwitch = enable ? 1 : 0;
-        mTruSurround.setParameter(PARAM_SRS_PARAM_TRUEBASS_ENABLE, dbSwitch);
-        saveAudioParameters(SET_TRUBASS_ENABLE, dbSwitch);
-    }
-
-    public boolean getTruBassEnable() {
-        int dbSwitch = getSavedAudioParameters(SET_TRUBASS_ENABLE);
-        boolean enable = (1 == dbSwitch);
-        if (dbSwitch != 1 && dbSwitch != 0) {
-            Log.w(TAG, "DTS TreBass db value invalid, db:" + dbSwitch + ", return default false");
-        }
-        return enable;
-    }
-
-    public void setAgcEnable (boolean enable) {
-        if (!creatAgcAudioEffects()) {
-            Log.e(TAG, "setAgcEnable mAgc creat fail");
-            return;
-        }
-        int dbSwitch = enable ? 1 : 0;
-        int result = mAgc.setEnabled(true);
-        if (result == AudioEffect.SUCCESS) {
-            if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "setAgcEnable = " + dbSwitch);
-            mAgc.setParameter(PARAM_AGC_ENABLE, dbSwitch);
-            saveAudioParameters(SET_AGC_ENABLE, dbSwitch);
-        }
-    }
-
-    public void setAgcMaxLevel (int step) {
-        if (!creatAgcAudioEffects()) {
-            Log.e(TAG, "setAgcMaxLevel mAgc creat fail");
-            return;
-        }
-        int result = mAgc.setEnabled(true);
-        if (result == AudioEffect.SUCCESS) {
-            if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "setAgcMaxLevel = " + step);
-            mAgc.setParameter(PARAM_AGC_MAX_LEVEL, step);
-            saveAudioParameters(SET_AGC_MAX_LEVEL, step);
-        }
-    }
-
-    public void setAgcAttackTime (int step) {
-        if (!creatAgcAudioEffects()) {
-            Log.e(TAG, "setAgcAttackTime mAgc creat fail");
-            return;
-        }
-        int result = mAgc.setEnabled(true);
-        if (result == AudioEffect.SUCCESS) {
-            if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "setAgcAttackTime = " + step);
-            mAgc.setParameter(PARAM_AGC_ATTACK_TIME, step * 48);
-            saveAudioParameters(SET_AGC_ATTACK_TIME, step);
-        }
-    }
-
-    public void setAgcReleaseTime (int step) {
-        if (!creatAgcAudioEffects()) {
-            Log.e(TAG, "setAgcReleaseTime mAgc creat fail");
-            return;
-        }
-        int result = mAgc.setEnabled(true);
-        if (result == AudioEffect.SUCCESS) {
-            if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "setAgcReleaseTime = " + step);
-            mAgc.setParameter(PARAM_AGC_RELEASE_TIME, step);
-            saveAudioParameters(SET_AGC_RELEASE_TIME, step);
-        }
-    }
-
-    public void setSourceIdForAvl (int step) {
-        if (!creatAgcAudioEffects()) {
-            Log.e(TAG, "setSourceIdForAvl mAgc creat fail");
-            return;
-        }
-        int result = mAgc.setEnabled(true);
-        if (result == AudioEffect.SUCCESS) {
-            if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "setSourceIdForAvl = " + step);
-            mAgc.setParameter(PARAM_AGC_SOURCE_ID, step);
-            saveAudioParameters(SET_AGC_SOURCE_ID, step);
-        }
-    }
-
     public void setVirtualSurround (int mode) {
         if (!creatVirtualSurroundAudioEffects()) {
             Log.e(TAG, "setVirtualSurround mVirtualSurround creat fail");
@@ -1069,116 +707,6 @@ public class SoundEffectManager {
         }
     }
 
-    public void setDbxEnable(boolean enable) {
-        if (null == mDbx) {
-            Log.e(TAG, "The DBX effect is not created, the mode cannot be setDbxEnable.");
-            return;
-        }
-        if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "setDbxEnable = " + enable);
-        int dbSwitch = enable ? 1 : 0;
-        mDbx.setParameter(PARAM_DBX_PARAM_ENABLE, dbSwitch);
-        saveAudioParameters(SET_DBX_ENABLE, dbSwitch);
-    }
-
-    public boolean getDbxEnable() {
-        int dbSwitch = getSavedAudioParameters(SET_DBX_ENABLE);
-        boolean enable = (1 == dbSwitch);
-        if (dbSwitch != 1 && dbSwitch != 0) {
-            Log.w(TAG, "DBX enable db value invalid, db:" + dbSwitch + ", return default false");
-        }
-        if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "DBX get enable: " + enable);
-        return enable;
-    }
-
-    public void setDbxSoundMode(int dbxMode) {
-        if (null == mDbx) {
-            Log.e(TAG, "The DBX effect is not created, the mode cannot be setDbxSoundMode.");
-            return;
-        }
-        if (dbxMode > AudioEffectManager.DBX_SOUND_MODE_ADVANCED || dbxMode < AudioEffectManager.DBX_SOUND_MODE_STANDARD) {
-            Log.w(TAG, "DBX sound mode invalid, mode:" + dbxMode + "setDbxSoundMode failed");
-            return;
-        }
-        if (AudioEffectManager.DBX_SOUND_MODE_ADVANCED == dbxMode) {
-            byte[] param = new byte[AudioEffectManager.DBX_ADVANCED_MODE_PRARM_TYPE_SURROUND + 1];
-            param[AudioEffectManager.DBX_ADVANCED_MODE_PRARM_TYPE_SONICS] = (byte) getSavedAudioParameters(SET_DBX_SOUND_MODE_ADVANCED_SONICS);
-            param[AudioEffectManager.DBX_ADVANCED_MODE_PRARM_TYPE_VOLUME] = (byte) getSavedAudioParameters(SET_DBX_SOUND_MODE_ADVANCED_VOLUME);
-            param[AudioEffectManager.DBX_ADVANCED_MODE_PRARM_TYPE_SURROUND] = (byte) getSavedAudioParameters(SET_DBX_SOUND_MODE_ADVANCED_SURROUND);
-            Log.i(TAG, "DBX set sound mode:" + dbxMode + ", param: " + Arrays.toString(param));
-            mDbx.setParameter(PARAM_DBX_SET_MODE, param);
-        } else {
-            Log.i(TAG, "DBX set sound mode:" + dbxMode + ", param: " + Arrays.toString(AudioEffectManager.SOUND_EFFECT_DBX_SOUND_MODE_ARRAY_DEFAULT[dbxMode]));
-            mDbx.setParameter(PARAM_DBX_SET_MODE, AudioEffectManager.SOUND_EFFECT_DBX_SOUND_MODE_ARRAY_DEFAULT[dbxMode]);
-        }
-        saveAudioParameters(SET_DBX_SOUND_MODE, dbxMode);
-    }
-
-    public int getDbxSoundMode() {
-        int soundMode = 0;
-        soundMode = getSavedAudioParameters(SET_DBX_SOUND_MODE);
-        if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "DBX get sound mode: " + soundMode);
-        return soundMode;
-    }
-
-    public void setDbxAdvancedModeParam(int paramType, int value) {
-        if (null == mDbx) {
-            Log.e(TAG, "The DBX effect is not created, the mode cannot be setDbxAdvancedModeParam.");
-            return;
-        }
-        switch (paramType) {
-            case AudioEffectManager.DBX_ADVANCED_MODE_PRARM_TYPE_SONICS:
-                if (value > 4 || value < 0) {
-                    Log.e(TAG, "setDbxAdvancedModeParam invalid sonics value:" + value);
-                    return;
-                }
-                saveAudioParameters(SET_DBX_SOUND_MODE_ADVANCED_SONICS, value);
-                break;
-            case AudioEffectManager.DBX_ADVANCED_MODE_PRARM_TYPE_VOLUME:
-                if (value > 2 || value < 0) {
-                    Log.e(TAG, "setDbxAdvancedModeParam invalid volume value:" + value);
-                    return;
-                }
-                saveAudioParameters(SET_DBX_SOUND_MODE_ADVANCED_VOLUME, value);
-                break;
-            case AudioEffectManager.DBX_ADVANCED_MODE_PRARM_TYPE_SURROUND:
-                if (value > 2 || value < 0) {
-                    Log.e(TAG, "setDbxAdvancedModeParam invalid surround value:" + value);
-                    return;
-                }
-                saveAudioParameters(SET_DBX_SOUND_MODE_ADVANCED_SURROUND, value);
-                break;
-            default:
-                Log.e(TAG, "setDbxAdvancedModeParam invalid type:" + paramType);
-                return;
-        }
-        byte[] param = new byte[AudioEffectManager.DBX_ADVANCED_MODE_PRARM_TYPE_SURROUND + 1];
-        param[AudioEffectManager.DBX_ADVANCED_MODE_PRARM_TYPE_SONICS] = (byte) getSavedAudioParameters(SET_DBX_SOUND_MODE_ADVANCED_SONICS);
-        param[AudioEffectManager.DBX_ADVANCED_MODE_PRARM_TYPE_VOLUME] = (byte) getSavedAudioParameters(SET_DBX_SOUND_MODE_ADVANCED_VOLUME);
-        param[AudioEffectManager.DBX_ADVANCED_MODE_PRARM_TYPE_SURROUND] = (byte) getSavedAudioParameters(SET_DBX_SOUND_MODE_ADVANCED_SURROUND);
-        if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "DBX set advanced sound mode param: " + Arrays.toString(param));
-        mDbx.setParameter(PARAM_DBX_SET_MODE, param);
-    }
-
-    public int getDbxAdvancedModeParam(int paramType) {
-        int value = 0;
-        switch (paramType) {
-            case AudioEffectManager.DBX_ADVANCED_MODE_PRARM_TYPE_SONICS:
-                value = getSavedAudioParameters(SET_DBX_SOUND_MODE_ADVANCED_SONICS);
-                break;
-            case AudioEffectManager.DBX_ADVANCED_MODE_PRARM_TYPE_VOLUME:
-                value = getSavedAudioParameters(SET_DBX_SOUND_MODE_ADVANCED_VOLUME);
-                break;
-            case AudioEffectManager.DBX_ADVANCED_MODE_PRARM_TYPE_SURROUND:
-                value = getSavedAudioParameters(SET_DBX_SOUND_MODE_ADVANCED_SURROUND);
-                break;
-            default:
-                Log.e(TAG, "getDbxAdvancedModeParam invalid type:" + paramType + ", return 0");
-                break;
-        }
-        if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "getDbxAdvancedModeParam paramType:" + paramType+ ", value:" + value);
-        return value;
-    }
-
     private void saveAudioParameters(int id, int value) {
         if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "saveAudioParameters id:" + id+ ", value:" + value);
         switch (id) {
@@ -1190,15 +718,6 @@ public class SoundEffectManager {
                 break;
             case SET_BALANCE:
                 Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BALANCE, value);
-                break;
-            case SET_DIALOG_CLARITY_MODE:
-                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DIALOG_CLARITY, value);
-                break;
-            case SET_SURROUND_ENABLE:
-                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_SURROUND, value);
-                break;
-            case SET_TRUBASS_ENABLE:
-                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_TRUBASS, value);
                 break;
             case SET_SOUND_MODE:
                 String soundmodetype = Settings.Global.getString(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_SOUND_MODE_TYPE);
@@ -1225,21 +744,6 @@ public class SoundEffectManager {
             case SET_EFFECT_BAND5:
                 Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND5, value);
                 break;
-            case SET_AGC_ENABLE:
-                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_AGC_ENABLE, value);
-                break;
-            case SET_AGC_MAX_LEVEL:
-                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_AGC_MAX_LEVEL, value);
-                break;
-            case SET_AGC_ATTACK_TIME:
-                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_AGC_ATTACK_TIME, value);
-                break;
-            case SET_AGC_RELEASE_TIME:
-                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_AGC_RELEASE_TIME, value);
-                break;
-            case SET_AGC_SOURCE_ID:
-                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_AGC_SOURCE_ID, value);
-                break;
             case SET_VIRTUAL_SURROUND:
                 Settings.Global.putInt(mContext.getContentResolver(), OutputModeManager.VIRTUAL_SURROUND, value);
                 break;
@@ -1248,21 +752,6 @@ public class SoundEffectManager {
                 break;
             case SET_TRUVOLUME_HD_ENABLE:
                 Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_TREVOLUME_HD, value);
-                break;
-            case SET_DBX_ENABLE:
-                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DBX_ENABLE, value);
-                break;
-            case SET_DBX_SOUND_MODE:
-                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DBX_SOUND_MODE, value);
-                break;
-            case SET_DBX_SOUND_MODE_ADVANCED_SONICS:
-                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DBX_ADVANCED_MODE_SONICS, value);
-                break;
-            case SET_DBX_SOUND_MODE_ADVANCED_VOLUME:
-                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DBX_ADVANCED_MODE_VOLUME, value);
-                break;
-            case SET_DBX_SOUND_MODE_ADVANCED_SURROUND:
-                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DBX_ADVANCED_MODE_SURROUND, value);
                 break;
             default:
                 break;
@@ -1293,15 +782,6 @@ public class SoundEffectManager {
             case SET_BALANCE:
                 result = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BALANCE, AudioEffectManager.EFFECT_BALANCE_DEFAULT);
                 break;
-            case SET_DIALOG_CLARITY_MODE:
-                result = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DIALOG_CLARITY, AudioEffectManager.SOUND_EFFECT_DIALOG_CLARITY_ENABLE_DEFAULT);
-                break;
-            case SET_SURROUND_ENABLE:
-                result = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_SURROUND, AudioEffectManager.SOUND_EFFECT_SURROUND_ENABLE_DEFAULT);
-                break;
-            case SET_TRUBASS_ENABLE:
-                result = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_TRUBASS, AudioEffectManager.SOUND_EFFECT_TRUBASS_ENABLE_DEFAULT);
-                break;
             case SET_SOUND_MODE:
                 result = getSoundModeFromDb();
                 Log.d(TAG, "getSavedAudioParameters SET_SOUND_MODE = " + result);
@@ -1321,21 +801,6 @@ public class SoundEffectManager {
             case SET_EFFECT_BAND5:
                 result = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND5, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND5]);
                 break;
-            case SET_AGC_ENABLE:
-                result = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_AGC_ENABLE, DEFAULT_AGC_ENABLE ? 1 : 0);
-                break;
-            case SET_AGC_MAX_LEVEL:
-                result = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_AGC_MAX_LEVEL, DEFAULT_AGC_MAX_LEVEL);
-                break;
-            case SET_AGC_ATTACK_TIME:
-                result = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_AGC_ATTACK_TIME, DEFAULT_AGC_ATTACK_TIME);
-                break;
-            case SET_AGC_RELEASE_TIME:
-                result = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_AGC_RELEASE_TIME, DEFAULT_AGC_RELEASE_TIME);
-                break;
-            case SET_AGC_SOURCE_ID:
-                result = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_AGC_SOURCE_ID, DEFAULT_AGC_SOURCE_ID);
-                break;
             case SET_VIRTUAL_SURROUND:
                 result = Settings.Global.getInt(mContext.getContentResolver(), OutputModeManager.VIRTUAL_SURROUND, OutputModeManager.VIRTUAL_SURROUND_OFF);
                 break;
@@ -1344,24 +809,6 @@ public class SoundEffectManager {
                 break;
             case SET_TRUVOLUME_HD_ENABLE:
                 result = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_TREVOLUME_HD, AudioEffectManager.SOUND_EFFECT_TRUVOLUME_HD_ENABLE_DEFAULT);
-                break;
-            case SET_DBX_ENABLE:
-                result = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DBX_ENABLE, AudioEffectManager.SOUND_EFFECT_DBX_ENABLE_DEFAULT);
-                break;
-            case SET_DBX_SOUND_MODE:
-                result = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DBX_SOUND_MODE, AudioEffectManager.SOUND_EFFECT_DBX_SOUND_MODE_DEFAULT);
-                break;
-            case SET_DBX_SOUND_MODE_ADVANCED_SONICS:
-                result = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DBX_ADVANCED_MODE_SONICS,
-                        AudioEffectManager.SOUND_EFFECT_DBX_SOUND_MODE_ARRAY_DEFAULT[AudioEffectManager.DBX_SOUND_MODE_ADVANCED][AudioEffectManager.DBX_ADVANCED_MODE_PRARM_TYPE_SONICS]);
-                break;
-            case SET_DBX_SOUND_MODE_ADVANCED_VOLUME:
-                result = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DBX_ADVANCED_MODE_VOLUME,
-                        AudioEffectManager.SOUND_EFFECT_DBX_SOUND_MODE_ARRAY_DEFAULT[AudioEffectManager.DBX_SOUND_MODE_ADVANCED][AudioEffectManager.DBX_ADVANCED_MODE_PRARM_TYPE_VOLUME]);
-                break;
-            case SET_DBX_SOUND_MODE_ADVANCED_SURROUND:
-                result = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DBX_ADVANCED_MODE_SURROUND,
-                        AudioEffectManager.SOUND_EFFECT_DBX_SOUND_MODE_ARRAY_DEFAULT[AudioEffectManager.DBX_SOUND_MODE_ADVANCED][AudioEffectManager.DBX_ADVANCED_MODE_PRARM_TYPE_SURROUND]);
                 break;
             default:
                 break;
@@ -1397,15 +844,6 @@ public class SoundEffectManager {
         setTreble(getSavedAudioParameters(SET_TREBLE));
     }
 
-    public void initAgcAudioEffects() {
-        Log.d(TAG, "initAgcAudioEffects...");
-        setAgcEnable(getSavedAudioParameters(SET_AGC_ENABLE) != 0);
-        setAgcMaxLevel(getSavedAudioParameters(SET_AGC_MAX_LEVEL));
-        setAgcAttackTime (getSavedAudioParameters(SET_AGC_ATTACK_TIME));
-        setAgcReleaseTime(getSavedAudioParameters(SET_AGC_RELEASE_TIME));
-        setSourceIdForAvl(getSavedAudioParameters(SET_AGC_SOURCE_ID));
-    }
-
     public void initVirtualSurroundAudioEffects() {
         Log.d(TAG, "initVirtualSurroundAudioEffects...");
         setVirtualSurround(getSavedAudioParameters(SET_VIRTUAL_SURROUND));
@@ -1422,39 +860,16 @@ public class SoundEffectManager {
         setDtsTruVolumeHdEnable(getDtsTruVolumeHdEnable());
     }
 
-    public void initTruSurroundAudioEffects() {
-        Log.d(TAG, "initTruSurroundAudioEffects...");
-        setSurroundEnable(getSurroundEnable());
-        setDialogClarityMode(getDialogClarityMode());
-        setTruBassEnable(getTruBassEnable());
-    }
-
-    public void initDbxAudioEffects() {
-        Log.d(TAG, "initDbxAudioEffects...");
-        boolean dbxStatus = getDbxEnable();
-        if (dbxStatus) {
-            int dbxMode = getSavedAudioParameters(SET_DBX_SOUND_MODE);
-            setDbxEnable(dbxStatus);
-            setDbxSoundMode(dbxMode);
-        }
-    }
-
     public void initSoundEffectSettings() {
         Log.d(TAG, "initSoundEffectSettings...");
         initEqAudioEffects();
         initTrebleBassAudioEffects();
-        initAgcAudioEffects();
         initVirtualSurroundAudioEffects();
         initBalanceAudioEffects();
         applyAudioEffectByPlayEmptyTrack();
-
         if (isSupportVirtualX()) {
             initVirtualXAudioEffects();
-        } else {
-            initTruSurroundAudioEffects();
         }
-
-        initDbxAudioEffects();
     }
 
     public void resetSoundEffectSettings() {
@@ -1463,9 +878,6 @@ public class SoundEffectManager {
         Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BASS, AudioEffectManager.EFFECT_BASS_DEFAULT);
         Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_TREBLE, AudioEffectManager.EFFECT_TREBLE_DEFAULT);
         Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BALANCE, AudioEffectManager.EFFECT_BALANCE_DEFAULT);
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DIALOG_CLARITY, AudioEffectManager.SOUND_EFFECT_DIALOG_CLARITY_ENABLE_DEFAULT);
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_SURROUND, AudioEffectManager.SOUND_EFFECT_SURROUND_ENABLE_DEFAULT);
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_TRUBASS, AudioEffectManager.SOUND_EFFECT_TRUBASS_ENABLE_DEFAULT);
         Settings.Global.putString(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_SOUND_MODE_TYPE, DB_ID_SOUND_EFFECT_SOUND_MODE_TYPE_EQ);
         Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_SOUND_MODE, AudioEffectManager.EQ_SOUND_MODE_STANDARD);
         Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_SOUND_MODE_DAP_VALUE, AudioEffectManager.EQ_SOUND_MODE_STANDARD);
@@ -1476,22 +888,9 @@ public class SoundEffectManager {
         Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND4, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND4]);
         Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND5, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND5]);
         Settings.Global.putInt(mContext.getContentResolver(), "set_five_band", 0);
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_AGC_ENABLE, DEFAULT_AGC_ENABLE ? 1 : 0);
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_AGC_MAX_LEVEL, DEFAULT_AGC_MAX_LEVEL);
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_AGC_ATTACK_TIME, DEFAULT_AGC_ATTACK_TIME);
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_AGC_RELEASE_TIME, DEFAULT_AGC_RELEASE_TIME);
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_AGC_SOURCE_ID, DEFAULT_AGC_SOURCE_ID);
         Settings.Global.putInt(mContext.getContentResolver(), OutputModeManager.VIRTUAL_SURROUND, OutputModeManager.VIRTUAL_SURROUND_OFF);
         Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_VIRTUALX_MODE, AudioEffectManager.SOUND_EFFECT_VIRTUALX_MODE_DEFAULT);
         Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_TREVOLUME_HD, AudioEffectManager.SOUND_EFFECT_TRUVOLUME_HD_ENABLE_DEFAULT);
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DBX_ENABLE, AudioEffectManager.SOUND_EFFECT_DBX_ENABLE_DEFAULT);
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DBX_SOUND_MODE, AudioEffectManager.SOUND_EFFECT_DBX_SOUND_MODE_DEFAULT);
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DBX_ADVANCED_MODE_SONICS,
-                AudioEffectManager.SOUND_EFFECT_DBX_SOUND_MODE_ARRAY_DEFAULT[AudioEffectManager.DBX_SOUND_MODE_ADVANCED][AudioEffectManager.DBX_ADVANCED_MODE_PRARM_TYPE_SONICS]);
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DBX_ADVANCED_MODE_VOLUME,
-                AudioEffectManager.SOUND_EFFECT_DBX_SOUND_MODE_ARRAY_DEFAULT[AudioEffectManager.DBX_SOUND_MODE_ADVANCED][AudioEffectManager.DBX_ADVANCED_MODE_PRARM_TYPE_VOLUME]);
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DBX_ADVANCED_MODE_SURROUND,
-                AudioEffectManager.SOUND_EFFECT_DBX_SOUND_MODE_ARRAY_DEFAULT[AudioEffectManager.DBX_SOUND_MODE_ADVANCED][AudioEffectManager.DBX_ADVANCED_MODE_PRARM_TYPE_SURROUND]);
         initSoundEffectSettings();
     }
 
@@ -2172,27 +1571,9 @@ public class SoundEffectManager {
             initVirtualSurroundAudioEffects();
         }
 
-        if (isAudioEffectOn(AudioEffectManager.DEBUG_AGC_UI)) {
-            creatAgcAudioEffects();
-            initAgcAudioEffects();
-        }
-
-        if (isAudioEffectOn(AudioEffectManager.DEBUG_DBX_TV_UI)) {
-            creatDbxAudioEffects();
-            initDbxAudioEffects();
-        }
-
         if (isAudioEffectOn(AudioEffectManager.DEBUG_VIRTUAL_X_UI)) {
             mSupportVirtualX = creatVirtualXAudioEffects();
             initVirtualXAudioEffects();
-        }
-
-        if (isAudioEffectOn(AudioEffectManager.DEBUG_TRUSURROUND_UI)) {
-            if (!mSupportVirtualX) {
-                Log.i(TAG, "current not support Virtual X, begin to create TruSurround effect");
-                creatTruSurroundAudioEffects();
-                initTruSurroundAudioEffects();
-            }
         }
 
         if (isAudioEffectOn(AudioEffectManager.DEBUG_DAP_2_UI)) {
@@ -2237,30 +1618,6 @@ public class SoundEffectManager {
                     initVirtualSurroundAudioEffects();
                 } else {
                     cleanupVirtualSurroundAudioEffects();
-                }
-                break;
-            case AudioEffectManager.DEBUG_AGC_UI:
-                if (value == AudioEffectManager.DEBUG_UI_ON) {
-                    creatAgcAudioEffects();
-                    initAgcAudioEffects();
-                } else {
-                    cleanupAgcAudioEffects();
-                }
-                break;
-            case AudioEffectManager.DEBUG_DBX_TV_UI:
-                if (value == AudioEffectManager.DEBUG_UI_ON) {
-                    creatDbxAudioEffects();
-                    initDbxAudioEffects();
-                } else {
-                    cleanupDbxAudioEffects();
-                }
-                break;
-            case AudioEffectManager.DEBUG_TRUSURROUND_UI:
-                if (value == AudioEffectManager.DEBUG_UI_ON) {
-                    creatTruSurroundAudioEffects();
-                    initTruSurroundAudioEffects();
-                } else {
-                    cleanupTruSurroundAudioEffects();
                 }
                 break;
             case AudioEffectManager.DEBUG_VIRTUAL_X_UI:
@@ -2309,18 +1666,6 @@ public class SoundEffectManager {
                 setAudioEffectOnByIndex(AudioEffectManager.DEBUG_DPE_UI, dbSwitch);
                 Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_DEBUG, dbSwitch ? 1 : 0);
                 break;
-            case AudioEffectManager.DEBUG_AGC_UI:
-                setAudioEffectOnByIndex(AudioEffectManager.DEBUG_AGC_UI, dbSwitch);
-                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_AGC_DEBUG, dbSwitch ? 1 : 0);
-                break;
-            case AudioEffectManager.DEBUG_DBX_TV_UI:
-                setAudioEffectOnByIndex(AudioEffectManager.DEBUG_DBX_TV_UI, dbSwitch);
-                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DBX_TV_DEBUG, dbSwitch ? 1 : 0);
-                break;
-            case AudioEffectManager.DEBUG_TRUSURROUND_UI:
-                setAudioEffectOnByIndex(AudioEffectManager.DEBUG_TRUSURROUND_UI, dbSwitch);
-                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_TRUSURROUND_DEBUG, dbSwitch ? 1 : 0);
-                break;
             case AudioEffectManager.DEBUG_VIRTUAL_X_UI:
                 setAudioEffectOnByIndex(AudioEffectManager.DEBUG_VIRTUAL_X_UI, dbSwitch);
                 Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_VIRTUAL_X_DEBUG, dbSwitch ? 1 : 0);
@@ -2368,15 +1713,6 @@ public class SoundEffectManager {
                 break;
             case AudioEffectManager.DEBUG_DPE_UI:
                 value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_DEBUG, AudioEffectManager.DEBUG_UI_OFF);
-                break;
-            case AudioEffectManager.DEBUG_AGC_UI:
-                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_AGC_DEBUG, AudioEffectManager.DEBUG_UI_OFF);
-                break;
-            case AudioEffectManager.DEBUG_DBX_TV_UI:
-                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DBX_TV_DEBUG, AudioEffectManager.DEBUG_UI_OFF);
-                break;
-            case AudioEffectManager.DEBUG_TRUSURROUND_UI:
-                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_TRUSURROUND_DEBUG, AudioEffectManager.DEBUG_UI_OFF);
                 break;
             case AudioEffectManager.DEBUG_VIRTUAL_X_UI:
                 value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_VIRTUAL_X_DEBUG, AudioEffectManager.DEBUG_UI_OFF);
