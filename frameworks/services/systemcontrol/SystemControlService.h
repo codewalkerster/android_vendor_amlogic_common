@@ -188,8 +188,11 @@ public:
     int getDisplayMode(int source_input);
     int saveDisplayMode(int source_input, int mode);
     int setBacklight(int value, int isSave);
+    int setBacklights(int value, int index, int isSave);
     int getBacklight(void);
+    int getBacklights(int index);
     int saveBacklight(int value);
+    int saveBacklights(int value, int index);
     int setDynamicBacklight(int mode, int isSave);
     int getDynamicBacklight(void);
     int setLocalContrastMode(int mode, int isSave);

@@ -361,10 +361,19 @@ interface ISystemControl {
   setBacklight(int32_t value, int32_t isSave)
       generates (int32_t ret);
 
+  setBacklights(int32_t value, int32_t index, int32_t isSave)
+      generates (int32_t ret);
+
   getBacklight()
       generates (int32_t ret);
 
+  getBacklights(int32_t index)
+      generates (int32_t ret);
+
   saveBacklight(int32_t value)
+      generates (int32_t ret);
+
+  saveBacklights(int32_t value, int32_t index)
       generates (int32_t ret);
 
   setDynamicBacklight(int32_t mode, int32_t isSave)

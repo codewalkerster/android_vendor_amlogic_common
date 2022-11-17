@@ -41,6 +41,20 @@
 #define TVIN_IOC_MAGIC 'T'
 #define TVIN_IOC_LOAD_REG           _IOW(TVIN_IOC_MAGIC, 0x20, struct am_regs_s)
 
+//Backlight
+#define VOUT_DEV                      "/dev/display"
+#define VOUT_DEV2                     "/dev/display2"
+#define VOUT_DEV3                     "/dev/display3"
+#define VOUT_IOC_TYPE                 'C'
+#define VOUT_IOC_NR_GET_BL_BRIGHTNESS 0x3
+#define VOUT_IOC_NR_SET_BL_BRIGHTNESS 0x4
+
+#define VOUT_IOC_CMD_GET_BL_BRIGHTNESS \
+        _IOR(VOUT_IOC_TYPE, VOUT_IOC_NR_GET_BL_BRIGHTNESS, unsigned int)
+#define VOUT_IOC_CMD_SET_BL_BRIGHTNESS \
+        _IOW(VOUT_IOC_TYPE, VOUT_IOC_NR_SET_BL_BRIGHTNESS, unsigned int)
+
+
 // screen mode index value
 #define  SCREEN_MODE_NORMAL           0
 #define  SCREEN_MODE_FULL_STRETCH     1
@@ -258,11 +272,17 @@ public:
     int Cpq_SetVideoCrop(int Voffset0, int Hoffset0, int Voffset1, int Hoffset1);
     int Cpq_SetNonLinearFactor(int value);
     //Backlight
-    int SetBacklight(int value, int is_save);
-    int GetBacklight(void);
-    int SaveBacklight(int value);
-    int Cpq_SetBackLight(int value);
-    void Cpq_GetBacklight(int *value);
+    int read_backlight_value(unsigned int *temp);
+    int read_backlight2_value(unsigned int *temp);
+    int read_backlight3_value(unsigned int *temp);
+    int write_backlight_value(unsigned int *temp);
+    int write_backlight2_value(unsigned int *temp);
+    int write_backlight3_value(unsigned int *temp);
+    int SetBacklight(int value, int index, int is_save);
+    int GetBacklight(int index);
+    int SaveBacklight(int value, int index);
+    int Cpq_SetBackLight(int value, int index);
+    void Cpq_GetBacklight(int *value, int index);
     int SetDynamicBacklight(Dynamic_backlight_status_t mode, int is_save);
     int GetDynamicBacklight(void);
     int GetVideoPlayStatus(void);

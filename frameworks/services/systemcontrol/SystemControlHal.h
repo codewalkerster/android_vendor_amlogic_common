@@ -188,8 +188,11 @@ class SystemControlHal : public ISystemControl, public SystemControlNotify, publ
     Return<int32_t> getDisplayMode(int32_t inputSrc) override;
     Return<int32_t> saveDisplayMode(int32_t inputSrc, int32_t mode) override;
     Return<int32_t> setBacklight(int32_t value, int32_t isSave) override;
+    Return<int32_t> setBacklights(int32_t value, int32_t index, int32_t isSave) override;
     Return<int32_t> getBacklight(void) override;
+    Return<int32_t> getBacklights(int32_t index) override;
     Return<int32_t> saveBacklight(int32_t value) override;
+    Return<int32_t> saveBacklights(int32_t value, int32_t index) override;
     Return<int32_t> setDynamicBacklight(int32_t mode, int32_t isSave) override;
     Return<int32_t> getDynamicBacklight(void) override;
     Return<int32_t> setLocalContrastMode(int32_t mode, int32_t isSave) override;

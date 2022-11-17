@@ -1046,12 +1046,24 @@ Return<int32_t> SystemControlHal::setBacklight(int32_t value, int32_t isSave) {
     return mSysControl->setBacklight(value, isSave);
 }
 
+Return<int32_t> SystemControlHal::setBacklights(int32_t value, int32_t index, int32_t isSave) {
+    return mSysControl->setBacklights(value, index, isSave);
+}
+
 Return<int32_t> SystemControlHal::getBacklight(void) {
     return mSysControl->getBacklight();
 }
 
+Return<int32_t> SystemControlHal::getBacklights(int32_t index) {
+    return mSysControl->getBacklights(index);
+}
+
 Return<int32_t> SystemControlHal::saveBacklight(int32_t value) {
     return mSysControl->saveBacklight(value);
+}
+
+Return<int32_t> SystemControlHal::saveBacklights(int32_t value, int32_t index) {
+    return mSysControl->saveBacklights(value, index);
 }
 
 Return<int32_t> SystemControlHal::setDynamicBacklight(int32_t mode, int32_t isSave) {

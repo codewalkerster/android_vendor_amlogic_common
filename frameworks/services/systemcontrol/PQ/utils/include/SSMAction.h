@@ -128,8 +128,8 @@ public:
     int SSMSaveDynamicBacklightMode(int rw_val);
     int SSMReadDynamicBacklightMode(int *rw_val);
     //backlight
-    int SSMReadBackLightVal(int *rw_val);
-    int SSMSaveBackLightVal(int rw_val);
+    int SSMReadBackLightVal(int offset, int *rw_val);
+    int SSMSaveBackLightVal(int offset, int rw_val);
     int SSMSaveDnlpMode(int offset, int rw_val);
     int SSMReadDnlpMode(int offset, int *rw_val);
     int SSMSaveDnlpGainValue(int offset, int rw_val);

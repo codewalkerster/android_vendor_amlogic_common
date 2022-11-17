@@ -668,8 +668,16 @@ int CPQControl::Cpq_LoadBasicRegs(source_input_param_t source_input_param, vpp_p
 int CPQControl::BacklightInit(void)
 {
     int ret = 0;
-    int backlight = GetBacklight();
-    ret = SetBacklight(backlight, 1);
+    int backlight = 0;
+    for (int i = 1; i < 4; i++) {
+        backlight = GetBacklight(i);
+        SYS_LOGD("%s i = %d, backlight = %d!\n", __FUNCTION__, i, backlight);
+        ret = SetBacklight(backlight, i, 1);
+        if (ret != 0) {
+            SYS_LOGE("%s failed!\n", __FUNCTION__);
+            return ret;
+        }
+    }
 
     return ret;
 }
@@ -3100,21 +3108,21 @@ int CPQControl::Cpq_SetNonLinearFactor(int value)
 }
 
 //Backlight
-int CPQControl::SetBacklight(int value, int is_save)
+int CPQControl::SetBacklight(int value, int index, int is_save)
 {
     int ret = -1;
-    SYS_LOGI("%s: value = %d\n", __FUNCTION__, value);
+    SYS_LOGI("%s: index = %d, value = %d\n", __FUNCTION__, index, value);
     if (value < 0 || value > 100) {
         value = DEFAULT_BACKLIGHT_BRIGHTNESS;
     }
 
     if (isFileExist(LDIM_PATH)) {//local diming
         int temp = (value * 255 / 100);
-        Cpq_SetBackLight(temp);
+        ret = Cpq_SetBackLight(temp, index);
     }
 
     if (is_save == 1) {
-        ret = SaveBacklight(value);
+        ret = SaveBacklight(value, index);
     }
 
     if (ret < 0) {
@@ -3127,10 +3135,10 @@ int CPQControl::SetBacklight(int value, int is_save)
 
 }
 
-int CPQControl::GetBacklight(void)
+int CPQControl::GetBacklight(int index)
 {
     int data = 0;
-    mSSMAction->SSMReadBackLightVal(&data);
+    mSSMAction->SSMReadBackLightVal(index*sizeof(int), &data);
 
     if (data < 0 || data > 100) {
         data = DEFAULT_BACKLIGHT_BRIGHTNESS;
@@ -3139,43 +3147,173 @@ int CPQControl::GetBacklight(void)
     return data;
 }
 
-int CPQControl::SaveBacklight(int value)
+int CPQControl::SaveBacklight(int value, int index)
 {
     int ret = -1;
-    SYS_LOGI("%s: value = %d\n", __FUNCTION__, value);
+    SYS_LOGI("%s: index = %d, value = %d\n", __FUNCTION__, index, value);
 
-    ret = mSSMAction->SSMSaveBackLightVal(value);
+    ret = mSSMAction->SSMSaveBackLightVal(index*sizeof(int), value);
 
     return ret;
 }
 
-int CPQControl::Cpq_SetBackLight(int value)
+int CPQControl::Cpq_SetBackLight(int value, int index)
 {
-    SYS_LOGI("%s: %d\n",__FUNCTION__, value);
+    SYS_LOGI("%s: index = %d, value = %d\n", __FUNCTION__, index, value);
 
-    char val[64] = {0};
-    sprintf(val, "%d", value);
-    return pqWriteSys(BACKLIGHT_AML_BL_BRIGHTNESS, val);
+    unsigned int temp = value;
+    int ret = 0;
+    if (index == 1)
+        ret = write_backlight_value(&temp);
+    else if (index == 2)
+        ret = write_backlight2_value(&temp);
+    else if (index == 3)
+        ret = write_backlight3_value(&temp);
+
+     if (ret == 0)
+        SYS_LOGD("%s:succeed; index = %d, value = %d\n", __FUNCTION__, index, temp);
+     else
+        SYS_LOGD("%s:fail; index = %d, ret = %d\n", __FUNCTION__, index, ret);
+
+     return ret;
 }
 
-void CPQControl::Cpq_GetBacklight(int *value)
+void CPQControl::Cpq_GetBacklight(int *value, int index)
 {
     int ret = 0;
-    char buf[64] = {0};
+    unsigned int temp = 0;
+    if (index == 1)
+        ret = read_backlight_value(&temp);
+    else if (index == 2)
+        ret =   read_backlight2_value(&temp);
+    else if (index == 3)
+        ret = read_backlight3_value(&temp);
 
-    ret = pqReadSys(BACKLIGHT_AML_BL_BRIGHTNESS, buf, sizeof(buf));
-    if (ret > 0) {
-        ret = strtol(buf, NULL, 10);
-    } else {
-        ret = 0;
-    }
+    if (ret == 0)
+        SYS_LOGD("%s:succeed; index = %d, value = %d\n", __FUNCTION__, index, temp);
+    else
+        SYS_LOGD("%s:fail; index = %d, ret = %d\n", __FUNCTION__, index, ret);
 
-    *value = ret;
+    *value = temp;
 }
 
 void CPQControl::Set_Backlight(int value)
 {
-    Cpq_SetBackLight(value);
+    Cpq_SetBackLight(value, 1);
+}
+
+int CPQControl::read_backlight_value(unsigned int *temp)
+{
+    if (!temp)
+        return -ENOBUFS;
+
+    int bldev = open(VOUT_DEV, O_RDONLY);
+    if (bldev < 0) {
+        return -EBADFD;
+    }
+
+    if (ioctl(bldev, VOUT_IOC_CMD_GET_BL_BRIGHTNESS, (unsigned long)temp) != 0) {
+        close(bldev);
+        return -EINVAL;
+    }
+
+    close(bldev);
+    return 0;
+}
+
+int CPQControl::read_backlight2_value(unsigned int *temp)
+{
+    if (!temp)
+        return -ENOBUFS;
+
+    int bldev = open(VOUT_DEV2, O_RDONLY);
+    if (bldev < 0) {
+        return -EBADFD;
+    }
+
+    if (ioctl(bldev, VOUT_IOC_CMD_GET_BL_BRIGHTNESS, (unsigned long)temp) != 0) {
+        close(bldev);
+        return -EINVAL;
+    }
+
+    close(bldev);
+    return 0;
+}
+
+int CPQControl::read_backlight3_value(unsigned int *temp)
+{
+    if (!temp)
+        return -ENOBUFS;
+
+    int bldev = open(VOUT_DEV3, O_RDONLY);
+    if (bldev < 0) {
+        return -EBADFD;
+    }
+
+    if (ioctl(bldev, VOUT_IOC_CMD_GET_BL_BRIGHTNESS, (unsigned long)temp) != 0) {
+        close(bldev);
+        return -EINVAL;
+    }
+
+    close(bldev);
+    return 0;
+}
+
+int CPQControl::write_backlight_value(unsigned int *temp)
+{
+    if (!temp)
+        return -ENOBUFS;
+
+    int bldev = open(VOUT_DEV, O_RDWR);
+    if (bldev < 0) {
+        return -EBADFD;
+    }
+
+    if (ioctl(bldev, VOUT_IOC_CMD_SET_BL_BRIGHTNESS, (unsigned long)temp) != 0) {
+        close(bldev);
+        return -EINVAL;
+    }
+
+    close(bldev);
+    return 0;
+}
+
+int CPQControl::write_backlight2_value(unsigned int *temp)
+{
+    if (!temp)
+        return -ENOBUFS;
+
+    int bldev = open(VOUT_DEV2, O_RDWR);
+    if (bldev < 0) {
+        return -EBADFD;
+    }
+
+    if (ioctl(bldev, VOUT_IOC_CMD_SET_BL_BRIGHTNESS, (unsigned long)temp) != 0) {
+        close(bldev);
+        return -EINVAL;
+    }
+
+    close(bldev);
+    return 0;
+}
+
+int CPQControl::write_backlight3_value(unsigned int *temp)
+{
+    if (!temp)
+        return -ENOBUFS;
+
+    int bldev = open(VOUT_DEV3, O_RDWR);
+    if (bldev < 0) {
+        return -EBADFD;
+    }
+
+    if (ioctl(bldev, VOUT_IOC_CMD_SET_BL_BRIGHTNESS, (unsigned long)temp) != 0) {
+        close(bldev);
+        return -EINVAL;
+    }
+
+    close(bldev);
+    return 0;
 }
 
 //dynamic backlight
@@ -3250,9 +3388,9 @@ void CPQControl::GetDynamicBacklighParam(dynamic_backlight_Param_t *DynamicBackl
     DynamicBacklightParam->hist.width = hist.width;
     DynamicBacklightParam->hist.height = hist.height;
 
-    Cpq_GetBacklight(&value);
+    Cpq_GetBacklight(&value, 1);
     DynamicBacklightParam->CurBacklightValue = value;
-    DynamicBacklightParam->UiBackLightValue = GetBacklight();
+    DynamicBacklightParam->UiBackLightValue = GetBacklight(1);
     DynamicBacklightParam->CurDynamicBacklightMode = (Dynamic_backlight_status_t)GetDynamicBacklight();
     DynamicBacklightParam->VideoStatus = GetVideoPlayStatus();
 }
@@ -6968,7 +7106,9 @@ void CPQControl::resetAllUserSettingParam()
         mSSMAction->SSMSaveSaturation((tv_source_input_t)i, pq_para.saturation);
         mSSMAction->SSMSaveHue((tv_source_input_t)i, pq_para.hue);
         mSSMAction->SSMSaveSharpness((tv_source_input_t)i, pq_para.sharpness);
-        mSSMAction->SSMSaveBackLightVal(pq_para.backlight);
+        mSSMAction->SSMSaveBackLightVal(1*sizeof(int), pq_para.backlight);
+        mSSMAction->SSMSaveBackLightVal(2*sizeof(int), pq_para.backlight);
+        mSSMAction->SSMSaveBackLightVal(3*sizeof(int), pq_para.backlight);
         mSSMAction->SSMSaveNoiseReduction((tv_source_input_t)i, pq_para.nr);
         mSSMAction->SSMSaveColorGamutMode((tv_source_input_t)i, 0);
 

@@ -843,14 +843,29 @@ int SystemControlClient::setBacklight(int value, int isSave)
     return mSysCtrl->setBacklight(value, isSave);
 }
 
+int SystemControlClient::setBacklights(int value, int index, int isSave)
+{
+    return mSysCtrl->setBacklights(value, index, isSave);
+}
+
 int SystemControlClient::getBacklight(void)
 {
     return mSysCtrl->getBacklight();
 }
 
+int SystemControlClient::getBacklights(int index)
+{
+    return mSysCtrl->getBacklights(index);
+}
+
 int SystemControlClient::saveBacklight(int value)
 {
     return mSysCtrl->saveBacklight(value);
+}
+
+int SystemControlClient::saveBacklights(int value, int index)
+{
+    return mSysCtrl->saveBacklights(value, index);
 }
 
 int SystemControlClient::setDynamicBacklight(int mode, int isSave)

@@ -1255,7 +1255,16 @@ int SystemControlService::saveDisplayMode(int source_input, int mode)
 int SystemControlService::setBacklight(int value, int isSave)
 {
     if (pCPQControl != NULL) {
-        return pCPQControl->SetBacklight(value, isSave);
+        return pCPQControl->SetBacklight(value, 1, isSave);
+    } else {
+        return -1;
+    }
+}
+
+int SystemControlService::setBacklights(int value, int index, int isSave)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->SetBacklight(value, index, isSave);
     } else {
         return -1;
     }
@@ -1264,7 +1273,16 @@ int SystemControlService::setBacklight(int value, int isSave)
 int SystemControlService::getBacklight(void)
 {
     if (pCPQControl != NULL) {
-        return pCPQControl->GetBacklight();
+        return pCPQControl->GetBacklight(1);
+    } else {
+        return -1;
+    }
+}
+
+int SystemControlService::getBacklights(int index)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->GetBacklight(index);
     } else {
         return -1;
     }
@@ -1273,7 +1291,16 @@ int SystemControlService::getBacklight(void)
 int SystemControlService::saveBacklight(int value)
 {
     if (pCPQControl != NULL) {
-        return pCPQControl->SaveBacklight(value);
+        return pCPQControl->SaveBacklight(value, 1);
+    } else {
+        return -1;
+    }
+}
+
+int SystemControlService::saveBacklights(int value, int index)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->SaveBacklight(value, index);
     } else {
         return -1;
     }
