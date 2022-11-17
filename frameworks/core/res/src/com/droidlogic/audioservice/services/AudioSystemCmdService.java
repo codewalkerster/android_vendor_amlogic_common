@@ -64,6 +64,13 @@ public class AudioSystemCmdService extends Service {
     private static AudioSystemCmdService mAudioSystemCmdService = null;
     private SystemControlEvent mSystemControlEvent;
     private List<Integer> mAudioPathIds = new ArrayList<>();
+    //it is used to save the any patch information<DemuxId/AudioFormat/AudioPid/OpenStatus/StartStatus/MuteStatus>
+    private List<Integer> mDemuxIds = new ArrayList<Integer>();
+    private List<Integer> mAudioFormat = new ArrayList<Integer>();
+    private List<Integer> mAudioPid = new ArrayList<Integer>();
+    private List<Integer> mOpenStatus  = new ArrayList<Integer>();
+    private List<Integer> mStartStatus = new ArrayList<Integer>();
+    private List<Integer> mMuteStatus  = new ArrayList<Integer>();
     private SystemControlManager mSystemControlManager;
     private DtvKitAudioEvent mDtvKitAudioEvent = null;
     private ADtvAudioEvent mADtvAudioEvent = null;
@@ -445,6 +452,14 @@ public class AudioSystemCmdService extends Service {
                 mAudioManager.setParameters("hal_param_has_dtv_video=" + param1);
                 break;
             case AudioSystemCmdManager.AUDIO_SERVICE_CMD_START_DECODE:
+                if (DroidLogicUtils.getAudioDebugEnable()) {
+                    Log.d(TAG, "demuxid"+param3+",mOpenStatus="+mOpenStatus.get(mDemuxIds.indexOf(param3))+"mMuteStatus"+mMuteStatus.get(mDemuxIds.indexOf(param3)));
+                }
+                if (mMuteStatus.get(mDemuxIds.indexOf(param3)) == 1 || mStartStatus.get(mDemuxIds.indexOf(param3)) == 1 || mOpenStatus.get(mDemuxIds.indexOf(param3)) == 0) {
+                    Log.d(TAG, "mMuteStatus:" + mMuteStatus.get(mDemuxIds.indexOf(param3))+",DemuxId:"+param3);
+                    break;//if open multi-demux but the current demux is mute_state, do not start the current demux
+                }
+
                 if (isDtvkit) {
                     mHasReceivedStartDecoderCmd = true;
                     mHasStartedDecoder = true;
@@ -454,6 +469,10 @@ public class AudioSystemCmdService extends Service {
                 mAudioManager.setParameters("hal_param_dtv_audio_fmt=" + param1);
                 mAudioManager.setParameters("hal_param_dtv_audio_id=" + param2);
                 mAudioManager.setParameters("hal_param_dtv_patch_cmd=" + cmd);
+                mStartStatus.set(mDemuxIds.indexOf(param3), 1);
+                mAudioFormat.set(mDemuxIds.indexOf(param3), param1);
+                mAudioPid.set(mDemuxIds.indexOf(param3), param2);
+                Log.d(TAG, "START_DECODE("+param3+") audio path count: " + mDemuxIds.size()+","+mDemuxIds+","+mAudioFormat+","+mAudioPid+",,mStartStatus"+mStartStatus+",mOpenStatus"+mOpenStatus+",mMuteStatus"+mMuteStatus);
                 break;
             case AudioSystemCmdManager.AUDIO_SERVICE_CMD_PAUSE_DECODE:
                 mAudioManager.setParameters("hal_param_dtv_patch_cmd=" + cmd);
@@ -464,6 +483,10 @@ public class AudioSystemCmdService extends Service {
             case AudioSystemCmdManager.AUDIO_SERVICE_CMD_STOP_DECODE:
                 mHasReceivedStartDecoderCmd = false;
                 mAudioManager.setParameters("hal_param_dtv_patch_cmd=" + cmd);
+                mStartStatus.set(mDemuxIds.indexOf(param3), 0);
+                if (DroidLogicUtils.getAudioDebugEnable()) {
+                    Log.d(TAG, " now stop the decoder:STOP_DECODER_1("+param3+") audio path count: " + mDemuxIds.size()+",mDemuxIds="+mDemuxIds+",mAudioFormat="+mAudioFormat+",mAudioPid="+mAudioPid+",,mStartStatus="+mStartStatus+",mOpenStatus"+mOpenStatus+",mMuteStatus"+mMuteStatus);
+                }
                 break;
             case AudioSystemCmdManager.AUDIO_SERVICE_CMD_SET_DECODE_AD:
                 mAudioManager.setParameters("hal_param_dtv_sub_audio_fmt=" + param1);
@@ -475,7 +498,81 @@ public class AudioSystemCmdService extends Service {
                 //left to do
                 break;
             case AudioSystemCmdManager.AUDIO_SERVICE_CMD_SET_MUTE:
-                mAudioManager.setParameters("hal_param_tv_mute=" + param1); /* 1:mute, 0:unmute */
+                param1 = param1 & ((1 << mDtvDemuxIdBase) - 1);
+                mDtvDemuxIdCurrentWork = param3;
+                if (!mDemuxIds.contains(param3))  {
+                    mDemuxIds.add(param3);
+                    mMuteStatus.add(param1);
+                    mOpenStatus.add(0);
+                    mStartStatus.add(0);
+                    mAudioFormat.add(0);
+                    mAudioPid.add(0);
+                } else {
+                    mMuteStatus.set(mDemuxIds.indexOf(param3), param1);
+                }
+                if (mOpenStatus.get(mDemuxIds.indexOf(param3)) == 0) {
+                     break;
+                }
+
+                if (DroidLogicUtils.getAudioDebugEnable()) {
+                    Log.d(TAG, "demuxid"+param3+",mOpenStatus="+mOpenStatus.get(mDemuxIds.indexOf(param3))+",mStartStatus="+mStartStatus.get(mDemuxIds.indexOf(param3))+"mMuteStatus"+mMuteStatus.get(mDemuxIds.indexOf(param3))+",mDemuxIds count="+mDemuxIds.size());
+                }
+                if (mDemuxIds.size() == 1 && mDemuxIds.contains(param3)) {//case 1:single demux
+                    if (mStartStatus.get(mDemuxIds.indexOf(param3)) == 0 && mOpenStatus.get(mDemuxIds.indexOf(param3)) == 1 && param1 == 0) {
+                        int apply_cmd = AudioSystemCmdManager.AUDIO_SERVICE_CMD_START_DECODE + (param3 << mDtvDemuxIdBase);
+                        mAudioManager.setParameters("hal_param_dtv_audio_fmt="+mAudioFormat.get(mDemuxIds.indexOf(param3)));
+                        mAudioManager.setParameters("hal_param_has_dtv_video="+mCurrentHasDtvVideo);
+                        mAudioManager.setParameters("hal_param_dtv_audio_id=" +mAudioPid.get(mDemuxIds.indexOf(param3)));
+                        mAudioManager.setParameters("hal_param_dtv_patch_cmd=" + apply_cmd);
+                        mAudioManager.setParameters("hal_param_tv_mute=" + param1);
+                        mStartStatus.set(mDemuxIds.indexOf(param3), 1);
+                        mHasReceivedStartDecoderCmd = true;
+                        mHasStartedDecoder = true;
+                        } else {
+                            mAudioManager.setParameters("hal_param_tv_mute=" + param1);
+                        }
+                } else if (mDemuxIds.size() > 1 && mDemuxIds.contains(param3)) {//case2:multi-demux control the stop/start by setting mute
+
+                    if (DroidLogicUtils.getAudioDebugEnable()) {
+                        Log.d(TAG, "demuxid="+param3+",mOpenStatus="+mOpenStatus.get(mDemuxIds.indexOf(param3))+",mStartStatus="+mStartStatus.get(mDemuxIds.indexOf(param3))+",mMuteStatus="+mMuteStatus.get(mDemuxIds.indexOf(param3))+",mDemuxIds count="+mDemuxIds.size());
+                    }
+
+                    if (mMuteStatus.get(mDemuxIds.indexOf(param3)) == 0) {//set mute == 0(if there have not start , start)
+                        for (int i = 0; i < mDemuxIds.size(); i++) {
+                            if (DroidLogicUtils.getAudioDebugEnable()) {
+                                Log.d(TAG, "demuxid="+mDemuxIds.get(i)+",mOpenStatus="+mOpenStatus.get(i)+",mStartStatus="+mStartStatus.get(i)+",mMuteStatus="+mMuteStatus.get(i)+",mDemuxIds count="+mDemuxIds.size());
+                            }
+
+                            if (mStartStatus.get(i) == 1) {
+                                int apply_cmd = AudioSystemCmdManager.AUDIO_SERVICE_CMD_STOP_DECODE + ((mDemuxIds.get(i)) << mDtvDemuxIdBase);
+                                mAudioManager.setParameters("hal_param_dtv_patch_cmd=" + apply_cmd);
+                                mHasReceivedStartDecoderCmd = false;
+                                mStartStatus.set(i, 0);
+                            }
+                        }
+                        if (mStartStatus.get(mDemuxIds.indexOf(param3)) == 0) {
+                            int apply_cmd = AudioSystemCmdManager.AUDIO_SERVICE_CMD_START_DECODE + (param3 << mDtvDemuxIdBase);
+                            mAudioManager.setParameters("hal_param_dtv_audio_fmt="+mAudioFormat.get(mDemuxIds.indexOf(param3)));
+                            mAudioManager.setParameters("hal_param_has_dtv_video="+mCurrentHasDtvVideo);
+                            mAudioManager.setParameters("hal_param_dtv_audio_id=" +mAudioPid.get(mDemuxIds.indexOf(param3)));
+                            mAudioManager.setParameters("hal_param_dtv_patch_cmd=" + apply_cmd);
+                            mStartStatus.set(mDemuxIds.indexOf(param3), 1);
+                            mHasReceivedStartDecoderCmd = true;
+                            mHasStartedDecoder = true;
+                            mAudioManager.setParameters("hal_param_tv_mute=" + mMuteStatus.get(mDemuxIds.indexOf(param3)));
+                        } else {
+                            mAudioManager.setParameters("hal_param_tv_mute=" + param1);
+                        }
+                    } else if (mMuteStatus.get(mDemuxIds.indexOf(param3)) == 1) {////set mute == 1(if there have started , stop)
+                        if (mStartStatus.get(mDemuxIds.indexOf(param3)) == 1)  {
+                            int apply_cmd = AudioSystemCmdManager.AUDIO_SERVICE_CMD_STOP_DECODE + (param3 << mDtvDemuxIdBase);
+                            mAudioManager.setParameters("hal_param_dtv_patch_cmd=" + apply_cmd);
+                            mHasReceivedStartDecoderCmd = false;
+                            mStartStatus.set(mDemuxIds.indexOf(param3), 0);
+                        }
+                    }
+                }
+
                 break;
             case AudioSystemCmdManager.AUDIO_SERVICE_CMD_SET_OUTPUT_MODE:
                 mAudioManager.setParameters("hal_param_dtv_patch_cmd=" + cmd);
@@ -488,6 +585,7 @@ public class AudioSystemCmdService extends Service {
                 mAudioManager.setParameters("hal_param_dtv_patch_cmd=" + cmd);
                 break;
             case AudioSystemCmdManager.AUDIO_SERVICE_CMD_OPEN_DECODER:
+                //Log.d(TAG, "OPEN_DECODER("+param3+") audio path count: " + mDemuxIds.size()+","+mDemuxIds+","+mAudioFormat+","+mAudioPid+",,mStartStatus"+mStartStatus+",mOpenStatus"+mOpenStatus+",mMuteStatus"+mMuteStatus);
                 updateAudioSourceAndAudioSink();
                 if (mNotImptTvHardwareInputService)
                     handleAudioSinkUpdated();
@@ -500,36 +598,88 @@ public class AudioSystemCmdService extends Service {
                 }
                 mAudioManager.setParameters("hal_param_dtv_patch_cmd=" + cmd);
                 mHasOpenedDecoder = true;
-                if (mAudioPatch != null) {
-                    if (param3 >=0 && !mAudioPathIds.contains(param3)) {
-                        mAudioPathIds.add(param3);
-                    }
-                } else {
-                    mAudioPathIds.clear();
+
+                if (DroidLogicUtils.getAudioDebugEnable()) {
+                    Log.d(TAG, " now start open the decoder:OPEN_DECODER_1("+param3+") audio path count: " + mDemuxIds.size()+",mDemuxIds="+mDemuxIds+",mAudioFormat="+mAudioFormat+",mAudioPid="+mAudioPid+",,mStartStatus="+mStartStatus+",mOpenStatus"+mOpenStatus+",mMuteStatus"+mMuteStatus);
                 }
-                Log.d(TAG, "OPEN_DECODER("+param3+") audio path count: " + mAudioPathIds.size()+","+mAudioPathIds);
+
+                if (param3 >= 0 && !mDemuxIds.contains(param3)) {
+                    mDemuxIds.add(param3);
+                    mAudioFormat.add(param1);
+                    mAudioPid.add(param2);
+                    mOpenStatus.add(1);
+                    mStartStatus.add(0);
+                    mMuteStatus.add(1);
+                    mAudioPathIds.add(param3);
+                } else if (mDemuxIds.contains(param3)) {
+                    mAudioFormat.set(mDemuxIds.indexOf(param3), param1);
+                    mAudioPid.set(mDemuxIds.indexOf(param3), param2);
+                    mOpenStatus.set(mDemuxIds.indexOf(param3), 1);
+                }
+                if (DroidLogicUtils.getAudioDebugEnable()) {
+                    Log.d(TAG, "now end open the decoder");
+                    Log.d(TAG, "OPEN_DECODER_2("+param3+") audio path count: " + mDemuxIds.size()+",mDemuxIds="+mDemuxIds+",mAudioFormat="+mAudioFormat+",mAudioPid="+mAudioPid+",,mStartStatus="+mStartStatus+",mOpenStatus"+mOpenStatus+",mMuteStatus"+mMuteStatus);
+                    Log.d(TAG, "OPEN_DECODER_2("+param3+")+maudiopatch  "+ mAudioPatch+"demuxid="+param3+",mOpenStatus="+mOpenStatus.get(mDemuxIds.indexOf(param3))+",mStartStatus="+mStartStatus.get(mDemuxIds.indexOf(param3))+",mMuteStatus="+mMuteStatus.get(mDemuxIds.indexOf(param3))+",mDemuxIds count="+mDemuxIds.size());
+                }
                 break;
             case AudioSystemCmdManager.AUDIO_SERVICE_CMD_CLOSE_DECODER://
                 mAudioManager.setParameters("hal_param_dtv_patch_cmd=" + cmd);
+                if (DroidLogicUtils.getAudioDebugEnable()) {
+                    Log.d(TAG, "now start close the decoder");
+                    Log.d(TAG, "CLOSE_DECODER_2("+param3+") audio path count: " + mDemuxIds.size()+",mDemuxIds="+mDemuxIds+",mAudioFormat="+mAudioFormat+",mAudioPid="+mAudioPid+",,mStartStatus="+mStartStatus+",mOpenStatus"+mOpenStatus+",mMuteStatus"+mMuteStatus);
+                    Log.d(TAG, "CLOSE_DECODER_2("+param3+")+maudiopatch  "+ mAudioPatch+"demuxid="+param3+",mOpenStatus="+mOpenStatus.get(mDemuxIds.indexOf(param3))+",mStartStatus="+mStartStatus.get(mDemuxIds.indexOf(param3))+",mMuteStatus="+mMuteStatus.get(mDemuxIds.indexOf(param3))+",mDemuxIds count="+mDemuxIds.size());
+                }
+
                 if (mAudioPatch != null) {
-                    if (param3 >=0) {
-                        if (mAudioPathIds.contains(param3)) {
-                            mAudioPathIds.remove(Integer.valueOf(param3));
+                   if (param3 >= 0) {
+                        if (mDemuxIds.contains(param3)) {
+                            mAudioFormat.remove(mDemuxIds.indexOf(param3));
+                            mAudioPid.remove(mDemuxIds.indexOf(param3));
+                            mOpenStatus.remove(mDemuxIds.indexOf(param3));
+                            mStartStatus.remove(mDemuxIds.indexOf(param3));
+                            mMuteStatus.remove(mDemuxIds.indexOf(param3));
+                            mDemuxIds.remove(mDemuxIds.indexOf(param3));
                         } else {
                             Log.d(TAG, "CLOSE_DECODER("+param3+") maybe already closed");
                         }
-                    }
-                    Log.d(TAG, "CLOSE_DECODER("+param3+") audio path count: " + mAudioPathIds.size()+","+mAudioPathIds);
-                    if (mAudioPathIds.isEmpty()) {
+                   }
+                   if (mDemuxIds.isEmpty()) {
                        Log.d(TAG, "ADEC_CLOSE_DECODER mAudioPatch:"
                             + mAudioPatch);
                         mAudioManager.releaseAudioPatch(mAudioPatch);
+                        mDemuxIds.clear();
+                        mAudioFormat.clear();
+                        mAudioPid.clear();
+                        mOpenStatus.clear();
+                        mStartStatus.clear();
+                        mMuteStatus.clear();
                         mAudioPatch = null;
                         mAudioSource = null;
                     }
                 } else {
-                    Log.d(TAG, "CLOSE_DECODER("+param3+") audio patch already released");
-                    mAudioPathIds.clear();
+                    mHasStartedDecoder = false;
+                    mHasOpenedDecoder = false;
+                    mMixAdSupported = false;
+                    mAudioFormat.remove(mDemuxIds.indexOf(param3));
+                    mAudioPid.remove(mDemuxIds.indexOf(param3));
+                    mOpenStatus.remove(mDemuxIds.indexOf(param3));
+                    mStartStatus.remove(mDemuxIds.indexOf(param3));
+                    mMuteStatus.remove(mDemuxIds.indexOf(param3));
+                    mDemuxIds.remove(mDemuxIds.indexOf(param3));
+
+                    if (mDemuxIds.isEmpty() || mAudioFormat.isEmpty() || mAudioPid.isEmpty() || mOpenStatus.isEmpty() || mStartStatus.isEmpty() || mMuteStatus.isEmpty()) {
+                    mDemuxIds.clear();
+                    mAudioFormat.clear();
+                    mAudioPid.clear();
+                    mOpenStatus.clear();
+                    mStartStatus.clear();
+                    mMuteStatus.clear();
+                    }
+                }
+
+                if (DroidLogicUtils.getAudioDebugEnable()) {
+                    Log.d(TAG, "now end close the decoder");
+                    Log.d(TAG, "CLOSE_DECODER_2("+param3+") audio path count: " + mDemuxIds.size()+",mDemuxIds="+mDemuxIds+",mAudioFormat="+mAudioFormat+",mAudioPid="+mAudioPid+",,mStartStatus="+mStartStatus+",mOpenStatus"+mOpenStatus+",mMuteStatus"+mMuteStatus);
                 }
                 mHasStartedDecoder = false;
                 mHasOpenedDecoder = false;
@@ -654,6 +804,12 @@ public class AudioSystemCmdService extends Service {
 
          // If we didn't find a match, then something went awry, but it's probably not fatal...
          mAudioPathIds.clear();
+         mDemuxIds.clear();
+         mAudioFormat.clear();
+         mAudioPid.clear();
+         mOpenStatus.clear();
+         mStartStatus.clear();
+         mMuteStatus.clear();
          Log.i(TAG, "releaseAudioPatch finished ");
      }
 
@@ -810,6 +966,12 @@ public class AudioSystemCmdService extends Service {
                 mAudioManager.releaseAudioPatch(mAudioPatch);
                 mAudioPatch = null;
                 mAudioPathIds.clear();
+                mDemuxIds.clear();
+                mAudioFormat.clear();
+                mAudioPid.clear();
+                mOpenStatus.clear();
+                mStartStatus.clear();
+                mMuteStatus.clear();
                 mHasStartedDecoder = false;
             }
             return;
@@ -828,6 +990,12 @@ public class AudioSystemCmdService extends Service {
             shouldRecreateAudioPatch = true;
             mHasStartedDecoder = false;
             mAudioPathIds.clear();
+            mDemuxIds.clear();
+            mAudioFormat.clear();
+            mAudioPid.clear();
+            mOpenStatus.clear();
+            mStartStatus.clear();
+            mMuteStatus.clear();
         }
 
         for (AudioDevicePort audioSink : mAudioSink) {
@@ -901,6 +1069,12 @@ public class AudioSystemCmdService extends Service {
                 shouldApplyGain = true;
             } else {
                 mAudioPathIds.clear();
+                mDemuxIds.clear();
+                mAudioFormat.clear();
+                mAudioPid.clear();
+                mOpenStatus.clear();
+                mStartStatus.clear();
+                mMuteStatus.clear();
                 shouldRecreateAudioPatch = true;
             }
         }
