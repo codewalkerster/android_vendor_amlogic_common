@@ -55,7 +55,6 @@ import com.droidlogic.app.DroidLogicUtils;
 import com.droidlogic.app.OutputModeManager;
 import com.droidlogic.app.SystemControlEvent;
 import com.droidlogic.app.SystemControlManager;
-import com.droidlogic.audioservice.settings.TvControlManager;
 import com.droidlogic.UEventObserver;
 import com.droidlogic.R;
 
@@ -78,7 +77,6 @@ public class AudioSystemCmdService extends Service {
     private List<Integer> mVolume  = new ArrayList<Integer>();
     private SystemControlManager mSystemControlManager;
     private DtvKitAudioEvent mDtvKitAudioEvent = null;
-    private ADtvAudioEvent mADtvAudioEvent = null;
     private AudioManager mAudioManager = null;
     private AudioPatch mAudioPatch = null;
     private Context mContext;
@@ -100,9 +98,7 @@ public class AudioSystemCmdService extends Service {
     private int mCurSourceType = SOURCE_TYPE_OTHER;
     private ArcVolumeController mArcVolumeController;
     private TvInputManager mTvInputManager;
-    protected TvControlManager mTvControlManager;
     private boolean sinkUpdated = false;
-  //  protected TvControlManager mTvControlManager;
     private static final String PATH_AUDIOFORMAT_UEVENT = "/devices/platform/auge_sound";
     private static final String PATH_NEW_AUDIOFORMAT_UEVENT = "/devices/platform/auge_sound/sound/card0/controlC0";
     private static final String PATH_TXLX_AUDIOFORMAT_UEVENT = "/devices/platform/aml_snd_tv";
@@ -345,17 +341,6 @@ public class AudioSystemCmdService extends Service {
         }
     }
 
-   private final class ADtvAudioEvent implements TvControlManager.AudioEventListener {
-        @Override
-        public void HandleAudioEvent(int cmd, int param1, int param2) {
-            if (mAudioSystemCmdService != null) {
-                mAudioSystemCmdService.HandleAudioEvent(cmd, param1, param2, 0,false);
-            } else {
-                Log.w(TAG, "ADtvAudioEvent HandleAudioEvent mAudioSystemCmdService is null");
-            }
-        }
-    }
-
     @Override
     public void onCreate() {
         Log.i(TAG, "onCreate");
@@ -367,11 +352,6 @@ public class AudioSystemCmdService extends Service {
             mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_LEANBACK)) {
             Log.i(TAG, "has tv_input service");
             mTvInputManager = getSystemService(TvInputManager.class);
-        }
-        if (DroidLogicUtils.isBuildLivetv()) {
-            mADtvAudioEvent = new ADtvAudioEvent();
-            mTvControlManager = TvControlManager.getInstance();
-            mTvControlManager.SetAudioEventListener(mADtvAudioEvent);
         }
 
         mSystemControlEvent = SystemControlEvent.getInstance(mContext);
