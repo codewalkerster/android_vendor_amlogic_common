@@ -1486,7 +1486,7 @@ size = (HCI_CMD_IND + HCI_COMMAND_HDR_SIZE + EDL_PATCH_CMD_LEN);
 								n = 3 - count;
 							}
 							if (count > 1 && (rsp[1] != VSEVENT_CODE) && (rsp[1] != EVT_CMD_COMPLETE)) {
-								ALOGE("%s: It is not VS event!! EVT: %d\n", rsp[1]);
+								ALOGE("%s: It is not VS event!! EVT: %d\n", __FUNCTION__, rsp[1]);
 								err = -1;
 								goto read_vs_hci_event_failed;
 							}
@@ -2111,60 +2111,84 @@ error:
 dnld_fd = -1;
 return err;
 }
-int qca_hci_send_cmd(int fd, unsigned char *cmd, int cmdsize, unsigned char *rsp)
+
+int qca_hci_send_cmd(int fd, unsigned char *cmd, int cmd_len, unsigned char *rsp, int rsp_len)
 {
-		    int err = 0;
+	int ret = 0;
 
-			ALOGE("%s [abner test]: ", __FUNCTION__);
-		    err = do_write(fd, cmd, cmdsize);
-		  if (err != cmdsize) {
-			        ALOGE("%s: Send failed with ret value: %d", __FUNCTION__, err);
-			        err = -1;
-			        goto error;
-			    }
+	ALOGE("%s send cmd_len: %d", __FUNCTION__, cmd_len);
 
-			    memset(rsp, 0, HCI_MAX_EVENT_SIZE);
+	if (rsp_len < HCI_MAX_EVENT_SIZE) {
+		ALOGE("%s: rsp buf len err, rsp_len: %d", __FUNCTION__, rsp_len);
+		ret = -1;
+		goto err;
+	}
 
-			    /* Wait for command complete event */
-			    err = read_hci_event(fd, rsp, HCI_MAX_EVENT_SIZE);
-		 if ( err < 0) {
-			        ALOGE("%s: Failed to set patch info on Controller", __FUNCTION__);
-			        goto error;
-			}
-			    error:
-			        return err;
-		}
+	ret = do_write(fd, cmd, cmd_len);
+	if (ret != cmd_len) {
+		ALOGE("%s: host send cmd fail, ret: %d", __FUNCTION__, ret);
+		ret = -1;
+		goto err;
+	}
+
+	memset(rsp, 0, HCI_MAX_EVENT_SIZE);
+
+	/* Wait for command complete event */
+	ret = read_hci_event(fd, rsp, HCI_MAX_EVENT_SIZE);
+	if ( ret < 0) {
+		ALOGE("%s: read controller ack event fail, ret: %d", __FUNCTION__, ret);
+		goto err;
+	}
+
+	err:
+		return ret;
+}
 
 int qca_woble_configure(int fd)
 {
-		unsigned char rsp[HCI_MAX_EVENT_SIZE];
-	    unsigned char reset_cmd[] = {0x01, 0x03, 0x0C, 0x00};
-		unsigned char read_BD_ADDR[] = {0x01, 0x09, 0x10, 0x00};
-		unsigned char APCF_set_filtering_param[] = {0x01, 0x57, 0xFD, 0x12, 0x01, 0x00, 0x00, 0x20, 0x00, 0x00,
-			0x00, 0x00, 0xA6, 0x00, 0x00, 0x00, 0x00, 0xA6, 0x00, 0x00, 0x02, 0x00};
-		/*unsigned char APCF_config_manf_data[] = {0x01, 0x57, 0xFD, 0x23, 0x06, 0x00, 0x00, 0xff, 0xff, 0x41, 0x6d, 0x6c,
-			0x6f, 0x67, 0x69, 0x63, 0x01, 0x78, 0xc5, 0xe5, 0x9b, 0x61, 0xea, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-			0xff, 0xff, 0xff, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};*/
-			unsigned char APCF_config_manf_data[] = {0x01, 0x57, 0xFD, 0x25, 0x06, 0x00, 0x00, 0xff, 0xff, 0x41, 0x6d, 0x6c,
-                                             0x6f, 0x67, 0x69, 0x63, 0x01, 0x78, 0xc5, 0xe5, 0x9b, 0x61, 0xea, 0x01, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-                                             0xff, 0xff, 0xff, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00};
-		unsigned char APCF_enable[] = {0x01, 0x57, 0xFD, 0x02, 0x00, 0x01};
-		unsigned char le_set_evt_mask[] = {0x01, 0x01, 0x20, 0x08, 0x7F, 0x1A, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00};
-		unsigned char le_scan_param_setting[] = {0x01, 0x0b, 0x20, 0x07, 0x00, 0x10, 0x00, 0x10, 0x00, 0x00, 0x00};
-		unsigned char le_scan_enable[] = {0x01, 0x0c, 0x20, 0x02, 0x01, 0x00};
-		unsigned char host_sleep_VSC[] = {0x01, 0x6c, 0xfc, 0x01, 0x01};
+	unsigned char rsp[HCI_MAX_EVENT_SIZE];
+	unsigned char reset_cmd[] = {0x01, 0x03, 0x0C, 0x00};
+	unsigned char read_bd_addr[] = {0x01, 0x09, 0x10, 0x00};
+	unsigned char apcf_set_filtering_param[] = {
+		0x01, 0x57, 0xFD, 0x12, 0x01, 0x00, 0x00, 0x20, 0x00, 0x00,0x00, 0x00, 0xA6, 0x00, 0x00, 0x00,
+		0x00, 0xA6, 0x00, 0x00, 0x02, 0x00};
+	unsigned char apcf_config_manf_data[] = {
+		0x01, 0x57, 0xFD, 0x25, 0x06, 0x00, 0x00, 0xff, 0xff, 0x41, 0x6d, 0x6c, 0x6f, 0x67, 0x69, 0x63,
+		0x01, 0x78, 0xc5, 0xe5, 0x9b, 0x61, 0xea, 0x01, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+		0xff, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00};
+	/* google标准蓝牙遥控器APCF配置 */
+	unsigned char apcf_set_filtering_param1[] = {
+		0x01, 0x57, 0xFD, 0x12, 0x01, 0x00, 0x01, 0x40, 0x00, 0x00, 0x00, 0x00, 0xA6, 0x00, 0x00, 0x00,
+		0x00, 0xA6, 0x00, 0x00, 0x02, 0x00};
+	unsigned char apcf_config_service_data[] = {
+		0x01, 0x57, 0xFD, 0x19, 0x07, 0x00, 0x01, 0x36, 0xFD, 0x01, 0x01, 0x01, 0x08, 0x44, 0x32, 0xAA,
+		0x47, 0x61, 0xff, 0xff, 0xff, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 
-		qca_hci_send_cmd(fd, (unsigned char*)read_BD_ADDR, sizeof(read_BD_ADDR), (unsigned char*)rsp);
-		ALOGE("%s, BT_MAC: 0x%x:%x:%x:%x:%x:%x", __FUNCTION__, rsp[12], rsp[11], rsp[10], rsp[9], rsp[8], rsp[7]);
-		memcpy((unsigned char*)APCF_config_manf_data+17, rsp+7, 6);
-        qca_hci_send_cmd(fd, (unsigned char*)reset_cmd, sizeof(reset_cmd), (unsigned char*)rsp);
-		qca_hci_send_cmd(fd, (unsigned char*)APCF_set_filtering_param, sizeof(APCF_set_filtering_param), (unsigned char*)rsp);
-		qca_hci_send_cmd(fd, (unsigned char*)APCF_config_manf_data, sizeof(APCF_config_manf_data), (unsigned char*)rsp);
-		qca_hci_send_cmd(fd, (unsigned char*)APCF_enable, sizeof(APCF_enable), (unsigned char*)rsp);
-		qca_hci_send_cmd(fd, (unsigned char*)le_set_evt_mask, sizeof(le_set_evt_mask), (unsigned char*)rsp);
-		qca_hci_send_cmd(fd, (unsigned char*)le_scan_param_setting, sizeof(le_scan_param_setting), (unsigned char*)rsp);
-		qca_hci_send_cmd(fd, (unsigned char*)le_scan_enable, sizeof(le_scan_enable), (unsigned char*)rsp);
-		qca_hci_send_cmd(fd, (unsigned char*)host_sleep_VSC, sizeof(host_sleep_VSC), (unsigned char*)rsp);
-		return 0;
+	unsigned char apcf_enable[] = {0x01, 0x57, 0xFD, 0x02, 0x00, 0x01};
+	//unsigned char le_set_evt_mask[] = {0x01, 0x01, 0x20, 0x08, 0x7F, 0x1A, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00};
+	unsigned char le_scan_param_setting[] = {0x01, 0x0b, 0x20, 0x07, 0x00, 0x10, 0x00, 0x10, 0x00, 0x00, 0x00};
+	unsigned char host_sleep_vsc[] = {0x01, 0x6c, 0xfc, 0x01, 0x01};
+	unsigned char le_scan_enable[] = {0x01, 0x0c, 0x20, 0x02, 0x01, 0x00};
+
+	qca_hci_send_cmd(fd, read_bd_addr, sizeof(read_bd_addr), rsp, HCI_MAX_EVENT_SIZE);
+	ALOGE("%s, BT_MAC: 0x%02X:%02X:%02X:%02X:%02X:%02X", __FUNCTION__, rsp[12], rsp[11], rsp[10], rsp[9], rsp[8], rsp[7]);
+	memcpy(apcf_config_manf_data+17, rsp+7, 6);
+	memcpy(apcf_config_service_data+12, rsp+7, 6);
+	qca_hci_send_cmd(fd, reset_cmd, sizeof(reset_cmd), rsp, HCI_MAX_EVENT_SIZE);
+	qca_hci_send_cmd(fd, apcf_set_filtering_param, sizeof(apcf_set_filtering_param), rsp, HCI_MAX_EVENT_SIZE);
+	qca_hci_send_cmd(fd, apcf_config_manf_data, sizeof(apcf_config_manf_data), rsp, HCI_MAX_EVENT_SIZE);
+
+	qca_hci_send_cmd(fd, apcf_set_filtering_param1, sizeof(apcf_set_filtering_param1),
+		rsp, HCI_MAX_EVENT_SIZE);
+	qca_hci_send_cmd(fd, apcf_config_service_data, sizeof(apcf_config_service_data),
+		rsp, HCI_MAX_EVENT_SIZE);
+	qca_hci_send_cmd(fd, apcf_enable, sizeof(apcf_enable), rsp, HCI_MAX_EVENT_SIZE);
+	//qca_hci_send_cmd(fd, le_set_evt_mask, sizeof(le_set_evt_mask), rsp, HCI_MAX_EVENT_SIZE);
+	qca_hci_send_cmd(fd, le_scan_param_setting, sizeof(le_scan_param_setting), rsp, HCI_MAX_EVENT_SIZE);
+	qca_hci_send_cmd(fd, host_sleep_vsc, sizeof(host_sleep_vsc), rsp, HCI_MAX_EVENT_SIZE);
+	qca_hci_send_cmd(fd, le_scan_enable, sizeof(le_scan_enable), rsp, HCI_MAX_EVENT_SIZE);
+
+
+	return 0;
 }
 
