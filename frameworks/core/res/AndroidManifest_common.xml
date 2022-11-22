@@ -93,6 +93,20 @@
                  <action android:name="com.droidlogic.PrebuiltChannelsService" />
              </intent-filter>
          </service>
+
+        <service android:name=".AiPqService"
+            android:enabled="true"
+            android:exported="true">
+        </service>
+        <receiver android:name=".AiPqReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action
+                    android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
         <receiver android:exported="true"
                   android:name="com.droidlogic.BootComplete"
                   android:singleUser="true">

@@ -4,5 +4,4 @@
     android:sharedUserId="android.uid.system">
 
     <application/>
-
 </manifest>
