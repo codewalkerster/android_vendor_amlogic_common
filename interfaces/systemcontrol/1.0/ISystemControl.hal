@@ -53,6 +53,17 @@ interface ISystemControl {
       generates (Result result);
 
  /**
+  * set hdmi color space
+  * @param color space
+  *
+  * @return result OK, set success
+  *                FAIL, set fail
+  *
+  */
+  setColorSpace(string colorspace)
+      generates (Result result);
+
+ /**
   * notify hdmi plugin
   *
   */

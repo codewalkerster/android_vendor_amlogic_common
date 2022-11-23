@@ -207,6 +207,18 @@ Return<Result> SystemControlHal::setActiveDispMode(const hidl_string &activeDisp
     return Result::OK;
 }
 
+Return<Result> SystemControlHal::setColorSpace(const hidl_string &colorspace) {
+    std::string value = colorspace;
+
+    if (ENABLE_LOG_PRINT)
+        ALOGI("colorspace :%s", value.c_str());
+    bool ret = mSysControl->setColorSpace(value);
+    if (ret)
+        return Result::OK;
+    else
+        return Result::FAIL;
+}
+
 Return<Result> SystemControlHal::notifyPlugin() {
     if (ENABLE_LOG_PRINT)
         ALOGI("notifyPlugin");

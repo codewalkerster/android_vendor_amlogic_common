@@ -174,6 +174,15 @@ bool SystemControlService::setActiveDispMode(std::string& activeDispMode) {
     return true;
 }
 
+bool SystemControlService::setColorSpace(std::string& colorspace) {
+    if (mLogLevel > LOG_LEVEL_1) {
+        ALOGI("colorspace :%s", colorspace.c_str());
+    }
+
+    bool ret = pDisplayMode->setColorSpace(colorspace.c_str());
+    return ret;
+}
+
 void SystemControlService::notifyPlugin() {
     if (mLogLevel > LOG_LEVEL_1) {
         ALOGI("notify plugin");

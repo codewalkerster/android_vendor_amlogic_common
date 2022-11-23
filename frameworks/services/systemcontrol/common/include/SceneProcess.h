@@ -91,6 +91,7 @@ typedef struct dv_output_info {
 
 typedef struct scene_input_info {
     scene_state state; //scene state
+    bool isbestcolorspace; //hdmi best colorspace,false:disable true:enable
     bool isbestpolicy; //hdmi best policy,false:disable true:enable
     bool isDvEnable;   //dolby vision enable or not,false:disable true:enable
     bool isTvSupportHDR;//tv is support HDR or not, false:not support true:support
@@ -153,11 +154,12 @@ private:
     void updateDolbyVisionDisplayMode(char * cur_outputmode, int dv_type, char * final_displaymode);
     bool isHDRPreference();
     bool isDolbyVisionPreference();
-    bool IsBestPolicy();
-    bool IsFrameratePriority();
-    bool IsSupport4K();
-    bool IsSupport4K30Hz();
-    bool IsSupportDeepColor();
+    bool isBestPolicy();
+    bool isBestColorSpace();
+    bool isFrameratePriority();
+    bool isSupport4K();
+    bool isSupport4K30Hz();
+    bool isSupportDeepColor();
     bool isLowPowerMode();
     bool isDVSupportMode(char *mode);
     scene_state getSceneState();

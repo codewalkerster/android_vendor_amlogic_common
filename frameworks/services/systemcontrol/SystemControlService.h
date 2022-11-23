@@ -60,6 +60,7 @@ public:
     bool getSupportDispModeList(std::vector<std::string> *supportDispModes);
     bool getActiveDispMode(std::string *activeDispMode);
     bool setActiveDispMode(std::string& activeDispMode);
+    bool setColorSpace(std::string& colorspace);
     void notifyPlugin();
     //read write property and sysfs
     bool getProperty(const std::string &key, std::string *value);

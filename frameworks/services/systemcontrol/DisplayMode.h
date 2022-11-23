@@ -86,6 +86,12 @@ using namespace android;
 #define HDMI_TX_HDCP14_LOG_UEVENT       "DEVPATH=/devices/virtual/amhdmitx/amhdmitx0/hdcp_log"
 #define HDMI_TX_HDMI_AUDIO_UEVENT       "DEVPATH=/devices/virtual/amhdmitx/amhdmitx0/hdmi_audio"
 
+/*
+ * save user prefer fps set by hwc
+ * 0:24hz/30hz/60hz
+ * 1:23.97hz/29.97/59.94hz
+ * 2:default value,hwc not change propert value
+ */
 #define HDMI_FRC_POLICY_PROP            "vendor.sys.frc_policy"
 
 #define DOLBY_VISION_KO_DIR0                 "/odm/lib/modules/dovi.ko"
@@ -201,6 +207,7 @@ using namespace android;
 #define UBOOTENV_CVBSMODE               "ubootenv.var.cvbsmode"
 #define UBOOTENV_OUTPUTMODE             "ubootenv.var.outputmode"
 #define UBOOTENV_ISBESTMODE             "ubootenv.var.is.bestmode"
+#define UBOOTENV_BESTCOLORSPACE         "ubootenv.var.bestcolorspace"
 #define UBOOTENV_BESTDOLBYVISION        "ubootenv.var.bestdolbyvision"
 #define UBOOTENV_EDIDCRCVALUE           "ubootenv.var.hdmichecksum"
 #define UBOOTENV_HDMICOLORSPACE         "ubootenv.var.hdmi_colorspace"
@@ -378,6 +385,8 @@ typedef struct hdmi_dv_info {
 
 typedef struct hdmi_data {
     output_mode_state state;
+    bool isbestcolorspace;       //hdmi best colorspace,false:disable true:enable
+    bool isbestpolicy;           //hdmi resolution best policy,false:disable true:enable
     hdr_priority_e hdr_priority; //dynamic range fromat preference,0:dolby vision,1:hdr,2:sdr
     hdr_policy_e   hdr_policy;   //dynamic range policy,0 :follow sink, 1: match content
     char edidParsing[MODE_LEN];
@@ -398,6 +407,13 @@ typedef struct hdmi_data {
     hdmi_dv_info dv_info;
     output_change_reason reason;
 }hdmi_data_t;
+
+typedef struct hdmi_output_info {
+    output_mode_state reason;          //change driver setting reason
+    char final_displaymode[MODE_LEN];  //hdmi final resolution
+    char final_deepcolor[MODE_LEN];    //hdmi final colorspace
+    int  dv_type;                      //hdmi final dolby vision type
+}hdmi_output_info_t;
 
 typedef struct axis_s {
     int x;
@@ -488,6 +504,7 @@ public:
     void getCommonData(hdmi_data_t* data);
     void getHdmiData(hdmi_data_t* data);
     void setActiveDispMode(const char*value);
+    bool setColorSpace(const char* colorspace);
     void notifyPlugin();
     int readHdcpRX22Key(char *value, int size);
     bool writeHdcpRX22Key(const char *value, const int size);
@@ -524,6 +541,7 @@ public:
     bool memcContrl(bool on);
 private:
 
+    void getHdmiData_cached(hdmi_data_t* data);
     bool getBootEnv(const char* key, char* value);
     void setBootEnv(const char* key, const char* value);
 
@@ -536,7 +554,7 @@ private:
     void filterHdmiMode(char * mode, hdmi_data_t* data);
     void getHdmiOutputMode(char *mode, hdmi_data_t* data);
     void filterHdmiDispcap(hdmi_data_t* data);
-    void applyDisplaySetting(output_mode_state state);
+    void applyDisplaySetting(hdmi_output_info_t* output_info);
     void sceneProcess(hdmi_data_t* data);
     void setAutoSwitchFrameRate(int state);
     void updateDefaultUI();
@@ -554,6 +572,7 @@ private:
     bool isHdrResolutionPriority();
     bool isLowPowerMode();
     bool isBestOutputmode();
+    bool isBestColorSpace();
     bool modeSupport(char *mode, int sinkType);
     void setDvHdrPolicy(const char* policy);
     void setSourceOutputMode(const char* outputmode, output_mode_state state);

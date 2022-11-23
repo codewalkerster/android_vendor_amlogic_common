@@ -795,6 +795,16 @@ public class SystemControlManager {
         }
     }
 
+    public void setColorSpace(String colorspace) {
+        synchronized (mLock) {
+            try {
+                mProxy.setColorSpace(colorspace);
+            } catch (RemoteException e) {
+                Log.e(TAG, "setColorSpace:" + e);
+            }
+        }
+    }
+
     public void setDigitalMode(String mode) {
         synchronized (mLock) {
             try {

@@ -103,7 +103,6 @@ public class OutputModeManager {
     public static final String ENV_DIGIT_AUDIO              = "ubootenv.var.digitaudiooutput";
     public static final String ENV_IS_BEST_MODE             = "ubootenv.var.is.bestmode";
     public static final String ENV_IS_BEST_DOLBYVISION      = "ubootenv.var.bestdolbyvision";
-    public static final String ENV_COLORATTRIBUTE           = "ubootenv.var.colorattribute";
     public static final String ENV_HDR_PRIORITY             = "ubootenv.var.hdr_priority";
     public static final String ENV_HDR_POLICY               = "ubootenv.var.hdr_policy";
     public static final String ENV_DOLBYSTATUS              = "ubootenv.var.dolby_status";
@@ -449,8 +448,7 @@ public class OutputModeManager {
     }
 
     public void setDeepColorAttribute(final String colorValue) {
-        mSystemControl.setBootenv(ENV_IS_BEST_MODE, "false");
-        mSystemControl.setBootenv(ENV_COLORATTRIBUTE, colorValue);
+        mSystemControl.setColorSpace(colorValue);
     }
 
     public String getCurrentColorAttribute() {
