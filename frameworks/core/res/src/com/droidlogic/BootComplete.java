@@ -31,7 +31,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
-
+import android.os.SystemProperties;
 
 import com.droidlogic.app.DroidLogicUtils;
 import com.droidlogic.app.PlayBackManager;
@@ -75,6 +75,10 @@ public class BootComplete extends BroadcastReceiver {
         }
         if (context.getPackageManager().hasSystemFeature(NetflixService.FEATURE_SOFTWARE_NETFLIX)) {
             context.startService(new Intent(context, NetflixService.class));
+        }
+
+        if (SystemProperties.get("sys.vendor.usb_otg.control").equals("enable")) {
+            context.startService(new Intent(context, DeviceControlService.class));
         }
 
         context.startService(new Intent(context,NtpService.class));

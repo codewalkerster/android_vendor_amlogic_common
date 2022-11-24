@@ -166,6 +166,11 @@
                 <action android:name="com.droidlogic.audioservice.services.AudioEffectsService" />
             </intent-filter>
         </service>
+
+        <service android:name="com.droidlogic.DeviceControlService"
+                 android:enabled="true"
+                 android:exported="true">
+        </service>
     </application>
 
 </manifest>
