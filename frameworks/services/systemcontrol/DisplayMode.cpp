@@ -3469,17 +3469,11 @@ void DisplayMode::onTxEvent (char* switchName, char* hpdstate, int outputState) 
                 memcpy(mEdid, temp, EDID_MAX_SIZE);
             }
         }
-        if (hpdstate[0] == '1')
-            dumpCaps();
     }
 #endif
     //plugout or suspend,set dummy_l
     if (hpdstate && hpdstate[0] == '0') {
-        if (isVMXCertification()) {
-            setDisplayMode("576cvbs");
-        } else {
-            setDisplayMode("dummy_l");
-        }
+        SYS_LOGI("hwc will set dummy when hdmi plugout or suspend \n");
         return;
     }
 
