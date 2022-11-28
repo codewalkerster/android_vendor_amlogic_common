@@ -78,7 +78,7 @@ enum cld80211_attr {
 
 /**
  * Create socket of type NETLINK_GENERIC
- * Retuns valid sock only if socket creation is successful and cld80211
+ * Returns valid sock only if socket creation is successful and cld80211
  * family is present, returns NULL otherwise
  */
 struct cld80211_ctx *cld80211_init(void);

@@ -187,7 +187,7 @@ static jmp_buf resync;      // Protocol restart buffer used in timeout cases.
  * Name: gen_crc_table
  *
  * Description:
- *   Genrate crc table
+ *   Generate crc table
  *
  * Conditions For Use:
  *   None.
