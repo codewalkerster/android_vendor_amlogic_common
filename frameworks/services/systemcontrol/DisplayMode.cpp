@@ -954,9 +954,19 @@ void DisplayMode::applyDisplaySetting(hdmi_output_info_t* output_info) {
         SYS_LOGI("cur deepcolor is equals\n");
     }
 
-    // 3. update sdr/hdr strategy
+    // 3. update hdr strategy
+    bool hdr_policy_change = false;
+    std::string cur_hdr_policy;
+    DisplayModeMgr::getInstance().getDisplayAttribute(DISPLAY_HDR_POLICY, cur_hdr_policy);
+    SYS_LOGI("cur hdr policy:%s\n", cur_hdr_policy.c_str());
+
     char hdr_policy[MODE_LEN] = {0};
     getHdrStrategy(hdr_policy);
+
+    if (strstr(cur_hdr_policy.c_str(), hdr_policy) == NULL) {
+        hdr_policy_change = true;
+    }
+
     if (!cvbsMode && (isMboxSupportDolbyVision() == false)) {
         if (pSysWrite->getPropertyBoolean(PROP_DOLBY_VISION_FEATURE, false)) {
             if (strstr(hdr_policy, HDR_POLICY_SINK)) {
@@ -1016,7 +1026,7 @@ void DisplayMode::applyDisplaySetting(hdmi_output_info_t* output_info) {
     //6. check any change
     bool isNeedChange = false;
 
-    if (modeChange || attr_change || frac_rate_policy_change) {
+    if (modeChange || attr_change || frac_rate_policy_change || hdr_policy_change) {
         isNeedChange = true;
     } else {
         SYS_LOGI("nothing need to be changed\n");
@@ -1051,6 +1061,20 @@ void DisplayMode::applyDisplaySetting(hdmi_output_info_t* output_info) {
 
     // 8. set hdmi final output mode
     if (isNeedChange) {
+        //apply driver sysfs
+        if (hdr_policy_change) {
+            if (strstr(hdr_policy, HDR_POLICY_SINK)) {
+                DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDR_POLICY, HDR_POLICY_SINK, ConnectorType::CONN_TYPE_HDMI);
+                if (isDolbyVisionEnable()) {
+                    DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_POLICY, HDR_POLICY_SINK, ConnectorType::CONN_TYPE_HDMI);
+                }
+            } else if (strstr(hdr_policy, HDR_POLICY_SOURCE)) {
+                DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDR_POLICY, HDR_POLICY_SOURCE, ConnectorType::CONN_TYPE_HDMI);
+                if (isDolbyVisionEnable()) {
+                    DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_POLICY, HDR_POLICY_SOURCE, ConnectorType::CONN_TYPE_HDMI);
+                }
+            }
+        }
         //set hdmi mode
         setDisplayMode(final_displaymode);
         /* phy already turned on after write display/mode node */
@@ -2790,31 +2814,23 @@ void DisplayMode::setHdrStrategy(const char* type) {
 
     char dvstatus[MODE_LEN] = {0};
 
-    // 1. set dummy_l mode
-    char cur_displaymode[MODE_LEN] = {0};
-    getDisplayMode(cur_displaymode);
-    setDisplayMode("dummy_l");
-
-    //2. update sysfs and env policy
+    //1. update env policy
+    setBootEnv(UBOOTENV_HDR_POLICY, (char *)type);
     if (strstr(type, HDR_POLICY_SINK)) {
-        DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDR_POLICY, HDR_POLICY_SINK, ConnectorType::CONN_TYPE_HDMI);
         if (isDolbyVisionEnable()) {
-            DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_POLICY, HDR_POLICY_SINK, ConnectorType::CONN_TYPE_HDMI);
             sprintf(dvstatus, "%d", mHdmidata.dv_info.dv_type);
             setBootEnv(UBOOTENV_DOLBYSTATUS, dvstatus);
         }
     } else if (strstr(type, HDR_POLICY_SOURCE)) {
-        DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDR_POLICY, HDR_POLICY_SOURCE, ConnectorType::CONN_TYPE_HDMI);
         if (isDolbyVisionEnable()) {
-            DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_POLICY, HDR_POLICY_SOURCE, ConnectorType::CONN_TYPE_HDMI);
             setBootEnv(UBOOTENV_DOLBYSTATUS, "0");
         }
     }
-    setBootEnv(UBOOTENV_HDR_POLICY, (char *)type);
 
-    // 3. set current hdmi mode
+    //2. set current hdmi mode
+    char cur_displaymode[MODE_LEN] = {0};
+    getDisplayMode(cur_displaymode);
     setSourceOutputMode(cur_displaymode);
-
 }
 
 int DisplayMode::getHdrPriority(void) {
