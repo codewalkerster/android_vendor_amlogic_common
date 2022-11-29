@@ -27,7 +27,7 @@ const uint8_t WOLE_PULSE_TIME_NETFLIX[] = {0x01,0x02,0x20}; //idx is 0, key is 0
 #define HCI_CMD_PREAMBLE_SIZE                   3
 #define HCI_EVT_CMD_CMPL_STATUS_RET_BYTE        5
 #define HCI_EVT_CMD_CMPL_OPCODE                 3
-#define BT_WAKE_EVT       "/sys/module/bt_device/parameters/btwake_evt"
+#define BT_WAKE_EVT       "/sys/module/amlogic_wireless/parameters/btwake_evt"
 
 
 pthread_mutex_t s_vsclock = PTHREAD_MUTEX_INITIALIZER;

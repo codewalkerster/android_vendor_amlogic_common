@@ -33,8 +33,8 @@ static const char* VENDOR_LIBRARY_SYMBOL_NAME =
     "BLUETOOTH_VENDOR_LIB_INTERFACE";
 
 #define HCI_VSC_WAKE_ON_BLE 0xFE54
-#define BT_PWR_EVT "/sys/module/bt_device/parameters/btpower_evt"
-#define BT_WAKE_EVT       "/sys/module/bt_device/parameters/btwake_evt"
+#define BT_PWR_EVT "/sys/module/amlogic_wireless/parameters/btpower_evt"
+#define BT_WAKE_EVT       "/sys/module/amlogic_wireless/parameters/btwake_evt"
 static const int INVALID_FD = -1;
 namespace {
 

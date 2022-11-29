@@ -67,7 +67,7 @@
 #define MTK_VENDOR_LIB "libbt-vendor_mtkMulti.so"
 #define AML_VENDOR_LIB "libbt-vendor_amlMulti.so"
 #define NODE_PATH "/data/misc/bluetooth/bt_module"
-#define BT_POWER_TYPE "/sys/module/bt_device/parameters/btpower_evt"
+#define BT_POWER_TYPE "/sys/module/amlogic_wireless/parameters/btpower_evt"
 
 /**** baud rates ****/
 #define USERIAL_BAUD_300        0
