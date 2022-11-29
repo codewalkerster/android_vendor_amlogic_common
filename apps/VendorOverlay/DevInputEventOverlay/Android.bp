@@ -1,0 +1,10 @@
+package {
+    default_applicable_licenses: ["vendor_amlogic_common_license"],
+}
+
+runtime_resource_overlay {
+    name: "DevInputEventOverlay",
+    resource_dirs: ["res"],
+    product_specific: true,
+    sdk_version: "current",
+}
