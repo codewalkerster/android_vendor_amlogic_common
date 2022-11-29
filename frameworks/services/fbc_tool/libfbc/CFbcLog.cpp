@@ -21,7 +21,7 @@ int __fbc_log_print(int prio, const char *tag, const char *fbc_tag, const char *
     va_list ap;
     va_start(ap, fmt);
     vsnprintf(buf + fbc_tag_len, DEFAULT_LOG_BUFFER_LEN - fbc_tag_len, fmt, ap);
-
+    va_end(ap);
     return __android_log_write(prio, tag, buf);
 }
 

@@ -323,7 +323,7 @@ bool CFbcUpgrade::loadUpgradeFile(int &ret_code,
     }
 
     if (ret && tmp_st.st_size != 0x200000 && tmp_st.st_size != 0x400000) {
-        LOGE("%s, don't support %d size upgrade binary!\n", __FUNCTION__,
+        LOGE("%s, don't support %lld size upgrade binary!\n", __FUNCTION__,
              tmp_st.st_size);
         ret_code = ERR_BIN_FILE_SIZE;
         ret = false;
@@ -368,6 +368,7 @@ bool CFbcUpgrade::loadUpgradeFile(int &ret_code,
         }
     }
 
+    close(file_handle);
     return ret;
 }
 
@@ -551,7 +552,9 @@ bool CFbcUpgrade::threadLoop()
     //Avoid upgrade not start, but get this instance to upgrade again.
     mState = STATE_STOPED;
     mCfbcIns->SetUpgradeFlag(0);
-    mpObserver->onUpgradeStatus(mState, ret_code);
+    if (mpObserver != NULL) {
+        mpObserver->onUpgradeStatus(mState, ret_code);
+    }
 
     if (prepare_success) {
         sprintf((char *) tmp_buf, "reboot\n");

@@ -113,6 +113,10 @@ int CFile::copyTo(const char *dstPath)
             break;
         } else if (bytes_read > 0) {
             ptr = buffer;
+            /*
+             * This is the logic, no need to modify, ignore coverity weak cryptor report.
+             */
+            /* coverity[event_tag:SUPPRESS] */
             while ((bytes_write = write(dstFd, ptr, bytes_read))) {
                 /* fatal error happen */
                 if ((bytes_write == -1) && (errno != EINTR)) {
@@ -173,6 +177,10 @@ int  CFile::getFileAttrValue(const char *path)
         LOGD("open (%s)ERROR!! error = -%s- \n", path, strerror(errno));
     }
     char s[8];
+    /*
+     * This is the logic, no need to modify, ignore coverity weak cryptor report.
+     */
+    /* coverity[event_tag:SUPPRESS] */
     read(fd, s, sizeof(s));
     close(fd);
     value = atoi(s);

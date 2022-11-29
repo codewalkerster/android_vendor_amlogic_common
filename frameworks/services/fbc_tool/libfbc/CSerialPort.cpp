@@ -244,6 +244,10 @@ int CSerialPort::set_opt(int speed, int db, int sb, char pb, int overtime, bool 
 {
     int i = 0;
     struct termios old_cfg, new_cfg;
+    new_cfg.c_cflag |= (CLOCAL | CREAD);
+    new_cfg.c_cflag &= ~CSIZE;
+    new_cfg.c_cflag &= ~PARENB;
+    new_cfg.c_cflag &= ~CSTOPB;
     if (mFd <= 0) {
         //LOGE("not open dev, when set opt");
         return -1;

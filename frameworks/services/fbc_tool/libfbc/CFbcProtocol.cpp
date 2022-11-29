@@ -496,7 +496,7 @@ int CFbcProtocol::fbcSetBatchValue(COMM_DEV_TYPE_E toDev, unsigned char *cmd_buf
         return 0;
     }
 
-    if ( 512 <= count) {
+    if ( 504 <= count) {
         return -1;
     }
 
@@ -545,7 +545,7 @@ int CFbcProtocol::fbcGetBatchValue(COMM_DEV_TYPE_E fromDev, unsigned char *cmd_b
         return 0;
     }
 
-    if ( 512 <= count) {
+    if ( 504 <= count) {
         return -1;
     }
     int ret = 0;
