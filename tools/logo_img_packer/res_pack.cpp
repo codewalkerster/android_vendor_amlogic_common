@@ -608,6 +608,10 @@ DLL_API
 #endif// #ifdef BUILD_DLL
 int res_img_pack(const char* szDir, const char* const outResImg)
 {
+    /*
+     * path_src is an array pointer char *argv[], the same as char **argv, can perform pointer operations.
+     */
+    /* coverity[callee_ptr_arith:SUPPRESS] */
     return _img_pack(&szDir, outResImg, traverse_dir, 0);
 }
 
@@ -648,7 +652,10 @@ int main(int argc, const char ** const argv)
                 ret = res_img_pack(argv[2], argv[3]);
                 exit(ret);
         }
-
+        /*
+         * The size of argv[1] is not fixed, so a specific size of argv[1] cannot be passed.
+         */
+        /* coverity[string_size:SUPPRESS] */
         ret = _img_pack(&argv[1], argv[argc -1], get_file_path_from_argv, argc - 2);
         exit(ret);
 }
