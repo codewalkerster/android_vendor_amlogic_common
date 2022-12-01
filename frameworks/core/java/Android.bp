@@ -42,6 +42,25 @@ java_library {
 }
 
 java_library {
+
+    name: "droidlogic",
+
+    vendor: true,
+    sdk_version: "system_current",
+    installable: true,
+
+    dxflags: ["--core-library"],
+
+    static_libs: [
+        "droidlogicLib",
+        "vendor.amlogic.hardware.systemcontrol-V1.0-java",
+        "vendor.amlogic.hardware.systemcontrol-V1.1-java",
+        "vendor.amlogic.hardware.droidvold-V1.0-java",
+    ],
+
+}
+
+java_library {
     name: "droidlogic.software.core",
     vendor: true,
     sdk_version: "system_current",
