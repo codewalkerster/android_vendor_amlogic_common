@@ -586,7 +586,7 @@ static int write_hdcp_key(const char *data, const char *key_name, const int size
     }
 
     readSys(UNIFYKEY_EXIST, (char*)existKey, 10);
-    if (0 == strcmp(existKey, "0")) {
+    if (0 == strncmp(existKey, "0", 10)) {
         errorP("get status: not burned!\n");
         return -1;
     }
@@ -754,7 +754,7 @@ int setImgPath(const char *path)
             {
                 errorP("write hdcp key OK1!\n");
             }
-        }else if (!strcmp(pItemHead->name, HDCP_RX)) {
+        }else if (!strncmp(pItemHead->name, HDCP_RX, sizeof(pItemHead->name))) {
             #if 1
             char *writebuffer = (char *)malloc(pItemHead->dataSz + 4);
             if (!writebuffer) {

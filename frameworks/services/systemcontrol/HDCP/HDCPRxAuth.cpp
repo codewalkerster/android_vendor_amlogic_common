@@ -56,7 +56,9 @@ static void GetHdmiRxEventPath() {
     strncpy(tmpHdmiRxPlugEvent1, tmpHdmiRxPlugEvent + 5, sizeof(tmpHdmiRxPlugEvent) - 5);
     strncpy(tmpHdmiRxAuthEvent1, tmpHdmiRxAuthEvent + 5, sizeof(tmpHdmiRxAuthEvent) - 5);
 
+    tmpHdmiRxPlugEvent1[sizeof(tmpHdmiRxPlugEvent1)-1] = '\0';
     snprintf(HdmiRxPlugEvent, sizeof(tmpHdmiRxPlugEvent1), "DEVPATH=%s", tmpHdmiRxPlugEvent1);
+    tmpHdmiRxAuthEvent1[sizeof(tmpHdmiRxAuthEvent1)-1] = '\0';
     snprintf(HdmiRxAuthEvent, sizeof(tmpHdmiRxAuthEvent1), "DEVPATH=%s", tmpHdmiRxAuthEvent1);
     SYS_LOGD("mHdmiRxPlugEvent = %s\n", HdmiRxPlugEvent);
     SYS_LOGD("mHdmiRxAuthEvent = %s\n", HdmiRxAuthEvent);
