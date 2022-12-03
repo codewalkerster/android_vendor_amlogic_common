@@ -135,8 +135,7 @@ cc_prebuilt_library_static {
             srcs: ["lib/libicuuc_stubdata_product.a"],
         },
         arm64: {
-            enabled: false,
-            //srcs: ["lib64/libicuuc_stubdata_product.a"],
+            srcs: ["lib64/libicuuc_stubdata_product.a"],
         },
         x86: {
             enabled: false,
