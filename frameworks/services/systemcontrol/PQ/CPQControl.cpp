@@ -7239,7 +7239,7 @@ void CPQControl::resetAllUserSettingParam()
         mSSMAction->SSMSColorRangeModeRestoreDefault(0);
     }
     //static frame
-    Cpq_SSMWriteNTypes(SSM_RW_BLACKOUT_ENABLE_START, 1, 0, 0);
+    Cpq_SSMWriteNTypes(SSM_RW_BLACKOUT_ENABLE_START, 1, 1, 0);
     //screen color for signal
     Cpq_SSMWriteNTypes(CUSTOMER_DATA_POS_SCREEN_COLOR_START, 1, 0, 0);
 
