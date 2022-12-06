@@ -1,0 +1,35 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "vendor_amlogic_common_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["vendor_amlogic_common_license"],
+}
+cc_binary {
+  name: "vadservice",
+  init_rc: ["vadservice.rc"],
+  vendor: true,
+  compile_multilib: "32",
+
+  srcs: [
+    "VadService.cpp",
+  ],
+
+  shared_libs: [
+    "libcutils",
+    "libutils",
+    "libtinyalsa",
+    "libbase",
+    "libamaudioutils",
+  ],
+  include_dirs: [
+      "hardware/amlogic/audio/utils/include",
+      "hardware/amlogic/audio/audio_hal",
+  ],
+
+  cflags: [
+    "-std=c++17",
+  ],
+}
+

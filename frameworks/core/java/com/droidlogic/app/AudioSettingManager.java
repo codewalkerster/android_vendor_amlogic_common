@@ -41,6 +41,14 @@ public class AudioSettingManager {
     private SettingsObserver mSettingsObserver;
     private SystemControlManager mSystemControlManager;
     private AudioManager mAudioManager;
+    public static final String AUDIO_VAD_POWER_MEM_SLEEP_NODE               = "/sys/power/mem_sleep";
+    public static final String AUDIO_VAD_POWER_STATE_NODE                   = "/sys/power/state";
+    public static final String AUDIO_VAD_POWER_MEM_SLEEP_DEEP               = "deep";
+    public static final String AUDIO_VAD_POWER_MEM_SLEEP_S2IDLE             = "s2idle";
+    public static final String AUDIO_VAD_STRING_VAD_ON                      = "on";
+    public static final String AUDIO_VAD_STRING_VAD_OFF                     = "off";
+    public static final String AUDIO_VAD_UBOOTENV_FFV_WAKE                  = "ubootenv.var.ffv_wake";
+    public static final String AUDIO_VAD_PROPERTY_VADWAKE                   = "persist.vendor.vadwake";
 
     public static final String PROP_TUNER_AUDIO = "ro.vendor.platform.is.tv";
 
@@ -246,17 +254,11 @@ public class AudioSettingManager {
     }
 
     private void initVadStatus() {
-        final String VAD_ENABLE_UBOOTENV = "ubootenv.var.ffv_wake";
-        final String VAD_ENABLE_PROPERTY = "persist.vendor.sys.vadwake";
-        final String STRING_VAD_ON = "on";
-        final String STRING_VAD_OFF = "off";
-
-        SystemControlManager scm = SystemControlManager.getInstance();
-        String mode = scm.getBootenv(VAD_ENABLE_UBOOTENV, STRING_VAD_OFF);
-        String property = scm.getPropertyString(VAD_ENABLE_PROPERTY, STRING_VAD_OFF);
-
-        if (!mode.equals(property)) {
-            scm.setProperty(VAD_ENABLE_PROPERTY, mode);
+        String vadUbootEnable = mSystemControlManager.getBootenv(AUDIO_VAD_UBOOTENV_FFV_WAKE, AUDIO_VAD_STRING_VAD_OFF);
+        String property = mSystemControlManager.getPropertyString(AUDIO_VAD_PROPERTY_VADWAKE, AUDIO_VAD_STRING_VAD_OFF);
+        Log.i(TAG, "initVadStatus uboot status:" + vadUbootEnable + ", prop:" + property);
+        if (vadUbootEnable.equals(AUDIO_VAD_STRING_VAD_ON)) {
+            mSystemControlManager.setProperty(AUDIO_VAD_PROPERTY_VADWAKE, vadUbootEnable);
         }
     }
 }

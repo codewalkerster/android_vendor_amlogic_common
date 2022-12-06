@@ -1,0 +1,14 @@
+on early-init
+    start vadservice
+
+on property:persist.vendor.vadwake=on
+    write /sys/power/mem_sleep s2idle
+
+on property:persist.vendor.vadwake=off
+    write /sys/power/mem_sleep deep
+
+service vadservice /vendor/bin/vadservice
+    user root
+    oneshot
+    group system root media audio
+

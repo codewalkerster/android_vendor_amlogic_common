@@ -15,16 +15,19 @@ import android.content.Context;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioManager;
 import android.net.wifi.WifiManager;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.droidlogic.app.AudioSettingManager;
 import com.droidlogic.app.DroidLogicUtils;
 import com.droidlogic.app.SystemControlManager;
 
 public class DroidLogicPowerService extends Service {
     private static final String TAG = "DroidLogicPowerService";
     private SystemControlManager mSystemControlManager = null;
+    private AudioManager mAudioManager = null;
     private boolean mWifiDisableWhenSuspend = false;
     private static final int POWER_SUSPEND_OFF = 0;
     private static final int POWER_SUSPEND_ON = 1;
@@ -36,11 +39,19 @@ public class DroidLogicPowerService extends Service {
             String action = intent.getAction();
             Log.d(TAG, "action: " + action);
             if (Intent.ACTION_SCREEN_ON.equals(action)) {
+                String enableVad = mSystemControlManager.getPropertyString(AudioSettingManager.AUDIO_VAD_PROPERTY_VADWAKE, AudioSettingManager.AUDIO_VAD_STRING_VAD_OFF);
+                if (enableVad.equals(AudioSettingManager.AUDIO_VAD_STRING_VAD_ON)) {
+                    mAudioManager.setParameters("hal_param_vad_wakeup=resume");
+                }
                 setSuspendState(POWER_SUSPEND_OFF);
                 setWifiState(context, true);
             } else if (Intent.ACTION_SCREEN_OFF.equals(action)) {
                 setSuspendState(POWER_SUSPEND_ON);
                 setWifiState(context, false);
+                String enableVad = mSystemControlManager.getPropertyString(AudioSettingManager.AUDIO_VAD_PROPERTY_VADWAKE, AudioSettingManager.AUDIO_VAD_STRING_VAD_OFF);
+                if (enableVad.equals(AudioSettingManager.AUDIO_VAD_STRING_VAD_ON)) {
+                    mAudioManager.setParameters("hal_param_vad_wakeup=suspend");
+                }
             } else if (Intent.ACTION_SHUTDOWN.equals(action)) {
                 setSuspendState(POWER_SUSPEND_SHUTDOWN);
             }
@@ -51,6 +62,7 @@ public class DroidLogicPowerService extends Service {
     public void onCreate() {
         super.onCreate();
         mSystemControlManager = SystemControlManager.getInstance();
+        mAudioManager = (AudioManager) this.getSystemService(this.AUDIO_SERVICE);
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         filter.addAction(Intent.ACTION_SCREEN_ON);
