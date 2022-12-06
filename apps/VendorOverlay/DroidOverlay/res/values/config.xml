@@ -143,7 +143,7 @@
         3 - Power off (without confirmation)
         4 - Go to voice assist
         5 - Go to assistant (Settings.Secure.ASSISTANT -->
-    <integer name="config_longPressOnPowerBehavior">1</integer>
+    <integer name="config_longPressOnPowerBehavior">2</integer>
 
     <!-- low ram start  -->
     <!-- bool name="config_zramWriteback">true</bool -->
