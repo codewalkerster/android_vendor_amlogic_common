@@ -198,9 +198,14 @@ int main(int argc, char **argv)
         MetaDataBase* pMeta;
         pMeta = new MetaDataBase();
         pMeta->setInt32(kKeyColorFormat, clrFormat);
-        mScreenCatch->start(pMeta);
+        status = mScreenCatch->start(pMeta);
         pMeta->clear();
         delete pMeta;
+        if ( status != OK ) {
+            ALOGE("[%s %d] start mScreenCatch error\n", __FUNCTION__, __LINE__);
+            delete mScreenCatch;
+            return !-1;
+        }
         char dump_path[128];
         char dump_dir[64] = "/data/temp";
 
@@ -226,7 +231,7 @@ int main(int argc, char **argv)
             printf("Try save:%s, size=%d\n", dump_path, buffer->size());
 
             dumpfd = open(dump_path, O_CREAT | O_RDWR | O_TRUNC, 0644);
-            if (dumpfd < 0) {
+             if (dumpfd < 0) {
                 ALOGE("[%s %d] can't open the file ", __FUNCTION__, __LINE__);
                 buffer->release();
                 buffer = NULL;

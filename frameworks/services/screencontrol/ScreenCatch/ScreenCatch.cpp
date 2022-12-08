@@ -20,16 +20,18 @@
 #include <media/stagefright/MediaDefs.h>
 #include <media/stagefright/MetaDataBase.h>
 #include <OMX_IVCommon.h>
-#include <media/hardware/MetadataBufferType.h>
+#include <MetadataBufferType.h>
 
 #include <ui/GraphicBuffer.h>
 #include <OMX_Component.h>
+#include <cutils/properties.h>
 
 #include <utils/Log.h>
 #include <utils/String8.h>
 
 #include "ScreenCatch.h"
 #include "../ScreenControlDebug.h"
+#include "am_gralloc_ext.h"
 
 #include <binder/IPCThreadState.h>
 #include <binder/MemoryBase.h>
@@ -52,16 +54,71 @@
 
 namespace android {
 
+
+//////////////////////////////  screen capture when use keystone  //////////////////////////////
+
+static int32_t gralloc_unref_dma_buf(native_handle_t * hnd) {
+    static GraphicBufferMapper & maper = GraphicBufferMapper::get();
+
+    bool bfreed = false;
+    if (am_gralloc_is_valid_graphic_buffer(hnd)) {
+        if (NO_ERROR == maper.freeBuffer(hnd)) {
+            bfreed = true;
+        }
+    }
+
+    if (bfreed == false) {
+        /*may be we got handle not alloc by gralloc*/
+        native_handle_close(hnd);
+        native_handle_delete(hnd);
+    }
+
+    return 0;
+}
+
+static int32_t gralloc_lock_dma_buf(
+    native_handle_t * handle, void** vaddr) {
+    static GraphicBufferMapper & maper = GraphicBufferMapper::get();
+    uint32_t usage = GRALLOC_USAGE_SW_READ_OFTEN | GRALLOC_USAGE_SW_WRITE_OFTEN;
+    int w = am_gralloc_get_width(handle);
+    int h = am_gralloc_get_height(handle);
+
+    Rect r(w, h);
+    if (NO_ERROR == maper.lock(handle, usage, r, vaddr))
+        return 0;
+
+    ALOGE("lock buffer failed\n");
+    return -EINVAL;
+}
+
+static int32_t gralloc_unlock_dma_buf(native_handle_t * handle) {
+    static GraphicBufferMapper & maper = GraphicBufferMapper::get();
+    if (NO_ERROR == maper.unlock(handle))
+        return 0;
+    return -EINVAL;
+}
+
+static inline void rgb24_to_rgb32(unsigned char *src, unsigned char *dist, int srcWidth, int srcHeight)
+{
+    int srcIdx = 0, dstIdx = 0;
+    int size = srcWidth * srcHeight * 3;
+    for (;srcIdx < size; srcIdx+=3, dstIdx+=4) {
+        memmove(&dist[dstIdx], &src[srcIdx], 3);
+        dist[dstIdx+4] = 0xff;
+    }
+}
+
 ScreenCatch::ScreenCatch(uint32_t bufferWidth, uint32_t bufferHeight, uint32_t bitSize, uint32_t type) :
     /*mWidth(ALIGN(bufferWidth)),*/
     mWidth(bufferWidth),
     mHeight(bufferHeight),
     mType(type),
+    mUseKeystone(false),
     mScreenManager(NULL),
     mColorFormat(OMX_COLOR_Format32bitARGB8888),
     mStart(false),
     mThread(NULL),
-    mClientId(-1){
+    mClientId(-1) {
     ALOGI("ScreenCatch: %dx%d", bufferWidth, bufferHeight);
 
     if (bufferWidth <= 0 || bufferHeight <= 0 || bufferWidth > 1920 || bufferHeight > 1080) {
@@ -80,11 +137,6 @@ ScreenCatch::~ScreenCatch() {
     ALOGI("~ScreenCatch");
 }
 
-void ScreenCatch::setVideoRotation(int degree)
-{
-    int angle;
-    ALOGI("[%s %d] setVideoRotation degree:%x", __FUNCTION__, __LINE__, degree);
-}
 
 void ScreenCatch::setVideoCrop(int x, int y, int width, int height)
 {
@@ -184,7 +236,8 @@ void nv21_to_rgb24(unsigned char *buf, unsigned char *rgb, int width, int height
     }
 }
 
-int ScreenCatch::threadFunc()
+
+int ScreenCatch::threadFuncForScreenManager()
 {
     int64_t pts;
     int status;
@@ -195,6 +248,7 @@ int ScreenCatch::threadFunc()
         ALOGE("[%s %d] ,can't malloc memory !", __FUNCTION__, __LINE__);
         return -1;
     }
+
     ALOGI("[%s %d] empty:%d", __FUNCTION__, __LINE__, mRawBufferQueue.empty());
 
     while (mStart == true) {
@@ -226,7 +280,7 @@ int ScreenCatch::threadFunc()
                 }
             } else if (OMX_COLOR_FormatYUV420SemiPlanar ==  mColorFormat){//nv21
                 accessUnit = new MediaBuffer(mWidth*mHeight*3/2);
-                if (accessUnit != NULL && accessUnit->data() != NULL ) {
+                if (accessUnit != NULL && accessUnit->data() != NULL) {
                     memcpy((unsigned char *)accessUnit->data(), (unsigned char *)buffer->unsecurePointer(), mWidth*mHeight*3/2);
                     accessUnit->set_range(0, mWidth*mHeight*3/2);
                 }
@@ -245,11 +299,22 @@ int ScreenCatch::threadFunc()
     return 0;
 }
 
+int ScreenCatch::threadFunc()
+{
+    int result = 0;
+    if (!mUseKeystone) {
+        result = threadFuncForScreenManager();
+    }
+    return result;
+}
+
 void *ScreenCatch::ThreadWrapper(void *me) {
     ScreenCatch *Convertor = static_cast<ScreenCatch *>(me);
     Convertor->threadFunc();
     return NULL;
 }
+
+
 
 status_t ScreenCatch::start(MetaDataBase *params)
 {
@@ -259,47 +324,130 @@ status_t ScreenCatch::start(MetaDataBase *params)
     status_t status = 0;
     int64_t pts;
     int client_id = -1;
+    char postprocessor[8] = {0};
+    char keystone[256] = {0};
 
-    mScreenManager = ScreenManager::instantiate();
-    ALOGI("[%s %d] mWidth:%d mHeight:%d", __FUNCTION__, __LINE__, mWidth, mHeight);
 
-    mScreenManager->init(mWidth, mHeight, mType, 1, SCREENCONTROL_RAWDATA_TYPE, &client_id);
+    if (property_get(PROP_KEYSTONE, keystone, "") > 0 && strlen(keystone) > 0) {
+        //(PROP_KEYSTONE not empty)
+        mUseKeystone = true;
+    }
+    ALOGI("Screencatch source from [%s]", mUseKeystone?"DisplayAdapter":"ScreenManager");
 
-    ALOGI("[%s %d] client_id:%d, mType:%d", __FUNCTION__, __LINE__, client_id, mType);
+    if (mUseKeystone) {
+        const native_handle_t *outBufferHandle = nullptr;
+        native_handle_t *bufferHandle = nullptr;
+        int width=0, height=0, format=0, stride=0;
+        std::unique_ptr<meson::DisplayAdapter> displayAdapter = meson::DisplayAdapterCreateRemote();
+        if (!displayAdapter) {
+            ALOGE("DisplayAdapter init failed");
+            return !OK;
+        }
+        if ((displayAdapter->captureDisplayScreen(&outBufferHandle))
+                && (NULL != outBufferHandle)) {
+            MediaBuffer* accessUnit = NULL;
+            size_t bufSize = 0;
+            void* mapBase = nullptr;
+            bufferHandle = const_cast<native_handle_t*> (outBufferHandle);
 
-    mClientId = client_id;
+            // get information
+            width = am_gralloc_get_width(bufferHandle);
+            height = am_gralloc_get_height(bufferHandle);
+            format = am_gralloc_get_format(bufferHandle);
+            stride = am_gralloc_get_stride_in_pixel(bufferHandle);
+            bufSize = stride * height * bytesPerPixel(format);
+            ALOGD("[%s %d]mDisplayAdapter get width=%d, height=%d, format=%d, stride=%d, bufSize=%d",
+                __func__, __LINE__, width, height, format, stride, bufSize);
 
-    if (status != OK) {
-        ALOGE("setResolutionRatio fail");
-        return !OK;
+
+            if (!gralloc_lock_dma_buf(bufferHandle, &mapBase)) {
+                int unitSize = 0;
+                switch (mColorFormat) {  // app needed
+                case OMX_COLOR_Format24bitRGB888:
+                    unitSize = stride * height*3;
+                    accessUnit = new MediaBuffer(unitSize);
+                    accessUnit->set_range(0, unitSize);
+                    if (PIXEL_FORMAT_RGB_888 == format && accessUnit ->data() != NULL) {
+                        memcpy(accessUnit->data(), mapBase, bufSize); //HAL_PIXEL_FORMAT_RGB_888
+                    }
+                    break;
+                case OMX_COLOR_Format32bitARGB8888:
+                    unitSize = stride * height*4;
+                    accessUnit = new MediaBuffer(unitSize);
+                    accessUnit->set_range(0, unitSize);
+                    if (PIXEL_FORMAT_RGB_888 == format && accessUnit ->data() != NULL) {
+                        ALOGD("format rgb888, call rgb24_to_rgb32\n");
+                        rgb24_to_rgb32((unsigned char*)mapBase,
+                            (unsigned char*)accessUnit->data(), width, height);
+                    }
+                    break;
+
+                default:
+                    break;
+                }
+
+                gralloc_unlock_dma_buf(bufferHandle);
+                gralloc_unref_dma_buf(bufferHandle);
+
+                if (accessUnit != NULL) {
+                    mRawBufferQueue.push_back(accessUnit);
+                }
+                return OK;
+            } else  {
+                ALOGE("lock mem failed");
+                return !OK;
+            }
+
+        }else {
+            ALOGE("captureDisplayScreen failed");
+            return !OK;
+
+        }
+
+    } else {
+        mScreenManager = ScreenManager::instantiate();
+        ALOGI("[%s %d] mWidth:%d mHeight:%d", __FUNCTION__, __LINE__, mWidth, mHeight);
+
+        mScreenManager->init(mWidth, mHeight, mType, 1, SCREENCONTROL_RAWDATA_TYPE, &client_id);
+
+        ALOGI("[%s %d] client_id:%d, mType:%d", __FUNCTION__, __LINE__, client_id, mType);
+
+        mClientId = client_id;
+
+        if (status != OK) {
+            ALOGE("setResolutionRatio fail");
+            return !OK;
+        }
+
+        ALOGI("[%s %d] mCorpX:%d mCorpY:%d mCorpWidth:%d mCorpHeight:%d", __FUNCTION__, __LINE__,  mCorpX, mCorpY, mCorpWidth, mCorpHeight);
+
+        if (mCorpX != -1)
+            mScreenManager->setVideoCrop(client_id, mCorpX, mCorpY, mCorpWidth, mCorpHeight);
+
+        status = mScreenManager->start(client_id);
+
+        if (status != OK) {
+            mScreenManager->uninit(mClientId);
+            ALOGE("ScreenControlService start fail");
+            return !OK;
+        }
+
     }
 
-    ALOGI("[%s %d] mCorpX:%d mCorpY:%d mCorpWidth:%d mCorpHeight:%d", __FUNCTION__, __LINE__,  mCorpX, mCorpY, mCorpWidth, mCorpHeight);
-
-    if (mCorpX != -1)
-        mScreenManager->setVideoCrop(client_id, mCorpX, mCorpY, mCorpWidth, mCorpHeight);
-
-    status = mScreenManager->start(client_id);
-
-    if (status != OK) {
-        mScreenManager->uninit(mClientId);
-        ALOGE("ScreenControlService start fail");
-        return !OK;
-    }
 
     if (!(params->findInt32(kKeyColorFormat, &mColorFormat)
            && (mColorFormat != OMX_COLOR_FormatYUV420SemiPlanar
             && mColorFormat != OMX_COLOR_Format24bitRGB888
             && mColorFormat != OMX_COLOR_Format32bitARGB8888)))
         mColorFormat = OMX_COLOR_Format32bitARGB8888;
-
+    mStart = true;
     pthread_attr_t attr;
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
     pthread_create(&mThread, &attr, ThreadWrapper, this);
     pthread_attr_destroy(&attr);
 
-    mStart = true;
+
 
     ALOGD("[%s %d]", __FUNCTION__, __LINE__);
     return OK;
@@ -324,9 +472,10 @@ status_t ScreenCatch::stop()
         if (rawBuffer != NULL)
             rawBuffer->release();
     }
-
-    mScreenManager->stop(mClientId);
-    mScreenManager->uninit(mClientId);
+    if (!mUseKeystone) {
+        mScreenManager->stop(mClientId);
+        mScreenManager->uninit(mClientId);
+    }
 
     return ret;
 }

@@ -49,6 +49,8 @@ public:
     // valid function after call setMaxFrameCount()
     virtual status_t checkConvertDone();
 
+    virtual status_t checkAvcConvertDone();
+
     void setVideoCrop(int x, int y, int width, int height);
 
     // Get / Set the frame rate used for encoding. Default fps = 30
@@ -60,7 +62,7 @@ public:
     int32_t getMaxFrameCount() const;
 
     // Get / Set time limit in unit million second (ms)
-    // priority: setTimeLimit() > setMaxFrameCount()
+    // proiroty: setTimeLimit() > setMaxFrameCount()
     status_t setTimeLimit(int32_t timeLimitMs);
     int32_t getTimeLimit() const;
 
@@ -79,7 +81,7 @@ public:
     int64_t getTimestamp();
 
     // isMetaDataStoredInVideoBuffers tells the encoder whether we will
-    // pass MetaDataBase through the buffers. Currently, it is force set to true
+    // pass metadata through the buffers. Currently, it is force set to true
     bool isMetaDataStoredInVideoBuffers() const;
 
     // To be called before start()
@@ -89,6 +91,8 @@ public:
     status_t setUseAbsoluteTimestamps();
 
     int CanvasdataCallBack(const sp<IMemory>& data);
+
+    virtual bool isHaveOutputData();
 
 private:
     enum {

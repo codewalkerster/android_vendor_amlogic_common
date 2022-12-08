@@ -73,7 +73,7 @@ bool Bitmap::readHeader(int fd) {
 
 bool Bitmap::readData(int fd) {
     int dataLen = abs(mBih.biWidth * mBih.biHeight) * mBih.biBitCount / 8;
-    int ret;
+    int ret ;
     int readedLen = 0;
     if (mData == NULL) {
         mData = calloc(1, dataLen);

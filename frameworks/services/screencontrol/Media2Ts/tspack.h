@@ -54,9 +54,11 @@ public:
     int32_t getMaxFrameCount() const;
 
     // Get / Set time limit in unit million second (ms)
-    // priority: setTimeLimit() > setMaxFrameCount()
+    // proiroty: setTimeLimit() > setMaxFrameCount()
     status_t setTimeLimit(int32_t timeLimitMs);
     int32_t getTimeLimit() const;
+
+    void setVideoCrop(int x, int y, int width, int height);
 
     // The call for the StageFrightRecorder to tell us that
     // it is done using the MediaBuffer data so that its state
@@ -73,7 +75,7 @@ public:
     int64_t getTimestamp();
 
     // isMetaDataStoredInVideoBuffers tells the encoder whether we will
-    // pass MetaDataBase through the buffers. Currently, it is force set to true
+    // pass metadata through the buffers. Currently, it is force set to true
     bool isMetaDataStoredInVideoBuffers() const;
 
     // To be called before start()
@@ -93,7 +95,6 @@ public:
 private:
     mutable Mutex mMutex;
     int mFrameRate;
-    // int64_t mCurrentTimestamp;
     bool mStarted;
     int mWidth;
     int mHeight;
@@ -142,6 +143,11 @@ private:
     int mDumpVideoTs;
     int mDumpAudioEs;
     int mDumpAudioPCM;
+
+    int32_t mCorpX;
+    int32_t mCorpY;
+    int32_t mCorpWidth;
+    int32_t mCorpHeight;
     Vector<sp<ABuffer> > mProgramInfoDescriptors;
 };
 

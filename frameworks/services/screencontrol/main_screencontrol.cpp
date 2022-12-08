@@ -26,7 +26,7 @@
 #include <binder/IServiceManager.h>
 #include <cutils/properties.h>
 #include <utils/Log.h>
-#include <hidl/HidlTransportSupport.h>
+#include <HidlTransportSupport.h>
 #include "ScreenControlService.h"
 #include "ScreenControlHal.h"
 

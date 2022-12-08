@@ -129,7 +129,6 @@ int main(int argc, char **argv) {
         close(video_file);
         return OK;
     }
-
     //mH264Convertor->setVideoCrop(100,100,400,300);
     MetaDataBase* pMeta = new MetaDataBase();
     pMeta->setInt32(kKeyWidth, outWidth);
@@ -145,7 +144,6 @@ int main(int argc, char **argv) {
         delete mH264Convertor;
         return OK;
     }
-
 
     while (1) {
         tVideoBuffer = NULL;

@@ -30,9 +30,10 @@
 #include <media/stagefright/MediaDefs.h>
 #include <media/stagefright/MetaDataBase.h>
 #include <OMX_IVCommon.h>
-#include <media/hardware/MetadataBufferType.h>
+#include <MetadataBufferType.h>
 
 #include <ui/GraphicBuffer.h>
+#include <cutils/properties.h>
 
 #include <binder/IPCThreadState.h>
 #include <binder/IServiceManager.h>
@@ -77,6 +78,7 @@ namespace android {
 #define PORTTYPE_VALUE_VIDEO_ONLY 0x11000000
 
 #define SCREENMANAGER_DUMP_BASEDIR "/data/temp/sm-drvin"
+#define PERSIST_SYS_ROTATION_PROP "persist.sys.builtinrotation"
 
 static const int64_t VDIN_MEDIA_SOURCE_TIMEOUT_NS = 3000000000LL;
 
@@ -84,6 +86,20 @@ static void VdinDataCallBack(void *user, aml_screen_buffer_info_t *buffer){
     ScreenManager *source = static_cast<ScreenManager *>(user);
     source->dataCallBack(buffer);
     return;
+}
+
+static int getRotationDegree(){
+    char prop[PROPERTY_VALUE_MAX];
+    if (property_get(PERSIST_SYS_ROTATION_PROP, prop, "0") > 0) {
+       ALOGI("start prop =%s",prop);
+        char *tmp = NULL;
+        long int degree = strtol(prop, &tmp, 0);
+        ALOGI("propValue =%ld",degree);
+        if (LONG_MIN != degree && LONG_MAX != degree ) {
+            return degree;
+        }
+    }
+    return -1;
 }
 
 ScreenManager::ScreenManager() :
@@ -106,6 +122,8 @@ ScreenManager::ScreenManager() :
     mIsSoftwareEncoder(false),
     mIsScreenRecord(false),
     mScreenDev(NULL),
+    mOutFrameCounter(0),
+    mNeedPause(false),
     mWidth(-1),
     mHeight(-1),
     mSourceType(-1),
@@ -113,10 +131,12 @@ ScreenManager::ScreenManager() :
     mStartTimeOffsetUs(0){
 
     mCorpX = mCorpY = mCorpWidth = mCorpHeight =0;
+    ALOGI("[%s %d] ScreenManager mCorpX:%d mCorpY:%d mCorpWidth:%d mCorpHeight:%d", __FUNCTION__, __LINE__, mCorpX, mCorpY, mCorpWidth, mCorpHeight);
 
-   int fd1 = open("/dev/amvenc_avc", O_RDWR);
+    int fd1 = open("/dev/amvenc_avc", O_RDWR);
     int fd2 = open("/dev/amvenc_multi", O_RDWR);
-    if (fd1 < 0 && fd2 < 0) {
+    int fd3 = open("/dev/vc8000", O_RDWR);
+    if (fd1 < 0 && fd2 < 0 && fd3 < 0) {
         mIsSoftwareEncoder = true;
         ALOGW("%s Open /dev/amvenc_avc failed, use software encoder instead!\n", __FUNCTION__);
     }
@@ -124,6 +144,9 @@ ScreenManager::ScreenManager() :
         close(fd1);
     }
     if (fd2 >= 0 ) {
+        close(fd2);
+    }
+    if (fd3 >= 0 ) {
         close(fd2);
     }
 
@@ -141,6 +164,8 @@ ScreenManager::~ScreenManager() {
     if (mScreenDev)
         mScreenDev->common.close((struct hw_device_t *)mScreenDev);
 }
+
+
 
 static int saveBufferAsFile(void *buffer, size_t size, char *file)
 {
@@ -178,6 +203,18 @@ static void checkAndSaveBufferToFile(char *baseFile, char *filename, void *buffe
 ScreenManager* ScreenManager::instantiate() {
     ScreenManager *mScreenControl = new ScreenManager();
     return mScreenControl;
+}
+
+bool ScreenManager::isHaveOutputData(){
+    Mutex::Autolock lock(mLock);
+
+    if (mRawBufferQueue.size() > 0)
+      return true;
+    return false;
+}
+
+void ScreenManager::setPauseMode(bool isPause){
+    mNeedPause=isPause;
 }
 
 status_t ScreenManager::init(int32_t width,
@@ -349,7 +386,7 @@ int32_t ScreenManager::getFrameRate( )
     return mFrameRate;
 }
 
-status_t ScreenManager::setVideoRotation(int32_t client_id, int degree)
+status_t ScreenManager::setVideoRotation(int degree)
 {
     int angle;
 
@@ -369,7 +406,7 @@ status_t ScreenManager::setVideoRotation(int32_t client_id, int degree)
     }
 
     if (mScreenDev != NULL) {
-        ALOGI("[%s %d] setVideoRotation angle:%x", __FUNCTION__, __LINE__, angle);
+        ALOGI("[%s %d] setVideoRotation angle:%d", __FUNCTION__, __LINE__, angle);
         mScreenDev->ops.set_rotation(mScreenDev, angle);
     }
 
@@ -379,12 +416,11 @@ status_t ScreenManager::setVideoRotation(int32_t client_id, int degree)
 status_t ScreenManager::setVideoCrop(int32_t client_id, const int32_t x, const int32_t y, const int32_t width, const int32_t height)
 {
     ALOGI("[%s %d] setVideoCrop x:%d y:%d width:%d height:%d", __FUNCTION__, __LINE__, x, y, width, height);
-
+    Mutex::Autolock autoLock(mLock);
     mCorpX = x;
     mCorpY = y;
     mCorpWidth = width;
     mCorpHeight = height;
-
     return OK;
 }
 
@@ -424,7 +460,11 @@ status_t ScreenManager::start(int32_t client_id)
         }
 
         ALOGI("[%s %d] start AML_SCREEN_SOURCE", __FUNCTION__, __LINE__);
+        int degree = getRotationDegree();
+        if ( degree > 0) {
+            setVideoRotation(degree);
 
+        }
         mScreenDev->ops.set_port_type(mScreenDev, port_type);
         mScreenDev->ops.set_frame_rate(mScreenDev, mFrameRate);
         if (mIsSoftwareEncoder && mIsScreenRecord) {
@@ -433,7 +473,7 @@ status_t ScreenManager::start(int32_t client_id)
             mScreenDev->ops.set_format(mScreenDev, mWidth, mHeight, V4L2_PIX_FMT_NV21);
         }
         mScreenDev->ops.setDataCallBack(mScreenDev, VdinDataCallBack, (void*)this);
-        mScreenDev->ops.set_amlvideo2_crop(mScreenDev, mCorpX, mCorpY, mCorpWidth, mCorpHeight);
+        mScreenDev->ops.set_amlvideo2_crop(mScreenDev, mCorpX, mCorpY, mCorpWidth-mCorpX, mCorpHeight-mCorpY);
         mScreenDev->ops.start(mScreenDev);
     }
 
@@ -453,6 +493,7 @@ status_t ScreenManager::start(int32_t client_id)
 
     mStartTimeOffsetUs = 0;
     mNumFramesReceived = mNumFramesEncoded = 0;
+
     mStarted = true;
 
     return OK;
@@ -461,10 +502,7 @@ status_t ScreenManager::start(int32_t client_id)
 status_t ScreenManager::setMaxAcquiredBufferCount(size_t count) {
     ALOGI("setMaxAcquiredBufferCount(%d)", count);
     Mutex::Autolock autoLock(mLock);
-
-    CHECK_GT(count, 1);
     mMaxAcquiredBufferCount = count;
-
     return OK;
 }
 
@@ -493,6 +531,7 @@ status_t ScreenManager::stop(int32_t client_id)
 
     if (SCREENCONTROL_CANVAS_TYPE == source_data_type)
         mCanvasClientExist = 0;
+    mOutFrameCounter = 0;
 #if 0
     if (SCREENCONTROL_HANDLE_TYPE == source_data_type && mANativeWindow != NULL) {
         mANativeWindow->decStrong((void*)ANativeWindow_acquire);
@@ -508,7 +547,6 @@ status_t ScreenManager::stop(int32_t client_id)
     }
     return OK;
 }
-
 
 
 status_t ScreenManager::readBuffer(int32_t client_id, sp<IMemory> buffer, int64_t* pts)
@@ -538,6 +576,7 @@ status_t ScreenManager::readBuffer(int32_t client_id, sp<IMemory> buffer, int64_
         mCanvasFramesReceived.erase(mCanvasFramesReceived.begin());
         if (!frame)
             return !OK;
+
         //ALOGE("ptr:%x canvas:%d", frame->buf_ptr, frame->canvas);
 
         buff_info[0] = kMetadataBufferTypeCanvasSource;
@@ -560,6 +599,7 @@ status_t ScreenManager::readBuffer(int32_t client_id, sp<IMemory> buffer, int64_
 
         delete frame;
         return OK;
+
     }
 
     if (SCREENCONTROL_RAWDATA_TYPE == source_data_type && !mRawBufferQueue.empty()) {
@@ -588,7 +628,17 @@ status_t ScreenManager::readBuffer(int32_t client_id, sp<IMemory> buffer, int64_
         return !OK;
     }
 
+    delete frame;
+    mOutFrameCounter++;
     return OK;
+}
+
+
+status_t ScreenManager::checkConvertDone(){
+    Mutex::Autolock autoLock(mLock);
+    if (mOutFrameCounter > 0 && mRawBufferQueue.size() <= 0)
+      return OK;
+    return !OK;
 }
 
 status_t ScreenManager::freeBuffer(int32_t client_id, sp<IMemory>buffer) {
@@ -650,7 +700,7 @@ int ScreenManager::dataCallBack(aml_screen_buffer_info_t *buffer){
                 client = mClientList.valueAt(i);
                 switch (client->data_type) {
                     case SCREENCONTROL_RAWDATA_TYPE:{
-                        if (mRawBufferQueue.size() < 60) {
+                        if (mRawBufferQueue.size() < 60 && !mNeedPause) {
                             MediaBuffer* accessUnit = new MediaBuffer(client->width*client->height*3/2);
                             if (accessUnit != NULL && accessUnit->data() != NULL) {
                                 memmove(accessUnit->data(), buffer->buffer_mem, client->width*client->height*3/2);

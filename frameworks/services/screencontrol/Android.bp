@@ -6,7 +6,6 @@ package {
     //   SPDX-license-identifier-Apache-2.0
     default_applicable_licenses: ["vendor_amlogic_common_license"],
 }
-
 cc_library_shared {
   name: "libscreencontrolservice",
   vendor: true,
@@ -21,6 +20,15 @@ cc_library_shared {
     "Media2Ts/esconvertor.cpp",
     "Media2Ts/tspack.cpp",
   ],
+  include_dirs: [
+    "frameworks/native/headers/media_plugin/media/hardware",
+    "frameworks/av/drm/libmediadrm/interface/mediadrm",
+    "frameworks/av/media/libstagefright/foundation/include/media/stagefright/foundation",
+    "frameworks/av/include",
+    "frameworks/native/libs/gui/include",
+    "hardware/amlogic/gralloc/amlogic",
+    "hardware/amlogic/hwcomposer/mesondisplay/include",
+  ],
   shared_libs: [
     "vendor.amlogic.hardware.screencontrol@1.0",
     "libbase",
@@ -31,15 +39,12 @@ cc_library_shared {
     "libhidlbase",
     "libhardware",
     "libdl",
+    "libui",
     "libstagefright_foundation",
     "libmedia_omx",
     "libmediandk",
-  ],
-  header_libs: [
-    "libstagefright_foundation_headers",
-    "libgui_headers",
-    "media_plugin_headers",
-    "av-headers",
+    "libamgralloc_ext",
+    "libmeson_display_adapter_remote",
   ],
 }
 
@@ -52,6 +57,9 @@ cc_library_shared {
   srcs: [
     "ScreenControlClient.cpp",
   ],
+  include_dirs: [
+    "system/libhidl/libhidlmemory/include",
+  ],
   shared_libs: [
     "android.hidl.memory@1.0",
     "vendor.amlogic.hardware.screencontrol@1.0",
@@ -62,10 +70,9 @@ cc_library_shared {
     "libhidlbase",
     "libhidlmemory",
   ],
-  export_include_dirs: ["."],
 }
 
-cc_binary{
+cc_binary {
   name: "screencontrol",
   init_rc: ["screencontrol.rc"],
   vintf_fragments: ["vendor.amlogic.hardware.screencontrol@1.0.xml"],
@@ -74,6 +81,7 @@ cc_binary{
     "ScreenControlHal.cpp",
     "ScreenControlService.cpp",
     "main_screencontrol.cpp",
+    "ScreenControlH264.cpp",
   ],
 
   shared_libs: [
@@ -88,21 +96,27 @@ cc_binary{
     "libutils",
     "liblog",
     "libdl",
+    "libui",
     "libstagefright_foundation",
     "libscreencontrolservice",
     "libmediandk",
+    "libamgralloc_ext",
+    "libmeson_display_adapter_remote",
+  ],
+
+  include_dirs: [
+    "system/libhidl/transport/include/hidl",
+    "frameworks/av/include",
+    "frameworks/native/include",
+    "frameworks/native/headers/media_plugin/media/hardware",
+    "frameworks/native/libs/ui/include",
+    "hardware/amlogic/gralloc/amlogic",
+    "hardware/amlogic/hwcomposer/mesondisplay/include",
   ],
 
   cflags: [
     "-std=c++17",
   ],
-  header_libs: [
-    "libgui_headers",
-    "media_plugin_headers",
-    "av-headers",
-    "libui_headers",
-  ],
-
 }
 
 cc_binary {
@@ -121,12 +135,20 @@ cc_binary {
     "libutils",
     "libcutils",
     "liblog",
+    "libui",
     "libscreencontrolservice",
     "libmediandk",
+    "libamgralloc_ext",
+    "libmeson_display_adapter_remote",
   ],
-  header_libs: [
-    "libui_headers",
-    "av-headers",
+
+  include_dirs: [
+    "frameworks/native/include",
+    "frameworks/av/include",
+    "frameworks/native/libs/gui/include",
+    "hardware/amlogic/gralloc/amlogic",
+    "hardware/amlogic/hwcomposer/mesondisplay/include",
+    "frameworks/native/libs/ui/include",
   ],
 }
 
@@ -148,9 +170,10 @@ cc_binary {
     "libscreencontrolservice",
     "libmediandk",
   ],
-  header_libs: [
-    "libui_headers",
-    "av-headers",
+
+  include_dirs: [
+    "frameworks/native/include",
+    "frameworks/av/include",
   ],
 }
 
@@ -172,8 +195,10 @@ cc_binary {
     "libscreencontrolservice",
     "libmediandk",
   ],
-  header_libs: [
-    "libui_headers",
-    "av-headers",
+
+  include_dirs: [
+    "frameworks/native/include",
+    "frameworks/av/include",
   ],
 }
+

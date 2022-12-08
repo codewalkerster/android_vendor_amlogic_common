@@ -29,4 +29,10 @@ cc_library_shared {
   header_libs: [
     "jni_headers",
   ],
+
+  include_dirs: [
+    "frameworks/base/core/jni/include",
+    "vendor/amlogic/common/frameworks/services/screencontrol",
+  ],
+
 }

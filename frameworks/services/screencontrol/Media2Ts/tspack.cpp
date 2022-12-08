@@ -32,6 +32,7 @@
 #include <hardware/hardware.h>
 
 #include <cutils/properties.h>
+#include <ICrypto.h>
 #include <pthread.h>
 
 #include <OMX_Component.h>
@@ -66,6 +67,10 @@ TSPacker::TSPacker(int width, int height, int frameRate, int bitRate, int source
     mStarted(false),
     mMaxFrameCnt(-1),
     mLimitTimeMs(-1),
+    mCorpX(-1),
+    mCorpY(-1),
+    mCorpWidth(-1),
+    mCorpHeight(-1),
     mheadFinalize(0),
     mIsPcmAudio(0),
     mThread((pthread_t)0),
@@ -74,13 +79,11 @@ TSPacker::TSPacker(int width, int height, int frameRate, int bitRate, int source
     mDumpVideoEs(-1),
     mDumpVideoTs(-1),
     mDumpAudioEs(-1),
-    mDumpAudioPCM(-1){
-
+    mDumpAudioPCM(-1) {
     mPATContinuityCounter = 0;
     mPMTContinuityCounter = 0;
     mAudioContinuityCounter = 0;
     mVideoContinuityCounter = 0;
-
     initCrcTable();
     ScreenControlDebug::initDebug();
 
@@ -111,6 +114,7 @@ status_t TSPacker::setTimeLimit(int32_t timeLimitMs) {
     mLimitTimeMs = timeLimitMs;
     return OK;
 }
+
 
 int32_t TSPacker::getTimeLimit() const {
     ALOGD("getTimeLimit()=%ld", mLimitTimeMs);
@@ -184,7 +188,7 @@ int TSPacker::threadFunc()
         } else if(mHasAudio) {
             err = mAudioConvertor->read(&tESBuffer);
             if (err != OK) {
-                usleep(100);
+                usleep(10*1000);
                 continue;
             }
 
@@ -195,7 +199,7 @@ int TSPacker::threadFunc()
             tESBuffer->release();
             tESBuffer = NULL;
         } else {
-            usleep(100);
+            usleep(10*1000);
         }
     }
 
@@ -208,6 +212,16 @@ void *TSPacker::ThreadWrapper(void *me) {
     tspacker->threadFunc();
     return NULL;
 }
+
+void TSPacker::setVideoCrop(int x, int y, int width, int height){
+    ALOGI("[%s %d] setVideoCrop x:%d y:%d width:%d height:%d", __FUNCTION__, __LINE__, x, y, width, height);
+    mCorpX = x;
+    mCorpY = y;
+    mCorpWidth = width;
+    mCorpHeight = height;
+}
+
+
 
 void TSPacker::initCrcTable() {
     uint32_t poly = 0x04C11DB7;
@@ -241,12 +255,18 @@ status_t TSPacker::start(MetaDataBase *params)
     mFirstVideoFrame = 1;
     mFirstAudioFrame = 1;
 
-    MetaDataBase *params_video = new MetaDataBase();
+    MetaDataBase* params_video = new MetaDataBase();
     params_video->setInt32(kKeyWidth, mWidth);
     params_video->setInt32(kKeyHeight, mHeight);
+
     params_video->setInt32(kKeyFrameRate, mFrameRate);
     params_video->setInt32(kKeyBitRate, mBitRate);
+
     mVideoConvertor = new ESConvertor(mSourceType, 0);
+
+    if (mCorpX >= 0) {
+        mVideoConvertor->setVideoCrop(mCorpX,mCorpY,mCorpWidth,mCorpHeight);
+    }
     if (mMaxFrameCnt > 0) {
         mVideoConvertor->setMaxFrameCount(mMaxFrameCnt);
     }
@@ -257,7 +277,7 @@ status_t TSPacker::start(MetaDataBase *params)
     params_video->clear();
     delete params_video;
     if (mHasAudio) {
-        MetaDataBase *params_audio = new MetaDataBase();
+        MetaDataBase* params_audio = new MetaDataBase();
         params_audio->setInt32(kKeyChannelCount, 2);
         params_audio->setInt32(kKeySampleRate, 48000);
         params_audio->setInt32(kKeyIsADTS, 1);
@@ -363,10 +383,10 @@ void TSPacker::headFinalize() {
         ALOGI("[%s %d] mCSD.size:%d",__FUNCTION__, __LINE__, mCSD.size());
 
         if (mCSD.size() > 0) {
-            CHECK_GE(mCSD.size(), 1u);
+            //CHECK_GE(mCSD.size(), 1u);
             const sp<ABuffer> &sps = mCSD.itemAt(0);
             CHECK(!memcmp("\x00\x00\x00\x01", sps->data(), 4));
-            CHECK_GE(sps->size(), 7u);
+            //CHECK_GE(sps->size(), 7u);
             // profile_idc, constraint_set*, level_idc
             memcpy(&data[2], sps->data() + 4, 3);
         } else {
@@ -425,7 +445,7 @@ void TSPacker::headFinalize() {
         uint8_t *data = descriptor->data();
         data[0] = 0x83;  // descriptor_tag
         data[1] = 2;  // descriptor_length
-        //(sampleRate == 44100) ? 1 : 2
+        // (sampleRate == 44100) ? 1 : 2
         unsigned sampling_frequency = 2;
 
         data[2] = (sampling_frequency << 5) | (3 /* reserved */ << 1) | 0 /* emphasis_flag */;
@@ -479,7 +499,7 @@ status_t TSPacker::packetize(
             PES_header_size += PES_private_data_len + 1;
         }
 
-        CHECK_LE(PES_header_size, 188u - 4u);
+        //CHECK_LE(PES_header_size, 188u - 4u);
 
         size_t sizeAvailableForPayload = 188 - 4 - PES_header_size;
         size_t numBytesOfPayload = buffer_size;
@@ -563,7 +583,7 @@ status_t TSPacker::packetize(
         *ptr++ = 0xe0 | (kPID_PMT >> 8);
         *ptr++ = kPID_PMT & 0xff;
 
-        CHECK_EQ(ptr - crcDataStart, 12);
+       // CHECK_EQ(ptr - crcDataStart, 12);
         uint32_t crc = htonl(crc32(crcDataStart, ptr - crcDataStart));
         memcpy(ptr, &crc, 4);
         ptr += 4;
@@ -766,8 +786,9 @@ status_t TSPacker::packetize(
 
         memcpy(ptr, buffer_add, copy);
         ptr += copy;
+        assert(ptr == packetDataStart + 188);
 
-        CHECK_EQ(ptr, packetDataStart + 188);
+        // CHECK_EQ(ptr, packetDataStart + 188);
         packetDataStart += 188;
 
         size_t offset = copy;

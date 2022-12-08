@@ -29,13 +29,14 @@
 #include <arpa/inet.h>
 
 #include <cutils/properties.h>
+#include <ICrypto.h>
 #include <pthread.h>
 
-#include <media/stagefright/foundation/ABuffer.h>
-#include <media/stagefright/foundation/ADebug.h>
-#include <media/stagefright/foundation/AMessage.h>
-#include <media/stagefright/foundation/AHandler.h>
-#include <media/stagefright/foundation/ALooper.h>
+#include <ABuffer.h>
+#include <ADebug.h>
+#include <AMessage.h>
+#include <AHandler.h>
+#include <ALooper.h>
 
 #include <media/stagefright/MediaCodecConstants.h>
 
@@ -115,6 +116,10 @@ ESConvertor::ESConvertor(int sourceType, int IsAudio) :
     mDropFrameCounter(0),
     mDumpYuvFd(-1),
     mDumpEsFd(-1),
+    mCorpX(-1),
+    mCorpY(-1),
+    mCorpWidth(-1),
+    mCorpHeight(-1),
     mFirstPtsUs(0),
     mLastPtsUs(0),
     mThread ((pthread_t)0),
@@ -129,22 +134,22 @@ ESConvertor::ESConvertor(int sourceType, int IsAudio) :
     mClientId(-1),
     mScreenManager(NULL),
     mEscDumpAAC(-1),
-    mEscDumpPcm(-1),
-    mCorpX(-1),
-    mCorpY(-1),
-    mCorpWidth(-1),
-    mCorpHeight(-1) {
+    mEscDumpPcm(-1) {
     int fd1 = open("/dev/amvenc_avc", O_RDWR);
     int fd2 = open("/dev/amvenc_multi", O_RDWR);
-    if (fd1 < 0 && fd2 < 0) {
+    int fd3 = open("/dev/vc8000", O_RDWR);
+    if (fd1 < 0 && fd2 < 0 && fd3 < 0) {
         mIsSoftwareEncoder = true;
-        ALOGW("%s Open /dev/amvenc_avc failed, use software encoder instead,fd1=%d,fd2=%d\n", __FUNCTION__,fd1,fd2);
+        ALOGW("%s Open /dev/amvenc_avc failed, use software encoder instead!\n", __FUNCTION__);
     }
     if (fd1 >= 0 ) {
         close(fd1);
     }
     if (fd2 >= 0 ) {
         close(fd2);
+    }
+    if (fd3 >= 0 ) {
+        close(fd3);
     }
     ALOGI("ESConvertor construct\n");
     ScreenControlDebug::initDebug();
@@ -212,6 +217,20 @@ int32_t ESConvertor::getFrameRate( ) const {
     ALOGI("getFrameRate %d", mFrameRate);
     Mutex::Autolock lock(mMutex);
     return mFrameRate;
+}
+
+bool ESConvertor::isHaveOutputData(){
+    if (mOutputBufferQueue.empty()) {
+        return false;
+    }
+    return true;
+}
+
+status_t ESConvertor::checkAvcConvertDone(){
+    if (mOutFrameCounter > 0 && mOutputBufferQueue.size() <= 0) {
+        return OK;
+    }
+    return !OK;
 }
 
 status_t ESConvertor::feedEncoderInputBuffers() {
@@ -648,7 +667,7 @@ int ESConvertor::videoDequeueInputBuffer()
 int ESConvertor::videoFeedInputBuffer() {
 
     int err;
-    long buff_info[3] = {0, 0, 0};
+    long buff_info[3] = {0,0,0};
     MediaBuffer* tBuffer = NULL;
     int bufferSize = 3*sizeof(long);
 
@@ -662,7 +681,11 @@ RETRY:
 
         if (err == OK && mStarted != false && mBufferGet ->unsecurePointer() != NULL) {
             mFrameCounter ++;
-            if (!isBeyondMaxBuffer(mInputBufferQueue.size(), bufferSize)) {
+            int inputSize = mInputBufferQueue.size();
+            if (inputSize < 0) {
+                return !OK;
+            }
+            if (!isBeyondMaxBuffer(inputSize, bufferSize)) {
                 if (mMaxInFrameCnt < 0 || (mMaxInFrameCnt > 0 && mFrameCounter <= mMaxInFrameCnt)) {
                     // run this in follow situation:
                     // 1. don't set max frame count
@@ -705,6 +728,7 @@ RETRY:
         struct timeval timeNow;
         gettimeofday(&timeNow, NULL);
         int64_t nowUs = (int64_t)timeNow.tv_sec*1000*1000 + (int64_t)timeNow.tv_usec;
+
         tBuffer->meta_data().setInt32(kKeyBufferID, 0xf);
         tBuffer->setObserver(this);
         tBuffer->add_ref();
@@ -750,7 +774,7 @@ RETRY:
 
         if (err == OK && mStarted != false && mBufferGet ->unsecurePointer() != NULL) {
             mFrameCounter++;
-            if (!isBeyondMaxBuffer(mInputBufferQueue.size(), bufferSize)) {
+            if (mInputBufferQueue.size() >= 0 && !isBeyondMaxBuffer(mInputBufferQueue.size(), bufferSize)) {
                 if (mMaxInFrameCnt < 0 || (mMaxInFrameCnt > 0 && mFrameCounter <= mMaxInFrameCnt)) {
                     // run this in follow situation:
                     // 1. do not set max frame count
@@ -786,6 +810,7 @@ int ESConvertor::videoDequeueOutputBuffer() {
     outInfo.flags = AMEDIACODEC_INFO_TRY_AGAIN_LATER;
     outInfo.size = 0;
     outInfo.presentationTimeUs = 0;
+
 #ifdef TEST_VIDEO_BITRATE
     static int64_t mCurrentTime = 0;
     static int mBitratePerSecond = 0;
@@ -896,7 +921,6 @@ int ESConvertor::threadFunc() {
         return threadVideoFunc();
     else
         return !OK;
-
     return 0;
 }
 
@@ -908,6 +932,7 @@ void *ESConvertor::ThreadWrapper(void *me) {
 }
 
 void ESConvertor::setVideoCrop(int x, int y, int width, int height){
+    ALOGI("[%s %d] setVideoCrop x:%d y:%d width:%d height:%d", __FUNCTION__, __LINE__, x, y, width, height);
     mCorpX = x;
     mCorpY = y;
     mCorpWidth = width;
@@ -918,8 +943,8 @@ status_t ESConvertor::start(MetaDataBase *params) {
     Mutex::Autolock lock(mMutex);
 
     CHECK(!mStarted);
-    status_t err = -1;
-    int32_t client_id =-1;
+    status_t err;
+    int32_t client_id = -1;
     mStartTimeNs = 0;
     int64_t startTimeUs;
 
@@ -1024,8 +1049,15 @@ status_t ESConvertor::start(MetaDataBase *params) {
     if (!(mIsAudio == 1 && mIsPCMAudio == 1))
         initEncoder();
 
-    if (mIsAudio == VIDEO_ENCODE)
-        mScreenManager->start(client_id);
+    if (mIsAudio == VIDEO_ENCODE) {
+        err = mScreenManager->start(client_id);
+        if (err != OK) {
+            ALOGE("[%s %d] mVideoSource start fail err:%d\n", __FUNCTION__, __LINE__, err);
+            return !OK;
+        }
+
+    }
+
 
     mStarted = true;
 
@@ -1034,6 +1066,7 @@ status_t ESConvertor::start(MetaDataBase *params) {
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
     pthread_create(&mThread, &attr, ThreadWrapper, this);
     pthread_attr_destroy(&attr);
+
     return OK;
 }
 
@@ -1092,7 +1125,7 @@ status_t ESConvertor::stop()
                 }
                 mFramesReceived.erase(mFramesReceived.begin());
                 if (mBufferRelease->unsecurePointer() != NULL ) {
-                    memcpy(mBufferRelease->unsecurePointer(), tBuffer->data(), 3*sizeof(long));
+                    memcpy(mBufferRelease->unsecurePointer(), tBuffer->data(), 3*sizeof(unsigned));
                     mScreenManager->freeBuffer(mClientId, mBufferRelease);
                 }
                 tBuffer->release();
@@ -1103,9 +1136,11 @@ status_t ESConvertor::stop()
                 accessUnit = *mInputBufferQueue.begin();
                 mInputBufferQueue.erase(mInputBufferQueue.begin());
                 if (mBufferRelease->unsecurePointer() != NULL ) {
-                    memcpy(mBufferRelease->unsecurePointer(), accessUnit->data(), 3*sizeof(long));
+                    memcpy(mBufferRelease->unsecurePointer(), accessUnit->data(), 3*sizeof(unsigned));
                     mScreenManager->freeBuffer(mClientId, mBufferRelease);
+
                 }
+
                 accessUnit.clear();
             }
             mScreenManager->stop(mClientId);

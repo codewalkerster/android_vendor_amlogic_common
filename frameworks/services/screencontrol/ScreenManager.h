@@ -100,7 +100,7 @@ public:
     virtual int64_t getTimestamp();
 
     // isMetaDataStoredInVideoBuffers tells the encoder whether we will
-    // pass MetaDataBase through the buffers. Currently, it is force set to true
+    // pass metadata through the buffers. Currently, it is force set to true
     virtual bool isMetaDataStoredInVideoBuffers() const;
 
     // To be called before start()
@@ -111,8 +111,13 @@ public:
 
     virtual int dataCallBack(aml_screen_buffer_info_t *buffer);
 
-    virtual status_t setVideoRotation(int32_t client_id, int degree);
+    virtual status_t setVideoRotation(int degree);
     virtual status_t setVideoCrop(int32_t client_id, const int32_t x, const int32_t y, const int32_t width, const int32_t height);
+
+    virtual bool isHaveOutputData();
+    virtual void setPauseMode(bool isPause);
+    virtual status_t checkConvertDone();
+
     bool mIsScreenRecord;
 
 private:
@@ -133,7 +138,7 @@ private:
 
     status_t reset(void);
 
-    // The permanent width and height of SMS buffers
+    // The permenent width and height of SMS buffers
     int mWidth;
     int mHeight;
     int mSourceType;
@@ -158,7 +163,7 @@ private:
     // mStarted is a flag to check if the recording is going on
     bool mError;
 
-    // mNumFramesReceived indicates the number of frames received from
+    // mNumFramesReceived indicates the number of frames received  from
     // the client side
     int mNumFramesReceived;
     // mNumFramesEncoded indicates the number of frames passed on to the
@@ -198,6 +203,9 @@ private:
     int32_t mCorpY;
     int32_t mCorpWidth;
     int32_t mCorpHeight;
+
+    int mOutFrameCounter;
+    bool mNeedPause;
 
     aml_screen_module_t* mScreenModule;
     aml_screen_device_t* mScreenDev;

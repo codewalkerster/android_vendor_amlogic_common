@@ -24,9 +24,15 @@
 #include <utils/RefBase.h>
 #include <utils/threads.h>
 
+
+#include <ui/GraphicBufferMapper.h>
 #include <binder/MemoryDealer.h>
 
 #include "../ScreenManager.h"
+#include "DisplayAdapter.h"
+
+#define PROP_POSTPROCESSOR "vendor.hw.postprocessor"
+#define PROP_KEYSTONE "persist.vendor.hwc.keystone"
 
 namespace android {
 // ----------------------------------------------------------------------------
@@ -53,11 +59,13 @@ private:
     struct ScreenCatchClient;
     static void *ThreadWrapper(void *me);
     int threadFunc();
+    int threadFuncForScreenManager();
+    int threadFuncForDispAdapter();
     pthread_t mThread;
 
     ScreenManager* mScreenManager;
 
-    // The permanent width and height of SMS buffers
+    // The permenent width and height of SMS buffers
     int mWidth;
     int mHeight;
     int mType;
@@ -67,6 +75,7 @@ private:
     int32_t mCorpY;
     int32_t mCorpWidth;
     int32_t mCorpHeight;
+    bool mUseKeystone;
     List<MediaBuffer*> mRawBufferQueue;
     Condition mThreadOutCondition;
 };
