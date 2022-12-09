@@ -36,6 +36,8 @@ SSMAction *SSMAction::getInstance()
 
 SSMAction::SSMAction()
 {
+    m_dev_fd = -1;
+    mpObserver = NULL;
 }
 
 SSMAction::~SSMAction()
@@ -54,7 +56,9 @@ SSMAction::~SSMAction()
 void SSMAction::init(const char *SsmDataPath, const char *SsmDataHandlerPath, const char *WhiteBalanceFilePath)
 {
     //copy wb file path
-    strcpy(mWhiteBalanceFilePath, WhiteBalanceFilePath);
+    if (strlen(WhiteBalanceFilePath) < sizeof(mWhiteBalanceFilePath)/sizeof(char)) {
+        strcpy(mWhiteBalanceFilePath, WhiteBalanceFilePath);
+    }
 
     bool FileExist;
     //check ssm file exist!
@@ -210,16 +214,30 @@ int SSMAction::RestoreDeviceMarkValues()
 
 int SSMAction::WriteBytes(int offset, int size, int *buf)
 {
-    lseek(m_dev_fd, offset, SEEK_SET);
-    write(m_dev_fd, buf, size);
+    if (lseek(m_dev_fd, offset, SEEK_SET) == -1) {
+        SYS_LOGE("%s lseek failed\n", __FUNCTION__);
+        return -1;
+    }
+
+    if (write(m_dev_fd, buf, size) == -1) {
+        SYS_LOGE("%s write failed\n", __FUNCTION__);
+        return -1;
+    }
 
     return 0;
 }
 int SSMAction::ReadBytes(int offset, int size, int *buf)
 {
 
-    lseek(m_dev_fd, offset, SEEK_SET);
-    read(m_dev_fd, buf, size);
+    if (lseek(m_dev_fd, offset, SEEK_SET) == -1) {
+        SYS_LOGE("%s lseek failed\n", __FUNCTION__);
+        return -1;
+    }
+
+    if (read(m_dev_fd, buf, size) == -1) {
+        SYS_LOGE("%s read failed\n", __FUNCTION__);
+        return -1;
+    }
 
     return 0;
 }
@@ -580,8 +598,17 @@ int SSMAction::ReadDataFromFile(const char *file_name, int offset, int nsize, un
         return -1;
     }
 
-    lseek(device_fd, offset, SEEK_SET);
-    read(device_fd, data_buf, nsize);
+    if (lseek(device_fd, offset, SEEK_SET) == -1) {
+        SYS_LOGE("%s lseek failed\n", __FUNCTION__);
+        close(device_fd);
+        return -1;
+    }
+
+    if (read(device_fd, data_buf, nsize) == -1) {
+        SYS_LOGE("%s read failed\n", __FUNCTION__);
+        close(device_fd);
+        return -1;
+    }
 
     close(device_fd);
     device_fd = -1;
@@ -609,8 +636,17 @@ int SSMAction::SaveDataToFile(const char *file_name, int offset, int nsize, unsi
         return -1;
     }
 
-    lseek(device_fd, offset, SEEK_SET);
-    write(device_fd, data_buf, nsize);
+    if (lseek(device_fd, offset, SEEK_SET) == -1) {
+        SYS_LOGE("%s lseek failed\n", __FUNCTION__);
+        close(device_fd);
+        return -1;
+    }
+
+    if (write(device_fd, data_buf, nsize) == -1) {
+        SYS_LOGE("%s write failed\n", __FUNCTION__);
+        close(device_fd);
+        return -1;
+    }
     fsync(device_fd);
 
     close(device_fd);
@@ -882,7 +918,7 @@ int SSMAction::SSMSaveLVDSSSC(int *rw_val)
 {
     int tmp_val;
     int ret = 0;
-    ret = SSMWriteNTypes(VPP_DATA_POS_LVDS_SSC_START, 2, &tmp_val);
+    ret = SSMWriteNTypes(VPP_DATA_POS_LVDS_SSC_START, 3, &tmp_val);
     *rw_val = tmp_val;
 
     return ret;
@@ -892,7 +928,7 @@ int SSMAction::SSMReadLVDSSSC(int *rw_val)
 {
     int tmp_val;
     int ret = 0;
-    ret = SSMReadNTypes(VPP_DATA_POS_LVDS_SSC_START, 2, &tmp_val);
+    ret = SSMReadNTypes(VPP_DATA_POS_LVDS_SSC_START, 3, &tmp_val);
     *rw_val = tmp_val;
 
     return ret;
@@ -1024,6 +1060,19 @@ int SSMAction::SSMReadDemoSquitoMode(int offset, int *rw_val) {
     return ret;
 }
 
+int SSMAction::SSMSaveMcDiMode(int offset, int rw_val) {
+    return SSMWriteNTypes(VPP_DATA_POS_MCDI_MODE_START, 1, &rw_val, offset);
+}
+
+int SSMAction::SSMReadMcDiMode(int offset, int *rw_val) {
+    int tmp_val = 0;
+    int ret = 0;
+    ret = SSMReadNTypes(VPP_DATA_POS_MCDI_MODE_START, 1, &tmp_val, offset);
+    *rw_val = tmp_val;
+
+    return ret;
+}
+
 int SSMAction::SSMReadAipqEnableVal(int *rw_val)
 {
     int tmp_ret = 0;
@@ -1069,6 +1118,22 @@ int SSMAction::SSMReadAiSrEnable(int *rw_val)
 int SSMAction::SSMSaveAiSrEnable(int rw_val)
 {
     return SSMWriteNTypes(VPP_DATA_POS_AISR_ENABLE_START, 1, &rw_val);
+}
+
+int SSMAction::SSMReadDLGEnable(int *rw_val)
+{
+    int tmp_ret = 0;
+    int ret = 0;
+
+    ret = SSMReadNTypes(VPP_DATA_POS_DLG_ENABLE_START, 1, &tmp_ret);
+    *rw_val = tmp_ret;
+
+    return ret;
+}
+
+int SSMAction::SSMSaveDLGEnable(int rw_val)
+{
+    return SSMWriteNTypes(VPP_DATA_POS_DLG_ENABLE_START, 1, &rw_val);
 }
 
 int SSMAction::SSMSaveHdrTmoVal(int offset, int rw_val)
@@ -1123,4 +1188,77 @@ int SSMAction::SSMReadMemcDeJudderLevel(int offset, int *rw_val) {
     *rw_val = tmp_val;
 
     return ret;
+}
+
+int SSMAction::SSMSaveBlackStretch(int offset, int rw_val) {
+    return SSMWriteNTypes(VPP_DATA_POS_BLACK_STRETCH_START, 1, &rw_val, offset);
+}
+
+int SSMAction::SSMReadBlackStretch(int offset, int *rw_val) {
+    int tmp_val = 0;
+    int ret = 0;
+    ret = SSMReadNTypes(VPP_DATA_POS_BLACK_STRETCH_START, 1, &tmp_val, offset);
+    *rw_val = tmp_val;
+
+    return ret;
+}
+
+int SSMAction::SSMSaveBlueStretch(int offset, int rw_val) {
+    return SSMWriteNTypes(VPP_DATA_POS_BLUE_STRETCH_START, 1, &rw_val, offset);
+}
+
+int SSMAction::SSMReadBlueStretch(int offset, int *rw_val) {
+    int tmp_val = 0;
+    int ret = 0;
+    ret = SSMReadNTypes(VPP_DATA_POS_BLUE_STRETCH_START, 1, &tmp_val, offset);
+    *rw_val = tmp_val;
+
+    return ret;
+}
+
+int SSMAction::SSMSaveChromaCoring(int offset, int rw_val) {
+    return SSMWriteNTypes(VPP_DATA_POS_CHROMA_CORING_START, 1, &rw_val, offset);
+}
+
+int SSMAction::SSMReadChromaCoring(int offset, int *rw_val) {
+    int tmp_val = 0;
+    int ret = 0;
+    ret = SSMReadNTypes(VPP_DATA_POS_CHROMA_CORING_START, 1, &tmp_val, offset);
+    *rw_val = tmp_val;
+
+    return ret;
+}
+
+int SSMAction::SSMSaveLocalDimming(int rw_val) {
+    return SSMWriteNTypes(VPP_DATA_POS_LOCAL_DIMMING_START, 1, &rw_val, 0);
+}
+
+int SSMAction::SSMReadLocalDimming(int *rw_val) {
+    int tmp_val = 0;
+    int ret = 0;
+    ret = SSMReadNTypes(VPP_DATA_POS_LOCAL_DIMMING_START, 1, &tmp_val, 0);
+    *rw_val = tmp_val;
+
+    return ret;
+}
+
+int SSMAction::SSMSavePictureModeParamsFlag(int offset, int rw_val) {
+    return SSMWriteNTypes(VPP_DATA_POS_PICTURE_MODE_PARAM_CRC_START, 1, &rw_val, offset);
+}
+
+int SSMAction::SSMReadPictureModeParamsFlag(int offset, int *rw_val) {
+    int tmp_val = 0;
+    int ret = 0;
+    ret = SSMReadNTypes(VPP_DATA_POS_PICTURE_MODE_PARAM_CRC_START, 1, &tmp_val, offset);
+    *rw_val = tmp_val;
+
+    return ret;
+}
+
+int SSMAction::SSMSavePictureModeParams(int offset, int size, int *rw_val) {
+    return SSMWriteNTypes(VPP_DATA_POS_PICTURE_MODE_PARAM_START, size, rw_val, offset);
+}
+
+int SSMAction::SSMReadPictureModeParams(int offset, int size, int *rw_val) {
+    return SSMReadNTypes(VPP_DATA_POS_PICTURE_MODE_PARAM_START, size, rw_val, offset);
 }

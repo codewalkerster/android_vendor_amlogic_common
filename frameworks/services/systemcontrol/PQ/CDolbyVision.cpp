@@ -163,3 +163,15 @@ int CDolbyVision::GetDolbyPQFullParam(dolby_full_pq_info_t *fullInfo) {
     memcpy(fullInfo, &dolbyPQFullInfo, sizeof(dolbyPQFullInfo));
     return ret;
 }
+
+int CDolbyVision::SetDolbyPQDarkDetail(int mode) {
+    int ret = DeviceIOCtl(DOLBY_IOC_SET_DV_DARK_DETAIL, &mode);
+    if (ret < 0) {
+        SYS_LOGD("%s failed!\n", __FUNCTION__);
+    } else {
+        SYS_LOGD("%s success!\n", __FUNCTION__);
+    }
+
+    return ret;
+}
+

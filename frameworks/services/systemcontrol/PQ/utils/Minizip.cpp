@@ -259,18 +259,29 @@ int Minizip::uncompress_file(const char *dst_name, const char *src_name)
 
 int Minizip::getFileSize(const char *file_path)
 {
-    int file_size = 0;
+    int file_size = 0, ret_lseek = 0;
     int dev_fd = -1;
 
     dev_fd = open(file_path, O_RDONLY);
-    if (dev_fd < 0)
-    {
+    if (dev_fd < 0) {
         SYS_LOGE("%s, open \"%s\" ERROR(%s)!!\n", __FUNCTION__, file_path, strerror(errno));
         return 0;
     }
 
     file_size = lseek(dev_fd, 0L, SEEK_END);
-    lseek(dev_fd, 0L, SEEK_SET);
+    if (file_size <= 0) {
+        SYS_LOGE("%s, file \"%s\" size ERROR(%d)!!!!\n", __FUNCTION__, file_path, file_size);
+        close(dev_fd);
+        return -1;
+    }
+
+    ret_lseek = lseek(dev_fd, 0L, SEEK_SET);
+    if (ret_lseek == -1) {
+        SYS_LOGE("%s, ret_lseek failedn", __FUNCTION__);
+        close(dev_fd);
+        return -1;
+    }
+
     close(dev_fd);
 
     return file_size;
@@ -278,7 +289,7 @@ int Minizip::getFileSize(const char *file_path)
 
 int Minizip::readFileToBuffer(const char *file_path, int skip_len, int avilia_len, unsigned char data_buf[])
 {
-    int rd_cnt = 0, file_size = 0;
+    int rd_cnt = 0, file_size = 0, ret_lseek = -1;
     int dev_fd = -1;
     unsigned char *tmp_ptr = data_buf;
 
@@ -325,7 +336,12 @@ int Minizip::readFileToBuffer(const char *file_path, int skip_len, int avilia_le
         skip_len = 0;
     }
 
-    lseek(dev_fd, skip_len, SEEK_SET);
+    ret_lseek = lseek(dev_fd, skip_len, SEEK_SET);
+    if (ret_lseek == -1) {
+        SYS_LOGE("%s, ret_lseek failed\n", __FUNCTION__);
+        close(dev_fd);
+        return -1;
+    }
 
     if (tmp_ptr != NULL)
     {
@@ -522,20 +538,23 @@ int Minizip::checkUncompressFile(const char *dst_name, const char *src_name)
 int Minizip::CheckAndUpdateUncompressFile(const char *dst_name, const char *src_name)
 {
     int tmp_err_code = 0;
-    int ret = 0;
+    int ret = 0, ret_remove = -1;
     SYS_LOGD("%s, entering...\n", __FUNCTION__);
 
     tmp_err_code = checkUncompressFile(dst_name, src_name);
     if (tmp_err_code == CC_UNCOMPRESS_CHECK_ERROR_DST_FILE)
     {
         SYS_LOGD("%s, start to uncompress bin file \"%s\" to dst file \"%s\"\n", __FUNCTION__, src_name, dst_name);
-        remove(dst_name);
-        if ( uncompress_file(dst_name, src_name) != 0 )
-        {
-            ALOGD("%s, uncompress %s failed!!!!\n", __FUNCTION__, src_name);
-            return -1;
+        ret_remove = remove(dst_name);
+        if (ret_remove == -1) {
+            SYS_LOGD("%s, ret_remove failed err:%s\n", __FUNCTION__, strerror(errno));
         }
 
+        if ( uncompress_file(dst_name, src_name) != 0 )
+        {
+            SYS_LOGD("%s, uncompress %s failed!!!!\n", __FUNCTION__, src_name);
+            return -1;
+        }
     }
     else if ( tmp_err_code == CC_UNCOMPRESS_CHECK_ERROR_SRC_FILE )
     {

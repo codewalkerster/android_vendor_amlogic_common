@@ -685,6 +685,7 @@ void SysWrite::initConstCharforSysNode() {
         mPathforSysNode[PROG_PROC_SYSFS] = "/sys/module/aml_media/parameters/prog_proc_config";
         mPathforSysNode[DISPLAY_HDMI_HDCP_AUTH] = "/sys/module/aml_media/parameters/hdmi_authenticated";
         mPathforSysNode[DISPLAY_MEDIA_VIDEO_MUTE]   = "/sys/module/aml_media/parameters/video_mute_on";
+        mPathforSysNode[PQ_DISPLAY_HDR_POLICY]         = "/sys/module/aml_media/parameters/hdr_policy";
         //sysfs point
         mPathforSysNode[VIDEO_POLL_STATUS_CHANGE]   = "/sys/class/video_poll/status_changed";
         mPathforSysNode[VIDEO_POLL_PRIMARY_SRC_FMT] = "/sys/class/video_poll/primary_src_fmt";
@@ -729,6 +730,7 @@ void SysWrite::initConstCharforSysNode() {
         mPathforSysNode[PROG_PROC_SYSFS] = "/sys/module/di/parameters/prog_proc_config";
         mPathforSysNode[DISPLAY_HDMI_HDCP_AUTH] = "/sys/module/hdmitx20/parameters/hdmi_authenticated";
         mPathforSysNode[DISPLAY_MEDIA_VIDEO_MUTE]   = "/sys/module/aml_media/parameters/video_mute_on";
+        mPathforSysNode[PQ_DISPLAY_HDR_POLICY]         = "/sys/module/am_vecm/parameters/hdr_policy";
         //sysfs point
         mPathforSysNode[VIDEO_POLL_STATUS_CHANGE]   = "/sys/class/video_poll/status_changed";
         mPathforSysNode[VIDEO_POLL_PRIMARY_SRC_FMT] = "/sys/class/video_poll/primary_src_fmt";

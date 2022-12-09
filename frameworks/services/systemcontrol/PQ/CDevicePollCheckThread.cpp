@@ -15,6 +15,8 @@
 CDevicePollCheckThread::CDevicePollCheckThread()
 {
     mpObserver = NULL;
+    m_event.events = EPOLLIN;
+
     if (mEpoll.create() < 0) {
         SYS_LOGE("create epoll fail\n");
         return;

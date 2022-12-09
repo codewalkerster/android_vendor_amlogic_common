@@ -45,6 +45,8 @@
 #define CFG_ALL_PQ_MODULE_ENABLE                "pq.AllPQModule.en"
 #define CFG_PQ_PARAM_CHECK_SOURCE_ENABLE        "pq.ParamCheckSource.en"
 #define CFG_TVHAL_ENABLE                        "pq.tvhal.en"
+#define CFG_BLACK_BLUE_CHROMA_DB_ENABLE         "pq.BlackBlueChromaDb.en"
+
 //di module config
 #define CFG_DI_ENABLE                           "pq.di.en"
 #define CFG_MCDI_ENABLE                         "pq.mcdi.en"
@@ -55,6 +57,7 @@
 //amvecm module config
 #define CFG_SHARPNESS0_ENABLE                   "pq.sharpness0.en"
 #define CFG_SHARPNESS1_ENABLE                   "pq.sharpness1.en"
+#define CFG_SHARPNESSPI_ENABLE                  "pq.sharpnesspi.en"
 #define CFG_DNLP_ENABLE                         "pq.dnlp.en"
 #define CFG_CM2_ENABLE                          "pq.cm2.en"
 #define CFG_AMVECM_BASCI_ENABLE                 "pq.amvecm.basic.en"
@@ -73,11 +76,17 @@
 #define CFG_AISR_ENABLE                         "pq.aisr.en"
 #define CFG_AAD_ENABLE                          "pq.aad.en"
 #define CFG_CABC_ENABLE                         "pq.cabc.en"
+#define CFG_BLUESTRETCH_ENABLE                  "pq.BlueStretch.en"
+#define CFG_CHROMACORING_ENABLE                 "pq.ChromaCoring.en"
+#define CFG_LOCALDIMMING_ENABLE                 "pq.LocalDimming.en"
+#define CFG_NEW_PICTURE_MODE_ENABLE             "pq.new_picture_mode.en"
+
 //overscan module config
 #define CFG_DISPLAY_OVERSCAN_ENABLE             "pq.DisplayOverscan.en"
 
 //pq param default value
 #define CFG_PICTUREMODE_DEF                     "pq.PictureMode.def"
+#define CFG_DV_PICTUREMODE_DEF                  "pq.DvPictureMode.def"
 #define CFG_COLORTEMPTUREMODE_DEF               "pq.ColorTemperature.def"
 #define CFG_COLORDEMOMODE_DEF                   "pq.ColorDemoMode.def"
 #define CFG_COLORBASEMODE_DEF                   "pq.ColorBaseMode.def"
@@ -101,7 +110,13 @@
 #define CFG_MEMCMODE_DEF                        "pq.MemcMode.def"
 #define CFG_MEMCDEBLURLEVEL_DEF                 "pq.MemcDeblurLevel.def"
 #define CFG_MEMCDEJUDDERLEVEL_DEF               "pq.MemcDeJudderLevel.def"
-
+#define CFG_DEBLOCKMODE_DEF                     "pq.DeblockMode.def"
+#define CFG_DEMOSQUITOMODE_DEF                  "pq.DemoSquitoMode.def"
+#define CFG_MCDI_DEF                            "pq.McDiMode.def"
+#define CFG_BLACKSTRETCH_DEF                    "pq.BlackStretch.def"
+#define CFG_BLUESTRETCH_DEF                     "pq.BlueStretch.def"
+#define CFG_CHMROMACORING_DEF                   "pq.ChromaCoring.def"
+#define CFG_LOCALDIMMING_DEF                    "pq.LocalDimming.def"
 
 //for backlight
 #define CFG_SECTION_BACKLIGHT                   "BACKLIGHT"

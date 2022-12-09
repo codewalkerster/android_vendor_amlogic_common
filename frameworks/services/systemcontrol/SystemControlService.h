@@ -206,6 +206,8 @@ public:
     int getDemoSquitoMode();
     int setColorBaseMode(int mode, int isSave);
     int getColorBaseMode();
+    int setDLGEnable(int enable, int is_save);
+    int getDLGEnable();
     int getSourceHdrType(void);
     tvin_cutwin_t getOverscanParams(int display_mode);
     bool checkLdimExist(void);
@@ -222,8 +224,8 @@ public:
     int factoryResetPQMode(void);
     int factoryResetColorTemp(void);
     int factorySetParamsDefault(void);
-    int factorySetOverscan(int inputSrc, int sigFmt, int transFmt, int he_value, int hs_value, int ve_value, int vs_value);
-    tvin_cutwin_t factoryGetOverscan(int inputSrc, int sigFmt, int transFmt);
+    int factorySetOverscan(int inputSrc, int sigFmt, int transFmt, int dmode, int he_value, int hs_value, int ve_value, int vs_value);
+    tvin_cutwin_t factoryGetOverscan(int inputSrc, int sigFmt, int transFmt, int dmode);
     int factorySetNolineParams(int inputSrc, int sigFmt, int transFmt, int type, int osd0_value, int osd25_value, int osd50_value, int osd75_value, int osd100_value);
     noline_params_t factoryGetNolineParams(int inputSrc, int sigFmt, int transFmt, int type);
     int factoryGetColorTemperatureParams(int colorTemp_mode);
@@ -264,6 +266,8 @@ public:
     int factorySetLVDSSSC (int step);
     int factoryGetLVDSSSC(void);
     int setLVDSSSC(int step);
+    int setLCDPowerCtrl(int state);
+    int setLCDMuteCtrl(int state);
     int whiteBalanceGrayPatternOpen();
     int whiteBalanceGrayPatternClose();
     int whiteBalanceGrayPatternSet(int value);
@@ -303,7 +307,13 @@ public:
     bool getPreferredDisplayConfig(std::string *prefDispMode);
     int setColorGamutMode(int mode, int is_save);
     int getColorGamutMode(void);
+    int setBlueStretch(int level, int is_save);
+    int getBlueStretch(void);
+    int setLocalDimming(int level, int is_save);
+    int getLocalDimming(void);
     bool syncDensity(int displayid, int width, int height);
+    int setDolbyDarkDetail(int mode, int is_save);
+    int getDolbyDarkDetail(void);
     //PQ end
     //static frame
     int setStaticFrameEnable(int enable, int isSave);

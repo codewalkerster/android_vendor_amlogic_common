@@ -118,14 +118,16 @@ void CDynamicBackLight::gd_fw_alg_frm(int value, int *tf_bl_value, int *LUT)
         nL0 = LUT[nT0];
         nR0 = LUT[nT0+1];
         nDt = nL0*(step-nT1)+nR0*nT1+step/2;
-        bl_value = nDt/step;//make sure that step != 0
+        if (step != 0) {
+            bl_value = nDt/step;//make sure that step != 0
+        }
     }
 
-    if (GD_IIR_MODE) {
+    /*if (GD_IIR_MODE) {
         bl_diff = (mPreBacklightValue > bl_value) ? (mPreBacklightValue - bl_value) : (bl_value - mPreBacklightValue);
         bld_lvl = (RBASE > (GD_ThTF + bl_diff)) ? (GD_ThTF + bl_diff) : RBASE;
         *tf_bl_value = ((RBASE - bld_lvl) * mPreBacklightValue + bld_lvl * bl_value + (RBASE >> 1)) >> mGD_mvreflsh;     //slowchange
-    } else {
+    } else */{
         step = bl_value - mPreBacklightValue;
         if (step > GD_STEP_Th  )// dark --> bright, limit increase step
             step = GD_STEP_Th;

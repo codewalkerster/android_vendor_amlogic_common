@@ -154,6 +154,7 @@ cc_binary {
         "logo_img_packer/crc32.cpp",
         "VdcLoop.c",
         "SystemControlHal.cpp",
+        "SystemControlClient.cpp",
         "SystemControlService.cpp",
         "DisplayMode.cpp",
         "DisplayModeMgr.cpp",

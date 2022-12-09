@@ -158,12 +158,28 @@ public:
     int SSMReadDeblockMode(int offset, int *rw_val);
     int SSMSaveDemoSquitoMode(int offset, int rw_val);
     int SSMReadDemoSquitoMode(int offset, int *rw_val);
+    int SSMSaveMcDiMode(int offset, int rw_val);
+    int SSMReadMcDiMode(int offset, int *rw_val);
     int SSMReadAipqEnableVal(int *rw_val);
     int SSMSaveAipqEnableVal(int rw_val);
     int SSMReadAiSrEnable(int *rw_val);
     int SSMSaveAiSrEnable(int rw_val);
+    int SSMReadDLGEnable(int *rw_val);
+    int SSMSaveDLGEnable(int rw_val);
     int SSMSaveColorGamutMode(int offset, int rw_val);
     int SSMReadColorGamutMode(int offset, int *rw_val);
+    int SSMSaveBlackStretch(int offset, int rw_val);
+    int SSMReadBlackStretch(int offset, int *rw_val);
+    int SSMSaveBlueStretch(int offset, int rw_val);
+    int SSMReadBlueStretch(int offset, int *rw_val);
+    int SSMSaveChromaCoring(int offset, int rw_val);
+    int SSMReadChromaCoring(int offset, int *rw_val);
+    int SSMSaveLocalDimming(int rw_val);
+    int SSMReadLocalDimming(int *rw_val);
+    int SSMSavePictureModeParamsFlag(int offset, int rw_val);
+    int SSMReadPictureModeParamsFlag(int offset, int *rw_val);
+    int SSMSavePictureModeParams(int offset, int size, int *rw_val);
+    int SSMReadPictureModeParams(int offset, int size, int *rw_val);
 
     int m_dev_fd;
     static SSMAction *mInstance;

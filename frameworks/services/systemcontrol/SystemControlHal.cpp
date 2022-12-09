@@ -1018,6 +1018,15 @@ Return<Result> SystemControlHal::hasMemcFunc() {
     return Result::FAIL;
 }
 
+//DLG
+Return<int32_t> SystemControlHal::setDLGEnable(int32_t enable, int32_t isSave) {
+    return mSysControl->setDLGEnable(enable, isSave);
+}
+
+Return<int32_t> SystemControlHal::getDLGEnable() {
+    return mSysControl->getDLGEnable();
+}
+
 Return<int32_t> SystemControlHal::setMemcMode(int32_t memc_mode, int32_t isSave) {
     return mSysControl->setMemcMode(memc_mode, isSave);
 }
@@ -1199,12 +1208,12 @@ Return<int32_t> SystemControlHal::factoryResetColorTemp(void) {
     return mSysControl->factoryResetColorTemp();
 }
 
-Return<int32_t> SystemControlHal::factorySetOverscan(int32_t inputSrc, int32_t sigFmt, int32_t transFmt, int32_t he_value, int32_t hs_value, int32_t ve_value, int32_t vs_value) {
-    return mSysControl->factorySetOverscan(inputSrc, sigFmt, transFmt, he_value, hs_value, ve_value, vs_value);
+Return<int32_t> SystemControlHal::factorySetOverscan(int32_t inputSrc, int32_t sigFmt, int32_t transFmt, int32_t dmode, int32_t he_value, int32_t hs_value, int32_t ve_value, int32_t vs_value) {
+    return mSysControl->factorySetOverscan(inputSrc, sigFmt, transFmt, dmode, he_value, hs_value, ve_value, vs_value);
 }
 
-Return<void> SystemControlHal::factoryGetOverscan(int32_t inputSrc, int32_t sigFmt, int32_t transFmt, factoryGetOverscan_cb _hidl_cb) {
-    tvin_cutwin_t tempParam = mSysControl->factoryGetOverscan(inputSrc, sigFmt, transFmt);
+Return<void> SystemControlHal::factoryGetOverscan(int32_t inputSrc, int32_t sigFmt, int32_t transFmt, int32_t dmode, factoryGetOverscan_cb _hidl_cb) {
+    tvin_cutwin_t tempParam = mSysControl->factoryGetOverscan(inputSrc, sigFmt, transFmt, dmode);
     OverScanParam param;
     param.he = tempParam.he;
     param.hs = tempParam.hs;
@@ -1385,6 +1394,14 @@ Return<int32_t> SystemControlHal::factoryGetLVDSSSC() {
     return mSysControl->factoryGetLVDSSSC();
 }
 
+Return<int32_t> SystemControlHal::setLCDPowerCtrl(int32_t state) {
+    return mSysControl->setLCDPowerCtrl(state);
+}
+
+Return<int32_t> SystemControlHal::setLCDMuteCtrl(int32_t state) {
+    return mSysControl->setLCDMuteCtrl(state);
+}
+
 Return<int32_t> SystemControlHal::whiteBalanceGrayPatternClose() {
     return mSysControl->whiteBalanceGrayPatternClose();
 }
@@ -1548,7 +1565,32 @@ Return<int32_t> SystemControlHal::setColorGamutMode(int32_t isEnable, int32_t is
 Return<int32_t> SystemControlHal::getColorGamutMode(void) {
     return mSysControl->getColorGamutMode();
 }
+Return<int32_t> SystemControlHal::getBlueStretch(void) {
+    return mSysControl->getBlueStretch();
+}
+
+Return<int32_t> SystemControlHal::setBlueStretch(int32_t level, int32_t is_save) {
+    return mSysControl->setBlueStretch(level, is_save);
+}
+
+Return<int32_t> SystemControlHal::getLocalDimming(void) {
+    return mSysControl->getLocalDimming();
+}
+
+Return<int32_t> SystemControlHal::setLocalDimming(int32_t level, int32_t is_save) {
+    return mSysControl->setLocalDimming(level, is_save);
+}
+
+Return<int32_t> SystemControlHal::getDolbyDarkDetail(void) {
+    return mSysControl->getDolbyDarkDetail();
+}
+
+Return<int32_t> SystemControlHal::setDolbyDarkDetail(int32_t mode, int32_t is_save) {
+    return mSysControl->setDolbyDarkDetail(mode, is_save);
+}
+
 //PQ end
+
 //static frame
 Return<int32_t> SystemControlHal::setStaticFrameEnable(int enable, int isSave)
 {

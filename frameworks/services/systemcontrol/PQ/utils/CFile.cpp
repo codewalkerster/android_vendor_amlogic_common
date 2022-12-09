@@ -21,7 +21,9 @@ CFile::CFile()
 
 CFile::CFile(const char *path)
 {
-    strcpy(mPath, path);
+    if (strlen(path) < sizeof(mPath)/sizeof(char)) {
+        strcpy(mPath, path);
+    }
     mFd = -1;
 }
 
@@ -35,8 +37,11 @@ int CFile::openFile(const char *path)
     SYS_LOGD("openFile = %s", path);
     if (mFd < 0) {
         const char *openPath = mPath;
-        if (path != NULL)
-            strcpy(mPath, path);
+        if (path != NULL) {
+            if (strlen(path) < sizeof(mPath)/sizeof(char)) {
+                strcpy(mPath, path);
+            }
+        }
 
         if (strlen(openPath) <= 0) {
             SYS_LOGE("openFile openPath is NULL, path:%s", path);
@@ -92,6 +97,7 @@ int CFile::copyTo(const char *dstPath)
 
     if ((dstFd = open(dstPath, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR)) == -1) {
         SYS_LOGE("Open %s Error:%s/n", dstPath, strerror(errno));
+        return -1;
     }
 
     int bytes_read, bytes_write;
@@ -161,11 +167,15 @@ int  CFile::getFileAttrValue(const char *path)
     int value;
 
     int fd = open(path, O_RDONLY);
-    if (fd <= 0) {
+    if (fd == -1) {
         SYS_LOGE("open  (%s)ERROR!!error = -%s- \n", path, strerror ( errno ));
+        return -1;
     }
     char s[8];
-    read(fd, s, sizeof(s));
+    int bytes = read(fd, s, sizeof(s));
+    if (bytes == -1) {
+        SYS_LOGE("read failed!!\n");
+    }
     close(fd);
     value = atoi(s);
     return value;

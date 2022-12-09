@@ -75,8 +75,20 @@
 #define AMVECM_IOC_S_RGB_OGO       _IOW(AMVECM_IOC_MAGIC, 0x45, struct tcon_rgb_ogo_s)
 #define AMVECM_IOC_G_RGB_OGO       _IOR(AMVECM_IOC_MAGIC, 0x46, struct tcon_rgb_ogo_s)
 
+#define AMVECM_IOC_GAMMA_SET       _IOW(AMVECM_IOC_MAGIC, 0x4a, struct gm_tbl_s)
+
 // VPP.Local dimming command list
 #define LDIM_IOC_PARA              _IOW(AMVECM_IOC_MAGIC, 0x50, struct vpu_ldim_param_s)
+#define AML_LDIM_IOC_CMD_GET_INFO      _IOR(AMVECM_IOC_MAGIC, 0x51, struct aml_ldim_info_s)
+#define AML_LDIM_IOC_CMD_SET_INFO      _IOW(AMVECM_IOC_MAGIC, 0x52, struct aml_ldim_info_s)
+#define AML_LDIM_IOC_CMD_GET_INFO_NEW  _IOR(AMVECM_IOC_MAGIC, 0x53, struct aml_ldim_pq_s)
+#define AML_LDIM_IOC_CMD_SET_INFO_NEW  _IOW(AMVECM_IOC_MAGIC, 0x54, struct aml_ldim_pq_s)
+
+#define AML_LDIM_IOC_CMD_GET_BL_MAPPING_PATH   _IOR(AMVECM_IOC_MAGIC, 0x55, struct aml_path_s)
+#define AML_LDIM_IOC_CMD_SET_BL_MAPPING        _IOW(AMVECM_IOC_MAGIC, 0x56, struct am_pq_bin_param_s)
+
+#define AML_LDIM_IOC_CMD_GET_BL_PROFILE_PATH   _IOR(AMVECM_IOC_MAGIC, 0x57, struct aml_path_s)
+#define AML_LDIM_IOC_CMD_SET_BL_PROFILE        _IOW(AMVECM_IOC_MAGIC, 0x58, struct am_pq_bin_param_s)
 
 // VPP.display mode command list
 #define AMVECM_IOC_SET_OVERSCAN    _IOW(AMVECM_IOC_MAGIC, 0x52, struct ve_pq_load_s)

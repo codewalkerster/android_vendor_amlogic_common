@@ -1979,6 +1979,10 @@ void *tinfl_decompress_mem_to_heap(const void *pSrc_buf, size_t src_buf_len, siz
         size_t src_buf_size = src_buf_len - src_buf_ofs, dst_buf_size = out_buf_capacity - *pOut_len, new_out_buf_capacity;
         tinfl_status status = tinfl_decompress(&decomp, (const mz_uint8 *)pSrc_buf + src_buf_ofs, &src_buf_size, (mz_uint8 *)pBuf, pBuf ? (mz_uint8 *)pBuf + *pOut_len : NULL, &dst_buf_size,
                                                (flags & ~TINFL_FLAG_HAS_MORE_INPUT) | TINFL_FLAG_USING_NON_WRAPPING_OUTPUT_BUF);
+
+        if (pBuf == NULL) {
+            return NULL;
+        }
         if ((status < 0) || (status == TINFL_STATUS_NEEDS_MORE_INPUT))
         {
             MZ_FREE(pBuf);
@@ -4993,7 +4997,7 @@ mz_bool mz_zip_writer_add_mem_ex(mz_zip_archive *pZip, const char *pArchive_name
 {
     mz_uint16 method = 0, dos_time = 0, dos_date = 0;
     mz_uint level, ext_attributes = 0, num_alignment_padding_bytes;
-    mz_uint64 local_dir_header_ofs = pZip->m_archive_size, cur_archive_file_ofs = pZip->m_archive_size, comp_size = 0;
+    mz_uint64 local_dir_header_ofs = 0, cur_archive_file_ofs = 0, comp_size = 0;
     size_t archive_name_size;
     mz_uint8 local_dir_header[MZ_ZIP_LOCAL_DIR_HEADER_SIZE];
     tdefl_compressor *pComp = NULL;
@@ -5009,6 +5013,8 @@ mz_bool mz_zip_writer_add_mem_ex(mz_zip_archive *pZip, const char *pArchive_name
         return MZ_FALSE;
 
     pState = pZip->m_pState;
+    local_dir_header_ofs = pZip->m_archive_size;
+    cur_archive_file_ofs = pZip->m_archive_size;
 
     if ((!(level_and_flags & MZ_ZIP_FLAG_COMPRESSED_DATA)) && (uncomp_size))
         return MZ_FALSE;
@@ -5148,7 +5154,7 @@ mz_bool mz_zip_writer_add_file(mz_zip_archive *pZip, const char *pArchive_name, 
 {
     mz_uint uncomp_crc32 = MZ_CRC32_INIT, level, num_alignment_padding_bytes;
     mz_uint16 method = 0, dos_time = 0, dos_date = 0, ext_attributes = 0;
-    mz_uint64 local_dir_header_ofs = pZip->m_archive_size, cur_archive_file_ofs = pZip->m_archive_size, uncomp_size = 0, comp_size = 0;
+    mz_uint64 local_dir_header_ofs = 0, cur_archive_file_ofs = 0, uncomp_size = 0, comp_size = 0;
     size_t archive_name_size;
     mz_uint8 local_dir_header[MZ_ZIP_LOCAL_DIR_HEADER_SIZE];
     MZ_FILE *pSrc_file = NULL;
@@ -5163,6 +5169,9 @@ mz_bool mz_zip_writer_add_file(mz_zip_archive *pZip, const char *pArchive_name, 
         return MZ_FALSE;
     if (!mz_zip_writer_validate_archive_name(pArchive_name))
         return MZ_FALSE;
+
+    local_dir_header_ofs = pZip->m_archive_size;
+    cur_archive_file_ofs = pZip->m_archive_size;
 
     archive_name_size = strlen(pArchive_name);
     if (archive_name_size > 0xFFFF)

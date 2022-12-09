@@ -423,6 +423,12 @@ interface ISystemControl {
   getColorBaseMode()
       generates (int32_t ret);
 
+  setDLGEnable(int32_t enable, int32_t isSave)
+      generates (int32_t ret);
+
+  getDLGEnable()
+      generates (int32_t ret);
+
   getSourceHdrType()
       generates (int32_t ret);
 
@@ -481,10 +487,10 @@ interface ISystemControl {
   factoryfactoryGetColorTemperatureParams(int32_t colorTemp_mode)
       generates (int32_t ret);
 
-  factorySetOverscan(int32_t inputSrc, int32_t sigFmt, int32_t transFmt, int32_t heValue, int32_t hsValue, int32_t veValue, int32_t vsValue)
+  factorySetOverscan(int32_t inputSrc, int32_t sigFmt, int32_t transFmt, int32_t dmode, int32_t heValue, int32_t hsValue, int32_t veValue, int32_t vsValue)
       generates (int32_t ret);
 
-  factoryGetOverscan(int32_t inputSrc, int32_t sigFmt, int32_t transFmt)
+  factoryGetOverscan(int32_t inputSrc, int32_t sigFmt, int32_t transFmt, int32_t dmode)
       generates (OverScanParam param);
 
   factorySSMRestore()
@@ -582,6 +588,12 @@ interface ISystemControl {
       generates (int32_t ret);
 
   factoryGetLVDSSSC()
+      generates (int32_t ret);
+
+  setLCDPowerCtrl(int32_t state)
+      generates (int32_t ret);
+
+  setLCDMuteCtrl(int32_t state)
       generates (int32_t ret);
 
   whiteBalanceGrayPatternClose()
@@ -694,6 +706,24 @@ interface ISystemControl {
 
   getModeSupportDeepColorAttr(string mode, string color)
       generates (Result result);
+
+  setBlueStretch(int32_t level,int32_t isSave)
+      generates (int32_t ret);
+
+  getBlueStretch()
+      generates (int32_t ret);
+
+  setLocalDimming(int32_t level,int32_t isSave)
+      generates (int32_t ret);
+
+  getLocalDimming()
+      generates (int32_t ret);
+
+  setDolbyDarkDetail(int32_t mode,int32_t isSave)
+      generates (int32_t ret);
+
+  getDolbyDarkDetail()
+      generates (int32_t ret);
 //PD END
   //static frame
   setStaticFrameEnable(int32_t enable, int32_t isSave)

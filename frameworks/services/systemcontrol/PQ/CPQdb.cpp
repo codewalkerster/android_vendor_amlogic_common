@@ -34,12 +34,14 @@ CPQdb::CPQdb()
     sat_nodes = 0;
     sha0_nodes = 0;
     sha1_nodes = 0;
+    sha2_nodes = 0;
     memset(pq_bri_data, 0, sizeof(pq_bri_data));
     memset(pq_con_data, 0, sizeof(pq_con_data));
     memset(pq_sat_data, 0, sizeof(pq_sat_data));
     memset(pq_hue_data, 0, sizeof(pq_hue_data));
     memset(pq_sharpness0_reg_data, 0, sizeof(pq_sharpness0_reg_data));
     memset(pq_sharpness1_reg_data, 0, sizeof(pq_sharpness1_reg_data));
+    memset(pq_sharpnesspi_reg_data, 0, sizeof(pq_sharpnesspi_reg_data));
 }
 
 CPQdb::~CPQdb()
@@ -48,7 +50,7 @@ CPQdb::~CPQdb()
 
 int CPQdb::openPqDB(const char *db_path)
 {
-    SYS_LOGI("openPqDB path = %s", db_path);
+    SYS_LOGD("openPqDB path = %s", db_path);
     int rval;
 
     if (access(db_path, 0) < 0) {
@@ -64,31 +66,25 @@ int CPQdb::openPqDB(const char *db_path)
         database_attribute_t databaseAttribute;
         bool ret = PQ_GetDataBaseAttribute(&databaseAttribute);
         if (ret) {
-            SYS_LOGI("db-code match mask is %d\n", PQ_DB_CODE_MATCH_MASK);
-            if (databaseAttribute.ProjectVersion.isEmpty()) {
-                mDbMatchType = MATCH_TYPE_NO_DBVERSION;
-            } else {
-                unsigned int DbVersionSelectValue = atoi(databaseAttribute.ProjectVersion.c_str());
-                if (DbVersionSelectValue == PQ_DB_CODE_MATCH_MASK) {
-                    mDbMatchType = MATCH_TYPE_MATCH;
-                } else if (DbVersionSelectValue > PQ_DB_CODE_MATCH_MASK) {
-                    mDbMatchType = MATCH_TYPE_OLDCODE_NEWDB;
-                } else{
-                    mDbMatchType = MATCH_TYPE_NEWCODE_OLDDB;
-                }
-            }
-            SYS_LOGI("db-code match type is %d.\n", mDbMatchType);
+            PQ_GetPqDbMatchType(&databaseAttribute);
+
             attributeVal = databaseAttribute.ToolVersion + " " +
                            databaseAttribute.ProjectVersion + " " +
+                           databaseAttribute.dbversion + " " +
                            databaseAttribute.GenerateTime + " " +
                            databaseAttribute.ChipVersion;
         } else {
             attributeVal = "Get PQ_DB Version failure!!!";
         }
-        SYS_LOGI("%s = %s\n", "PQ.db.version", attributeVal.string());
+        SYS_LOGD("%s = %s\n", "PQ.db.version", attributeVal.string());
     }
 
     return rval;
+}
+
+int CPQdb::closePqDB(void)
+{
+    return closeDb();
 }
 
 int CPQdb::reopenDB(const char *db_path)
@@ -108,7 +104,25 @@ int CPQdb::getRegValues(const char *table_name, am_regs_t *regs)
         return rval;
     }
 
-    getSqlParams(__FUNCTION__, sqlmaster, "select RegType, RegAddr, RegMask, RegValue from %s;", table_name);
+    if (mDbMatchType == MATCH_TYPE_MBOX_S5) {
+        char table_name_copy[40] = {0};
+        char *table_name_split = NULL;
+        const char *delim = "_";
+        strcpy(table_name_copy, table_name);
+        SYS_LOGD("%s, table_name_copy=%s\n", __FUNCTION__, table_name_copy);
+        table_name_split = strtok(table_name_copy, delim);
+        SYS_LOGD("%s, table_name_split=%s\n", __FUNCTION__, table_name_split);
+
+        if (strcmp(table_name_split, "Sharpness") == 0) { //Sharpness_xx.xml
+            SYS_LOGD("%s, node_number=%d\n", __FUNCTION__, node_number);
+            getSqlParams(__FUNCTION__, sqlmaster, "select RegType, RegAddr, RegMask, RegValue from %s where NodeNumber = %d", table_name, node_number);
+        } else {
+            getSqlParams(__FUNCTION__, sqlmaster, "select RegType, RegAddr, RegMask, RegValue from %s;", table_name);
+        }
+    } else {
+        getSqlParams(__FUNCTION__, sqlmaster, "select RegType, RegAddr, RegMask, RegValue from %s;", table_name);
+    }
+
     this->select(sqlmaster, c_reg_list);
     int count = c_reg_list.getCount();
     if (count < 0 ) {
@@ -282,6 +296,57 @@ int CPQdb::PQ_GetBlackExtensionParams(source_input_param_t source_input_param, a
     return rval;
 }
 
+int CPQdb::PQ_GetBlackStretchParams(int level, source_input_param_t source_input_param, am_regs_t *regs)
+{
+    int rval = -1;
+
+    if (CheckHdrStatus("GeneralBlackTable"))
+        source_input_param.sig_fmt = TVIN_SIG_FMT_HDMI_HDR;
+
+    String8 TableName = GetTableName("GeneralBlackTable", source_input_param);
+    if ((TableName.string() != NULL) && (TableName.length() != 0) ) {
+        rval = getRegValuesByValue(TableName.string(), LEVEL_NAME, "", level, 0, regs);
+    } else {
+        SYS_LOGE("GeneralBlackTable don't have table!!\n");
+    }
+
+    return rval;
+}
+
+int CPQdb::PQ_GetBlueStretchParams(int level, source_input_param_t source_input_param, am_regs_t *regs)
+{
+    int rval = -1;
+
+    if (CheckHdrStatus("GeneralBlueTable"))
+        source_input_param.sig_fmt = TVIN_SIG_FMT_HDMI_HDR;
+
+    String8 TableName = GetTableName("GeneralBlueTable", source_input_param);
+    if ((TableName.string() != NULL) && (TableName.length() != 0) ) {
+        rval = getRegValuesByValue(TableName.string(), LEVEL_NAME, "", level, 0, regs);
+    } else {
+        SYS_LOGE("GeneralBlueTable don't have table!!\n");
+    }
+
+    return rval;
+}
+
+int CPQdb::PQ_GetChromaCoringParams(int level, source_input_param_t source_input_param, am_regs_t *regs)
+{
+    int rval = -1;
+
+    if (CheckHdrStatus("GeneralChromaTable"))
+        source_input_param.sig_fmt = TVIN_SIG_FMT_HDMI_HDR;
+
+    String8 TableName = GetTableName("GeneralChromaTable", source_input_param);
+    if ((TableName.string() != NULL) && (TableName.length() != 0) ) {
+        rval = getRegValuesByValue(TableName.string(), LEVEL_NAME, "", level, 0, regs);
+    } else {
+        SYS_LOGE("GeneralChromaTable don't have table!!\n");
+    }
+
+    return rval;
+}
+
 int CPQdb::PQ_GetSharpness0FixedParams(source_input_param_t source_input_param, am_regs_t *regs)
 {
     int rval = -1;
@@ -343,6 +408,39 @@ int CPQdb::PQ_SetSharpness1VariableParams(source_input_param_t source_input_para
         rval = loadSharpnessData(TableName.string(), 1);
     } else {
         SYS_LOGE("%s: GeneralSharpness1VariableTable don't have this table!\n", __FUNCTION__);
+    }
+
+    return rval;
+}
+
+int CPQdb::PQ_GetSharpnessPiFixedParams(source_input_param_t source_input_param, am_regs_t *regs)
+{
+    int rval = -1;
+
+    if (CheckHdrStatus("GeneralSharpnessPIFixedTable"))
+        source_input_param.sig_fmt = TVIN_SIG_FMT_HDMI_HDR;
+
+    String8 TableName = GetTableName("GeneralSharpnessPIFixedTable", source_input_param);
+    if ((TableName.string() != NULL) && (TableName.length() != 0) ) {
+        rval = getRegValues(TableName.string(), regs);
+    } else {
+        SYS_LOGE("GeneralSharpnessPIFixedTable don't have table!!\n");
+    }
+
+    return rval;
+}
+
+int CPQdb::PQ_SetSharpnessPiVariableParams(source_input_param_t source_input_param)
+{
+    int rval = -1;
+    if (CheckHdrStatus("GeneralSharpnessPIVariableTable"))
+        source_input_param.sig_fmt = TVIN_SIG_FMT_HDMI_HDR;
+
+    String8 TableName = GetTableName("GeneralSharpnessPIVariableTable", source_input_param);
+    if ((TableName.string() != NULL) && (TableName.length() != 0) ) {
+        rval = loadSharpnessData(TableName.string(), 2);
+    } else {
+        SYS_LOGE("%s: GeneralSharpnessPIVariableTable don't have this table!\n", __FUNCTION__);
     }
 
     return rval;
@@ -444,12 +542,12 @@ int CPQdb::PQ_GetSmoothPlusParams(vpp_smooth_plus_mode_t smoothplus_mode, source
     return rval;
 }
 
-int CPQdb::PQ_GetDemoSquitoParams(source_input_param_t source_input_param,  am_regs_t *regs)
+int CPQdb::PQ_GetDemoSquitoParams(di_demosquito_mode_e demosquito, source_input_param_t source_input_param,  am_regs_t *regs)
 {
     int rval = -1;
     String8 TableName = GetTableName("GeneralDemosquitoTable", source_input_param);
     if ((TableName.string() != NULL) && (TableName.length() != 0) ) {
-        rval = getDIRegValuesByValue(TableName.string(), "", "", 0, 0, regs);
+        rval = getDIRegValuesByValue(TableName.string(), LEVEL_NAME, "", (int) demosquito, 0, regs);
     } else {
         SYS_LOGE("GeneralDemosquitoTable select error!!\n");
     }
@@ -1404,6 +1502,8 @@ int CPQdb::PQ_GetDNLPParams(source_input_param_t source_input_param, Dynamic_con
             memset(buf, 0, sizeof(buf));
             if (strlen(c1.getString(index).string()) < sizeof(buf)) {
                 strncpy(buf, c1.getString(index).string(), strlen(c1.getString(index).string()));
+            } else {
+                strncpy(buf, c1.getString(index).string(), sizeof(buf));
             }
             //SYS_LOGD ("%s - ve_reg_trend_wht_expand_lut8 is %s+++++++++++++++++", __FUNCTION__, buf);
             buffer = buf;
@@ -1416,6 +1516,56 @@ int CPQdb::PQ_GetDNLPParams(source_input_param_t source_input_param, Dynamic_con
                 buffer = NULL;
             }
          }
+        { // for ve_c_hist_gain
+           index = 0;
+           aa = NULL;
+           getSqlParams(__FUNCTION__, sqlmaster, "select value from %s where "
+                       "regnum = %d and "
+                       "level = %d;",
+                       TableName.string(), c_hist_gain, mode);
+
+           rval = this->select(sqlmaster, c1);
+           memset(buf, 0, sizeof(buf));
+           if (strlen(c1.getString(index).string()) < sizeof(buf)) {
+                strncpy(buf, c1.getString(index).string(), strlen(c1.getString(index).string()));
+           } else {
+                strncpy(buf, c1.getString(index).string(), sizeof(buf));
+           }
+           //SYS_LOGD ("%s - c_hist_gain is %s+++++++++++++++++", __FUNCTION__, buf);
+           buffer = buf;
+           while ((aa_save[index] = strtok_r(buffer, " ", &aa)) != NULL) {
+               newParams->ve_c_hist_gain[index] = atoi(aa_save[index]);
+               index ++;
+               if (index >= sizeof(newParams->ve_c_hist_gain)/sizeof(unsigned int)) {
+                   break;
+               }
+               buffer = NULL;
+           }
+        }
+        { // for ve_s_hist_gain
+           index = 0;
+           aa = NULL;
+           getSqlParams(__FUNCTION__, sqlmaster, "select value from %s where "
+                       "regnum = %d and "
+                       "level = %d;",
+                       TableName.string(), s_hist_gain, mode);
+
+           rval = this->select(sqlmaster, c1);
+           memset(buf, 0, sizeof(buf));
+           if (strlen(c1.getString(index).string()) < sizeof(buf)) {
+               strncpy(buf, c1.getString(index).string(), strlen(c1.getString(index).string()));
+           }
+           //SYS_LOGD ("%s - s_hist_gain is %s+++++++++++++++++", __FUNCTION__, buf);
+           buffer = buf;
+           while ((aa_save[index] = strtok_r(buffer, " ", &aa)) != NULL) {
+               newParams->ve_s_hist_gain[index] = atoi(aa_save[index]);
+               index ++;
+               if (index >= sizeof(newParams->ve_s_hist_gain)/sizeof(unsigned int)) {
+                   break;
+               }
+               buffer = NULL;
+           }
+        }
     } else {
         SYS_LOGE("%s, GeneralDNLPTable don't have this table!\n", __FUNCTION__);
         rval = -1;
@@ -1496,6 +1646,8 @@ int CPQdb::PQ_GetLocalContrastNodeParams(source_input_param_t source_input_param
             memset(buf, 0, sizeof(buf));
             if (strlen(c.getString(index).string()) < sizeof(buf)) {
                 strncpy(buf, c.getString(index).string(), strlen(c.getString(index).string()));
+            } else {
+                strncpy(buf, c.getString(index).string(), sizeof(buf));
             }
             //SYS_LOGD ("%s: ve_lc_yminval_lmt is %s\n", __FUNCTION__, buf);
             buffer = buf;
@@ -1978,6 +2130,15 @@ int CPQdb::PQ_GetSharpness1Params(source_input_param_t source_input_param, int l
     return 0;
 }
 
+int CPQdb::PQ_GetSharpnessPiParams(source_input_param_t source_input_param, int level, am_regs_t *regs)
+{
+    int val = 0;
+
+    GetNonlinearMapping(TVPQ_DATA_SHARPNESS, source_input_param.source_input, level, &val);
+    *regs = CalculateLevelRegsParam(pq_sharpnesspi_reg_data, val, 2);
+    return 0;
+}
+
 int CPQdb::PQ_GetPLLParams(source_input_param_t source_input_param, am_regs_t *regs)
 {
     int ret = -1;
@@ -2025,7 +2186,7 @@ int CPQdb::PQ_GetAIParams(source_input_param_t source_input_param, ai_pic_table_
         if (c.moveToFirst()) {
             aiRegs->width = c.getInt(0);
             aiRegs->height = c.getInt(1);
-            if (strlen(c.getString(2).string()) < sizeof(buf)) {
+            if (strlen(c.getString(2).string()) < sizeof(buf)/sizeof(char)) {
                 strncpy(buf, c.getString(2).string(), strlen(c.getString(2).string()));
             }
             aiRegs->table_ptr = buf;
@@ -2308,7 +2469,7 @@ int CPQdb::PQ_SetSharpnessCTIParams(source_input_param_t source_input_param, int
     if (c.getCount() <= 0) {
         source_input_param.sig_fmt = TVIN_SIG_FMT_NULL;
         c.close();
-        SYS_LOGE ("%s - Load default", __FUNCTION__);
+        SYS_LOGD ("%s - Load default", __FUNCTION__);
         getSqlParams(__FUNCTION__,sqlmaster,
                  "select TableName from %s where "
                  "TVIN_PORT = %d and "
@@ -2446,7 +2607,7 @@ int CPQdb::getSharpnessRegValues(const char *table_name, source_input_param_t so
     if (c_tablelist.getCount() <= 0) {
         signal = TVIN_SIG_FMT_NULL;
         c_tablelist.close();
-        SYS_LOGE ("%s - Load default", __FUNCTION__);
+        SYS_LOGD ("%s - Load default", __FUNCTION__);
 
         getSqlParams(__FUNCTION__, sqlmaster,
                    "select TableName from %s where "
@@ -2513,7 +2674,7 @@ int CPQdb::PQ_SetSharpnessAdvancedParams(source_input_param_t source_input_param
   if (c_tablelist.getCount() <= 0) {
       signal = TVIN_SIG_FMT_NULL;
       c_tablelist.close();
-      SYS_LOGE ("%s - Load default", __FUNCTION__);
+      SYS_LOGD ("%s - Load default", __FUNCTION__);
 
       getSqlParams(__FUNCTION__, sqlmaster,
                    "select TableName from %s where "
@@ -2559,133 +2720,6 @@ int CPQdb::PQ_SetSharpnessAdvancedParams(source_input_param_t source_input_param
   return err;
 }
 
-int CPQdb::PQ_GetOverscanParams(source_input_param_t source_input_param, vpp_display_mode_t dmode, tvin_cutwin_t *cutwin_t)
-{
-    CSqlite::Cursor c;
-    char sqlmaster[256];
-    int rval = -1;
-    char table_name[30];
-
-    cutwin_t->hs = 0;
-    cutwin_t->he = 0;
-    cutwin_t->vs = 0;
-    cutwin_t->ve = 0;
-    tv_source_input_t source_input = source_input_param.source_input;
-    tvin_sig_fmt_t fmt = source_input_param.sig_fmt;
-    tvin_trans_fmt_t trans_fmt = source_input_param.trans_fmt;
-
-    memset(table_name, 0, sizeof(table_name));
-    switch ( dmode ) {
-        case VPP_DISPLAY_MODE_169 :
-            strcpy(table_name, "OVERSCAN_16_9");
-            break;
-        case VPP_DISPLAY_MODE_PERSON :
-            strcpy(table_name, "OVERSCAN_PERSON");
-            break;
-        case VPP_DISPLAY_MODE_MOVIE :
-            strcpy(table_name, "OVERSCAN_MOVIE");
-            break;
-        case VPP_DISPLAY_MODE_CAPTION :
-            strcpy(table_name, "OVERSCAN_CAPTION");
-            break;
-        case VPP_DISPLAY_MODE_MODE43 :
-            strcpy(table_name, "OVERSCAN_4_3");
-            break;
-        case VPP_DISPLAY_MODE_FULL :
-            strcpy(table_name, "OVERSCAN_FULL");
-            break;
-        case VPP_DISPLAY_MODE_NORMAL :
-            strcpy(table_name, "OVERSCAN_NORMAL");
-            break;
-        case VPP_DISPLAY_MODE_NOSCALEUP :
-            strcpy(table_name, "OVERSCAN_NOSCALEUP");
-            break;
-        case VPP_DISPLAY_MODE_CROP_FULL :
-            strcpy(table_name, "OVERSCAN_CROP_FULL");
-            break;
-        case VPP_DISPLAY_MODE_CROP :
-            strcpy(table_name, "OVERSCAN_CROP");
-            break;
-        case VPP_DISPLAY_MODE_ZOOM :
-            strcpy(table_name, "OVERSCAN_ZOOM");
-            break;
-        case VPP_DISPLAY_MODE_MAX :
-        default :
-            strcpy(table_name, "OVERSCAN_NORMAL");
-            break;
-    }
-    getSqlParams(__FUNCTION__, sqlmaster, "select hs, he, vs, ve from %s where "
-                 "TVIN_PORT = %d and "
-                 "TVIN_SIG_FMT = %d and "
-                 "TVIN_TRANS_FMT = %d ;", table_name, source_input, fmt, trans_fmt);
-
-    rval = this->select(sqlmaster, c);
-
-    if (c.getCount() <= 0) {
-        fmt = TVIN_SIG_FMT_NULL;
-        c.close();
-        SYS_LOGE ("%s - Load default", __FUNCTION__);
-
-        getSqlParams(__FUNCTION__, sqlmaster, "select hs, he, vs, ve from %s where "
-                                              "TVIN_PORT = %d and "
-                                              "TVIN_SIG_FMT = %d and "
-                                              "TVIN_TRANS_FMT = %d ;", table_name, source_input, fmt, trans_fmt);
-        this->select(sqlmaster, c);
-    }
-
-    if (c.moveToFirst()) {
-        cutwin_t->hs = c.getInt(0);
-        cutwin_t->he = c.getInt(1);
-        cutwin_t->vs = c.getInt(2);
-        cutwin_t->ve = c.getInt(3);
-    }
-    return rval;
-}
-int CPQdb::PQ_SetOverscanParams(source_input_param_t source_input_param, tvin_cutwin_t cutwin_t)
-{
-    CSqlite::Cursor c;
-    char sqlmaster[256];
-    int rval = -1;
-    tv_source_input_t source_input = source_input_param.source_input;
-    tvin_sig_fmt_t fmt = source_input_param.sig_fmt;
-    tvin_trans_fmt_t trans_fmt = source_input_param.trans_fmt;
-
-    getSqlParams(__FUNCTION__, sqlmaster,
-        "select * from OVERSCAN where TVIN_PORT = %d and TVIN_SIG_FMT = %d and TVIN_TRANS_FMT = %d;",
-        source_input, fmt, trans_fmt);
-
-    rval = this->select(sqlmaster, c);
-
-    if (c.getCount() <= 0) {
-        fmt = TVIN_SIG_FMT_NULL;
-        c.close();
-        SYS_LOGE ("%s - Load default", __FUNCTION__);
-
-        getSqlParams(__FUNCTION__, sqlmaster,
-                    "select * from OVERSCAN where TVIN_PORT = %d and TVIN_SIG_FMT = %d and TVIN_TRANS_FMT = %d;",
-                    source_input, fmt, trans_fmt);
-        this->select(sqlmaster, c);
-    }
-
-    if (c.moveToFirst()) {
-        getSqlParams(__FUNCTION__, sqlmaster,
-            "update OVERSCAN set hs = %d, he = %d, vs = %d, ve = %d where TVIN_PORT = %d and TVIN_SIG_FMT = %d and TVIN_TRANS_FMT = %d;",
-            cutwin_t.hs, cutwin_t.he, cutwin_t.vs, cutwin_t.ve, source_input, fmt, trans_fmt);
-    } else {
-        getSqlParams(__FUNCTION__, sqlmaster,
-            "Insert into OVERSCAN(TVIN_PORT, TVIN_SIG_FMT, TVIN_TRANS_FMT, hs, he, vs, ve) values(%d, %d, %d ,%d ,%d, %d, %d);",
-            source_input, fmt, trans_fmt, cutwin_t.hs, cutwin_t.he, cutwin_t.vs, cutwin_t.ve);
-    }
-
-    if (this->exeSql(sqlmaster)) {
-        rval = 0;
-    } else {
-        SYS_LOGE("%s--SQL error!\n",__FUNCTION__);
-        rval = -1;
-    }
-
-    return rval;
-}
 int CPQdb::PQ_ResetAllOverscanParams(void)
 {
     int rval;
@@ -2737,11 +2771,11 @@ bool CPQdb::PQ_GetDataBaseAttribute(database_attribute_t *DbAttribute)
         if (CheckIdExistInDb("ChipVersion", "PQ_VersionTable")) {
             chipVersionExist = true;
             getSqlParams(__FUNCTION__, sqlmaster,
-                         "select ToolVersion,ProjectVersion,ChipVersion,GenerateTime from PQ_VersionTable;");
+                         "select ToolVersion,ProjectVersion,ChipVersion,dbversion,GenerateTime from PQ_VersionTable;");
         } else {
             chipVersionExist = false;
             getSqlParams(__FUNCTION__, sqlmaster,
-                         "select ToolVersion,ProjectVersion,GenerateTime from PQ_VersionTable;");
+                         "select ToolVersion,ProjectVersion,dbversion,GenerateTime from PQ_VersionTable;");
         }
 
         int rval = this->select(sqlmaster, c);
@@ -2751,11 +2785,19 @@ bool CPQdb::PQ_GetDataBaseAttribute(database_attribute_t *DbAttribute)
             DbAttribute->ProjectVersion = c.getString(1);
             if (chipVersionExist) {
                 DbAttribute->ChipVersion = c.getString(2);
-                DbAttribute->GenerateTime = c.getString(3);
+                DbAttribute->dbversion = c.getString(3);
+                DbAttribute->GenerateTime = c.getString(4);
             } else {
                 DbAttribute->ChipVersion = String8("");
-                DbAttribute->GenerateTime = c.getString(2);
+                DbAttribute->dbversion = c.getString(2);
+                DbAttribute->GenerateTime = c.getString(3);
             }
+
+            SYS_LOGD("%s DbAttribute->ToolVersion %s\n", __FUNCTION__, DbAttribute->ToolVersion.string());
+            SYS_LOGD("%s DbAttribute->ProjectVersion %s\n", __FUNCTION__, DbAttribute->ProjectVersion.string());
+            SYS_LOGD("%s DbAttribute->dbversion %s\n", __FUNCTION__, DbAttribute->dbversion.string());
+            SYS_LOGD("%s DbAttribute->ChipVersion %s\n", __FUNCTION__, DbAttribute->ChipVersion.string());
+            SYS_LOGD("%s DbAttribute->GenerateTime %s\n", __FUNCTION__, DbAttribute->GenerateTime.string());
 
             ret = true;
         } else {
@@ -2765,6 +2807,46 @@ bool CPQdb::PQ_GetDataBaseAttribute(database_attribute_t *DbAttribute)
     }
 
     return ret;
+}
+
+void CPQdb::PQ_GetPqDbMatchType(database_attribute_t *DbAttribute) {
+    /* db ver new format, ex:
+    ** ver[][] = {
+    **                   ToolVer  ProVer             ChipVer   DbVer      Oem_model   Panel_Index   GeneTime
+    **    //old project  xxx      20191113                                                          yyy
+    **    //new project1 xxx      20221018           s928x     20221020                             yyy
+    **    //new project2 xxx      20221110           t962d4    20221115                             yyy
+    ** }
+    */
+
+    //old project logic, keep it, judge by ProjectVersion with date 20191113
+    if (DbAttribute->ProjectVersion.isEmpty()) {
+        mDbMatchType = MATCH_TYPE_NO_DBVERSION;
+    } else {
+        unsigned int ProVerSelectValue = atoi(DbAttribute->ProjectVersion.c_str());
+        SYS_LOGD("%s ProVerSelectValue %d\n", __FUNCTION__, ProVerSelectValue);
+        if (ProVerSelectValue == PQ_DB_CODE_MATCH_MASK) {
+            mDbMatchType = MATCH_TYPE_MATCH;
+        } else if (ProVerSelectValue > PQ_DB_CODE_MATCH_MASK) {
+            mDbMatchType = MATCH_TYPE_OLDCODE_NEWDB;
+        } else{
+            mDbMatchType = MATCH_TYPE_NEWCODE_OLDDB;
+        }
+    }
+
+    //new project logic, judge by ChipVersion
+    std::string chipVer = std::string(DbAttribute->ChipVersion.string());
+    SYS_LOGD("%s chipVer %s\n", __FUNCTION__, chipVer.c_str());
+
+    if (chipVer == "s928x") {
+        SYS_LOGD("%s this project is mbox s5(%s)\n", __FUNCTION__, chipVer.c_str());
+        mDbMatchType = MATCH_TYPE_MBOX_S5;
+    } else {
+        SYS_LOGD("%s this project is others\n", __FUNCTION__);
+    }
+
+    SYS_LOGD("db-code match type is %d.\n", mDbMatchType);
+    return;
 }
 
 int CPQdb::PQ_GetPQModeParams(tv_source_input_t source_input, vpp_picture_mode_t pq_mode,
@@ -2852,6 +2934,103 @@ int CPQdb::PQ_ResetAllPQModeParams(void)
         rval = 0;
     } else {
         SYS_LOGE("%s--SQL error!\n",__FUNCTION__);
+        rval = -1;
+    }
+
+    return rval;
+}
+
+int CPQdb::PQ_GetPictureModeParams(pq_src_param_t source_input, vpp_picture_mode_t pq_mode,
+                                vpp_pictur_mode_para_t *params)
+{
+    CSqlite::Cursor c;
+    char sqlmaster[256];
+
+    int rval = -1;
+
+    //for picture mode 5
+    String8 TableName = GetPqOsdTableName("GeneralPictureMode5Table", source_input);
+    if (TableName.length() != 0) {
+        getSqlParams(
+            __FUNCTION__,
+            sqlmaster,
+            "select Type, Value from %s where Mode = %d;", TableName.c_str(), (int)pq_mode);
+
+        rval = this->select(sqlmaster, c);
+        char type[50];
+        if (c.moveToFirst()) {
+            do {
+                //if custom want to improve performance,can follow the code of before picture mode 5
+                SYS_LOGD("%s type:%s value:%d\n", __FUNCTION__, c.getString(0).c_str(), c.getInt(1));
+                memset(type, 0, sizeof(type));
+                strncpy(type, c.getString(0).c_str(), sizeof(type) - 1);
+                if (!strcmp(type, "Brightness")) {
+                    params->Brightness = c.getInt(1);
+                } else if (!strcmp(type, "Contrast")) {
+                    params->Contrast = c.getInt(1);
+                } else if (!strcmp(type, "Saturation")) {
+                    params->Saturation = c.getInt(1);
+                } else if (!strcmp(type, "Hue")) {
+                    params->Hue = c.getInt(1);
+                } else if (!strcmp(type, "Sharpness")) {
+                    params->Sharpness = c.getInt(1);
+                } else if (!strcmp(type, "Backlight")) {
+                    params->Backlight = c.getInt(1);
+                } else if (!strcmp(type, "NR")) {
+                    params->Nr = c.getInt(1);
+                } else if (!strcmp(type, "ColorTemperature")) {
+                    params->ColorTemperature = c.getInt(1);
+                } else if (!strcmp(type, "ColorGamut")) {
+                    params->ColorGamut = c.getInt(1);
+                } else if (!strcmp(type, "LocalContrast")) {
+                    params->LocalContrast = c.getInt(1);
+                } else if (!strcmp(type, "DynamicContrast")) {
+                    params->DynamicContrast = c.getInt(1);
+                } else if (!strcmp(type, "BlackExtension")) {
+                    params->BlackStretch = c.getInt(1);
+                } else if (!strcmp(type, "BlueStretch")) {
+                    params->BlueStretch = c.getInt(1);
+                } else if (!strcmp(type, "ChromaCoring")) {
+                    params->ChromaCoring = c.getInt(1);
+                } else if (!strcmp(type, "MpegNr")) {
+                    params->MpegNr = c.getInt(1);
+                } else if (!strcmp(type, "amDolbyMode")) {
+                    params->amDolbyMode = c.getInt(1);
+                } else if (!strcmp(type, "DolbyDarkDetail")) {
+                    params->DolbyDarkDetail = c.getInt(1);
+                }
+            } while (c.moveToNext());
+        } else {
+            SYS_LOGE("%s select error\n", __FUNCTION__);
+            rval = -1;
+        }
+    } else {
+        SYS_LOGE("%s not find %s for source:%d, fmt:%d  pq_mode:%d\n",
+            __FUNCTION__, "GeneralPictureMode5Table", source_input.pq_source_input, source_input.pq_sig_fmt, pq_mode);
+    }
+
+    return rval;
+}
+
+int CPQdb::PQ_GetTconGammaTable(int gamma_curve, gm_tbl_t *gamma_value)
+{
+    CSqlite::Cursor c;
+    int rval;
+    char sqlmaster[256];
+
+    getSqlParams(__FUNCTION__, sqlmaster, "select Red, Green, Blue from TconGAMMA_%d;", gamma_curve);
+    rval = this->select(sqlmaster, c);
+    int index = 0;
+
+    if (c.moveToFirst()) {
+        do {
+            for (int i = 0; i < 3; i++) {
+                gamma_value->gm_tb[gamma_curve][i].data[index] = c.getInt(i);
+            }
+            index++;
+        } while (c.moveToNext());
+    } else {
+        SYS_LOGE("%s: select TconGAMMA_%d  error!\n", __FUNCTION__, gamma_curve);
         rval = -1;
     }
 
@@ -3025,6 +3204,9 @@ String8 CPQdb::GetTableName(const char *GeneralTableName, source_input_param_t s
     CSqlite::Cursor c;
     char sqlmaster[256];
     int ret = -1;
+
+    SYS_LOGD("%s: mDbMatchType %d\n", __FUNCTION__, mDbMatchType);
+
     switch (mDbMatchType) {
     case MATCH_TYPE_NEWCODE_OLDDB:
         SYS_LOGE("%s: new systemcontrol don't match old pq.db!\n", __FUNCTION__);
@@ -3063,6 +3245,25 @@ String8 CPQdb::GetTableName(const char *GeneralTableName, source_input_param_t s
         }
         ret = 0;
         break;
+    case MATCH_TYPE_MBOX_S5:
+        if ((strcmp(GeneralTableName, "GeneralSharpness0FixedTable") == 0)
+            || (strcmp(GeneralTableName, "GeneralSharpness0VariableTable") == 0)
+            || (strcmp(GeneralTableName, "GeneralSharpness1FixedTable") == 0)
+            || (strcmp(GeneralTableName, "GeneralSharpness1VariableTable") == 0)
+            || (strcmp(GeneralTableName, "GeneralSharpnessPIVariableTable") == 0)
+            || (strcmp(GeneralTableName, "GeneralSharpnessPIVariableTable") == 0)) {
+            getSqlParams(__FUNCTION__, sqlmaster, "select TableName from %s where "
+                         "TVOUT_CVBS = %d ;", GeneralTableName, mOutPutType);
+        } else {
+            getSqlParams(__FUNCTION__, sqlmaster, "select TableName from %s where "
+                         "TVIN_PORT = %d and "
+                         "TVIN_SIG_FMT = %d and "
+                         "TVIN_TRANS_FMT = %d and "
+                         "TVOUT_CVBS = %d ;", GeneralTableName, source_input_param.source_input,
+                         source_input_param.sig_fmt, source_input_param.trans_fmt, OUTPUT_TYPE_LVDS);
+        }
+        ret = 0;
+        break;
     }
 
     if (ret < 0) {
@@ -3071,10 +3272,10 @@ String8 CPQdb::GetTableName(const char *GeneralTableName, source_input_param_t s
         ret = this->select(sqlmaster, c);
         if (ret == 0) {
             if (c.moveToFirst()) {
-                SYS_LOGD("table name is %s!\n", c.getString(0).string());
+                SYS_LOGD("%s table name is %s!\n", __FUNCTION__, c.getString(0).string());
                 return c.getString(0);
             } else {
-                SYS_LOGE("%s don't have this table!\n", GeneralTableName);
+                SYS_LOGE("%s %s don't have this table!\n", __FUNCTION__, GeneralTableName);
                 return String8("");
             }
         } else {
@@ -3084,6 +3285,32 @@ String8 CPQdb::GetTableName(const char *GeneralTableName, source_input_param_t s
     }
 }
 
+String8 CPQdb::GetPqOsdTableName(const char *GeneralTableName, pq_src_param_t source_input_param)
+{
+    CSqlite::Cursor c;
+    char sqlmaster[256];
+    int ret = -1;
+
+    getSqlParams(__FUNCTION__, sqlmaster, "select TableName from %s where "
+                 "TVIN_PORT = %d and "
+                 "TVIN_SIG_FMT = %d and "
+                 "TVOUT_CVBS = %d ;", GeneralTableName, source_input_param.pq_source_input,
+                 source_input_param.pq_sig_fmt, OUTPUT_TYPE_LVDS);
+
+    ret = this->select(sqlmaster, c);
+    if (ret == 0) {
+        if (c.moveToFirst()) {
+            SYS_LOGD("table name is %s!\n", c.getString(0).string());
+            return c.getString(0);
+        } else {
+            SYS_LOGE("%s don't have this table!\n", GeneralTableName);
+            return String8("");
+        }
+    } else {
+        SYS_LOGE("%s: select action error!\n", __FUNCTION__);
+        return String8("");
+    }
+}
 
 int CPQdb::CalculateLevelParam(tvpq_data_t *pq_data, int nodes, int level)
 {
@@ -3114,6 +3341,8 @@ am_regs_t CPQdb::CalculateLevelRegsParam(tvpq_sharpness_regs_t *pq_regs, int lev
         pq_nodes = &sha1_nodes;
     } else if (sharpness_number == 0){//sharpness0
         pq_nodes = &sha0_nodes;
+    } else if (sharpness_number == 2){//sharpnesspi
+        pq_nodes = &sha2_nodes;
     } else {
         SYS_LOGE("%s: sharpness_number invalid!\n", __FUNCTION__);
         return regs;
@@ -3330,11 +3559,17 @@ int CPQdb::loadSharpnessData(const char *table_name, int sharpness_number)
         pq_nodes = &sha1_nodes;
         if (c.moveToFirst()) {
             *pq_nodes = c.getInt(0);
-            length = c.getCount() / (*pq_nodes);
+            if (*pq_nodes != 0) {
+                length = c.getCount() / (*pq_nodes);
+            }
             for (int i = 0; i < *pq_nodes; i++) {
                 pq_sharpness1_reg_data[i].length = length;
             }
             do {
+                if (length == 0) {
+                    rval = -1;
+                    break;
+                }
                 pq_sharpness1_reg_data[index / length].reg_data[index % length].TotalNode
                     = c.getInt(0);
                 pq_sharpness1_reg_data[index / length].reg_data[index % length].NodeValue
@@ -3360,11 +3595,17 @@ int CPQdb::loadSharpnessData(const char *table_name, int sharpness_number)
         pq_nodes = &sha0_nodes;
         if (c.moveToFirst()) {
             *pq_nodes = c.getInt(0);//TotalNode?
-            length = c.getCount() / (*pq_nodes);
+            if (*pq_nodes != 0) {
+                length = c.getCount() / (*pq_nodes);
+            }
             for (int i = 0; i < *pq_nodes; i++) {
                 pq_sharpness0_reg_data[i].length = length;
             }
             do {
+                if (length == 0) {
+                    rval = -1;
+                    break;
+                }
                 pq_sharpness0_reg_data[index / length].reg_data[index % length].TotalNode
                     = c.getInt(0);
                 pq_sharpness0_reg_data[index / length].reg_data[index % length].NodeValue
@@ -3386,7 +3627,43 @@ int CPQdb::loadSharpnessData(const char *table_name, int sharpness_number)
             SYS_LOGE("%s: select sharpness0 value error!\n", __FUNCTION__);
             rval = -1;
         }
-    }else {
+    } else if (sharpness_number == 2) {//for Sharpness_pi
+        pq_nodes = &sha2_nodes;
+        if (c.moveToFirst()) {
+            *pq_nodes = c.getInt(0);//TotalNode?
+            if (*pq_nodes != 0) {
+                length = c.getCount() / (*pq_nodes);
+            }
+            for (int i = 0; i < *pq_nodes; i++) {
+                pq_sharpnesspi_reg_data[i].length = length;
+            }
+            do {
+                if (length == 0) {
+                    rval = -1;
+                    break;
+                }
+                pq_sharpnesspi_reg_data[index / length].reg_data[index % length].TotalNode
+                    = c.getInt(0);
+                pq_sharpnesspi_reg_data[index / length].reg_data[index % length].NodeValue
+                    = c.getInt(1);
+                pq_sharpnesspi_reg_data[index / length].reg_data[index % length].Value.type
+                    = c.getUInt(2);
+                pq_sharpnesspi_reg_data[index / length].reg_data[index % length].Value.addr
+                    = c.getUInt(3);
+                pq_sharpnesspi_reg_data[index / length].reg_data[index % length].Value.mask
+                    = c.getUInt(4);
+                pq_sharpnesspi_reg_data[index / length].reg_data[index % length].IndexValue
+                    = c.getInt(5);
+                pq_sharpnesspi_reg_data[index / length].reg_data[index % length].Value.val
+                    = c.getUInt(6);
+                pq_sharpnesspi_reg_data[index / length].reg_data[index % length].step = c.getF(7);
+                index++;
+            } while (c.moveToNext());
+        }else {
+            SYS_LOGE("%s: select sharpnesspi value error!\n", __FUNCTION__);
+            rval = -1;
+        }
+    } else {
         SYS_LOGE("%s: sharpness_number invalid!\n", __FUNCTION__);
         rval = -1;
     }
@@ -3547,16 +3824,202 @@ bool CPQdb::PQ_GetLDIM_Regs(vpu_ldim_param_s *vpu_ldim_param)
                     i++;
                 } while (c.moveToNext());
             } else {
-                SYS_LOGE ("DataBase not match vpu_ldim_param_s\n");
+                SYS_LOGV ("DataBase not match vpu_ldim_param_s\n");
                 ret = false;
             }
-        } else {
-            SYS_LOGE ("select value from LDIM_1; failure\n");
+        }
+        else {
+            SYS_LOGV ("select value from LDIM_1; failure\n");
             ret = false;
         }
     }
 
     return ret;
+}
+
+int CPQdb::PQ_GetLocalDimmingParams(int level, source_input_param_t source_input_param, aml_ldim_pq_s *newParams)
+{
+    CSqlite::Cursor c;
+    char sqlmaster[256];
+    char buf[512];
+    char *buffer = NULL;
+    char *aa = NULL;
+    char *aa_save[100];
+    unsigned int index = 0;
+    int rval = -1;
+
+    memset(newParams, 0, sizeof(aml_ldim_pq_s));
+
+    String8 TableName = GetTableName("GeneralLocalDimmingTable", source_input_param);
+    if ((TableName.string() != NULL) && (TableName.length() != 0) ) {
+        {// for param
+            index = 0;
+            getSqlParams(__FUNCTION__, sqlmaster, "select value from %s where "
+                        "regnum < %d and Level = %d",
+                        TableName.string(), LD_bl_remap_curve, level);
+            rval = this->select(sqlmaster, c);
+
+            if (c.moveToFirst()) {
+                newParams->func_en                      = c.getInt(0);
+                newParams->remapping_en                 = c.getInt(1);
+                newParams->fw_sel                       = c.getInt(2);
+                newParams->ldc_hist_mode                = c.getInt(3);
+                newParams->ldc_hist_blend_mode          = c.getInt(4);
+                newParams->ldc_hist_blend_alpha         = c.getInt(5);
+                newParams->ldc_hist_adap_blend_max_gain = c.getInt(6);
+                newParams->ldc_hist_adap_blend_diff_th1 = c.getInt(7);
+                newParams->ldc_hist_adap_blend_diff_th2 = c.getInt(8);
+                newParams->ldc_hist_adap_blend_th0      = c.getInt(9);
+                newParams->ldc_hist_adap_blend_thn      = c.getInt(10);
+                newParams->ldc_hist_adap_blend_gain_0   = c.getInt(11);
+                newParams->ldc_hist_adap_blend_gain_1   = c.getInt(12);
+                newParams->ldc_init_bl_min              = c.getInt(13);
+                newParams->ldc_init_bl_max              = c.getInt(14);
+                newParams->ldc_sf_mode                  = c.getInt(15);
+                newParams->ldc_sf_gain_up               = c.getInt(16);
+                newParams->ldc_sf_gain_dn               = c.getInt(17);
+                newParams->ldc_sf_tsf_3x3               = c.getInt(18);
+                newParams->ldc_sf_tsf_5x5               = c.getInt(19);
+                newParams->ldc_bs_bl_mode               = c.getInt(20);
+                newParams->ldc_bs_glb_apl_gain          = c.getInt(21);
+                newParams->ldc_bs_dark_scene_bl_th      = c.getInt(22);
+                newParams->ldc_bs_gain                  = c.getInt(23);
+                newParams->ldc_bs_limit_gain            = c.getInt(24);
+                newParams->ldc_bs_loc_apl_gain          = c.getInt(25);
+                newParams->ldc_bs_loc_max_min_gain      = c.getInt(26);
+                newParams->ldc_bs_loc_dark_scene_bl_th  = c.getInt(27);
+                newParams->ldc_tf_en                    = c.getInt(28);
+                newParams->ldc_tf_low_alpha             = c.getInt(29);
+                newParams->ldc_tf_high_alpha            = c.getInt(30);
+                newParams->ldc_tf_low_alpha_sc          = c.getInt(31);
+                newParams->ldc_tf_high_alpha_sc         = c.getInt(32);
+                newParams->ldc_dimming_curve_en         = c.getInt(33);
+                newParams->ldc_sc_hist_diff_th          = c.getInt(34);
+                newParams->ldc_sc_apl_diff_th           = c.getInt(35);
+                newParams->ldc_bl_buf_diff              = c.getInt(36);
+                newParams->ldc_glb_gain                 = c.getInt(37);
+                newParams->ldc_dth_en                   = c.getInt(38);
+                newParams->ldc_dth_bw                   = c.getInt(39);
+            }else {
+                SYS_LOGE("%s, read LocalDimming Params fail\n", __FUNCTION__);
+            }
+        }
+
+        //bl_remap_curve
+        {
+            index = 0;
+            aa = NULL;
+            getSqlParams(__FUNCTION__, sqlmaster, "select value from %s where "
+                        "regnum = %d and level = %d",
+                        TableName.string(), LD_bl_remap_curve, level);
+
+            rval |= this->select(sqlmaster, c);
+            memset(buf, 0, sizeof(buf));
+            if (strlen(c.getString(index).c_str()) < sizeof(buf)/sizeof(char)) {
+                strcpy(buf, c.getString(index).c_str());
+            }
+            //SYS_LOGD ("%s - bl_remap_curve is %s\n", __FUNCTION__, buf);
+            buffer = buf;
+            while ((aa_save[index] = strtok_r(buffer, " ", &aa)) != NULL) {
+                newParams->bl_remap_curve[index] = atoi(aa_save[index]);
+                index ++;
+                if (index >= sizeof(newParams->bl_remap_curve)/sizeof(unsigned int)) {
+                    break;
+                }
+                buffer = NULL;
+            }
+        }
+
+        //ldc_gain_lut
+        {
+            int i = 0;
+            int lut_id = LD_remap_LUT_0;
+            for (i = 0; i < 16; i++) {
+                index = 0;
+                aa = NULL;
+                lut_id = LD_remap_LUT_0 + i;
+                getSqlParams(__FUNCTION__, sqlmaster, "select value from %s where "
+                            "regnum = %d and level = %d",
+                            TableName.string(), lut_id, level);
+
+                rval |= this->select(sqlmaster, c);
+                memset(buf, 0, sizeof(buf));
+                if (strlen(c.getString(index).c_str()) < sizeof(buf)/sizeof(char)) {
+                    strcpy(buf, c.getString(index).c_str());
+                }
+                //SYS_LOGD ("%s - ldc_gain_lut[%d] is %s\n", __FUNCTION__, i, buf);
+                buffer = buf;
+                while ((aa_save[index] = strtok_r(buffer, " ", &aa)) != NULL) {
+                    if (index > 0) {
+                        newParams->ldc_gain_lut[i][index - 1] = atoi(aa_save[index]);
+                    }
+                    index++;
+                    if (index > sizeof(newParams->ldc_gain_lut[0])/sizeof(unsigned int)) {
+                        break;
+                    }
+                    buffer = NULL;
+                }
+            }
+        }
+
+        //ldc_min_gain_lut
+        {
+            index = 0;
+            aa = NULL;
+            getSqlParams(__FUNCTION__, sqlmaster, "select value from %s where "
+                        "regnum = %d and level = %d",
+                        TableName.string(), LD_min_gain_lut, level);
+
+            rval |= this->select(sqlmaster, c);
+            memset(buf, 0, sizeof(buf));
+            if (strlen(c.getString(index).c_str()) < sizeof(buf)/sizeof(char)) {
+                strcpy(buf, c.getString(index).c_str());
+            }
+            //SYS_LOGD ("%s - ldc_min_gain_lut is %s\n", __FUNCTION__, buf);
+            buffer = buf;
+            while ((aa_save[index] = strtok_r(buffer, " ", &aa)) != NULL) {
+                newParams->ldc_min_gain_lut[index] = atoi(aa_save[index]);
+                index ++;
+                if (index >= sizeof(newParams->ldc_min_gain_lut)/sizeof(unsigned int)) {
+                    break;
+                }
+                buffer = NULL;
+            }
+        }
+
+        //ldc_dither_lut
+        {
+            int i = 0, j = 0;
+            index = 0;
+            aa = NULL;
+            char sqlmasterext[1024];
+            char bufext[1024];
+            getSqlParams(__FUNCTION__, sqlmasterext, "select value from %s where "
+                        "regnum = %d and level = %d",
+                        TableName.string(), LD_dither_lut, level);
+
+            rval |= this->select(sqlmasterext, c);
+            memset(bufext, 0, sizeof(bufext));
+            if (strlen(c.getString(index).c_str()) < sizeof(bufext)/sizeof(char)) {
+                strcpy(bufext, c.getString(index).c_str());
+            }
+            //SYS_LOGD ("%s - ldc_dither_lut is %s\n", __FUNCTION__, bufext);
+            buffer = bufext;
+
+            for (i = 0; i < 32; i++) {
+                for (j = 0; j < 16; j++) {
+                    if ((aa_save[j] = strtok_r(buffer, " ", &aa)) != NULL) {
+                        newParams->ldc_dither_lut[i][j] = atoi(aa_save[j]);
+                        //SYS_LOGD ("%s - ldc_dither_lut[%d][%d] is %d\n", __FUNCTION__, i, j, newParams->ldc_dither_lut[i][j]);
+                    }
+                    buffer = NULL;
+                }
+            }
+        }
+    } else {
+        SYS_LOGE("GeneralLocalDimmingTable select error!!\n");
+    }
+    return rval;
 }
 
 bool CPQdb::CheckHdrStatus(const char *tableName)

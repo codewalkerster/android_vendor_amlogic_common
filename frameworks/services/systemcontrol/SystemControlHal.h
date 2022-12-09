@@ -226,8 +226,8 @@ class SystemControlHal : public ISystemControl, public SystemControlNotify, publ
                                                     int32_t osd50_value, int32_t osd75_value, int32_t osd100_value) override;
     Return<void> factoryGetNolineParams(int32_t inputSrc, int32_t sigFmt, int32_t transFmt, int32_t type, factoryGetNolineParams_cb _hidl_cb) override;
     Return<int32_t> factoryfactoryGetColorTemperatureParams(int32_t colorTemp_mode) override;
-    Return<int32_t> factorySetOverscan(int32_t inputSrc, int32_t sigFmt, int32_t transFmt, int32_t he_value, int32_t hs_value, int32_t ve_value, int32_t vs_value) override;
-    Return<void> factoryGetOverscan(int32_t inputSrc, int32_t sigFmt, int32_t transFmt, factoryGetOverscan_cb _hidl_cb) override;
+    Return<int32_t> factorySetOverscan(int32_t inputSrc, int32_t sigFmt, int32_t transFmt, int32_t dmode, int32_t he_value, int32_t hs_value, int32_t ve_value, int32_t vs_value) override;
+    Return<void> factoryGetOverscan(int32_t inputSrc, int32_t sigFmt, int32_t transFmt, int32_t dmode, factoryGetOverscan_cb _hidl_cb) override;
     Return<int32_t> factorySSMRestore(void) override;
     Return<int32_t> factoryResetNonlinear(void) override;
     Return<int32_t> factorySetGamma(int32_t gamma_r, int32_t gamma_g, int32_t gamma_b) override;
@@ -262,6 +262,8 @@ class SystemControlHal : public ISystemControl, public SystemControlNotify, publ
     Return<int32_t> factoryGetDDRSSC() override;
     Return<int32_t> factorySetLVDSSSC(int32_t step) override;
     Return<int32_t> factoryGetLVDSSSC() override;
+    Return<int32_t> setLCDPowerCtrl(int32_t state) override;
+    Return<int32_t> setLCDMuteCtrl(int32_t state) override;
     Return<int32_t> whiteBalanceGrayPatternClose() override;
     Return<int32_t> whiteBalanceGrayPatternOpen() override;
     Return<int32_t> whiteBalanceGrayPatternSet(int32_t value) override;
@@ -291,10 +293,20 @@ class SystemControlHal : public ISystemControl, public SystemControlNotify, publ
     Return<int32_t> setAipqEnable(int32_t isEnable) override;
     Return<int32_t> getAipqEnable() override;
     Return<void> readAiPqTable(readAiPqTable_cb _hidl_cb) override;
+    Return<int32_t> getBlueStretch(void) override;
+    Return<int32_t> setBlueStretch(int32_t level, int32_t is_save) override;
+    Return<int32_t> getLocalDimming(void) override;
+    Return<int32_t> setLocalDimming(int32_t level, int32_t is_save) override;
+    Return<int32_t> getDolbyDarkDetail(void) override;
+    Return<int32_t> setDolbyDarkDetail(int32_t mode, int32_t is_save) override;
     //aisr
     Return<Result> aisrContrl(bool on) override;
     Return<Result> hasAisrFunc() override;
     Return<Result> getAisr() override;
+
+    //DLG
+    Return<int32_t> setDLGEnable(int32_t enable, int32_t isSave) override;
+    Return<int32_t> getDLGEnable(void) override;
 
     Return<int32_t> setColorGamutMode(int32_t isEnable, int32_t is_save) override;
     Return<int32_t> getColorGamutMode(void) override;

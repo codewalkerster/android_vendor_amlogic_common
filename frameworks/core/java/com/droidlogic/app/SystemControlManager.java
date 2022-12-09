@@ -2622,6 +2622,22 @@ public class SystemControlManager {
          return -1;
      }
 
+     /**
+      * @Function: GetDLGEnable
+      * @Description: Get DLG enable
+      * @Return: 0:disable 1:enable
+      */
+     public int GetDLGEnable() {
+         synchronized (mLock) {
+             try {
+                 return mProxy.getDLGEnable();
+             } catch (Exception e) {
+                 Log.e(TAG, "getDLGEnable:" + e);
+             }
+         }
+         return -1;
+     }
+
      public enum SourceHdrType {
           SOURCE_HDR_TYPE_NONE(0),
           SOURCE_HDR_TYPE_HDR10(1),
@@ -2980,7 +2996,7 @@ public class SystemControlManager {
          public int ve;
      }
 
-      /* tvin signal format table */
+    /* tvin signal format table */
      public enum TransFmt {
          TVIN_TFMT_2D(0),
          TVIN_TFMT_3D_LRH_OLOR(1),
@@ -3301,18 +3317,63 @@ public class SystemControlManager {
          }
      }
 
+     /* display mode table */
+     public enum DisplayMode {
+        VPP_DISPLAY_MODE_169(0),
+        VPP_DISPLAY_MODE_PERSON(1),
+        VPP_DISPLAY_MODE_MOVIE(2),
+        VPP_DISPLAY_MODE_CAPTION(3),
+        VPP_DISPLAY_MODE_MODE43(4),
+        VPP_DISPLAY_MODE_FULL(5),
+        VPP_DISPLAY_MODE_NORMAL(6),
+        VPP_DISPLAY_MODE_NOSCALEUP(7),
+        VPP_DISPLAY_MODE_CROP_FULL(8),
+        VPP_DISPLAY_MODE_CROP(9),
+        VPP_DISPLAY_MODE_ZOOM(10),
+        VPP_DISPLAY_MODE_FULL_STRETCH(11),
+        VPP_DISPLAY_MODE_43_IGNORE(12),
+        VPP_DISPLAY_MODE_43_LETTER_BOX(13),
+        VPP_DISPLAY_MODE_43_PAN_SCAN(14),
+        VPP_DISPLAY_MODE_43_COMBINED(15),
+        VPP_DISPLAY_MODE_169_IGNORE(16),
+        VPP_DISPLAY_MODE_169_LETTER_BOX(17),
+        VPP_DISPLAY_MODE_169_PAN_SCAN(18),
+        VPP_DISPLAY_MODE_169_COMBINED(19),
+        VPP_DISPLAY_MODE_MAX(20);
+
+        private int val;
+
+        DisplayMode(int val) {
+            this.val = val;
+        }
+
+        public static DisplayMode valueOf(int value) {
+            for (DisplayMode dm : DisplayMode.values()) {
+                if (dm.toInt() == value) {
+                    return dm;
+                }
+            }
+            return VPP_DISPLAY_MODE_MAX;
+        }
+
+        public int toInt() {
+            return this.val;
+        }
+     }
+
      /**
       * @Function: FactorySetOverscanParams
       * @Description: Set overscan params of corresponding source type and fmt for factory menu conctrol
       * @Param: source_type refer to enum SourceInput_Type, fmt refer to enum tvin_sig_fmt_e
-      * @Param: trans_fmt refer to enum tvin_trans_fmt, cutwin_t refer to class tvin_cutwin_t
+      * @Param: trans_fmt refer to enum tvin_trans_fmt, dmode refer to enum DisplayMode
+      * @Param: cutwin_t refer to class tvin_cutwin_t
       * @Return: 0 success, -1 fail
       */
      public int FactorySetOverscanParams(SourceInput source_input, SignalFmt fmt,
-                                                  TransFmt trans_fmt, tvin_cutwin_t cutwin_t) {
+                                                  TransFmt trans_fmt, DisplayMode dmode, tvin_cutwin_t cutwin_t) {
           synchronized (mLock) {
               try {
-                  return mProxy.factorySetOverscan(source_input.toInt(), fmt.toInt(), trans_fmt.toInt(),
+                  return mProxy.factorySetOverscan(source_input.toInt(), fmt.toInt(), trans_fmt.toInt(), dmode.toInt(),
                                                    cutwin_t.he, cutwin_t.hs, cutwin_t.ve, cutwin_t.vs);
               } catch (RemoteException e) {
                   Log.e(TAG, "FactorySetOverscanParams:" + e);
@@ -3325,18 +3386,18 @@ public class SystemControlManager {
       * @Function: FactoryGetOverscanParams
       * @Description: Get overscan params of corresponding source type and fmt for factory menu conctrol
       * @Param: source_type refer to enum SourceInput_Type, fmt refer to enum tvin_sig_fmt_e
-      * @Param: trans_fmt refer to enum tvin_trans_fmt
+      * @Param: trans_fmt refer to enum tvin_trans_fmt, dmode refer to enum DisplayMode
       * @Return: cutwin_t value for overscan refer to class tvin_cutwin_t
       */
-     public tvin_cutwin_t FactoryGetOverscanParams(SourceInput source_input, SignalFmt fmt, TransFmt trans_fmt) {
+     public tvin_cutwin_t FactoryGetOverscanParams(SourceInput source_input, SignalFmt fmt, TransFmt trans_fmt, DisplayMode dmode) {
          tvin_cutwin_t cutwin_t = new tvin_cutwin_t();
          synchronized (mLock) {
              try {
-                 OverScanParam param = mProxy.factoryGetOverscan(source_input.toInt(), fmt.toInt(), trans_fmt.toInt());
-                 cutwin_t.hs = param.he;
-                 cutwin_t.he = param.hs;
-                 cutwin_t.vs = param.ve;
-                 cutwin_t.ve = param.vs;
+                 OverScanParam param = mProxy.factoryGetOverscan(source_input.toInt(), fmt.toInt(), trans_fmt.toInt(), dmode.toInt());
+                 cutwin_t.hs = param.hs;
+                 cutwin_t.he = param.he;
+                 cutwin_t.vs = param.vs;
+                 cutwin_t.ve = param.ve;
              } catch (RemoteException e) {
                  Log.e(TAG, "FactoryGetOverscanParams:" + e);
              }
@@ -3815,6 +3876,28 @@ public class SystemControlManager {
         return -1;
     }
 
+    public int SetLCDPowerCtrl(int state) {
+          synchronized (mLock) {
+            try {
+                return mProxy.setLCDPowerCtrl(state);
+            } catch (RemoteException e) {
+                Log.e(TAG, "setLCDPowerCtrl:" + e);
+            }
+        }
+        return -1;
+    }
+
+    public int SetLCDMuteCtrl(int state) {
+          synchronized (mLock) {
+            try {
+                return mProxy.setLCDMuteCtrl(state);
+            } catch (RemoteException e) {
+                Log.e(TAG, "SetLCDMuteCtrl:" + e);
+            }
+        }
+        return -1;
+    }
+
     public int FactoryWhiteBalanceOpenGrayPattern() {
           synchronized (mLock) {
             try {
@@ -4177,6 +4260,72 @@ public class SystemControlManager {
                  return mProxy.getColorGamutMode();
              } catch (RemoteException e) {
                  Log.e(TAG, "GetColorGamutMode:" + e);
+             }
+         }
+         return -1;
+     }
+
+     public int SetBlueStretch(int level, int isSave) {
+           synchronized (mLock) {
+             try {
+                 return mProxy.setBlueStretch(level, isSave);
+             } catch (RemoteException e) {
+                 Log.e(TAG, "SetBlueStretch:" + e);
+             }
+         }
+         return -1;
+     }
+
+     public int GetBlueStretch() {
+           synchronized (mLock) {
+             try {
+                 return mProxy.getBlueStretch();
+             } catch (RemoteException e) {
+                 Log.e(TAG, "GetBlueStretch:" + e);
+             }
+         }
+         return -1;
+     }
+
+     public int SetLocalDimming(int level, int isSave) {
+           synchronized (mLock) {
+             try {
+                 return mProxy.setLocalDimming(level, isSave);
+             } catch (RemoteException e) {
+                 Log.e(TAG, "SetLocalDimming:" + e);
+             }
+         }
+         return -1;
+     }
+
+     public int GetLocalDimming() {
+           synchronized (mLock) {
+             try {
+                 return mProxy.getLocalDimming();
+             } catch (RemoteException e) {
+                 Log.e(TAG, "GetLocalDimming:" + e);
+             }
+         }
+         return -1;
+     }
+
+     public int SetDolbyDarkDetail(int mode, int isSave) {
+           synchronized (mLock) {
+             try {
+                 return mProxy.setDolbyDarkDetail(mode, isSave);
+             } catch (RemoteException e) {
+                 Log.e(TAG, "SetDolbyDarkDetail:" + e);
+             }
+         }
+         return -1;
+     }
+
+     public int GetDolbyDarkDetail() {
+           synchronized (mLock) {
+             try {
+                 return mProxy.getDolbyDarkDetail();
+             } catch (RemoteException e) {
+                 Log.e(TAG, "GetDolbyDarkDetail:" + e);
              }
          }
          return -1;

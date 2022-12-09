@@ -36,6 +36,7 @@
 #define STATIC_FRAME_ENABLE_PROP  "vendor.media.video.setvideoblackout"
 #define PROP_MEDIA_AISR           "persist.vendor.sys.aisr"
 
+#define UBOOTENV_HDR_POLICY       "ubootenv.var.hdr_policy"
 #define FINAL_GAIN_REG_NUM        46
 
 #define TVIN_IOC_MAGIC 'T'
@@ -121,6 +122,20 @@
 #define FRC_IOC_SET_MEMC_LEVEL      _IOW('F', 0x07, unsigned int)
 #define FRC_IOC_SET_MEMC_DEMO       _IOW('F', 0x08, unsigned int)
 
+//lcd
+#define MAX_TABLE_SIZE                            0xC0000
+#define CPQ_LCD_SYSFS                             "/dev/lcd0"
+#define LCD_IOC_NR_GET_HDR_INFO                   _IOR('C', 0x0, struct lcd_optical_info_s)
+#define LCD_IOC_NR_SET_HDR_INFO                   _IOW('C', 0x1, struct lcd_optical_info_s)
+#define LCD_IOC_GET_TCON_BIN_MAX_CNT_INFO         _IOR('C', 0x2, unsigned int)
+#define LCD_IOC_SET_TCON_DATA_INDEX_INFO          _IOW('C', 0x3, unsigned int)
+#define LCD_IOC_GET_TCON_BIN_PATH_INFO            _IOR('C', 0x4, struct aml_path_s)
+#define LCD_IOC_SET_TCON_BIN_DATA_INFO            _IOW('C', 0x5, struct am_pq_bin_param_s)
+
+//pqmode para
+#define MAX_PICTUREMODE_PARAM_SIZE                100
+#define MAX_TEMPERATURE_PARAM_SIZE                48
+
 typedef enum db_name_e {
     DB_NAME_PQ = 0,
     DB_NAME_OVERSCAN,
@@ -156,10 +171,15 @@ public:
     virtual void onVframeSizeChange();
     virtual void onTXStatusChange();
     virtual void resetAllUserSettingParam();
+    virtual void resetPQUiSetting(void);
+    virtual void resetPQTableSetting(void);
     virtual void Set_Backlight(int value);
     virtual void GetDynamicBacklighConfig(int *thtf, int *lut_mode, int *height_param, int *low_param);
     virtual void GetDynamicBacklighParam(dynamic_backlight_Param_t *DynamicBacklightParam);
+    int isGameMode();
     int LoadPQSettings();
+    int LoadPQUISettings();
+    int LoadPQTableSettings(void);
     int LoadCpqLdimRegs(void);
     int Cpq_LoadRegs(am_regs_t regs);
     int Cpq_LoadDisplayModeRegs(ve_pq_load_t regs);
@@ -178,6 +198,13 @@ public:
     int Cpq_SetPQMode(vpp_picture_mode_t pq_mode, source_input_param_t source_input_param, pq_mode_switch_type_t switch_type);
     int SetPQParams(source_input_param_t source_input_param, vpp_picture_mode_t pq_mode, vpp_pq_para_t pq_para);
     int GetPQParams(source_input_param_t source_input_param, vpp_picture_mode_t pq_mode, vpp_pq_para_t *pq_para);
+    int SetPictureModeData(pq_src_param_t source_input, vpp_picture_mode_t picmode, vpp_pictur_mode_para_t *params);
+    int GetPictureModeData(pq_src_param_t source_input, vpp_picture_mode_t picmode, vpp_pictur_mode_para_t *params);
+    int RsetPictureModeData(pq_src_param_t source_input, vpp_picture_mode_t picmode);
+    void SetPcGameMode(vpp_picture_mode_t pq_mode, pq_mode_switch_type_t switch_type);
+    int Set_PictureMode(vpp_picture_mode_t pq_mode, pq_src_param_t source_input_param, pq_mode_switch_type_t switch_type);
+    int SetFacColorParams(source_input_param_t source_input_param, vpp_picture_mode_t pqMode);
+
     //color Temperature
     int SetColorTemperature(int temp_mode, int is_save, rgb_ogo_type_t rgb_ogo_type = TYPE_INVALID, int value = -1);
     int GetColorTemperature(void);
@@ -236,6 +263,8 @@ public:
     int Cpq_SetSharpness0VariableParam(source_input_param_t source_input_param);
     int Cpq_SetSharpness1FixedParam(source_input_param_t source_input_param);
     int Cpq_SetSharpness1VariableParam(source_input_param_t source_input_param);
+    int Cpq_SetSharpnessPiFixedParam(source_input_param_t source_input_param);
+    int Cpq_SetSharpnessPiVariableParam(source_input_param_t source_input_param);
     //NoiseReductionMode
     int SetNoiseReductionMode(int nr_mode, int is_save);
     int GetNoiseReductionMode(void);
@@ -246,6 +275,8 @@ public:
     int GetGammaValue();
     //Memc
     bool hasMemcFunc();
+    int initMemc(void);
+    int Memc_enable(int enable);
     int SetMemcMode(int memc_mode, int is_save);
     int GetMemcMode(void);
     int SaveMemcMode(vpp_memc_mode_t memc_mode);
@@ -285,12 +316,17 @@ public:
     void Cpq_GetBacklight(int *value, int index);
     int SetDynamicBacklight(Dynamic_backlight_status_t mode, int is_save);
     int GetDynamicBacklight(void);
+    int DynamicBackLightInit(void);
     int GetVideoPlayStatus(void);
     //smooth plus
     int SetSmoothPlusMode(int smoothplus_mode, int is_save);
     int GetSmoothPlusMode(void);
     int SaveSmoothPlusMode(int smoothplus_mode);
     int Cpq_SetSmoothPlusMode(vpp_smooth_plus_mode_t smoothplus_mode, source_input_param_t source_input_param);
+    //DLG
+    int SetDLGEnable(int enable, int is_save);
+    int GetDLGEnable(void);
+    int SaveDLGEnable(int enable);
     //local contrast
     int SetLocalContrastMode(local_contrast_mode_t mode, int is_save);
     int GetLocalContrastMode(void);
@@ -300,14 +336,26 @@ public:
     int GetBlackExtensionMode(void);
     int SaveBlackExtensionMode(black_extension_mode_t mode);
     int SetBlackExtensionParam(source_input_param_t source_input_param);
+    //MpegNr
+    int SetMpegNr(vpp_pq_level_t mode, int is_save);
+    int GetMpegNr(void);
+    int SaveMpegNr(vpp_pq_level_t mode);
+    int Cpq_SetMpegNr(vpp_pq_level_t mode, source_input_param_t source_input_param);
     //DI deblock
     int SetDeblockMode(di_deblock_mode_t mode, int is_save);
     int GetDeblockMode(void);
     int SaveDeblockMode(di_deblock_mode_t mode);
+    int Cpq_SetDeblockMode(di_deblock_mode_t deblock_mode, source_input_param_t source_input_param);
     //DI demosquito
     int SetDemoSquitoMode(di_demosquito_mode_t mode, int is_save);
     int GetDemoSquitoMode(void);
     int SaveDemoSquitoMode(di_demosquito_mode_t mode);
+    int Cpq_SetDemoSquitoMode(di_demosquito_mode_t DeMosquito_mode, source_input_param_t source_input_param);
+    //DI MCDI
+    int SetMcDiMode(vpp_mcdi_mode_e mode, int is_save);
+    int GetMcDiMode(void);
+    int SaveMcDiMode(vpp_mcdi_mode_e mode);
+    int Cpq_SetMcDiMode(vpp_mcdi_mode_e McDi_mode, source_input_param_t source_input_param);
     //static frame
     int SetStaticFrameEnable(int enable, int isSave);
     int GetStaticFrameEnable();
@@ -354,8 +402,8 @@ public:
     noline_params_t FactoryGetNolineParams(source_input_param_t source_input_param,          int type);
     int FactorySetHdrMode(int mode);
     int FactoryGetHdrMode(void);
-    int FactorySetOverscanParam(source_input_param_t source_input_param, tvin_cutwin_t cutwin_t);
-    tvin_cutwin_t FactoryGetOverscanParam(source_input_param_t source_input_param);
+    int FactorySetOverscanParam(source_input_param_t source_input_param, vpp_display_mode_t dmode, tvin_cutwin_t cutwin_t);
+    tvin_cutwin_t FactoryGetOverscanParam(source_input_param_t source_input_param, vpp_display_mode_t dmode);
     int FactorySetGamma(int gamma_r_value, int gamma_g_value, int gamma_b_value);
     int FactorySSMRestore(void);
 
@@ -378,6 +426,8 @@ public:
     int SetDnlpMode(int level);
     int GetDnlpMode();
     int Cpq_SetVENewDNLP(const ve_dnlp_curve_param_t *pDNLP);
+    int SaveDnlpMode(Dynamic_contrast_status_t level);
+    int Cpq_SetDnlpMode(Dynamic_contrast_status_t level, source_input_param_t source_input_param);
     int Cpq_SetDNLPStatus(ve_dnlp_state_t status);
     int FactorySetDNLPCurveParams(source_input_param_t source_input_param, int level, int final_gain);
     int FactoryGetDNLPCurveParams(source_input_param_t source_input_param, int level);
@@ -424,8 +474,13 @@ public:
     int FactorySetLVDSSSC (int step);
     int FactoryGetLVDSSSC(void);
     int SetLVDSSSC(int step);
+    int SetLCDPowerCtrl(int state);
+    int SetLCDMuteCtrl(int state);
     int SetGrayPattern(int value);
     int GetGrayPattern();
+    int SetLCDPowerCtrl(unsigned int state);
+    int SetLCDMuteCtrl(unsigned int state);
+
     //HDR
     int SetHDRMode(int mode);
     int GetHDRMode(void);
@@ -467,6 +522,45 @@ public:
     char* CalculateFileSha1(const char* filePath);
     int GenerateTargetPQ();
 
+    //black/bule/chroma stretch
+    int SetBlackStretch(int level, int is_save);
+    int GetBlackStretch(void);
+    int SaveBlackStretch(int level);
+    int Cpq_BlackStretch(int level, source_input_param_t source_input_param);
+
+    int SetBlueStretch(int level, int is_save);
+    int GetBlueStretch(void);
+    int SaveBlueStretch(int level);
+    int Cpq_BlueStretch(int level, source_input_param_t source_input_param);
+
+    int SetChromaCoring(int level, int is_save);
+    int GetChromaCoring(void);
+    int SaveChromaCoring(int level);
+    int Cpq_ChromaCoring(int level, source_input_param_t source_input_param);
+
+    int SetLocalDimming(int level, int is_save);
+    int GetLocalDimming(void);
+    int Cpq_LocalDimming(vpp_pq_level_t level);
+
+    int SetDolbyDarkDetail(int mode, int is_save);
+    int GetDolbyDarkDetail(void);
+    int SaveDolbyDarkDetail(int value);
+    int Cpq_SetDolbyDarkDetail(int mode);
+
+    void InitTconGamma(void);
+    void InitLocalDimmingBin(void);
+    int LoadLdBin(LD_bin_table_index_t index);
+    void InitTconlessBin(void);
+    int LoadTconlessBin(unsigned int index);
+
+    //AMHAL
+    int AMHal_VPQ_Get_LDBinPath(char *path, LD_bin_table_index_t index);
+    int AMHal_VPQ_Set_LDBinData(am_pq_bin_param_s *buff, LD_bin_table_index_t index);
+
+    int AMHal_VPQ_Get_TconlessBinMax(unsigned int *cnt);
+    int AMHal_VPQ_Get_TconlessBinPath(aml_path_t *param);
+    int AMHal_VPQ_Set_TconlessBinIndex(unsigned int index);
+    int AMHal_VPQ_Set_TconlessBinData(am_pq_bin_param_t *param);
 private:
     int VPPOpenModule(void);
     int VPPCloseModule(void );
@@ -475,6 +569,15 @@ private:
     int DICloseModule(void);
     int DIDeviceIOCtl(int request, ...);
     int AFEDeviceIOCtl ( int request, ... );
+    int LDOpenModule(void);
+    int LDCloseModule(void);
+    int LDDeviceIOCtl(int request, ...);
+    int MEMCOpenModule(void);
+    int MEMCCloseModule(void);
+    int MEMCDeviceIOCtl(int request, ...);
+    int LCDOpenModule(void);
+    int LCDCloseModule(void);
+    int LCDDeviceIOCtl(int request, ...);
     tvin_sig_fmt_t getVideoResolutionToFmt();
     int Cpq_SetXVYCCMode(vpp_xvycc_mode_t xvycc_mode, source_input_param_t source_input_param);
     int pqWriteSys(ConstCharforSysNodeIndex index, const char *val);
@@ -482,7 +585,9 @@ private:
     void pqTransformStringToInt(const char *buf, int *val);
     unsigned int GetSharpnessRegVal(int addr);
     int Cpq_SetLocalContrastMode(local_contrast_mode_t mode);
+    output_type_t MapDbTvoutWithIOResolution(int inputFrameHeight, int outputFrameHeight);
     output_type_t CheckOutPutMode(tv_source_input_t source_input);
+    pq_sig_fmt_t CheckPQTimming(hdr_type_t hdr_type);
     hdr_type_t Cpq_GetSourceHDRType(tv_source_input_t source_input);
     bool isCVBSParamValid(void);
     bool isPqDatabaseMachChip();
@@ -492,7 +597,11 @@ private:
     int SetVideoLayerColor(video_layer_color_t signalColor, video_layer_color_t nosignalColor);
     int setVideoScreenColor (int vdin_blending_mask, int y, int u, int v );
     int getSnowStatus();
+    void InitPGammaBin();
+    int getHdrPolicy();
     bool mInitialized;
+    bool getBootEnv(const char *name, char *value);
+
     //cfg
     bool mbCpqCfg_separate_db_enable;
     bool mbCpqCfg_amvecm_basic_enable;
@@ -502,6 +611,7 @@ private:
     bool mbCpqCfg_blackextension_enable;
     bool mbCpqCfg_sharpness0_enable;
     bool mbCpqCfg_sharpness1_enable;
+    bool mbCpqCfg_sharpnesspi_enable;
     bool mbCpqCfg_di_enable;
     bool mbCpqCfg_mcdi_enable;
     bool mbCpqCfg_deblock_enable;
@@ -523,6 +633,11 @@ private:
     bool mbCpqCfg_smoothplus_enable;
     bool mbCpqCfg_hdrtmo_enable;
     bool mbCpqCfg_memc_enable;
+    bool mbCpqCfg_separate_black_blue_chorma_db_enable;
+    bool mbCpqCfg_bluestretch_enable;
+    bool mbCpqCfg_chroma_coring_enable;
+    bool mbCpqCfg_LocalDimming_enable;
+    bool mbCpqCfg_new_picture_mode_enable;
 
     CPQdb *mPQdb;
     COverScandb *mpOverScandb;
@@ -539,10 +654,14 @@ private:
 
     int mAmvideoFd;
     int mDiFd;
+    int mLdFd;
+    int mMemcFd;
+    int mLcdFd;
 
     tcon_rgb_ogo_t rgbfrompq[3];
     source_input_param_t mCurrentSourceInputInfo;
     tv_source_input_t mSourceInputForSaveParam;
+    pq_src_param_t mCurentPqSource;
     bool mCurrentHdrStatus;
     unsigned int mHdmiHdrInfo = 0;
     bool mbDtvKitEnable;
@@ -553,5 +672,8 @@ private:
     bool mbVideoIsPlaying = false;//video don't playing
     hdr_type_t mCurrentHdrType = HDR_TYPE_NONE;
     bool screenColorEnable = false;
+    vpp_picture_mode_t mLastPictureMode = VPP_PICTURE_MODE_STANDARD;
+
+    int mCurrentNodeNumber;
 };
 #endif

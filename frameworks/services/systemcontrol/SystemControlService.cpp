@@ -617,7 +617,8 @@ int32_t SystemControlService::getDolbyVisionType() {
 
 void SystemControlService::setGraphicsPriority(const std::string& mode) {
     char value[MODE_LEN];
-    strcpy(value, mode.c_str());
+    strncpy(value, mode.c_str(), sizeof(value));
+    value[sizeof(value) - 1] = '\0';
     pDisplayMode->setGraphicsPriority(value);
 }
 
@@ -639,8 +640,10 @@ void SystemControlService::saveDeepColorAttr(const std::string& mode, const std:
     }
     char outputmode[64];
     char value[64];
-    strcpy(outputmode, mode.c_str());
-    strcpy(value, dcValue.c_str());
+    strncpy(outputmode, mode.c_str(), sizeof(outputmode));
+    outputmode[sizeof(outputmode) - 1] = '\0';
+    strncpy(value, dcValue.c_str(), sizeof(value));
+    value[sizeof(value) - 1] = '\0';
     pDisplayMode->saveDeepColorAttr(outputmode, value);
 }
 
@@ -1173,6 +1176,25 @@ int SystemControlService::getGammaValue()
     }
 }
 
+//DLG
+int SystemControlService::setDLGEnable(int enable, int is_save)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->SetDLGEnable(enable, is_save);
+    } else {
+        return -1;
+    }
+}
+
+int SystemControlService::getDLGEnable()
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->GetDLGEnable();
+    } else {
+        return -1;
+    }
+}
+
 bool SystemControlService::hasMemcFunc() {
     if (pCPQControl != NULL) {
         return pCPQControl->hasMemcFunc();
@@ -1612,7 +1634,7 @@ int SystemControlService::factoryResetColorTemp(void)
     }
 }
 
-int SystemControlService::factorySetOverscan(int inputSrc, int sigFmt, int transFmt, int he_value, int hs_value,
+int SystemControlService::factorySetOverscan(int inputSrc, int sigFmt, int transFmt, int dmode, int he_value, int hs_value,
                                              int ve_value, int vs_value)
 {
     tvin_cutwin_t cutwin_t;
@@ -1622,27 +1644,31 @@ int SystemControlService::factorySetOverscan(int inputSrc, int sigFmt, int trans
     cutwin_t.vs = vs_value;
 
     source_input_param_t source_input_param;
+    vpp_display_mode_t display_mode;
     source_input_param.source_input = (tv_source_input_t)inputSrc;
     source_input_param.sig_fmt = (tvin_sig_fmt_t)sigFmt;
     source_input_param.trans_fmt= (tvin_trans_fmt_t)transFmt;
+    display_mode = (vpp_display_mode_t)dmode;
 
     if (pCPQControl != NULL) {
-        return pCPQControl->FactorySetOverscanParam(source_input_param, cutwin_t);
+        return pCPQControl->FactorySetOverscanParam(source_input_param, display_mode, cutwin_t);
     } else {
         return -1;
     }
 }
 
-tvin_cutwin_t SystemControlService::factoryGetOverscan(int inputSrc, int sigFmt, int transFmt)
+tvin_cutwin_t SystemControlService::factoryGetOverscan(int inputSrc, int sigFmt, int transFmt, int dmode)
 {
     source_input_param_t source_input_param;
+    vpp_display_mode_t display_mode;
     source_input_param.source_input = (tv_source_input_t)inputSrc;
     source_input_param.sig_fmt = (tvin_sig_fmt_t)sigFmt;
     source_input_param.trans_fmt= (tvin_trans_fmt_t)transFmt;
+    display_mode = (vpp_display_mode_t)dmode;
     tvin_cutwin_t cutwin_t;
 
     if (pCPQControl != NULL) {
-        tvin_cutwin_t cutwin_t = pCPQControl->FactoryGetOverscanParam(source_input_param);
+        tvin_cutwin_t cutwin_t = pCPQControl->FactoryGetOverscanParam(source_input_param, display_mode);
         return cutwin_t;
     } else {
         cutwin_t.he = 0;
@@ -2240,6 +2266,21 @@ int SystemControlService::factoryGetLVDSSSC() {
     }
 }
 
+int SystemControlService::setLCDPowerCtrl(int state) {
+    if (pCPQControl != NULL) {
+        return pCPQControl->SetLCDPowerCtrl(state);
+    } else {
+        return -1;
+    }
+}
+
+int SystemControlService::setLCDMuteCtrl(int state) {
+    if (pCPQControl != NULL) {
+        return pCPQControl->SetLCDMuteCtrl(state);
+    } else {
+        return -1;
+    }
+}
 
 int SystemControlService::whiteBalanceGrayPatternClose() {
     return 0;
@@ -2485,7 +2526,61 @@ tvpq_databaseinfo_t SystemControlService::getPQDatabaseInfo(int dataBaseName) {
     return pq_databaseinfo;
 }
 
+int SystemControlService::setBlueStretch(int level, int is_save)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->SetBlueStretch(level, is_save);
+    } else {
+        return -1;
+    }
+}
+
+int SystemControlService::getBlueStretch(void)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->GetBlueStretch();
+    } else {
+        return -1;
+    }
+}
+
+int SystemControlService::setLocalDimming(int level, int is_save)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->SetLocalDimming(level, is_save);
+    } else {
+        return -1;
+    }
+}
+
+int SystemControlService::getLocalDimming(void)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->GetLocalDimming();
+    } else {
+        return -1;
+    }
+}
+
+int SystemControlService::setDolbyDarkDetail(int mode, int is_save)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->SetDolbyDarkDetail(mode, is_save);
+    } else {
+        return -1;
+    }
+}
+
+int SystemControlService::getDolbyDarkDetail(void)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->GetDolbyDarkDetail();
+    } else {
+        return -1;
+    }
+}
 //PQ end
+
 //static frame
 int SystemControlService::setStaticFrameEnable(int enable, int isSave)
 {
@@ -2532,7 +2627,8 @@ int SystemControlService::setVideoScreenColor(int color)
 int SystemControlService::StartUpgradeFBC(const std::string&file_name, int mode, int upgrade_blk_size)
 {
     char buf[256] = {0};
-    strcpy(buf, file_name.c_str());
+    strncpy(buf, file_name.c_str(), sizeof(buf));
+    buf[sizeof(buf) - 1] = '\0';
     return CFbcCommunication::GetSingletonFBC()->fbcStartUpgrade(buf,  mode, upgrade_blk_size);
 }
 

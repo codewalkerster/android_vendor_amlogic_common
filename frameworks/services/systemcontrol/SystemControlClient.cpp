@@ -945,6 +945,17 @@ int SystemControlClient::getColorBaseMode()
     return mSysCtrl->getColorBaseMode();
 }
 
+//DLG
+int SystemControlClient::setDLGEnable(int enable, int isSave)
+{
+    return mSysCtrl->setDLGEnable(enable, isSave);
+}
+
+int SystemControlClient::getDLGEnable()
+{
+    return mSysCtrl->getDLGEnable();
+}
+
 tvin_cutwin_t SystemControlClient::getOverscanParams(int mode) {
     tvin_cutwin_t overscanParam;
     memset(&overscanParam, 0, sizeof(tvin_cutwin_t));
@@ -1009,14 +1020,14 @@ int SystemControlClient::factoryResetColorTemp(void) {
     return mSysCtrl->factoryResetColorTemp();
 }
 
-int SystemControlClient::factorySetOverscan(int inputSrc, int sigFmt, int transFmt, int he_value, int hs_value, int ve_value, int vs_value) {
-    return mSysCtrl->factorySetOverscan(inputSrc, sigFmt, transFmt, he_value, hs_value, ve_value, vs_value);
+int SystemControlClient::factorySetOverscan(int inputSrc, int sigFmt, int transFmt, int dmode, int he_value, int hs_value, int ve_value, int vs_value) {
+    return mSysCtrl->factorySetOverscan(inputSrc, sigFmt, transFmt, dmode, he_value, hs_value, ve_value, vs_value);
 }
 
-tvin_cutwin_t SystemControlClient::factoryGetOverscan(int inputSrc, int sigFmt, int transFmt) {
+tvin_cutwin_t SystemControlClient::factoryGetOverscan(int inputSrc, int sigFmt, int transFmt, int dmode) {
     tvin_cutwin_t overscanParam;
     memset(&overscanParam, 0, sizeof(tvin_cutwin_t));
-    mSysCtrl->factoryGetOverscan(inputSrc, sigFmt, transFmt, [&](const OverScanParam& param) {
+    mSysCtrl->factoryGetOverscan(inputSrc, sigFmt, transFmt, dmode, [&](const OverScanParam& param) {
         overscanParam.he = param.he;
         overscanParam.hs = param.hs;
         overscanParam.ve = param.ve;
@@ -1200,6 +1211,14 @@ int SystemControlClient::factoryGetLVDSSSC() {
     return mSysCtrl->factoryGetLVDSSSC();
 }
 
+int SystemControlClient::setLCDPowerCtrl(int32_t state) {
+    return mSysCtrl->setLCDPowerCtrl(state);
+}
+
+int SystemControlClient::setLCDMuteCtrl(int32_t state) {
+    return mSysCtrl->setLCDMuteCtrl(state);
+}
+
 int SystemControlClient::whiteBalanceGrayPatternClose() {
     return mSysCtrl->whiteBalanceGrayPatternClose();
 }
@@ -1362,7 +1381,32 @@ int SystemControlClient::setColorGamutMode(int mode, int is_save) {
 int SystemControlClient::getColorGamutMode(void) {
     return mSysCtrl->getColorGamutMode();
 }
+int SystemControlClient::getBlueStretch(void) {
+    return mSysCtrl->getBlueStretch();
+}
+
+int SystemControlClient::setBlueStretch(int32_t level, int is_save) {
+    return mSysCtrl->setBlueStretch(level, is_save);
+}
+
+int SystemControlClient::getLocalDimming(void) {
+    return mSysCtrl->getLocalDimming();
+}
+
+int SystemControlClient::setLocalDimming(int32_t level, int is_save) {
+    return mSysCtrl->setLocalDimming(level, is_save);
+}
+
+int SystemControlClient::getDolbyDarkDetail(void) {
+    return mSysCtrl->getDolbyDarkDetail();
+}
+
+int SystemControlClient::setDolbyDarkDetail(int32_t mode, int is_save) {
+    return mSysCtrl->setDolbyDarkDetail(mode, is_save);
+}
+
 //PQ end
+
 //static frame
 int SystemControlClient::setStaticFrameEnable(int enable, int isSave)
 {

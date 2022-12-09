@@ -97,6 +97,10 @@ cc_library_shared {
         "include",
     ],
 
+    include_dirs: [
+        "vendor/amlogic/common/frameworks/native/amlhal/hal_inc",
+    ],
+
     shared_libs: [
         "vendor.amlogic.hardware.tvserver@1.0",
         "libsqlite",
@@ -105,11 +109,20 @@ cc_library_shared {
         "libcutils",
         "libbinder",
         "libfbc",
+        "libsystemcontrolservice",
+        "vendor.amlogic.hardware.systemcontrol@1.1",
+        "libaml_hal_lcd",
+        "libaml_hal_pq",
+        "libaml_hal_dv",
+        "libaml_hal_vdin",
     ],
 
     static_libs: [
         "pq.utils_static",
         "libsyswrite_static",
+        "pq.tcon_demura_static",
+        "pq.tcon_pgamma_static",
+        "pq.tcon_common_static",
     ],
 
     cflags: [

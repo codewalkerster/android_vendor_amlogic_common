@@ -145,4 +145,8 @@ typedef struct tcon_rgb_ogo_s {
     int b_post_offset; // s11.0, range -1024~+1023, default is 0
 } tcon_rgb_ogo_t;
 
+typedef struct gm_tbl_s {
+    struct tcon_gamma_table_s gm_tb[10][3];
+} gm_tbl_t;
+
 #endif //__AMSTREAM_H__

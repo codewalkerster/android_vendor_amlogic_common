@@ -88,6 +88,16 @@ typedef struct dolby_config_file_s {
 	unsigned char cfg_name[256];
 } __attribute__ ((aligned(8))) dolby_config_file_t;
 
+typedef struct ambient_cfg_s {
+    unsigned int update_flag;
+    unsigned int ambient; /* 1<<16 */
+    unsigned int t_rearLum;
+    unsigned int t_frontLux;
+    unsigned int t_whiteX; /* 1<<15 */
+    unsigned int t_whiteY; /* 1<<15 */
+    unsigned int dark_detail;
+} __attribute__ ((aligned(8))) ambient_cfg_t;
+
 // ***************************************************************************
 // *** IOCTL definitions **********
 // ***************************************************************************
@@ -112,6 +122,12 @@ typedef struct dolby_config_file_s {
 #define DOLBY_IOC_SET_DV_PQ_RESET             _IOWR((DOLBY_IOC_MAGIC), 0x8, enum dolby_pq_reset_e)
 /* set Amlogic_cfg.txt and dv_config.bin patch */
 #define DOLBY_IOC_SET_DV_CONFIG_FILE          _IOW((DOLBY_IOC_MAGIC), 0x9, struct dolby_config_file_s)
+/* set Ambient light */
+#define DOLBY_IOC_SET_DV_AMBIENT              _IOW((DOLBY_IOC_MAGIC), 0xa, struct ambient_cfg_s)
+/* 1: enable dv gd, 0: disable dv gd */
+#define DOLBY_IOC_SET_DV_BL                   _IOW((DOLBY_IOC_MAGIC), 0xb, int)
+/* 1: enable dv dark detail, 0: disable dv dark detail */
+#define DOLBY_IOC_SET_DV_DARK_DETAIL          _IOW((DOLBY_IOC_MAGIC), 0xc, int)
 
 class CDolbyVision {
 public:
@@ -124,6 +140,7 @@ public:
     int GetDolbyPQParam(dolby_pq_mode_t mode, dolby_pq_item_t iteamID);
     int SetDolbyPQFullParam(dolby_full_pq_info_t fullInfo);
     int GetDolbyPQFullParam(dolby_full_pq_info_t *fullInfo);
+    int SetDolbyPQDarkDetail(int mode);
 private:
     int DeviceIOCtl(int request, ...);
 };

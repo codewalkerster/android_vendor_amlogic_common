@@ -133,6 +133,7 @@ typedef enum {
     HDMI_CONTENT_TYPE_CAP,
     HDMI_CONTENT_TYPE,
     DV_SUPPORT_INFO,
+    PQ_DISPLAY_HDR_POLICY,
     NodeIndexMax,
 } ConstCharforSysNodeIndex;
 

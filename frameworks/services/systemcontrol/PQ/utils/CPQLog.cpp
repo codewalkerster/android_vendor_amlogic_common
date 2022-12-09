@@ -25,6 +25,7 @@ int __pq_log_print(int prio, const char *tag, const char *pq_tag, const char *fm
         va_list ap;
         va_start(ap, fmt);
         vsnprintf(buf + pq_tag_len, DEFAULT_LOG_BUFFER_LEN - pq_tag_len, fmt, ap);
+        va_end(ap);
 
         return __android_log_write(prio, tag, buf);
     }

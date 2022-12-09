@@ -172,7 +172,7 @@ struct SSMHeader_section2_t gSSMHeader_section2[] = {
     {.id =VPP_DATA_POS_COLOR_BASE_MODE_START, .addr = 0, .size = 1, .valid = 0, .rsv = {0}},
     {.id =VPP_DATA_POS_TEST_PATTERN_START, .addr = 0, .size = 1, .valid = 0, .rsv = {0}},
     {.id =VPP_DATA_POS_DDR_SSC_START, .addr = 0, .size = 1, .valid = 0, .rsv = {0}},
-    {.id =VPP_DATA_POS_LVDS_SSC_START, .addr = 0, .size = 2, .valid = 0, .rsv = {0}},
+    {.id =VPP_DATA_POS_LVDS_SSC_START, .addr = 0, .size = 3, .valid = 0, .rsv = {0}},
     {.id =VPP_DATA_POS_DREAM_PANEL_START, .addr = 0, .size = 1, .valid = 0, .rsv = {0}},
     {.id =VPP_DATA_POS_BACKLIGHT_REVERSE_START, .addr = 0, .size = 1, .valid = 0, .rsv = {0}},
     {.id =VPP_DATA_POS_BRIGHTNESS_START, .addr = 0, .size = SSM_SOURCE_MAX, .valid = 0, .rsv = {0}},
@@ -183,7 +183,7 @@ struct SSMHeader_section2_t gSSMHeader_section2[] = {
     {.id =VPP_DATA_POS_COLOR_TEMPERATURE_START, .addr = 0, .size = SSM_SOURCE_MAX, .valid = 0, .rsv = {0}},
     {.id =VPP_DATA_POS_NOISE_REDUCTION_START, .addr = 0, .size = SSM_SOURCE_MAX, .valid = 0, .rsv = {0}},
     {.id =VPP_DATA_POS_SCENE_MODE_START, .addr = 0, .size = 1, .valid = 0, .rsv = {0}},
-    {.id =VPP_DATA_POS_PICTURE_MODE_START, .addr = 0, .size = SSM_SOURCE_MAX, .valid = 0, .rsv = {0}},
+    {.id =VPP_DATA_POS_PICTURE_MODE_START, .addr = 0, .size = SSM_SOURCE_MAX * SSM_FMT_MAX, .valid = 0, .rsv = {0}},
     {.id =VPP_DATA_POS_DISPLAY_MODE_START, .addr = 0, .size = SSM_SOURCE_MAX, .valid = 0, .rsv = {0}},
     {.id =VPP_DATA_POS_BACKLIGHT_START, .addr = 0, .size = SSM_SOURCE_MAX, .valid = 0, .rsv = {0}},
     {.id =VPP_DATA_POS_RGB_GAIN_R_START, .addr = 0, .size = 4, .valid = 0, .rsv = {0}},
@@ -222,7 +222,7 @@ struct SSMHeader_section2_t gSSMHeader_section2[] = {
     {.id =VPP_DATA_DNLP_MODE_START, .addr = 0, .size = SSM_SOURCE_MAX, .valid = 0, .rsv = {0}},
     {.id =VPP_DATA_DNLP_GAIN_START, .addr = 0, .size = SSM_SOURCE_MAX, .valid = 0, .rsv = {0}},
     {.id =VPP_DATA_POS_LOCAL_CONTRAST_MODE_START, .addr = 0, .size = SSM_SOURCE_MAX, .valid = 0, .rsv = {0}},
-    {.id =VPP_DATA_POS_LAST_PICTURE_MODE_START, .addr = 0, .size = SSM_SOURCE_MAX, .valid = 0, .rsv = {0}},
+    {.id =VPP_DATA_POS_LAST_PICTURE_MODE_START, .addr = 0, .size = SSM_SOURCE_MAX * SSM_FMT_MAX, .valid = 0, .rsv = {0}},
     {.id =VPP_DATA_POS_AIPQ_ENABLE_START, .addr = 0, .size = 1, .valid = 0, .rsv = {0}},
     {.id =VPP_DATA_POS_SMOOTH_PLUS_START, .addr = 0, .size = SSM_SOURCE_MAX, .valid = 0, .rsv = {0}},
     {.id =VPP_DATA_POS_HDR_TMO_START, .addr = 0, .size = SSM_SOURCE_MAX, .valid = 0, .rsv = {0}},
@@ -230,9 +230,9 @@ struct SSMHeader_section2_t gSSMHeader_section2[] = {
     {.id =VPP_DATA_POS_DEBLOCK_MODE_START, .addr = 0, .size = SSM_SOURCE_MAX, .valid = 0, .rsv = {0}},
     {.id =VPP_DATA_POS_DEMOSQUITO_MODE_START, .addr = 0, .size = SSM_SOURCE_MAX, .valid = 0, .rsv = {0}},
     {.id =VPP_DATA_POS_COLORGAMUT_START, .addr = 0, .size = SSM_SOURCE_MAX, .valid = 0, .rsv = {0}},
-    {.id =213, .addr = 0, .size = 0, .valid = 0, .rsv = {0}},
-    {.id =214, .addr = 0, .size = 0, .valid = 0, .rsv = {0}},
-    {.id =215, .addr = 0, .size = 0, .valid = 0, .rsv = {0}},
+    {.id =VPP_DATA_POS_MCDI_MODE_START, .addr = 0, .size = SSM_SOURCE_MAX, .valid = 0, .rsv = {0}},
+    {.id =VPP_DATA_POS_DLG_ENABLE_START, .addr = 0, .size = 1, .valid = 0, .rsv = {0}},
+    {.id =VPP_DATA_POS_VRR_ENABLE_START, .addr = 0, .size = 1, .valid = 0, .rsv = {0}},
     {.id =216, .addr = 0, .size = 0, .valid = 0, .rsv = {0}},
     {.id =217, .addr = 0, .size = 0, .valid = 0, .rsv = {0}},
     {.id =218, .addr = 0, .size = 0, .valid = 0, .rsv = {0}},
@@ -311,7 +311,7 @@ struct SSMHeader_section2_t gSSMHeader_section2[] = {
     {.id =CUSTOMER_DATA_POS_AUTO_ASPECT, .addr = 0, .size = SSM_SOURCE_MAX, .valid = 0, .rsv = {0}},
     {.id =CUSTOMER_DATA_POS_43_STRETCH, .addr = 0, .size = SSM_SOURCE_MAX, .valid = 0, .rsv = {0}},
     {.id =CUSTOMER_DATA_POS_SCREEN_COLOR_START, .addr = 0, .size = 1, .valid = 0, .rsv = {0}},
-    {.id =294, .addr = 0, .size = 0, .valid = 0, .rsv = {0}},
+    {.id =CUSTOMER_DATA_POS_CHANNEL_LOCK_EN_START, .addr = 0, .size = 1, .valid = 0, .rsv = {0}},
     {.id =295, .addr = 0, .size = 0, .valid = 0, .rsv = {0}},
     {.id =296, .addr = 0, .size = 0, .valid = 0, .rsv = {0}},
     {.id =297, .addr = 0, .size = 0, .valid = 0, .rsv = {0}},
@@ -320,9 +320,15 @@ struct SSMHeader_section2_t gSSMHeader_section2[] = {
     {.id =300, .addr = 0, .size = 0, .valid = 0, .rsv = {0}},
     {.id =301, .addr = 0, .size = 0, .valid = 0, .rsv = {0}},
     {.id =VPP_DATA_POS_MEMC_MODE_START, .addr = 0, .size = SSM_SOURCE_MAX, .valid = 0, .rsv = {0}},
-    {.id =VPP_DATA_POS_MEMC_DEBLUR_LEVEL_START, .addr = 0, .size = SSM_SOURCE_MAX, .valid = 0, .rsv = {0}},
-    {.id =VPP_DATA_POS_MEMC_DEJUDDER_LEVEL_START, .addr = 0, .size = SSM_SOURCE_MAX, .valid = 0, .rsv = {0}},
+    {.id =VPP_DATA_POS_MEMC_DEBLUR_LEVEL_START, .addr = 0, .size = SSM_SOURCE_MAX * 4, .valid = 0, .rsv = {0}},
+    {.id =VPP_DATA_POS_MEMC_DEJUDDER_LEVEL_START, .addr = 0, .size = SSM_SOURCE_MAX * 4, .valid = 0, .rsv = {0}},
     {.id =VPP_DATA_POS_AISR_ENABLE_START, .addr = 0, .size = 1, .valid = 0, .rsv = {0}},
+    {.id =VPP_DATA_POS_BLACK_STRETCH_START, .addr = 0, .size = SSM_SOURCE_MAX, .valid = 0, .rsv = {0}},
+    {.id =VPP_DATA_POS_BLUE_STRETCH_START, .addr = 0, .size = SSM_SOURCE_MAX, .valid = 0, .rsv = {0}},
+    {.id =VPP_DATA_POS_CHROMA_CORING_START, .addr = 0, .size = SSM_SOURCE_MAX, .valid = 0, .rsv = {0}},
+    {.id =VPP_DATA_POS_LOCAL_DIMMING_START, .addr = 0, .size = SSM_SOURCE_MAX, .valid = 0, .rsv = {0}},
+    {.id =VPP_DATA_POS_PICTURE_MODE_PARAM_START, .addr = 0, .size = SSM_SOURCE_MAX * SSM_FMT_MAX * SSM_PICTURE_MODE_MAX * SSM_MAX_PICTUREMODE_PARAM_SIZE, .valid = 0, .rsv = {0}},
+    {.id =VPP_DATA_POS_PICTURE_MODE_PARAM_CRC_START, .addr = 0, .size = SSM_SOURCE_MAX * SSM_FMT_MAX * SSM_PICTURE_MODE_MAX, .valid = 0, .rsv = {0}},
 };
 
 struct SSMHeader_section1_t gSSMHeader_section1 =
@@ -336,7 +342,9 @@ SSMHandler* SSMHandler::GetSingletonInstance(const char *SSMHandlerPath)
 
     if (!mSSMHandler) {
         mSSMHandler = new SSMHandler();
-        strcpy(mSSMHandler->mSSMHandlerPath, SSMHandlerPath);
+        if (strlen(SSMHandlerPath) < sizeof(mSSMHandler->mSSMHandlerPath)/sizeof(char)) {
+            strcpy(mSSMHandler->mSSMHandlerPath, SSMHandlerPath);
+        }
 
         if (mSSMHandler && !mSSMHandler->Construct()) {
             delete mSSMHandler;
@@ -358,6 +366,8 @@ SSMHandler::SSMHandler()
 
         gSSMHeader_section2[i].addr = sum;
     }
+
+    mFd = -1;
 }
 
 SSMHandler::~SSMHandler()

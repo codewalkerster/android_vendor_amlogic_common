@@ -138,6 +138,31 @@ typedef struct vpp_pq_para_s {
     int nr;
 } vpp_pq_para_t;
 
+typedef struct vpp_pictur_mode_para_s {
+    int Brightness;
+    int Contrast;
+    int Saturation;
+    int Hue;
+    int Sharpness;
+    int Backlight;
+    int Nr;
+    int DynamicContrast;
+    int ColorGamut;
+    int ColorTemperature;
+    int LocalContrast;
+    int BlackStretch;
+    int BlueStretch;
+    int MpegNr;
+    int ChromaCoring;
+    int amDolbyMode;
+    int DolbyDarkDetail;
+} vpp_pictur_mode_para_t;
+
+typedef struct pqosd_picture_mode_para_s {
+    vpp_pictur_mode_para_t *param;
+    int isValid;
+} pqosd_picture_mode_para_t;
+
 typedef enum vpp_gamma_curve_e {
     VPP_GAMMA_CURVE_DEFAULT,//choose gamma table by value has been saved.
     VPP_GAMMA_CURVE_1,
@@ -567,8 +592,23 @@ typedef enum tv_source_input_e {
     SOURCE_MAX,
 } tv_source_input_t;
 
+typedef enum pq_sig_fmt_e {
+    PQ_FMT_DEFAUT = 0,
+    PQ_FMT_SDR,
+    PQ_FMT_HDR,
+    PQ_FMT_HDRP,
+    PQ_FMT_HLG,
+    PQ_FMT_DOBLY,
+    PQ_FMT_MAX,
+} pq_sig_fmt_t;
+
+typedef struct pq_src_param_s {
+    tv_source_input_t pq_source_input;
+    pq_sig_fmt_t pq_sig_fmt;
+} pq_src_param_t;
+
 typedef enum vpp_picture_mode_e {
-    VPP_PICTURE_MODE_STANDARD,
+    VPP_PICTURE_MODE_STANDARD = 0,
     VPP_PICTURE_MODE_BRIGHT,
     VPP_PICTURE_MODE_SOFT,
     VPP_PICTURE_MODE_USER,
@@ -580,6 +620,8 @@ typedef enum vpp_picture_mode_e {
     VPP_PICTURE_MODE_SONY,
     VPP_PICTURE_MODE_SAMSUNG,
     VPP_PICTURE_MODE_SHARP,
+    VPP_PICTURE_MODE_DV_BRIGHT,
+    VPP_PICTURE_MODE_DV_DARK,
     VPP_PICTURE_MODE_MAX,
 } vpp_picture_mode_t;
 
@@ -932,4 +974,66 @@ typedef struct tvpq_databaseinfo_s {
     char ProjectVersion[32];
     char GenerateTime[32];
 }tvpq_databaseinfo_t;
+
+typedef enum vpp_pq_level_e {
+    VPP_PQ_LV_OFF,
+    VPP_PQ_LV_LOW,
+    VPP_PQ_LV_MID,
+    VPP_PQ_LV_HIGH,
+    VPP_PQ_LV_MAX,
+} vpp_pq_level_t;
+
+typedef struct aml_path_s {
+    char string[256];
+} aml_path_t;
+
+typedef struct am_pq_bin_param_s {
+    unsigned int table_index;
+    unsigned int table_len;
+    long long table_ptr;
+} am_pq_bin_param_t;
+
+typedef struct Tconbin_Header_s {
+    unsigned int data_check;
+    unsigned int ram_data_check;
+    unsigned int block_size;
+    unsigned short header_size;
+    unsigned short ext_header_size;
+    unsigned short block_type;
+    unsigned short block_ctrl;
+    unsigned int block_flag;
+    unsigned short init_priority;
+    unsigned short chip_id;
+    unsigned char name[36];
+} Tconbin_Header_t;
+
+typedef enum LD_bin_table_index_e
+{
+    LD_BIN_BL_MAPPING = 0,
+    LD_BIN_BL_PROFILE,
+    LD_BIN_BL_MAX,
+} LD_bin_table_index_t;
+
+typedef struct lcd_optical_info_s {
+    unsigned int hdr_support;
+    unsigned int features;
+    unsigned int primaries_r_x;
+    unsigned int primaries_r_y;
+    unsigned int primaries_g_x;
+    unsigned int primaries_g_y;
+    unsigned int primaries_b_x;
+    unsigned int primaries_b_y;
+    unsigned int white_point_x;
+    unsigned int white_point_y;
+    unsigned int luma_max;
+    unsigned int luma_min;
+    unsigned int luma_avg;
+}lcd_optical_info_t;
+
+typedef struct aml_lcd_ss_ctl_s {
+    unsigned int level;
+    unsigned int freq;
+    unsigned int mode;
+}aml_lcd_ss_ctl_t;
+
 #endif
