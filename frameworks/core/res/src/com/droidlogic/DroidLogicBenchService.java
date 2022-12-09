@@ -51,14 +51,24 @@ public class DroidLogicBenchService extends Service {
     private void hidePoorApp() {
         PackageManager packageManager = mContext.getPackageManager();
         for (String app : benchApps) {
-            packageManager.setApplicationEnabledSetting(app, BENCH_TEST_APP_DISABLE, BENCH_TEST_APP_FLAG);
+            try {
+                packageManager.getPackageInfo(app,PackageManager.GET_ACTIVITIES);
+                packageManager.setApplicationEnabledSetting(app, BENCH_TEST_APP_DISABLE, BENCH_TEST_APP_FLAG);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
     private void unHidePoorApp() {
         PackageManager packageManager = mContext.getPackageManager();
         for (String app : benchApps) {
-            packageManager.setApplicationEnabledSetting(app, BENCH_TEST_APP_ENABLE, BENCH_TEST_APP_FLAG);
+            try {
+                packageManager.getPackageInfo(app,PackageManager.GET_ACTIVITIES);
+                packageManager.setApplicationEnabledSetting(app, BENCH_TEST_APP_ENABLE, BENCH_TEST_APP_FLAG);
+            } catch (Exception e){
+                e.printStackTrace();
+            }
         }
     }
 
