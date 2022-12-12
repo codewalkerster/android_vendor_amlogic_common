@@ -478,8 +478,8 @@ public class AudioSystemCmdService extends Service {
                 mAudioManager.setParameters("hal_param_tv_mute=" + param1); /* 1:mute, 0:unmute */
                 break;
             case AudioSystemCmdManager.AUDIO_SERVICE_CMD_SET_OUTPUT_MODE:
-                //mAudioManager.setParameters("hal_param_dtv_patch_cmd=" + cmd);
-                //mAudioManager.setParameters("hal_param_audio_output_mode=" + param1); /* refer to AM_AOUT_OutputMode_t */
+                mAudioManager.setParameters("hal_param_dtv_patch_cmd=" + cmd);
+                mAudioManager.setParameters("hal_param_audio_output_mode=" + param1); /* refer to AM_AOUT_OutputMode_t */
                 break;
             case AudioSystemCmdManager.AUDIO_SERVICE_CMD_SET_PRE_GAIN:
                 mAudioManager.setParameters("hal_param_dtv_patch_cmd=" + cmd);
