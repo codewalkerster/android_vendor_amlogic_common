@@ -541,7 +541,7 @@ private:
     int mDiFd;
 
     tcon_rgb_ogo_t rgbfrompq[3];
-    source_input_param_t mCurentSourceInputInfo;
+    source_input_param_t mCurrentSourceInputInfo;
     tv_source_input_t mSourceInputForSaveParam;
     bool mCurrentHdrStatus;
     unsigned int mHdmiHdrInfo = 0;
