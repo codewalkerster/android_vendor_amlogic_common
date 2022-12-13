@@ -550,6 +550,11 @@ std::string CreateHostapdConfig(
 			iface_params.hwModeParams.enable80211AC ? 2 : 0);
 		break;
 	default:
+	if ((band & band2Ghz) != 0)
+	{
+		break;
+	}
+
 		ht_cap_vht_oper_he_oper_chwidth_as_string = StringPrintf(
 			"ht_capab=[HT40+]\n"
 #ifdef CONFIG_IEEE80211AX
