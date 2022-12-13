@@ -319,4 +319,7 @@ interface ITvServer {
 	
   getBasicVdecStatusInfo(int32_t vdecId)
     generates (BasicVdecState info);
+
+  isSupportDLG()
+    generates (int32_t ret);
 };
