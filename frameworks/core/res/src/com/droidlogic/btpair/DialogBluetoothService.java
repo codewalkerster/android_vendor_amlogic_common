@@ -91,7 +91,7 @@ public class DialogBluetoothService extends Service {
     private static final String DISCONNECTED_FROM_AUDIO_REMOTE = "Disconnected from Audio Remote";
     //private static final String CONNECTION_FAILED_MSG = "Connection to Audio Remote failed";
 
-    // Intent Actions and Intent Extra keys to send messages to MainDiaBleActivity
+    // Intent Actions and Intent Extra keys to send messages to MainDisaBleActivity
     public final static String ACTION_GATT_CONNECTED        = "com.diasemi.bleconnector.action.GATT_CONNECTED";
     public final static String ACTION_GATT_DISCONNECTED     = "com.diasemi.bleconnector.action.GATT_DISCONNECTED";
     public final static String ACTION_AUDIO_TRANSFER        = "com.diasemi.bleconnector.action.AUDIO_TRANSFER";
