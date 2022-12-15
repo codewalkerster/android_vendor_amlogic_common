@@ -1,8 +1,8 @@
 ROOT_DIR := $(shell bash -c "\
- while [[ ( ! ( -f build/gki/README.md ) ) && ( \`pwd\` != "/" ) ]]; do\
+ while [[ ( ! ( -d device/amlogic/common ) ) && ( \`pwd\` != "/" ) ]]; do\
   cd ..;\
  done;\
- if [[ -f \`pwd\`/build/gki/README.md ]]; then\
+ if [[ -d \`pwd\`/device/amlogic/common ]]; then\
   echo \`pwd\`;\
  else\
   echo "";\
