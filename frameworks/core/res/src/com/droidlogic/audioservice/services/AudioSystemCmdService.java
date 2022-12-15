@@ -55,6 +55,8 @@ import com.droidlogic.audioservice.settings.TvControlManager;
 import com.droidlogic.UEventObserver;
 import com.droidlogic.R;
 
+import com.droidlogic.ArcVolumeController;
+
 
 //this service used to call audio system commands
 public class AudioSystemCmdService extends Service {
@@ -82,6 +84,7 @@ public class AudioSystemCmdService extends Service {
     private int mDtvDemuxIdBase = 25;
     private int mDtvDemuxIdCurrentWork = 0;
     private int mCurSourceType = SOURCE_TYPE_OTHER;
+    private ArcVolumeController mArcVolumeController;
     private TvInputManager mTvInputManager;
     protected TvControlManager mTvControlManager;
   //  protected TvControlManager mTvControlManager;
@@ -333,6 +336,7 @@ public class AudioSystemCmdService extends Service {
         mSystemControlManager.setListener(mSystemControlEvent);
         mAudioManager.registerAudioPortUpdateListener(mAudioListener);
 
+        mArcVolumeController = new ArcVolumeController(mContext);
         final IntentFilter filter = new IntentFilter();
         filter.addAction(AudioManager.VOLUME_CHANGED_ACTION);
         filter.addAction(AudioManager.STREAM_MUTE_CHANGED_ACTION);
