@@ -43,6 +43,9 @@ interface IAudioEffectsService{
     void setDapParam(int id, int value);
     int getDapParam(int id);
     void initDapAudioEffect();
+    void setDpeParam(int id, int value);
+    int getDpeParam(int id);
+    void initDpeAudioEffect();
     void setAudioEffectOn(int id, boolean dbSwitch);
     boolean isAudioEffectOn(int id);
     void setHpeqBandNum(int id, int value);

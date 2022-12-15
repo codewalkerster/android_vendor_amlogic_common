@@ -187,6 +187,19 @@ public class AudioEffectsService extends Service {
         public void initDapAudioEffect() {
             mSoundEffectManager.initDapAudioEffect();
         }
+
+        public void setDpeParam(int id, int value) {
+            mSoundEffectManager.setDpeParam(id, value);
+        }
+
+        public int getDpeParam(int id) {
+            return mSoundEffectManager.getDpeParam(id);
+        }
+
+        public void initDpeAudioEffect() {
+            mSoundEffectManager.initDpeAudioEffect();
+        }
+
         public void setAudioEffectOn(int id, boolean dbSwitch) {
             mSoundEffectManager.setAudioEffectOn(id, dbSwitch);
         }

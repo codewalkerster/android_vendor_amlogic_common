@@ -52,6 +52,7 @@ public class SoundEffectManager {
     private static final UUID EFFECT_TYPE_TREBLE_BASS           = UUID.fromString("7e282240-242e-11e6-bb63-0002a5d5c51b");
     private static final UUID EFFECT_TYPE_DAP_1_3_2             = UUID.fromString("3337b21d-c8e6-4bbd-8f24-698ade8491b9");
     private static final UUID EFFECT_TYPE_DAP_2_4               = UUID.fromString("34033483-c5e9-4ff6-8b6b-0002a5d5c51b");
+    private static final UUID EFFECT_TYPE_DPE                   = UUID.fromString("f70bcbf4-7457-11ec-b4f0-020017000b7b");
 
     private static final UUID EFFECT_TYPE_EQ                    = UUID.fromString("ce2c14af-84df-4c36-acf5-87e428ed05fc");
     private static final UUID EFFECT_TYPE_VIRTUAL_SURROUND      = UUID.fromString("c656ec6f-d6be-4e7f-854b-1218077f3915");
@@ -114,6 +115,90 @@ public class SoundEffectManager {
     public static final String DB_ID_SOUND_EFFECT_DAP_2_4_SURROUND_DECODER_ENABLE       = "db_id_sound_effect_dap_2_4_surround_decoder_enable";
     public static final String DB_ID_SOUND_EFFECT_DAP_2_4_LEVELER_MODE                  = "db_id_sound_effect_dap_2_4_leveler_mode";
     public static final String DB_ID_SOUND_EFFECT_DAP_2_4_LEVELER_AMOUNT                = "db_id_sound_effect_dap_2_4_leveler_strength";
+
+    // defined index ID for DB DPE storage
+    public static final String DB_ID_SOUND_EFFECT_DPE_ENABLED                            = "db_id_sound_effect_dpe_enabled";
+    public static final String DB_ID_SOUND_EFFECT_DPE_SAVED                              = "db_id_sound_effect_dpe_saved";
+    public static final String DB_ID_SOUND_EFFECT_DPE_INPUTGAIN                          = "db_id_sound_effect_dpe_inputgain";
+
+    // defined index ID for DB DPE pre eq
+    public static final String DB_ID_SOUND_EFFECT_DPE_PRE_EQ                             = "db_id_sound_effect_dpe_pre_eq";
+    // defined index ID for DB DPE pre eq band 0
+    public static final String DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND0                       = "db_id_sound_effect_dpe_pre_eq_band0";
+    public static final String DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND0_CUTOFFFREQUENCY       = "db_id_sound_effect_dpe_pre_eq_band0_cutofffrequency";
+    public static final String DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND0_GAIN                  = "db_id_sound_effect_dpe_pre_eq_band0_gain";
+    // defined index ID for DB DPE pre eq band 1
+    public static final String DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND1                       = "db_id_sound_effect_dpe_pre_eq_band1";
+    public static final String DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND1_CUTOFFFREQUENCY       = "db_id_sound_effect_dpe_pre_eq_band1_cutofffrequency";
+    public static final String DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND1_GAIN                  = "db_id_sound_effect_dpe_pre_eq_band1_gain";
+    // defined index ID for DB DPE pre eq band 2
+    public static final String DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND2                       = "db_id_sound_effect_dpe_pre_eq_band2";
+    public static final String DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND2_CUTOFFFREQUENCY       = "db_id_sound_effect_dpe_pre_eq_band2_cutofffrequency";
+    public static final String DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND2_GAIN                  = "db_id_sound_effect_dpe_pre_eq_band2_gain";
+
+    // defined index ID for DB DPE mbc
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC                                = "db_id_sound_effect_dpe_mbc";
+    // defined index ID for DB DPE mbc band 0
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND0                          = "db_id_sound_effect_dpe_mbc_band0";
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_CUTOFFFREQUENCY          = "db_id_sound_effect_dpe_mbc_band0_cutoffFrequency";
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_ATTACKTIME               = "db_id_sound_effect_dpe_mbc_band0_attacktime";
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_RELEASETIME              = "db_id_sound_effect_dpe_mbc_band0_releasetime";
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_RATIO                    = "db_id_sound_effect_dpe_mbc_band0_ratio";
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_THRESHOLD                = "db_id_sound_effect_dpe_mbc_band0_threshold";
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_KNEEWIDTH                = "db_id_sound_effect_dpe_mbc_band0_kneewidth";
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_NOISEGATE_THRESHOLD      = "db_id_sound_effect_dpe_mbc_band0_noisegate_threshold";
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_EXPANDER_RATIO           = "db_id_sound_effect_dpe_mbc_band0_expander_ratio";
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_PRE_GAIN                 = "db_id_sound_effect_dpe_mbc_band0_pre_gain";
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_POST_GAIN                = "db_id_sound_effect_dpe_mbc_band0_post_gain";
+    // defined index ID for DB DPE mbc band 0
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND1                          = "db_id_sound_effect_dpe_mbc_band1";
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_CUTOFFFREQUENCY          = "db_id_sound_effect_dpe_mbc_band1_cutoffFrequency";
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_ATTACKTIME               = "db_id_sound_effect_dpe_mbc_band1_attacktime";
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_RELEASETIME              = "db_id_sound_effect_dpe_mbc_band1_releasetime";
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_RATIO                    = "db_id_sound_effect_dpe_mbc_band1_ratio";
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_THRESHOLD                = "db_id_sound_effect_dpe_mbc_band1_threshold";
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_KNEEWIDTH                = "db_id_sound_effect_dpe_mbc_band1_kneewidth";
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_NOISEGATE_THRESHOLD      = "db_id_sound_effect_dpe_mbc_band1_noisegate_threshold";
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_EXPANDER_RATIO           = "db_id_sound_effect_dpe_mbc_band1_expander_ratio";
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_PRE_GAIN                 = "db_id_sound_effect_dpe_mbc_band1_pre_gain";
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_POST_GAIN                = "db_id_sound_effect_dpe_mbc_band1_post_gain";
+    // defined index ID for DB DPE mbc band 0
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND2                          = "db_id_sound_effect_dpe_mbc_band2";
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_CUTOFFFREQUENCY          = "db_id_sound_effect_dpe_mbc_band2_cutoffFrequency";
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_ATTACKTIME               = "db_id_sound_effect_dpe_mbc_band2_attacktime";
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_RELEASETIME              = "db_id_sound_effect_dpe_mbc_band2_releasetime";
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_RATIO                    = "db_id_sound_effect_dpe_mbc_band2_ratio";
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_THRESHOLD                = "db_id_sound_effect_dpe_mbc_band2_threshold";
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_KNEEWIDTH                = "db_id_sound_effect_dpe_mbc_band2_kneewidth";
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_NOISEGATE_THRESHOLD      = "db_id_sound_effect_dpe_mbc_band2_noisegate_threshold";
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_EXPANDER_RATIO           = "db_id_sound_effect_dpe_mbc_band2_expander_ratio";
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_PRE_GAIN                 = "db_id_sound_effect_dpe_mbc_band2_pre_gain";
+    public static final String DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_POST_GAIN                = "db_id_sound_effect_dpe_mbc_band2_post_gain";
+
+    // defined index ID for DB DPE post eq
+    public static final String DB_ID_SOUND_EFFECT_DPE_POST_EQ                            = "db_id_sound_effect_dpe_post_eq";
+    // defined index ID for DB DPE post eq band 0
+    public static final String DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND0                      = "db_id_sound_effect_dpe_post_eq_band0";
+    public static final String DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND0_CUTOFFFREQUENCY      = "db_id_sound_effect_dpe_post_eq_band0_cutofffrequency";
+    public static final String DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND0_GAIN                 = "db_id_sound_effect_dpe_post_eq_band0_gain";
+    // defined index ID for DB DPE post eq band 1
+    public static final String DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND1                      = "db_id_sound_effect_dpe_post_eq_band1";
+    public static final String DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND1_CUTOFFFREQUENCY      = "db_id_sound_effect_dpe_post_eq_band1_cutofffrequency";
+    public static final String DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND1_GAIN                 = "db_id_sound_effect_dpe_post_eq_band1_gain";
+    // defined index ID for DB DPE post eq band 2
+    public static final String DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND2                      = "db_id_sound_effect_dpe_post_eq_band2";
+    public static final String DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND2_CUTOFFFREQUENCY      = "db_id_sound_effect_dpe_post_eq_band2_cutofffrequency";
+    public static final String DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND2_GAIN                 = "db_id_sound_effect_dpe_post_eq_band2_gain";
+
+    // defined index ID for DB DPE limiter
+    public static final String DB_ID_SOUND_EFFECT_DPE_LIMITER                            = "db_id_sound_effect_dpe_limiter";
+    public static final String DB_ID_SOUND_EFFECT_DPE_LIMITER_LINKGROUP                  = "db_id_sound_effect_dpe_limiter_linkgroup";
+    public static final String DB_ID_SOUND_EFFECT_DPE_LIMITER_ATTACKTIME                 = "db_id_sound_effect_dpe_limiter_attacktime";
+    public static final String DB_ID_SOUND_EFFECT_DPE_LIMITER_RELEASETIMR                = "db_id_sound_effect_dpe_limiter_releasetime";
+    public static final String DB_ID_SOUND_EFFECT_DPE_LIMITER_RATIO                      = "db_id_sound_effect_dpe_limiter_ratio";
+    public static final String DB_ID_SOUND_EFFECT_DPE_LIMITER_THRESHOLD                  = "db_id_sound_effect_dpe_limiter_threshold";
+    public static final String DB_ID_SOUND_EFFECT_DPE_LIMITER_POST_GAIN                  = "db_id_sound_effect_dpe_limiter_post_gain";
+
     // defined index ID for DB AUDIO EFFECT DEBUG
     public static final String DB_ID_SOUND_EFFECT_HPEQ_DEBUG                             = "db_id_sound_effect_hpeq_debug";
     public static final String DB_ID_SOUND_EFFECT_BALANCE_DEBUG                          = "db_id_sound_effect_balance_debug";
@@ -190,6 +275,7 @@ public class SoundEffectManager {
     private AudioEffect mSoundMode;
     private AudioEffect mVirtualSurround;
     private AudioEffect mDap;
+    private AudioEffect mDpe;
 
     private boolean mSupportVirtualX;
     private boolean mSupportMs12Dap = false;
@@ -226,6 +312,7 @@ public class SoundEffectManager {
         }
         creatBalanceAudioEffects();
 
+        creatDpeAudioEffect();
         mEffectInit = true;
     }
 
@@ -236,6 +323,7 @@ public class SoundEffectManager {
         }
         cleanupBalanceAudioEffects();
         cleanupDapAudioEffects();
+        cleanupDpeAudioEffects();
         cleanupEqAudioEffects();
         cleanupTrebleBassAudioEffects();
         cleanupVirtualSurroundAudioEffects();
@@ -315,6 +403,19 @@ public class SoundEffectManager {
         }
     }
 
+    public boolean cleanupDpeAudioEffects() {
+        try {
+            if (mDpe != null) {
+                mDpe.setEnabled(false);
+                mDpe.release();
+                mDpe = null;
+            }
+            return true;
+        } catch (RuntimeException e) {
+            Log.e(TAG, "cleanup DPE effect fail", e);
+            return false;
+        }
+    }
     public boolean cleanupDapAudioEffects() {
         try {
             if (mDap != null) {
@@ -1589,6 +1690,1331 @@ public class SoundEffectManager {
                 break;
         }
     }
+
+
+    public boolean creatDpeAudioEffect() {
+        try {
+            if (mDpe == null) {
+                if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "creatDpeAudioEffect");
+                mDpe = new AudioEffect(EFFECT_TYPE_DPE, AudioEffect.EFFECT_TYPE_NULL, 0, 0);
+                int result = mDpe.setEnabled(true);
+                if (result == AudioEffect.SUCCESS) {
+                    Log.d(TAG, "creatDpeAudioEffect setEnabled success");
+                } else {
+                    Log.w(TAG, "creatDpeAudioEffect setEnabled error: " + result);
+                    return false;
+                }
+            }
+            return true;
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Unable to create Dpe audio effect", e);
+            return false;
+        }
+    }
+
+
+    //dpe init
+    public void initDpeAudioEffect() {
+        Log.i(TAG, "initDpeAudioEffect");
+        if (!creatDpeAudioEffect()) {
+            Log.e(TAG, "initDpeAudioEffect dpe create fail");
+            return;
+        }
+
+        int value = 0;
+
+        value = getDpeParam(AudioEffectManager.CMD_DPE_ENABLED);
+        setDpeParam(AudioEffectManager.CMD_DPE_ENABLED, getDpeParam(AudioEffectManager.CMD_DPE_ENABLED));
+        //Log.d(TAG, "setDpeParam,CMD_DPE_ENABLED:" + value);
+
+        if (value == AudioEffectManager.DPE_ON) {
+            value = getDpeParam(AudioEffectManager.CMD_DPE_INPUTGAIN);
+            setDpeParam(AudioEffectManager.CMD_DPE_INPUTGAIN, getDpeParam(AudioEffectManager.CMD_DPE_INPUTGAIN));
+            //Log.d(TAG, "setDpeParam,CMD_DPE_INPUTGAIN:" + value);
+
+            value = getDpeParam(AudioEffectManager.CMD_DPE_PRE_EQ);
+            setDpeParam(AudioEffectManager.CMD_DPE_PRE_EQ, getDpeParam(AudioEffectManager.CMD_DPE_PRE_EQ));
+            //Log.d(TAG, "setDpeParam,CMD_DPE_PRE_EQ:" + value);
+
+            value = getDpeParam(AudioEffectManager.CMD_DPE_MBC);
+            setDpeParam(AudioEffectManager.CMD_DPE_MBC, getDpeParam(AudioEffectManager.CMD_DPE_MBC));
+            //Log.d(TAG, "setDpeParam,CMD_DPE_MBC:" + value);
+
+            value = getDpeParam(AudioEffectManager.CMD_DPE_POST_EQ);
+            setDpeParam(AudioEffectManager.CMD_DPE_POST_EQ, getDpeParam(AudioEffectManager.CMD_DPE_POST_EQ));
+            //Log.d(TAG, "setDpeParam,CMD_DPE_POST_EQ:" + value);
+
+            value = getDpeParam(AudioEffectManager.CMD_DPE_LIMITER);
+            setDpeParam(AudioEffectManager.CMD_DPE_LIMITER, getDpeParam(AudioEffectManager.CMD_DPE_LIMITER));
+            //Log.d(TAG, "setDpeParam,CMD_DPE_LIMITER:" + value);
+
+            //pre eq band
+            value = getDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0_CUTOFFFREQUENCY);
+            setDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0_CUTOFFFREQUENCY, getDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0_CUTOFFFREQUENCY));
+            //Log.d(TAG, "setDpeParam,SUBCMD_DPE_PRE_EQ_BAND0_CUTOFFFREQUENCY:" + value);
+
+            setDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0_GAIN, getDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0_GAIN));
+            setDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND1_CUTOFFFREQUENCY, getDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND1_CUTOFFFREQUENCY));
+            setDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND1_GAIN, getDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND1_GAIN));
+            setDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND2_CUTOFFFREQUENCY, getDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND2_CUTOFFFREQUENCY));
+            setDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND2_GAIN, getDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND2_GAIN));
+
+            //post eq band
+            setDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND0_CUTOFFFREQUENCY, getDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND0_CUTOFFFREQUENCY));
+            setDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND0_GAIN, getDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND0_GAIN));
+            setDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND1_CUTOFFFREQUENCY, getDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND1_CUTOFFFREQUENCY));
+            setDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND1_GAIN, getDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND1_GAIN));
+            setDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND2_CUTOFFFREQUENCY, getDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND2_CUTOFFFREQUENCY));
+            setDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND2_GAIN, getDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND2_GAIN));
+
+            int id = 0;
+            //mbc band
+            for (id = AudioEffectManager.SUBCMD_DPE_MBC_BAND0_CUTOFFFREQUENCY; id <= AudioEffectManager.SUBCMD_DPE_MBC_BAND0_POSTGAIN; id++) {
+                setDpeParam(id, getDpeParam(id));
+            }
+            for (id = AudioEffectManager.SUBCMD_DPE_MBC_BAND1_CUTOFFFREQUENCY; id <= AudioEffectManager.SUBCMD_DPE_MBC_BAND1_POSTGAIN; id++) {
+                setDpeParam(id, getDpeParam(id));
+            }
+            for (id = AudioEffectManager.SUBCMD_DPE_MBC_BAND2_CUTOFFFREQUENCY; id <= AudioEffectManager.SUBCMD_DPE_MBC_BAND2_POSTGAIN; id++) {
+                setDpeParam(id, getDpeParam(id));
+            }
+
+            //limiter
+            for (id = AudioEffectManager.SUBCMD_DPE_LIMITER_ATTACKTIME; id <= AudioEffectManager.SUBCMD_DPE_LIMITER_POSTGAIN; id++) {
+                setDpeParam(id, getDpeParam(id));
+            }
+        }
+
+        applyAudioEffectByPlayEmptyTrack();
+    }
+
+
+    //dpe get param internal
+    private int getDpeParamInternal (int id) {
+        if (mDpe == null) {
+            Log.d(TAG, "getDpeParamInternal DPE Effect is not created");
+            return 0;
+        }
+        int result = 0;
+        int[] value = new int[1];
+        switch (id) {
+            //dpe enabled
+            case AudioEffectManager.CMD_DPE_ENABLED:
+                byte[] tempEngineVa = new byte[4];
+                byte[] tempEngineValue = new byte[36];
+
+                List<byte[]> listEngine = new ArrayList<>();
+                listEngine.add(tempEngineVa);
+                listEngine.add(tempEngineValue);
+
+                byte[] engineBytes = mergeByte(listEngine);
+                byte[] tempEngineParam = new byte[] {(byte)id,0,0,0};
+                mDpe.getParameter(tempEngineParam, engineBytes);
+                result = mDpe.byteArrayToInt(tempEngineVa);
+                break;
+
+            //dpe inputgain
+            case AudioEffectManager.CMD_DPE_INPUTGAIN:
+                byte[] tempInputValue = new byte[4];
+                byte[] tempParam_input = new byte[] {(byte)id, 0, 0, 0, 0, 0, 0, 0};  //channel 0
+                mDpe.getParameter(tempParam_input, tempInputValue);
+                result = (int)mDpe.byteArrayToFloat(tempInputValue);
+                Log.d(TAG, "Inputgain hal Value: " + result);
+                break;
+
+            // pre eq band 0
+            case AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0:
+            case AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0_CUTOFFFREQUENCY:
+            case AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0_GAIN:
+                byte[] tempParamPreEq0Cmd = new byte[4];
+                byte[] tempParamPreEq0Ch = new byte[4];
+                byte[] tempParamPreEq0Band = new byte[4];
+                tempParamPreEq0Cmd = mDpe.intToByteArray(AudioEffectManager.CMD_DPE_PRE_EQ_BAND);
+                tempParamPreEq0Ch = mDpe.intToByteArray(0); //channel 0
+                tempParamPreEq0Band = mDpe.intToByteArray(0); // band 0
+
+                List<byte[]> listParamPreEq0 = new ArrayList<>();
+                listParamPreEq0.add(tempParamPreEq0Cmd);
+                listParamPreEq0.add(tempParamPreEq0Ch);
+                listParamPreEq0.add(tempParamPreEq0Band);
+                byte[] tempParam_preEq0 = mergeByte(listParamPreEq0);
+
+                byte[] tempValuePreEq0En = new byte[4];
+                byte[] tempValuePreEq0Cut = new byte[4];
+                byte[] tempValuePreEq0Gain = new byte[4];
+
+                List<byte[]> listValuePreEq0 = new ArrayList<>();
+                listValuePreEq0.add(tempValuePreEq0En);
+                listValuePreEq0.add(tempValuePreEq0Cut);
+                listValuePreEq0.add(tempValuePreEq0Gain);
+                byte[] tempValue_preEq0 = mergeByte(listValuePreEq0);
+
+                mDpe.getParameter(tempParam_preEq0, tempValue_preEq0);
+
+                //get
+                if (id == AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0_CUTOFFFREQUENCY) {
+                    result = (int)mDpe.byteArrayToFloat(tempValuePreEq0Cut);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0_GAIN) {
+                    result = (int)mDpe.byteArrayToFloat(tempValuePreEq0Gain);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0) {
+                    result = (int)mDpe.byteArrayToFloat(tempValuePreEq0En);
+                }
+                break;
+
+        }
+        return result;
+    }
+
+    // list merge byte
+    public static byte[] mergeByte(List<byte[]> values) {
+        int lengthByte = 0;
+        for (byte[] value : values) {
+            lengthByte += value.length;
+        }
+        byte[] allBytes = new byte[lengthByte];
+        int countLength = 0;
+        for (byte[] b : values) {
+            System.arraycopy(b, 0, allBytes, countLength, b.length);
+            countLength += b.length;
+        }
+        return allBytes;
+    }
+
+
+    //dpe set param
+    public void setDpeParam (int id, int value) {
+        if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "setDpeParam id:" + id + ", value:" + value);
+        if (mDpe == null) {
+            Log.d(TAG, "setDpeParam DPE Effect is not created");
+            return;
+        }
+        switch (id) {
+            //set dpe enabled
+            case AudioEffectManager.CMD_DPE_ENABLED:
+                byte[] tempEngineVa = new byte[4];
+                byte[] tempEnginePref = new byte[4];
+                byte[] tempEnginePreEqIu = new byte[4];
+                byte[] tempEnginePreEqBc = new byte[4];
+                byte[] tempEngineMbcIu = new byte[4];
+                byte[] tempEngineMbcBc = new byte[4];
+                byte[] tempEnginePostEqIu = new byte[4];
+                byte[] tempEnginePostEqBc = new byte[4];
+                byte[] tempEngineLimiterIu = new byte[4];
+
+                tempEngineVa = mDpe.intToByteArray(value - 1);
+                tempEnginePref = mDpe.floatToByteArray(AudioEffectManager.DEFAULT_DPE_FRAME_DURATION);
+                tempEnginePreEqIu = mDpe.intToByteArray(value);
+                tempEnginePreEqBc = mDpe.intToByteArray(AudioEffectManager.DEFAULT_DPE_BAND_AMOUNT);
+                tempEngineMbcIu = mDpe.intToByteArray(value);
+                tempEngineMbcBc = mDpe.intToByteArray(AudioEffectManager.DEFAULT_DPE_BAND_AMOUNT);
+                tempEnginePostEqIu = mDpe.intToByteArray(value);
+                tempEnginePostEqBc = mDpe.intToByteArray(AudioEffectManager.DEFAULT_DPE_BAND_AMOUNT);
+                tempEngineLimiterIu = mDpe.intToByteArray(value);
+
+                List<byte[]> listEngine = new ArrayList<>();
+                listEngine.add(tempEngineVa);
+                listEngine.add(tempEnginePref);
+                listEngine.add(tempEnginePreEqIu);
+                listEngine.add(tempEnginePreEqBc);
+                listEngine.add(tempEngineMbcIu);
+                listEngine.add(tempEngineMbcBc);
+                listEngine.add(tempEnginePostEqIu);
+                listEngine.add(tempEnginePostEqBc);
+                listEngine.add(tempEngineLimiterIu);
+
+                byte[] engineBytes = mergeByte(listEngine);
+                byte[] tempEngineParam = new byte[] {(byte)id,0,0,0};
+                mDpe.setParameter(tempEngineParam, engineBytes);
+                saveDpeParam(id, value);
+                break;
+
+            // set dpe inputgain
+            case AudioEffectManager.CMD_DPE_INPUTGAIN:
+                byte[] tempInputValue = new byte[4];
+                tempInputValue = mDpe.floatToByteArray((float)value);
+                byte[] tempParam_input = new byte[] {(byte)id, 0, 0, 0, 0, 0, 0, 0};  //channel 0
+                mDpe.setParameter(tempParam_input, tempInputValue);
+                tempParam_input[4] = 1;  //channel 1
+                mDpe.setParameter(tempParam_input, tempInputValue);
+                saveDpeParam(id, value);
+                break;
+
+            // set eq mbc inuse
+            case AudioEffectManager.CMD_DPE_PRE_EQ:
+            case AudioEffectManager.CMD_DPE_MBC:
+            case AudioEffectManager.CMD_DPE_POST_EQ:
+                byte[] tempParam_on = new byte[] {(byte)id, 0, 0, 0, 0, 0, 0, 0}; //channel 0
+                if (value == 1) {
+                    byte[] tempValue_on = new byte[] {1, 0, 0, 0, 1, 0, 0, 0, 3, 0, 0, 0};
+                    mDpe.setParameter(tempParam_on, tempValue_on);
+                    tempParam_on[4] = 1; //channel 1
+                    mDpe.setParameter(tempParam_on, tempValue_on);
+                } else {
+                    byte[] tempValue_on = new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0};
+                    mDpe.setParameter(tempParam_on, tempValue_on);
+                    tempParam_on[4] = 1; //channel 1
+                    mDpe.setParameter(tempParam_on, tempValue_on);
+                }
+                saveDpeParam(id, value);
+                break;
+
+            // pre eq band 0
+            case AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0:
+            case AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0_CUTOFFFREQUENCY:
+            case AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0_GAIN:
+                byte[] tempParamPreEq0Cmd = new byte[4];
+                byte[] tempParamPreEq0Ch = new byte[4];
+                byte[] tempParamPreEq0Band = new byte[4];
+                tempParamPreEq0Cmd = mDpe.intToByteArray(AudioEffectManager.CMD_DPE_PRE_EQ_BAND);
+                tempParamPreEq0Ch = mDpe.intToByteArray(0); //channel 0
+                tempParamPreEq0Band = mDpe.intToByteArray(0); // band 0
+
+                List<byte[]> listParamPreEq0 = new ArrayList<>();
+                listParamPreEq0.add(tempParamPreEq0Cmd);
+                listParamPreEq0.add(tempParamPreEq0Ch);
+                listParamPreEq0.add(tempParamPreEq0Band);
+                byte[] tempParam_preEq0 = mergeByte(listParamPreEq0);
+
+                byte[] tempValuePreEq0En = new byte[4];
+                byte[] tempValuePreEq0Cut = new byte[4];
+                byte[] tempValuePreEq0Gain = new byte[4];
+
+                tempValuePreEq0En = mDpe.intToByteArray(getDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0));
+                tempValuePreEq0Cut = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0_CUTOFFFREQUENCY));
+                tempValuePreEq0Gain = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0_GAIN));
+
+                //set
+                List<byte[]> listValuePreEq0 = new ArrayList<>();
+                if (id == AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0_CUTOFFFREQUENCY) {
+                    tempValuePreEq0Cut = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0_GAIN) {
+                    tempValuePreEq0Gain = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0) {
+                    tempValuePreEq0En = mDpe.intToByteArray(value);
+                }
+
+                listValuePreEq0.add(tempValuePreEq0En);
+                listValuePreEq0.add(tempValuePreEq0Cut);
+                listValuePreEq0.add(tempValuePreEq0Gain);
+                byte[] tempValue_preEq0 = mergeByte(listValuePreEq0);
+
+                mDpe.setParameter(tempParam_preEq0, tempValue_preEq0);
+                tempParam_preEq0[4] = 1; //channel 1
+                mDpe.setParameter(tempParam_preEq0, tempValue_preEq0);
+                saveDpeParam(id, value);
+                break;
+
+            // pre eq band 1
+            case AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND1:
+            case AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND1_CUTOFFFREQUENCY:
+            case AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND1_GAIN:
+                byte[] tempParamPreEq1Cmd = new byte[4];
+                byte[] tempParamPreEq1Ch = new byte[4];
+                byte[] tempParamPreEq1Band = new byte[4];
+                tempParamPreEq1Cmd = mDpe.intToByteArray(AudioEffectManager.CMD_DPE_PRE_EQ_BAND);
+                tempParamPreEq1Ch = mDpe.intToByteArray(0); //channel 0
+                tempParamPreEq1Band = mDpe.intToByteArray(1); // band 1
+
+                List<byte[]> listParamPreEq1 = new ArrayList<>();
+                listParamPreEq1.add(tempParamPreEq1Cmd);
+                listParamPreEq1.add(tempParamPreEq1Ch);
+                listParamPreEq1.add(tempParamPreEq1Band);
+                byte[] tempParam_preEq1 = mergeByte(listParamPreEq1);
+
+                byte[] tempValuePreEq1En = new byte[4];
+                byte[] tempValuePreEq1Cut = new byte[4];
+                byte[] tempValuePreEq1Gain = new byte[4];
+
+                tempValuePreEq1En = mDpe.intToByteArray(getDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND1));
+                tempValuePreEq1Cut = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND1_CUTOFFFREQUENCY));
+                tempValuePreEq1Gain = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND1_GAIN));
+
+                //set
+                List<byte[]> listValuePreEq1 = new ArrayList<>();
+                if (id == AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND1_CUTOFFFREQUENCY) {
+                    tempValuePreEq1Cut = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND1_GAIN) {
+                    tempValuePreEq1Gain = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND1) {
+                    tempValuePreEq1En = mDpe.intToByteArray(value);
+                }
+
+                listValuePreEq1.add(tempValuePreEq1En);
+                listValuePreEq1.add(tempValuePreEq1Cut);
+                listValuePreEq1.add(tempValuePreEq1Gain);
+                byte[] tempValue_preEq1 = mergeByte(listValuePreEq1);
+
+                mDpe.setParameter(tempParam_preEq1, tempValue_preEq1);
+                tempParam_preEq1[4] = 1; //channel 1
+                mDpe.setParameter(tempParam_preEq1, tempValue_preEq1);
+                saveDpeParam(id, value);
+                break;
+
+            // pre eq band 2
+            case AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND2:
+            case AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND2_CUTOFFFREQUENCY:
+            case AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND2_GAIN:
+                byte[] tempParamPreEq2Cmd = new byte[4];
+                byte[] tempParamPreEq2Ch = new byte[4];
+                byte[] tempParamPreEq2Band = new byte[4];
+                tempParamPreEq2Cmd = mDpe.intToByteArray(AudioEffectManager.CMD_DPE_PRE_EQ_BAND);
+                tempParamPreEq2Ch = mDpe.intToByteArray(0); //channel 0
+                tempParamPreEq2Band = mDpe.intToByteArray(2); // band 2
+
+                List<byte[]> listParamPreEq2 = new ArrayList<>();
+                listParamPreEq2.add(tempParamPreEq2Cmd);
+                listParamPreEq2.add(tempParamPreEq2Ch);
+                listParamPreEq2.add(tempParamPreEq2Band);
+                byte[] tempParam_preEq2 = mergeByte(listParamPreEq2);
+
+                byte[] tempValuePreEq2En = new byte[4];
+                byte[] tempValuePreEq2Cut = new byte[4];
+                byte[] tempValuePreEq2Gain = new byte[4];
+
+                tempValuePreEq2En = mDpe.intToByteArray(getDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND2));
+                tempValuePreEq2Cut = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND2_CUTOFFFREQUENCY));
+                tempValuePreEq2Gain = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND2_GAIN));
+
+                //set
+                List<byte[]> listValuePreEq2 = new ArrayList<>();
+                if (id == AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND2_CUTOFFFREQUENCY) {
+                    tempValuePreEq2Cut = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND2_GAIN) {
+                    tempValuePreEq2Gain = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND2) {
+                    tempValuePreEq2En = mDpe.intToByteArray(value);
+                }
+
+                listValuePreEq2.add(tempValuePreEq2En);
+                listValuePreEq2.add(tempValuePreEq2Cut);
+                listValuePreEq2.add(tempValuePreEq2Gain);
+                byte[] tempValue_preEq2 = mergeByte(listValuePreEq2);
+
+                mDpe.setParameter(tempParam_preEq2, tempValue_preEq2);
+                tempParam_preEq2[4] = 1; //channel 1
+                mDpe.setParameter(tempParam_preEq2, tempValue_preEq2);
+                saveDpeParam(id, value);
+                break;
+
+            // post eq band 0
+            case AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND0:
+            case AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND0_CUTOFFFREQUENCY:
+            case AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND0_GAIN:
+                byte[] tempParamPostEq0Cmd = new byte[4];
+                byte[] tempParamPostEq0Ch = new byte[4];
+                byte[] tempParamPostEq0Band = new byte[4];
+                tempParamPostEq0Cmd = mDpe.intToByteArray(AudioEffectManager.CMD_DPE_POST_EQ_BAND);
+                tempParamPostEq0Ch = mDpe.intToByteArray(0); //channel 0
+                tempParamPostEq0Band = mDpe.intToByteArray(0); // band 0
+
+                List<byte[]> listParamPostEq0 = new ArrayList<>();
+                listParamPostEq0.add(tempParamPostEq0Cmd);
+                listParamPostEq0.add(tempParamPostEq0Ch);
+                listParamPostEq0.add(tempParamPostEq0Band);
+                byte[] tempParam_postEq0 = mergeByte(listParamPostEq0);
+
+                byte[] tempValuePostEq0En = new byte[4];
+                byte[] tempValuePostEq0Cut = new byte[4];
+                byte[] tempValuePostEq0Gain = new byte[4];
+
+                tempValuePostEq0En = mDpe.intToByteArray(getDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND0));
+                tempValuePostEq0Cut = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND0_CUTOFFFREQUENCY));
+                tempValuePostEq0Gain = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND0_GAIN));
+
+                //set
+                List<byte[]> listValuePostEq0 = new ArrayList<>();
+                if (id == AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND0_CUTOFFFREQUENCY) {
+                    tempValuePostEq0Cut = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND0_GAIN) {
+                    tempValuePostEq0Gain = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND0) {
+                    tempValuePostEq0En = mDpe.intToByteArray(value);
+                }
+
+                listValuePostEq0.add(tempValuePostEq0En);
+                listValuePostEq0.add(tempValuePostEq0Cut);
+                listValuePostEq0.add(tempValuePostEq0Gain);
+                byte[] tempValue_postEq0 = mergeByte(listValuePostEq0);
+
+                mDpe.setParameter(tempParam_postEq0, tempValue_postEq0);
+                tempParam_postEq0[4] = 1; //channel 1
+                mDpe.setParameter(tempParam_postEq0, tempValue_postEq0);
+                saveDpeParam(id, value);
+                break;
+
+            // post eq band 1
+            case AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND1:
+            case AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND1_CUTOFFFREQUENCY:
+            case AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND1_GAIN:
+                byte[] tempParamPostEq1Cmd = new byte[4];
+                byte[] tempParamPostEq1Ch = new byte[4];
+                byte[] tempParamPostEq1Band = new byte[4];
+                tempParamPostEq1Cmd = mDpe.intToByteArray(AudioEffectManager.CMD_DPE_POST_EQ_BAND);
+                tempParamPostEq1Ch = mDpe.intToByteArray(0); //channel 0
+                tempParamPostEq1Band = mDpe.intToByteArray(1); // band 1
+
+                List<byte[]> listParamPostEq1 = new ArrayList<>();
+                listParamPostEq1.add(tempParamPostEq1Cmd);
+                listParamPostEq1.add(tempParamPostEq1Ch);
+                listParamPostEq1.add(tempParamPostEq1Band);
+                byte[] tempParam_postEq1 = mergeByte(listParamPostEq1);
+
+                byte[] tempValuePostEq1En = new byte[4];
+                byte[] tempValuePostEq1Cut = new byte[4];
+                byte[] tempValuePostEq1Gain = new byte[4];
+
+                tempValuePostEq1En = mDpe.intToByteArray(getDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND1));
+                tempValuePostEq1Cut = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND1_CUTOFFFREQUENCY));
+                tempValuePostEq1Gain = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND1_GAIN));
+
+                //set
+                List<byte[]> listValuePostEq1 = new ArrayList<>();
+                if (id == AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND1_CUTOFFFREQUENCY) {
+                    tempValuePostEq1Cut = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND1_GAIN) {
+                    tempValuePostEq1Gain = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND1) {
+                    tempValuePostEq1En = mDpe.intToByteArray(value);
+                }
+
+                listValuePostEq1.add(tempValuePostEq1En);
+                listValuePostEq1.add(tempValuePostEq1Cut);
+                listValuePostEq1.add(tempValuePostEq1Gain);
+                byte[] tempValue_postEq1 = mergeByte(listValuePostEq1);
+
+                mDpe.setParameter(tempParam_postEq1, tempValue_postEq1);
+                tempParam_postEq1[4] = 1; //channel 1
+                mDpe.setParameter(tempParam_postEq1, tempValue_postEq1);
+                saveDpeParam(id, value);
+                break;
+
+            // post eq band 2
+            case AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND2:
+            case AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND2_CUTOFFFREQUENCY:
+            case AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND2_GAIN:
+                byte[] tempParamPostEq2Cmd = new byte[4];
+                byte[] tempParamPostEq2Ch = new byte[4];
+                byte[] tempParamPostEq2Band = new byte[4];
+                tempParamPostEq2Cmd = mDpe.intToByteArray(AudioEffectManager.CMD_DPE_POST_EQ_BAND);
+                tempParamPostEq2Ch = mDpe.intToByteArray(0); //channel 0
+                tempParamPostEq2Band = mDpe.intToByteArray(2); // band 2
+
+                List<byte[]> listParamPostEq2 = new ArrayList<>();
+                listParamPostEq2.add(tempParamPostEq2Cmd);
+                listParamPostEq2.add(tempParamPostEq2Ch);
+                listParamPostEq2.add(tempParamPostEq2Band);
+                byte[] tempParam_postEq2 = mergeByte(listParamPostEq2);
+
+                byte[] tempValuePostEq2En = new byte[4];
+                byte[] tempValuePostEq2Cut = new byte[4];
+                byte[] tempValuePostEq2Gain = new byte[4];
+
+                tempValuePostEq2En = mDpe.intToByteArray(getDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND2));
+                tempValuePostEq2Cut = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND2_CUTOFFFREQUENCY));
+                tempValuePostEq2Gain = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND2_GAIN));
+
+                //set
+                List<byte[]> listValuePostEq2 = new ArrayList<>();
+                if (id == AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND2_CUTOFFFREQUENCY) {
+                    tempValuePostEq2Cut = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND2_GAIN) {
+                    tempValuePostEq2Gain = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND2) {
+                    tempValuePostEq2En = mDpe.intToByteArray(value);
+                }
+
+                listValuePostEq2.add(tempValuePostEq2En);
+                listValuePostEq2.add(tempValuePostEq2Cut);
+                listValuePostEq2.add(tempValuePostEq2Gain);
+                byte[] tempValue_postEq2 = mergeByte(listValuePostEq2);
+
+                mDpe.setParameter(tempParam_postEq2, tempValue_postEq2);
+                tempParam_postEq2[4] = 1; //channel 1
+                mDpe.setParameter(tempParam_postEq2, tempValue_postEq2);
+                saveDpeParam(id, value);
+                break;
+
+            //mbc band 0
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0:
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0_CUTOFFFREQUENCY:
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0_ATTACKTIME:
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0_RELEASETIME:
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0_RATIO:
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0_THRESHOLD:
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0_KNEEWIDTH:
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0_NOISEGATETHRESHOLD:
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0_EXPANDERRATIO:
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0_PREGAIN:
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0_POSTGAIN:
+                byte[] tempParamMbc0Cmd = new byte[4];
+                byte[] tempParamMbc0Ch = new byte[4];
+                byte[] tempParamMbc0Band = new byte[4];
+                tempParamMbc0Cmd = mDpe.intToByteArray(AudioEffectManager.CMD_DPE_MBC_BAND);
+                tempParamMbc0Ch = mDpe.intToByteArray(0); //channel 0
+                tempParamMbc0Band = mDpe.intToByteArray(0); // band 0
+
+                List<byte[]> listParamMbc0 = new ArrayList<>();
+                listParamMbc0.add(tempParamMbc0Cmd);
+                listParamMbc0.add(tempParamMbc0Ch);
+                listParamMbc0.add(tempParamMbc0Band);
+                byte[] tempParam_mbc0 = mergeByte(listParamMbc0);
+
+                byte[] tempValueMbc0En = new byte[4];
+                byte[] tempValueMbc0Cut = new byte[4];
+                byte[] tempValueMbc0Att = new byte[4];
+                byte[] tempValueMbc0Relea = new byte[4];
+                byte[] tempValueMbc0Ratio = new byte[4];
+                byte[] tempValueMbc0Thre = new byte[4];
+                byte[] tempValueMbc0Knee = new byte[4];
+                byte[] tempValueMbc0Noise = new byte[4];
+                byte[] tempValueMbc0Exp = new byte[4];
+                byte[] tempValueMbc0Pre = new byte[4];
+                byte[] tempValueMbc0Post = new byte[4];
+
+                tempValueMbc0En    = mDpe.intToByteArray(getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND0));
+                tempValueMbc0Cut   = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND0_CUTOFFFREQUENCY));
+                tempValueMbc0Att   = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND0_ATTACKTIME));
+                tempValueMbc0Relea = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND0_RELEASETIME));
+                tempValueMbc0Ratio = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND0_RATIO));
+                tempValueMbc0Thre  = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND0_THRESHOLD));
+                tempValueMbc0Knee  = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND0_KNEEWIDTH));
+                tempValueMbc0Noise = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND0_NOISEGATETHRESHOLD));
+                tempValueMbc0Exp   = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND0_EXPANDERRATIO));
+                tempValueMbc0Pre   = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND0_PREGAIN));
+                tempValueMbc0Post  = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND0_POSTGAIN));
+
+                //set
+                List<byte[]> listValueMbc0 = new ArrayList<>();
+                if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND0_CUTOFFFREQUENCY) {
+                    tempValueMbc0Cut = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND0_ATTACKTIME) {
+                    tempValueMbc0Att = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND0_RELEASETIME) {
+                    tempValueMbc0Relea = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND0_RATIO) {
+                    tempValueMbc0Ratio = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND0_THRESHOLD) {
+                    tempValueMbc0Thre = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND0_KNEEWIDTH) {
+                    tempValueMbc0Knee = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND0_NOISEGATETHRESHOLD) {
+                    tempValueMbc0Noise = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND0_EXPANDERRATIO) {
+                    tempValueMbc0Exp = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND0_PREGAIN) {
+                    tempValueMbc0Pre = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND0_POSTGAIN) {
+                    tempValueMbc0Post = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND0) {
+                    tempValueMbc0En = mDpe.intToByteArray(value);
+                }
+
+                listValueMbc0.add(tempValueMbc0En);
+                listValueMbc0.add(tempValueMbc0Cut);
+                listValueMbc0.add(tempValueMbc0Att);
+                listValueMbc0.add(tempValueMbc0Relea);
+                listValueMbc0.add(tempValueMbc0Ratio);
+                listValueMbc0.add(tempValueMbc0Thre);
+                listValueMbc0.add(tempValueMbc0Knee);
+                listValueMbc0.add(tempValueMbc0Noise);
+                listValueMbc0.add(tempValueMbc0Exp);
+                listValueMbc0.add(tempValueMbc0Pre);
+                listValueMbc0.add(tempValueMbc0Post);
+                byte[] tempValue_mbc0 = mergeByte(listValueMbc0);
+
+                mDpe.setParameter(tempParam_mbc0, tempValue_mbc0);
+                tempParam_mbc0[4] = 1; //channel 1
+                mDpe.setParameter(tempParam_mbc0, tempValue_mbc0);
+                saveDpeParam(id, value);
+                break;
+
+            //mbc band 1
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1:
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1_CUTOFFFREQUENCY:
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1_ATTACKTIME:
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1_RELEASETIME:
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1_RATIO:
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1_THRESHOLD:
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1_KNEEWIDTH:
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1_NOISEGATETHRESHOLD:
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1_EXPANDERRATIO:
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1_PREGAIN:
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1_POSTGAIN:
+                byte[] tempParamMbc1Cmd = new byte[4];
+                byte[] tempParamMbc1Ch = new byte[4];
+                byte[] tempParamMbc1Band = new byte[4];
+                tempParamMbc1Cmd = mDpe.intToByteArray(AudioEffectManager.CMD_DPE_MBC_BAND);
+                tempParamMbc1Ch = mDpe.intToByteArray(0); //channel 0
+                tempParamMbc1Band = mDpe.intToByteArray(1); // band 1
+
+                List<byte[]> listParamMbc1 = new ArrayList<>();
+                listParamMbc1.add(tempParamMbc1Cmd);
+                listParamMbc1.add(tempParamMbc1Ch);
+                listParamMbc1.add(tempParamMbc1Band);
+                byte[] tempParam_mbc1 = mergeByte(listParamMbc1);
+
+                byte[] tempValueMbc1En = new byte[4];
+                byte[] tempValueMbc1Cut = new byte[4];
+                byte[] tempValueMbc1Att = new byte[4];
+                byte[] tempValueMbc1Relea = new byte[4];
+                byte[] tempValueMbc1Ratio = new byte[4];
+                byte[] tempValueMbc1Thre = new byte[4];
+                byte[] tempValueMbc1Knee = new byte[4];
+                byte[] tempValueMbc1Noise = new byte[4];
+                byte[] tempValueMbc1Exp = new byte[4];
+                byte[] tempValueMbc1Pre = new byte[4];
+                byte[] tempValueMbc1Post = new byte[4];
+
+                tempValueMbc1En    = mDpe.intToByteArray(getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND1));
+                tempValueMbc1Cut   = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND1_CUTOFFFREQUENCY));
+                tempValueMbc1Att   = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND1_ATTACKTIME));
+                tempValueMbc1Relea = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND1_RELEASETIME));
+                tempValueMbc1Ratio = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND1_RATIO));
+                tempValueMbc1Thre  = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND1_THRESHOLD));
+                tempValueMbc1Knee  = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND1_KNEEWIDTH));
+                tempValueMbc1Noise = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND1_NOISEGATETHRESHOLD));
+                tempValueMbc1Exp   = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND1_EXPANDERRATIO));
+                tempValueMbc1Pre   = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND1_PREGAIN));
+                tempValueMbc1Post  = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND1_POSTGAIN));
+
+                //set
+                List<byte[]> listValueMbc1 = new ArrayList<>();
+                if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND1_CUTOFFFREQUENCY) {
+                    tempValueMbc1Cut = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND1_ATTACKTIME) {
+                    tempValueMbc1Att = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND1_RELEASETIME) {
+                    tempValueMbc1Relea = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND1_RATIO) {
+                    tempValueMbc1Ratio = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND1_THRESHOLD) {
+                    tempValueMbc1Thre = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND1_KNEEWIDTH) {
+                    tempValueMbc1Knee = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND1_NOISEGATETHRESHOLD) {
+                    tempValueMbc1Noise = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND1_EXPANDERRATIO) {
+                    tempValueMbc1Exp = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND1_PREGAIN) {
+                    tempValueMbc1Pre = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND1_POSTGAIN) {
+                    tempValueMbc1Post = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND1) {
+                    tempValueMbc1En = mDpe.intToByteArray(value);
+                }
+
+                listValueMbc1.add(tempValueMbc1En);
+                listValueMbc1.add(tempValueMbc1Cut);
+                listValueMbc1.add(tempValueMbc1Att);
+                listValueMbc1.add(tempValueMbc1Relea);
+                listValueMbc1.add(tempValueMbc1Ratio);
+                listValueMbc1.add(tempValueMbc1Thre);
+                listValueMbc1.add(tempValueMbc1Knee);
+                listValueMbc1.add(tempValueMbc1Noise);
+                listValueMbc1.add(tempValueMbc1Exp);
+                listValueMbc1.add(tempValueMbc1Pre);
+                listValueMbc1.add(tempValueMbc1Post);
+                byte[] tempValue_mbc1 = mergeByte(listValueMbc1);
+
+                mDpe.setParameter(tempParam_mbc1, tempValue_mbc1);
+                tempParam_mbc1[4] = 1; //channel 1
+                mDpe.setParameter(tempParam_mbc1, tempValue_mbc1);
+                saveDpeParam(id, value);
+                break;
+
+            // mbc band 2
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2:
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2_CUTOFFFREQUENCY:
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2_ATTACKTIME:
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2_RELEASETIME:
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2_RATIO:
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2_THRESHOLD:
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2_KNEEWIDTH:
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2_NOISEGATETHRESHOLD:
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2_EXPANDERRATIO:
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2_PREGAIN:
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2_POSTGAIN:
+                byte[] tempParamMbc2Cmd = new byte[4];
+                byte[] tempParamMbc2Ch = new byte[4];
+                byte[] tempParamMbc2Band = new byte[4];
+                tempParamMbc2Cmd = mDpe.intToByteArray(AudioEffectManager.CMD_DPE_MBC_BAND);
+                tempParamMbc2Ch = mDpe.intToByteArray(0); //channel 0
+                tempParamMbc2Band = mDpe.intToByteArray(2); // band 2
+
+                List<byte[]> listParamMbc2 = new ArrayList<>();
+                listParamMbc2.add(tempParamMbc2Cmd);
+                listParamMbc2.add(tempParamMbc2Ch);
+                listParamMbc2.add(tempParamMbc2Band);
+                byte[] tempParam_mbc2 = mergeByte(listParamMbc2);
+
+                byte[] tempValueMbc2En = new byte[4];
+                byte[] tempValueMbc2Cut = new byte[4];
+                byte[] tempValueMbc2Att = new byte[4];
+                byte[] tempValueMbc2Relea = new byte[4];
+                byte[] tempValueMbc2Ratio = new byte[4];
+                byte[] tempValueMbc2Thre = new byte[4];
+                byte[] tempValueMbc2Knee = new byte[4];
+                byte[] tempValueMbc2Noise = new byte[4];
+                byte[] tempValueMbc2Exp = new byte[4];
+                byte[] tempValueMbc2Pre = new byte[4];
+                byte[] tempValueMbc2Post = new byte[4];
+
+                tempValueMbc2En    = mDpe.intToByteArray(getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND2));
+                tempValueMbc2Cut   = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND2_CUTOFFFREQUENCY));
+                tempValueMbc2Att   = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND2_ATTACKTIME));
+                tempValueMbc2Relea = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND2_RELEASETIME));
+                tempValueMbc2Ratio = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND2_RATIO));
+                tempValueMbc2Thre  = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND2_THRESHOLD));
+                tempValueMbc2Knee  = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND2_KNEEWIDTH));
+                tempValueMbc2Noise = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND2_NOISEGATETHRESHOLD));
+                tempValueMbc2Exp   = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND2_EXPANDERRATIO));
+                tempValueMbc2Pre   = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND2_PREGAIN));
+                tempValueMbc2Post  = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_MBC_BAND2_POSTGAIN));
+
+                //set
+                List<byte[]> listValueMbc2 = new ArrayList<>();
+                if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND2_CUTOFFFREQUENCY) {
+                    tempValueMbc2Cut = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND2_ATTACKTIME) {
+                    tempValueMbc2Att = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND2_RELEASETIME) {
+                    tempValueMbc2Relea = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND2_RATIO) {
+                    tempValueMbc2Ratio = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND2_THRESHOLD) {
+                    tempValueMbc2Thre = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND2_KNEEWIDTH) {
+                    tempValueMbc2Knee = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND2_NOISEGATETHRESHOLD) {
+                    tempValueMbc2Noise = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND2_EXPANDERRATIO) {
+                    tempValueMbc2Exp = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND2_PREGAIN) {
+                    tempValueMbc2Pre = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND2_POSTGAIN) {
+                    tempValueMbc2Post = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_MBC_BAND2) {
+                    tempValueMbc2En = mDpe.intToByteArray(value);
+                }
+
+                listValueMbc2.add(tempValueMbc2En);
+                listValueMbc2.add(tempValueMbc2Cut);
+                listValueMbc2.add(tempValueMbc2Att);
+                listValueMbc2.add(tempValueMbc2Relea);
+                listValueMbc2.add(tempValueMbc2Ratio);
+                listValueMbc2.add(tempValueMbc2Thre);
+                listValueMbc2.add(tempValueMbc2Knee);
+                listValueMbc2.add(tempValueMbc2Noise);
+                listValueMbc2.add(tempValueMbc2Exp);
+                listValueMbc2.add(tempValueMbc2Pre);
+                listValueMbc2.add(tempValueMbc2Post);
+                byte[] tempValue_mbc2 = mergeByte(listValueMbc2);
+
+                mDpe.setParameter(tempParam_mbc2, tempValue_mbc2);
+                tempParam_mbc2[4] = 1; //channel 1
+                mDpe.setParameter(tempParam_mbc2, tempValue_mbc2);
+                saveDpeParam(id, value);
+                break;
+
+            //limiter param
+            case AudioEffectManager.CMD_DPE_LIMITER:
+            case AudioEffectManager.SUBCMD_DPE_LIMITER_ATTACKTIME:
+            case AudioEffectManager.SUBCMD_DPE_LIMITER_RELEASETIME:
+            case AudioEffectManager.SUBCMD_DPE_LIMITER_RATIO:
+            case AudioEffectManager.SUBCMD_DPE_LIMITER_THRESHOLD:
+            case AudioEffectManager.SUBCMD_DPE_LIMITER_POSTGAIN:
+                byte[] tempParam_limiter = new byte[] {AudioEffectManager.CMD_DPE_LIMITER, 0, 0, 0, 0, 0, 0, 0};
+
+                byte[] tempValueLimiterIu    = new byte[4];
+                byte[] tempValueLimiterEn    = new byte[4];
+                byte[] tempValueLimiterLink  = new byte[] {1, 0, 0, 0};
+                byte[] tempValueLimiterAtt   = new byte[4];
+                byte[] tempValueLimiterRelea = new byte[4];
+                byte[] tempValueLimiterRatio = new byte[4];
+                byte[] tempValueLimiterThre  = new byte[4];
+                byte[] tempValueLimiterPost  = new byte[4];
+
+                tempValueLimiterIu    = mDpe.intToByteArray(getDpeParam(AudioEffectManager.CMD_DPE_LIMITER));
+                tempValueLimiterEn    = mDpe.intToByteArray(getDpeParam(AudioEffectManager.CMD_DPE_LIMITER));
+                tempValueLimiterAtt   = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_LIMITER_ATTACKTIME));
+                tempValueLimiterRelea = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_LIMITER_RELEASETIME));
+                tempValueLimiterRatio = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_LIMITER_RATIO));
+                tempValueLimiterThre  = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_LIMITER_THRESHOLD));
+                tempValueLimiterPost  = mDpe.floatToByteArray((float)getDpeParam(AudioEffectManager.SUBCMD_DPE_LIMITER_POSTGAIN));
+
+                //set
+                List<byte[]> listValueLimiter = new ArrayList<>();
+                if (id == AudioEffectManager.SUBCMD_DPE_LIMITER_ATTACKTIME) {
+                    tempValueLimiterAtt = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_LIMITER_RELEASETIME) {
+                    tempValueLimiterRelea = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_LIMITER_RATIO) {
+                    tempValueLimiterRatio = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_LIMITER_THRESHOLD) {
+                    tempValueLimiterThre = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.SUBCMD_DPE_LIMITER_POSTGAIN) {
+                    tempValueLimiterPost = mDpe.floatToByteArray((float)value);
+                } else if (id == AudioEffectManager.CMD_DPE_LIMITER) {
+                    tempValueLimiterIu = mDpe.intToByteArray(value);
+                    tempValueLimiterEn = mDpe.intToByteArray(value);
+                }
+
+                listValueLimiter.add(tempValueLimiterIu);
+                listValueLimiter.add(tempValueLimiterEn);
+                listValueLimiter.add(tempValueLimiterLink);
+                listValueLimiter.add(tempValueLimiterAtt);
+                listValueLimiter.add(tempValueLimiterRelea);
+                listValueLimiter.add(tempValueLimiterRatio);
+                listValueLimiter.add(tempValueLimiterThre);
+                listValueLimiter.add(tempValueLimiterPost);
+                byte[] tempValue_limiter = mergeByte(listValueLimiter);
+
+                mDpe.setParameter(tempParam_limiter, tempValue_limiter);
+                tempParam_limiter[4] = 1; // channel 1
+                mDpe.setParameter(tempParam_limiter, tempValue_limiter);
+                saveDpeParam(id, value);
+                break;
+        }
+    }
+
+
+    // dpe get param
+    public int getDpeParam(int id) {
+        int value = -1;
+        if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "getDpeParam id:" + id + ", value:" + value);
+        switch (id) {
+            case AudioEffectManager.CMD_DPE_ENABLED:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_ENABLED, -1);
+                if (value < 0) {
+                    value = getDpeParamInternal(AudioEffectManager.CMD_DPE_ENABLED);
+                    Log.d(TAG, "getDpeParam id:CMD_DPE_ENABLED hal value:" + value);
+                    saveDpeParam(id, value);
+                }
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_ENABLED, AudioEffectManager.DEFAULT_DPE_ENABLE);
+                Log.d(TAG, "getDpeParam id:CMD_DPE_ENABLED get DPE value:" + value);
+                break;
+            case AudioEffectManager.CMD_DPE_INPUTGAIN:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_INPUTGAIN, AudioEffectManager.DEFAULT_DPE_INPUTGAIN);
+                break;
+            case AudioEffectManager.CMD_DPE_PRE_EQ:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_PRE_EQ, AudioEffectManager.DPE_PRE_EQ_OFF);
+                break;
+            case AudioEffectManager.CMD_DPE_MBC:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC, AudioEffectManager.DPE_MBC_OFF);
+                break;
+            case AudioEffectManager.CMD_DPE_POST_EQ:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_POST_EQ, AudioEffectManager.DPE_POST_EQ_OFF);
+                break;
+            case AudioEffectManager.CMD_DPE_LIMITER:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_LIMITER, AudioEffectManager.DPE_LIMITER_OFF);
+                break;
+
+            // pre eq band 0
+            case AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND0, 0);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0_CUTOFFFREQUENCY:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND0_CUTOFFFREQUENCY, AudioEffectManager.DEFAULT_DPE_BAND0_CUTOFFFREQUENCY);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0_GAIN:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND0_GAIN, AudioEffectManager.DEFAULT_DPE_EQ_GAIN);
+                break;
+
+            // pre eq band 1
+            case AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND1:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND1, 0);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND1_CUTOFFFREQUENCY:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND1_CUTOFFFREQUENCY, AudioEffectManager.DEFAULT_DPE_BAND1_CUTOFFFREQUENCY);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND1_GAIN:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND1_GAIN, AudioEffectManager.DEFAULT_DPE_EQ_GAIN);
+                break;
+
+            // pre eq band 2
+            case AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND2:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND2, 0);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND2_CUTOFFFREQUENCY:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND2_CUTOFFFREQUENCY, AudioEffectManager.DEFAULT_DPE_BAND2_CUTOFFFREQUENCY);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND2_GAIN:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND2_GAIN, AudioEffectManager.DAP_GEQ_DEFAULT);
+                break;
+
+            // post eq band 0
+            case AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND0:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND0, 0);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND0_CUTOFFFREQUENCY:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND0_CUTOFFFREQUENCY, AudioEffectManager.DEFAULT_DPE_BAND0_CUTOFFFREQUENCY);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND0_GAIN:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND0_GAIN, AudioEffectManager.DEFAULT_DPE_EQ_GAIN);
+                break;
+
+            // post eq band 1
+            case AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND1:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND1, 0);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND1_CUTOFFFREQUENCY:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND1_CUTOFFFREQUENCY, AudioEffectManager.DEFAULT_DPE_BAND1_CUTOFFFREQUENCY);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND1_GAIN:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND1_GAIN, AudioEffectManager.DEFAULT_DPE_EQ_GAIN);
+                break;
+
+            // post eq band 2
+            case AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND2:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND2, 0);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND2_CUTOFFFREQUENCY:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND2_CUTOFFFREQUENCY, AudioEffectManager.DEFAULT_DPE_BAND2_CUTOFFFREQUENCY);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND2_GAIN:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND2_GAIN, AudioEffectManager.DEFAULT_DPE_EQ_GAIN);
+                break;
+
+            // MBC band 0
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0, 0);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0_CUTOFFFREQUENCY:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_CUTOFFFREQUENCY, AudioEffectManager.DEFAULT_DPE_BAND0_CUTOFFFREQUENCY);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0_ATTACKTIME:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_ATTACKTIME, AudioEffectManager.DEFAULT_DPE_ATTACKTIME);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0_RELEASETIME:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_RELEASETIME, AudioEffectManager.DEFAULT_DPE_RELEASETIME);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0_RATIO:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_RATIO, AudioEffectManager.DEFAULT_DPE_MBC_RATIO);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0_THRESHOLD:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_THRESHOLD, AudioEffectManager.DEFAULT_DPE_MBC_THRESHOLD);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0_KNEEWIDTH:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_KNEEWIDTH, AudioEffectManager.DEFAULT_DPE_MBC_KNEEWIDTH);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0_NOISEGATETHRESHOLD:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_NOISEGATE_THRESHOLD, AudioEffectManager.DEFAULT_DPE_MBC_NOISEGATETHRESHOLD);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0_EXPANDERRATIO:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_EXPANDER_RATIO, AudioEffectManager.DEFAULT_DPE_MBC_EXPANDERRATIO);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0_PREGAIN:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_PRE_GAIN, AudioEffectManager.DEFAULT_DPE_MBC_PREGAIN);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0_POSTGAIN:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_POST_GAIN, AudioEffectManager.DEFAULT_DPE_MBC_POSTGAIN);
+                break;
+
+            // MBC band 1
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1, 0);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1_CUTOFFFREQUENCY:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_CUTOFFFREQUENCY, AudioEffectManager.DEFAULT_DPE_BAND1_CUTOFFFREQUENCY);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1_ATTACKTIME:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_ATTACKTIME, AudioEffectManager.DEFAULT_DPE_ATTACKTIME);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1_RELEASETIME:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_RELEASETIME, AudioEffectManager.DEFAULT_DPE_RELEASETIME);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1_RATIO:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_RATIO, AudioEffectManager.DEFAULT_DPE_MBC_RATIO);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1_THRESHOLD:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_THRESHOLD, AudioEffectManager.DEFAULT_DPE_MBC_THRESHOLD);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1_KNEEWIDTH:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_KNEEWIDTH, AudioEffectManager.DEFAULT_DPE_MBC_KNEEWIDTH);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1_NOISEGATETHRESHOLD:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_NOISEGATE_THRESHOLD, AudioEffectManager.DEFAULT_DPE_MBC_NOISEGATETHRESHOLD);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1_EXPANDERRATIO:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_EXPANDER_RATIO, AudioEffectManager.DEFAULT_DPE_MBC_EXPANDERRATIO);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1_PREGAIN:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_PRE_GAIN, AudioEffectManager.DEFAULT_DPE_MBC_PREGAIN);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1_POSTGAIN:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_POST_GAIN, AudioEffectManager.DEFAULT_DPE_MBC_POSTGAIN);
+                break;
+
+            // MBC band 2
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2, 0);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2_CUTOFFFREQUENCY:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_CUTOFFFREQUENCY, AudioEffectManager.DEFAULT_DPE_BAND2_CUTOFFFREQUENCY);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2_ATTACKTIME:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_ATTACKTIME, AudioEffectManager.DEFAULT_DPE_ATTACKTIME);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2_RELEASETIME:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_RELEASETIME, AudioEffectManager.DEFAULT_DPE_RELEASETIME);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2_RATIO:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_RATIO, AudioEffectManager.DEFAULT_DPE_MBC_RATIO);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2_THRESHOLD:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_THRESHOLD, AudioEffectManager.DEFAULT_DPE_MBC_THRESHOLD);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2_KNEEWIDTH:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_KNEEWIDTH, AudioEffectManager.DEFAULT_DPE_MBC_KNEEWIDTH);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2_NOISEGATETHRESHOLD:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_NOISEGATE_THRESHOLD, AudioEffectManager.DEFAULT_DPE_MBC_NOISEGATETHRESHOLD);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2_EXPANDERRATIO:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_EXPANDER_RATIO, AudioEffectManager.DEFAULT_DPE_MBC_EXPANDERRATIO);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2_PREGAIN:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_PRE_GAIN, AudioEffectManager.DEFAULT_DPE_MBC_PREGAIN);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2_POSTGAIN:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_POST_GAIN, AudioEffectManager.DEFAULT_DPE_MBC_POSTGAIN);
+                break;
+
+            // limiter sub param
+            case AudioEffectManager.SUBCMD_DPE_LIMITER_ATTACKTIME:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_LIMITER_ATTACKTIME, AudioEffectManager.DEFAULT_DPE_ATTACKTIME);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_LIMITER_RELEASETIME:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_LIMITER_RELEASETIMR, AudioEffectManager.DEFAULT_DPE_RELEASETIME);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_LIMITER_RATIO:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_LIMITER_RATIO, AudioEffectManager.DEFAULT_DPE_LIMITER_RATIO);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_LIMITER_THRESHOLD:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_LIMITER_THRESHOLD, AudioEffectManager.DEFAULT_DPE_LIMITER_THRESHOLD);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_LIMITER_POSTGAIN:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_LIMITER_POST_GAIN, AudioEffectManager.DEFAULT_DPE_LIMITER_POSTGAIN);
+                break;
+        }
+        return value;
+    }
+
+
+    // dpe save param
+    public void saveDpeParam (int id, int value) {
+        if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "saveDpeParam id:" + id + ", value:" + value);
+
+        switch (id) {
+            case AudioEffectManager.CMD_DPE_ENABLED:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_ENABLED, value);
+                break;
+            case AudioEffectManager.CMD_DPE_INPUTGAIN:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_INPUTGAIN, value);
+                break;
+            case AudioEffectManager.CMD_DPE_PRE_EQ:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_PRE_EQ, value);
+                break;
+            case AudioEffectManager.CMD_DPE_MBC:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC, value);
+                break;
+            case AudioEffectManager.CMD_DPE_POST_EQ:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_POST_EQ, value);
+                break;
+            case AudioEffectManager.CMD_DPE_LIMITER:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_LIMITER, value);
+                break;
+
+            // pre eq band 0
+            case AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND0, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0_CUTOFFFREQUENCY:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND0_CUTOFFFREQUENCY, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0_GAIN:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND0_GAIN, value);
+                break;
+
+            // pre eq band 1
+            case AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND1:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND1, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND1_CUTOFFFREQUENCY:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND1_CUTOFFFREQUENCY, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND1_GAIN:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND1_GAIN, value);
+                break;
+
+            // pre eq band 2
+            case AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND2:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND2, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND2_CUTOFFFREQUENCY:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND2_CUTOFFFREQUENCY, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND2_GAIN:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND2_GAIN, value);
+                break;
+
+            // post eq band 0
+            case AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND0:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND0, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND0_CUTOFFFREQUENCY:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND0_CUTOFFFREQUENCY, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND0_GAIN:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND0_GAIN, value);
+                break;
+
+            // post eq band 1
+            case AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND1:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND1, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND1_CUTOFFFREQUENCY:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND1_CUTOFFFREQUENCY, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND1_GAIN:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND1_GAIN, value);
+                break;
+
+            // post eq band 2
+            case AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND2:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND2, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND2_CUTOFFFREQUENCY:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND2_CUTOFFFREQUENCY, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND2_GAIN:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND2_GAIN, value);
+                break;
+
+            // MBC band 0
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0_CUTOFFFREQUENCY:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_CUTOFFFREQUENCY, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0_ATTACKTIME:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_ATTACKTIME, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0_RELEASETIME:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_RELEASETIME, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0_RATIO:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_RATIO, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0_THRESHOLD:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_THRESHOLD, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0_KNEEWIDTH:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_KNEEWIDTH, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0_NOISEGATETHRESHOLD:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_NOISEGATE_THRESHOLD, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0_EXPANDERRATIO:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_EXPANDER_RATIO, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0_PREGAIN:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_PRE_GAIN, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND0_POSTGAIN:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_POST_GAIN, value);
+                break;
+
+            // MBC band 1
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1_CUTOFFFREQUENCY:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_CUTOFFFREQUENCY, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1_ATTACKTIME:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_ATTACKTIME, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1_RELEASETIME:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_RELEASETIME, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1_RATIO:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_RATIO, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1_THRESHOLD:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_THRESHOLD, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1_KNEEWIDTH:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_KNEEWIDTH, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1_NOISEGATETHRESHOLD:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_NOISEGATE_THRESHOLD, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1_EXPANDERRATIO:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_EXPANDER_RATIO, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1_PREGAIN:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_PRE_GAIN, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND1_POSTGAIN:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_POST_GAIN, value);
+                break;
+
+            // MBC band 2
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2_CUTOFFFREQUENCY:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_CUTOFFFREQUENCY, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2_ATTACKTIME:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_ATTACKTIME, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2_RELEASETIME:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_RELEASETIME, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2_RATIO:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_RATIO, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2_THRESHOLD:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_THRESHOLD, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2_KNEEWIDTH:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_KNEEWIDTH, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2_NOISEGATETHRESHOLD:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_NOISEGATE_THRESHOLD, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2_EXPANDERRATIO:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_EXPANDER_RATIO, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2_PREGAIN:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_PRE_GAIN, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_MBC_BAND2_POSTGAIN:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_POST_GAIN, value);
+                break;
+
+            // limiter sub param
+            case AudioEffectManager.SUBCMD_DPE_LIMITER_ATTACKTIME:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_LIMITER_ATTACKTIME, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_LIMITER_RELEASETIME:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_LIMITER_RELEASETIMR, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_LIMITER_RATIO:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_LIMITER_RATIO, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_LIMITER_THRESHOLD:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_LIMITER_THRESHOLD, value);
+                break;
+            case AudioEffectManager.SUBCMD_DPE_LIMITER_POSTGAIN:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_LIMITER_POST_GAIN, value);
+                break;
+        }
+    }
+
     public void createAudioEffectsByIndex () {
         Log.d(TAG, "createAudioEffects Start to create audio effects...");
         mSupportVirtualX = false;
@@ -1615,6 +3041,10 @@ public class SoundEffectManager {
             initVirtualSurroundAudioEffects();
         }
 
+        if (isAudioEffectOn(AudioEffectManager.DEBUG_DPE_UI)) {
+            creatDpeAudioEffect();
+            initDpeAudioEffect();
+        }
         if (isAudioEffectOn(AudioEffectManager.DEBUG_VIRTUAL_X_UI)) {
             mSupportVirtualX = creatVirtualXAudioEffects();
             initVirtualXAudioEffects();
@@ -1662,6 +3092,14 @@ public class SoundEffectManager {
                     initVirtualSurroundAudioEffects();
                 } else {
                     cleanupVirtualSurroundAudioEffects();
+                }
+                break;
+            case AudioEffectManager.DEBUG_DPE_UI:
+                if (value == AudioEffectManager.DEBUG_UI_ON) {
+                    creatDpeAudioEffect();
+                    initDpeAudioEffect();
+                } else {
+                    cleanupDpeAudioEffects();
                 }
                 break;
             case AudioEffectManager.DEBUG_VIRTUAL_X_UI:

@@ -176,6 +176,123 @@ public class AudioEffectManager {
     public static final int DAP_SURROUND_BOOST_DEFAULT      = 0;
     public static final int DAP_POST_GAIN_DEFAULT           = 0;
     public static final int DAP_GEQ_GAIN_DEFAULT            = 0;
+
+    //dpe effect param define
+    public static final int CMD_DPE_ENABLED                                  = 48;
+    public static final int CMD_DPE_INPUTGAIN                                = 32;
+    public static final int CMD_DPE_PRE_EQ                                   = 64;
+    public static final int CMD_DPE_PRE_EQ_BAND                              = 69;
+    public static final int CMD_DPE_MBC                                      = 80;
+    public static final int CMD_DPE_MBC_BAND                                 = 85;
+    public static final int CMD_DPE_POST_EQ                                  = 96;
+    public static final int CMD_DPE_POST_EQ_BAND                             = 101;
+    public static final int CMD_DPE_LIMITER                                  = 112;
+
+    // dpe effect sub pre eq band 0 param define
+    public static final int SUBCMD_DPE_PRE_EQ_BAND0                          = 100000;
+    public static final int SUBCMD_DPE_PRE_EQ_BAND0_CUTOFFFREQUENCY          = 10000;
+    public static final int SUBCMD_DPE_PRE_EQ_BAND0_GAIN                     = 10001;
+    // dpe effect sub pre eq band 1 param define
+    public static final int SUBCMD_DPE_PRE_EQ_BAND1                          = 100100;
+    public static final int SUBCMD_DPE_PRE_EQ_BAND1_CUTOFFFREQUENCY          = 10010;
+    public static final int SUBCMD_DPE_PRE_EQ_BAND1_GAIN                     = 10011;
+    // dpe effect sub pre eq band 2 param define
+    public static final int SUBCMD_DPE_PRE_EQ_BAND2                          = 100200;
+    public static final int SUBCMD_DPE_PRE_EQ_BAND2_CUTOFFFREQUENCY          = 10020;
+    public static final int SUBCMD_DPE_PRE_EQ_BAND2_GAIN                     = 10021;
+
+    // dpe effect sub mbc param band 0 define
+    public static final int SUBCMD_DPE_MBC_BAND0                             = 110000;
+    public static final int SUBCMD_DPE_MBC_BAND0_CUTOFFFREQUENCY             = 11000;
+    public static final int SUBCMD_DPE_MBC_BAND0_ATTACKTIME                  = 11001;
+    public static final int SUBCMD_DPE_MBC_BAND0_RELEASETIME                 = 11002;
+    public static final int SUBCMD_DPE_MBC_BAND0_RATIO                       = 11003;
+    public static final int SUBCMD_DPE_MBC_BAND0_THRESHOLD                   = 11004;
+    public static final int SUBCMD_DPE_MBC_BAND0_KNEEWIDTH                   = 11005;
+    public static final int SUBCMD_DPE_MBC_BAND0_NOISEGATETHRESHOLD          = 11006;
+    public static final int SUBCMD_DPE_MBC_BAND0_EXPANDERRATIO               = 11007;
+    public static final int SUBCMD_DPE_MBC_BAND0_PREGAIN                     = 11008;
+    public static final int SUBCMD_DPE_MBC_BAND0_POSTGAIN                    = 11009;
+    // dpe effect sub mbc param band 1 define
+    public static final int SUBCMD_DPE_MBC_BAND1                             = 110100;
+    public static final int SUBCMD_DPE_MBC_BAND1_CUTOFFFREQUENCY             = 11010;
+    public static final int SUBCMD_DPE_MBC_BAND1_ATTACKTIME                  = 11011;
+    public static final int SUBCMD_DPE_MBC_BAND1_RELEASETIME                 = 11012;
+    public static final int SUBCMD_DPE_MBC_BAND1_RATIO                       = 11013;
+    public static final int SUBCMD_DPE_MBC_BAND1_THRESHOLD                   = 11014;
+    public static final int SUBCMD_DPE_MBC_BAND1_KNEEWIDTH                   = 11015;
+    public static final int SUBCMD_DPE_MBC_BAND1_NOISEGATETHRESHOLD          = 11016;
+    public static final int SUBCMD_DPE_MBC_BAND1_EXPANDERRATIO               = 11017;
+    public static final int SUBCMD_DPE_MBC_BAND1_PREGAIN                     = 11018;
+    public static final int SUBCMD_DPE_MBC_BAND1_POSTGAIN                    = 11019;
+    // dpe effect sub mbc param band 2 define
+    public static final int SUBCMD_DPE_MBC_BAND2                             = 110200;
+    public static final int SUBCMD_DPE_MBC_BAND2_CUTOFFFREQUENCY             = 11020;
+    public static final int SUBCMD_DPE_MBC_BAND2_ATTACKTIME                  = 11021;
+    public static final int SUBCMD_DPE_MBC_BAND2_RELEASETIME                 = 11022;
+    public static final int SUBCMD_DPE_MBC_BAND2_RATIO                       = 11023;
+    public static final int SUBCMD_DPE_MBC_BAND2_THRESHOLD                   = 11024;
+    public static final int SUBCMD_DPE_MBC_BAND2_KNEEWIDTH                   = 11025;
+    public static final int SUBCMD_DPE_MBC_BAND2_NOISEGATETHRESHOLD          = 11026;
+    public static final int SUBCMD_DPE_MBC_BAND2_EXPANDERRATIO               = 11027;
+    public static final int SUBCMD_DPE_MBC_BAND2_PREGAIN                     = 11028;
+    public static final int SUBCMD_DPE_MBC_BAND2_POSTGAIN                    = 11029;
+
+    // dpe effect sub post eq band 0 param define
+    public static final int SUBCMD_DPE_POST_EQ_BAND0                         = 120000;
+    public static final int SUBCMD_DPE_POST_EQ_BAND0_CUTOFFFREQUENCY         = 12000;
+    public static final int SUBCMD_DPE_POST_EQ_BAND0_GAIN                    = 12001;
+    // dpe effect sub post eq band 1 param define
+    public static final int SUBCMD_DPE_POST_EQ_BAND1                         = 120100;
+    public static final int SUBCMD_DPE_POST_EQ_BAND1_CUTOFFFREQUENCY         = 12010;
+    public static final int SUBCMD_DPE_POST_EQ_BAND1_GAIN                    = 12011;
+    // dpe effect sub post eq band 2 param define
+    public static final int SUBCMD_DPE_POST_EQ_BAND2                         = 120200;
+    public static final int SUBCMD_DPE_POST_EQ_BAND2_CUTOFFFREQUENCY         = 12020;
+    public static final int SUBCMD_DPE_POST_EQ_BAND2_GAIN                    = 12021;
+
+    //dpe limiter sub  param
+    public static final int SUBCMD_DPE_LIMITER_ATTACKTIME                    = 13001;
+    public static final int SUBCMD_DPE_LIMITER_RELEASETIME                   = 13002;
+    public static final int SUBCMD_DPE_LIMITER_RATIO                         = 13003;
+    public static final int SUBCMD_DPE_LIMITER_THRESHOLD                     = 13004;
+    public static final int SUBCMD_DPE_LIMITER_POSTGAIN                      = 13005;
+
+    //dpe default value
+    public static final int DEFAULT_DPE_CHANNEL_AMOUNT                       = 2;
+    public static final int DEFAULT_DPE_BAND_AMOUNT                          = 3;
+    public static final float DEFAULT_DPE_FRAME_DURATION                     = 5f;
+    public static final int DEFAULT_DPE_ENABLE                               = 0;
+    public static final int DEFAULT_DPE_INPUTGAIN                            = 0;     //db
+    public static final int DEFAULT_DPE_BAND0_CUTOFFFREQUENCY                = 3000;  //HZ
+    public static final int DEFAULT_DPE_BAND1_CUTOFFFREQUENCY                = 6000;
+    public static final int DEFAULT_DPE_BAND2_CUTOFFFREQUENCY                = 9000;
+    public static final int DEFAULT_DPE_EQ_GAIN                              = 0;     //db
+    public static final int DEFAULT_DPE_ATTACKTIME                           = 150;    //ms
+    public static final int DEFAULT_DPE_RELEASETIME                          = 320;   //ms
+    public static final int DEFAULT_DPE_MBC_RATIO                            = 1;
+    public static final int DEFAULT_DPE_MBC_THRESHOLD                        = -10;  //dBFS
+    public static final int DEFAULT_DPE_MBC_KNEEWIDTH                        = 0;    //db
+    public static final int DEFAULT_DPE_MBC_NOISEGATETHRESHOLD               = -80;  //dBFS
+    public static final int DEFAULT_DPE_MBC_EXPANDERRATIO                    = 1;
+    public static final int DEFAULT_DPE_MBC_PREGAIN                          = 0;    //db
+    public static final int DEFAULT_DPE_MBC_POSTGAIN                         = 0;    //db
+    public static final int DEFAULT_DPE_LIMITER_RATIO                        = 30;
+    public static final int DEFAULT_DPE_LIMITER_THRESHOLD                    = -25;  //dBFS
+    public static final int DEFAULT_DPE_LIMITER_POSTGAIN                     = 0;    //db
+
+    public static final int DPE_ON                                           = 1;
+    public static final int DPE_OFF                                          = 0;
+
+    public static final int DPE_PRE_EQ_OFF                                   = 0;
+    public static final int DPE_PRE_EQ_ON                                    = 1;
+    public static final int DPE_POST_EQ_OFF                                  = 0;
+    public static final int DPE_POST_EQ_ON                                   = 1;
+    public static final int DPE_MBC_OFF                                      = 0;
+    public static final int DPE_MBC_ON                                       = 1;
+    public static final int DPE_LIMITER_OFF                                  = 0;
+    public static final int DPE_LIMITER_ON                                   = 1;
+
     //debug audio UI
     public static final int DEBUG_UI_ON                                      = 1;
     public static final int DEBUG_UI_OFF                                     = 0;
@@ -505,6 +622,36 @@ public class AudioEffectManager {
             Log.e(TAG, "initDapAudioEffect failed:" + e);
         }
     }
+
+    //dpe param
+    public void setDpeParam(int id, int value) {
+        if (audioEffectServiceIsNull()) return;
+        try {
+            mAudioEffectsService.setDpeParam(id, value);
+        } catch (RemoteException e) {
+            Log.e(TAG, "setDpeParam failed:" + e);
+        }
+    }
+
+    public int getDpeParam(int id) {
+        if (audioEffectServiceIsNull()) return 0;
+        try {
+            return mAudioEffectsService.getDpeParam(id);
+        } catch (RemoteException e) {
+            Log.e(TAG, "getDpeParam failed:" + e);
+        }
+        return 0;
+    }
+
+    public void initDpeAudioEffect() {
+        if (audioEffectServiceIsNull()) return;
+        try {
+            mAudioEffectsService.initDpeAudioEffect();
+        } catch (RemoteException e) {
+            Log.e(TAG, "initDpeAudioEffect failed:" + e);
+        }
+    }
+
     public void setAudioEffectOn(int id, boolean dbSwitch) {
         if (audioEffectServiceIsNull()) return;
         try {
