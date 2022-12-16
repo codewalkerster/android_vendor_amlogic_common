@@ -621,7 +621,7 @@ public class SoundEffectManager {
             }
         }
     }
-    //convert -10~10 to 0~100 controled by need or not
+    //convert -10~10 to 0~100 controlled by need or not
     private int unMappingLine(int mapval, boolean need) {
         if (!need) {
             return mapval;
@@ -638,7 +638,7 @@ public class SoundEffectManager {
         return (mapval - MIN_UI_VAL) * (MAX_VAL - MIN_VAL) / (MAX_UI_VAL - MIN_UI_VAL);
     }
 
-    //convert 0~100 to -10~10 controled by need or not
+    //convert 0~100 to -10~10 controlled by need or not
     private int MappingLine(int mapval, boolean need) {
         if (!need) {
             return mapval;

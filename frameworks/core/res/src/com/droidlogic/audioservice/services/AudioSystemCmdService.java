@@ -318,8 +318,8 @@ public class AudioSystemCmdService extends Service {
         super.onCreate();
         mContext = getApplicationContext();
         mSystemControlManager = SystemControlManager.getInstance();
-        mAudioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-        mTvInputManager = (TvInputManager) getSystemService(Context.TV_INPUT_SERVICE);
+        mAudioManager = getSystemService(AudioManager.class);
+        mTvInputManager = getSystemService(TvInputManager.class);
 
         if (DroidLogicUtils.isBuildLivetv()) {
             mADtvAudioEvent = new ADtvAudioEvent();
