@@ -106,11 +106,11 @@ static char *getop(char *s, int *first_time)
 {
     const char delim[] = " \t\n";
     char *p;
-    if (*first_time){
+    if (*first_time) {
         p = strtok(s, delim);
         *first_time = 0;//FALSE
     }
-    else{
+    else {
         p = strtok(NULL, delim);
     }
     return (p);
@@ -153,7 +153,7 @@ static int wpa_driver_set_backgroundscan_params(void *priv, char *cmd)
 
     opstr = getop(cmd, &first_time);
     while ((opstr = getop(cmd, &first_time)) != NULL) {
-        if((ptr = strstr(opstr, "SSID=")) != NULL) {
+        if ((ptr = strstr(opstr, "SSID=")) != NULL) {
             find_ssid = 1;
             ptr = ptr + strlen("SSID=");
             buf[bp++] = NL80211_CSCAN_SSID_SECTION;
@@ -162,19 +162,19 @@ static int wpa_driver_set_backgroundscan_params(void *priv, char *cmd)
             bp += strlen(ptr);
             i++;
         }
-        else if((ptr = strstr(opstr, "RSSI=")) != NULL) {
+        else if ((ptr = strstr(opstr, "RSSI=")) != NULL) {
             ptr = ptr + strlen("RSSI=");
             buf[bp++] = NL80211_BGSCAN_RSSI_SECTION;
             buf[bp++] = atoi(ptr);
         }
-        else if((ptr = strstr(opstr, "INTERVAL=")) != NULL) {
+        else if ((ptr = strstr(opstr, "INTERVAL=")) != NULL) {
             find_interval = 1;
             ptr = ptr + strlen("INTERVAL=");
             buf[bp++] = NL80211_BGSCAN_INTERVAL_SECTION;
             buf[bp++] = (u8)atoi(ptr);
             buf[bp++] = (u8)(atoi(ptr) >> 8);
         }
-        else if((ptr = strstr(opstr, "REPEAT=")) != NULL) {
+        else if ((ptr = strstr(opstr, "REPEAT=")) != NULL) {
             find_repeat = 1;
             ptr = ptr + strlen("REPEAT=");
             buf[bp++] = NL80211_BGSCAN_REPEAT_SECTION;
@@ -182,9 +182,9 @@ static int wpa_driver_set_backgroundscan_params(void *priv, char *cmd)
         }
     }
 
-    if(!find_ssid) {
+    if (!find_ssid) {
         while ((i < NL80211_SSID_AMOUNT) && (ssid_conf != NULL)) {
-            if ((!ssid_conf->disabled) && (ssid_conf->ssid_len <= NL80211_SSID_MAX_SIZE)){
+            if ((!ssid_conf->disabled) && (ssid_conf->ssid_len <= NL80211_SSID_MAX_SIZE)) {
                 wpa_printf(MSG_DEBUG, "For BG Scan: %s", ssid_conf->ssid);
                 buf[bp++] = NL80211_CSCAN_SSID_SECTION;
                 buf[bp++] = ssid_conf->ssid_len;
@@ -196,13 +196,13 @@ static int wpa_driver_set_backgroundscan_params(void *priv, char *cmd)
         }
     }
 
-    if(!find_interval){
+    if (!find_interval) {
         buf[bp++] = NL80211_BGSCAN_INTERVAL_SECTION;
         buf[bp++] = NL80211_BGSCAN_INTERVAL_DEF;
         buf[bp++] = (NL80211_BGSCAN_INTERVAL_DEF >> 8);
     }
 
-    if(!find_repeat){
+    if (!find_repeat) {
         buf[bp++] = NL80211_BGSCAN_REPEAT_SECTION;
         buf[bp++] = NL80211_BGSCAN_REPEAT_DEF;
     }
@@ -316,7 +316,7 @@ int wpa_driver_nl80211_driver_cmd_nxp(void *priv, char *cmd, char *buf,
         if ((ret = ioctl(drv->global->ioctl_sock, SIOCDEVPRIVATE + 14, &ifr)) < 0) {
             wpa_printf(MSG_ERROR, "%s: failed to issue private commands\n", __func__);
             wpa_printf(MSG_ERROR, "the cmd is %s\n", cmd);
-            wpa_printf(MSG_ERROR, "the error is [%d]  [%s] \n", errno, strerror(errno));
+            wpa_printf(MSG_ERROR, "the error is [%s] \n", strerror(errno));
             //wpa_driver_send_hang_msg(drv);
         } else {
             drv_errors = 0;
@@ -388,7 +388,7 @@ int wpa_driver_set_ap_wps_p2p_ie_nxp(void *priv, const struct wpabuf *beacon,
 
     buf = os_malloc(MAX_WPSP2PIE_CMD_SIZE);
     if (buf == NULL) {
-        wpa_printf(MSG_DEBUG, "%s: %s (%d)", __func__, strerror(errno), errno);
+        wpa_printf(MSG_DEBUG, "%s: %s", __func__, strerror(errno));
         return errno;
     }
     buf_size = MAX_WPSP2PIE_CMD_SIZE;
@@ -405,7 +405,7 @@ int wpa_driver_set_ap_wps_p2p_ie_nxp(void *priv, const struct wpabuf *beacon,
                 offset = pbuf - buf;
                 tb = os_realloc(buf, buf_size + wpabuf_len(ap_wps_p2p_ie) + 1);
                 if (tb == NULL) {
-                    wpa_printf(MSG_DEBUG, "%s: %s (%d)", __func__, strerror(errno), errno);
+                    wpa_printf(MSG_DEBUG, "%s: %s", __func__, strerror(errno));
                     os_free(buf);
                     return errno;
                 }
