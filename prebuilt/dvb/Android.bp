@@ -183,6 +183,12 @@ cc_prebuilt_library_shared {
         arm64: {
             srcs: ["lib64/libam_ver.so"],
         },
+        x86: {
+            enabled: false,
+        },
+        x86_64: {
+            enabled: false,
+        },
     },
 
     export_include_dirs: ["include", "include/am_ver"],
