@@ -30,6 +30,7 @@
     <key keyCode="KEYCODE_BUTTON_4" component="com.droidlogic/.GlobalKeyReceiver" dispatchWhenNonInteractive="true" />
     <key keyCode="KEYCODE_BUTTON_6" component="com.droidlogic/.GlobalKeyReceiver" />
     <key keyCode="KEYCODE_BUTTON_7" component="com.droidlogic/.GlobalKeyReceiver" />
+    <key keyCode="KEYCODE_TV_INPUT" component="com.droidlogic/.GlobalKeyReceiver" />
    <!-- add it for GTV smoking Test -->
     <key keyCode="KEYCODE_GUIDE" component="com.google.android.apps.tv.launcherx/com.google.android.apps.tv.launcherx.remotecontrol.GlobalKeyListener_Receiver" />
     <key keyCode="KEYCODE_PROFILE_SWITCH" component="com.google.android.apps.tv.launcherx/.remotecontrol.GlobalKeyListener_Receiver" />

@@ -42,6 +42,8 @@ public class GlobalKeyReceiver extends BroadcastReceiver {
 
     private static final String PACKAGE_NAME_LIVETV = "com.droidlogic.android.tv";
     private static final String ACTIVITY_NAME_LIVETV = "com.android.tv.MainActivity";
+    private static final String PACKAGE_NAME_DROIDTVSETTINGS = "com.droidlogic.tv.settings";
+    private static final String ACTIVITY_NAME_TVSOURCE = "com.droidlogic.tv.settings.TvSourceActivity";
     private static final String PACKAGE_NAME_NETFLIX = "com.netflix.ninja";
     private static final String PACKAGE_NAME_YOUTUBE = "com.google.android.youtube.tv";
     private static final String PACKAGE_NAME_PLAYMOVIE = "com.google.android.videos";
@@ -162,6 +164,11 @@ public class GlobalKeyReceiver extends BroadcastReceiver {
                 case KeyEvent.KEYCODE_F6:
                     if (keyAction == KeyEvent.ACTION_UP) {
                         intent1.setComponent(new ComponentName(PACKAGE_NAME_LIVETV, ACTIVITY_NAME_LIVETV));
+                    }
+                    break;
+                case KeyEvent.KEYCODE_TV_INPUT:
+                    if (keyAction == KeyEvent.ACTION_UP) {
+                        intent1.setComponent(new ComponentName(PACKAGE_NAME_DROIDTVSETTINGS, ACTIVITY_NAME_TVSOURCE));
                     }
                     break;
                 case KeyEvent.KEYCODE_PAIRING:
