@@ -37,7 +37,7 @@
 #include "wole/utility.h"
 
 #ifndef BTVND_DBG
-#define BTVND_DBG FALSE
+#define BTVND_DBG TRUE
 #endif
 
 #if (BTVND_DBG == TRUE)
@@ -94,6 +94,9 @@ static pthread_t p_wole_vsc;
 extern pthread_mutex_t s_vsclock;
 extern pthread_cond_t s_vsccond;
 extern int wake_signal_sent;
+
+static const char PWR_PROP_NAME[] = "sys.shutdown.requested";
+
 
 /******************************************************************************
 **  Functions
@@ -159,6 +162,7 @@ static int init(const bt_vendor_callbacks_t* p_cb, unsigned char *local_bdaddr)
 static int op(bt_vendor_opcode_t opcode, void *param)
 {
     int retval = 0;
+    char shutdwon_status[PROPERTY_VALUE_MAX];
 
     BTVNDDBG("op for %d", opcode);
 
@@ -167,8 +171,15 @@ static int op(bt_vendor_opcode_t opcode, void *param)
         case BT_VND_OP_POWER_CTRL:
             {
                 int *state = (int *) param;
-                if (*state == BT_VND_PWR_OFF)
+                if (*state == BT_VND_PWR_OFF) {
+                    property_get(PWR_PROP_NAME, shutdwon_status, "unknown");
+                    ALOGD("%s: shutdwon_status = %s ", __FUNCTION__, shutdwon_status);
+                    if (strstr(shutdwon_status, "0userrequested") != NULL)
+                    {
+                      return 0;
+                    }
                     upio_set_bluetooth_power(UPIO_BT_POWER_OFF);
+                }
                 else if (*state == BT_VND_PWR_ON)
                     upio_set_bluetooth_power(UPIO_BT_POWER_ON);
             }

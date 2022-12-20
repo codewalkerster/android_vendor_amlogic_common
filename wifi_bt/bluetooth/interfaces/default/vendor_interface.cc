@@ -33,6 +33,9 @@ static const char* VENDOR_LIBRARY_SYMBOL_NAME =
     "BLUETOOTH_VENDOR_LIB_INTERFACE";
 
 #define HCI_VSC_WAKE_ON_BLE 0xFE54
+static uint16_t PreOpcode=0x0;
+static uint8_t gVscWakeEnabled=0;
+
 #define BT_PWR_EVT "/sys/module/amlogic_wireless/parameters/btpower_evt"
 #define BT_WAKE_EVT       "/sys/module/amlogic_wireless/parameters/btwake_evt"
 static const int INVALID_FD = -1;
@@ -354,6 +357,7 @@ void VendorInterface::Close() {
 size_t VendorInterface::Send(uint8_t type, const uint8_t* data, size_t length) {
   std::unique_lock<std::mutex> lock(wakeup_mutex_);
   recent_activity_flag = true;
+  uint16_t opcode = data[0] | (data[1] << 8);
 
   int fd,sz;
   char buf[2];
@@ -392,6 +396,19 @@ size_t VendorInterface::Send(uint8_t type, const uint8_t* data, size_t length) {
     }
       return length+1;
   }
+
+   if(opcode == HCI_VSC_WAKE_ON_BLE)
+      gVscWakeEnabled = 1;
+
+  /*As Android T will disable bluetooth while shutdown. Not to send HCI_LE_Clear_White_List to controller as we need whitelist to know who can wake it up*/
+  if( gVscWakeEnabled && PreOpcode == 0x0c1a /*HCI_Write_ScanEnable*/ && opcode == 0x2010 /*HCI_LE_Clear_White_List*/ )
+  {
+      ALOGE("Send a fake HCI_LE_Clear_White_List to stack");
+      hidl_vec<uint8_t> LE_Clear_White_List_Complete_Packet = {0x0e,0x04,0x01,0x10,0x20,0x00};
+      event_cb_(LE_Clear_White_List_Complete_Packet);
+	  return length+1;
+  }
+  PreOpcode=opcode;
 
   return hci_->Send(type, data, length);
 }
