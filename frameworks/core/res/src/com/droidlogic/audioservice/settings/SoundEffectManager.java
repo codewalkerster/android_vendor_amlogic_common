@@ -3020,10 +3020,8 @@ public class SoundEffectManager {
         mSupportVirtualX = false;
 
         if (isAudioEffectOn(AudioEffectManager.DEBUG_HPEQ_UI)) {
-            if (!mSupportMs12Dap) {
-                creatEqAudioEffects();
-                initEqAudioEffects();
-            }
+            creatEqAudioEffects();
+            initEqAudioEffects();
         }
 
         if (isAudioEffectOn(AudioEffectManager.DEBUG_BALANCE_UI)) {
@@ -3051,10 +3049,8 @@ public class SoundEffectManager {
         }
 
         if (isAudioEffectOn(AudioEffectManager.DEBUG_DAP_2_UI)) {
-            if (mSupportMs12Dap) {
-                creatDapAudioEffect();
-                initDapAudioEffect();
-            }
+            creatDapAudioEffect();
+            initDapAudioEffect();
         }
     }
     public void setAudioEffectOnByIndex (int id, boolean dbSwitch) {
@@ -3180,18 +3176,10 @@ public class SoundEffectManager {
                 }
                 break;
             case AudioEffectManager.DEBUG_TREBLEBASS_UI:
-                if (DroidLogicUtils.isTv()) {
-                    value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_TREBLEBASS_DEBUG, AudioEffectManager.DEBUG_UI_ON);
-                } else {
-                    value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_TREBLEBASS_DEBUG, AudioEffectManager.DEBUG_UI_OFF);
-                }
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_TREBLEBASS_DEBUG, AudioEffectManager.DEBUG_UI_OFF);
                 break;
             case AudioEffectManager.DEBUG_VIRTUAL_SURROUND_UI:
-                if (DroidLogicUtils.isTv()) {
-                    value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_VIRTUAL_SURROUND_DEBUG, AudioEffectManager.DEBUG_UI_ON);
-                } else {
-                    value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_VIRTUAL_SURROUND_DEBUG, AudioEffectManager.DEBUG_UI_OFF);
-                }
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_VIRTUAL_SURROUND_DEBUG, AudioEffectManager.DEBUG_UI_OFF);
                 break;
             case AudioEffectManager.DEBUG_DPE_UI:
                 value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_DEBUG, AudioEffectManager.DEBUG_UI_OFF);
