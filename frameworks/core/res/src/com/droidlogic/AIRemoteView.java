@@ -57,10 +57,7 @@ public class AIRemoteView {
         mParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
                 | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
                 | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-        mParams.width = 300;
-        mParams.height = 200;
-        mParams.x = 200;
-        mParams.y = 100;
+
         isShowing = false;
 
     }
