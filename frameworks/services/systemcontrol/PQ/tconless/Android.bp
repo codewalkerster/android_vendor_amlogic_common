@@ -207,3 +207,19 @@ cc_binary {
     ],
 }
 
+cc_binary {
+    name: "lcdhelper",
+    vendor: true,
+
+    srcs: [
+        "lcdhelper/lcdhelper.cpp",
+    ],
+
+    shared_libs: [
+        "libcutils",
+        "libutils",
+        "liblog",
+        "libdl",
+    ],
+}
+
