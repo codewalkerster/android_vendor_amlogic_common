@@ -18,15 +18,9 @@ import android.content.IntentFilter;
 import android.net.wifi.WifiManager;
 import android.os.IBinder;
 import android.util.Log;
-import android.content.pm.PackageManager;
-import android.os.SystemProperties;
-import android.net.Uri;
-import java.util.ArrayList;
+
 import com.droidlogic.app.DroidLogicUtils;
 import com.droidlogic.app.SystemControlManager;
-
-import static android.content.Intent.ACTION_PACKAGE_ADDED;
-import static android.content.Intent.ACTION_PACKAGE_REMOVED;
 
 public class DroidLogicPowerService extends Service {
     private static final String TAG = "DroidLogicPowerService";
@@ -35,16 +29,6 @@ public class DroidLogicPowerService extends Service {
     private static final int POWER_SUSPEND_OFF = 0;
     private static final int POWER_SUSPEND_ON = 1;
     private static final int POWER_SUSPEND_SHUTDOWN = 2;
-
-    private static final String TVTS_PKG_MEDIA_TEST = "com.google.android.medialaunch.tvts";
-    private static final String TVTS_PKG_PLAYER_TEST = "com.google.android.tvts.testmediaplayer";
-    private static final String TVTS_PKG_WARM_TEST = "com.google.android.leanbackjank";
-    private static final int TVTS_TEST_APP_FLAG = 0;
-    private static final int TVTS_TEST_APP_ENABLE = 1;
-    private static final int TVTS_TEST_APP_DISABLE = 2;
-    private PackageManager mPackageManager;
-    private ArrayList<String> poorApps;
-    private ArrayList<String> mediaApps;
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
@@ -62,46 +46,7 @@ public class DroidLogicPowerService extends Service {
             }
         }
     };
-    private void initPoorApp() {
-        poorApps = new ArrayList();
-        poorApps.add("com.android.bluetooth");
-        poorApps.add("com.google.android.inputmethod.latin");
-	    poorApps.add("com.android.vending");
-        //poorApps.add("com.google.android.gms");
-    }
 
-    private void initMediaApp() {
-        mediaApps = new ArrayList();
-        mediaApps.add("com.google.android.katniss");
-        mediaApps.add("com.android.vending");
-        mediaApps.add("com.google.android.permissioncontroller");
-        mediaApps.add("com.google.android.tvrecommendations");
-        mediaApps.add("com.netflix.ninja");
-    }
-
-    private void hidePoorApp() {
-        for (String app : poorApps) {
-            mPackageManager.setApplicationEnabledSetting(app, TVTS_TEST_APP_DISABLE, TVTS_TEST_APP_FLAG);
-        }
-    }
-
-    private void unHidePoorApp() {
-        for (String app : poorApps) {
-            mPackageManager.setApplicationEnabledSetting(app, TVTS_TEST_APP_ENABLE, TVTS_TEST_APP_FLAG);
-        }
-    }
-
-    private void hideMediaApp() {
-        for (String app : mediaApps) {
-            mPackageManager.setApplicationEnabledSetting(app, TVTS_TEST_APP_DISABLE, TVTS_TEST_APP_FLAG);
-        }
-    }
-
-    private void unHideMediaApp() {
-        for (String app : mediaApps) {
-            mPackageManager.setApplicationEnabledSetting(app, TVTS_TEST_APP_ENABLE, TVTS_TEST_APP_FLAG);
-        }
-    }
     @Override
     public void onCreate() {
         super.onCreate();
@@ -111,16 +56,6 @@ public class DroidLogicPowerService extends Service {
         filter.addAction(Intent.ACTION_SCREEN_ON);
         filter.addAction(Intent.ACTION_SHUTDOWN);
         registerReceiver (mReceiver, filter);
-        Context mContext = this.getApplicationContext();
-        mSystemControlManager = SystemControlManager.getInstance();
-        final IntentFilter packageFilter = new IntentFilter();
-        packageFilter.addAction(ACTION_PACKAGE_ADDED);
-        packageFilter.addAction(ACTION_PACKAGE_REMOVED);
-        packageFilter.addDataScheme("package");
-        mContext.registerReceiver(new PackageReceiver(), packageFilter);
-        mPackageManager = mContext.getPackageManager();
-        initPoorApp();
-        initMediaApp();
     }
 
     @Override
@@ -199,92 +134,5 @@ public class DroidLogicPowerService extends Service {
         }
 
         Log.d(TAG, "setSuspendState: " + state);
-    }
-	private class PackageReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-
-            final Uri data = intent.getData();
-            if (data == null) {
-                Log.e(TAG, "Cannot handle package broadcast with null data");
-                return;
-            }
-            //Mode mCurrentMode = mDisplayManager.getDisplay(0).getMode();
-            //Log.d(TAG, "mCurrentMode: " + mCurrentMode);
-            final String packageName = data.getSchemeSpecificPart();
-            switch (intent.getAction()) {
-                case ACTION_PACKAGE_ADDED:
-                    if (packageName.equals(TVTS_PKG_PLAYER_TEST)) {
-                        Log.d(TAG, "ACTION_PACKAGE_ADDED packageName:" + packageName);
-                        performanceOptimization(true);
-                        setPropTvts(true);
-                    }
-                    break;
-                case ACTION_PACKAGE_REMOVED:
-                    if (packageName.equals(TVTS_PKG_PLAYER_TEST)) {
-                        Log.d(TAG, "ACTION_PACKAGE_REMOVED packageName:" + packageName);
-                        performanceOptimization(false);
-                        setPropTvts(false);
-                    }
-                    break;
-                default:
-                    // do nothing
-                    break;
-            }
-        }
-
-        private void setPropTvts(boolean status) {
-            if (mSystemControlManager != null) {
-                if (status) {
-                    mSystemControlManager.setProperty("vendor.media.omx.dec.dmc.level", "4");
-                    mSystemControlManager.setProperty("vendor.media.omx.dw", "0");
-                    SystemProperties.set("sys.tvts.running", "2");
-                    mPackageManager.setApplicationEnabledSetting("com.google.android.youtube.tv", TVTS_TEST_APP_DISABLE, TVTS_TEST_APP_FLAG);
-                    hidePoorApp();
-                } else {
-                    mSystemControlManager.setProperty("vendor.media.omx.dec.dmc.level", "");
-                    mSystemControlManager.setProperty("vendor.media.omx.dw", "");
-                    SystemProperties.set("sys.tvts.running", "0");
-                    mPackageManager.setApplicationEnabledSetting("com.google.android.youtube.tv", TVTS_TEST_APP_ENABLE, TVTS_TEST_APP_FLAG);
-                    unHidePoorApp();
-                }
-            }
-        }
-
-        private void setPropMediaTvts(boolean status) {
-            if (mSystemControlManager != null) {
-                if (status) {
-                    mSystemControlManager.setProperty("vendor.media.omx.dec.dmc.level", "4");
-                    mSystemControlManager.setProperty("vendor.media.omx.dw", "0");
-                    SystemProperties.set("sys.tvts.running", "1");
-                } else {
-                    mSystemControlManager.setProperty("vendor.media.omx.dec.dmc.level", "");
-                    mSystemControlManager.setProperty("vendor.media.omx.dw", "");
-                    SystemProperties.set("sys.tvts.running", "0");
-                }
-            }
-        }
-
-        private void performanceOptimization(boolean status) {
-            if (mSystemControlManager != null) {
-                if (status) {
-                    mSystemControlManager.writeSysFs("/sys/class/thermal/thermal_zone0/mode", "disabled");
-                    mSystemControlManager.writeSysFs("/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor", "performance");
-                    mSystemControlManager.writeSysFs("/proc/sys/kernel/printk", "0");
-                    mSystemControlManager.writeSysFs("/sys/class/mpgpu/scale_mode", "3");
-                   // mSystemControlManager.writeSysFs("/sys/module/amvideo/parameters/force_vskip_cnt", "1000");
-                    mSystemControlManager.writeSysFs("/sys/module/di/parameters/bypass_all", "1");
-                } else {
-                    mSystemControlManager.writeSysFs("/sys/class/thermal/thermal_zone0/mode", "enable");
-                    mSystemControlManager.writeSysFs("/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor", "interactive");
-                    mSystemControlManager.writeSysFs("/proc/sys/kernel/printk", "4");
-                    mSystemControlManager.writeSysFs("/sys/class/mpgpu/scale_mode", "1");
-                    //mSystemControlManager.writeSysFs("/sys/module/amvideo/parameters/force_vskip_cnt", "0");
-                    mSystemControlManager.writeSysFs("/sys/module/di/parameters/bypass_all", "0");
-
-                }
-            }
-        }
     }
 }
