@@ -526,14 +526,14 @@ public class AudioSystemCmdService extends Service {
                         mAudioManager.releaseAudioPatch(mAudioPatch);
                         mAudioPatch = null;
                         mAudioSource = null;
-                        mHasStartedDecoder = false;
-                        mHasOpenedDecoder = false;
-                        mMixAdSupported = false;
                     }
                 } else {
                     Log.d(TAG, "CLOSE_DECODER("+param3+") audio patch already released");
                     mAudioPathIds.clear();
                 }
+                mHasStartedDecoder = false;
+                mHasOpenedDecoder = false;
+                mMixAdSupported = false;
                 break;
 
             case AudioSystemCmdManager.AUDIO_SERVICE_CMD_SET_MEDIA_PRESENTATION_ID:
