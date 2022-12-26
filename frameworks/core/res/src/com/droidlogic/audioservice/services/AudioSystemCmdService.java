@@ -110,6 +110,18 @@ public class AudioSystemCmdService extends Service {
     public static final int SOURCE_TYPE_ARC   = SOURCE_TYPE_START + 11;
     public static final int SOURCE_TYPE_OTHER   = SOURCE_TYPE_END;
 
+    /* refer to frameworks/base/media/java/android/media/AudioSystem.java*/
+    public static final int FORCE_NONE                                  = 0;
+    public static final int FORCE_SPEAKER                               = 1;
+    public static final int FORCE_HEADPHONES                            = 2;
+    public static final int FORCE_BT_SCO                                = 3;
+    public static final int FORCE_BT_A2DP                               = 4;
+    public static final int FORCE_WIRED_ACCESSORY                       = 5;
+    public static final int FORCE_HDMI_ARC                              = 16;
+    public static final int FORCE_SPDIF                                 = 17;
+    public static final int FORCE_HDMI_OUT                              = 18;
+    public static final int FORCE_SPEAKER_SPDIF                         = 19;
+
     private static final String PARAM_HAL_AUDIO_OUTPUT_FORMAT_PCM        = "hdmi_format=0";
     private static final String PARAM_HAL_AUDIO_OUTPUT_FORMAT_AUTO       = "hdmi_format=5";
     private static final String PARAM_HAL_AUDIO_OUTPUT_FORMAT_PASSTHROUGH= "hdmi_format=6";
@@ -979,7 +991,7 @@ public class AudioSystemCmdService extends Service {
             }
 
             if (devices.length == 1 && devices[0] == AudioDeviceInfo.TYPE_UNKNOWN ) {
-                AudioSystem.setForceUse(AudioSystem.FOR_MEDIA, AudioSystem.FORCE_NONE);
+                AudioSystem.setForceUse(AudioSystem.FOR_MEDIA, FORCE_NONE);
                 Log.i(TAG, "setOutputDevices devices TYPE_UNKNOWN, setForceUse NONE.");
                 return 0;
             }
@@ -1004,7 +1016,7 @@ public class AudioSystemCmdService extends Service {
             if (allInternalDevicesList.size() == 2) {
                 if ((allInternalDevicesList.get(0) == AudioSystem.DEVICE_OUT_SPEAKER && allInternalDevicesList.get(1) == AudioSystem.DEVICE_OUT_SPDIF)
                         || (allInternalDevicesList.get(0) == AudioSystem.DEVICE_OUT_SPDIF && allInternalDevicesList.get(1) == AudioSystem.DEVICE_OUT_SPEAKER)) {
-                    forceUse = AudioSystem.FORCE_SPEAKER_SPDIF;
+                    forceUse = FORCE_SPEAKER_SPDIF;
                 } else {
                     Log.w(TAG, "setOutputDevices not support dev0:" + Integer.toHexString(allInternalDevicesList.get(0))
                             + ", dev1:" + Integer.toHexString(allInternalDevicesList.get(1)));
@@ -1013,28 +1025,28 @@ public class AudioSystemCmdService extends Service {
             } else {
                 switch (allInternalDevicesList.get(0)) {
                     case AudioSystem.DEVICE_OUT_SPEAKER:
-                        forceUse = AudioSystem.FORCE_SPEAKER;
+                        forceUse = FORCE_SPEAKER;
                         break;
                     case AudioSystem.DEVICE_OUT_SPDIF:
-                        forceUse = AudioSystem.FORCE_SPDIF;
+                        forceUse = FORCE_SPDIF;
                         break;
                     case AudioSystem.DEVICE_OUT_HDMI:
-                        forceUse = AudioSystem.FORCE_HDMI_OUT;
+                        forceUse = FORCE_HDMI_OUT;
                         break;
                     case AudioSystem.DEVICE_OUT_WIRED_HEADSET:
                     case AudioSystem.DEVICE_OUT_WIRED_HEADPHONE:
-                        forceUse = AudioSystem.FORCE_HEADPHONES;
+                        forceUse = FORCE_HEADPHONES;
                         break;
                     case AudioSystem.DEVICE_OUT_HDMI_ARC:
-                        forceUse = AudioSystem.FORCE_HDMI_ARC;
+                        forceUse = FORCE_HDMI_ARC;
                         break;
                     case AudioSystem.DEVICE_OUT_USB_DEVICE:
                     case AudioSystem.DEVICE_OUT_USB_ACCESSORY:
                     case AudioSystem.DEVICE_OUT_USB_HEADSET:
-                        forceUse = AudioSystem.FORCE_WIRED_ACCESSORY;
+                        forceUse = FORCE_WIRED_ACCESSORY;
                         break;
                     case AudioSystem.DEVICE_OUT_BLUETOOTH_A2DP:
-                        forceUse = AudioSystem.FORCE_BT_A2DP;
+                        forceUse = FORCE_BT_A2DP;
                         break;
                     default:
                         Log.w(TAG, "setOutputDevices unsupported dev0:" + Integer.toHexString(allInternalDevicesList.get(0)));
