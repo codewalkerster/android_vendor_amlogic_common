@@ -35,6 +35,7 @@ char qca206x_base[] ="/vendor/lib/modules/wlan_cnss_core_pcie_206x.ko# #/vendor/
 char nxp8987_base[] ="/vendor/lib/modules/mlan_sd8987.ko#";
 char nxp8997_base[] ="/vendor/lib/modules/mlan_sd8997.ko#";
 char nxpiw620_base[] ="/vendor/lib/modules/mlan_iw620.ko#";
+char w2_base[] ="/vendor/lib/modules/w2_comm.ko#";
 char *no_base = NULL;
 
 /*
@@ -53,6 +54,7 @@ char *no_base = NULL;
 
 static const dongle_info dongle_registerd[]={\
     {"0000","0000","sprdwl_ng","/vendor/lib/modules/sprdwl_ng.ko","",uwe5621_base,"uwe5621ds",0x0,""},\
+    {"0000","0602","w2","/vendor/lib/modules/w2.ko","",w2_base,"aml_w2_p",0x0,""},\
     {"a962","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=../../etc/wifi/40181/fw_bcm40181a2.bin nvram_path=../../etc/wifi/40181/nvram.txt",no_base,"bcm6210",0x0,"/vendor/etc/wifi/40181/fw_bcm40181a2"},\
     {"0000","0000","wlan_mt76x8_usb","/vendor/lib/modules/wlan_mt76x8_usb.ko","sta=wlan ap=ap p2p=p2p",no_base,"mtk7668u",0x7668,""},\
     {"4335","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=../../etc/wifi/6335/fw_bcm4339a0_ag.bin nvram_path=../../etc/wifi/6335/nvram.txt",no_base,"bcm6335",0x0,"/vendor/etc/wifi/6335/fw_bcm4339a0_ag"},\

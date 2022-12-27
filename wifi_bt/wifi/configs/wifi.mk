@@ -262,6 +262,20 @@ endif
 WIFI_HIDL_FEATURE_DUAL_INTERFACE := true
 endif
 
+ifneq ($(filter w2,$(WIFI_MODULES)),)
+ifeq (,$(wildcard vendor/wifi_driver/amlogic/w2/common))
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.txt,vendor/amlogic/common/wifi_bt/wifi/w2,$(TARGET_COPY_OUT_VENDOR)/etc/wifi/w2/)
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.bin,vendor/amlogic/common/wifi_bt/wifi/w2,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/)
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.ini,vendor/amlogic/common/wifi_bt/wifi/w2,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/)
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.asm,vendor/amlogic/common/wifi_bt/wifi/w2,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/)
+else
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.txt,vendor/wifi_driver/amlogic/w2/common,$(TARGET_COPY_OUT_VENDOR)/etc/wifi/w2/)
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.bin,vendor/wifi_driver/amlogic/w2/common,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/)
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.ini,vendor/wifi_driver/amlogic/w2/common,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/)
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.asm,vendor/wifi_driver/amlogic/w2/common,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/)
+endif
+endif
+
 ifneq ($(filter sd8987,$(WIFI_MODULES)),)
 PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/nxp/firmware/sd8987/sd8987_wlan.bin:$(TARGET_COPY_OUT_VENDOR)/lib/firmware/nxp/sd8987_wlan.bin
 PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/nxp/firmware/sd8987/WlanCalData_ext.conf:$(TARGET_COPY_OUT_VENDOR)/lib/firmware/nxp/WlanCalData_ext.conf
