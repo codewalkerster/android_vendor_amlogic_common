@@ -54,7 +54,7 @@ struct HDCP : public IHDCP, public hidl_death_recipient {
     Return<Status> initAsync(const hidl_string& host, unsigned port);
     Return<Status> shutdownAsync();
     Return<void> encrypt(const hidl_vec<uint8_t>& inData, uint32_t streamCTR, encrypt_cb _hidl_cb);
-    // Method for decrypt funtion add outAddr to pass secure hardware address or no secure handle(0)
+    // Method for decrypt function add outAddr to pass secure hardware address or no secure handle(0)
     Return<void> decrypt(const hidl_vec<uint8_t>& inData, uint32_t streamCTR, uint64_t outInputCTR, uint32_t outAddr, decrypt_cb _hidl_cb);
     Return<void> decryptSecure(const hidl_vec<uint8_t>& decryptInfo, const hidl_vec<uint8_t>& inData, decrypt_cb _hidl_cb);
     Return<uint32_t> getCaps();
