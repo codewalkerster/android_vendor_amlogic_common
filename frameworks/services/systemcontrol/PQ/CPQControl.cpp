@@ -1367,7 +1367,7 @@ int CPQControl::GetPQParams(source_input_param_t source_input_param, vpp_picture
 //color temperature
 int CPQControl::SetColorTemperature(int temp_mode, int is_save, rgb_ogo_type_t rgb_ogo_type, int value)
 {
-    int ret = -
+    int ret = -1;
     SYS_LOGI("%s: source:%d, mode: %d\n", __FUNCTION__, mCurrentSourceInputInfo.source_input, temp_mode);
     if (mbCpqCfg_whitebalance_enable) {
         if (temp_mode == VPP_COLOR_TEMPERATURE_MODE_USER) {
