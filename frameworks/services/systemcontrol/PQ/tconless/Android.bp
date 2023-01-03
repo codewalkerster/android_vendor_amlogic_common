@@ -171,8 +171,8 @@ cc_binary {
     vendor: true,
 
     srcs: [
-        "tconhelper/tcondump.cpp",
-        "tconhelper/TconRegHandler.cpp",
+        "lcdhelper/tcondump.cpp",
+        "lcdhelper/TconRegHandler.cpp",
     ],
 
     shared_libs: [
@@ -213,6 +213,8 @@ cc_binary {
 
     srcs: [
         "lcdhelper/lcdhelper.cpp",
+        "lcdhelper/TconRegLoader.cpp",
+        "lcdhelper/TconRegHandler.cpp",
     ],
 
     shared_libs: [

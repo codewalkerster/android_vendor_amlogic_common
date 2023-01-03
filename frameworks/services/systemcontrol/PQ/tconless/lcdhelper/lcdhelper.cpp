@@ -20,6 +20,8 @@
 #include <getopt.h>
 
 #include "lcdtype.h"
+#include "TconRegLoader.h"
+#include "TconRegHandler.h"
 
 #define TOSTR(val) #val
 #define dbgprint(debug, fmt, args...) \
@@ -35,6 +37,9 @@
 #define BIT_CHECK(val, bit) ((val) & (bit))
 #endif
 
+// tcon sysfs dir
+#define LCD_TCON_DIR_0  "/sys/class/lcd"
+#define LCD_TCON_DIR_1  "/sys/class/aml_lcd/lcd0"
 
 #define LANE_NUM_MAX 12
 //////////////////////////lcd phy parameter////////////////////////////
@@ -420,7 +425,7 @@ static int phy_handler(int argc, char *argv[])
        {"amp",      required_argument, NULL, 'a'},
        {"preem",    required_argument, NULL, 'p'},
        {"dev",      required_argument, NULL, 'd'},
-       {"info",     required_argument, NULL, 'i'},
+       {"info",     no_argument,       NULL, 'i'},
     };
     struct phy_config_s phy;
     struct phyoptcfg_s phyopt;
@@ -566,7 +571,7 @@ static int ss_handler(int argc, char *argv[])
        {"mode",  required_argument, NULL, 'm'},
        {"dev",   required_argument, NULL, 'd'},
        {"help",  required_argument, NULL, 'h'},
-       {"info",  required_argument, NULL, 'i'},
+       {"info",  no_argument,       NULL, 'i'},
     };
     struct aml_lcd_ss_ctl_s ss;
     struct ssoptcfg_s ssopt;
@@ -668,25 +673,123 @@ __ss_handler_exit:
     return ret;
 }
 
+static bool do_wreg_ioctl(char *dev, std::vector<TconRegPair> &vec, bool debug)
+{
+    //To be fixed
+    return false;
+}
+
+static bool do_wreg_sysfs(std::vector<TconRegPair> &vec, bool debug)
+{
+    bool success = false;
+    TconRegHandler *regHandler = new TconRegHandler;
+    regHandler->setDumpTo(0, debug);
+    if (!regHandler->init(LCD_TCON_DIR_0)
+         && !regHandler->init(LCD_TCON_DIR_1)) {
+        printf("Init fail, exit...\n");
+        goto __do_wreg_sysfs_exit;
+    }
+
+    for (int i = 0; i < vec.size(); i++) {
+        TconRegPair pair = vec[i];
+        if (!regHandler->setReg(pair.reg, pair.value)) {
+            printf("Set fail: Reg(%#x)=0x%08x (%u)\n",
+                pair.reg, pair.value, pair.value);
+        }
+    }
+
+    success = true;
+
+__do_wreg_sysfs_exit:
+    if (regHandler) {
+        regHandler->uninit();
+        delete regHandler;
+    }
+    return success;
+}
+
+static int tcon_handler(int argc, char *argv[])
+{
+    int ch = 0;
+    int ret = -1;
+    bool success = false;
+    char *dev = NULL;
+    char *loadpath = NULL;
+    bool debug = false;
+    std::vector<TconRegPair> vec;
+    TconRegLoader *loader = NULL;
+    const char *opt_str = "d:l:i";
+    struct option opt_l_str[] = {
+        {"dev",  required_argument, NULL, 'd'},
+        {"load", required_argument, NULL, 'l'},
+        {"info", no_argument,       NULL, 'i'}
+    };
+
+    if (argc <= 1 || !argv) {
+        printf("Invalid args, exit...\n");
+        goto __tcon_handler_exit;
+    }
+
+    while ((ch = getopt_long(argc, argv, opt_str, opt_l_str, NULL)) != -1) {
+        printf("argc=%d, ch=%c, optind=%d, optarg=%s\n", argc, ch, optind, optarg);
+        switch (ch) {
+        case 'd': dev = optarg; break;
+        case 'l': loadpath = optarg; break;
+        case 'i': debug = true; break;
+        default: break;
+        }
+    }
+
+    // load tcon register file
+    loader = new TconRegLoader;
+    loader->setDumpTo(0, debug);
+    if (!loader->load(vec, loadpath))
+        goto __tcon_handler_exit;
+
+    dbgprint(debug, "--------------------Print Loaded Reg Pair--------------------\n");
+    if (debug) {
+        for (int i = 0; i < vec.size(); i++) {
+            TconRegPair pair = vec[i];
+            dbgprint(debug, "Reg(%#x) = 0x%08x (%u)\n",
+                pair.reg, pair.value, pair.value);
+        }
+    }
+
+    // ioctl/sysfs set reg
+    success = do_wreg_ioctl(dev, vec, debug);
+    if (!success)
+        success = do_wreg_sysfs(vec, debug);
+
+    printf("Load and set [%s]: %s\n", loadpath, success?"success":"fail");
+
+    ret = 0;
+
+__tcon_handler_exit:
+    if (loader)
+        delete loader;
+    return ret;
+}
+
 static struct lcdopt_s lcd_def_opts[] = {
     {"power", power_handler},
     {"mute",  mute_handler},
     {"phy",   phy_handler},
     {"ss",    ss_handler},
+    {"tcon",  tcon_handler},
 };
 
 static void help(char *appName)
 {
     printf(
         "Usage:\n"
-        "  %s power|mute|phy|ss [-d <dev>] [OPTION]\n"
+        "  %s power|mute|phy|ss|tcon [-d <dev>] [OPTION]\n"
         "     -d <dev>: set dev path or index(/dev/lcdx) when using multiple lcd devices\n"
         "\n"
         "SUBCOMMAND usage:\n"
         "  %s power [-d <dev>] <0|1>\n"
         "     0 : power off\n"
         "     1 : power on\n"
-        "  %s mute  <0|1>\n"
+        "  %s mute [-d <dev>] <0|1>\n"
         "     0 : mute off\n"
         "     1 : mute on\n"
         "  %s phy [-d <dev>] [-m <mode>] [-v <vcm>] [-o <odt>] [-r <ref_bias>] [-s <vswing>] [-l <lane N> [-a <amp>] [-p <preem>]]\n"
@@ -708,8 +811,11 @@ static void help(char *appName)
         "     -h : show more ss help\n"
         "     -m <mode>  : set ss mode\n"
         "     -l <level> : set ss level\n"
-        "     -f <freq>  : set ss freq\n",
-        appName, appName, appName, appName, appName
+        "     -f <freq>  : set ss freq\n"
+        "\n"
+        "  %s tcon [-d <dev>] [-l <path>]\n"
+        "     [-l <path>] : load tcon register file(.txt)\n",
+        appName, appName, appName, appName, appName, appName
     );
 }
 

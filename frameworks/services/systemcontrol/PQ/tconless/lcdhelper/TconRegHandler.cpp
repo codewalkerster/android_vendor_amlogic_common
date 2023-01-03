@@ -176,8 +176,8 @@ bool TconRegHandler::setReg(unsigned int reg, unsigned int mask, unsigned int va
     bool success = false;
 
     ret = sprintf(cmd, "wm 32 %#x %#x %#x", reg, mask, val);
-    if (debug)
-        logPrint("run \"%s > %s\"\n", cmd, tconRegPath);
+//    if (debug)
+//        logPrint("run \"echo %s > %s\"\n", cmd, tconRegPath);
     fd = open(tconRegPath, O_RDWR);
     if (fd < 0) {
         logPrint("Open %s error: %s\n", tconRegPath, strerror(errno));
@@ -189,7 +189,7 @@ bool TconRegHandler::setReg(unsigned int reg, unsigned int mask, unsigned int va
     }
     lseek(fd, 0, SEEK_SET);
     if (read(fd, result_str, sizeof(result_str)) < 0) {
-        logPrint("Write %s error: %s\n", tconRegPath, strerror(errno));
+        logPrint("Read %s error: %s\n", tconRegPath, strerror(errno));
         goto __setTconReg_exit;
     }
 
@@ -199,7 +199,7 @@ bool TconRegHandler::setReg(unsigned int reg, unsigned int mask, unsigned int va
     }
     if (sscanf(result_str, "for_tool:%04x=%08x", &reg, &value) == 2) {
         if (debug)
-            logPrint("reg [%#x]=%#08x\n", reg, value);
+            logPrint("Read reg [%#x]=%#08x\n", reg, value);
     } else {
         logPrint("Error parse reg\n");
         goto __setTconReg_exit;
