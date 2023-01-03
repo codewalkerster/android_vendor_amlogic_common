@@ -51,6 +51,12 @@ HDCPTxAuth::HDCPTxAuth() :
     pthreadIdHdcpTx(0),
     mFallbackDefault(false) {
 
+    int ret;/* initialize an attribute to default value */
+    ret = pthread_mutex_init(&pthreadTxMutex, NULL);
+    if (ret != 0) {
+        SYS_LOGE("pthreadTxMutex init failed\n");
+    }
+
     if (sem_init(&pthreadTxSem, 0, 0) < 0) {
         SYS_LOGE("HDCPTxAuth, sem_init failed\n");
         exit(0);
@@ -59,6 +65,7 @@ HDCPTxAuth::HDCPTxAuth() :
 
 HDCPTxAuth::~HDCPTxAuth() {
     sem_destroy(&pthreadTxSem);
+    pthread_mutex_destroy(&pthreadTxMutex);
 }
 
 void HDCPTxAuth::setBootAnimFinished(bool finished) {
