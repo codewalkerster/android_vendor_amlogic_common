@@ -464,6 +464,7 @@ public:
     void getPosition(const char* curMode, int *position);
     bool getDisplayMode(char* mode);
     void setDisplayMode(std::string mode);
+    void setFrameRate(float frameRate);
     bool isExitDovi();
     bool isLoadDovi();
     void setDolbyVisionSupport();
@@ -514,6 +515,7 @@ public:
     bool updataLogoBmp(const char *path);
     void setALLMMode(int state);
     bool isTvSupportALLM();
+    bool frameRateDisplay(bool on);
 
     void sendHDMIContentType(int state);
     bool getGameContentTypeSupport();
@@ -528,6 +530,7 @@ public:
     virtual void onHdcpTxAuthEvent (const char* status);
     virtual void onTxEvent (char* switchName, char* hpdstate, int outputState);
     virtual void onDispModeSyncEvent (const char* outputmode, int state);
+    virtual void setDisplayModeinner(const char* outputmode);
     void hdcpSwitch();
 
     void getBootanimStatus(int *status);

@@ -300,6 +300,8 @@ public:
     bool hasAisrFunc();
     bool getAisr();
 
+    bool frameRateDisplay(bool on);
+
     void setHdrStrategy(const std::string& value);
     void setHdrPriority(const std::string& value);
     void clearBootDisplayConfig(const std::string& value);

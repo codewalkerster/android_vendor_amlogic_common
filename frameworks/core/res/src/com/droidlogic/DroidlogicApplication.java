@@ -54,7 +54,7 @@ public class DroidlogicApplication extends Application {
         mSystemControlEvent   = SystemControlEvent.getInstance(this);
         mSystemControlManager = SystemControlManager.getInstance();
         mSystemControlManager.setListener(mSystemControlEvent);
-
+        mSystemControlManager.setProperty("vendor.sys.display.boot_complete","1");
         // GTVS version default use earlysuspend wakelock
         if (isGtvsVersion() && SystemProperties.getBoolean("ro.vendor.platform.earlysuspend", true)) {
             PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);

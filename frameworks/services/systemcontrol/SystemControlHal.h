@@ -28,7 +28,7 @@
 #include <SystemControlNotify.h>
 #include <SystemControlService.h>
 #include <PqNotify.h>
-
+#include <Rect.h>
 namespace vendor {
 namespace amlogic {
 namespace hardware {
@@ -307,6 +307,10 @@ class SystemControlHal : public ISystemControl, public SystemControlNotify, publ
     //DLG
     Return<int32_t> setDLGEnable(int32_t enable, int32_t isSave) override;
     Return<int32_t> getDLGEnable(void) override;
+
+    //afr
+    Return<Result> frameRateDisplay(bool on, const ISystemControl::Rect& rect) override;
+    Return<void> frameRateDisplayAsync(bool on, const ISystemControl::Rect& rect) override;
 
     Return<int32_t> setColorGamutMode(int32_t isEnable, int32_t is_save) override;
     Return<int32_t> getColorGamutMode(void) override;

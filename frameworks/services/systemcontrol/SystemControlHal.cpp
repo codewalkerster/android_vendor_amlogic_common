@@ -1670,6 +1670,21 @@ Return<void> SystemControlHal::debug(const hidl_handle& handle, const hidl_vec<h
     return Void();
 }
 
+Return<Result> SystemControlHal::frameRateDisplay(bool on, const ISystemControl::Rect& rect) {
+    ALOGI("[%s] +++", __FUNCTION__ );
+    ALOGI("SystemControlHal frameRateDisplay %d,[%d %d %d %d]",on,rect.left, rect.top, rect.right, rect.bottom);
+    droidlogic::Rect frect(rect.left, rect.top, rect.right, rect.bottom);
+    ALOGD("SystemControlHal frect.inscreen() %d",frect.inscreen());
+    bool ret = mSysControl->frameRateDisplay(frect.inscreen());
+    ALOGI("[%s] ---", __FUNCTION__ );
+    return ret ? Result::OK : Result::FAIL;
+}
+
+Return<void> SystemControlHal::frameRateDisplayAsync(bool on, const ISystemControl::Rect& rect) {
+    frameRateDisplay(on, rect);
+    return Void();
+}
+
 SystemControlHal::DeathRecipient::DeathRecipient(sp<SystemControlHal> sch)
         : mSystemControlHal(sch) {}
 

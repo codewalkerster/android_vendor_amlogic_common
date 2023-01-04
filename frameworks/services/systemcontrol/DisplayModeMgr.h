@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#ifndef DISPLAYMODE_MGR_H
+#define DISPLAYMODE_MGR_H
 #include <utils/Singleton.h>
 #include <DisplayAdapter.h>
 
@@ -44,6 +45,7 @@ public:
     bool getDisplayMode(std::string& mode, ConnectorType display);
     bool setDisplayMode(std::string mode);
     bool setDisplayMode(std::string mode, ConnectorType display);
+    bool setFrameRate(float frameRate, const char *what = nullptr);
 
     bool setDisplayAttribute(std::string cmd, std::string attribute);
     bool setDisplayAttribute(std::string cmd, std::string attribute, ConnectorType display);
@@ -65,3 +67,4 @@ private:
 
     std::unique_ptr<meson::DisplayAdapter> mDisplayAdapter;
 };
+#endif

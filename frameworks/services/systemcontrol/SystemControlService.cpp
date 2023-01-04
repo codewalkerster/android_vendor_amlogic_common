@@ -2829,5 +2829,12 @@ bool SystemControlService::memcContrl(bool on) {
     return pDisplayMode->memcContrl(on);
 }
 
+bool SystemControlService::frameRateDisplay(bool on) {
+    if (pDisplayMode != NULL) {
+        return pDisplayMode->frameRateDisplay(on);
+    }
+    return false;
+}
+
 } // namespace android
 

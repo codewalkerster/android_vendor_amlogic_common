@@ -330,7 +330,7 @@ DisplayMode::DisplayMode(const char *path, Ubootenv *ubootenv)
         pUEventObserver->setUevntCallback(this);
         pUEventObserver->setFRAutoAdpt(pFrameRateAutoAdaption);
         pUEventObserver->setHDCPTxAuth(pTxAuth);
-        //pUEventObserver->start_hdmitxuevent_thread();
+        pUEventObserver->tv_framerateevent_thread();
         pRxAuth = new HDCPRxAuth(pTxAuth);
 #endif
     } else if (DISPLAY_TYPE_TABLET == mDisplayType) {
@@ -2049,6 +2049,9 @@ bool DisplayMode::isLowPowerMode() {
 void DisplayMode::setSinkOutputMode(const char* outputmode) {
     setSinkOutputMode(outputmode, false);
 }
+void DisplayMode::setDisplayModeinner(const char* outputmode) {
+    setSinkOutputMode(outputmode, false);
+}
 
 void DisplayMode::setSinkOutputMode(const char* outputmode, bool initState) {
     SYS_LOGI("set sink output mode:%s, init state:%d\n", outputmode, initState?1:0);
@@ -2462,6 +2465,11 @@ bool DisplayMode::getDisplayMode(char* mode) {
 void DisplayMode::setDisplayMode(std::string mode) {
     SYS_LOGI("%s mode:%s\n", __FUNCTION__, mode.c_str());
     DisplayModeMgr::getInstance().setDisplayMode(mode);
+}
+
+void DisplayMode::setFrameRate(float frameRate) {
+    SYS_LOGI("%s frameRate:%f\n", __FUNCTION__, frameRate);
+    DisplayModeMgr::getInstance().setFrameRate(frameRate);
 }
 
 /* *
@@ -3458,6 +3466,11 @@ void DisplayMode::onTxEvent (char* switchName, char* hpdstate, int outputState) 
 
     //hdmi edid parse ok
     setSourceDisplay((output_mode_state)outputState);
+}
+
+bool DisplayMode::frameRateDisplay(bool on) {
+    pFrameRateAutoAdaption->setVideoLayerOn(on);
+    return true;
 }
 
 void DisplayMode::onDispModeSyncEvent (const char* outputmode, int state) {

@@ -165,7 +165,13 @@ bool UEventObserver::isMatch(const char* buffer, size_t length,
             strcpy(ueventData->switchName, values[0].c_str());
             strcpy(ueventData->switchState, values[1].c_str());
         }
-
+        //for afr
+        else if (matched && strstr(field, "FRAME_RATE_HINT=")) {
+            strcpy(ueventData->switchName, field + strlen("FRAME_RATE_HINT="));
+        }
+        else if (matched && strstr(field, "FRAME_RATE_END_HINT")) {
+            strcpy(ueventData->switchName, "end_hint");
+        }
         field += strlen(field) + 1;
     } while (field != end);
 
@@ -357,13 +363,58 @@ void UEventObserver::setSysCtrlReady(bool status) {
     }
 }
 
+int UEventObserver::tv_framerateevent_thread() {
+    int ret = 0;
+    pthread_t thread_id;
+#ifdef FRAMERATE_MODE
+    addMatch(FRAME_RATE_DECODER_UEVENT);
+    addMatch(FRAME_RATE_VDIN0_UEVENT);
+    addMatch(FRAME_RATE_VDIN1_UEVENT);
+    addMatch(FRAME_RATE_VDIN0_UEVENT_N);
+    addMatch(FRAME_RATE_VDIN1_UEVENT_N);
+    ret = pthread_create(&thread_id, NULL, AFRUenventThreadLoop, this);
+    if (ret != 0) {
+        SYS_LOGE("Create HDMITxUenventThreadLoop error :%d!\n", ret);
+    }
+#endif
+    return ret;
+}
+// AFR uevent prcessed in this loop
+void* UEventObserver::AFRUenventThreadLoop(void* data) {
+    UEventObserver *pThiz = (UEventObserver*)data;
+
+    uevent_data_t ueventData;
+
+    while (true) {
+        memset(&ueventData, 0, sizeof(uevent_data_t));
+        pThiz->waitForNextEvent(&ueventData);
+
+        SYS_LOGI("uevent name:%s, switch_state: %s\n", ueventData.switchName, ueventData.matchName);
+        if (!strcmp(ueventData.matchName, FRAME_RATE_DECODER_UEVENT) ||
+                         !strcmp(ueventData.matchName, FRAME_RATE_VDIN0_UEVENT) ||
+                         !strcmp(ueventData.matchName, FRAME_RATE_VDIN1_UEVENT) ||
+                         !strcmp(ueventData.matchName, FRAME_RATE_VDIN0_UEVENT_N) ||
+                         !strcmp(ueventData.matchName, FRAME_RATE_VDIN1_UEVENT_N)) {
+            pThiz->pmFrameRateAutoAdaption->onTxUeventReceived(&ueventData);
+        }
+    }
+
+    return NULL;
+}
+
 //start HDMI TX UEVENT prcessed thread
 int UEventObserver::start_hdmitxuevent_thread() {
     int ret;
     pthread_t thread_id;
 
     setSuspendResume(false);
-
+#ifdef FRAMERATE_MODE
+    addMatch(FRAME_RATE_DECODER_UEVENT);
+    addMatch(FRAME_RATE_VDIN0_UEVENT);
+    addMatch(FRAME_RATE_VDIN1_UEVENT);
+    addMatch(FRAME_RATE_VDIN0_UEVENT_N);
+    addMatch(FRAME_RATE_VDIN1_UEVENT_N);
+#endif
     addMatch(HDMI_TX_UEVENT);
 
     ret = pthread_create(&thread_id, NULL, HDMITxUenventThreadLoop, this);
@@ -474,19 +525,17 @@ void* UEventObserver::HDMITxUenventThreadLoop(void* data) {
             }
         }
         else if (!strcmp(ueventData.matchName, HDMI_TX_HDCP_UEVENT) && !strcmp(ueventData.switchName, HDMI_UEVENT_HDCP)) {
-            if (!strcmp(ueventData.switchState, "1")) {
-                SYS_LOGD("hdcp_tx authenticate success.\n");
-                pThiz->pmHDCPTxAuth->AuthResult(true);
-            } else {
-                SYS_LOGD("hdcp_tx authenticate fail.\n");
-                pThiz->pmHDCPTxAuth->AuthResult(false);
-            }
+
         }
         else if (!strcmp(ueventData.matchName, HDMI_TX_HDCP14_LOG_UEVENT) && !strcmp(ueventData.switchName, HDMI_UEVENT_HDCP_LOG)) {
 
         }
-        else if (!strcmp(ueventData.matchName, HDMI_TVOUT_FRAME_RATE_UEVENT)) {
-               pThiz->pmFrameRateAutoAdaption->onTxUeventReceived(&ueventData);
+        else if (!strcmp(ueventData.matchName, FRAME_RATE_DECODER_UEVENT) ||
+                         !strcmp(ueventData.matchName, FRAME_RATE_VDIN0_UEVENT) ||
+                         !strcmp(ueventData.matchName, FRAME_RATE_VDIN1_UEVENT) ||
+                         !strcmp(ueventData.matchName, FRAME_RATE_VDIN0_UEVENT_N) ||
+                         !strcmp(ueventData.matchName, FRAME_RATE_VDIN1_UEVENT_N)) {
+            pThiz->pmFrameRateAutoAdaption->onTxUeventReceived(&ueventData);
         }
         else if (!strcmp(ueventData.matchName, HDMI_TX_HDMI_AUDIO_UEVENT) && !strcmp(ueventData.switchName, HDMI_UEVENT_HDMI_AUDIO)  && (NULL != pThiz->pmHDMITxUevntCallback)) {
                pThiz->pmHDMITxUevntCallback->onTxEvent(ueventData.switchName, ueventData.switchState, OUTPUT_MODE_STATE_POWER);

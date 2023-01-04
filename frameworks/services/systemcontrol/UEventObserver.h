@@ -54,7 +54,7 @@ typedef struct {
     int num; //match string item number
     match_node_t strList;
 } match_item_t;
-
+class FrameRateAutoAdaption;
 // ----------------------------------------------------------------------------
 class UEventObserver
 {
@@ -82,7 +82,7 @@ public:
     bool getSuspendResume(void);
     void setSysCtrlReady(bool status);
     int start_hdmitxuevent_thread();
-
+    int tv_framerateevent_thread();
 private:
     int ueventInit();
     bool isMatch(const char* buffer, size_t length, uevent_data_t* ueventData, const char *matchStr);
@@ -90,7 +90,7 @@ private:
     int ueventNextEvent(char* buffer, int buffer_length);
     void ueventPrint(char* ueventBuf, int len);
     static void* HDMITxUenventThreadLoop(void* data);
-
+    static void* AFRUenventThreadLoop(void* data);
     int mFd;
     int mLogLevel;
     bool mSuspendResume;

@@ -18,6 +18,12 @@ package vendor.amlogic.hardware.systemcontrol@1.1;
 import vendor.amlogic.hardware.systemcontrol@1.0;
 
 interface ISystemControl extends @1.0::ISystemControl{
+  struct Rect {
+      int32_t left;
+      int32_t top;
+      int32_t right;
+      int32_t bottom;
+  };
 
   //Provision key start
   calcChecksumKey(int32_t[10240] value, int32_t size)
@@ -80,4 +86,9 @@ interface ISystemControl extends @1.0::ISystemControl{
       generates (Result result);
   syncDensity(int32_t displayid, int32_t width, int32_t height)
       generates (Result result);
+
+  // AFR
+  frameRateDisplay (bool on, Rect rect)
+       generates (Result result);
+  oneway frameRateDisplayAsync(bool on, Rect rect);
 };

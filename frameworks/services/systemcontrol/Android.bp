@@ -145,6 +145,7 @@ cc_binary {
 
     cflags: [
         "-DHDCP_AUTHENTICATION",
+        "-DFRAMERATE_MODE",
     ],
 
     srcs: [
@@ -153,12 +154,14 @@ cc_binary {
         "logo_img_packer/res_pack.cpp",
         "logo_img_packer/crc32.cpp",
         "VdcLoop.c",
+        "Rect.cpp",
         "SystemControlHal.cpp",
         "SystemControlClient.cpp",
         "SystemControlService.cpp",
         "DisplayMode.cpp",
         "DisplayModeMgr.cpp",
         "Dimension.cpp",
+        "FrameRateMessage.cpp",
         "SysTokenizer.cpp",
         "UEventObserver.cpp",
         "HDCP/HdcpKeyDecrypt.cpp",
