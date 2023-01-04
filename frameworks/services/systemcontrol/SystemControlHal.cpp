@@ -1618,6 +1618,19 @@ Return<int32_t> SystemControlHal::setVideoScreenColor(int color)
     return mSysControl->setVideoScreenColor(color);
 }
 
+Return<int32_t> SystemControlHal::setVideoScreenColorByVT(int32_t window, int32_t Color, int32_t frequency)
+{
+    return mSysControl-> setVideoScreenColorByVT(window, Color, frequency);
+}
+
+Return<Result> SystemControlHal::getIsMultiDemux()
+{
+    if (mSysControl->getIsMultiDemux()) {
+        return Result::OK;
+    }
+    return Result::FAIL;
+}
+
 //FBC
 Return<int32_t> SystemControlHal::StartUpgradeFBC(const hidl_string& fileName, int32_t mode, int32_t upgrade_blk_size)
 {

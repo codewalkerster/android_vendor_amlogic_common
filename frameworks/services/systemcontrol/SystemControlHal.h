@@ -323,6 +323,9 @@ class SystemControlHal : public ISystemControl, public SystemControlNotify, publ
     Return<int32_t> getScreenColorForSignalChange();
 
     Return<int32_t> setVideoScreenColor(int32_t color);
+    Return<int32_t> setVideoScreenColorByVT(int32_t window, int32_t Color, int32_t frequency);
+    //is new path
+    Return<Result> getIsMultiDemux();
     //FBC
     Return<int32_t> StartUpgradeFBC(const hidl_string& fileName, int32_t mode, int32_t upgrade_blk_size) override;
     Return<int32_t> UpdateFBCUpgradeStatus(int32_t state, int32_t param) override;

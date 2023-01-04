@@ -109,6 +109,7 @@ cc_library_shared {
         "libcutils",
         "libbinder",
         "libfbc",
+        "libvideotunnel",
         "libsystemcontrolservice",
         "vendor.amlogic.hardware.systemcontrol@1.1",
         "libaml_hal_lcd",

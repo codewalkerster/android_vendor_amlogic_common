@@ -1433,6 +1433,21 @@ int SystemControlClient::setVideoScreenColor(int color)
 {
     return mSysCtrl->setVideoScreenColor(color);
 }
+/*
+*parm:
+*window: 0:main_window, 1:sub_window
+*Color: 0:black, 1:blue
+*frequency: 4: only once, 5:always, 6:disable show color frame
+*/
+int SystemControlClient::setVideoScreenColorByVT(int window, int Color, int frequency)
+{
+    return mSysCtrl->setVideoScreenColorByVT(window, Color, frequency);
+}
+
+bool SystemControlClient::getIsMultiDemux()
+{
+    return (mSysCtrl->getIsMultiDemux() == Result::OK);
+}
 
 //FBC
 int SystemControlClient::StartUpgradeFBC(const std::string&file_name, int mode, int upgrade_blk_size) {

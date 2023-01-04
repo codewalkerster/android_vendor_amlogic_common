@@ -320,6 +320,8 @@ public:
     int setScreenColorForSignalChange(int screenColor, int isSave);
     int getScreenColorForSignalChange();
     int setVideoScreenColor(int color);
+    int setVideoScreenColorByVT(int window, int Color, int frequency);
+    bool getIsMultiDemux();
     //FBC
     int StartUpgradeFBC(const std::string&file_name, int mode, int upgrade_blk_size);
     int UpdateFBCUpgradeStatus(int state, int param);

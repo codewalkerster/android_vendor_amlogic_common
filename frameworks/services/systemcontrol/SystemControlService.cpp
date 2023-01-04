@@ -2623,6 +2623,23 @@ int SystemControlService::setVideoScreenColor(int color)
     return -1;
 }
 
+int SystemControlService::setVideoScreenColorByVT(int window, int Color, int frequency)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->setVideoScreenColorByVT(window, Color, frequency);
+    }
+    return -1;
+}
+
+bool SystemControlService::getIsMultiDemux()
+{
+    if (access("/sys/class/stb/demux0_source", F_OK) == 0) {
+         return false;
+     } else {
+         return true;
+     }
+}
+
 //FBC start
 int SystemControlService::StartUpgradeFBC(const std::string&file_name, int mode, int upgrade_blk_size)
 {

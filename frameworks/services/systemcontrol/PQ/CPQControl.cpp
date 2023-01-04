@@ -123,6 +123,7 @@ void CPQControl::CPQControlInit()
     mLdFd          = -1;
     mLcdFd         = -1;
     mbDtvKitEnable = false;
+    mVideoTunelFd  = -1;
 
     SYS_LOGD("CPQControlInit start!\n");
 
@@ -164,6 +165,13 @@ void CPQControl::CPQControlInit()
         SYS_LOGE("Open LCD module failed!\n");
     } else {
         SYS_LOGD("Open LCD module success!\n");
+    }
+    //open VT module
+    mVideoTunelFd = OpenVideotunnel();
+    if (mVideoTunelFd < 0) {
+        SYS_LOGE("Open VideoTunel module failed!\n");
+    } else {
+        SYS_LOGD("Open VideoTunel module success!\n");
     }
 
     //open Sys fs
@@ -281,6 +289,8 @@ void CPQControl::CPQControlUnInit()
     VPPCloseModule();
     //close DI module
     DICloseModule();
+    //close VT module;
+    CloseVideotunnel();
 
     if (mHlgToneMapping != NULL) {
         delete mHlgToneMapping;
@@ -4728,6 +4738,48 @@ int CPQControl::setVideoScreenColor (int color)
             screenColorEnable = false;
             break;
     }
+    return ret;
+}
+
+int CPQControl::setVideoScreenColorByVT( int window, int Color, int frequency)
+{
+
+    return SetVideotunnelSolidColor((video__color_Window)window, (video_color_frame)Color, (video_color_frame_time)frequency);
+}
+
+int CPQControl::OpenVideotunnel()
+{
+    int ret = -1;
+    ret = meson_vt_open();
+    if (ret < 0) {
+        SYS_LOGE("%s: open meson_vt error!",__FUNCTION__);
+        return ret;
+    }
+    mVideoTunelFd = ret;
+    return mVideoTunelFd;
+}
+
+int CPQControl::CloseVideotunnel()
+{
+    int ret = -1;
+    if (mVideoTunelFd >= 0) {
+        ret = meson_vt_close(mVideoTunelFd);
+        mVideoTunelFd = -1;
+    } else {
+        SYS_LOGD("%s: needn't close meson_vt!",__FUNCTION__);
+    }
+    return ret;
+}
+
+int CPQControl::SetVideotunnelSolidColor(video__color_Window window, video_color_frame cmd, video_color_frame_time cmd_data)
+{
+    int ret = -1;
+    if (mVideoTunelFd < 0) {
+        SYS_LOGD("%s: Video tunnel not yet opened!",__FUNCTION__);
+        return ret;
+    }
+    SYS_LOGD("%s: window:%d, color:%d, times:%d", __FUNCTION__, window, cmd,cmd_data);
+    ret = meson_vt_set_solid_color(mVideoTunelFd, window, (vt_color_cmd)cmd, (vt_color_data)cmd_data);
     return ret;
 }
 

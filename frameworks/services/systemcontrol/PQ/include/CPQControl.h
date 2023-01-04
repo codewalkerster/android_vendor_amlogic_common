@@ -25,6 +25,7 @@
 #include "CHlgToneMapping.h"
 #include "CDolbyVision.h"
 #include "SysWrite.h"
+#include "video_tunnel.h"
 
 #define LDIM_PATH                 "/dev/aml_ldim"
 #define VPP_DEV_PATH              "/dev/amvecm"
@@ -158,6 +159,34 @@ typedef enum video_layer_color_e{
     VIDEO_LAYER_COLOR_BLUE    = 1,
     VIDEO_LAYER_COLOR_MAX,
 } video_layer_color_t;
+
+typedef enum video_color_frame {
+    SET_BLACK,
+    SET_BLUE,
+} video_color_frame_t;
+
+typedef enum video_color_frame_time {
+   /*
+     * only show one frame of solid color,
+     * will recovery when receive new frame
+     */
+    SET_TIME_ONCE = 4,
+    /*
+     * Always show the solid color frame
+     * until receive disable cmd or surface disconnect
+     */
+    SET_TIME_ALWAYS = 5,
+    /*
+     * disable color frame
+     */
+    SET_TIME_DISABLE = 6,
+} video_color_frame_time_t;
+
+typedef enum video__color_Window {
+    RESERVED ,
+    MAIN_WINDOW,
+    SUB_WINDOW,
+} video__color_Window_t;
 
 class CPQControl: public CDevicePollCheckThread::IDevicePollCheckObserver,
                          public CDynamicBackLight::IDynamicBackLightObserver,
@@ -363,6 +392,7 @@ public:
     int SetScreenColorForSignalChange(int screenColor, int isSave);
     int GetScreenColorForSignalChange();
     int setVideoScreenColor (int color);
+    int setVideoScreenColorByVT(int Color, int frequency, int window);//for new path
     //get overscan
     tvin_cutwin_t GetOverscanParams(vpp_display_mode_t display_mode);
     //Factory
@@ -601,6 +631,10 @@ private:
     int getHdrPolicy();
     bool mInitialized;
     bool getBootEnv(const char *name, char *value);
+    //for new path set background color
+    int OpenVideotunnel();
+    int CloseVideotunnel();
+    int SetVideotunnelSolidColor(video__color_Window window, video_color_frame cmd, video_color_frame_time cmd_data);
 
     //cfg
     bool mbCpqCfg_separate_db_enable;
@@ -657,6 +691,7 @@ private:
     int mLdFd;
     int mMemcFd;
     int mLcdFd;
+    int mVideoTunelFd;
 
     tcon_rgb_ogo_t rgbfrompq[3];
     source_input_param_t mCurrentSourceInputInfo;
