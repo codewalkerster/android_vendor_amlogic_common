@@ -75,6 +75,10 @@ public class SoundEffectManager {
     public static final String DB_ID_SOUND_EFFECT_BAND3                         = "db_id_sound_effect_band3";
     public static final String DB_ID_SOUND_EFFECT_BAND4                         = "db_id_sound_effect_band4";
     public static final String DB_ID_SOUND_EFFECT_BAND5                         = "db_id_sound_effect_band5";
+    public static final String DB_ID_SOUND_EFFECT_BAND6                         = "db_id_sound_effect_band6";
+    public static final String DB_ID_SOUND_EFFECT_BAND7                         = "db_id_sound_effect_band7";
+    public static final String DB_ID_SOUND_EFFECT_BAND8                         = "db_id_sound_effect_band8";
+    public static final String DB_ID_SOUND_EFFECT_BAND9                         = "db_id_sound_effect_band9";
     public static final String DB_ID_SOUND_EFFECT_VIRTUALX_MODE                 = "db_id_sound_effect_virtualx_mode";
     public static final String DB_ID_SOUND_EFFECT_TREVOLUME_HD                  = "db_id_sound_effect_truvolume_hd";
     public static final String DB_ID_SOUND_EFFECT_DAP_SAVED                     = "db_id_sound_effect_dap_saved";
@@ -118,6 +122,7 @@ public class SoundEffectManager {
     public static final String DB_ID_SOUND_EFFECT_DPE_DEBUG                              = "db_id_sound_effect_dpe_debug";
     public static final String DB_ID_SOUND_EFFECT_VIRTUAL_X_DEBUG                        = "db_id_sound_effect_virtual_x_debug";
     public static final String DB_ID_SOUND_EFFECT_DAP_2_DEBUG                            = "db_id_sound_effect_dap_2_debug";
+    public static final String DB_ID_SOUND_EFFECT_HPEQ_BAND_NUM_DEBUG                    = "db_id_sound_effect_hpeq_band_num_debug";
 
     //set id
     public static final int SET_BASS                                    = 0;
@@ -129,9 +134,13 @@ public class SoundEffectManager {
     public static final int SET_EFFECT_BAND3                            = 6;
     public static final int SET_EFFECT_BAND4                            = 7;
     public static final int SET_EFFECT_BAND5                            = 8;
-    public static final int SET_VIRTUAL_SURROUND                        = 9;
-    public static final int SET_VIRTUALX_MODE                           = 10;
-    public static final int SET_TRUVOLUME_HD_ENABLE                     = 11;
+    public static final int SET_EFFECT_BAND6                            = 9;
+    public static final int SET_EFFECT_BAND7                            = 10;
+    public static final int SET_EFFECT_BAND8                            = 11;
+    public static final int SET_EFFECT_BAND9                            = 12;
+    public static final int SET_VIRTUAL_SURROUND                        = 13;
+    public static final int SET_VIRTUALX_MODE                           = 14;
+    public static final int SET_TRUVOLUME_HD_ENABLE                     = 15;
 
     //Balance level.  Parameter ID
     public static final int PARAM_BALANCE_LEVEL                         = 0;
@@ -142,8 +151,9 @@ public class SoundEffectManager {
 
     //dap AudioEffect, [ HPEQparams ] enumeration alignment in Hpeq.cpp
     public static final int PARAM_EQ_ENABLE                             = 0;
-    public static final int PARAM_EQ_EFFECT                             = 1;
-    public static final int PARAM_EQ_CUSTOM                             = 2;
+    public static final int PARAM_EQ_BAND_NUM                           = 1;
+    public static final int PARAM_EQ_EFFECT                             = 2;
+    public static final int PARAM_EQ_CUSTOM                             = 3;
 
     //virtual surround
     public static final int PARAM_VIRTUALSURROUND                       = 0;
@@ -158,7 +168,7 @@ public class SoundEffectManager {
     private static final int PARAMETERS_DAP_ENABLE                      = 1;
     private static final int PARAMETERS_DAP_DISABLE                     = 0;
     //band 1, band 2, band 3, band 4, band 5  need transfer 0~100 to -10~10
-    private static final int[] EFFECT_SOUND_MODE_USER_BAND              = {50, 50, 50, 50, 50};
+    private static final int[] EFFECT_SOUND_MODE_USER_BAND              = {50, 50, 50, 50, 50, 50, 50, 50, 50};
     private static final int EFFECT_SOUND_TYPE_NUM = 6;
 
     // Virtual X effect param type
@@ -481,9 +491,9 @@ public class SoundEffectManager {
 
     public int getTrebleStatus () {
         int saveresult = -1;
-        if (!creatTrebleBassAudioEffects()) {
-            Log.e(TAG, "getTrebleStatus mTrebleBass creat fail");
-            return AudioEffectManager.EFFECT_TREBLE_DEFAULT;
+        if (mTrebleBass == null) {
+            Log.e(TAG, "getTrebleStatus failed ! TrebleBass is not created");
+            return 0;
         }
         int[] value = new int[1];
         mTrebleBass.getParameter(PARAM_TREBLE_LEVEL, value);
@@ -498,9 +508,9 @@ public class SoundEffectManager {
 
     public int getBassStatus () {
         int saveresult = -1;
-        if (!creatTrebleBassAudioEffects()) {
-            Log.e(TAG, "getBassStatus mTrebleBass creat fail");
-            return AudioEffectManager.EFFECT_BASS_DEFAULT;
+        if (mTrebleBass == null) {
+            Log.e(TAG, "getBassStatus failed ! TrebleBass is not created");
+            return 0;
         }
         int[] value = new int[1];
         mTrebleBass.getParameter(PARAM_BASS_LEVEL, value);
@@ -515,9 +525,9 @@ public class SoundEffectManager {
 
     public int getBalanceStatus () {
         int saveresult = -1;
-        if (!creatBalanceAudioEffects()) {
-            Log.e(TAG, "getBalanceStatus mBalance creat fail");
-            return AudioEffectManager.EFFECT_BALANCE_DEFAULT;
+        if (mBalance == null) {
+            Log.e(TAG, "getBalanceStatus failed ! Balance is not created");
+            return 0;
         }
         int[] value = new int[1];
         mBalance.getParameter(PARAM_BALANCE_LEVEL, value);
@@ -533,9 +543,9 @@ public class SoundEffectManager {
     // 0 1 ~ off on
     public int getVirtualSurroundStatus() {
         int saveresult = -1;
-        if (!creatVirtualSurroundAudioEffects()) {
-            Log.e(TAG, "getVirtualSurroundStatus mVirtualSurround creat fail");
-            return OutputModeManager.VIRTUAL_SURROUND_OFF;
+        if (mVirtualSurround == null) {
+            Log.e(TAG, "getVirtualSurroundStatus failed ! VirtualSurround is not created");
+            return 0;
         }
         int[] value = new int[1];
         mVirtualSurround.getParameter(PARAM_VIRTUALSURROUND, value);
@@ -554,7 +564,7 @@ public class SoundEffectManager {
         saveAudioParameters(SET_SOUND_MODE, mode);
     }
 
-    public void setSoundModeByObserver (int mode) {
+    public void setSoundModeByObserver (int mode, int bandSum) {
         if (mSoundMode == null) {
             Log.e(TAG, "setSoundModeByObserver eq sound is not created");
             return;
@@ -565,14 +575,14 @@ public class SoundEffectManager {
             mSoundMode.setParameter(PARAM_EQ_EFFECT, mode);
             if (mode == AudioEffectManager.EQ_SOUND_MODE_CUSTOM) {
                 //set one band, at the same time the others will be set
-                setDifferentBandEffects(AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND1, getSavedAudioParameters(SET_EFFECT_BAND1), false);
+                setDifferentBandEffects(AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND1, getSavedAudioParameters(SET_EFFECT_BAND1), false, bandSum);
             }
             //need to set sound mode by observer listener
             //saveAudioParameters(SET_SOUND_MODE, mode);
         }
     }
 
-    public void setUserSoundModeParam(int bandNumber, int value) {
+    public void setUserSoundModeParam(int bandNumber, int value, int bandSum) {
         if (null == mSoundMode) {
             Log.e(TAG, "The EQ effect is not created, the mode cannot be setUserSoundModeParam.");
             return;
@@ -580,16 +590,20 @@ public class SoundEffectManager {
         if (DroidLogicUtils.getAudioDebugEnable()) {
             Log.d(TAG, "setUserSoundModeParam bandNumber:" + bandNumber + ", value:" + value);
         }
-        if (bandNumber > AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND5 || bandNumber < AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND1) {
+        if (bandNumber > AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND9 || bandNumber < AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND1) {
             Log.e(TAG, "the EQ band number:" + bandNumber + " invalid, set failed");
             return;
         }
-        setDifferentBandEffects(bandNumber, value, true);
+        if (bandSum != AudioEffectManager.HPEQ_5_BAND && bandSum != AudioEffectManager.HPEQ_7_BAND && bandSum != AudioEffectManager.HPEQ_9_BAND) {
+            Log.e(TAG, "the EQ band sum:" + bandSum + " invalid, set failed");
+            return;
+        }
+        setDifferentBandEffects(bandNumber, value, true, bandSum);
     }
 
     public int getUserSoundModeParam(int bandNumber) {
-        if (bandNumber > AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND5 || bandNumber < AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND1) {
-            Log.e(TAG, "the EQ band number:" + bandNumber + " invalid, set failed");
+        if (bandNumber > AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND9 || bandNumber < AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND1) {
+            Log.e(TAG, "the EQ band number:" + bandNumber + " invalid, get failed");
             return 0;
         }
         int value = 0;
@@ -598,7 +612,7 @@ public class SoundEffectManager {
         return value;
     }
 
-    private void setDifferentBandEffects(int bandnum, int value, boolean needsave) {
+    private void setDifferentBandEffects(int bandnum, int value, boolean needsave, int bandSum) {
         if (mSoundMode == null) {
             Log.e(TAG, "setDifferentBandEffects eq sound is not created");
             return;
@@ -606,16 +620,16 @@ public class SoundEffectManager {
         int result = mSoundMode.setEnabled(true);
         if (result == AudioEffect.SUCCESS) {
             if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "setDifferentBandEffects: NO." + bandnum + " = " + value);
-            byte[] fiveband = new byte[5];
-            for (int i = AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND1; i <= AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND5; i++) {
+            byte[] needband = new byte[9];
+            for (int i = AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND1; i <= AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND9; i++) {
                 if (bandnum == i) {
-                    fiveband[i] = (byte)MappingLine(value, true);
+                    needband[i] = (byte)MappingLine(value, true);
                 } else {
-                    fiveband[i] = (byte) MappingLine(getSavedAudioParameters(i + SET_EFFECT_BAND1), true);
+                    needband[i] = (byte) MappingLine(getSavedAudioParameters(i + SET_EFFECT_BAND1), true);
                 }
             }
-            Log.i(TAG, "set eq custom effect band value: " + Arrays.toString(fiveband));
-            mSoundMode.setParameter(PARAM_EQ_CUSTOM, fiveband);
+            Log.i(TAG, "set eq custom effect band value: " + Arrays.toString(needband));
+            mSoundMode.setParameter(PARAM_EQ_CUSTOM, needband);
             if (needsave) {
                 saveAudioParameters(bandnum + SET_EFFECT_BAND1, value);
             }
@@ -744,6 +758,18 @@ public class SoundEffectManager {
             case SET_EFFECT_BAND5:
                 Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND5, value);
                 break;
+            case SET_EFFECT_BAND6:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND6, value);
+                break;
+            case SET_EFFECT_BAND7:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND7, value);
+                break;
+            case SET_EFFECT_BAND8:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND8, value);
+                break;
+            case SET_EFFECT_BAND9:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND9, value);
+                break;
             case SET_VIRTUAL_SURROUND:
                 Settings.Global.putInt(mContext.getContentResolver(), OutputModeManager.VIRTUAL_SURROUND, value);
                 break;
@@ -801,6 +827,18 @@ public class SoundEffectManager {
             case SET_EFFECT_BAND5:
                 result = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND5, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND5]);
                 break;
+            case SET_EFFECT_BAND6:
+                result = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND6, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND6]);
+                break;
+            case SET_EFFECT_BAND7:
+                result = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND7, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND7]);
+                break;
+            case SET_EFFECT_BAND8:
+                result = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND8, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND8]);
+                break;
+            case SET_EFFECT_BAND9:
+                result = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND9, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND9]);
+                break;
             case SET_VIRTUAL_SURROUND:
                 result = Settings.Global.getInt(mContext.getContentResolver(), OutputModeManager.VIRTUAL_SURROUND, OutputModeManager.VIRTUAL_SURROUND_OFF);
                 break;
@@ -817,25 +855,27 @@ public class SoundEffectManager {
     }
 
     public void initEqAudioEffects() {
-        Log.d(TAG, "initEqAudioEffects...");
-        if (Settings.Global.getInt(mContext.getContentResolver(), "set_five_band", 0) == 0) {
+        int bandSum = getHpeqBandNum(AudioEffectManager.DEBUG_HPEQ_BAND_NUM_UI);
+        setHpeqBandNum(AudioEffectManager.DEBUG_HPEQ_BAND_NUM_UI, bandSum);
+        Log.d(TAG, " initEqAudioEffects bandSum :" + bandSum);
+        if (Settings.Global.getInt(mContext.getContentResolver(), "set_eq_band", 0) == 0) {
             if (mSoundMode != null) {
-                byte[] fiveBandNum = new byte[5];
-                mSoundMode.getParameter(PARAM_EQ_CUSTOM, fiveBandNum);
-                for (int i = SET_EFFECT_BAND1; i <= SET_EFFECT_BAND5; i++) {
-                    saveAudioParameters(i, unMappingLine(fiveBandNum[i - SET_EFFECT_BAND1], true));
+                byte[] eqBandNum = new byte[9];
+                mSoundMode.getParameter(PARAM_EQ_CUSTOM, eqBandNum);
+                for (int i = SET_EFFECT_BAND1; i <= SET_EFFECT_BAND9; i++) {
+                    saveAudioParameters(i, unMappingLine(eqBandNum[i - SET_EFFECT_BAND1], true));
                 }
             } else {
-                for (int i = SET_EFFECT_BAND1; i <= SET_EFFECT_BAND5; i++) {
+                for (int i = SET_EFFECT_BAND1; i <= SET_EFFECT_BAND9; i++) {
                     saveAudioParameters(i, EFFECT_SOUND_MODE_USER_BAND[i - SET_EFFECT_BAND1]);
                 }
                 Log.w(TAG, "get default band value fail, set default value, mSoundMode == null");
             }
-            Settings.Global.putInt(mContext.getContentResolver(), "set_five_band", 1);
+            Settings.Global.putInt(mContext.getContentResolver(), "set_eq_band", 1);
         }
 
         int soundMode = getSavedAudioParameters(SET_SOUND_MODE);
-        setSoundModeByObserver(soundMode);
+        setSoundModeByObserver(soundMode, bandSum);
     }
 
     public void initTrebleBassAudioEffects() {
@@ -887,7 +927,11 @@ public class SoundEffectManager {
         Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND3, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND3]);
         Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND4, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND4]);
         Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND5, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND5]);
-        Settings.Global.putInt(mContext.getContentResolver(), "set_five_band", 0);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND6, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND6]);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND7, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND7]);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND8, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND8]);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND9, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND9]);
+        Settings.Global.putInt(mContext.getContentResolver(), "set_eq_band", 0);
         Settings.Global.putInt(mContext.getContentResolver(), OutputModeManager.VIRTUAL_SURROUND, OutputModeManager.VIRTUAL_SURROUND_OFF);
         Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_VIRTUALX_MODE, AudioEffectManager.SOUND_EFFECT_VIRTUALX_MODE_DEFAULT);
         Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_TREVOLUME_HD, AudioEffectManager.SOUND_EFFECT_TRUVOLUME_HD_ENABLE_DEFAULT);
@@ -1728,5 +1772,35 @@ public class SoundEffectManager {
 
         return value == AudioEffectManager.DEBUG_UI_ON;
     }
+
+    public void setHpeqBandNum (int id, int value) {
+        if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "setHpeqBandNum id:" + id + ", value:" + value);
+
+        switch (id) {
+            case AudioEffectManager.DEBUG_HPEQ_BAND_NUM_UI:
+                mSoundMode.setParameter(PARAM_EQ_BAND_NUM, value);
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_HPEQ_BAND_NUM_DEBUG, value);
+                break;
+            default:
+                Log.e(TAG, "setHpeqBandNum id:" + id + " is invalid!");
+                break;
+        }
+    }
+
+    public int getHpeqBandNum(int id) {
+        int value = 0;
+        switch (id) {
+            case AudioEffectManager.DEBUG_HPEQ_BAND_NUM_UI:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_HPEQ_BAND_NUM_DEBUG, AudioEffectManager.HPEQ_5_BAND);
+                break;
+            default:
+                Log.e(TAG, "getHpeqBandNum id:" + id + " is invalid!");
+                break;
+        }
+        if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "getHpeqBandNum id:" + id + ", value:" + value);
+
+        return value;
+    }
+
 }
 

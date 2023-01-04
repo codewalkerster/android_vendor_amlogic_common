@@ -44,6 +44,10 @@ public class AudioEffectManager {
     public static final int EQ_SOUND_MODE_EFFECT_BAND3                  = 2;
     public static final int EQ_SOUND_MODE_EFFECT_BAND4                  = 3;
     public static final int EQ_SOUND_MODE_EFFECT_BAND5                  = 4;
+    public static final int EQ_SOUND_MODE_EFFECT_BAND6                  = 5;
+    public static final int EQ_SOUND_MODE_EFFECT_BAND7                  = 6;
+    public static final int EQ_SOUND_MODE_EFFECT_BAND8                  = 7;
+    public static final int EQ_SOUND_MODE_EFFECT_BAND9                  = 8;
 
     /* [setDtsVirtualXMode] VirtualX effect mode */
     public static final int SOUND_EFFECT_VIRTUALX_MODE_OFF              = 0;
@@ -176,6 +180,10 @@ public class AudioEffectManager {
     public static final int DEBUG_UI_ON                                      = 1;
     public static final int DEBUG_UI_OFF                                     = 0;
 
+    public static final int HPEQ_5_BAND                                      = 5;
+    public static final int HPEQ_7_BAND                                      = 7;
+    public static final int HPEQ_9_BAND                                      = 9;
+
     public static final int DEBUG_HPEQ_UI                                    = 0;
     public static final int DEBUG_BALANCE_UI                                 = 1;
     public static final int DEBUG_TREBLEBASS_UI                              = 2;
@@ -183,6 +191,8 @@ public class AudioEffectManager {
     public static final int DEBUG_DPE_UI                                     = 4;
     public static final int DEBUG_VIRTUAL_X_UI                               = 5;
     public static final int DEBUG_DAP_2_UI                                   = 6;
+    public static final int DEBUG_HPEQ_BAND_NUM_UI                           = 7;
+
     private static AudioEffectManager mInstance;
 
     public static AudioEffectManager getInstance(Context context) {
@@ -377,19 +387,19 @@ public class AudioEffectManager {
         }
     }
 
-    public void setSoundModeByObserver(int mode) {
+    public void setSoundModeByObserver(int mode, int bandSum) {
         if (audioEffectServiceIsNull()) return;
         try {
-            mAudioEffectsService.setSoundModeByObserver(mode);
+            mAudioEffectsService.setSoundModeByObserver(mode, bandSum);
         } catch (RemoteException e) {
             Log.e(TAG, "setSoundModeByObserver failed:" + e);
         }
     }
 
-    public void setUserSoundModeParam(int bandNumber, int value) {
+    public void setUserSoundModeParam(int bandNumber, int value, int bandSum) {
         if (audioEffectServiceIsNull()) return;
         try {
-            mAudioEffectsService.setUserSoundModeParam(bandNumber, value);
+            mAudioEffectsService.setUserSoundModeParam(bandNumber, value, bandSum);
         } catch (RemoteException e) {
             Log.e(TAG, "setUserSoundModeParam failed:" + e);
         }
@@ -512,5 +522,23 @@ public class AudioEffectManager {
             Log.e(TAG, "isAudioEffectOn failed:" + e);
         }
         return false;
+    }
+    public void setHpeqBandNum(int id, int value) {
+        if (audioEffectServiceIsNull()) return;
+        try {
+            mAudioEffectsService.setHpeqBandNum(id, value);
+        } catch (RemoteException e) {
+            Log.e(TAG, "setHpeqBandNum failed:" + e);
+        }
+    }
+
+    public int getHpeqBandNum(int id) {
+        if (audioEffectServiceIsNull()) return 0;
+        try {
+            return mAudioEffectsService.getHpeqBandNum(id);
+        } catch (RemoteException e) {
+            Log.e(TAG, "getHpeqBandNum failed:" + e);
+        }
+        return 0;
     }
 }

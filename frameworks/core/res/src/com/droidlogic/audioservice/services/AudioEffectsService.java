@@ -134,12 +134,12 @@ public class AudioEffectsService extends Service {
             mSoundEffectManager.setSoundMode(mode);
         }
 
-        public void setSoundModeByObserver (int mode) {
-            mSoundEffectManager.setSoundModeByObserver(mode);
+        public void setSoundModeByObserver (int mode, int bandSum) {
+            mSoundEffectManager.setSoundModeByObserver(mode, bandSum);
         }
 
-        public void setUserSoundModeParam(int bandNumber, int value) {
-            mSoundEffectManager.setUserSoundModeParam(bandNumber, value);
+        public void setUserSoundModeParam(int bandNumber, int value, int bandSum) {
+            mSoundEffectManager.setUserSoundModeParam(bandNumber, value, bandSum);
         }
 
         public int getUserSoundModeParam(int bandNumber) {
@@ -194,6 +194,12 @@ public class AudioEffectsService extends Service {
         public boolean isAudioEffectOn(int id) {
             return mSoundEffectManager.isAudioEffectOn(id);
         }
+        public void setHpeqBandNum(int id, int value) {
+            mSoundEffectManager.setHpeqBandNum(id, value);
+        }
+        public int getHpeqBandNum(int id) {
+            return mSoundEffectManager.getHpeqBandNum(id);
+        }
     };
 
     private void handleActionStartUp() {
@@ -231,8 +237,9 @@ public class AudioEffectsService extends Service {
                         || uri.equals(Settings.Global.getUriFor(SoundEffectManager.DB_ID_SOUND_EFFECT_SOUND_MODE_EQ_VALUE))
                         || uri.equals(Settings.Global.getUriFor(SoundEffectManager.DB_ID_SOUND_EFFECT_SOUND_MODE_DAP_VALUE))) {
                     int mode = Settings.Global.getInt(mContext.getContentResolver(), uri.getLastPathSegment(), AudioEffectManager.EQ_SOUND_MODE_STANDARD);
+                    int bandSum = mSoundEffectManager.getHpeqBandNum(AudioEffectManager.DEBUG_HPEQ_BAND_NUM_UI);
                     Log.d(TAG, "onChange setSoundMode " + uri.getLastPathSegment() + ":" + mode);
-                    mSoundEffectManager.setSoundModeByObserver(mode);
+                    mSoundEffectManager.setSoundModeByObserver(mode, bandSum);
                 }
             }
         }

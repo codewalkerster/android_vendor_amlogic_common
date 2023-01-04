@@ -30,8 +30,8 @@ interface IAudioEffectsService{
     int getBalanceStatus();
     int getVirtualSurroundStatus();
     void setSoundMode(int mode);
-    void setSoundModeByObserver(int mode);
-    void setUserSoundModeParam(int bandNumber, int value);
+    void setSoundModeByObserver(int mode, int bandSum);
+    void setUserSoundModeParam(int bandNumber, int value, int bandSum);
     int getUserSoundModeParam(int bandNumber);
     void setTreble(int step);
     void setBass(int step);
@@ -45,4 +45,6 @@ interface IAudioEffectsService{
     void initDapAudioEffect();
     void setAudioEffectOn(int id, boolean dbSwitch);
     boolean isAudioEffectOn(int id);
+    void setHpeqBandNum(int id, int value);
+    int getHpeqBandNum(int id);
 }
