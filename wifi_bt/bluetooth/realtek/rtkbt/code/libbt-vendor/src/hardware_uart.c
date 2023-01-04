@@ -17,7 +17,7 @@
  ******************************************************************************/
 
 #define LOG_TAG "bt_hwcfg_uart"
-#define RTKBT_RELEASE_NAME "20220901_BT_ANDROID_12.0"
+#define RTKBT_RELEASE_NAME "20221117_BT_ANDROID_13.0_BETA"
 
 #include <utils/Log.h>
 #include <sys/types.h>
@@ -30,7 +30,7 @@
 #include <ctype.h>
 #include <cutils/properties.h>
 #include <stdlib.h>
-#include "bt_hci_bdroid.h"
+#include "rtk_hci_layer.h"
 #include "bt_vendor_rtk.h"
 #include "userial.h"
 #include "userial_vendor.h"
@@ -167,7 +167,7 @@ static patch_info patch_table[] = {
     {0x8821,            HCI_VERSION_MASK_ALL,    (1<<0xc),              CHIP_TYPE_MASK_ALL,  1<<10,                 "rtl8821cs_fw",         "rtl8821cs_config",     CONFIG_MAC_OFFSET_GEN_3PLUS,  MAX_PATCH_SIZE_40K}, //RTL8821CS
     {0x8852,            HCI_VERSION_MASK_ALL,    (1<<0xa),              CHIP_TYPE_MASK_ALL,  1<<18,                 "rtl8852as_fw",         "rtl8852as_config",     CONFIG_MAC_OFFSET_GEN_4PLUS,  MAX_PATCH_SIZE_69_2K}, //Rtl8852AS
     {0x8852,            HCI_VERSION_MASK_ALL,    (1<<0xb),              1<<0,                1<<20,                 "rtl8852bs_fw",         "rtl8852bs_config",     CONFIG_MAC_OFFSET_GEN_4PLUS,  MAX_PATCH_SIZE_65_2K}, //Rtl8852BS
-    {0x8852,            HCI_VERSION_MASK_ALL,    (1<<0xc),              CHIP_TYPE_MASK_ALL,  1<<25,                 "rtl8852cs_fw",         "rtl8852cs_config",     CONFIG_MAC_OFFSET_GEN_4PLUS,  MAX_PATCH_SIZE_65_2K}, //Rtl8852CS
+    {0x8852,            HCI_VERSION_MASK_ALL,    (1<<0xc),              CHIP_TYPE_MASK_ALL,  1<<25,                 "rtl8852cs_fw",         "rtl8852cs_config",     CONFIG_MAC_OFFSET_GEN_4PLUS,  MAX_PATCH_SIZE_78K}, //Rtl8852CS
     {0x8852,            HCI_VERSION_MASK_ALL,    (1<<0xb),              1<<6,                1ULL<<34,              "rtl8852bps_fw",        "rtl8852bps_config",    CONFIG_MAC_OFFSET_GEN_4PLUS,  MAX_PATCH_SIZE_65_2K}, //Rtl8852BPS
     {0x8852,            HCI_VERSION_MASK_ALL,    (1<<0xb),              1<<10,               1ULL<<34,              "rtl8852bps_fw",        "rtl8852bps_config",    CONFIG_MAC_OFFSET_GEN_4PLUS,  MAX_PATCH_SIZE_65_2K}, //Rtl8852BPS
 /*  todo: RTL8703CS */
@@ -855,7 +855,7 @@ static void rtk_get_bt_final_patch(bt_hw_cfg_cb_t* cfg_cb)
     if((hw_cfg_cb.project_id_mask != PROJECT_ID_MASK_ALL)&& ((hw_cfg_cb.project_id_mask&(1ULL<<proj_id)) ==0))
     {
         ALOGE("hw_cfg_cb.project_id_mask is 0x%016llx, fw project_id is %d, does not match!!!",
-                        hw_cfg_cb.project_id_mask, proj_id);
+                        (unsigned long long)hw_cfg_cb.project_id_mask, proj_id);
         cfg_cb->dl_fw_flag = 0;
         goto free_buf;
     }

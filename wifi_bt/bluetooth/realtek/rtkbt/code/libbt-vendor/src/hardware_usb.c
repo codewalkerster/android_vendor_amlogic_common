@@ -17,7 +17,7 @@
  ******************************************************************************/
 
 #define LOG_TAG "bt_hwcfg_usb"
-#define RTKBT_RELEASE_NAME "20220901_BT_ANDROID_12.0"
+#define RTKBT_RELEASE_NAME "20221117_BT_ANDROID_13.0_BETA"
 
 #include <utils/Log.h>
 #include <sys/types.h>
@@ -33,6 +33,7 @@
 #include "bt_hci_bdroid.h"
 #include "bt_vendor_rtk.h"
 #include "userial.h"
+#include "rtk_hci_layer.h"
 #include "userial_vendor.h"
 #include "upio.h"
 #include <unistd.h>
@@ -226,8 +227,9 @@ static usb_patch_info usb_fw_patch_table[] = {
 { 0x0BDA, 0xB852, 0x8852, 0, 0, "mp_rtl8852au_fw", "rtl8852au_fw", "rtl8852au_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_65_2K}, /*RTL8852AU */
 { 0x0BDA, 0xA85B, 0x8852, 0, 0, "mp_rtl8852bu_fw", "rtl8852bu_fw", "rtl8852bu_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_65_2K}, /*RTL8852B */
 { 0x0BDA, 0xB85B, 0x8852, 0, 0, "mp_rtl8852bu_fw", "rtl8852bu_fw", "rtl8852bu_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_65_2K}, /*RTL8852B */
-{ 0x0BDA, 0xC85A, 0x8852, 0, 0, "mp_rtl8852cu_fw", "rtl8852cu_fw", "rtl8852cu_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_65_2K}, /*RTL8852C */
-{ 0x0BDA, 0x885C, 0x8852, 0, 0, "mp_rtl8852cu_fw", "rtl8852cu_fw", "rtl8852cu_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_69_2K}, /*RTL8852CU */
+{ 0x0BDA, 0xC85A, 0x8852, 0, 0, "mp_rtl8852cu_fw", "rtl8852cu_fw", "rtl8852cu_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_78K}, /*RTL8852C */
+{ 0x0BDA, 0xC85D, 0x8852, 0, 0, "mp_rtl8852cu_fw", "rtl8852cu_fw", "rtl8852cu_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_78K}, /*RTL8852C */
+{ 0x0BDA, 0x885C, 0x8852, 0, 0, "mp_rtl8852cu_fw", "rtl8852cu_fw", "rtl8852cu_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_78K}, /*RTL8852CU */
 { 0x0BDA, 0xA85C, 0x8852, 0, 0, "mp_rtl8852bpu_fw", "rtl8852bpu_fw", "rtl8852bpu_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_65_2K}, /*RTL8852BP */
 { 0x0BDA, 0xA850, 0x8852, 0, 0, "mp_rtl8852bpu_fw", "rtl8852bpu_fw", "rtl8852bpu_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_65_2K}, /*RTL8852BPE */
 /* todo: RTL8703CU */

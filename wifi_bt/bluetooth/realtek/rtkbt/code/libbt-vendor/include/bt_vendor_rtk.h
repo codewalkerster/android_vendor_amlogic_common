@@ -87,6 +87,7 @@
 #define DWFW_CMPLT              _IOW('E', 179, int)
 
 #define GET_USB_INFO            _IOR('E', 180, int)
+#define SET_ISO_MIN_HANDLE      _IOR('E', 181, int)
 
 
 /* Device port name where Bluetooth controller attached */

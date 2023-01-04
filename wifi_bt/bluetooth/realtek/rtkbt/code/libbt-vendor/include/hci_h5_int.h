@@ -25,6 +25,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "bt_hci_bdroid.h"
+#include "rtk_hci_layer.h"
 #include "bt_vendor_lib.h"
 #include <errno.h>
 #include <stdio.h>
@@ -56,8 +57,11 @@ typedef enum {
   DATA_TYPE_COMMAND = 1,
   DATA_TYPE_ACL     = 2,
   DATA_TYPE_SCO     = 3,
-  DATA_TYPE_EVENT   = 4
+  DATA_TYPE_EVENT   = 4,
+  DATA_TYPE_ISO     = 5
 } serial_data_type_t;
+#define DATA_TYPE_START  DATA_TYPE_COMMAND
+#define DATA_TYPE_END  DATA_TYPE_ISO
 
 
 typedef struct hci_h5_callbacks_t{

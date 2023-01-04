@@ -36,6 +36,7 @@
 #define HCI_ACLDATA_PKT         0x02
 #define HCI_SCODATA_PKT         0x03
 #define HCI_EVENT_PKT           0x04
+#define HCI_ISODATA_PKT         0x05
 #define FW_LOG_PATH         "/data/misc/bluedroid/firmware_log_rtk"
 
 unsigned int rtkbt_h5logfilter = 0x01;
@@ -137,7 +138,7 @@ static void rtk_btsnoop_write(const void *data, size_t length) {
 static void rtk_btsnoop_write_packet(serial_data_type_t type, const uint8_t *packet, bool is_received) {
     int length_he = 0;
     int length;
-    int flags;
+    int flags = 0;
     int drops = 0;
     pthread_mutex_lock(&btsnoop_log_lock);
     switch (type) {
@@ -156,6 +157,10 @@ static void rtk_btsnoop_write_packet(serial_data_type_t type, const uint8_t *pac
     case HCI_EVENT_PKT:
         length_he = packet[1] + 3;
         flags = 3;
+    break;
+    case HCI_ISODATA_PKT:
+        length_he = (packet[3] << 8) + packet[2] + 5;
+        flags= is_received;
     break;
     default:
         break;
@@ -205,6 +210,10 @@ void rtk_btsnoop_capture(const HC_BT_HDR *p_buf, bool is_rcvd) {
     case MSG_STACK_TO_HC_HCI_CMD:
       if(((rtkbt_h5logfilter & 1) == 0) || (*p != 0x94) || (*(p + 1) != 0xfc))
       rtk_btsnoop_write_packet(HCI_COMMAND_PKT, p, true);
+      break;
+    case MSG_HC_TO_STACK_HCI_ISO:
+    case MSG_STACK_TO_HC_HCI_ISO:
+      rtk_btsnoop_write_packet(HCI_ISODATA_PKT, p, is_rcvd);
       break;
   }
 }

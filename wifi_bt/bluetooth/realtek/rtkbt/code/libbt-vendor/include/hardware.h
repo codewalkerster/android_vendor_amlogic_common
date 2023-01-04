@@ -43,6 +43,7 @@
 #define MAX_PATCH_SIZE_49_2K          (0xC4Cf + 529)   //49.2K 8723f
 #define MAX_PATCH_SIZE_69_2K          (0x114D0 + 529)  //69.2K 8852a
 #define MAX_PATCH_SIZE_65_2K          (0x104D0 + 529)   //65.2K 8852b
+#define MAX_PATCH_SIZE_78K            (1024*78 + 529)   //78K  8852c
 #define MAX_PATCH_SIZE_145K           (0x24620)        //145K 8822E
 
 #define MAX_ORG_CONFIG_SIZE     (0x100*14)
@@ -162,7 +163,7 @@ typedef struct
     uint8_t     *fw_buf;         /* FW patch file buf */
     uint8_t     *config_buf;     /* Config patch file buf */
     uint8_t     *total_buf;      /* FW & config extracted buf */
-    uint8_t     patch_frag_cnt;  /* Patch fragment count download */
+    uint32_t     patch_frag_cnt;  /* Patch fragment count download */
     uint8_t     patch_frag_idx;  /* Current patch fragment index */
     uint8_t     patch_frag_len;  /* Patch fragment length */
     uint8_t     patch_frag_tail; /* Last patch fragment length */

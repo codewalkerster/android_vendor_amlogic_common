@@ -16,7 +16,7 @@
  *
  ******************************************************************************/
 #define LOG_TAG "rtk_heartbeat"
-#define RTKBT_RELEASE_NAME "20201130_BT_ANDROID_11.0"
+#define RTKBT_RELEASE_NAME "20221027_BT_ANDROID_13.0_BETA"
 
 #include <utils/Log.h>
 #include <sys/types.h>
@@ -34,6 +34,7 @@
 #include "bt_hci_bdroid.h"
 #include "bt_vendor_rtk.h"
 #include "userial.h"
+#include "rtk_hci_layer.h"
 #include "userial_vendor.h"
 #include "rtk_btservice.h"
 #include "rtk_poll.h"

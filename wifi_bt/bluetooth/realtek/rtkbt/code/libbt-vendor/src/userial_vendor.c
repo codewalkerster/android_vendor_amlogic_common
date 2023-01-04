@@ -72,6 +72,7 @@ unsigned char indices0[] = {0xad, 0x0, 0x0, 0xc5, 0x0, 0x0, 0x0, 0x0, 0x77, 0x6d
 #ifdef VENDOR_MESH_RTK
 volatile uint16_t scan_flag = 0;
 #endif
+uint16_t iso_min_conn_handle = 0x1b;
 /******************************************************************************
 **  Extern functions
 ******************************************************************************/
@@ -220,7 +221,8 @@ static const uint8_t hci_preamble_sizes[] = {
     COMMAND_PREAMBLE_SIZE,
     ACL_PREAMBLE_SIZE,
     SCO_PREAMBLE_SIZE,
-    EVENT_PREAMBLE_SIZE
+    EVENT_PREAMBLE_SIZE,
+    ISO_PREAMBLE_SIZE
 };
 
 /*****************************************************************************
@@ -872,6 +874,16 @@ static void userial_send_sco_to_controller(unsigned char * recv_buffer, int tota
     userial_enqueue_coex_rawdata(recv_buffer, total_length, false);
 }
 
+static void userial_send_iso_to_controller(unsigned char * recv_buffer, int total_length)
+{
+    if(rtkbt_transtype & RTKBT_TRANS_H4) {
+        h4_int_transmit_data(recv_buffer, total_length);
+    }
+    else {
+        h5_int_interface->h5_send_acl_data(DATA_TYPE_ACL, &recv_buffer[1], (total_length - 1));
+    }
+    userial_enqueue_coex_rawdata(recv_buffer, total_length, false);
+}
 
 static int userial_coex_recv_data_handler(unsigned char * recv_buffer, int total_length)
 {
@@ -888,9 +900,14 @@ static int userial_coex_recv_data_handler(unsigned char * recv_buffer, int total
                 type = p_data[0];
                 length--;
                 p_data++;
-                assert((type > DATA_TYPE_COMMAND) && (type <= DATA_TYPE_EVENT));
-                if (type < DATA_TYPE_ACL || type > DATA_TYPE_EVENT) {
-                    ALOGE("%s invalid data type: %d", __func__, type);
+                if((type < DATA_TYPE_START) || (type > DATA_TYPE_END) || (type == DATA_TYPE_COMMAND))
+                {
+                    ALOGE("%s invalid data type: %d, length: %d", __func__, type, length);
+                    if(total_length > 8)
+                        ALOGE("userial_coex_recv_data_handler: %02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x", \
+                        p_data[0],p_data[1],p_data[2],p_data[3], \
+                        p_data[4],p_data[5],p_data[6],p_data[7] );
+                    assert(false);
                     if(!length)
                         return total_length;
 
@@ -909,7 +926,9 @@ static int userial_coex_recv_data_handler(unsigned char * recv_buffer, int total
             else if(coex_current_type == DATA_TYPE_EVENT) {
                 coex_packet_bytes_need = 2;
             }
-            else {
+            else if(coex_current_type == DATA_TYPE_ISO) {
+                coex_packet_bytes_need = 4;
+            }else{
                 coex_packet_bytes_need = 3;
             }
             coex_resvered_length = 0;
@@ -938,7 +957,9 @@ static int userial_coex_recv_data_handler(unsigned char * recv_buffer, int total
              else if(coex_current_type == DATA_TYPE_EVENT){
                 coex_packet_bytes_need = coex_resvered_buffer[1];
             }
-            else {
+            else if(coex_current_type == DATA_TYPE_ISO) {
+                coex_packet_bytes_need = *(uint16_t *)&coex_resvered_buffer[2];
+            }else {
                 coex_packet_bytes_need = coex_resvered_buffer[2];
             }
             //fall through
@@ -990,7 +1011,16 @@ static int userial_coex_recv_data_handler(unsigned char * recv_buffer, int total
                 case DATA_TYPE_SCO:
                     p_buf->event = MSG_HC_TO_STACK_HCI_SCO;
                 break;
-
+                case DATA_TYPE_ISO:
+                    p_buf->event = MSG_HC_TO_STACK_HCI_ISO;
+                    handle =  *(uint16_t *)coex_resvered_buffer;
+                    acl_length = *(uint16_t *)&coex_resvered_buffer[2];
+                    acl_length &= 0x3fff;
+                    l2cap_length = *(uint16_t *)&coex_resvered_buffer[4];
+                    boundary_flag = RTK_GET_BOUNDARY_FLAG(handle);
+                    if(rtk_parse_manager)
+                        rtk_parse_manager->rtk_parse_l2cap_data(coex_resvered_buffer, 0);
+                break;
                 default:
                     p_buf->event = MSG_HC_TO_STACK_HCI_ERR;
                 break;
@@ -1067,6 +1097,9 @@ static void userial_coex_send_data_handler(unsigned char * send_buffer, int tota
 
         case DATA_TYPE_SCO:
             p_buf->event = MSG_STACK_TO_HC_HCI_SCO;
+        break;
+        case DATA_TYPE_ISO:
+            p_buf->event = MSG_STACK_TO_HC_HCI_ISO;
         break;
         default:
             p_buf->event = 0;
@@ -1646,7 +1679,7 @@ socket_close:
 #endif
 
 #ifdef RTK_HANDLE_CMD
-static int userial_handle_cmd(unsigned char * recv_buffer, int total_length)
+static int userial_handle_cmd(unsigned char * recv_buffer, int* total_length)
 {
     RTK_UNUSED(total_length);
     uint16_t opcode = *(uint16_t*)recv_buffer;
@@ -1757,6 +1790,19 @@ static int userial_handle_cmd(unsigned char * recv_buffer, int total_length)
 
         break;
 
+        case HCI_LE_SET_CIG_PARAMS:
+            if((recv_buffer[4] | recv_buffer[5]<<8 | recv_buffer[6]<<16) == 0 &&
+                *(uint16_t*)&recv_buffer[19] == 0) {
+                for(int i=4; i<7; i++)
+                    recv_buffer[i] = recv_buffer[i+3];
+            }
+            if((recv_buffer[7] | recv_buffer[8]<<8 | recv_buffer[9]<<16) == 0 &&
+                *(uint16_t*)&recv_buffer[21] == 0) {
+                for(int i=7; i<10; i++)
+                    recv_buffer[i] = recv_buffer[i-3];
+            }
+        break;
+
         case HCI_WRITE_VOICE_SETTINGS :
             voice_settings = *(uint16_t*)&recv_buffer[3];
             if(rtkbt_transtype & RTKBT_TRANS_USB) {
@@ -1778,6 +1824,8 @@ static int userial_handle_cmd(unsigned char * recv_buffer, int total_length)
           if(rtk_parse_manager) {
               rtk_parse_manager->rtk_set_bt_on(1);
           }
+          if(rtkbt_transtype & RTKBT_TRANS_USB)
+              rtk_vendor_cmd_to_fw(HCI_VENDOR_READ_ISO_HANDLE_RANGE, 0, NULL, NULL);
           Heartbeat_init();
         break;
 
@@ -1833,6 +1881,18 @@ static int userial_handle_cmd(unsigned char * recv_buffer, int total_length)
               userial_send_cmd_to_controller(disable_adv_cmd, 5);
           }
         break;
+        case HCI_CONTROLLER_DEBUG_INFO_OCF://transfer CONTROLLER_DEBUG_INFO to VENDOR_SET_LOG_ENABLE
+        {
+            uint8_t *p = recv_buffer;
+            UINT16_TO_STREAM(p,HCI_VENDOR_SET_LOG_ENABLE_OCF);
+            *(p)++ = 0x04;//len
+            *(p)++ = 0x02;//VENDOR_LOG_PACKET_TYPE_EVENT_FOR_ANDROID 2
+            *(p)++ = 0x00;
+            *(p)++ = 0x00;
+            *p = 0x01;//enable
+            *total_length += 4;
+        }
+        break;
         default:
         break;
     }
@@ -1870,9 +1930,9 @@ static void userial_recv_H4_rawdata(void *context)
                     return;
                 }
 
-                if (type < DATA_TYPE_COMMAND || type > DATA_TYPE_SCO) {
+                if ((type < DATA_TYPE_START)||(type > DATA_TYPE_END)||(type == DATA_TYPE_EVENT)) {
                     ALOGE("%s invalid data type: %d", __func__, type);
-                    assert((type >= DATA_TYPE_COMMAND) && (type <= DATA_TYPE_SCO));
+                    assert(false);
                 }
                 else {
                     packet_bytes_need -= bytes_read;
@@ -1909,7 +1969,10 @@ static void userial_recv_H4_rawdata(void *context)
                 packet_bytes_need = *(uint16_t *)&h4_read_buffer[COMMON_DATA_LENGTH_INDEX];
             } else if(current_type == DATA_TYPE_EVENT) {
                 packet_bytes_need = h4_read_buffer[EVENT_DATA_LENGTH_INDEX];
-            } else {
+            } else if(current_type == DATA_TYPE_ISO) {
+                packet_bytes_need = *(uint16_t *)&h4_read_buffer[COMMON_DATA_LENGTH_INDEX];
+                packet_bytes_need &= 0x3fff;
+            } else{
                 packet_bytes_need = h4_read_buffer[COMMON_DATA_LENGTH_INDEX];
             }
             //fall through
@@ -1937,11 +2000,11 @@ static void userial_recv_H4_rawdata(void *context)
                 case DATA_TYPE_COMMAND:
 #ifdef RTK_HANDLE_CMD
 #ifdef VENDOR_MESH_RTK
-                    ret = userial_handle_cmd(&h4_read_buffer[1], h4_read_length);
+                    ret = userial_handle_cmd(&h4_read_buffer[1], &h4_read_length);
                     if(ret > 0)
                         break;
 #else
-                    userial_handle_cmd(&h4_read_buffer[1], h4_read_length);
+                    userial_handle_cmd(&h4_read_buffer[1], &h4_read_length);
 #endif
 #endif
                     if(rtkbt_transtype & RTKBT_TRANS_H4) {
@@ -1986,6 +2049,9 @@ static void userial_recv_H4_rawdata(void *context)
 
                 case DATA_TYPE_SCO:
                     userial_send_sco_to_controller(h4_read_buffer, (h4_read_length + 1));
+                break;
+                case DATA_TYPE_ISO:
+                    userial_send_iso_to_controller(h4_read_buffer, (h4_read_length + 1));
                 break;
                 default:
                     ALOGE("%s invalid data type: %d", __func__, current_type);
@@ -2083,7 +2149,18 @@ static int userial_handle_event(unsigned char * recv_buffer, int total_length)
 		   rtkbt_heartbeat_cmpl_cback(p_data);
 		   return 1;
 
-         }
+        }
+        else if(opcode == HCI_VENDOR_READ_ISO_HANDLE_RANGE){
+            if((p_data[1] == 8) &&(p_data[5] == 0)){
+                iso_min_conn_handle = *((uint16_t*)&p_data[6]);
+                userial_vendor_usb_ioctl(SET_ISO_MIN_HANDLE, &iso_min_conn_handle);
+            }
+        }
+        else if(opcode == HCI_VENDOR_SET_LOG_ENABLE_OCF){
+            if(p_data[5] == 0){
+                *((uint16_t*)&p_data[3])= HCI_CONTROLLER_DEBUG_INFO_OCF;
+            }
+        }
     }
     break;
 #ifdef VENDOR_MESH_RTK
@@ -2327,9 +2404,11 @@ static int userial_handle_recv_data(unsigned char * recv_buffer, unsigned int to
                 type = p_data[0];
                 length--;
                 p_data++;
-                if (type < DATA_TYPE_ACL || type > DATA_TYPE_EVENT) {
-                    ALOGE("%s invalid data type: %d", __func__, type);
-                    assert((type > DATA_TYPE_COMMAND) && (type <= DATA_TYPE_EVENT));
+
+                if((type < DATA_TYPE_START) || (type > DATA_TYPE_END) || (type == DATA_TYPE_COMMAND))
+                { 
+                    ALOGE("%s invalid data type: %d ", __func__, type);
+                    assert(false);
                     if(!length)
                         return total_length;
 
@@ -2454,12 +2533,10 @@ static int userial_handle_recv_data(unsigned char * recv_buffer, unsigned int to
         ALOGE("%s received 0 len ACL data packet, discard", __func__);
         return (total_length - length);
     }
-
-    if((received_resvered_data[0] == DATA_TYPE_EVENT) && (received_resvered_data[1] == 0xFF) && (received_resvered_data[2] == 2) && (received_resvered_data[3] == 0x61)) {
+    if((received_resvered_data[0] == DATA_TYPE_EVENT) && (received_resvered_data[1] == 0xFF) && (received_resvered_data[2] == 2) && (received_resvered_data[3] == 0x61)){
         ALOGE("%s received 0xFF event subev:0x61 success(1) or failed(0) parse fw&config=%d, discard.", __func__,received_resvered_data[4]);
         return (total_length - length);
     }
-
     while (send_length > 0) {
         RTK_NO_INTR(ret = write(vnd_userial.uart_fd[1], received_resvered_data + transmitted_length, send_length));
         switch (ret) {

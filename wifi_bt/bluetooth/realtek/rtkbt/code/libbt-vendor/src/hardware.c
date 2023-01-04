@@ -27,7 +27,7 @@
  ******************************************************************************/
 
 #define LOG_TAG "bt_hwcfg"
-#define RTKBT_RELEASE_NAME "20220901_BT_ANDROID_12.0"
+#define RTKBT_RELEASE_NAME "20221117_BT_ANDROID_13.0_BETA"
 
 #include <utils/Log.h>
 #include <sys/types.h>
@@ -43,6 +43,7 @@
 #include "bt_hci_bdroid.h"
 #include "bt_vendor_rtk.h"
 #include "userial.h"
+#include "rtk_hci_layer.h"
 #include "userial_vendor.h"
 #include "upio.h"
 #include <unistd.h>

@@ -22,7 +22,7 @@
 // SERVICE_CLASS:0x1A (Bit17 -Networking,Bit19 - Capturing,Bit20 -Object Transfer)
 // MAJOR CLASS: COMPUTER
 // MINOR CLASS: TABLET
-#define BTA_DM_COD {0x1A, 0x01, 0x1C}
+#define BTA_DM_COD {0x3A, 0x04, 0x38}
 
 #define BTA_GATT_DEBUG FALSE
 
@@ -40,10 +40,8 @@
 #define BTM_BLE_CONN_INT_MAX_DEF     0x0C
 #define BTM_BLE_CONN_TIMEOUT_DEF     200
 
-#define BTIF_HF_SERVICES (BTA_HSP_SERVICE_MASK)
-#define BTIF_HF_SERVICE_NAMES  { BTIF_HSAG_SERVICE_NAME, "" }
-
 #define BTA_DISABLE_DELAY 1000 /* in milliseconds */
+#define BLE_VND_INCLUDED TRUE
 #define BTA_HOST_INTERLEAVE_SEARCH FALSE
 
 /*heartbeat log define*/
@@ -58,7 +56,6 @@
 #define BT_USE_TRACES  TRUE
 /*A2DP SINK ENABLE*/
 #define BTA_AV_SINK_INCLUDED TRUE
-#define BLE_LOCAL_PRIVACY_ENABLED FALSE
 #define USE_AUDIO_TRACK TRUE
 /*BT lib vendor log*/
 //#define BTVND_DBG TRUE

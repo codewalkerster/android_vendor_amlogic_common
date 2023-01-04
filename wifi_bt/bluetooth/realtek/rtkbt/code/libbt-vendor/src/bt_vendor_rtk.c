@@ -26,7 +26,7 @@
 
 #undef NDEBUG
 #define LOG_TAG "libbt_vendor"
-#define RTKBT_RELEASE_NAME "20220901_BT_ANDROID_12.0"
+#define RTKBT_RELEASE_NAME "20221117_BT_ANDROID_13.0_BETA"
 #include <utils/Log.h>
 #include "bt_vendor_rtk.h"
 #include "upio.h"
@@ -425,7 +425,7 @@ static int op(bt_vendor_opcode_t opcode, void *param)
     {
         case BT_VND_OP_POWER_CTRL:
             {
-                if(rtkbt_transtype & RTKBT_TRANS_UART) {
+                //if(rtkbt_transtype & RTKBT_TRANS_UART) {
                     int *state = (int *) param;
                     if (*state == BT_VND_PWR_OFF)
                     {
@@ -442,7 +442,7 @@ static int op(bt_vendor_opcode_t opcode, void *param)
                         //usleep(200000);
                         BTVNDDBG("set power on and delay 00ms");
                     }
-                }
+                //}
             }
             break;
 

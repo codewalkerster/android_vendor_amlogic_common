@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "bt_hci_bdroid.h"
+#include "rtk_hci_layer.h"
 //#include "bt_utils.h"
 #include "rtk_poll.h"
 
