@@ -627,7 +627,7 @@ int setImgPath(const char *path)
     write.writeSysfs("/sys/class/unifykeys/name", "hdcp22_rx_fw");
 
     write.readSysfs("/sys/class/unifykeys/exist", existKey);
-    if (0 == strncmp(existKey, "none", 5)) {
+    if (0 == strncmp(existKey, "none", 5) || write.getPropertyBoolean("ro.vendor.hdcp.tee.key.enable", false)) {
         isTeeHdcp = true;
     }
     bool result_provision = false;

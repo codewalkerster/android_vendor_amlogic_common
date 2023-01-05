@@ -37,6 +37,10 @@
 #include "HDCPRxKey.h"
 #include "../DisplayMode.h"
 
+#define HDCP_RX_KEY_ATTACH_DEV_PATH         "/sys/class/unifykeys/attach"
+#define HDCP_RX22_KEY_NAME                  "hdcp22_rx_fw"
+#define HDCP_RX_KEY_DATA_EXIST              "/sys/class/unifykeys/exist"
+#define HDCP_RX_KEY_NAME_DEV_PATH           "/sys/class/unifykeys/name"
 static char HdmiRxPlugEvent[128] = {0};
 static char HdmiRxAuthEvent[128] = {0};
 
@@ -76,10 +80,24 @@ HDCPRxAuth::~HDCPRxAuth() {
 
 }
 
+bool HDCPRxAuth::isUnifyKey() {
+    SysWrite sysWrite;
+    int keyLen = 0;
+    char existKey[10] = {0};
+
+    sysWrite.writeSysfs(HDCP_RX_KEY_ATTACH_DEV_PATH, "1");
+    sysWrite.writeSysfs(HDCP_RX_KEY_NAME_DEV_PATH, HDCP_RX22_KEY_NAME);
+
+    sysWrite.readSysfs(HDCP_RX_KEY_DATA_EXIST, existKey);
+    if (0 == strncmp(existKey, "none", 5)) {
+        return false;
+    }
+    return true;
+}
+
 void HDCPRxAuth::initKey() {
     SysWrite write;
-    bool isTeeHdcp = write.getPropertyBoolean(TEE_HDCP_KEY_ENEBLA, false);
-    if (isTeeHdcp) {
+    if (!isUnifyKey() || write.getPropertyBoolean(TEE_HDCP_KEY_ENEBLA, false)) {
         SYS_LOGD("%s: use tee hdcp key.\n", __FUNCTION__);
         pthread_t id;
         int ret = pthread_create(&id, NULL, RxCheckTeeStatusThreadLoop, this);

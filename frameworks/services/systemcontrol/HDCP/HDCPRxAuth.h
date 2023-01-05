@@ -36,7 +36,7 @@ public:
 
 private:
     HDCPTxAuth *pTxAuth;
-
+    bool isUnifyKey();
     void initKey();
     void startVer22();
     void stopVer22();
