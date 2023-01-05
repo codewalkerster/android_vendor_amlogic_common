@@ -432,12 +432,19 @@ public class MediaPlayerExt extends MediaPlayer {
         public int sample_rate;
         public String audioMime;
     }
-
+   //uni player for iptv
     public class teletextDataInfo
     {
         public int sub_page_count;
         public int[] magazine;
         public int[] page;
+    }
+    //amnuplayer
+    public class TeletextInfo{
+        public String teletext_language;
+        public int txt_type;
+        public int magazine;
+        public int page;
     }
 
     public class SubtitleInfo{
@@ -445,7 +452,11 @@ public class MediaPlayerExt extends MediaPlayer {
         public int id;
         public int sub_type;
         public String sub_language;
+        //for uniplayer
         public teletextDataInfo teletext_data_info;
+        //for amnuplayer
+        public int language_count;
+        public TeletextInfo[] teletextInfo;
     }
 
     public class TsProgrameInfo{
@@ -554,9 +565,9 @@ public class MediaPlayerExt extends MediaPlayer {
             mediaInfo.videoInfo[i].vformat = p.readString();
             mediaInfo.videoInfo[i].width = p.readInt();
             mediaInfo.videoInfo[i].height = p.readInt();
-            if (DEBUG) Log.i(TAG,"[getMediaInfo]videoInfo i:"+i+",index:"+mediaInfo.videoInfo[i].index+",id:"+mediaInfo.videoInfo[i].id);
-            if (DEBUG) Log.i(TAG,"[getMediaInfo]videoInfo i:"+i+",vformat:"+mediaInfo.videoInfo[i].vformat);
-            if (DEBUG) Log.i(TAG,"[getMediaInfo]videoInfo i:"+i+",width:"+mediaInfo.videoInfo[i].width+",height:"+mediaInfo.videoInfo[i].height);
+            if (DEBUG) Log.i(TAG,"[getMediaInfo]videoInfo i:" + i + ",index:" + mediaInfo.videoInfo[i].index + ",id:" + mediaInfo.videoInfo[i].id);
+            if (DEBUG) Log.i(TAG,"[getMediaInfo]videoInfo i:"+ i + ",vformat:" + mediaInfo.videoInfo[i].vformat);
+            if (DEBUG) Log.i(TAG,"[getMediaInfo]videoInfo i:" + i + ",width:" + mediaInfo.videoInfo[i].width + ",height:" + mediaInfo.videoInfo[i].height);
         }
 
         //----audio info----
@@ -584,9 +595,23 @@ public class MediaPlayerExt extends MediaPlayer {
             mediaInfo.subtitleInfo[k].index = p.readInt();
             mediaInfo.subtitleInfo[k].id = p.readInt();
             mediaInfo.subtitleInfo[k].sub_type = p.readInt();
-            mediaInfo.subtitleInfo[k].sub_language = p.readString();
-            if (DEBUG) Log.i(TAG,"[getMediaInfo]subtitleInfo k:"+k+",index:"+mediaInfo.subtitleInfo[k].index+",id:"+mediaInfo.subtitleInfo[k].id+",sub_type:"+mediaInfo.subtitleInfo[k].sub_type);
-            if (DEBUG) Log.i(TAG,"[getMediaInfo]subtitleInfo k:"+k+",sub_language:"+mediaInfo.subtitleInfo[k].sub_language);
+            if (mediaInfo.subtitleInfo[k].sub_type == 0x17007/*teletext*/) {
+                mediaInfo.subtitleInfo[k].language_count = p.readInt();// tt info language_count
+                mediaInfo.subtitleInfo[k].teletextInfo = new TeletextInfo[mediaInfo.subtitleInfo[k].language_count];
+                for (int y=0; y< mediaInfo.subtitleInfo[k].language_count; y++) {
+                    mediaInfo.subtitleInfo[k].teletextInfo[y] = new TeletextInfo();
+                    mediaInfo.subtitleInfo[k].teletextInfo[y].teletext_language = p.readString();
+                    mediaInfo.subtitleInfo[k].teletextInfo[y].txt_type = p.readInt();
+                    mediaInfo.subtitleInfo[k].teletextInfo[y].magazine = p.readInt();
+                    mediaInfo.subtitleInfo[k].teletextInfo[y].page = p.readInt();
+                    if (DEBUG) Log.i(TAG,"[getMediaInfo]teletext subtitleInfo k:"+k+", teletext_language: " + mediaInfo.subtitleInfo[k].teletextInfo[y].teletext_language+
+                        ", txt-type:"+mediaInfo.subtitleInfo[k].teletextInfo[y].txt_type+", magazine:"+mediaInfo.subtitleInfo[k].teletextInfo[y].magazine+", page:"+mediaInfo.subtitleInfo[k].teletextInfo[y].page);
+                }
+            } else {
+                mediaInfo.subtitleInfo[k].sub_language = p.readString();
+                if (DEBUG) Log.i(TAG,"[getMediaInfo]subtitleInfo k:"+k+",index:"+mediaInfo.subtitleInfo[k].index+",id:"+mediaInfo.subtitleInfo[k].id+
+                   ",sub_type:"+mediaInfo.subtitleInfo[k].sub_type+",sub_language:"+mediaInfo.subtitleInfo[k].sub_language);
+            }
         }
 
         //----ts programe info----
