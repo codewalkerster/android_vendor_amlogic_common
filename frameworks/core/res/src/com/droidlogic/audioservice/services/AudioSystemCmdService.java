@@ -495,7 +495,8 @@ public class AudioSystemCmdService extends Service {
                 Log.d(TAG, "HandleAudioEvent hal_param_dtv_sub_audio_fmt:" + param1 + ", hal_param_dtv_sub_audio_pid:" + param2);
                 break;
             case AudioSystemCmdManager.AUDIO_SERVICE_CMD_SET_VOLUME:
-                //left to do
+                mAudioManager.setParameters("hal_param_dtv_audio_volume=" + param1);
+                Log.d(TAG, "CMD_SET_VOLUME, audio volume:" + param1);
                 break;
             case AudioSystemCmdManager.AUDIO_SERVICE_CMD_SET_MUTE:
                 param1 = param1 & ((1 << mDtvDemuxIdBase) - 1);
