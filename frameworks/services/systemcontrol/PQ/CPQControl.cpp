@@ -588,13 +588,12 @@ void CPQControl::onVframeSizeChange()
 
         //
         source_input_param_t new_source_input_param;
-        if (((mCurrentSourceInputInfo.source_input == SOURCE_DTV) || (mCurrentSourceInputInfo.source_input == SOURCE_MPEG))
+        new_source_input_param = GetCurrentSourceInputInfo();
+        if (((new_source_input_param.source_input == SOURCE_DTV) || (new_source_input_param.source_input == SOURCE_MPEG))
             && (framesizeEventFlag == 1)) {
             if (isBootvideoStopped()) {
                 new_source_input_param.sig_fmt = getVideoResolutionToFmt();
                 SYS_LOGD("%s: sig_fmt = 0x%x(%d)\n", __FUNCTION__, new_source_input_param.sig_fmt, new_source_input_param.sig_fmt);
-                new_source_input_param.source_input = mCurrentSourceInputInfo.source_input;
-                new_source_input_param.trans_fmt    = mCurrentSourceInputInfo.trans_fmt;
                 SetCurrentSourceInputInfo(new_source_input_param);
             } else {
                 SYS_LOGD("%s: bootvideo don't stop\n", __FUNCTION__);
