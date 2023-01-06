@@ -2994,10 +2994,10 @@ int CPQdb::PQ_GetPictureModeParams(pq_src_param_t source_input, vpp_picture_mode
                     params->ChromaCoring = c.getInt(1);
                 } else if (!strcmp(type, "MpegNr")) {
                     params->MpegNr = c.getInt(1);
-                } else if (!strcmp(type, "amDolbyMode")) {
-                    params->amDolbyMode = c.getInt(1);
-                } else if (!strcmp(type, "DolbyDarkDetail")) {
-                    params->DolbyDarkDetail = c.getInt(1);
+                } else if (!strcmp(type, "DvMode")) {
+                    params->DvMode = c.getInt(1);
+                } else if (!strcmp(type, "DvDarkDetail")) {
+                    params->DvDarkDetail = c.getInt(1);
                 }
             } while (c.moveToNext());
         } else {

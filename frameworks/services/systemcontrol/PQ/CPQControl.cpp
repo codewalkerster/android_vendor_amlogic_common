@@ -3801,10 +3801,11 @@ void CPQControl::Cpq_GetBacklight(int *value, int index)
     else if (index == 3)
         ret = read_backlight3_value(&temp);
 
-    if (ret == 0)
-        SYS_LOGD("%s:succeed; index = %d, value = %d\n", __FUNCTION__, index, temp);
-    else
+    if (ret == 0) {
+        //SYS_LOGD("%s:succeed; index = %d, value = %d\n", __FUNCTION__, index, temp);
+    } else {
         SYS_LOGD("%s:fail; index = %d, ret = %d\n", __FUNCTION__, index, ret);
+    }
 
     *value = temp;
 }
@@ -9350,12 +9351,12 @@ int CPQControl::Set_PictureMode(vpp_picture_mode_t pq_mode, pq_src_param_t sourc
         ret |= Cpq_SetMpegNr((vpp_pq_level_t)pq_para.MpegNr, mCurrentSourceInputInfo);
 
         //dobly mode
-        if (pq_para.amDolbyMode >= 0) {
-            ret |= mDolbyVision->SetDolbyPQMode((dolby_pq_mode_t) pq_para.amDolbyMode);
+        if (pq_para.DvMode >= 0) {
+            ret |= mDolbyVision->SetDolbyPQMode((dolby_pq_mode_t) pq_para.DvMode);
         }
         //dolby dark Detail
-        if (pq_para.DolbyDarkDetail >= 0) {
-            ret |= Cpq_SetDolbyDarkDetail(pq_para.DolbyDarkDetail);
+        if (pq_para.DvDarkDetail >= 0) {
+            ret |= Cpq_SetDolbyDarkDetail(pq_para.DvDarkDetail);
         }
         //colortemp
         if (mbCpqCfg_whitebalance_enable) {
@@ -9838,7 +9839,7 @@ int CPQControl::GetDolbyDarkDetail(void)
         vpp_picture_mode_t pq_mode = (vpp_picture_mode_t)GetPQMode();
         vpp_pictur_mode_para_t para;
         if (GetPictureModeData(mCurentPqSource, pq_mode, &para) == 0) {
-            mode = para.DolbyDarkDetail;
+            mode = para.DvDarkDetail;
         }
     }
 
@@ -9854,7 +9855,7 @@ int CPQControl::SaveDolbyDarkDetail(int value)
         vpp_pictur_mode_para_t para;
         vpp_picture_mode_t pq_mode = (vpp_picture_mode_t)GetPQMode();
         if (GetPictureModeData(mCurentPqSource, pq_mode, &para) == 0) {
-            para.DolbyDarkDetail = value;
+            para.DvDarkDetail = value;
             ret = SetPictureModeData(mCurentPqSource, pq_mode, &para);
         }
     }

@@ -154,8 +154,8 @@ typedef struct vpp_pictur_mode_para_s {
     int BlueStretch;
     int MpegNr;
     int ChromaCoring;
-    int amDolbyMode;
-    int DolbyDarkDetail;
+    int DvMode;
+    int DvDarkDetail;
 } vpp_pictur_mode_para_t;
 
 typedef struct pqosd_picture_mode_para_s {
