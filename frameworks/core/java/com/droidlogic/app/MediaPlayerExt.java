@@ -652,6 +652,36 @@ public class MediaPlayerExt extends MediaPlayer {
             }
         }
 
+        //----amnuplayer subtitle teletext info----
+        if (mediaInfo.total_sub_num == 0 && p.dataAvail() > 0) {
+            mediaInfo.total_sub_num = p.readInt();
+            if (DEBUG) Log.i(TAG,"[getMediaInfo]mediaInfo.total_sub_num:"+mediaInfo.total_sub_num);
+            mediaInfo.subtitleInfo = new SubtitleInfo[mediaInfo.total_sub_num];
+            for (int k=0;k<mediaInfo.total_sub_num;k++) {
+                mediaInfo.subtitleInfo[k] = new SubtitleInfo();
+                mediaInfo.subtitleInfo[k].index = p.readInt();
+                mediaInfo.subtitleInfo[k].id = p.readInt();
+                mediaInfo.subtitleInfo[k].sub_type = p.readInt();
+                if (mediaInfo.subtitleInfo[k].sub_type == 0x17007/*teletext*/) {
+                    mediaInfo.subtitleInfo[k].language_count = p.readInt();// tt info language_count
+                    mediaInfo.subtitleInfo[k].teletextInfo = new TeletextInfo[mediaInfo.subtitleInfo[k].language_count];
+                    for (int y=0; y< mediaInfo.subtitleInfo[k].language_count; y++) {
+                        mediaInfo.subtitleInfo[k].teletextInfo[y] = new TeletextInfo();
+                        mediaInfo.subtitleInfo[k].teletextInfo[y].teletext_language = p.readString();
+                        mediaInfo.subtitleInfo[k].teletextInfo[y].txt_type = p.readInt();
+                        mediaInfo.subtitleInfo[k].teletextInfo[y].magazine = p.readInt();
+                        mediaInfo.subtitleInfo[k].teletextInfo[y].page = p.readInt();
+                        if (DEBUG) Log.i(TAG,"[getMediaInfo]teletext subtitleInfo k:"+k+", teletext_language: " + mediaInfo.subtitleInfo[k].teletextInfo[y].teletext_language+
+                            ", txt-type:"+mediaInfo.subtitleInfo[k].teletextInfo[y].txt_type+", magazine:"+mediaInfo.subtitleInfo[k].teletextInfo[y].magazine+", page:"+mediaInfo.subtitleInfo[k].teletextInfo[y].page);
+                    }
+                } else {
+                    mediaInfo.subtitleInfo[k].sub_language = p.readString();
+                    if (DEBUG) Log.i(TAG,"[getMediaInfo]subtitleInfo k:"+k+",index:"+mediaInfo.subtitleInfo[k].index+",id:"+mediaInfo.subtitleInfo[k].id+
+                       ",sub_type:"+mediaInfo.subtitleInfo[k].sub_type+",sub_language:"+mediaInfo.subtitleInfo[k].sub_language);
+                }
+            }
+        }
+
         p.recycle();
 
         return mediaInfo;
