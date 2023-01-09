@@ -778,19 +778,25 @@ void DisplayMode::setBootDisplayConfig(const char* savemode) {
 }
 
 bool DisplayMode::getPreferredDisplayConfig(char* mode) {
-    //1. get hdmi data
-    hdmi_data_t data;
+    if (DISPLAY_TYPE_TV == mDisplayType) {
+        char curMode[MODE_LEN] = {0};
+        getDisplayMode(curMode);
+        strcpy(mode, curMode);
+    } else {
+        //1. get hdmi data
+        hdmi_data_t data;
 
-    memset(&data, 0, sizeof(hdmi_data_t));
-    getHdmiData(&data);
-    data.state = OUTPUT_MODE_STATE_INIT;
-    data.isbestpolicy     = true;
-    data.isbestcolorspace = true;
+        memset(&data, 0, sizeof(hdmi_data_t));
+        getHdmiData(&data);
+        data.state = OUTPUT_MODE_STATE_INIT;
+        data.isbestpolicy     = true;
+        data.isbestcolorspace = true;
 
-    //2. scene logic process
-    sceneProcess(&data);
+        //2. scene logic process
+        sceneProcess(&data);
 
-    strcpy(mode, data.final_displaymode);
+        strcpy(mode, data.final_displaymode);
+    }
 
     SYS_LOGI("getPreferredDisplayConfig [%s]", mode);
     return true;
@@ -844,33 +850,36 @@ void DisplayMode::setSourceOutputMode(const char* outputmode) {
 #ifndef RECOVERY_MODE
     AutoMutex _l( mLock );
 #endif
-
-    //1. get hdmi data
-    hdmi_data_t data;
-    memset(&data, 0, sizeof(hdmi_data_t));
-
-    if (DISPLAY_TYPE_TABLET == mDisplayType) {
-        getHdmiData(&data);
+    if (DISPLAY_TYPE_TV == mDisplayType) {
+        setSinkOutputMode(outputmode, false);
     } else {
-        getHdmiData_cached(&data);
-        getCommonData(&data);
+        //1. get hdmi data
+        hdmi_data_t data;
+        memset(&data, 0, sizeof(hdmi_data_t));
+
+        if (DISPLAY_TYPE_TABLET == mDisplayType) {
+            getHdmiData(&data);
+        } else {
+            getHdmiData_cached(&data);
+            getCommonData(&data);
+        }
+
+        data.state = OUTPUT_MODE_STATE_SWITCH;
+        strcpy(data.ui_hdmimode, outputmode);
+
+        //2. scene logic process
+        sceneProcess(&data);
+
+        //3. setting apply
+        hdmi_output_info_t output_info;
+
+        strcpy(output_info.final_displaymode, data.final_displaymode);
+        strcpy(output_info.final_deepcolor, data.final_deepcolor);
+        output_info.dv_type = data.dv_info.dv_type;
+        output_info.reason  = data.state;
+
+        applyDisplaySetting(&output_info);
     }
-
-    data.state = OUTPUT_MODE_STATE_SWITCH;
-    strcpy(data.ui_hdmimode, outputmode);
-
-    //2. scene logic process
-    sceneProcess(&data);
-
-    //3. setting apply
-    hdmi_output_info_t output_info;
-
-    strcpy(output_info.final_displaymode, data.final_displaymode);
-    strcpy(output_info.final_deepcolor, data.final_deepcolor);
-    output_info.dv_type = data.dv_info.dv_type;
-    output_info.reason  = data.state;
-
-    applyDisplaySetting(&output_info);
 }
 
 /*
@@ -2044,101 +2053,98 @@ void DisplayMode::setSinkOutputMode(const char* outputmode) {
 void DisplayMode::setSinkOutputMode(const char* outputmode, bool initState) {
     SYS_LOGI("set sink output mode:%s, init state:%d\n", outputmode, initState?1:0);
 
-    //set output mode
     char curMode[MODE_LEN] = {0};
     getDisplayMode(curMode);
 
     SYS_LOGI("curMode = %s outputmode = %s", curMode, outputmode);
     if (strstr(curMode, outputmode) == NULL) {
+        //set output mode
         DisplayModeMgr::getInstance().setDisplayMode(outputmode);
-    }
 
-    if (pSysWrite->getPropertyBoolean(PROP_DISPLAY_SIZE_CHECK, true)) {
-        char resolution[MODE_LEN] = {0};
+        if (pSysWrite->getPropertyBoolean(PROP_DISPLAY_SIZE_CHECK, true)) {
+            char resolution[MODE_LEN] = {0};
+            char defaultResolution[MODE_LEN] = {0};
+            char finalResolution[MODE_LEN] = {0};
+            int w = 0, h = 0, w1 =0, h1 = 0;
+            pSysWrite->readSysfs(SYS_DISPLAY_RESOLUTION, resolution);
+            pSysWrite->getPropertyString(PROP_DISPLAY_SIZE, defaultResolution, "0x0");
+            sscanf(resolution, "%dx%d", &w, &h);
+            sscanf(defaultResolution, "%dx%d", &w1, &h1);
+            if ((w != w1) || (h != h1)) {
+                if (strstr(outputmode, "null") && w1 != 0) {
+                    sprintf(finalResolution, "%dx%d", w1, h1);
+                } else {
+                    sprintf(finalResolution, "%dx%d", w, h);
+                }
+                pSysWrite->setProperty(PROP_DISPLAY_SIZE, finalResolution);
+            }
+        }
+
         char defaultResolution[MODE_LEN] = {0};
-        char finalResolution[MODE_LEN] = {0};
-        int w = 0, h = 0, w1 =0, h1 = 0;
-        pSysWrite->readSysfs(SYS_DISPLAY_RESOLUTION, resolution);
         pSysWrite->getPropertyString(PROP_DISPLAY_SIZE, defaultResolution, "0x0");
-        sscanf(resolution, "%dx%d", &w, &h);
-        sscanf(defaultResolution, "%dx%d", &w1, &h1);
-        if ((w != w1) || (h != h1)) {
-            if (strstr(outputmode, "null") && w1 != 0) {
-                sprintf(finalResolution, "%dx%d", w1, h1);
+        SYS_LOGI("set display-size:%s\n", defaultResolution);
+
+        //update hwc windows size
+        int position[4] = { 0, 0, 0, 0 };//x,y,w,h
+        getPosition(outputmode, position);
+        setPosition(outputmode, position[0], position[1],position[2], position[3]);
+
+        // no need to update
+        // update free_scale_axis and window_axis in recovery mode
+#ifdef RECOVERY_MODE
+        updateFreeScaleAxis();
+        updateWindowAxis(outputmode);
+#endif
+
+        //update hdr policy
+        if ((isMboxSupportDolbyVision() == false)) {
+            if (pSysWrite->getPropertyBoolean(PROP_DOLBY_VISION_FEATURE, false)) {
+                char hdr_policy[MODE_LEN] = {0};
+                getHdrStrategy(hdr_policy);
+                if (strstr(hdr_policy, HDR_POLICY_SINK)) {
+                    DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDR_POLICY, HDR_POLICY_SINK, ConnectorType::CONN_TYPE_HDMI);
+                } else if (strstr(hdr_policy, HDR_POLICY_SOURCE)) {
+                    DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDR_POLICY, HDR_POLICY_SOURCE, ConnectorType::CONN_TYPE_HDMI);
+                }
             } else {
-                sprintf(finalResolution, "%dx%d", w, h);
+                initHdrSdrMode();
             }
-            pSysWrite->setProperty(PROP_DISPLAY_SIZE, finalResolution);
         }
-    }
 
-    char defaultResolution[MODE_LEN] = {0};
-    pSysWrite->getPropertyString(PROP_DISPLAY_SIZE, defaultResolution, "0x0");
-    SYS_LOGI("set display-size:%s\n", defaultResolution);
-
-    //update hwc windows size
-    int position[4] = { 0, 0, 0, 0 };//x,y,w,h
-    getPosition(outputmode, position);
-    setPosition(outputmode, position[0], position[1],position[2], position[3]);
-
-    // no need to update
-    // update free_scale_axis and window_axis in recovery mode
-#ifdef RECOVERY_MODE
-    updateFreeScaleAxis();
-    updateWindowAxis(outputmode);
-#endif
-
-    //update hdr policy
-    if ((isMboxSupportDolbyVision() == false)) {
-        if (pSysWrite->getPropertyBoolean(PROP_DOLBY_VISION_FEATURE, false)) {
-            char hdr_policy[MODE_LEN] = {0};
-            getHdrStrategy(hdr_policy);
-            if (strstr(hdr_policy, HDR_POLICY_SINK)) {
-                DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDR_POLICY, HDR_POLICY_SINK, ConnectorType::CONN_TYPE_HDMI);
-            } else if (strstr(hdr_policy, HDR_POLICY_SOURCE)) {
-                DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDR_POLICY, HDR_POLICY_SOURCE, ConnectorType::CONN_TYPE_HDMI);
+        if (isMboxSupportDolbyVision()) {
+            if (isTvDolbyVisionEnable()) {
+                setTvDolbyVisionEnable();
+            } else {
+                setTvDolbyVisionDisable();
             }
-        } else {
-            initHdrSdrMode();
         }
-    }
 
-    if (isMboxSupportDolbyVision()) {
-        if (isTvDolbyVisionEnable()) {
-            setTvDolbyVisionEnable();
-        } else {
-            setTvDolbyVisionDisable();
-        }
-    }
-
-    if (initState) {
+        if (initState) {
 #ifdef RECOVERY_MODE
-        startBootanimDetectThread();
+            startBootanimDetectThread();
 #endif
-    }
+        }
 #ifndef RECOVERY_MODE
-    notifyEvent(EVENT_OUTPUT_MODE_CHANGE);
+        notifyEvent(EVENT_OUTPUT_MODE_CHANGE);
 #endif
 
-    //audio
-    char value[MAX_STR_LEN] = {0};
-    memset(value, 0, sizeof(0));
-    getBootEnv(UBOOTENV_DIGITAUDIO, value);
-    setDigitalMode(value);
+        //audio
+        char value[MAX_STR_LEN] = {0};
+        memset(value, 0, sizeof(0));
+        getBootEnv(UBOOTENV_DIGITAUDIO, value);
+        setDigitalMode(value);
 
-    //save output mode
-    char finalMode[MODE_LEN] = {0};
-    getDisplayMode(finalMode);
-    if (DISPLAY_TYPE_TABLET != mDisplayType) {
-        setBootEnv(UBOOTENV_OUTPUTMODE, (char *)finalMode);
-    }
-    if (strstr(finalMode, "cvbs") != NULL) {
-        setBootEnv(UBOOTENV_CVBSMODE, (char *)finalMode);
-    } else if (strstr(finalMode, "hz") != NULL) {
-        setBootEnv(UBOOTENV_HDMIMODE, (char *)finalMode);
-    }
+        //save output mode
+        char finalMode[MODE_LEN] = {0};
+        getDisplayMode(finalMode);
+        if (DISPLAY_TYPE_TABLET != mDisplayType) {
+            setBootEnv(UBOOTENV_OUTPUTMODE, (char *)finalMode);
+        }
 
-    SYS_LOGI("set output mode:%s done\n", finalMode);
+        SYS_LOGI("set output mode:%s done\n", finalMode);
+    }else {
+        SYS_LOGI("cur mode is equals\n");
+    }
 }
 
 void DisplayMode::setSinkDisplay(bool initState) {
@@ -3617,17 +3623,23 @@ void DisplayMode::saveHdmiParamToEnv() {
 bool DisplayMode::getPrefHdmiDispMode(char* mode) {
     bool ret = true;
 
-    //1. get hdmi data
-    hdmi_data_t data;
+    if (DISPLAY_TYPE_TV == mDisplayType) {
+        char curMode[MODE_LEN] = {0};
+        getDisplayMode(curMode);
+        strcpy(mode, curMode);
+    } else {
+        //1. get hdmi data
+        hdmi_data_t data;
 
-    memset(&data, 0, sizeof(hdmi_data_t));
-    getHdmiData(&data);
-    data.state = OUTPUT_MODE_STATE_INIT;
+        memset(&data, 0, sizeof(hdmi_data_t));
+        getHdmiData(&data);
+        data.state = OUTPUT_MODE_STATE_INIT;
 
-    //2. scene logic process
-    sceneProcess(&data);
+        //2. scene logic process
+        sceneProcess(&data);
 
-    strcpy(mode, data.final_displaymode);
+        strcpy(mode, data.final_displaymode);
+    }
 
     SYS_LOGI("getPrefHdmiDispMode [%s]", mode);
     return ret;
