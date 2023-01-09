@@ -603,7 +603,7 @@ void CPQControl::onVframeSizeChange()
         if (hdrTypeEventFlag == 0x1) {
             //get hdr type
             hdr_type_t newHdrType = HDR_TYPE_NONE;
-            newHdrType            = Cpq_GetSourceHDRType(mCurrentSourceInputInfo.source_input);
+            newHdrType            = Cpq_GetSourceHDRType(mCurrentSourceInputInfo);
 
             //notify hdr event to framework
             if (mCurrentHdrType != newHdrType) {
@@ -7379,11 +7379,11 @@ int CPQControl::Cpq_GetSSMStatus()
     return mSSMAction->GetSSMStatus();
 }
 
-hdr_type_t CPQControl::Cpq_GetSourceHDRType(tv_source_input_t source_input)
+hdr_type_t CPQControl::Cpq_GetSourceHDRType(source_input_param_t source_input_param)
 {
     hdr_type_t newHdrType = HDR_TYPE_NONE;
-    if ((source_input == SOURCE_MPEG)
-        ||(source_input == SOURCE_DTV)) {
+    if ((source_input_param.source_input == SOURCE_MPEG)
+        ||(source_input_param.source_input == SOURCE_DTV)) {
         if (!mbVideoIsPlaying) {
             newHdrType = HDR_TYPE_SDR;
         } else {
@@ -7413,10 +7413,10 @@ hdr_type_t CPQControl::Cpq_GetSourceHDRType(tv_source_input_t source_input)
                 }
             }
         }
-    } else if ((source_input == SOURCE_HDMI1)
-             || (source_input == SOURCE_HDMI2)
-             || (source_input == SOURCE_HDMI3)
-             || (source_input == SOURCE_HDMI4)) {
+    } else if ((source_input_param.source_input == SOURCE_HDMI1)
+             || (source_input_param.source_input == SOURCE_HDMI2)
+             || (source_input_param.source_input == SOURCE_HDMI3)
+             || (source_input_param.source_input == SOURCE_HDMI4)) {
         int signalRange                  = (mHdmiHdrInfo >> 29) & 0x1;
         int signalColorPrimaries         = (mHdmiHdrInfo >> 16) & 0xff;
         int signalTransferCharacteristic = (mHdmiHdrInfo >> 8)  & 0xff;
@@ -7435,11 +7435,19 @@ hdr_type_t CPQControl::Cpq_GetSourceHDRType(tv_source_input_t source_input)
         } else {
             newHdrType = HDR_TYPE_SDR;
         }
+    } else if ((source_input_param.source_input == SOURCE_TV)
+             || (source_input_param.source_input == SOURCE_AV1)
+             || (source_input_param.source_input == SOURCE_AV2)) {
+        if (source_input_param.sig_fmt != TVIN_SIG_FMT_NULL) {
+            newHdrType = HDR_TYPE_SDR;
+        } else {
+           newHdrType = HDR_TYPE_NONE;
+        }
     } else {
         newHdrType = HDR_TYPE_NONE;
     }
 
-    SYS_LOGD("%s: newHdrType:%d\n", __FUNCTION__, newHdrType);
+    SYS_LOGD("%s: newHdrType:%d, source_input:%d\n", __FUNCTION__, newHdrType, source_input_param.source_input);
 
     return newHdrType;
 }
@@ -7457,7 +7465,7 @@ int CPQControl::SetCurrentSourceInputInfo(source_input_param_t source_input_para
 
     //get hdr type
     hdr_type_t newHdrType = HDR_TYPE_NONE;
-    newHdrType = Cpq_GetSourceHDRType(source_input_param.source_input);
+    newHdrType = Cpq_GetSourceHDRType(source_input_param);
 
     //notify hdr event to framework
     if (mCurrentHdrType != newHdrType) {
@@ -7481,7 +7489,7 @@ int CPQControl::SetCurrentSourceInputInfo(source_input_param_t source_input_para
     pq_src_param_t PqSrcTim;
     PqSrcTim.pq_source_input = source_input_param.source_input;
     PqSrcTim.pq_sig_fmt = CheckPQTimming(newHdrType);
-    SYS_LOGD("%s:mCurentPqSource is %d  mCurentPqTimming is %d\n", __FUNCTION__, mCurentPqSource.pq_source_input, mCurentPqSource.pq_sig_fmt);
+    SYS_LOGD("%s:PqSrcTim.pq_source_input is %d  PqSrcTim.pq_sig_fmt is %d\n", __FUNCTION__, PqSrcTim.pq_source_input, PqSrcTim.pq_sig_fmt);
 
     CheckOutPutMode(source_input_param.source_input);
 
@@ -7504,6 +7512,8 @@ int CPQControl::SetCurrentSourceInputInfo(source_input_param_t source_input_para
         mCurentPqSource.pq_source_input = PqSrcTim.pq_source_input;
         mCurentPqSource.pq_sig_fmt = PqSrcTim.pq_sig_fmt;
         mCurrentNodeNumber = mPQdb->node_number;
+
+        SYS_LOGD("%s:mCurentPqSource is %d  mCurentPqTimming is %d\n", __FUNCTION__, mCurentPqSource.pq_source_input, mCurentPqSource.pq_sig_fmt);
 
         if (mbCpqCfg_pq_param_check_source_enable) {
             mSourceInputForSaveParam = mCurrentSourceInputInfo.source_input;
@@ -7764,7 +7774,7 @@ int CPQControl::SetCurrentHdrInfo (int hdrInfo)
         mHdmiHdrInfo = (unsigned int)hdrInfo;
         //get hdr type
         hdr_type_t newHdrType = HDR_TYPE_NONE;
-        newHdrType            = Cpq_GetSourceHDRType(mCurrentSourceInputInfo.source_input);
+        newHdrType            = Cpq_GetSourceHDRType(mCurrentSourceInputInfo);
 
         //notify hdr event to framework
         if (mCurrentHdrType != newHdrType) {
@@ -9117,7 +9127,7 @@ void CPQControl::resetPQUiSetting(void)
             src.pq_sig_fmt = (pq_sig_fmt_t)j;
 
             //picture
-            if (j == PQ_FMT_DOBLY) {
+            if (j == PQ_FMT_DOLBY) {
                 config_val = mPQConfigFile->GetInt(CFG_SECTION_PQ, CFG_DV_PICTUREMODE_DEF, VPP_PICTURE_MODE_DV_BRIGHT);
             } else {
                 config_val = mPQConfigFile->GetInt(CFG_SECTION_PQ, CFG_PICTUREMODE_DEF, VPP_PICTURE_MODE_STANDARD);
@@ -9280,7 +9290,7 @@ int CPQControl::RsetPictureModeData(pq_src_param_t pq_source_input, vpp_picture_
     return ret;
 }
 
-int CPQControl::GetPictureModeData(pq_src_param_t pq_source_intput, vpp_picture_mode_t picmode, vpp_pictur_mode_para_t *params)
+int CPQControl::GetPictureModeData(pq_src_param_t pq_source_input, vpp_picture_mode_t picmode, vpp_pictur_mode_para_t *params)
 {
     int ret = 0;
     int isValid = -1;;
@@ -9291,9 +9301,9 @@ int CPQControl::GetPictureModeData(pq_src_param_t pq_source_intput, vpp_picture_
         return -1;
     }
 
-    Offset =      pq_source_intput.pq_source_input * PQ_FMT_MAX * VPP_PICTURE_MODE_MAX + pq_source_intput.pq_sig_fmt * VPP_PICTURE_MODE_MAX + picmode;
+    Offset =      pq_source_input.pq_source_input * PQ_FMT_MAX * VPP_PICTURE_MODE_MAX + pq_source_input.pq_sig_fmt * VPP_PICTURE_MODE_MAX + picmode;
 
-    OffsetRetry = pq_source_intput.pq_source_input * PQ_FMT_MAX * VPP_PICTURE_MODE_MAX + PQ_FMT_DEFAUT * VPP_PICTURE_MODE_MAX + picmode;
+    OffsetRetry = pq_source_input.pq_source_input * PQ_FMT_MAX * VPP_PICTURE_MODE_MAX + PQ_FMT_DEFAUT * VPP_PICTURE_MODE_MAX + picmode;
 
     OffsetDef = SOURCE_TV * PQ_FMT_MAX * VPP_PICTURE_MODE_MAX + PQ_FMT_DEFAUT * VPP_PICTURE_MODE_MAX + picmode;
 
@@ -9438,24 +9448,27 @@ pq_sig_fmt_t CPQControl::CheckPQTimming(hdr_type_t hdr_type)
 {
     pq_sig_fmt_t timming = PQ_FMT_DEFAUT;
     switch (hdr_type) {
-    case HDR_TYPE_HDR10:
-        timming = PQ_FMT_HDR;
-        break;
-    case HDR_TYPE_HDR10PLUS:
-        timming = PQ_FMT_HDRP;
-        break;
-    case HDR_TYPE_DOVI:
-        timming = PQ_FMT_DOBLY;
-        break;
-    case HDR_TYPE_HLG:
-        timming = PQ_FMT_HLG;
-        break;
-    case HDR_TYPE_SDR:
-        timming = PQ_FMT_SDR;
-        break;
-    default:
-        timming = PQ_FMT_DEFAUT;
-        break;
+        case HDR_TYPE_HDR10:
+            timming = PQ_FMT_HDR;
+            break;
+        case HDR_TYPE_HDR10PLUS:
+            timming = PQ_FMT_HDRP;
+            break;
+        case HDR_TYPE_DOVI:
+            timming = PQ_FMT_DOLBY;
+            break;
+        case HDR_TYPE_HLG:
+            timming = PQ_FMT_HLG;
+            break;
+        case HDR_TYPE_SDR:
+            timming = PQ_FMT_SDR;
+            break;
+        case HDR_TYPE_NONE:
+        case HDR_TYPE_PRIMESL:
+        case HDR_TYPE_MVC:
+        default:
+            timming = PQ_FMT_DEFAUT;
+            break;
     }
 
     return timming;

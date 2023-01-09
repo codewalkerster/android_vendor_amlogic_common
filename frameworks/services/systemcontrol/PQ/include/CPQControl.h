@@ -618,7 +618,7 @@ private:
     output_type_t MapDbTvoutWithIOResolution(int inputFrameHeight, int outputFrameHeight);
     output_type_t CheckOutPutMode(tv_source_input_t source_input);
     pq_sig_fmt_t CheckPQTimming(hdr_type_t hdr_type);
-    hdr_type_t Cpq_GetSourceHDRType(tv_source_input_t source_input);
+    hdr_type_t Cpq_GetSourceHDRType(source_input_param_t source_input_param);
     bool isCVBSParamValid(void);
     bool isPqDatabaseMachChip();
     int Cpq_GetInputVideoFrameHeight(tv_source_input_t source_input);

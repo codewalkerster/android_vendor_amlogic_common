@@ -598,7 +598,7 @@ typedef enum pq_sig_fmt_e {
     PQ_FMT_HDR,
     PQ_FMT_HDRP,
     PQ_FMT_HLG,
-    PQ_FMT_DOBLY,
+    PQ_FMT_DOLBY,
     PQ_FMT_MAX,
 } pq_sig_fmt_t;
 
