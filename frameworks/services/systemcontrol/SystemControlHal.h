@@ -88,6 +88,7 @@ class SystemControlHal : public ISystemControl, public SystemControlNotify, publ
     Return<void> getKeyProvisionChecksum(int32_t type, getKeyProvisionChecksum_cb _hidl_cb) override;
     Return<Result> deleteProvisionKey(const uint32_t key_type) override;
     Return<Result> deleteProvisionKeyEx(const uint32_t key_type, const hidl_string &uuid);
+    Return<Result> refreshHdcpKey() override;
     //Provision key end
 
     Return<Result> updataLogoBmp(const hidl_string &path) override;

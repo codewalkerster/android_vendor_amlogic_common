@@ -498,6 +498,15 @@ Return<Result> SystemControlHal::deleteProvisionKey(const uint32_t key_type) {
 Return<Result> SystemControlHal::deleteProvisionKeyEx(const uint32_t key_type, const hidl_string &uuid) {
      return mSysControl->deleteProvisionKeyEx(key_type, uuid) ? Result::OK:Result::FAIL;
 }
+Return<Result> SystemControlHal::refreshHdcpKey() {
+    if (ENABLE_LOG_PRINT) ALOGI("refreshHdcpKey");
+    bool ret = false;
+    ret = mSysControl->refreshHdcpKey();
+    if (ret)
+        return Result::OK;
+    else
+        return Result::FAIL;
+}
 //Provision key end
 
 

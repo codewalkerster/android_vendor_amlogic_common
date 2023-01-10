@@ -565,6 +565,19 @@ public class SystemControlManager {
     * usage: writeHdcpRXImg(path);
     * path: the path of key, such as 00000000_hdcp_key2.2.bin, ask sales to get it.
     */
+
+    public boolean refreshHdcpKey() {
+        synchronized (mLock) {
+            try {
+                int res = mProxy.refreshHdcpKey();
+                return 0 == res;
+            } catch (RemoteException e) {
+                Log.e(TAG, "refreshHdcpKey:" + e);
+            }
+        }
+        return false;
+    }
+
     public boolean writeHdcpRXImg(String path) {
         synchronized (mLock) {
             try {

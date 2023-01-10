@@ -387,6 +387,15 @@ bool SystemControlService::deleteProvisionKeyEx(const uint32_t key_type, const s
 
     return ret;
 }
+
+bool SystemControlService::refreshHdcpKey() {
+    bool ret = false;
+    if (NO_ERROR == permissionCheck()) {
+        ALOGD("SystemControlService refreshHdcpKey \n");
+        ret = pProvisionKey->refreshHdcpKey();
+    }
+    return ret;
+}
 //Provision key end
 
 bool SystemControlService::writeHdcpRXImg(const std::string& path) {

@@ -225,6 +225,13 @@ bool ProvisionKey::deleteProvisionKeyEx(const uint32_t key_type, const char *uui
     #endif
     return false;
 }
+
+bool ProvisionKey::refreshHdcpKey(){
+    #ifndef RECOVERY_MODE
+        system("/vendor/bin/tee_hdcp");
+    #endif
+    return true;
+}
 //key end
 
 void ProvisionKey::setLogLevel(int level){

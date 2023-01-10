@@ -87,6 +87,7 @@ public:
     bool checkProvisionKey(const uint32_t key_type);
     bool deleteProvisionKey(const uint32_t key_type);
     bool deleteProvisionKeyEx(const uint32_t key_type, const std::string& uuid);
+    bool refreshHdcpKey();
     //Provision key end
 
     void setBootEnv(const std::string& key, const std::string& value);

@@ -301,6 +301,14 @@ bool SystemControlClient::deleteProvisionKey(const uint32_t key_type) {
 bool SystemControlClient::deleteProvisionKeyEx(const uint32_t key_type, const std::string& uuid) {
     return (mSysCtrl->deleteProvisionKeyEx(key_type, uuid) == Result::OK) ? true : false;
 }
+
+bool SystemControlClient::refreshHdcpKey() {
+    Result rtn = mSysCtrl->refreshHdcpKey();
+    if (rtn == Result::OK) {
+        return true;
+    }
+    return false;
+}
 //key end
 
 bool SystemControlClient::writeHdcpRXImg(const std::string& path) {

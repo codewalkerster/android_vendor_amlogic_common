@@ -88,6 +88,7 @@ public:
     bool getKeyProvisionChecksum(int type, std::string& keyCheckSum);
     bool deleteProvisionKey(const uint32_t key_type);
     bool deleteProvisionKeyEx(const uint32_t key_type, const std::string& uuid);
+    bool refreshHdcpKey();
     //Provision key end
 
     bool updataLogoBmp(const std::string& path);

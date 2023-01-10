@@ -93,6 +93,7 @@ public:
     bool getKeyProvisionChecksum(int type, char *keyCheckSum);
     bool deleteProvisionKey(const uint32_t key_type);
     bool deleteProvisionKeyEx(const uint32_t key_type, const char *uuid);
+    bool refreshHdcpKey();
     //key end
 
     void setLogLevel(int level);

@@ -34,6 +34,9 @@ interface ISystemControl extends @1.0::ISystemControl{
 
   getKeyProvisionChecksum(int32_t type)
       generates (Result result, string keyCheckSum);
+
+  refreshHdcpKey()
+      generates (Result result);
   //Provision key end
 
   /**
