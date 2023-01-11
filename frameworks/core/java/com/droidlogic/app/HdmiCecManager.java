@@ -28,6 +28,7 @@ public class HdmiCecManager {
     public static final String SETTINGS_AUTO_WAKE_UP = "hdmi_control_auto_wakeup_enabled";
     public static final String SETTINGS_ARC_ENABLED = "hdmi_system_audio_control_enabled";
     public static final String SETTINGS_HDMI_VOLUME_CONTROL = "hdmi_control_volume_control_enabled";
+    public static final String SETTINGS_EARC_ENABLE = "earc_enable";
 
     // Prop used for hdmi cec hal as it can't directly read system prop or Settings.
     public static final String PERSIST_HDMI_CEC_SET_MENU_LANGUAGE = "persist.vendor.sys.cec.set_menu_language";
@@ -154,6 +155,15 @@ public class HdmiCecManager {
         }
         mHdmiControlManager.setSystemAudioControl(value ? ON : OFF);
     }
+
+    public boolean isEarcEnabled() {
+         return Settings.Global.getInt(mContext.getContentResolver(), SETTINGS_EARC_ENABLE, ON) == ON;
+     }
+
+     public void enableEarc(boolean value) {
+         Log.d(TAG, "enable eARC Audio : " + value);
+         Settings.Global.putInt(mContext.getContentResolver(), SETTINGS_EARC_ENABLE, (value ? ON : OFF));
+     }
 
     private boolean readValue(String key) {
         return readValue(key, ON);
