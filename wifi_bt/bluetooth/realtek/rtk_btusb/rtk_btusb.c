@@ -3006,8 +3006,7 @@ static void btusb_intr_complete(struct urb *urb)
         }
     }
     /* Avoid suspend failed when usb_kill_urb */
-    else if((urb->status == -ENOENT) || (urb->status == -EPROTO)) {
-        RTKBT_ERR("%s: urb->status = %d", __func__, urb->status);
+    else if(urb->status == -ENOENT)    {
         return;
     }
 
@@ -3100,7 +3099,8 @@ static void btusb_bulk_complete(struct urb *urb)
         }
     }
     /* Avoid suspend failed when usb_kill_urb */
-    else if(urb->status == -ENOENT)    {
+    else if((urb->status == -ENOENT) || (urb->status == -EPROTO)) {
+        RTKBT_ERR("%s: urb->status = %d", __func__, urb->status);
         return;
     }
 
