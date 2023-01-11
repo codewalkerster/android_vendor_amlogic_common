@@ -29,14 +29,13 @@
 #include <arpa/inet.h>
 
 #include <cutils/properties.h>
-#include <ICrypto.h>
 #include <pthread.h>
 
-#include <ABuffer.h>
-#include <ADebug.h>
-#include <AMessage.h>
-#include <AHandler.h>
-#include <ALooper.h>
+#include <media/stagefright/foundation/ABuffer.h>
+#include <media/stagefright/foundation/ADebug.h>
+#include <media/stagefright/foundation/AMessage.h>
+#include <media/stagefright/foundation/AHandler.h>
+#include <media/stagefright/foundation/ALooper.h>
 
 #include <media/stagefright/MediaCodecConstants.h>
 

@@ -32,7 +32,6 @@
 #include <hardware/hardware.h>
 
 #include <cutils/properties.h>
-#include <ICrypto.h>
 #include <pthread.h>
 
 #include <OMX_Component.h>

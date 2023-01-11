@@ -28,7 +28,7 @@
 #include <media/stagefright/MediaDefs.h>
 #include <media/stagefright/MetaDataBase.h>
 #include <OMX_IVCommon.h>
-#include <MetadataBufferType.h>
+#include <media/hardware/MetadataBufferType.h>
 
 #include <binder/IPCThreadState.h>
 #include <binder/IServiceManager.h>
@@ -66,8 +66,8 @@
 // #include <ui/DisplayInfo.h>
 
 #include <system/graphics.h>
-#include <HidlLazyUtils.h>
-#include <HidlBinderSupport.h>
+#include <hidl/HidlLazyUtils.h>
+#include <hidl/HidlBinderSupport.h>
 #include "ScreenControlHal.h"
 
 using android::hardware::LazyServiceRegistrar;

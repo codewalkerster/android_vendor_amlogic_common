@@ -23,7 +23,7 @@ cc_library_shared {
   include_dirs: [
     "frameworks/native/headers/media_plugin/media/hardware",
     "frameworks/av/drm/libmediadrm/interface/mediadrm",
-    "frameworks/av/media/libstagefright/foundation/include/media/stagefright/foundation",
+    "frameworks/av/media/module/foundation/include/media/stagefright/foundation/",
     "frameworks/av/include",
     "frameworks/native/libs/gui/include",
     "hardware/amlogic/gralloc/amlogic",
