@@ -21,14 +21,17 @@ import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioManager;
 import android.media.AudioSystem;
 import android.os.Handler;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -123,6 +126,7 @@ public class DialogBluetoothService extends Service {
     private int mConnectionState = STATE_DISCONNECTED;
     private HashSet<BluetoothDevice> pending = new HashSet<BluetoothDevice>();
     private Handler mHandler = null;
+    private Context mContext;
     private boolean isHidServiceInitialized = false;
     private BluetoothGattCharacteristic enableCharacteristic = null;
     private BluetoothGattCharacteristic rep5Characteristic = null;
@@ -234,6 +238,41 @@ public class DialogBluetoothService extends Service {
         }
     };
 
+    private Runnable mStartDiscoveryRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (!isGtvsInstalled(mContext) || isUserSetup(mContext)) {
+                Log.i(TAG, "mStartDiscoveryRunnable, return for nonGTV or usersetup finished");
+                return;
+            }
+            if (mConnectionState == STATE_DISCONNECTED && mBluetoothGatt == null) {
+                Log.i(TAG, "mStartDiscoveryRunnable, mConnectionState disconnected");
+                if (mBluetoothAdapter == null) {
+                    Log.e(TAG, "mStartDiscoveryRunnable, Adapter not yet initialized");
+                    return;
+                } else {
+                    Set<BluetoothDevice> bondedDevices = mBluetoothAdapter.getBondedDevices();
+                    if (bondedDevices.size() != 0) {
+                        Log.i(TAG, "mStartDiscoveryRunnable, bondedDevices size:"+bondedDevices.size());
+                        return;
+                    }
+                    if (!mBluetoothAdapter.isDiscovering()) {
+                        try {
+                            Thread.sleep(1000); // sleep 1s for other process run startDiscovery
+                        } catch(Exception e) {
+                            e.printStackTrace();
+                        }
+                        if (mBluetoothAdapter.isDiscovering())
+                            return;
+                        mBluetoothAdapter.startDiscovery();
+                        Log.i(TAG, "mStartDiscoveryRunnable, startDiscovery");
+                    }
+                }
+            } else {
+                Log.e(TAG, "mStartDiscoveryRunnable,no need to startDiscovery.State: " + mConnectionState);
+            }
+        }
+    };
 
     /**
      * Connect to the first found bonded audio remote device
@@ -292,12 +331,28 @@ public class DialogBluetoothService extends Service {
         return false;
     }
 
+    /**
+     * @return whether the current user is set up.
+     */
+    private boolean isUserSetup(Context context) {
+        ContentResolver cr = context.getContentResolver();
+        return Settings.Secure.getInt(cr, Settings.Secure.USER_SETUP_COMPLETE, 0) != 0;
+    }
+
+    private static boolean isGtvsInstalled(Context context) {
+        try {
+            return context.getPackageManager().getPackageInfo("com.google.android.tungsten.setupwraith", 0) != null;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
+    }
     // Service lifecycle callbacks
     @Override
     public void onCreate() {
 
         Log.d(TAG, "Service onCreate");
 
+        mContext = this;
         mHandler = new Handler();
         initializeBTManager();
         mAudioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
@@ -313,6 +368,7 @@ public class DialogBluetoothService extends Service {
 
         // On service start, check for supported devices
         mHandler.postDelayed(mConnRunnable, CONNECT_DELAY_MS_BOOT);
+        mHandler.postDelayed(mStartDiscoveryRunnable, CONNECTING_TIMEOUT);
 
     }
 
