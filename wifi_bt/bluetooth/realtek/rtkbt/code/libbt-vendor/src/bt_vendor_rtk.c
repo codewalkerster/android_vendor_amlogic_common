@@ -425,7 +425,7 @@ static int op(bt_vendor_opcode_t opcode, void *param)
     {
         case BT_VND_OP_POWER_CTRL:
             {
-                //if(rtkbt_transtype & RTKBT_TRANS_UART) {
+                if (rtkbt_transtype & RTKBT_TRANS_UART) {
                     int *state = (int *) param;
                     if (*state == BT_VND_PWR_OFF)
                     {
@@ -442,7 +442,7 @@ static int op(bt_vendor_opcode_t opcode, void *param)
                         //usleep(200000);
                         BTVNDDBG("set power on and delay 00ms");
                     }
-                //}
+                }
             }
             break;
 
