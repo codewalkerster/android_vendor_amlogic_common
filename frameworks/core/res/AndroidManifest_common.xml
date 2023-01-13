@@ -16,6 +16,7 @@
         android:label="@string/droidlogic_perm_system_control_label"
         android:description="@string/droidlogic_perm_system_control_description" />
 
+    <protected-broadcast android:name="droidlogic.audioservice.action.AUDIO_FORMAT" />
     <protected-broadcast android:name="droidlogic.intent.action.SYSTEM_CONTROL_EVENT" />
 
     <protected-broadcast android:name="com.droidvold.action.MEDIA_REMOVED" />
