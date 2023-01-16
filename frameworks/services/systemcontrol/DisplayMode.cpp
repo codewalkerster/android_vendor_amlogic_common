@@ -2550,6 +2550,7 @@ bool DisplayMode::isTvSupportDolbyVision(char *mode) {
     }
 
     if (strstr(mHdmidata.dv_info.dv_cap, "DolbyVision RX support list") == NULL) {
+        SYS_LOGI("TV not support DV\n");
         return false;
     }
 

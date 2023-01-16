@@ -701,7 +701,7 @@ Return<void> SystemControlHal::getSupportALLMContentTypeList(getSupportALLMConte
 Return<void> SystemControlHal::sinkSupportDolbyVision(sinkSupportDolbyVision_cb _hidl_cb) {
     std::string mode;
     bool support = true;
-    mSysControl->isTvSupportDolbyVision(mode);
+    support = mSysControl->isTvSupportDolbyVision(mode);
 
     if (ENABLE_LOG_PRINT) ALOGI("getTvDolbyVision mode :%s, dv support:%d", mode.c_str(), support);
     _hidl_cb(Result::OK, mode, support);
