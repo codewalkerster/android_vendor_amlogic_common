@@ -802,9 +802,9 @@ public class SubtitleManager {
         Log.i(TAG,"[isExtSubtitle]mExtFilePath:" + mExtFilePath);
         if (mExtFilePath != null) {
             String name = mExtFilePath.toLowerCase();
-                for (String ext : mExternalExtension) {
+            for (String ext : mExternalExtension) {
                 if (name.endsWith(ext))
-                return true;
+                    return true;
             }
         }
         return false;

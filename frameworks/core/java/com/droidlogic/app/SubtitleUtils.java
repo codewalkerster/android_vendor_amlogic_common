@@ -496,7 +496,7 @@ public class SubtitleUtils {
                 sTemp = Integer.toHexString(0xFF & bArray[i]);
                 if (sTemp.length() < 2)
                     sb.append(0);
-                    sb.append(sTemp.toUpperCase());
+                sb.append(sTemp.toUpperCase());
             }
             return sb.toString();
         }
@@ -508,7 +508,7 @@ public class SubtitleUtils {
                 sTemp = Integer.toHexString(s.charAt(i));
                 if (sTemp.length() < 2)
                     sb.append(0);
-                    sb.append(sTemp.toUpperCase());
+                sb.append(sTemp.toUpperCase());
             }
             return sb.toString();
         }

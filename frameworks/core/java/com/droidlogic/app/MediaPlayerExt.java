@@ -697,7 +697,7 @@ public class MediaPlayerExt extends MediaPlayer {
         MediaPlayerInvoke(request, p, mp);
         cmdtype = p.readInt();
         if (DEBUG) Log.i(TAG,"[getScte35CommandType]comtype:"+cmdtype);
-            return cmdtype;
+        return cmdtype;
     }
 
     public SpliceInsert getScte35Info(MediaPlayerExt mp, int cmdtype) {
