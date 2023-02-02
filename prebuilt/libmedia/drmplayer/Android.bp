@@ -45,7 +45,7 @@ cc_prebuilt_library_shared {
 
     arch: {
         arm: {
-            srcs: ["lib/libDrmPlayer.so"],
+            srcs: ["arm/libDrmPlayer.so"],
         },
         arm64: {
             enabled: false,
@@ -67,7 +67,7 @@ cc_prebuilt_library_shared {
     check_elf_files: false,
     arch: {
         arm: {
-            srcs: ["lib/libdrmp.so"],
+            srcs: ["arm/libdrmp.so"],
         },
         arm64: {
             enabled: false,
@@ -90,7 +90,7 @@ cc_prebuilt_library_shared {
     check_elf_files: false,
     arch: {
         arm: {
-            srcs: ["lib/libdec_ca.so"],
+            srcs: ["arm/libdec_ca.so"],
         },
         arm64: {
             enabled: false,
