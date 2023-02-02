@@ -19,6 +19,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 
 import android.media.AudioDeviceInfo;
@@ -284,8 +285,9 @@ public class AudioSystemCmdService extends Service {
                     Slog.i(TAG, "onAudioPortListUpdate ++++");
                     mHasStartedDecoder = false;
                     mHandler.removeCallbacks(mHandleAudioSinkUpdatedRunnable);
-                    if (mTvInputManager.getHardwareList() == null) {
-                        mHandler.post(mHandleAudioSinkUpdatedRunnable);
+                    if (mTvInputManager != null) {
+                        if (mTvInputManager.getHardwareList() == null)
+                            mHandler.post(mHandleAudioSinkUpdatedRunnable);
                     } else {
                         boolean isA2dpOutput = false;
                         int curOutdevices = AudioSystem.getDevicesForStream(AudioSystem.STREAM_MUSIC);
@@ -342,8 +344,11 @@ public class AudioSystemCmdService extends Service {
         mContext = getApplicationContext();
         mSystemControlManager = SystemControlManager.getInstance();
         mAudioManager = getSystemService(AudioManager.class);
-        mTvInputManager = getSystemService(TvInputManager.class);
-
+        if (mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_LIVE_TV) ||
+            mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_LEANBACK)) {
+            Log.i(TAG, "has tv_input service");
+            mTvInputManager = getSystemService(TvInputManager.class);
+        }
         if (DroidLogicUtils.isBuildLivetv()) {
             mADtvAudioEvent = new ADtvAudioEvent();
             mTvControlManager = TvControlManager.getInstance();
@@ -716,8 +721,10 @@ public class AudioSystemCmdService extends Service {
                     isDvbPlayback = ((param1 -(param3 << mDtvDemuxIdBase)) == 0);
                     forceManagePatchMode = (param2 -(param3 << mDtvDemuxIdBase));
                 }
-                boolean hasTif = !(mTvInputManager.getHardwareList() == null || mTvInputManager.getHardwareList().isEmpty());
-
+                boolean hasTif = false;
+                if (mTvInputManager != null) {
+                    hasTif = !(mTvInputManager.getHardwareList() == null || mTvInputManager.getHardwareList().isEmpty());
+                }
                 if (mForceManagePatch) {
                     mNotImptTvHardwareInputService = true;
                 } else if (forceManagePatchMode == 0) {

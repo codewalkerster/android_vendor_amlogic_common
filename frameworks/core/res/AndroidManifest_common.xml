@@ -55,6 +55,12 @@
     <uses-permission android:name="android.permission.FORCE_STOP_PACKAGES" />
     <uses-permission android:name="com.google.android.permission.GLOBAL_BUTTON" />
 
+    <!-- Limit only for Android TV -->
+    <uses-feature android:name="android.software.leanback"
+         android:required="true"/>
+    <uses-feature android:name="android.software.live_tv"
+         android:required="true"/>
+
     <application android:name=".DroidlogicApplication"
                  android:persistent="true"
                  android:hasCode="true"
