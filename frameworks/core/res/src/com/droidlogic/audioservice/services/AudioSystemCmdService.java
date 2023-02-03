@@ -41,6 +41,9 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.os.Message;
 import android.os.SystemProperties;
 import android.provider.Settings;
 import android.util.Log;
@@ -82,6 +85,8 @@ public class AudioSystemCmdService extends Service {
     private int mCurrentIndex = 0;
     private final Object mLock = new Object();
     private final Handler mHandler = new Handler();
+    private Handler mAudioEventHandler;
+    private HandlerThread mAudioEventThread;
     private AudioDevicePort mAudioSource;
     private List<AudioDevicePort> mAudioSink = new ArrayList<>();
     private int mDesiredSamplingRate = 0;
@@ -379,6 +384,10 @@ public class AudioSystemCmdService extends Service {
         Log.d(TAG, "mForceManagePatch :" + mForceManagePatch);
         mCurrentIndex = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         mDigitalFormat =  getDigitalFormats();
+
+        mAudioEventThread = new HandlerThread("AudioEventThread");
+        mAudioEventThread.start();
+        mAudioEventHandler = new Handler(mAudioEventThread.getLooper());
     }
 
     @Override
@@ -386,6 +395,8 @@ public class AudioSystemCmdService extends Service {
         Log.i(TAG, "onDestroy");
         super.onDestroy();
         mAudioManager.unregisterAudioPortUpdateListener(mAudioListener);
+        mAudioEventHandler.removeCallbacksAndMessages(null);
+        mAudioEventThread.quitSafely();
     }
 
     @Override
@@ -422,10 +433,26 @@ public class AudioSystemCmdService extends Service {
             Log.i(TAG, "HandleAudioEvent cmd:" + AudioSystemCmdManager.AudioCmdToString(cmd) +
                     ", param1:" + param1 + ", param2:" + param2 + ", param3:" + param3 + ", is " + (isDtvkit ? "" : "not ") + "Dtvkit.");
         }
+
+        mAudioEventHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                HandleAudioEventInloop(cmd, param1, param2, param3, isDtvkit);
+            }
+        });
+    }
+
+    public void HandleAudioEventInloop(int cmd, int param1, int param2, int param3, boolean isDtvkit) {
+
+        Log.d(TAG, "HandleAudioEventInloop cmd:" + AudioSystemCmdManager.AudioCmdToString(cmd) +
+                            ", param1:" + param1 + ", param2:" + param2 + ", param3:" + param3 + ", is " + (isDtvkit ? "" : "not ") + "Dtvkit.");
+
         if (mAudioManager == null) {
             Log.e(TAG, "HandleAudioEvent mAudioManager is null");
             return;
         }
+
+        long startTime = System.nanoTime();
         int cmd_index = cmd;
         if (param3 != -1) {
             cmd = cmd + (param3 << mDtvDemuxIdBase);
@@ -557,8 +584,6 @@ public class AudioSystemCmdService extends Service {
                             mAudioManager.setParameters("hal_param_tv_mute=" + param1);
                         }
                 } else if (mDemuxIds.size() > 1 && mDemuxIds.contains(param3)) {//case2:multi-demux control the stop/start by setting mute
-
-
 
                     if (mMuteStatus.get(mDemuxIds.indexOf(param3)) == 0) {//set mute == 0(if there have not start , start)
                         for (int i = 0; i < mDemuxIds.size(); i++) {
@@ -693,7 +718,6 @@ public class AudioSystemCmdService extends Service {
                     mVolume.remove(mDemuxIds.indexOf(param3));
                     mDemuxIds.remove(mDemuxIds.indexOf(param3));
 
-
                     if (mDemuxIds.isEmpty() || mAudioFormat.isEmpty() || mAudioPid.isEmpty() || mOpenStatus.isEmpty() || mStartStatus.isEmpty() || mMuteStatus.isEmpty() || mVolume.isEmpty()) {
                     mDemuxIds.clear();
                     mAudioFormat.clear();
@@ -766,6 +790,10 @@ public class AudioSystemCmdService extends Service {
                 Log.w(TAG,"HandleAudioEvent unknown audio cmd:" + cmd);
                 break;
         }
+        long durationMs = (System.nanoTime() - startTime) / (1000 * 1000);
+        if (durationMs >= 100)
+            Log.w(TAG, "this handler Processing time exceeds 100ms!");
+
     }
 
     private void setAudioPortGain() {
