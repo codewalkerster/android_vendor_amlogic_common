@@ -262,7 +262,6 @@ void FormatColorDepth::setFilterEdidList(std::map<int, std::string> filterEdidLi
 }
 
 bool FormatColorDepth::isModeSupportDeepColorAttr(const char *mode, const char * color) {
-    char valueStr[10] = {0};
     char outputmode[MODE_LEN] = {0};
 
     strcpy(outputmode, mode);
@@ -274,10 +273,7 @@ bool FormatColorDepth::isModeSupportDeepColorAttr(const char *mode, const char *
     }
 
     //try support or not
-    mSysWrite.writeSysfs(DISPLAY_HDMI_VALID_MODE, outputmode);
-    mSysWrite.readSysfs(DISPLAY_HDMI_VALID_MODE, valueStr);
-
-    return atoi(valueStr) ? true : false;
+    return mSysWrite.writeValidMode(DISPLAY_HDMI_VALID_MODE, outputmode);
 }
 
 bool FormatColorDepth::isSupportHdmiMode(const char *hdmi_mode, const char *supportedColorList) {

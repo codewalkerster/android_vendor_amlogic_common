@@ -740,17 +740,13 @@ void SceneProcess::getHdmiOutputMode(char* mode) {
 
 //check resolution and color format support or not
 bool SceneProcess::isModeSupportDeepColorAttr(const char *mode, const char * color) {
-    char valueStr[10] = {0};
     char outputmode[MODE_LEN] = {0};
 
     strcpy(outputmode, mode);
     strcat(outputmode, color);
 
     //try support or not
-    mpSysWrite->writeSysfs(DISPLAY_HDMI_VALID_MODE, outputmode);
-    mpSysWrite->readSysfs(DISPLAY_HDMI_VALID_MODE, valueStr);
-
-    return atoi(valueStr) ? true : false;
+    return mpSysWrite->writeValidMode(DISPLAY_HDMI_VALID_MODE, outputmode);
 }
 
 //check resolution support or not for HDR

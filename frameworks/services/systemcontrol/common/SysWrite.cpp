@@ -193,6 +193,28 @@ int SysWrite::readSysfsOriginal(ConstCharforSysNodeIndex index, char *buf, int c
     return len;
 }
 
+bool SysWrite::writeValidMode(const char *path, const char *outputmode)
+{
+    int fd;
+
+    SYS_LOGD("write %s, outputmode:%s\n", path, outputmode);
+
+    if ((fd = open(path, O_WRONLY)) < 0) {
+        SYS_LOGE("writeSysFs, open %s fail.", path);
+        return false;
+    }
+
+    if (write(fd, outputmode, strlen(outputmode)) != strlen(outputmode)) {
+        SYS_LOGD("valid mode is false!\n");
+        close(fd);
+        return false;
+    }
+
+    SYS_LOGD("valid mode is true!\n");
+    close(fd);
+    return true;
+}
+
 bool SysWrite::writeSysfs(const char *path, const char *value) {
     writeSys(path, value);
     return true;

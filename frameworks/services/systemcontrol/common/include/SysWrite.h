@@ -162,6 +162,7 @@ public:
     bool readSysfsOriginal(const char *path, char *value);
     bool readSysfsOriginal(ConstCharforSysNodeIndex index, char *value);
     int readSysfsOriginal(ConstCharforSysNodeIndex index, char *value, int count);
+    bool writeValidMode(const char *path, const char *outputmode);
     bool writeSysfs(const char *path, const char *value);
     bool writeSysfs(const char *path, const char *value, const int size);
     int writeSysfs(ConstCharforSysNodeIndex index, const char *value);
