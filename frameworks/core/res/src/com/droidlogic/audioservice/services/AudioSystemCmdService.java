@@ -103,6 +103,7 @@ public class AudioSystemCmdService extends Service {
     protected TvControlManager mTvControlManager;
   //  protected TvControlManager mTvControlManager;
     private static final String PATH_AUDIOFORMAT_UEVENT = "/devices/platform/auge_sound";
+    private static final String PATH_NEW_AUDIOFORMAT_UEVENT = "/devices/platform/auge_sound/sound/card0/controlC0";
     private static final String PATH_TXLX_AUDIOFORMAT_UEVENT = "/devices/platform/aml_snd_tv";
     private static final String ACTION_AUDIO_FORMAT_CHANGE = "droidlogic.audioservice.action.AUDIO_FORMAT";
     private static final String AUDIO_FORMAT_KEY = "audio_format";
@@ -155,7 +156,9 @@ public class AudioSystemCmdService extends Service {
                 Log.d(TAG, "DEVPATH: " + event.get("DEVPATH"));
             }
 
-            if ((PATH_AUDIOFORMAT_UEVENT.equals(event.get("DEVPATH", null))) || PATH_TXLX_AUDIOFORMAT_UEVENT.equals(event.get("DEVPATH", null))) {
+            if ((PATH_AUDIOFORMAT_UEVENT.equals(event.get("DEVPATH", null)))
+                || PATH_TXLX_AUDIOFORMAT_UEVENT.equals(event.get("DEVPATH", null))
+                || PATH_NEW_AUDIOFORMAT_UEVENT.equals(event.get("DEVPATH", null))) {
                 String audioFormatStr = event.get("AUDIO_FORMAT", null);
                 if (audioFormatStr == null) {
                     Log.e(TAG, "Error! got audio uevent from kernel, but no AUDIO_FORMAT value set!");
