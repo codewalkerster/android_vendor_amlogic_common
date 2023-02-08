@@ -45,6 +45,7 @@ cc_library_shared {
     "libmediandk",
     "libamgralloc_ext",
     "libmeson_display_adapter_remote",
+    "libyuv",
   ],
 }
 

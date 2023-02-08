@@ -67,6 +67,8 @@
 
 #include <linux/videodev2.h>
 #include "ScreenControlDebug.h"
+#include "libyuv/scale_argb.h"
+#include "libyuv/convert_argb.h"
 
 namespace android {
 
@@ -122,6 +124,7 @@ ScreenManager::ScreenManager() :
     mIsSoftwareEncoder(false),
     mIsScreenRecord(false),
     mScreenDev(NULL),
+    mTempBuffer(NULL),
     mOutFrameCounter(0),
     mNeedPause(false),
     mWidth(-1),
@@ -198,6 +201,59 @@ static void checkAndSaveBufferToFile(char *baseFile, char *filename, void *buffe
             ALOGW("Save file fail: %s!", filename);
         }
     }
+}
+
+static inline void yuv_to_rgb32(unsigned char y,unsigned char u,unsigned char v,unsigned char *rgb)
+{
+    int r,g,b;
+
+    r = (1192 * (y - 16) + 1634 * (v - 128) ) >> 10;
+    g = (1192 * (y - 16) - 833 * (v - 128) - 400 * (u -128) ) >> 10;
+    b = (1192 * (y - 16) + 2066 * (u - 128) ) >> 10;
+
+    r = r > 255 ? 255 : r < 0 ? 0 : r;
+    g = g > 255 ? 255 : g < 0 ? 0 : g;
+    b = b > 255 ? 255 : b < 0 ? 0 : b;
+
+    /*ARGB*/
+    *rgb = (unsigned char)r;
+    rgb++;
+    *rgb = (unsigned char)g;
+    rgb++;
+    *rgb = (unsigned char)b;
+    rgb++;
+    *rgb = 0xff;
+}
+
+void nv21_to_rgb32_(unsigned char *buf, unsigned char *rgb, int width, int height)
+{
+    int x,y,z=0;
+    int h,w;
+    int blocks;
+    unsigned char Y1, Y2, U, V;
+
+    blocks = (width * height) * 2;
+
+    for (h=0, z=0; h< height; h+=2) {
+        for (y = 0; y < width*2; y+=2) {
+
+            Y1 = buf[ h*width + y + 0];
+            V = buf[ blocks/2 + h*width/2 + y%width + 0 ];
+            Y2 = buf[ h*width + y + 1];
+            U = buf[ blocks/2 + h*width/2 + y%width + 1 ];
+
+            yuv_to_rgb32(Y1, U, V, &rgb[z]);
+            yuv_to_rgb32(Y2, U, V, &rgb[z + 4]);
+            z+=8;
+        }
+    }
+}
+static inline void argb_scale(unsigned char *src, unsigned char* dst, int width, int height, int dWidth, int dHeight)
+{
+    if (dWidth == 0 || dHeight == 0 || width == 0 || height == 0) {
+        return;
+    }
+    libyuv::ARGBScale((uint8_t*)src, width * 4, width, height, (uint8_t*)dst, dWidth * 4, dWidth, dHeight, libyuv::kFilterNone);
 }
 
 ScreenManager* ScreenManager::instantiate() {
@@ -548,6 +604,45 @@ status_t ScreenManager::stop(int32_t client_id)
     return OK;
 }
 
+status_t ScreenManager::readRawData(int32_t client_id,MediaBuffer *buffer, int width, int height) {
+    Mutex::Autolock autoLock(mLock);
+    ALOGI("[%s %d] in ", __FUNCTION__, __LINE__);
+    ScreenClient* client;
+    FrameBufferInfo* frame = NULL;
+    SCREENCONTROLDATATYPE source_data_type;
+    client = mClientList.valueFor(client_id);
+    source_data_type = client->data_type;
+    if (mTempBuffer == NULL) {
+        mTempBuffer = new MediaBuffer(mWidth*mHeight*3);
+        mTempBuffer->set_range(0, 0);
+        return !OK;
+    }
+    if (source_data_type == SCREENCONTROL_CANVAS_TYPE && mTempBuffer->range_length() > 0 ) {
+        if (width != mWidth || height != mHeight) {
+            size_t temp_size = mWidth*mHeight*4;
+            MediaBuffer* temp = new MediaBuffer(temp_size);
+            if (temp) {
+                nv21_to_rgb32_((unsigned char *)mTempBuffer->data(), (unsigned char *)temp->data() , mWidth, mHeight);
+                temp->set_range(0, temp_size);
+                argb_scale((unsigned char *)temp->data(), (unsigned char *)buffer->data(), mWidth, mHeight, width, height);
+                temp->release();
+                temp = NULL;
+            }else {
+                ALOGE("new MediaBuffer failed");
+                return !OK;
+            }
+        }else {
+            nv21_to_rgb32_((unsigned char *)mTempBuffer->data(), (unsigned char *)buffer->data() , mWidth, mHeight);
+        }
+
+        mTempBuffer->release();
+        mTempBuffer = NULL;
+        return OK;
+    }
+    ALOGI("[%s %d] exit", __FUNCTION__, __LINE__);
+    return !OK;
+
+}
 
 status_t ScreenManager::readBuffer(int32_t client_id, sp<IMemory> buffer, int64_t* pts)
 {
@@ -739,6 +834,10 @@ int ScreenManager::dataCallBack(aml_screen_buffer_info_t *buffer){
                         frame->timestampUs = 0;
                         mCanvasFramesReceived.push_back(frame);
                         mCanvasClientExist = 1;
+                        if (mTempBuffer != NULL) {
+                            memcpy(mTempBuffer->data(),buffer->buffer_mem,client->width*client->height*3/2);
+                            mTempBuffer->set_range(0, client->width*client->height*3/2);
+                        }
                     }
                 }
             }

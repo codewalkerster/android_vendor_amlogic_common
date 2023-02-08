@@ -225,6 +225,10 @@ bool ESConvertor::isHaveOutputData(){
     return true;
 }
 
+status_t ESConvertor::readRawData(MediaBuffer *buffer, int width, int height){
+    return mScreenManager->readRawData(mClientId,buffer,width,height);
+}
+
 status_t ESConvertor::checkAvcConvertDone(){
     if (mOutFrameCounter > 0 && mOutputBufferQueue.size() <= 0) {
         return OK;

@@ -39,7 +39,7 @@
 #include <binder/ProcessState.h>
 #include <media/stagefright/MediaBuffer.h>
 
-#include <Media2Ts/tspack.h>
+
 
 //#include <gui/ISurfaceComposer.h>
 #include <OMX_Component.h>
@@ -102,7 +102,8 @@ ScreenControlService::ScreenControlService():
     mRecordCorpWidth(-1),
     mRecordCorpHeight(-1),
     mYuvClientId(-1) ,
-    mScreenManager(NULL) {
+    mScreenManager(NULL),
+    mRecordSourceType(-1) {
     mNeedStop = false;
 }
 
@@ -168,7 +169,7 @@ int ScreenControlService::startScreenRecord(int32_t width, int32_t height, int32
         return !OK;
     }
 
-    sp<TSPacker> mTSPacker = new TSPacker(width, height, frameRate, bitRate, sourceType, 0);
+    mTSPacker = new TSPacker(width, height, frameRate, bitRate, sourceType, 0);
 //    mTSPacker->setMaxFrameCount(limit_time);
     mTSPacker->setTimeLimit(limitTimeSec*1000);
     if (mRecordCorpX != -1 && mRecordCorpY !=-1 && mRecordCorpWidth != -1 && mRecordCorpHeight != -1) {
@@ -183,7 +184,7 @@ int ScreenControlService::startScreenRecord(int32_t width, int32_t height, int32
     }
     gettimeofday(&timeNow, NULL);
     firsetNowUs = (int64_t)timeNow.tv_sec*1000*1000 + (int64_t)timeNow.tv_usec;
-
+    mRecordSourceType = sourceType;
     while (!mNeedStop) {
         tVideoBuffer = NULL;
         err = mTSPacker->read(&tVideoBuffer);
@@ -222,7 +223,9 @@ int ScreenControlService::startScreenRecord(int32_t width, int32_t height, int32
     mRecordCorpY = -1;
     mRecordCorpWidth = -1;
     mRecordCorpHeight = -1;
+    mRecordSourceType = -1;
     mTSPacker->stop();
+    mTSPacker = NULL;
     close(video_file);
 	if (mNeedStop) {
         ALOGD("Control to stop record!");
@@ -326,7 +329,6 @@ int ScreenControlService::startScreenCap(int32_t left, int32_t top, int32_t righ
 }
 
 int ScreenControlService::startScreenCapBuffer(int32_t left, int32_t top, int32_t right, int32_t bottom, int32_t width, int32_t height, int32_t sourceType, void *dstBuffer, int32_t *dstBufferSize) {
-    Mutex::Autolock autoLock(mLock);
     ALOGI("[%s] left:%d, top:%d, right:%d, bottom:%d, width:%d, height:%d, sourceType:%d\n",
         __func__, left, top, right, bottom, width, height, sourceType);
 
@@ -337,6 +339,30 @@ int ScreenControlService::startScreenCapBuffer(int32_t left, int32_t top, int32_
     ScreenCatch* mScreenCatch;
     const size_t size = width * height * 4;
     mNeedStop = false;
+    if ((mTSPacker != NULL || mVideoConvertor != NULL) && mRecordSourceType == sourceType ) {
+        ALOGI("[%s %d] get same parameter", __FUNCTION__, __LINE__);
+        long buf[3] ={ 0 };
+        int32_t bufferSize = width * height * 4;
+        MediaBuffer *tBuffer = new MediaBuffer(bufferSize);
+        if (mTSPacker != NULL) {
+            while (!OK == mTSPacker->readRawData(tBuffer,width,height)) {
+                usleep(5 *1000); //5ms
+                continue;
+            }
+        }else {
+            while (!OK == mVideoConvertor->readRawData(tBuffer,width,height)) {
+                usleep(5 *1000); //5ms
+                continue;
+            }
+        }
+
+        memcpy(dstBuffer, tBuffer->data(), tBuffer->size());
+        *dstBufferSize = tBuffer->size();
+        ALOGI("[%s %d] get readRawData size:%d", __FUNCTION__, __LINE__, tBuffer->size());
+        tBuffer->release();
+        tBuffer =NULL;
+        return result;
+    }
 
     mScreenCatch = new ScreenCatch(width, height, 32, sourceType);
     mScreenCatch->setVideoCrop(left, top, right, bottom);
@@ -471,6 +497,7 @@ int ScreenControlService::startAvcRecord(int32_t width, int32_t height, int32_t 
         ALOGE("[%s %d] start avc record error\n", __FUNCTION__, __LINE__);
         return !OK;
     }
+    mRecordSourceType = sourceType;
     return OK;
 
 }
@@ -504,6 +531,7 @@ int ScreenControlService::checkAvcRecordDone(){
             ALOGD("Detect record data stop and convert done, need stop packer...");
             mVideoConvertor->stop();
             mNeedStop = false;
+            mRecordSourceType = -1;
             mVideoConvertor=NULL;
             return OK;
         }

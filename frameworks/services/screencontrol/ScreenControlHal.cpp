@@ -83,7 +83,6 @@ namespace implementation {
     }
 
     Return<void> ScreenControlHal::startScreenCapBuffer(int32_t left, int32_t top, int32_t right, int32_t bottom, int32_t width, int32_t height, int32_t sourceType, startScreenCapBuffer_cb _cb) {
-        Mutex::Autolock autoLock(mLock);
         sp<IAllocator> allocator = IAllocator::getService("ashmem");
         allocator->allocate((uint64_t)width*(uint64_t)height*4, [&](bool success, const hidl_memory& mem) {
             int bufSize = 0;

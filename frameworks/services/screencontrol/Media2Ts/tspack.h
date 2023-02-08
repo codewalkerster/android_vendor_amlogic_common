@@ -41,7 +41,7 @@ public:
     virtual status_t stop();
     virtual status_t read(MediaBufferBase **buffer,
             const ReadOptions *options = NULL);
-
+    virtual status_t readRawData(MediaBuffer *buffer, int width, int height);
     // valid function after call setMaxFrameCount()
     virtual status_t checkConvertDone();
 

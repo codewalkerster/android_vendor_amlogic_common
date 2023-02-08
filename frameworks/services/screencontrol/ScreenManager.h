@@ -117,6 +117,7 @@ public:
     virtual bool isHaveOutputData();
     virtual void setPauseMode(bool isPause);
     virtual status_t checkConvertDone();
+    virtual status_t readRawData(int32_t client_id, MediaBuffer *buffer, int width, int height);
 
     bool mIsScreenRecord;
 
@@ -209,6 +210,7 @@ private:
 
     aml_screen_module_t* mScreenModule;
     aml_screen_device_t* mScreenDev;
+    MediaBuffer *mTempBuffer;
 };
 
 }; // namespace android

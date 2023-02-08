@@ -45,6 +45,7 @@
 #include "IScreenControlService.h"
 #include "ScreenManager.h"
 #include <Media2Ts/esconvertor.h>
+#include <Media2Ts/tspack.h>
 
 
 namespace android {
@@ -105,6 +106,8 @@ private:
     ScreenManager* mScreenManager;
     int mYuvClientId;
     Mutex mLock;
+    int32_t mRecordSourceType;
+    sp<TSPacker> mTSPacker;
 };
 
 // ----------------------------------------------------------------------------

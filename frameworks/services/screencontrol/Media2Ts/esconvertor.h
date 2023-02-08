@@ -44,6 +44,7 @@ public:
     virtual status_t stop();
     virtual status_t read(MediaBufferBase **buffer,
             const struct ReadOptions *options = NULL);
+     virtual status_t readRawData(MediaBuffer *buffer, int width, int height);
     virtual MetaDataBase* getFormat();
 
     // valid function after call setMaxFrameCount()

@@ -127,6 +127,11 @@ int32_t TSPacker::getFrameRate( ) const {
     return mFrameRate;
 }
 
+status_t TSPacker::readRawData(MediaBuffer *buffer, int width, int height) {
+    return mVideoConvertor->readRawData(buffer,width,height);
+
+}
+
 
 int TSPacker::threadFunc()
 {
