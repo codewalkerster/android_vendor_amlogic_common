@@ -381,7 +381,7 @@ size_t VendorInterface::Send(uint8_t type, const uint8_t* data, size_t length) {
     ALOGV("%s: Sent wake before (%02x)", __func__, data[0] | (data[1] << 8));
   }
   if( type == HCI_PACKET_TYPE_COMMAND &&
-		   (sz >= 1 && memcmp(buf, "1", 1) == 0)) {
+		   (sz >= 1 && memcmp(buf, "1", 1) == 0)&& internal_command.opcode != opcode)  {
     ALOGV("rtc wake: %s: opcode: %02x,	data[2] = %02x,length = %d ", __func__,
 			data[0]|data[1] <<8 , data[2], (int)length);
     if( data[0] == 0x54 && data[1] == 0xFD) {
@@ -390,7 +390,7 @@ size_t VendorInterface::Send(uint8_t type, const uint8_t* data, size_t length) {
       event_cb_(fake_rsp);
     } else {
       // rtc wake up. response fake rsp to hci command
-      ALOGV("Send fake rsp");
+      ALOGE("Send fake rsp");
       hidl_vec<uint8_t> fake_rsp = {0x0E, 0x04,0x01, data[0],data[1],0x00};
       event_cb_(fake_rsp);
     }

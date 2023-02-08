@@ -58,14 +58,36 @@ void* wole_vsc_write_thread( void *ptr)
 	pthread_cond_wait(&s_vsccond, &s_vsclock);
 	pthread_mutex_unlock(&s_vsclock);
 	//to prevent the the command is sent before HCI_RESET which sent from stack
-	usleep(200000);
+	usleep(400000);
+		wake_signal_sent=0;
+
+	pthread_mutex_lock(&s_vsclock);
 	wole_config_write_pulse_time(WOLE_PULSE_TIME_POWER,sizeof(WOLE_PULSE_TIME_POWER));
-	usleep(10000);
+	while (wake_signal_sent == 0)
+		pthread_cond_wait(&s_vsccond, &s_vsclock);
+	wake_signal_sent = 0;
+	pthread_mutex_unlock(&s_vsclock);
+
+	pthread_mutex_lock(&s_vsclock);
 	wole_config_write_pulse_time(WOLE_PULSE_TIME_NETFLIX,sizeof(WOLE_PULSE_TIME_NETFLIX));
-	usleep(10000);
+	while (wake_signal_sent == 0)
+		pthread_cond_wait(&s_vsccond, &s_vsclock);
+	wake_signal_sent = 0;
+	pthread_mutex_unlock(&s_vsclock);
+
+	pthread_mutex_lock(&s_vsclock);
 	wole_config_write_default_hostwake_state(1);
-	usleep(10000);
+	while (wake_signal_sent == 0)
+		pthread_cond_wait(&s_vsccond, &s_vsclock);
+	wake_signal_sent = 0;
+	pthread_mutex_unlock(&s_vsclock);
+
+	pthread_mutex_lock(&s_vsclock);
 	wole_config_write_manufacture_pattern();
+	while (wake_signal_sent == 0)
+		pthread_cond_wait(&s_vsccond, &s_vsclock);
+	wake_signal_sent = 0;
+	pthread_mutex_unlock(&s_vsclock);
 
 	while (1)
 	{
