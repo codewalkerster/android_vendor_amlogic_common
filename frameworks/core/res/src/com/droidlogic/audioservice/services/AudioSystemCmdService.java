@@ -491,7 +491,7 @@ public class AudioSystemCmdService extends Service {
                 if (DroidLogicUtils.getAudioDebugEnable()) {
                     Log.d(TAG, "demuxid"+param3+",mOpenStatus="+mOpenStatus.get(mDemuxIds.indexOf(param3))+"mMuteStatus"+mMuteStatus.get(mDemuxIds.indexOf(param3)));
                 }
-                if (mMuteStatus.get(mDemuxIds.indexOf(param3)) == 1 || mStartStatus.get(mDemuxIds.indexOf(param3)) == 1 || mOpenStatus.get(mDemuxIds.indexOf(param3)) == 0) {
+                if ((mMuteStatus.get(mDemuxIds.indexOf(param3)) == 1 && mDemuxIds.size() > 1) || mStartStatus.get(mDemuxIds.indexOf(param3)) == 1 || mOpenStatus.get(mDemuxIds.indexOf(param3)) == 0) {
                     Log.d(TAG, "mMuteStatus:" + mMuteStatus.get(mDemuxIds.indexOf(param3))+",DemuxId:"+param3);
                     break;//if open multi-demux but the current demux is mute_state, do not start the current demux
                 }
@@ -506,6 +506,7 @@ public class AudioSystemCmdService extends Service {
                 mAudioManager.setParameters("hal_param_dtv_audio_id=" + param2);
                 mAudioManager.setParameters("hal_param_dtv_patch_cmd=" + cmd);
                 mAudioManager.setParameters("hal_param_dtv_audio_volume=" + mVolume.get(mDemuxIds.indexOf(param3)));
+                mAudioManager.setParameters("hal_param_tv_mute=" + mMuteStatus.get(mDemuxIds.indexOf(param3)));
                 mStartStatus.set(mDemuxIds.indexOf(param3), 1);
                 mAudioFormat.set(mDemuxIds.indexOf(param3), param1);
                 mAudioPid.set(mDemuxIds.indexOf(param3), param2);
@@ -572,7 +573,7 @@ public class AudioSystemCmdService extends Service {
                 }
 
                 if (mDemuxIds.size() == 1 && mDemuxIds.contains(param3)) {//case 1:single demux
-                    if (mStartStatus.get(mDemuxIds.indexOf(param3)) == 0 && mOpenStatus.get(mDemuxIds.indexOf(param3)) == 1 && param1 == 0) {
+                    if (mStartStatus.get(mDemuxIds.indexOf(param3)) == 0 && mOpenStatus.get(mDemuxIds.indexOf(param3)) == 1) {
                         int apply_cmd = AudioSystemCmdManager.AUDIO_SERVICE_CMD_START_DECODE + (param3 << mDtvDemuxIdBase);
                         mAudioManager.setParameters("hal_param_dtv_audio_fmt="+mAudioFormat.get(mDemuxIds.indexOf(param3)));
                         mAudioManager.setParameters("hal_param_has_dtv_video="+mCurrentHasDtvVideo);
