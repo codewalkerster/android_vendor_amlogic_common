@@ -18,7 +18,7 @@ WIFI_SUPPORT_DRIVERS ?= $(EXTRA_WIFI_SUPPORT_DRIVERS)
 ####################################################################################
 
 WIFI_SUPPORT_DRIVERS += dhd_sdio
-dhd_sdio_build ?= true
+dhd_sdio_build ?= false
 dhd_sdio_modules ?= ap6181 ap6335 ap6234 ap6255 ap6256 ap6271 ap6212 ap6354 ap6356 ap6398s ap6275s bcm43751_s bcm43458_s bcm4358_s
 dhd_sdio_src_path ?= $(DRIVER_DIR)/broadcom/ap6xxx/bcmdhd.101.10.361.x
 dhd_sdio_copy_path ?= $(OUT_DIR)/$(KERNEL_TO_ROOT_PATH)/$(strip $(dhd_sdio_src_path))/dhd_sdio
@@ -62,7 +62,7 @@ WIFI_BUILT_MODULES += $(qca6174_modules)
 endif
 
 WIFI_SUPPORT_DRIVERS += w1
-w1_build ?= true
+w1_build ?= false
 w1_modules ?= w1
 w1_src_path ?= $(DRIVER_DIR)/amlogic/w1/wifi
 w1_copy_path ?=
@@ -73,7 +73,7 @@ WIFI_BUILT_MODULES += $(w1_modules)
 endif
 
 WIFI_SUPPORT_DRIVERS += w2
-w2_build ?= true
+w2_build ?= false
 w2_modules ?= w2
 w2_src_path ?= $(DRIVER_DIR)/amlogic/w2
 w2_copy_path ?=
@@ -117,7 +117,7 @@ WIFI_BUILT_MODULES += $(rtl8723bu_modules)
 endif
 
 WIFI_SUPPORT_DRIVERS += rtl8821cu
-rtl8821cu_build ?= true
+rtl8821cu_build ?= false
 rtl8821cu_modules ?= rtl8821cu
 rtl8821cu_src_path ?= $(DRIVER_DIR)/realtek/8821cu
 rtl8821cu_copy_path ?=
@@ -128,7 +128,7 @@ WIFI_BUILT_MODULES += $(rtl8821cu_modules)
 endif
 
 WIFI_SUPPORT_DRIVERS += rtl8822cu
-rtl8822cu_build ?= true
+rtl8822cu_build ?= false
 rtl8822cu_modules ?= rtl8822cu
 rtl8822cu_src_path ?= $(DRIVER_DIR)/realtek/8822cu
 rtl8822cu_copy_path ?=
@@ -139,7 +139,7 @@ WIFI_BUILT_MODULES += $(rtl8822cu_modules)
 endif
 
 WIFI_SUPPORT_DRIVERS += rtl8822cs
-rtl8822cs_build ?= true
+rtl8822cs_build ?= false
 rtl8822cs_modules ?= rtl8822cs
 rtl8822cs_src_path ?= $(DRIVER_DIR)/realtek/8822cs
 rtl8822cs_copy_path ?=
@@ -172,7 +172,7 @@ WIFI_BUILT_MODULES += $(rtl8852be_modules)
 endif
 
 WIFI_SUPPORT_DRIVERS += rtl8852bs
-rtl8852bs_build ?= true
+rtl8852bs_build ?= false
 rtl8852bs_modules ?= rtl8852bs
 rtl8852bs_src_path ?= $(DRIVER_DIR)/realtek/8852bs
 rtl8852bs_copy_path ?=
