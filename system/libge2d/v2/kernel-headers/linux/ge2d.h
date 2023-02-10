@@ -56,6 +56,8 @@
 #define  GE2D_SET_COEF              0x46fb
 #define  GE2D_ANTIFLICKER_ENABLE    0x46f8
 
+#define DMABUF_HEAP_FLAG                      1 << 30
+
 typedef enum {
     OSD0_OSD0 = 0,
     OSD0_OSD1,
