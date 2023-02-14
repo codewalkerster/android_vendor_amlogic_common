@@ -77,10 +77,14 @@ public class BootComplete extends BroadcastReceiver {
             context.startService(new Intent(context, NetflixService.class));
         }
 
+
         if (SystemProperties.get("sys.vendor.usb_otg.control").equals("enable")) {
             context.startService(new Intent(context, DeviceControlService.class));
         }
 
+        if (getBooleanProperty("persist.vendor.sys.cpu_config", true)) {
+            context.startService(new Intent(context, DroidLogicCpuService.class));
+        }
         context.startService(new Intent(context,NtpService.class));
         context.startService(new Intent(context,ShutdownService.class));
 
