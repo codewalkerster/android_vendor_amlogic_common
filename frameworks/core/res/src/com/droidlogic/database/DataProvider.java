@@ -13,6 +13,7 @@ package com.droidlogic.database;
 import android.content.Context;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteDatabase;
@@ -31,13 +32,15 @@ public class DataProvider extends ContentProvider {
     private DbOpenHelper mDbOpenHelper = null;
 
     public static final String DB_NAME = "database.db";
-    public static final int DB_VERSION = 1;
+    public static final int DB_VERSION = 2;
     public static final String TABLE_SCAN_NAME = "tv_control_scan";
     public static final String TABLE_SOUND_NAME = "tv_control_sound";
     public static final String TABLE_PPPOE_NAME = "tv_control_pppoe";
     public static final String TABLE_OTHERS_NAME = "tv_control_others";
     public static final String TABLE_PROP_NAME = "prop_table";
     public static final String TABLE_STRING_NAME = "string_table";
+    public static final String TABLE_RRT_NAME = "tv_rrt";
+    public static final String TABLE_CHANNEL_NAME = "tv_hidden_channel";
 
     public static final int TABLE_SCAN_CODE = 1;
     public static final int TABLE_SOUND_CODE = 2;
@@ -45,6 +48,8 @@ public class DataProvider extends ContentProvider {
     public static final int TABLE_OTHERS_CODE = 4;
     public static final int TABLE_PROP_CODE = 5;
     public static final int TABLE_STRING_CODE = 6;
+    public static final int TABLE_RRT_CODE = 7;
+    public static final int TABLE_CHANNEL_CODE = 8;
 
     public static final String PROPERTY = "property";
     public static final String VALUE = "value";
@@ -61,6 +66,8 @@ public class DataProvider extends ContentProvider {
         mUriMatcher.addURI(AUTHORITY, TABLE_OTHERS_NAME, TABLE_OTHERS_CODE);
         mUriMatcher.addURI(AUTHORITY, TABLE_PROP_NAME, TABLE_PROP_CODE);
         mUriMatcher.addURI(AUTHORITY, TABLE_STRING_NAME, TABLE_STRING_CODE);
+        mUriMatcher.addURI(AUTHORITY, TABLE_RRT_NAME, TABLE_RRT_CODE);
+        mUriMatcher.addURI(AUTHORITY, TABLE_CHANNEL_NAME, TABLE_CHANNEL_CODE);
     }
 
     private static class DbOpenHelper extends SQLiteOpenHelper {
@@ -71,6 +78,27 @@ public class DataProvider extends ContentProvider {
         private final String SQL_CREATE_TABLE4 = "create table if not exists " + TABLE_OTHERS_NAME + TABLE_PROPERTY;
         private final String SQL_CREATE_TABLE5 = "create table if not exists " + TABLE_PROP_NAME + TABLE_PROPERTY;
         private final String SQL_CREATE_TABLE6 = "create table if not exists " + TABLE_STRING_NAME + TABLE_PROPERTY;
+
+        private final String SQL_CREATE_TABLE_CHANNEL =
+            "create table if not exists " + TABLE_CHANNEL_NAME +
+                "(_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "type TEXT," +
+                "major_number INTEGER," +
+                "minor_number INTEGER," +
+                "service_type TEXT," +
+                "display_name TEXT," +
+                "display_number TEXT," +
+                "internal_data BLOB);";
+        private final String SQL_CREATE_TABLE_RRT5 =
+            "create table if not exists " + TABLE_RRT_NAME +
+                "(_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "original_network_id INTEGER," +
+                "version_num INTEGER," +
+                "dimension_num INTEGER," +
+                "region5_name TEXT," +
+                "dimension_name TEXT NOT NULL," +
+                "values_defined INTEGER," +
+                "level_rating_text TEXT);";
 
         public DbOpenHelper(final Context context) {
             super(context, DB_NAME, null, DB_VERSION);
@@ -84,12 +112,17 @@ public class DataProvider extends ContentProvider {
             db.execSQL(SQL_CREATE_TABLE4);
             db.execSQL(SQL_CREATE_TABLE5);
             db.execSQL(SQL_CREATE_TABLE6);
+            db.execSQL(SQL_CREATE_TABLE_RRT5);
+            db.execSQL(SQL_CREATE_TABLE_CHANNEL);
             Log.d(TAG, "onCreate tables");
         }
 
         @Override
         public void onUpgrade(final SQLiteDatabase db, final int oldVersion, final int newVersion) {
-
+            if (oldVersion == 1 && newVersion == 2) {
+                db.execSQL(SQL_CREATE_TABLE_RRT5);
+                db.execSQL(SQL_CREATE_TABLE_CHANNEL);
+            }
         }
     }
 
@@ -120,8 +153,9 @@ public class DataProvider extends ContentProvider {
         } else {
             Log.d(TAG, "insert db null");
         }
-        db.insert(table, null, values);
-        return null;
+        long rowId = db.insert(table, null, values);
+        Uri newUri = ContentUris.withAppendedId(uri, rowId);
+        return newUri;
     }
 
     @Override
@@ -174,6 +208,12 @@ public class DataProvider extends ContentProvider {
                 break;
             case TABLE_STRING_CODE:
                 tableName = TABLE_STRING_NAME;
+                break;
+            case TABLE_RRT_CODE:
+                tableName = TABLE_RRT_NAME;
+                break;
+            case TABLE_CHANNEL_CODE:
+                tableName = TABLE_CHANNEL_NAME;
                 break;
         }
 

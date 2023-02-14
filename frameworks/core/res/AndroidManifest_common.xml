@@ -147,6 +147,7 @@
         <grant-uri-permission android:pathPattern="/tv_control_others" />
         <grant-uri-permission android:pathPattern="/prop_table" />
         <grant-uri-permission android:pathPattern="/string_table" />
+        <grant-uri-permission android:pathPattern="/tv_rrt" />
         </provider>
 
         <receiver android:exported="true"
