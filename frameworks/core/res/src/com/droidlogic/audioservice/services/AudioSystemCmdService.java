@@ -294,24 +294,25 @@ public class AudioSystemCmdService extends Service {
                     mHasStartedDecoder = false;
                     mHandler.removeCallbacks(mHandleAudioSinkUpdatedRunnable);
                     if (mTvInputManager != null) {
-                        if (mTvInputManager.getHardwareList() == null)
+                        if (mTvInputManager.getHardwareList() == null) {
                             mHandler.post(mHandleAudioSinkUpdatedRunnable);
-                    } else {
-                        boolean isA2dpOutput = false;
-                        int curOutdevices = AudioSystem.getDevicesForStream(AudioSystem.STREAM_MUSIC);
-                        int i = 0;
-                        int device = 0;
-                        while ((device = 1 << i) != AudioSystem.DEVICE_OUT_DEFAULT) {
-                            if ((curOutdevices & device) != 0) {
-                                if (AudioSystem.DEVICE_OUT_ALL_A2DP_SET.contains(device)) {
-                                    isA2dpOutput = true;
-                                    break;
+                        } else {
+                            boolean isA2dpOutput = false;
+                            int curOutdevices = AudioSystem.getDevicesForStream(AudioSystem.STREAM_MUSIC);
+                            int i = 0;
+                            int device = 0;
+                            while ((device = 1 << i) != AudioSystem.DEVICE_OUT_DEFAULT) {
+                                if ((curOutdevices & device) != 0) {
+                                    if (AudioSystem.DEVICE_OUT_ALL_A2DP_SET.contains(device)) {
+                                        isA2dpOutput = true;
+                                        break;
+                                    }
                                 }
+                                i++;
                             }
-                            i++;
+                            mHandler.postDelayed(mHandleAudioSinkUpdatedRunnable, isA2dpOutput ? 2500 : 500);
                         }
-                        mHandler.postDelayed(mHandleAudioSinkUpdatedRunnable, isA2dpOutput ? 2500 : 500);
-                    }
+                   }
                 }
 
                 @Override
