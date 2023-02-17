@@ -54,13 +54,13 @@ LOCAL_SHARED_LIBRARIES := \
         liblog
 ifeq ($(BOARD_HAVE_BLUETOOTH_MULTIBT),true)
 	LOCAL_MODULE := libbt-vendor_qca
-	LOCAL_LICENSE_KINDS := SPDX-license-identifier-Apache-2.0 SPDX-license-identifier-BSD legacy_not_a_contribution
-	LOCAL_LICENSE_CONDITIONS := by_exception_only not_allowed notice
+	LOCAL_LICENSE_KINDS := SPDX-license-identifier-Apache-2.0 SPDX-license-identifier-BSD legacy_not_a_contribution legacy_proprietary
+	LOCAL_LICENSE_CONDITIONS := by_exception_only not_allowed notice proprietary by_exception_only
 	LOCAL_NOTICE_FILE := $(LOCAL_PATH)/NOTICE
 else
 	LOCAL_MODULE := libbt-vendor
-	LOCAL_LICENSE_KINDS := SPDX-license-identifier-Apache-2.0 SPDX-license-identifier-BSD legacy_not_a_contribution
-	LOCAL_LICENSE_CONDITIONS := by_exception_only not_allowed notice
+	LOCAL_LICENSE_KINDS := SPDX-license-identifier-Apache-2.0 SPDX-license-identifier-BSD legacy_not_a_contribution legacy_proprietary
+	LOCAL_LICENSE_CONDITIONS := by_exception_only not_allowed notice proprietary by_exception_only
 	LOCAL_NOTICE_FILE := $(LOCAL_PATH)/NOTICE
 endif
 

@@ -29,6 +29,7 @@ license {
     license_kinds: [
         "SPDX-license-identifier-Apache-2.0",
         "legacy_unencumbered",
+        "legacy_proprietary",
     ],
     license_text: [
         "COPYING",

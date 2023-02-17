@@ -45,12 +45,12 @@ endif
 
 ifeq ($(BOARD_HAVE_BLUETOOTH_MULTIBT),true)
 	LOCAL_MODULE := libbt-vendor_bcm
-	LOCAL_LICENSE_KINDS := SPDX-license-identifier-Apache-2.0
-	LOCAL_LICENSE_CONDITIONS := notice
+	LOCAL_LICENSE_KINDS := SPDX-license-identifier-Apache-2.0 legacy_proprietary
+	LOCAL_LICENSE_CONDITIONS := notice proprietary by_exception_only
 else
 	LOCAL_MODULE := libbt-vendor
-	LOCAL_LICENSE_KINDS := SPDX-license-identifier-Apache-2.0
-	LOCAL_LICENSE_CONDITIONS := notice
+	LOCAL_LICENSE_KINDS := SPDX-license-identifier-Apache-2.0 legacy_proprietary
+	LOCAL_LICENSE_CONDITIONS := notice proprietary by_exception_only
 endif
 
 LOCAL_MODULE_TAGS := optional

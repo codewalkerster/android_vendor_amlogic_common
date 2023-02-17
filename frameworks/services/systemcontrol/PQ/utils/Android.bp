@@ -12,20 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-soong_config_module_type_import {
-    from: "device/amlogic/common/soong_config/Android.bp",
-    module_types: ["amlogic_vendorconfig_cc_defaults"],
-}
-
-amlogic_vendorconfig_cc_defaults {
-    name: "pqutils_defaults",
-
-    soong_config_variables: {
-        support_pq_compress_db: {
-            cflags: ["-DPRODUCT_SUPPORT_COMPRESS_DB"],
-        },
-    },
-}
 // *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
 //     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
 //     DEPENDING ON IT IN YOUR PROJECT. ***
@@ -43,9 +29,25 @@ package {
     //   legacy_by_exception_only (by exception only)
     //   legacy_notice
     //   legacy_unencumbered
+    //   legacy_proprietary
     default_applicable_licenses: [
         "vendor_amlogic_common_frameworks_services_systemcontrol_PQ_license",
     ],
+}
+
+soong_config_module_type_import {
+    from: "device/amlogic/common/soong_config/Android.bp",
+    module_types: ["amlogic_vendorconfig_cc_defaults"],
+}
+
+amlogic_vendorconfig_cc_defaults {
+    name: "pqutils_defaults",
+
+    soong_config_variables: {
+        support_pq_compress_db: {
+            cflags: ["-DPRODUCT_SUPPORT_COMPRESS_DB"],
+        },
+    },
 }
 
 cc_library_static {

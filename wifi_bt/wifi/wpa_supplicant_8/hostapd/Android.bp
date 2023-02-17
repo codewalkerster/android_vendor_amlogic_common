@@ -13,6 +13,7 @@
 // limitations under the License.
 
 package {
+    //   legacy_proprietary
     default_applicable_licenses: [
         "external_wpa_supplicant_8_license",
         "external_wpa_supplicant_8_hostapd_license",
@@ -25,6 +26,7 @@ license {
     license_kinds: [
         "SPDX-license-identifier-BSD-3-Clause",
         "SPDX-license-identifier-ISC",
+        "legacy_proprietary",
         "legacy_unencumbered",
     ],
 }

@@ -1738,8 +1738,8 @@ endif
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := wpa_cli
-LOCAL_LICENSE_KINDS := SPDX-license-identifier-BSD SPDX-license-identifier-BSD-3-Clause SPDX-license-identifier-ISC legacy_unencumbered
-LOCAL_LICENSE_CONDITIONS := notice unencumbered
+LOCAL_LICENSE_KINDS := SPDX-license-identifier-BSD SPDX-license-identifier-BSD-3-Clause SPDX-license-identifier-ISC legacy_unencumbered legacy_proprietary
+LOCAL_LICENSE_CONDITIONS := notice unencumbered proprietary by_exception_only
 LOCAL_NOTICE_FILE := $(LOCAL_PATH)/../COPYING $(LOCAL_PATH)/../NOTICE
 LOCAL_PROPRIETARY_MODULE := true
 LOCAL_SHARED_LIBRARIES := libc libcutils liblog
@@ -1751,8 +1751,8 @@ include $(BUILD_EXECUTABLE)
 ########################
 include $(CLEAR_VARS)
 LOCAL_MODULE := wpa_supplicant
-LOCAL_LICENSE_KINDS := SPDX-license-identifier-BSD SPDX-license-identifier-BSD-3-Clause SPDX-license-identifier-ISC legacy_unencumbered
-LOCAL_LICENSE_CONDITIONS := notice unencumbered
+LOCAL_LICENSE_KINDS := SPDX-license-identifier-BSD SPDX-license-identifier-BSD-3-Clause SPDX-license-identifier-ISC legacy_unencumbered legacy_proprietary
+LOCAL_LICENSE_CONDITIONS := notice unencumbered proprietary by_exception_only
 LOCAL_NOTICE_FILE := $(LOCAL_PATH)/../COPYING $(LOCAL_PATH)/../NOTICE
 LOCAL_PROPRIETARY_MODULE := true
 LOCAL_MODULE_RELATIVE_PATH := hw
@@ -1828,8 +1828,8 @@ include $(BUILD_EXECUTABLE)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE = libwpa_client
-LOCAL_LICENSE_KINDS := SPDX-license-identifier-BSD SPDX-license-identifier-BSD-3-Clause SPDX-license-identifier-ISC legacy_unencumbered
-LOCAL_LICENSE_CONDITIONS := notice unencumbered
+LOCAL_LICENSE_KINDS := SPDX-license-identifier-BSD SPDX-license-identifier-BSD-3-Clause SPDX-license-identifier-ISC legacy_unencumbered legacy_proprietary
+LOCAL_LICENSE_CONDITIONS := notice unencumbered proprietary by_exception_only
 LOCAL_NOTICE_FILE := $(LOCAL_PATH)/../COPYING $(LOCAL_PATH)/../NOTICE
 LOCAL_PROPRIETARY_MODULE := true
 LOCAL_CFLAGS = $(L_CFLAGS)
@@ -1844,8 +1844,8 @@ ifeq ($(WPA_SUPPLICANT_USE_AIDL), y)
 ########################
 include $(CLEAR_VARS)
 LOCAL_MODULE := libwpa_aidl
-LOCAL_LICENSE_KINDS := SPDX-license-identifier-BSD SPDX-license-identifier-BSD-3-Clause SPDX-license-identifier-ISC legacy_unencumbered
-LOCAL_LICENSE_CONDITIONS := notice unencumbered
+LOCAL_LICENSE_KINDS := SPDX-license-identifier-BSD SPDX-license-identifier-BSD-3-Clause SPDX-license-identifier-ISC legacy_unencumbered legacy_proprietary
+LOCAL_LICENSE_CONDITIONS := notice unencumbered proprietary by_exception_only
 LOCAL_NOTICE_FILE := $(LOCAL_PATH)/../COPYING $(LOCAL_PATH)/../NOTICE
 LOCAL_VENDOR_MODULE := true
 LOCAL_CPPFLAGS := $(L_CPPFLAGS)

@@ -34,6 +34,7 @@ license {
         "SPDX-license-identifier-Unlicense",
         "legacy_by_exception_only", // by exception only
         "legacy_notice",
+        "legacy_proprietary",
         "legacy_unencumbered",
     ],
     license_text: [

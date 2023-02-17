@@ -66,8 +66,8 @@ L_CFLAGS +=  -Wno-unused-parameter -Wno-macro-redefined
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := lib_driver_cmd_bcmdhd_ampak
-LOCAL_LICENSE_KINDS := SPDX-license-identifier-BSD
-LOCAL_LICENSE_CONDITIONS := notice
+LOCAL_LICENSE_KINDS := SPDX-license-identifier-BSD legacy_proprietary
+LOCAL_LICENSE_CONDITIONS := notice proprietary by_exception_only
 LOCAL_NOTICE_FILE := $(LOCAL_PATH)/NOTICE
 LOCAL_SHARED_LIBRARIES := libc libcutils
 LOCAL_CFLAGS := $(L_CFLAGS)

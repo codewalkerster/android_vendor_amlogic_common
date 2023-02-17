@@ -1,3 +1,11 @@
+// *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+//     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+//     DEPENDING ON IT IN YOUR PROJECT. ***
+package {
+    //   legacy_proprietary
+    default_applicable_licenses: ["vendor_amlogic_common_license"],
+}
+
 bootstrap_go_package {
     name: "soong-amlogic_hbbtv",
     pkgPath: "android/soong/vendor/amlogic/common/prebuilt/libhbbtv",

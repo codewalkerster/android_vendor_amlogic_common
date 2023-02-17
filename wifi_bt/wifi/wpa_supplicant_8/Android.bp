@@ -29,6 +29,7 @@ license {
     visibility: [":__subpackages__"],
     license_kinds: [
         "SPDX-license-identifier-BSD",
+        "legacy_proprietary",
     ],
     license_text: [
         "COPYING",
