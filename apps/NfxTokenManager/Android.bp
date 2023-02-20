@@ -1,0 +1,44 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "vendor_amlogic_common_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["vendor_amlogic_common_license"],
+}
+
+bootstrap_go_package {
+    name: "soong-tokenmanager",
+    pkgPath: "android/soong/vendor/amlogic/apps/tokenmanager",
+    deps: [
+        "soong",
+        "soong-android",
+        "soong-cc",
+    ],
+    srcs: [
+        "tokenmanager.go",
+    ],
+    pluginFor: ["soong_build"],
+}
+
+tokenmanager_defaults {
+	name: "tokenmanager_enable"
+}
+
+android_app_import {
+    name: "NfxTokenManager",
+
+    system_ext_specific: true,
+
+    certificate: "platform",
+    dex_preopt: {
+        enabled: false,
+    },
+
+	required: ["libtee-hal"],
+
+    apk: "NfxTokenManager.apk",
+
+	defaults: ["tokenmanager_enable"],
+}
+
