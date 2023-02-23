@@ -52,8 +52,8 @@ LOCAL_MODULE := libbt-sprd_suite
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_CLASS := SHARED_LIBRARIES
 LOCAL_PROPRIETARY_MODULE := true
-LOCAL_LICENSE_KINDS := SPDX-license-identifier-Apache-2.0
-LOCAL_LICENSE_CONDITIONS := notice
+LOCAL_LICENSE_KINDS := SPDX-license-identifier-Apache-2.0 legacy_proprietary
+LOCAL_LICENSE_CONDITIONS := notice proprietary by_exception_only
 LOCAL_NOTICE_FILE := $(LOCAL_PATH)/../../../../../LICENSE
 include $(BUILD_SHARED_LIBRARY)
 

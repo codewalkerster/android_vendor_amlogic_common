@@ -3,8 +3,8 @@ LOCAL_PATH:=$(call my-dir)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := wl
-LOCAL_LICENSE_KINDS := SPDX-license-identifier-Apache-2.0 SPDX-license-identifier-BSD SPDX-license-identifier-FTL SPDX-license-identifier-GPL SPDX-license-identifier-ISC SPDX-license-identifier-LGPL SPDX-license-identifier-LGPL-2.1 SPDX-license-identifier-LGPL-3.0 SPDX-license-identifier-MIT SPDX-license-identifier-OpenSSL SPDX-license-identifier-Zlib legacy_by_exception_only legacy_notice legacy_unencumbered
-LOCAL_LICENSE_CONDITIONS := by_exception_only notice restricted unencumbered
+LOCAL_LICENSE_KINDS := SPDX-license-identifier-Apache-2.0 SPDX-license-identifier-BSD SPDX-license-identifier-FTL SPDX-license-identifier-GPL SPDX-license-identifier-ISC SPDX-license-identifier-LGPL SPDX-license-identifier-LGPL-2.1 SPDX-license-identifier-LGPL-3.0 SPDX-license-identifier-MIT SPDX-license-identifier-OpenSSL SPDX-license-identifier-Zlib legacy_by_exception_only legacy_notice legacy_unencumbered legacy_proprietary
+LOCAL_LICENSE_CONDITIONS := by_exception_only notice restricted unencumbered proprietary by_exception_only
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_CLASS := ETC
 

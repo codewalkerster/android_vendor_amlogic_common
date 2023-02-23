@@ -1147,8 +1147,8 @@ endif
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := hostapd_cli
-LOCAL_LICENSE_KINDS := SPDX-license-identifier-BSD SPDX-license-identifier-BSD-3-Clause SPDX-license-identifier-ISC legacy_unencumbered
-LOCAL_LICENSE_CONDITIONS := notice unencumbered
+LOCAL_LICENSE_KINDS := SPDX-license-identifier-BSD SPDX-license-identifier-BSD-3-Clause SPDX-license-identifier-ISC legacy_unencumbered legacy_proprietary
+LOCAL_LICENSE_CONDITIONS := notice unencumbered proprietary by_exception_only
 LOCAL_NOTICE_FILE := $(LOCAL_PATH)/../COPYING $(LOCAL_PATH)/../NOTICE
 LOCAL_PROPRIETARY_MODULE := true
 LOCAL_SHARED_LIBRARIES := libc libcutils liblog
@@ -1160,8 +1160,8 @@ include $(BUILD_EXECUTABLE)
 ########################
 include $(CLEAR_VARS)
 LOCAL_MODULE := hostapd
-LOCAL_LICENSE_KINDS := SPDX-license-identifier-BSD SPDX-license-identifier-BSD-3-Clause SPDX-license-identifier-ISC legacy_unencumbered
-LOCAL_LICENSE_CONDITIONS := notice unencumbered
+LOCAL_LICENSE_KINDS := SPDX-license-identifier-BSD SPDX-license-identifier-BSD-3-Clause SPDX-license-identifier-ISC legacy_unencumbered legacy_proprietary
+LOCAL_LICENSE_CONDITIONS := notice unencumbered proprietary by_exception_only
 LOCAL_NOTICE_FILE := $(LOCAL_PATH)/../COPYING $(LOCAL_PATH)/../NOTICE
 LOCAL_MODULE_TAGS := optional
 LOCAL_PROPRIETARY_MODULE := true
@@ -1196,8 +1196,8 @@ include $(BUILD_EXECUTABLE)
 ########################
 include $(CLEAR_VARS)
 LOCAL_MODULE := hostapd_noaidl
-LOCAL_LICENSE_KINDS := SPDX-license-identifier-BSD SPDX-license-identifier-BSD-3-Clause SPDX-license-identifier-ISC legacy_unencumbered
-LOCAL_LICENSE_CONDITIONS := notice unencumbered
+LOCAL_LICENSE_KINDS := SPDX-license-identifier-BSD SPDX-license-identifier-BSD-3-Clause SPDX-license-identifier-ISC legacy_unencumbered legacy_proprietary
+LOCAL_LICENSE_CONDITIONS := notice unencumbered proprietary by_exception_only
 LOCAL_NOTICE_FILE := $(LOCAL_PATH)/../COPYING $(LOCAL_PATH)/../NOTICE
 LOCAL_MODULE_TAGS := optional
 LOCAL_PROPRIETARY_MODULE := true
@@ -1225,8 +1225,8 @@ ifeq ($(HOSTAPD_USE_AIDL), y)
 ########################
 include $(CLEAR_VARS)
 LOCAL_MODULE := libhostapd_aidl
-LOCAL_LICENSE_KINDS := SPDX-license-identifier-BSD SPDX-license-identifier-BSD-3-Clause SPDX-license-identifier-ISC legacy_unencumbered
-LOCAL_LICENSE_CONDITIONS := notice unencumbered
+LOCAL_LICENSE_KINDS := SPDX-license-identifier-BSD SPDX-license-identifier-BSD-3-Clause SPDX-license-identifier-ISC legacy_unencumbered legacy_proprietary
+LOCAL_LICENSE_CONDITIONS := notice unencumbered proprietary by_exception_only
 LOCAL_NOTICE_FILE := $(LOCAL_PATH)/../COPYING $(LOCAL_PATH)/../NOTICE
 LOCAL_VENDOR_MODULE := true
 LOCAL_CPPFLAGS := $(L_CPPFLAGS)

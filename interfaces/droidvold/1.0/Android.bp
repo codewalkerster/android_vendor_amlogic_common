@@ -6,6 +6,7 @@ package {
     // all of the 'license_kinds' from "vendor_amlogic_common_license"
     // to get the below license kinds:
     //   SPDX-license-identifier-Apache-2.0
+    //   legacy_proprietary
     default_applicable_licenses: ["vendor_amlogic_common_license"],
 }
 

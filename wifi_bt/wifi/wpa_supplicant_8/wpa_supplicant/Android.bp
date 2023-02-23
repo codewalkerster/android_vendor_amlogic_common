@@ -24,6 +24,7 @@ license {
         "SPDX-license-identifier-BSD",
         "SPDX-license-identifier-BSD-3-Clause",
         "SPDX-license-identifier-ISC",
+        "legacy_proprietary",
         "legacy_unencumbered",
     ],
 }

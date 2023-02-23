@@ -19,8 +19,8 @@ LOCAL_MODULE_TAGS := optional
 LOCAL_PROPRIETARY_MODULE := true
 LOCAL_SHARED_LIBRARIES := libcutils libc
 LOCAL_MODULE := libbt-codec
-LOCAL_LICENSE_KINDS := SPDX-license-identifier-GPL-2.0 SPDX-license-identifier-LGPL
-LOCAL_LICENSE_CONDITIONS := restricted
+LOCAL_LICENSE_KINDS := SPDX-license-identifier-GPL-2.0 SPDX-license-identifier-LGPL legacy_proprietary
+LOCAL_LICENSE_CONDITIONS := restricted proprietary by_exception_only
 #LOCAL_MULTILIB := 32
 
 include $(BUILD_STATIC_LIBRARY)

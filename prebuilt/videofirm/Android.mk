@@ -11,8 +11,8 @@ endif
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := libtee_load_video_fw
-LOCAL_LICENSE_KINDS := SPDX-license-identifier-Apache-2.0 SPDX-license-identifier-BSD SPDX-license-identifier-LGPL legacy_by_exception_only
-LOCAL_LICENSE_CONDITIONS := by_exception_only notice restricted
+LOCAL_LICENSE_KINDS := SPDX-license-identifier-Apache-2.0 SPDX-license-identifier-BSD SPDX-license-identifier-LGPL legacy_by_exception_only legacy_proprietary
+LOCAL_LICENSE_CONDITIONS := by_exception_only notice restricted proprietary by_exception_only
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_SUFFIX := .so
 LOCAL_MULTILIB := both
@@ -27,8 +27,8 @@ include $(BUILD_PREBUILT)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := tee_preload_fw
-LOCAL_LICENSE_KINDS := SPDX-license-identifier-Apache-2.0 SPDX-license-identifier-BSD SPDX-license-identifier-LGPL legacy_by_exception_only
-LOCAL_LICENSE_CONDITIONS := by_exception_only notice restricted
+LOCAL_LICENSE_KINDS := SPDX-license-identifier-Apache-2.0 SPDX-license-identifier-BSD SPDX-license-identifier-LGPL legacy_by_exception_only legacy_proprietary
+LOCAL_LICENSE_CONDITIONS := by_exception_only notice restricted proprietary by_exception_only
 LOCAL_MODULE_CLASS := ETC
 LOCAL_MODULE_PATH_64 := $(OUT_PATH)/bin
 LOCAL_MODULE_PATH_32 := $(OUT_PATH)/bin
@@ -56,8 +56,8 @@ endif
 
 LOCAL_SRC_FILES := $(LOCAL_TA)
 LOCAL_MODULE := $(TA_UUID)
-LOCAL_LICENSE_KINDS := SPDX-license-identifier-Apache-2.0 SPDX-license-identifier-BSD SPDX-license-identifier-LGPL legacy_by_exception_only
-LOCAL_LICENSE_CONDITIONS := by_exception_only notice restricted
+LOCAL_LICENSE_KINDS := SPDX-license-identifier-Apache-2.0 SPDX-license-identifier-BSD SPDX-license-identifier-LGPL legacy_by_exception_only legacy_proprietary
+LOCAL_LICENSE_CONDITIONS := by_exception_only notice restricted proprietary by_exception_only
 LOCAL_MODULE_SUFFIX := $(TA_SUFFIX)
 LOCAL_STRIP_MODULE := false
 LOCAL_MODULE_CLASS := SHARED_LIBRARIES

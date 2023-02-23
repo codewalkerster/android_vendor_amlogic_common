@@ -13,6 +13,7 @@
 // limitations under the License.
 
 package {
+    //   legacy_proprietary
     default_applicable_licenses: [
         "external_wpa_supplicant_8_license",
         "external_wpa_supplicant_8_hostapd_license",

@@ -54,8 +54,8 @@ LOCAL_SRC_FILES := \
 	wifi_offload.cpp
 
 LOCAL_MODULE := libwifi-hal-mt66xx
-LOCAL_LICENSE_KINDS := SPDX-license-identifier-Apache-2.0
-LOCAL_LICENSE_CONDITIONS := notice
+LOCAL_LICENSE_KINDS := SPDX-license-identifier-Apache-2.0 legacy_proprietary
+LOCAL_LICENSE_CONDITIONS := notice proprietary by_exception_only
 LOCAL_PROPRIETARY_MODULE := true
 
 include $(BUILD_STATIC_LIBRARY)
