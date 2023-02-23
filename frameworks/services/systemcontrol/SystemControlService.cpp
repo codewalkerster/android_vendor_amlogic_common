@@ -934,7 +934,7 @@ int SystemControlService::saveColorTemperature(int temp_mode)
 int SystemControlService::setColorTemperatureUserParam(int mode, int isSave, int param_type, int value)
 {
     if (pCPQControl != NULL) {
-        return pCPQControl->SetColorTemperature(mode, isSave, (rgb_ogo_type_t)param_type, value);
+        return pCPQControl->SetColorTemperatureUserParam(mode, isSave, (rgb_ogo_type_t)param_type, value);
     } else {
         return -1;
     }

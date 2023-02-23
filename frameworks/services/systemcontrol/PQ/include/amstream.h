@@ -132,6 +132,10 @@ typedef struct tcon_gamma_table_s {
     unsigned short data[256];
 } tcon_gamma_table_t;
 
+typedef struct _GAMMA_TABLE {
+    unsigned int data[256];
+} GAMMA_TABLE;
+
 typedef struct tcon_rgb_ogo_s {
     unsigned int en;
     int r_pre_offset;  // s11.0, range -1024~+1023, default is 0
@@ -144,6 +148,15 @@ typedef struct tcon_rgb_ogo_s {
     int g_post_offset; // s11.0, range -1024~+1023, default is 0
     int b_post_offset; // s11.0, range -1024~+1023, default is 0
 } tcon_rgb_ogo_t;
+
+typedef struct _RGB_UI_OFFSET {
+    int r_gain_value;
+    int g_gain_value;
+    int b_gain_value;
+    int r_offset_value;
+    int g_offset_value;
+    int b_offset_value;
+} RGB_UI_OFFSET;
 
 typedef struct gm_tbl_s {
     struct tcon_gamma_table_s gm_tb[10][3];

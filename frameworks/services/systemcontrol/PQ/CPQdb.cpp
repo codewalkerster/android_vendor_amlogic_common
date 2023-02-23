@@ -2256,8 +2256,7 @@ int CPQdb::PQ_GetNoiseReductionParams(vpp_noise_reduction_mode_t nr_mode, source
 
     String8 TableName = GetTableName("GeneralNR2Table", source_input_param);
     if ((TableName.string() != NULL) && (TableName.length() != 0) ) {
-        getSqlParams(__FUNCTION__, sqlmaster, "select RegValue from %s where RegAddr = %d and Level = %d;",
-                     TableName.string(), reg_addr, nr_mode);
+		getSqlParams(__FUNCTION__, sqlmaster, "select RegValue from %s where RegAddr = %d and Level = %d;", TableName.string(), reg_addr, nr_mode);
 
         this->select(sqlmaster, c);
         if (c.moveToFirst()) {
@@ -3038,7 +3037,7 @@ int CPQdb::PQ_GetTconGammaTable(int gamma_curve, gm_tbl_t *gamma_value)
 }
 
 int CPQdb::PQ_GetGammaSpecialTable(vpp_gamma_curve_t gamma_curve, const char *f_name,
-                                     tcon_gamma_table_t *gamma_value)
+                                     GAMMA_TABLE *gamma_value)
 {
     CSqlite::Cursor c;
     char sqlmaster[256];
@@ -3064,6 +3063,44 @@ int CPQdb::PQ_GetGammaSpecialTable(vpp_gamma_curve_t gamma_curve, const char *f_
     return rval;
 }
 
+int CPQdb::PQ_GetWhiteBalanceGammaSpecialTable(vpp_color_temperature_mode_t mode, const char *f_name, tcon_gamma_table_t *gamma_value)
+{
+    CSqlite::Cursor c;
+    char sqlmaster[256];
+    int rval = -1;
+
+    switch (mode) {
+    case VPP_COLOR_TEMPERATURE_MODE_COLD:
+        getSqlParams(__FUNCTION__, sqlmaster, "select %s from GAMMA_cool", f_name);
+        break;
+    case VPP_COLOR_TEMPERATURE_MODE_WARM:
+        getSqlParams(__FUNCTION__, sqlmaster, "select %s from GAMMA_warm", f_name);
+        break;
+    case VPP_COLOR_TEMPERATURE_MODE_USER:
+        getSqlParams(__FUNCTION__, sqlmaster, "select %s from GAMMA_user", f_name);
+        break;
+    case VPP_COLOR_TEMPERATURE_MODE_STANDARD:
+        getSqlParams(__FUNCTION__, sqlmaster, "select %s from GAMMA_normal", f_name);
+        break;
+    default:
+        SYS_LOGE("%s: invalid color temperature mode!\n", __FUNCTION__);
+        break;
+    }
+
+    rval = this->select(sqlmaster, c);
+    if (c.moveToFirst()) {
+        int index = 0;
+        do {
+            gamma_value->data[index] = c.getInt(0);
+            index++;
+        } while (c.moveToNext());
+    } else {
+        SYS_LOGE("%s, select %s error!\n", __FUNCTION__, f_name);
+        rval = -1;
+    }
+    return rval;
+}
+									 
 int CPQdb::PQ_GetGammaTableR(int panel_id, source_input_param_t source_input_param, tcon_gamma_table_t *gamma_r)
 {
     return PQ_GetGammaTable(panel_id, source_input_param, "Red", gamma_r);

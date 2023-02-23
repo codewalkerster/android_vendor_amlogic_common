@@ -708,34 +708,11 @@ int CPQControl::LoadPQSettings()
         vpp_picture_mode_t pqmode = (vpp_picture_mode_t)GetPQMode();
         ret |= Cpq_SetPQMode(pqmode, mCurrentSourceInputInfo, PQ_MODE_SWITCH_TYPE_INIT);
 
-        if (mInitialized) {//don't load gamma in device turn on
-            vpp_gamma_curve_t GammaLevel = (vpp_gamma_curve_t)GetGammaValue();
-            ret |= SetGammaValue(GammaLevel, 1);
-        }
-
         vpp_color_basemode_t baseMode = GetColorBaseMode();
         ret |= SetColorBaseMode(baseMode, 1);
 
-        vpp_color_temperature_mode_t temp_mode = (vpp_color_temperature_mode_t)GetColorTemperature();
-        if (mbCpqCfg_whitebalance_enable) {
-            if (temp_mode != VPP_COLOR_TEMPERATURE_MODE_USER) {
-                Cpq_CheckColorTemperatureParamAlldata(mCurrentSourceInputInfo);
-                ret |= SetColorTemperature((int)temp_mode, 1);
-            } else {
-                tcon_rgb_ogo_t param;
-                memset(&param, 0, sizeof(tcon_rgb_ogo_t));
-                if (Cpq_GetColorTemperatureUser(mCurrentSourceInputInfo.source_input, &param) == 0) {
-                    ret |= Cpq_SetColorTemperatureUser(mCurrentSourceInputInfo.source_input, R_GAIN, 1, param.r_gain);
-                    ret |= Cpq_SetColorTemperatureUser(mCurrentSourceInputInfo.source_input, G_GAIN, 1, param.g_gain);
-                    ret |= Cpq_SetColorTemperatureUser(mCurrentSourceInputInfo.source_input, B_GAIN, 1, param.b_gain);
-                    ret |= Cpq_SetColorTemperatureUser(mCurrentSourceInputInfo.source_input, R_POST_OFFSET, 1, param.r_post_offset);
-                    ret |= Cpq_SetColorTemperatureUser(mCurrentSourceInputInfo.source_input, G_POST_OFFSET, 1, param.g_post_offset);
-                    ret |= Cpq_SetColorTemperatureUser(mCurrentSourceInputInfo.source_input, B_POST_OFFSET, 1, param.b_post_offset);
-                }
-            }
-        } else {
-            SYS_LOGD("%s: whitebalance module disabled!\n", __FUNCTION__);
-        }
+		Cpq_CheckColorTemperatureParamAlldata(mCurrentSourceInputInfo);
+        ret |= Cpq_SetColorTemperatureWithoutSave((vpp_color_temperature_mode_t)GetColorTemperature(), mCurrentSourceInputInfo.source_input);
 
         int DnlpLevel = GetDnlpMode();
         ret |= SetDnlpMode(DnlpLevel);
@@ -795,11 +772,6 @@ int CPQControl::LoadPQTableSettings()
 
     vpp_mcdi_mode_t mcdimode =(vpp_mcdi_mode_t)GetMcDiMode();
     ret |= Cpq_SetMcDiMode(mcdimode, mCurrentSourceInputInfo);
-
-    if (mInitialized) {//don't load gamma in device turn on
-        vpp_gamma_curve_t GammaLevel = (vpp_gamma_curve_t)GetGammaValue();
-        ret |= SetGammaValue(GammaLevel, 1);
-    }
 
     vpp_color_basemode_t baseMode = GetColorBaseMode();
     ret |= SetColorBaseMode(baseMode, 1);
@@ -1374,24 +1346,16 @@ int CPQControl::GetPQParams(source_input_param_t source_input_param, vpp_picture
 }
 
 //color temperature
-int CPQControl::SetColorTemperature(int temp_mode, int is_save, rgb_ogo_type_t rgb_ogo_type, int value)
+int CPQControl::SetColorTemperature(int temp_mode, int is_save)
 {
     int ret = -1;
     SYS_LOGI("%s: source:%d, mode: %d\n", __FUNCTION__, mCurrentSourceInputInfo.source_input, temp_mode);
-    if (mbCpqCfg_whitebalance_enable) {
-        if (temp_mode == VPP_COLOR_TEMPERATURE_MODE_USER) {
-            ret = Cpq_SetColorTemperatureUser(mCurrentSourceInputInfo.source_input, rgb_ogo_type, is_save, value);
-        } else {
-            ret = Cpq_SetColorTemperatureWithoutSave((vpp_color_temperature_mode_t)temp_mode, mCurrentSourceInputInfo.source_input);
-        }
 
-        if ((ret == 0) && (is_save == 1)) {
-            ret = SaveColorTemperature((vpp_color_temperature_mode_t)temp_mode);
-        }
-    } else {
-        SYS_LOGD("whitebalance module disabled!\n");
-        ret = 0;
+	if (is_save == 1) {
+        SaveColorTemperature(temp_mode);
     }
+
+    ret = Cpq_SetColorTemperatureWithoutSave((vpp_color_temperature_mode_t)temp_mode, mCurrentSourceInputInfo.source_input);
 
     if (ret < 0) {
         SYS_LOGE("%s failed!\n",__FUNCTION__);
@@ -1425,6 +1389,7 @@ int CPQControl::GetColorTemperature(void)
 
 int CPQControl::SaveColorTemperature(int temp_mode)
 {
+
     int ret = -1;
     SYS_LOGD("%s, source: %d,timming: %d, mode = %d\n", __FUNCTION__, mSourceInputForSaveParam, mCurrentPqSource.pq_sig_fmt, temp_mode);
     if (mbCpqCfg_new_picture_mode_enable) {
@@ -1447,26 +1412,132 @@ int CPQControl::SaveColorTemperature(int temp_mode)
     return ret;
 }
 
-tcon_rgb_ogo_t CPQControl::GetColorTemperatureUserParam(void) {
-    tcon_rgb_ogo_t param;
-    memset(&param, 0, sizeof(tcon_rgb_ogo_t));
-    if (Cpq_GetColorTemperatureUser(mCurrentSourceInputInfo.source_input, &param) < 0) {
+int CPQControl::SetColorTemperatureUserParam(int temp_mode, int is_save, rgb_ogo_type_t rgb_ogo_type, int value)
+{
+    SYS_LOGD("%s: temp_mode:%d, rgb_ogo_type:%d  value %d, is_save: %d\n", __FUNCTION__, temp_mode, rgb_ogo_type, value, is_save);
+
+    if (is_save == 1) {
+        Cpq_SaveColorTemperatureUser((vpp_color_temperature_mode_t)temp_mode, rgb_ogo_type, value);
+    }
+
+    if (CPQ_SetColorTemperatureUserParam((vpp_color_temperature_mode_t)temp_mode, rgb_ogo_type, value) < 0) {
+        SYS_LOGE("%s CPQ_SetColorTemperatureUserParam fail !\n",__FUNCTION__);
+        return -1;
+    }
+
+    return 0;
+}
+
+int CPQControl::CPQ_SetColorTemperatureUserParam(vpp_color_temperature_mode_t temp_mode, rgb_ogo_type_t rgb_ogo_type, int value)
+{
+    //RGB GAIN OFFSET
+    tcon_rgb_ogo_t rgbogo;
+    memset(&rgbogo, 0, sizeof(tcon_rgb_ogo_t));
+    if (GetColorTemperatureParams(temp_mode, &rgbogo) < 0) {
+        SYS_LOGE("%s: GetColorTemperatureParams fail\n", __FUNCTION__);
+        return -1;
+    }
+    rgbogo.en = 1;
+    rgbogo.r_pre_offset = 0;
+    rgbogo.g_pre_offset = 0;
+    rgbogo.b_pre_offset = 0;
+
+    //RGB UI GAIN OFFSET
+    RGB_UI_OFFSET params;
+    memset(&params, 0, sizeof(RGB_UI_OFFSET));
+    if (Cpq_GetColorTemperatureUser(temp_mode, &params) == 0) {
+        rgbogo.r_gain += params.r_gain_value;
+        rgbogo.g_gain += params.g_gain_value;
+        rgbogo.b_gain += params.b_gain_value;
+        rgbogo.r_post_offset += params.r_offset_value;
+        rgbogo.g_post_offset += params.g_offset_value;
+        rgbogo.b_post_offset += params.b_offset_value;
+    }
+
+    if (GetEyeProtectionMode(mCurrentSourceInputInfo.source_input))//if eye protection mode is enable, b_gain / 2.
+        rgbogo.b_gain /= 2;
+
+    SYS_LOGD("%s: rgain:%d ggain:%d bgain:%d roffset:%d goffset:%d boffset:%d\n", __FUNCTION__, 
+                                                                                rgbogo.r_gain, 
+                                                                                rgbogo.g_gain, 
+                                                                                rgbogo.b_gain, 
+                                                                                rgbogo.r_post_offset,
+                                                                                rgbogo.g_post_offset,
+                                                                                rgbogo.b_post_offset);
+
+    return Cpq_SetRGBOGO(&rgbogo);
+}
+
+tcon_rgb_ogo_t CPQControl::GetColorTemperatureUserParam(void)
+{
+    RGB_UI_OFFSET data;
+    memset(&data, 0, sizeof(RGB_UI_OFFSET));
+
+    if (Cpq_GetColorTemperatureUser((vpp_color_temperature_mode_t)GetColorTemperature(), &data) < 0) {
         SYS_LOGE("%s get colortemp user param failed!\n", __FUNCTION__);
     }
+
+    tcon_rgb_ogo_t param;
+    memset(&param, 0, sizeof(tcon_rgb_ogo_t));
+
+    param.en = 1;
+    param.r_pre_offset = 0;
+    param.g_pre_offset = 0;
+    param.b_pre_offset = 0;
+    param.r_gain = data.r_gain_value;
+    param.g_gain = data.g_gain_value;
+    param.b_gain = data.b_gain_value;
+    param.r_post_offset = data.r_offset_value;
+    param.g_post_offset = data.b_offset_value;
+    param.b_post_offset = data.b_offset_value;
+
     return param;
 }
 
 int CPQControl::Cpq_SetColorTemperatureWithoutSave(vpp_color_temperature_mode_t Tempmode, tv_source_input_t tv_source_input __unused)
 {
     SYS_LOGD("%s: Tempmode = %d\n", __FUNCTION__, Tempmode);
+
+    if (!mbCpqCfg_whitebalance_enable) {
+        SYS_LOGD("whitebalance module disabled!\n");
+        return 0;
+    }
+
+    if (mInitialized) {//don't load gamma in device turn on
+        if (Cpq_LoadGamma((vpp_gamma_curve_t)GetGammaValue(), Tempmode) < 0) {
+            SYS_LOGE("%s: Cpq_LoadGamma fail\n", __FUNCTION__);
+        }
+    }
+
+    //RGB GAIN OFFSET
     tcon_rgb_ogo_t rgbogo;
     memset(&rgbogo, 0, sizeof(tcon_rgb_ogo_t));
 
-    GetColorTemperatureParams(Tempmode, &rgbogo);
+    if (GetColorTemperatureParams(Tempmode, &rgbogo) < 0) {
+        SYS_LOGE("%s: GetColorTemperatureParams fail\n", __FUNCTION__);
+        return -1;
+    }
+    rgbogo.en = 1;
+    rgbogo.r_pre_offset = 0;
+    rgbogo.g_pre_offset = 0;
+    rgbogo.b_pre_offset = 0;
+
+    //RGB UI GAIN OFFSET
+    RGB_UI_OFFSET params;
+    memset(&params, 0, sizeof(RGB_UI_OFFSET));
+    if (Cpq_GetColorTemperatureUser(Tempmode, &params) == 0) {
+        rgbogo.r_gain += params.r_gain_value;
+        rgbogo.g_gain += params.g_gain_value;
+        rgbogo.b_gain += params.b_gain_value;
+        rgbogo.r_post_offset += params.r_offset_value;
+        rgbogo.g_post_offset += params.g_offset_value;
+        rgbogo.b_post_offset += params.b_offset_value;
+    }
 
     if (GetEyeProtectionMode(mCurrentSourceInputInfo.source_input))//if eye protection mode is enable, b_gain / 2.
         rgbogo.b_gain /= 2;
 
+    SYS_LOGD("%s: rgain:%d ggain:%d bgain:%d roffset:%d goffset:%d boffset:%d\n", __FUNCTION__,rgbogo.r_gain, rgbogo.g_gain, rgbogo.b_gain, rgbogo.r_post_offset, rgbogo.g_post_offset, rgbogo.b_post_offset);
     return Cpq_SetRGBOGO(&rgbogo);
 }
 
@@ -1536,111 +1607,78 @@ unsigned short CPQControl::Cpq_GetColorTemperatureParamsChecksum(void)
     return usuc.s;
 }
 
-int CPQControl::Cpq_SetColorTemperatureUser(tv_source_input_t source_input, rgb_ogo_type_t rgb_ogo_type, int is_save, int value)
+int CPQControl::Cpq_SetColorTemperatureUser(tv_source_input_t source_input, tcon_rgb_ogo_t *pData)
 {
-    SYS_LOGD("%s: type: %d, value: %u!\n", __FUNCTION__, rgb_ogo_type, value);
-    int ret = -1;
-    tcon_rgb_ogo_t rgbogo;
-    memset(&rgbogo, 0, sizeof(tcon_rgb_ogo_t));
-    ret = Cpq_GetColorTemperatureUser(source_input, &rgbogo);
-
-    switch (rgb_ogo_type)
-    {
-        case R_GAIN:
-            rgbogo.r_gain = (unsigned)value;
-        break;
-        case G_GAIN:
-            rgbogo.g_gain = (unsigned)value;
-        break;
-        case B_GAIN:
-            rgbogo.b_gain = (unsigned)value;
-        break;
-        case R_POST_OFFSET:
-            rgbogo.r_post_offset = value;
-        break;
-        case G_POST_OFFSET:
-            rgbogo.g_post_offset = value;
-        break;
-        case B_POST_OFFSET:
-            rgbogo.b_post_offset = value;
-        break;
-        default:
-            ret = -1;
-        break;
+    if (!mbCpqCfg_whitebalance_enable) {
+        SYS_LOGD("whitebalance module disabled!\n");
+        return 0;
     }
 
     if (GetEyeProtectionMode(source_input) == 1) {
         SYS_LOGD("eye protection mode is enable!\n");
-        rgbogo.b_gain /= 2;
+        pData->b_gain /= 2;
     }
 
-    if (ret != -1) {
-       ret = Cpq_SetRGBOGO(&rgbogo);
+    if (Cpq_SetRGBOGO(pData) < 0) {
+        SYS_LOGE("%s: Cpq_LoadGamma fail\n", __FUNCTION__);
+        return -1;
     }
 
-    if ((ret != -1) && (is_save == 1)) {
-        ret = Cpq_SaveColorTemperatureUser(source_input, rgb_ogo_type, value);
-    }
+    SYS_LOGD("%s success!\n",__FUNCTION__);
 
-    if (ret < 0) {
-        SYS_LOGD("%s failed!\n", __FUNCTION__);
-    } else {
-        SYS_LOGD("%s success!\n", __FUNCTION__);
-    }
-    return ret;
+    return 0;
 }
 
-int CPQControl::Cpq_GetColorTemperatureUser(tv_source_input_t source_input __unused, tcon_rgb_ogo_t* p_tcon_rgb_ogo)
+int CPQControl::Cpq_GetColorTemperatureUser(vpp_color_temperature_mode_t mode, RGB_UI_OFFSET* pData)
 {
     int ret = 0;
-    if (p_tcon_rgb_ogo != NULL) {
-        p_tcon_rgb_ogo->en = 1;
-        p_tcon_rgb_ogo->r_pre_offset = 0;
-        p_tcon_rgb_ogo->g_pre_offset = 0;
-        p_tcon_rgb_ogo->b_pre_offset = 0;
-        ret |= mSSMAction->SSMReadRGBGainRStart(0, &p_tcon_rgb_ogo->r_gain);
-        ret |= mSSMAction->SSMReadRGBGainGStart(0, &p_tcon_rgb_ogo->g_gain);
-        ret |= mSSMAction->SSMReadRGBGainBStart(0, &p_tcon_rgb_ogo->b_gain);
-        ret |= mSSMAction->SSMReadRGBPostOffsetRStart(0, &p_tcon_rgb_ogo->r_post_offset);
-        ret |= mSSMAction->SSMReadRGBPostOffsetGStart(0, &p_tcon_rgb_ogo->g_post_offset);
-        ret |= mSSMAction->SSMReadRGBPostOffsetBStart(0, &p_tcon_rgb_ogo->b_post_offset);
-    } else {
-        SYS_LOGD("%s: buf is null!\n", __FUNCTION__);
-        ret = -1;
-    }
+    int offset = mode * sizeof(int);
+    ret |= mSSMAction->SSMReadRGBGainRStart(offset, &pData->r_gain_value);
+    ret |= mSSMAction->SSMReadRGBGainGStart(offset, &pData->g_gain_value);
+    ret |= mSSMAction->SSMReadRGBGainBStart(offset, &pData->b_gain_value);
+    ret |= mSSMAction->SSMReadRGBPostOffsetRStart(offset, &pData->r_offset_value);
+    ret |= mSSMAction->SSMReadRGBPostOffsetGStart(offset, &pData->g_offset_value);
+    ret |= mSSMAction->SSMReadRGBPostOffsetBStart(offset, &pData->b_offset_value);
+
+    SYS_LOGD("%s mode: %d, offset: %d RG:%d, GG:%d, BG:%d, RO:%d, GO:%d, BO:%d\n", __FUNCTION__, mode, offset,
+                                                                           pData->r_gain_value,
+                                                                           pData->g_gain_value,
+                                                                           pData->b_gain_value,
+                                                                           pData->r_offset_value,
+                                                                           pData->g_offset_value,
+                                                                           pData->b_offset_value);
 
     if (ret < 0) {
-        SYS_LOGD("%s failed!\n", __FUNCTION__);
+        SYS_LOGE("%s failed!\n", __FUNCTION__);
         ret = -1;
     }
 
     return ret;
 }
 
-int CPQControl::Cpq_SaveColorTemperatureUser(tv_source_input_t source_input __unused, rgb_ogo_type_t rgb_ogo_type, int value)
+int CPQControl::Cpq_SaveColorTemperatureUser(vpp_color_temperature_mode_t mode, rgb_ogo_type_t rgb_ogo_type, int value)
 {
-    SYS_LOGD("%s: rgb_ogo_type[%d]:[%d]", __FUNCTION__, rgb_ogo_type, value);
-
     int ret = 0;
+    int offset = mode * sizeof(int);
     switch (rgb_ogo_type)
     {
         case R_GAIN:
-            ret |= mSSMAction->SSMSaveRGBGainRStart(0, (unsigned)value);
+            ret |= mSSMAction->SSMSaveRGBGainRStart(offset, value);
         break;
         case G_GAIN:
-            ret |= mSSMAction->SSMSaveRGBGainGStart(0, (unsigned)value);
+            ret |= mSSMAction->SSMSaveRGBGainGStart(offset, value);
         break;
         case B_GAIN:
-            ret |= mSSMAction->SSMSaveRGBGainBStart(0, (unsigned)value);
+            ret |= mSSMAction->SSMSaveRGBGainBStart(offset, value);
         break;
         case R_POST_OFFSET:
-            ret |= mSSMAction->SSMSaveRGBPostOffsetRStart(0, value);
+            ret |= mSSMAction->SSMSaveRGBPostOffsetRStart(offset, value);
         break;
         case G_POST_OFFSET:
-            ret |= mSSMAction->SSMSaveRGBPostOffsetGStart(0, value);
+            ret |= mSSMAction->SSMSaveRGBPostOffsetGStart(offset, value);
         break;
         case B_POST_OFFSET:
-            ret |= mSSMAction->SSMSaveRGBPostOffsetBStart(0, value);
+            ret |= mSSMAction->SSMSaveRGBPostOffsetBStart((int)mode, value);
         break;
         default:
             ret = -1;
@@ -1648,20 +1686,21 @@ int CPQControl::Cpq_SaveColorTemperatureUser(tv_source_input_t source_input __un
     }
 
     if (ret < 0) {
-        SYS_LOGE("%s failed!\n", __FUNCTION__);
+        SYS_LOGE("%s rgb_ogo_type[%d]:[%d] failed!\n", __FUNCTION__, rgb_ogo_type, value);
     } else {
-        SYS_LOGD("%s success!\n", __FUNCTION__);
+        SYS_LOGD("%s rgb_ogo_type[%d]:[%d] success!\n", __FUNCTION__, rgb_ogo_type, value);
     }
 
     return ret;
 }
+
 
 int CPQControl::Cpq_RestoreColorTemperatureParamsFromDB(source_input_param_t source_input_param)
 {
     int i = 0;
     tcon_rgb_ogo_t rgbogo;
 
-    for (i = 0; i < 3; i++) {
+    for (i = VPP_COLOR_TEMPERATURE_MODE_STANDARD; i < VPP_COLOR_TEMPERATURE_MODE_MAX; i++) {
         mPQdb->PQ_GetColorTemperatureParams((vpp_color_temperature_mode_t) i, source_input_param, &rgbogo);
         SaveColorTemperatureParams((vpp_color_temperature_mode_t) i, rgbogo);
     }
@@ -1803,9 +1842,37 @@ int CPQControl::GetColorTemperatureParams(vpp_color_temperature_mode_t Tempmode,
 
         ret |= mSSMAction->SSMReadRGBOGOValue(58, 2, suc.c);
         params->b_post_offset = suc.s;
+    }else if (VPP_COLOR_TEMPERATURE_MODE_USER == Tempmode) {
+        ret |= mSSMAction->SSMReadRGBOGOValue(60, 2, usuc.c);
+        params->en = usuc.s;
+
+        ret |= mSSMAction->SSMReadRGBOGOValue(62, 2, suc.c);
+        params->r_pre_offset = suc.s;
+
+        ret |= mSSMAction->SSMReadRGBOGOValue(64, 2, suc.c);
+        params->g_pre_offset = suc.s;
+
+        ret |= mSSMAction->SSMReadRGBOGOValue(66, 2, suc.c);
+        params->b_pre_offset = suc.s;
+
+        ret |= mSSMAction->SSMReadRGBOGOValue(68, 2, usuc.c);
+        params->r_gain = usuc.s;
+        ret |= mSSMAction->SSMReadRGBOGOValue(70, 2, usuc.c);
+        params->g_gain = usuc.s;
+
+        ret |= mSSMAction->SSMReadRGBOGOValue(72, 2, usuc.c);
+        params->b_gain = usuc.s;
+        ret |= mSSMAction->SSMReadRGBOGOValue(74, 2, suc.c);
+        params->r_post_offset = suc.s;
+
+        ret |= mSSMAction->SSMReadRGBOGOValue(76, 2, suc.c);
+        params->g_post_offset = suc.s;
+
+        ret |= mSSMAction->SSMReadRGBOGOValue(78, 2, suc.c);
+        params->b_post_offset = suc.s;
     }
 
-    SYS_LOGD("%s, rgain[%d], ggain[%d],bgain[%d],roffset[%d],goffset[%d],boffset[%d]\n", __FUNCTION__,
+    SYS_LOGD("%s, Tempmode:%d rgain[%d], ggain[%d],bgain[%d],roffset[%d],goffset[%d],boffset[%d]\n", __FUNCTION__, Tempmode,
          params->r_gain, params->g_gain, params->b_gain, params->r_post_offset,
          params->g_post_offset, params->b_post_offset);
 
@@ -1907,9 +1974,39 @@ int CPQControl::SaveColorTemperatureParams(vpp_color_temperature_mode_t Tempmode
 
         suc.s = params.b_post_offset;
         ret |= mSSMAction->SSMSaveRGBOGOValue(58, 2, suc.c);
+    }else if (VPP_COLOR_TEMPERATURE_MODE_USER == Tempmode) {
+        usuc.s = params.en;
+        ret |= mSSMAction->SSMSaveRGBOGOValue(60, 2, usuc.c);
+        
+        suc.s = params.r_pre_offset;
+        ret |= mSSMAction->SSMSaveRGBOGOValue(62, 2, suc.c);
+        
+        suc.s = params.g_pre_offset;
+        ret |= mSSMAction->SSMSaveRGBOGOValue(64, 2, suc.c);
+        
+        suc.s = params.b_pre_offset;
+        ret |= mSSMAction->SSMSaveRGBOGOValue(66, 2, suc.c);
+        
+        usuc.s = params.r_gain;
+        ret |= mSSMAction->SSMSaveRGBOGOValue(68, 2, usuc.c);
+        
+        usuc.s = params.g_gain;
+        ret |= mSSMAction->SSMSaveRGBOGOValue(70, 2, usuc.c);
+        
+        usuc.s = params.b_gain;
+        ret |= mSSMAction->SSMSaveRGBOGOValue(72, 2, usuc.c);
+        
+        suc.s = params.r_post_offset;
+        ret |= mSSMAction->SSMSaveRGBOGOValue(74, 2, suc.c);
+        
+        suc.s = params.g_post_offset;
+        ret |= mSSMAction->SSMSaveRGBOGOValue(76, 2, suc.c);
+        
+        suc.s = params.b_post_offset;
+        ret |= mSSMAction->SSMSaveRGBOGOValue(78, 2, suc.c);
     }
 
-    SYS_LOGD("%s, rgain[%d], ggain[%d],bgain[%d],roffset[%d],goffset[%d],boffset[%d]\n", __FUNCTION__,
+    SYS_LOGD("%s, Tempmode:%d rgain[%d], ggain[%d],bgain[%d],roffset[%d],goffset[%d],boffset[%d]\n", __FUNCTION__, Tempmode,
          params.r_gain, params.g_gain, params.b_gain, params.r_post_offset,
          params.g_post_offset, params.b_post_offset);
     return ret;
@@ -1920,7 +2017,7 @@ int CPQControl::Cpq_CheckColorTemperatureParams(void)
     int i = 0;
     tcon_rgb_ogo_t rgbogo;
     memset (&rgbogo, 0, sizeof (rgbogo));
-    for (i = 0; i < 3; i++) {
+    for (i = VPP_COLOR_TEMPERATURE_MODE_STANDARD; i < VPP_COLOR_TEMPERATURE_MODE_MAX; i++) {
         GetColorTemperatureParams((vpp_color_temperature_mode_t) i, &rgbogo);
 
         if (rgbogo.r_gain > 2047 || rgbogo.b_gain > 2047 || rgbogo.g_gain > 2047) {
@@ -2872,14 +2969,11 @@ int CPQControl::SetGammaValue(vpp_gamma_curve_t gamma_curve, int is_save)
 {
     SYS_LOGD("%s, source: %d, value = %d\n", __FUNCTION__, mSourceInputForSaveParam, gamma_curve);
     int ret = -1;
-    if (mbCpqCfg_gamma_enable) {
-        ret = Cpq_LoadGamma(gamma_curve);
-        if ((ret == 0) && (is_save == 1)) {
-            ret = mSSMAction->SSMSaveGammaValue(mSourceInputForSaveParam, gamma_curve);
-        }
-    } else {
-        SYS_LOGD("Gamma module disabled!\n");
-        ret = 0;
+
+    ret = Cpq_LoadGamma(gamma_curve, (vpp_color_temperature_mode_t)GetColorTemperature());
+
+    if ((ret == 0) && (is_save == 1)) {
+        ret = mSSMAction->SSMSaveGammaValue(mSourceInputForSaveParam, gamma_curve);    
     }
 
     if (ret < 0) {
@@ -2902,7 +2996,7 @@ int CPQControl::GetGammaValue()
     return gammaValue;
 }
 
-int CPQControl::Cpq_LoadGamma(vpp_gamma_curve_t gamma_curve)
+/*int CPQControl::Cpq_LoadGamma(vpp_gamma_curve_t gamma_curve)
 {
     int ret = 0;
     tcon_gamma_table_t gamma_r, gamma_g, gamma_b;
@@ -2920,6 +3014,80 @@ int CPQControl::Cpq_LoadGamma(vpp_gamma_curve_t gamma_curve)
     }
 
     return ret;
+}*/
+
+int CPQControl::Cpq_LoadGamma(vpp_gamma_curve_t gamma_curve, vpp_color_temperature_mode_t colortemp_mode)
+{
+    if (!mbCpqCfg_gamma_enable) {
+        SYS_LOGD("Gamma module disabled!\n");
+        return 0;
+    }
+
+    if (gamma_curve <= VPP_GAMMA_CURVE_DEFAULT || gamma_curve > VPP_GAMMA_CURVE_MAX) {
+        SYS_LOGD("Gamma index out of range, as gamma disabled!\n");
+        return 0;
+    }
+
+    int ret = 0;
+    //gamma curve
+    GAMMA_TABLE gamma_r, gamma_g, gamma_b;
+    ret |= mPQdb->PQ_GetGammaSpecialTable(gamma_curve, "Red", &gamma_r);
+    ret |= mPQdb->PQ_GetGammaSpecialTable(gamma_curve, "Green", &gamma_g);
+    ret |= mPQdb->PQ_GetGammaSpecialTable(gamma_curve, "Blue", &gamma_b);
+    if (ret < 0) {
+        SYS_LOGE("%s: get PQ_GetGammaSpecialTable fail\n", __FUNCTION__);
+        return -1;
+    }
+
+    //colortemp gamma curve
+    tcon_gamma_table_t WB_GAMMA_R, WB_GAMMA_G, WB_GAMMA_B;
+    ret |= mPQdb->PQ_GetWhiteBalanceGammaSpecialTable(colortemp_mode, "Red", &WB_GAMMA_R);
+    ret |= mPQdb->PQ_GetWhiteBalanceGammaSpecialTable(colortemp_mode, "Green", &WB_GAMMA_G);
+    ret |= mPQdb->PQ_GetWhiteBalanceGammaSpecialTable(colortemp_mode, "Blue", &WB_GAMMA_B);
+    if (ret < 0) {
+        SYS_LOGE("%s: get PQ_GetWhiteBalanceGammaSpecialTable fail\n", __FUNCTION__);
+        return -1;
+    }
+
+    //blend gamma
+    tcon_gamma_table_t blend_gamma_r, blend_gamma_g, blend_gamma_b;
+    DBGammaBlend(&WB_GAMMA_R, &gamma_r, &blend_gamma_r);
+    DBGammaBlend(&WB_GAMMA_G, &gamma_g, &blend_gamma_g);
+    DBGammaBlend(&WB_GAMMA_B, &gamma_b, &blend_gamma_b);
+
+    // set final gamma to driver
+    ret |= Cpq_SetGammaTbl_R(blend_gamma_r.data);
+    ret |= Cpq_SetGammaTbl_G(blend_gamma_g.data);
+    ret |= Cpq_SetGammaTbl_B(blend_gamma_b.data);
+    if (ret < 0) {
+        SYS_LOGE("%s: Cpq_SetGammaTbl fail\n", __FUNCTION__);
+        return -1;
+    }
+
+    return ret;
+}
+
+int CPQControl::DBGammaBlend(tcon_gamma_table_t *wb_gamma, GAMMA_TABLE *index_gamma, tcon_gamma_table_t *target_gamma)
+{
+    unsigned int i, final_value;
+    unsigned int blend_alp, blend_bet;
+    for(i = 1; i < 255; i++) {
+        blend_alp = index_gamma->data[i] / 1000;
+        blend_bet = index_gamma->data[i] % 1000;
+        if (blend_alp > 255) {
+            SYS_LOGD("%s, blend_gamma->data[i] = %d\n", __FUNCTION__, i, index_gamma->data[i]);
+            SYS_LOGD("%s, blend_alp = %d\n", __FUNCTION__, blend_alp);
+            SYS_LOGD("%s, blend_bet = %d\n", __FUNCTION__, blend_bet);
+            continue;
+        }
+        final_value = wb_gamma->data[blend_alp] + (wb_gamma->data[blend_alp + 1] - wb_gamma->data[blend_alp]) * (blend_bet / 1000);
+        target_gamma->data[i] = (unsigned short)final_value;
+    }
+
+    target_gamma->data[0] = wb_gamma->data[0];
+    target_gamma->data[255] = wb_gamma->data[255];
+
+    return 0;
 }
 
 int CPQControl::Cpq_SetGammaTbl_R(unsigned short red[256])
@@ -6961,10 +7129,18 @@ int CPQControl::SetEyeProtectionMode(tv_source_input_t source_input __unused, in
     vpp_color_temperature_mode_t TempMode = (vpp_color_temperature_mode_t)GetColorTemperature();
     tcon_rgb_ogo_t param;
     memset(&param, 0, sizeof(tcon_rgb_ogo_t));
-    if (TempMode == VPP_COLOR_TEMPERATURE_MODE_USER) {
-        ret = Cpq_GetColorTemperatureUser(mCurrentSourceInputInfo.source_input, &param);
-    } else {
-        ret = GetColorTemperatureParams(TempMode, &param);
+	ret = GetColorTemperatureParams(TempMode, &param);
+
+    //RGB UI GAIN OFFSET
+    RGB_UI_OFFSET params;
+    memset(&params, 0, sizeof(RGB_UI_OFFSET));
+    if (Cpq_GetColorTemperatureUser(TempMode, &params) == 0) {
+        param.r_gain += params.r_gain_value;
+        param.g_gain += params.g_gain_value;
+        param.b_gain += params.b_gain_value;
+        param.r_post_offset += params.r_offset_value;
+        param.g_post_offset += params.g_offset_value;
+        param.b_post_offset += params.b_offset_value;
     }
 
     if (ret < 0) {
@@ -9145,25 +9321,28 @@ void CPQControl::resetPQUiSetting(void)
             }
         }
     }
+    
+    for (int i = VPP_COLOR_TEMPERATURE_MODE_STANDARD; i < VPP_COLOR_TEMPERATURE_MODE_MAX; i++) {
+        //user colortemp offset
+        int offset = i * sizeof(int);
+        config_val = mPQConfigFile->GetInt(CFG_SECTION_PQ, CFG_RGBGAIN_R_DEF, 0);
+        mSSMAction->SSMSaveRGBGainRStart(offset, 0);
 
-    //user colortemp
-    config_val = mPQConfigFile->GetInt(CFG_SECTION_PQ, CFG_RGBGAIN_R_DEF, 0);
-    mSSMAction->SSMSaveRGBGainRStart(0, config_val);
+        config_val = mPQConfigFile->GetInt(CFG_SECTION_PQ, CFG_RGBGAIN_G_DEF, 0);
+        mSSMAction->SSMSaveRGBGainGStart(offset, 0);
 
-    config_val = mPQConfigFile->GetInt(CFG_SECTION_PQ, CFG_RGBGAIN_G_DEF, 0);
-    mSSMAction->SSMSaveRGBGainGStart(0, config_val);
+        config_val = mPQConfigFile->GetInt(CFG_SECTION_PQ, CFG_RGBGAIN_B_DEF, 0);
+        mSSMAction->SSMSaveRGBGainBStart(offset, 0);
 
-    config_val = mPQConfigFile->GetInt(CFG_SECTION_PQ, CFG_RGBGAIN_B_DEF, 0);
-    mSSMAction->SSMSaveRGBGainBStart(0, config_val);
+        config_val = mPQConfigFile->GetInt(CFG_SECTION_PQ, CFG_RGBPOSTOFFSET_R_DEF_DEF, 0);
+        mSSMAction->SSMSaveRGBPostOffsetRStart(offset, 0);
 
-    config_val = mPQConfigFile->GetInt(CFG_SECTION_PQ, CFG_RGBPOSTOFFSET_R_DEF_DEF, 1024);
-    mSSMAction->SSMSaveRGBPostOffsetRStart(0, config_val);
+        config_val = mPQConfigFile->GetInt(CFG_SECTION_PQ, CFG_RGBPOSTOFFSET_G_DEF_DEF, 0);
+        mSSMAction->SSMSaveRGBPostOffsetGStart(offset, 0);
 
-    config_val = mPQConfigFile->GetInt(CFG_SECTION_PQ, CFG_RGBPOSTOFFSET_G_DEF_DEF, 1024);
-    mSSMAction->SSMSaveRGBPostOffsetGStart(0, config_val);
-
-    config_val = mPQConfigFile->GetInt(CFG_SECTION_PQ, CFG_RGBPOSTOFFSET_B_DEF_DEF, 1024);
-    mSSMAction->SSMSaveRGBPostOffsetBStart(0, config_val);
+        config_val = mPQConfigFile->GetInt(CFG_SECTION_PQ, CFG_RGBPOSTOFFSET_B_DEF_DEF, 0);
+        mSSMAction->SSMSaveRGBPostOffsetBStart(offset, 0);
+    }
 
     return;
 }
@@ -9174,8 +9353,9 @@ void CPQControl::resetPQTableSetting(void)
     const char *buf = NULL;
 
     for (i = SOURCE_TV; i < SOURCE_MAX; i++) {
-        config_val = mPQConfigFile->GetInt(CFG_SECTION_PQ, CFG_GAMMALEVEL_DEF, VPP_GAMMA_CURVE_DEFAULT);
-        mSSMAction->SSMSaveGammaValue(i, config_val);
+
+		config_val = mPQConfigFile->GetInt(CFG_SECTION_PQ, CFG_GAMMALEVEL_DEF, VPP_GAMMA_CURVE_6);
+        mSSMAction->SSMSaveGammaValue(i, VPP_GAMMA_CURVE_6);
 
         config_val = mPQConfigFile->GetInt(CFG_SECTION_PQ, CFG_MCDI_DEF, VPP_MCDI_MODE_STANDARD);
         mSSMAction->SSMSaveMcDiMode(i, config_val);
@@ -9332,8 +9512,7 @@ int CPQControl::GetPictureModeData(pq_src_param_t pq_source_input, vpp_picture_m
     return ret;
 }
 
-int CPQControl::Set_PictureMode(vpp_picture_mode_t pq_mode, pq_src_param_t source_input_param,
-                                   pq_mode_switch_type_t switch_type)
+int CPQControl::Set_PictureMode(vpp_picture_mode_t pq_mode, pq_src_param_t source_input_param, pq_mode_switch_type_t switch_type)
 {
     int ret = -1;
     vpp_pictur_mode_para_t pq_para;
@@ -9367,26 +9546,10 @@ int CPQControl::Set_PictureMode(vpp_picture_mode_t pq_mode, pq_src_param_t sourc
         if (pq_para.DvDarkDetail >= 0) {
             ret |= Cpq_SetDolbyDarkDetail(pq_para.DvDarkDetail);
         }
-        //colortemp
-        if (mbCpqCfg_whitebalance_enable) {
-            if (pq_para.ColorTemperature != VPP_COLOR_TEMPERATURE_MODE_USER) {
-                Cpq_CheckColorTemperatureParamAlldata(mCurrentSourceInputInfo);
-                ret |= Cpq_SetColorTemperatureWithoutSave((vpp_color_temperature_mode_t)pq_para.ColorTemperature, mSourceInputForSaveParam);
-            } else {
-                tcon_rgb_ogo_t param;
-                memset(&param, 0, sizeof(tcon_rgb_ogo_t));
-                if (Cpq_GetColorTemperatureUser(mCurrentSourceInputInfo.source_input, &param) == 0) {
-                    ret |= Cpq_SetColorTemperatureUser(mCurrentSourceInputInfo.source_input, R_GAIN, 1, param.r_gain);
-                    ret |= Cpq_SetColorTemperatureUser(mCurrentSourceInputInfo.source_input, G_GAIN, 1, param.g_gain);
-                    ret |= Cpq_SetColorTemperatureUser(mCurrentSourceInputInfo.source_input, B_GAIN, 1, param.b_gain);
-                    ret |= Cpq_SetColorTemperatureUser(mCurrentSourceInputInfo.source_input, R_POST_OFFSET, 1, param.r_post_offset);
-                    ret |= Cpq_SetColorTemperatureUser(mCurrentSourceInputInfo.source_input, G_POST_OFFSET, 1, param.g_post_offset);
-                    ret |= Cpq_SetColorTemperatureUser(mCurrentSourceInputInfo.source_input, B_POST_OFFSET, 1, param.b_post_offset);
-                }
-            }
-        } else {
-            SYS_LOGD("%s: whitebalance module disabled!\n", __FUNCTION__);
-        }
+
+		//colortemp
+        Cpq_CheckColorTemperatureParamAlldata(mCurrentSourceInputInfo);
+        ret |= Cpq_SetColorTemperatureWithoutSave((vpp_color_temperature_mode_t)pq_para.ColorTemperature, mCurrentSourceInputInfo.source_input);
 
     }
 

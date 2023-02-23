@@ -416,13 +416,13 @@ int SSMAction::SSMReadColorBaseMode(unsigned char *rw_val)
     return ret;
 }
 
-int SSMAction::SSMSaveRGBGainRStart(int offset, unsigned int rw_val)
+int SSMAction::SSMSaveRGBGainRStart(int offset, int rw_val)
 {
     int tmp_val = rw_val;
     return SSMWriteNTypes(VPP_DATA_POS_RGB_GAIN_R_START, 4, &tmp_val, offset);
 }
 
-int SSMAction::SSMReadRGBGainRStart(int offset, unsigned int *rw_val)
+int SSMAction::SSMReadRGBGainRStart(int offset, int *rw_val)
 {
     int tmp_val = 0;
     int ret = 0;
@@ -433,13 +433,13 @@ int SSMAction::SSMReadRGBGainRStart(int offset, unsigned int *rw_val)
     return ret;
 }
 
-int SSMAction::SSMSaveRGBGainGStart(int offset, unsigned int rw_val)
+int SSMAction::SSMSaveRGBGainGStart(int offset, int rw_val)
 {
     int tmp_val = rw_val;
     return SSMWriteNTypes(VPP_DATA_POS_RGB_GAIN_G_START, 4, &tmp_val, offset);
 }
 
-int SSMAction::SSMReadRGBGainGStart(int offset, unsigned int *rw_val)
+int SSMAction::SSMReadRGBGainGStart(int offset, int *rw_val)
 {
     int tmp_val = 0;
     int ret = 0;
@@ -449,13 +449,13 @@ int SSMAction::SSMReadRGBGainGStart(int offset, unsigned int *rw_val)
     return ret;
 }
 
-int SSMAction::SSMSaveRGBGainBStart(int offset, unsigned int rw_val)
+int SSMAction::SSMSaveRGBGainBStart(int offset, int rw_val)
 {
     int tmp_val = rw_val;
     return SSMWriteNTypes(VPP_DATA_POS_RGB_GAIN_B_START, 4, &tmp_val, offset);
 }
 
-int SSMAction::SSMReadRGBGainBStart(int offset, unsigned int *rw_val)
+int SSMAction::SSMReadRGBGainBStart(int offset, int *rw_val)
 {
     int tmp_val = 0;
     int ret = 0;

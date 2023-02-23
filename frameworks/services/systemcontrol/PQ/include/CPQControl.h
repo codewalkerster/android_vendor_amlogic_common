@@ -235,18 +235,20 @@ public:
     int SetFacColorParams(source_input_param_t source_input_param, vpp_picture_mode_t pqMode);
 
     //color Temperature
-    int SetColorTemperature(int temp_mode, int is_save, rgb_ogo_type_t rgb_ogo_type = TYPE_INVALID, int value = -1);
+    int SetColorTemperature(int temp_mode, int is_save);
     int GetColorTemperature(void);
     int SaveColorTemperature(int temp_mode);
-    tcon_rgb_ogo_t GetColorTemperatureUserParam(void);
+	int SetColorTemperatureUserParam(int temp_mode, int is_save, rgb_ogo_type_t rgb_ogo_type = TYPE_INVALID, int value = -1);
+	tcon_rgb_ogo_t GetColorTemperatureUserParam(void);
     int Cpq_SetColorTemperatureWithoutSave(vpp_color_temperature_mode_t Tempmode, tv_source_input_t tv_source_input __unused);
     int Cpq_CheckColorTemperatureParamAlldata(source_input_param_t source_input_param);
     unsigned short Cpq_CalColorTemperatureParamsChecksum(void);
     int Cpq_SetColorTemperatureParamsChecksum(void);
     unsigned short Cpq_GetColorTemperatureParamsChecksum(void);
-    int Cpq_SetColorTemperatureUser(tv_source_input_t source_input, rgb_ogo_type_t rgb_ogo_type, int is_save, int value);
-    int Cpq_GetColorTemperatureUser(tv_source_input_t source_input, tcon_rgb_ogo_t *p_tcon_rgb_ogo);
-    int Cpq_SaveColorTemperatureUser(tv_source_input_t source_input, rgb_ogo_type_t rgb_ogo_type, int value);
+    int Cpq_SetColorTemperatureUser(tv_source_input_t source_input, tcon_rgb_ogo_t *pData);
+    int Cpq_GetColorTemperatureUser(vpp_color_temperature_mode_t mode, RGB_UI_OFFSET* pData);
+    int Cpq_SaveColorTemperatureUser(vpp_color_temperature_mode_t mode, rgb_ogo_type_t rgb_ogo_type, int value);
+    int CPQ_SetColorTemperatureUserParam(vpp_color_temperature_mode_t temp_mode, rgb_ogo_type_t rgb_ogo_type, int value);
     int Cpq_RestoreColorTemperatureParamsFromDB(source_input_param_t source_input_param);
     int Cpq_CheckTemperatureDataLabel(void);
     int Cpq_SetTemperatureDataLabel(void);
@@ -444,7 +446,8 @@ public:
     int Cpq_SetColorBaseMode(vpp_color_basemode_t basemode, source_input_param_t source_input_param);
     int Cpq_SetRGBOGO(const struct tcon_rgb_ogo_s *rgbogo);
     int Cpq_GetRGBOGO(const struct tcon_rgb_ogo_s *rgbogo);
-    int Cpq_LoadGamma(vpp_gamma_curve_t gamma_curve);
+    int Cpq_LoadGamma(vpp_gamma_curve_t gamma_curve, vpp_color_temperature_mode_t colortemp_mode);
+    int DBGammaBlend(tcon_gamma_table_t *wb_gamma, GAMMA_TABLE *index_gamma, tcon_gamma_table_t *target_gamma);
     int Cpq_SetGammaTbl_R(unsigned short red[256]);
     int Cpq_SetGammaTbl_G(unsigned short green[256]);
     int Cpq_SetGammaTbl_B(unsigned short blue[256]);
