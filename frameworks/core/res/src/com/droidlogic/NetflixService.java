@@ -14,6 +14,7 @@ import android.app.ActivityManager;
 import android.app.IActivityManager;
 import android.app.IProcessObserver;
 import android.app.Service;
+import android.hardware.hdmi.HdmiControlManager;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.ComponentName;
@@ -70,6 +71,9 @@ public class NetflixService extends Service {
     private static final String EXTRA_PACKAGE_NAME = "launchPackageName";
     private static final String EXTRA_LAUNCH_INTENT = "launchIntent";
     private static final String NETFLIX_INTENT = "com.netflix.action.NETFLIX_KEY_START";
+     // Power State Change on Active Source Lost Settings values
+    private static final String LOST_NONE = "none";
+    private static final String LOST_STANDBY_NOW = "standby_now";
     private static final int WAKEUP_REASON_CUSTOM = 9;
     private static boolean atmosSupported = false;
     private static boolean doblySupported = false;
@@ -80,6 +84,7 @@ public class NetflixService extends Service {
     private Context mContext;
     private SystemControlManager mSCM;
     private AudioManager mAudioManager;
+    private HdmiControlManager mHdmiControlManager;
     private SettingsObserver mSettingsObserver;
     private OutputModeManager mOutputModeManager = null;
     private final Object mLock = new Object();
@@ -181,6 +186,7 @@ public class NetflixService extends Service {
         mSCM = SystemControlManager.getInstance();
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         mOutputModeManager = OutputModeManager.getInstance(mContext);
+        mHdmiControlManager = (HdmiControlManager)mContext.getSystemService(Context.HDMI_CONTROL_SERVICE);
 
         String buildDate = PlatformAPI.getStringProperty("ro.build.version.incremental", "");
         boolean needUpdate = !buildDate.equals(SettingsPref.getSavedBuildDate(mContext));
@@ -454,6 +460,7 @@ public class NetflixService extends Service {
 
                     mAudioManager.setParameters("continuous_audio_mode=" + (fg ? "1" : "0"));
                     mSCM.setProperty("vendor.netflix.state", fg ? "fg" : "bg");
+                    mHdmiControlManager.setPowerStateChangeOnActiveSourceLost(fg ? LOST_NONE : LOST_STANDBY_NOW);
                 }
 
                 boolean fgYoutube = isVisibleApp(YOUTUBE_PKG_NAME);
