@@ -492,9 +492,12 @@ public class AudioSystemCmdService extends Service {
                 if (DroidLogicUtils.getAudioDebugEnable()) {
                     Log.d(TAG, "demuxid"+param3+",mOpenStatus="+mOpenStatus.get(mDemuxIds.indexOf(param3))+"mMuteStatus"+mMuteStatus.get(mDemuxIds.indexOf(param3)));
                 }
-                if ((mMuteStatus.get(mDemuxIds.indexOf(param3)) == 1 && mDemuxIds.size() > 1) || mStartStatus.get(mDemuxIds.indexOf(param3)) == 1 || mOpenStatus.get(mDemuxIds.indexOf(param3)) == 0) {
+                //1.if there are the multi-demux case, the start and stop need be controled bu mute or mute.
+                //2.if there have not received the open cmd, we could not start the decoder directly.
+                //3.if there have started the decoder, we need not restart the decoder.
+                if (mDemuxIds.size() > 1 || mStartStatus.get(mDemuxIds.indexOf(param3)) == 1 || mOpenStatus.get(mDemuxIds.indexOf(param3)) == 0) {
                     Log.d(TAG, "mMuteStatus:" + mMuteStatus.get(mDemuxIds.indexOf(param3))+",DemuxId:"+param3);
-                    break;//if open multi-demux but the current demux is mute_state, do not start the current demux
+                    break;
                 }
 
                 if (isDtvkit) {
@@ -555,6 +558,8 @@ public class AudioSystemCmdService extends Service {
             case AudioSystemCmdManager.AUDIO_SERVICE_CMD_SET_MUTE:
                 param1 = param1 & ((1 << mDtvDemuxIdBase) - 1);
                 mDtvDemuxIdCurrentWork = param3;
+                // if there have received the mute cmd but have not open the decoder,
+                // we need to save and init the path_id information(openstatus/mutestatus/Audioformat).
                 if (!mDemuxIds.contains(param3))  {
                     mDemuxIds.add(param3);
                     mMuteStatus.add(param1);
@@ -566,33 +571,23 @@ public class AudioSystemCmdService extends Service {
                 } else {
                     mMuteStatus.set(mDemuxIds.indexOf(param3), param1);
                 }
+
+                //if there have not opened the decoder, we only need to save the mute value and not apply the follow logic.
                 if (mOpenStatus.get(mDemuxIds.indexOf(param3)) == 0) {
                      break;
                 }
                 if (DroidLogicUtils.getAudioDebugEnable()) {
                     Log.d(TAG, "demuxid="+param3+",mOpenStatus="+mOpenStatus.get(mDemuxIds.indexOf(param3))+",mStartStatus="+mStartStatus.get(mDemuxIds.indexOf(param3))+",mMuteStatus="+mMuteStatus.get(mDemuxIds.indexOf(param3))+",mVolume="+mVolume.get(mDemuxIds.indexOf(param3))+",mDemuxIds count="+mDemuxIds.size());
                 }
-
-                if (mDemuxIds.size() == 1 && mDemuxIds.contains(param3)) {//case 1:single demux
-                    if (mStartStatus.get(mDemuxIds.indexOf(param3)) == 0 && mOpenStatus.get(mDemuxIds.indexOf(param3)) == 1) {
-                        int apply_cmd = AudioSystemCmdManager.AUDIO_SERVICE_CMD_START_DECODE + (param3 << mDtvDemuxIdBase);
-                        mAudioManager.setParameters("hal_param_dtv_audio_fmt="+mAudioFormat.get(mDemuxIds.indexOf(param3)));
-                        mAudioManager.setParameters("hal_param_has_dtv_video="+mCurrentHasDtvVideo);
-                        mAudioManager.setParameters("hal_param_dtv_audio_id=" +mAudioPid.get(mDemuxIds.indexOf(param3)));
-                        mAudioManager.setParameters("hal_param_dtv_patch_cmd=" + apply_cmd);
-                        mAudioManager.setParameters("hal_param_tv_mute=" + param1);
-                        mAudioManager.setParameters("hal_param_dtv_audio_volume=" + mVolume.get(mDemuxIds.indexOf(param3)));
-                        mStartStatus.set(mDemuxIds.indexOf(param3), 1);
-                        mHasReceivedStartDecoderCmd = true;
-                        mHasStartedDecoder = true;
-                        } else {
-                            mAudioManager.setParameters("hal_param_tv_mute=" + param1);
-                        }
-                } else if (mDemuxIds.size() > 1 && mDemuxIds.contains(param3)) {//case2:multi-demux control the stop/start by setting mute
-
-                    if (mMuteStatus.get(mDemuxIds.indexOf(param3)) == 0) {//set mute == 0(if there have not start , start)
-                        for (int i = 0; i < mDemuxIds.size(); i++) {
-
+                //CASE 1:single demux, there have not other control logic.When the decoder have opened, set the mute to audio_hal.
+                if (mDemuxIds.size() == 1 && mDemuxIds.contains(param3)) {
+                    mAudioManager.setParameters("hal_param_tv_mute=" + param1);
+                } else if (mDemuxIds.size() > 1 && mDemuxIds.contains(param3)) {
+                    //CASE2:multi-demux
+                    //1.when receive the unmute cmd, there need to control the start logic, but before start the decoder, We need to check the decoder state which to ensure all the path have stoped. When the path heve not started and start it.
+                    //2.when receive the mute cmd, if the path have started, there should stop the current path.
+                    if (mMuteStatus.get(mDemuxIds.indexOf(param3)) == 0) {//received the unmute cmd
+                        for (int i = 0; i < mDemuxIds.size(); i++) {//check the all work path start state, because audio hal only support one path working.
                             if (mStartStatus.get(i) == 1 && mDemuxIds.get(i) != param3) {
                                 int apply_cmd = AudioSystemCmdManager.AUDIO_SERVICE_CMD_STOP_DECODE + ((mDemuxIds.get(i)) << mDtvDemuxIdBase);
                                 mAudioManager.setParameters("hal_param_dtv_patch_cmd=" + apply_cmd);
@@ -600,10 +595,9 @@ public class AudioSystemCmdService extends Service {
                                 mStartStatus.set(i, 0);
                             }
                         }
-                        if (mStartStatus.get(mDemuxIds.indexOf(param3)) == 0) {
+                        if (mStartStatus.get(mDemuxIds.indexOf(param3)) == 0) {//if  the path have not started, there need to start the  work path and send the path information to audio hal.
                             int apply_cmd = AudioSystemCmdManager.AUDIO_SERVICE_CMD_START_DECODE + (param3 << mDtvDemuxIdBase);
                             mAudioManager.setParameters("hal_param_dtv_audio_fmt="+mAudioFormat.get(mDemuxIds.indexOf(param3)));
-                            mAudioManager.setParameters("hal_param_has_dtv_video="+mCurrentHasDtvVideo);
                             mAudioManager.setParameters("hal_param_dtv_audio_id=" +mAudioPid.get(mDemuxIds.indexOf(param3)));
                             mAudioManager.setParameters("hal_param_dtv_patch_cmd=" + apply_cmd);
                             mStartStatus.set(mDemuxIds.indexOf(param3), 1);
@@ -611,7 +605,7 @@ public class AudioSystemCmdService extends Service {
                             mHasStartedDecoder = true;
                             mAudioManager.setParameters("hal_param_dtv_audio_volume=" + mVolume.get(mDemuxIds.indexOf(param3)));
                             mAudioManager.setParameters("hal_param_tv_mute=" + mMuteStatus.get(mDemuxIds.indexOf(param3)));
-                        } else {
+                        } else {//if the path have started, only set mute to audio hal.
                             mAudioManager.setParameters("hal_param_tv_mute=" + param1);
 
                         }
@@ -683,7 +677,7 @@ public class AudioSystemCmdService extends Service {
                     Log.d(TAG, "CLOSE_DECODER_2("+param3+")+maudiopatch  "+ mAudioPatch+"demuxid="+param3+",mOpenStatus="+mOpenStatus.get(mDemuxIds.indexOf(param3))+",mStartStatus="+mStartStatus.get(mDemuxIds.indexOf(param3))+",mMuteStatus="+mMuteStatus.get(mDemuxIds.indexOf(param3))+",mDemuxIds count="+mDemuxIds.size());
                 }
 
-                if (mAudioPatch != null) {
+                if (mAudioPatch != null) {//IPTV case and create or relese audio patch be controled by AUDIOSYSTEMSERVICE
                    if (param3 >= 0) {
                         if (mDemuxIds.contains(param3)) {
                             mAudioFormat.remove(mDemuxIds.indexOf(param3));
@@ -711,7 +705,7 @@ public class AudioSystemCmdService extends Service {
                         mAudioPatch = null;
                         mAudioSource = null;
                     }
-                } else {
+                } else {//DTVKIT case and create or relese audio patch be controled by TIF
                     mHasStartedDecoder = false;
                     mHasOpenedDecoder = false;
                     mMixAdSupported = false;
