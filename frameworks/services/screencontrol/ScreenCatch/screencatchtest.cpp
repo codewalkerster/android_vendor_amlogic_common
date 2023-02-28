@@ -219,13 +219,13 @@ int main(int argc, char **argv)
 
             framecount++;
             if (SAVE_FILE_PNG == saveFileType) {
-                sprintf(dump_path, "%s/%d.png", dump_dir, framecount);
+                snprintf(dump_path, 128, "%s/%d.png", dump_dir, framecount);
             } else if (SAVE_FILE_JPEG == saveFileType) {
-                sprintf(dump_path, "%s/%d.jpeg", dump_dir, framecount);
+                snprintf(dump_path, 128, "%s/%d.jpeg", dump_dir, framecount);
             } else if (SAVE_FILE_BMP == saveFileType) {
-                sprintf(dump_path, "%s/%d.bmp", dump_dir, framecount);
+                snprintf(dump_path, 128, "%s/%d.bmp", dump_dir, framecount);
             } else {
-                sprintf(dump_path, "%s/%s-%dx%d-%d.bin", dump_dir,"argb8888",
+                snprintf(dump_path, 128, "%s/%s-%dx%d-%d.bin", dump_dir,"argb8888",
                     outWidth, outHeight, framecount);
             }
             printf("Try save:%s, size=%d\n", dump_path, buffer->size());

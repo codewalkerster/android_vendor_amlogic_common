@@ -492,13 +492,11 @@ status_t ScreenManager::start(int32_t client_id)
             return !OK;
         }
 
-        char sourceType[2];
+        char sourceType[] = "1";
         int port_type;
         if (mSourceType == AML_CAPTURE_VIDEO) { //video only
-            strcpy(sourceType, "1");
             port_type = PORTTYPE_VALUE_VIDEO_ONLY;
         } else if(mSourceType == AML_CAPTURE_OSD_VIDEO) {
-            strcpy(sourceType, "1");
             port_type = PORTTYPE_VALUE_VIDEO_OSD;
         } else {
             ALOGE("[%s %d] For now ,we don't capture osd only by AML_SCREEN_HARDWARE_MODULE_ID module!", __FUNCTION__, __LINE__);
@@ -617,22 +615,39 @@ status_t ScreenManager::readRawData(int32_t client_id,MediaBuffer *buffer, int w
         mTempBuffer->set_range(0, 0);
         return !OK;
     }
+    if (mTempBuffer->data() == nullptr) {
+        ALOGE("get the null pointer !");
+        return !OK;
+    }
     if (source_data_type == SCREENCONTROL_CANVAS_TYPE && mTempBuffer->range_length() > 0 ) {
         if (width != mWidth || height != mHeight) {
             size_t temp_size = mWidth*mHeight*4;
             MediaBuffer* temp = new MediaBuffer(temp_size);
             if (temp) {
                 nv21_to_rgb32_((unsigned char *)mTempBuffer->data(), (unsigned char *)temp->data() , mWidth, mHeight);
+                if (temp->data() == NULL) {
+                    ALOGE("[%s %d] nv21_to_rgb32_ error !", __FUNCTION__, __LINE__);
+                    temp->release();
+                    /* coverity[leaked_storage] */
+                    return !OK;
+                }
                 temp->set_range(0, temp_size);
                 argb_scale((unsigned char *)temp->data(), (unsigned char *)buffer->data(), mWidth, mHeight, width, height);
                 temp->release();
-                temp = NULL;
+                /* coverity[leaked_storage] */
             }else {
                 ALOGE("new MediaBuffer failed");
                 return !OK;
             }
+            /* coverity[leaked_storage] */
         }else {
             nv21_to_rgb32_((unsigned char *)mTempBuffer->data(), (unsigned char *)buffer->data() , mWidth, mHeight);
+            if (buffer->data() == NULL) {
+                ALOGE("[%s %d] nv21_to_rgb32_ error 2!", __FUNCTION__, __LINE__);
+                buffer->release();
+                /* coverity[leaked_storage] */
+                return !OK;
+            }
         }
 
         mTempBuffer->release();
@@ -683,7 +698,7 @@ status_t ScreenManager::readBuffer(int32_t client_id, sp<IMemory> buffer, int64_
             // dump buffer to file
             static int i = 0;
             char filename[64] = {0};
-            sprintf(filename, "%s/drvin-cvs-%d.yuv", SCREENMANAGER_DUMP_BASEDIR, i++);
+            snprintf(filename, 64, "%s/drvin-cvs-%d.yuv", SCREENMANAGER_DUMP_BASEDIR, i++);
             checkAndSaveBufferToFile(SCREENMANAGER_DUMP_BASEDIR, filename, frame->buf_ptr, mWidth*mHeight*3/2);
         }
 
@@ -707,7 +722,7 @@ status_t ScreenManager::readBuffer(int32_t client_id, sp<IMemory> buffer, int64_
                     // dump buffer to file
                     static int i = 0;
                     char filename[64] = {0};
-                    sprintf(filename, "%s/drvin-rd-%d.yuv", SCREENMANAGER_DUMP_BASEDIR, i++);
+                    snprintf(filename, 64, "%s/drvin-rd-%d.yuv", SCREENMANAGER_DUMP_BASEDIR, i++);
                     checkAndSaveBufferToFile(SCREENMANAGER_DUMP_BASEDIR, filename, rawBuffer->data(), mWidth*mHeight*3/2);
                 }
                 rawBuffer->release();
@@ -834,7 +849,7 @@ int ScreenManager::dataCallBack(aml_screen_buffer_info_t *buffer){
                         frame->timestampUs = 0;
                         mCanvasFramesReceived.push_back(frame);
                         mCanvasClientExist = 1;
-                        if (mTempBuffer != NULL) {
+                        if (mTempBuffer != NULL && mTempBuffer->data() != NULL) {
                             memcpy(mTempBuffer->data(),buffer->buffer_mem,client->width*client->height*3/2);
                             mTempBuffer->set_range(0, client->width*client->height*3/2);
                         }

@@ -777,7 +777,11 @@ RETRY:
 
         if (err == OK && mStarted != false && mBufferGet ->unsecurePointer() != NULL) {
             mFrameCounter++;
-            if (mInputBufferQueue.size() >= 0 && !isBeyondMaxBuffer(mInputBufferQueue.size(), bufferSize)) {
+            int inputSize = mInputBufferQueue.size();
+            if (inputSize < 0) {
+                return !OK;
+            }
+            if (!isBeyondMaxBuffer(inputSize, bufferSize)) {
                 if (mMaxInFrameCnt < 0 || (mMaxInFrameCnt > 0 && mFrameCounter <= mMaxInFrameCnt)) {
                     // run this in follow situation:
                     // 1. do not set max frame count

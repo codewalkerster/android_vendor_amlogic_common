@@ -780,7 +780,7 @@ status_t TSPacker::packetize(
 
         if (PES_private_data_len > 0) {
             *ptr++ = 0x8e;	// PES_private_data_flag, reserved.
-	            memcpy(ptr, PES_private_data, PES_private_data_len);
+            memcpy(ptr, PES_private_data, PES_private_data_len);
             ptr += PES_private_data_len;
         }
 
@@ -790,7 +790,10 @@ status_t TSPacker::packetize(
 
         memcpy(ptr, buffer_add, copy);
         ptr += copy;
-        assert(ptr == packetDataStart + 188);
+        if (ptr != packetDataStart + 188) {
+            ALOGE("check the ptr fail!");
+            return !OK;
+        }
 
         // CHECK_EQ(ptr, packetDataStart + 188);
         packetDataStart += 188;

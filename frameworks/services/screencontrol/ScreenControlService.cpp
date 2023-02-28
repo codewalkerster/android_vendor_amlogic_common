@@ -347,23 +347,24 @@ int ScreenControlService::startScreenCapBuffer(int32_t left, int32_t top, int32_
         long buf[3] ={ 0 };
         int32_t bufferSize = width * height * 4;
         MediaBuffer *tBuffer = new MediaBuffer(bufferSize);
-        if (mTSPacker != NULL) {
+        if (tBuffer == NULL || tBuffer->data() == NULL) {
+            /* coverity[leaked_storage] */
+            return UNKNOWN_ERROR;
+        }
+        if (mTSPacker != NULL ) {
             while (!OK == mTSPacker->readRawData(tBuffer,width,height)) {
                 usleep(5 *1000); //5ms
-                continue;
             }
         }else {
             while (!OK == mVideoConvertor->readRawData(tBuffer,width,height)) {
                 usleep(5 *1000); //5ms
-                continue;
             }
         }
-
         memcpy(dstBuffer, tBuffer->data(), tBuffer->size());
         *dstBufferSize = tBuffer->size();
         ALOGI("[%s %d] get readRawData size:%d", __FUNCTION__, __LINE__, tBuffer->size());
         tBuffer->release();
-        tBuffer =NULL;
+        /* coverity[leaked_storage] */
         return result;
     }
 
