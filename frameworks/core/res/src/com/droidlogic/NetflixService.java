@@ -34,7 +34,8 @@ import android.database.ContentObserver;
 import android.content.ContentResolver;
 import android.provider.DeviceConfig;
 import org.json.JSONObject;
-
+import android.hardware.display.DisplayManager;
+import android.view.Display;
 import android.os.Handler;
 
 import java.io.File;
@@ -74,17 +75,21 @@ public class NetflixService extends Service {
      // Power State Change on Active Source Lost Settings values
     private static final String LOST_NONE = "none";
     private static final String LOST_STANDBY_NOW = "standby_now";
+
+    private static final String STR_ALWAYS = "0";
+    private static final String STR_ADAPTIVE = "1";
     private static final int WAKEUP_REASON_CUSTOM = 9;
     private static boolean atmosSupported = false;
     private static boolean doblySupported = false;
-
     private boolean mIsNetflixFg = false;
     private boolean mIsYoutubeFg = false;
     private boolean hasMS12 = false;
+    private boolean tempHDR = false;
     private Context mContext;
     private SystemControlManager mSCM;
     private AudioManager mAudioManager;
     private HdmiControlManager mHdmiControlManager;
+    private DisplayManager mDisplayManager;
     private SettingsObserver mSettingsObserver;
     private OutputModeManager mOutputModeManager = null;
     private final Object mLock = new Object();
@@ -187,6 +192,7 @@ public class NetflixService extends Service {
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         mOutputModeManager = OutputModeManager.getInstance(mContext);
         mHdmiControlManager = (HdmiControlManager)mContext.getSystemService(Context.HDMI_CONTROL_SERVICE);
+        mDisplayManager = (DisplayManager)getSystemService(DisplayManager.class);
 
         String buildDate = PlatformAPI.getStringProperty("ro.build.version.incremental", "");
         boolean needUpdate = !buildDate.equals(SettingsPref.getSavedBuildDate(mContext));
@@ -376,11 +382,28 @@ public class NetflixService extends Service {
             ActivityManager.RunningAppProcessInfo info = infos.get(i);
             if (info.processName.contains(pkgName)) {
                 Log.d(TAG, "processName:" + info.processName + ",importance:" + info.importance);
-                return info.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND;
+                if (info.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) return true;
+                else {
+                    return isTopActivity(pkgName);
+                }
             }
         }
 
-        return false;
+        return isTopActivity(pkgName);
+    }
+
+    private boolean isTopActivity(String pkgName){
+        ActivityManager am = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> infos = am.getRunningTasks(1);
+        ComponentName componentInfo = infos.get(0).topActivity;
+
+        if (componentInfo.getPackageName().equals(pkgName)) {
+            Log.d(TAG,pkgName + " is top activity!");
+            return true;
+        }else{
+            Log.d(TAG,pkgName + "is not top activity.");
+            return false;
+        }
     }
 
     private void refreshAudioCapabilities(boolean isHdmiPlugged) {
@@ -452,8 +475,46 @@ public class NetflixService extends Service {
         @Override
         public void onForegroundActivitiesChanged(int pid, int uid, boolean foregroundActivities) {
             Log.d(TAG, "onForegroundActivitiesChanged pid:" + pid + ",uid:" + uid + ",fg:" + foregroundActivities);
+            new Thread(new Runnable(){
+                @Override
+                public void run() {
+                    try{
+                        //wait 700ms, for android update process stack
+                        //when netflix is changing to background
+                        Thread.sleep(700);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    netflixFGStateUpdate();
+                }
+            }).start();
+        }
+
+        private void setAlwayHDR(boolean NetflixIsForeground) {
+            //when netflix is fg, enable alway HDR whatever.
+            if (tempHDR) {
+               Log.i(TAG, "setHdrStrategy adaptive default");
+               mSCM.setHdrStrategy(STR_ADAPTIVE);
+               tempHDR = false;
+            }
+            if (NetflixIsForeground && mOutputModeManager.getHdrStrategy().startsWith(STR_ADAPTIVE) &&
+                                mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY).isHdr()) {
+               Log.i(TAG, "setHdrStrategy  always");
+               mSCM.setHdrStrategy(STR_ALWAYS);
+               tempHDR = true;
+            }
+            /*if (NetflixIsForeground && (mOutputModeManager.getHdrStrategy().startsWith(STR_ADAPTIVE) == false ||
+                                mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY).isHdr()==false)){
+                Log.d(TAG,"something error!");
+             }*/
+             Log.d(TAG,"NetflixIsForeground,startsWith,isHdr: "+NetflixIsForeground
+                +mOutputModeManager.getHdrStrategy().startsWith(STR_ADAPTIVE)+mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY).isHdr());
+        }
+
+        private void netflixFGStateUpdate() {
             synchronized (mLock) {
                 boolean fg = isVisibleApp(NETFLIX_PKG_NAME);
+                Log.i(TAG,"fg: "+fg + "  mIsNetflixFg: "+ mIsNetflixFg);
                 if (fg ^ mIsNetflixFg) {
                     Log.i(TAG, "Netflix status changed from " + (mIsNetflixFg ? "fg" : "bg") + " -> " + (fg ? "fg" : "bg"));
                     mIsNetflixFg = fg;
@@ -461,6 +522,8 @@ public class NetflixService extends Service {
                     mAudioManager.setParameters("continuous_audio_mode=" + (fg ? "1" : "0"));
                     mSCM.setProperty("vendor.netflix.state", fg ? "fg" : "bg");
                     mHdmiControlManager.setPowerStateChangeOnActiveSourceLost(fg ? LOST_NONE : LOST_STANDBY_NOW);
+
+                    setAlwayHDR(fg);
                 }
 
                 boolean fgYoutube = isVisibleApp(YOUTUBE_PKG_NAME);
