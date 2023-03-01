@@ -145,7 +145,7 @@ int vlan_rem(const char *if_name)
 	err = rtnl_link_get_kernel(handle, 0, if_name, &rlink);
 	if (err < 0) {
 		/* link does not exist */
-		wpa_printf(MSG_ERROR, "VLAN: interface %s does not exists",
+		wpa_printf(MSG_ERROR, "VLAN: interface %s does not exist",
 			   if_name);
 		goto vlan_rem_error;
 	}

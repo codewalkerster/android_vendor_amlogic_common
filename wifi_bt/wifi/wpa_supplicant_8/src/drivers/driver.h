@@ -4940,7 +4940,7 @@ enum wpa_event_type {
 	 * EVENT_CH_SWITCH - AP or GO decided to switch channels
 	 *
 	 * Described in wpa_event_data.ch_switch
-	 * */
+	 */
 	EVENT_CH_SWITCH,
 
 	/**

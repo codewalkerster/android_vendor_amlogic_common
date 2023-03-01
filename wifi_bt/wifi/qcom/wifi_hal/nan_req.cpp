@@ -1658,7 +1658,7 @@ static int finish_handler_nan(struct nl_msg *msg, void *arg)
 
 //Override base class requestEvent and implement little differently here
 //This will send the request message
-//We dont wait for any response back in case of Nan as it is asynchronous
+//We don't wait for any response back in case of Nan as it is asynchronous
 //thus no wait for condition.
 wifi_error NanCommand::requestEvent()
 {

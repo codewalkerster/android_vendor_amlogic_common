@@ -69,7 +69,7 @@ size_t rb_read(void *ctx, u8 *buf, size_t max_length);
  */
 u8 *rb_get_read_buf(void *ctx, size_t *length);
 
-/* calls callback whenever ring_buffer reaches percent percentage of it's
+/* calls callback whenever ring_buffer reaches percent percentage of its
  * full size
  */
 void rb_config_threshold(void *ctx,

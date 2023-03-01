@@ -39,7 +39,7 @@ extern "C"
 // each interface. This file can then be used to hook onto the normal config
 // file parsing logic in hostapd code.  Helps us to avoid duplication of code
 // in the AIDL interface.
-// TOOD(b/71872409): Add unit tests for this.
+// TODO(b/71872409): Add unit tests for this.
 namespace {
 constexpr char kConfFileNameFmt[] = "/data/vendor/wifi/hostapd/hostapd_%s.conf";
 

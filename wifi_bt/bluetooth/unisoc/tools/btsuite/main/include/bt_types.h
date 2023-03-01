@@ -58,7 +58,7 @@ typedef bool BOOLEAN;
 ** can use their own events internally, but a FUNDAMENTAL design issue is
 ** that global events MUST be one of these events defined below.
 **
-** The convention used is the the event name contains the layer that the
+** The convention used is the event name contains the layer that the
 ** event is going to.
 */
 #define BT_EVT_MASK                 0xFF00

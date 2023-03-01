@@ -1325,7 +1325,7 @@ static int register_monitor_sock(wifi_handle handle, wifihal_ctrl_req_t *ctrl_ms
     }
     else
     {
-       //! Not attached, so can not be detached
+       //! Not attached, so can't be detached
        ALOGE("%s: Detaching the unregistered socket \n", __FUNCTION__);
        return -2;
     }

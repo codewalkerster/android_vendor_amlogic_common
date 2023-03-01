@@ -529,7 +529,7 @@ void mesh_rsn_init_ampe_sta(struct wpa_supplicant *wpa_s, struct sta_info *sta)
  * @sta: STA we're sending to
  * @cat: pointer to category code in frame header.
  * @buf: wpabuf to add encrypted AMPE and MIC to.
- * */
+ */
 int mesh_rsn_protect_frame(struct mesh_rsn *rsn, struct sta_info *sta,
 			   const u8 *cat, struct wpabuf *buf)
 {

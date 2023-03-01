@@ -43,7 +43,7 @@ size_t allocation_tracker_expect_no_allocations(void);
 // size of the allocation without any canaries. The caller must allocate
 // enough memory for canaries; the total allocation size can be determined
 // by calling |allocation_tracker_resize_for_canary|. Returns |ptr| offset
-// to the the beginning of the uncanaried region.
+// to the beginning of the uncanaried region.
 void *allocation_tracker_notify_alloc(allocator_id_t allocator_id, void *ptr, size_t requested_size);
 
 // Notify the tracker of an allocation that is being freed. |ptr| must be a
