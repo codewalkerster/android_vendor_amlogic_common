@@ -65,6 +65,10 @@ private:
     ConnectorType mConnType;
     int mDisplayType;
 
+#ifndef RECOVERY_MODE
     std::unique_ptr<meson::DisplayAdapter> mDisplayAdapter;
+#else
+    std::shared_ptr<meson::DisplayAdapter> mDisplayAdapter;
+#endif
 };
 #endif
