@@ -32,7 +32,6 @@
 #include <errno.h>
 #include <stdio.h>
 #include <sys/eventfd.h>
-#include "userial.h"
 #include "userial_vendor.h"
 #include "rtk_socket.h"
 #include <cutils/sockets.h>
@@ -2284,6 +2283,17 @@ static int userial_handle_event(unsigned char * recv_buffer, int total_length)
         }
     }
     break;
+    case HCI_VENDOR_SPECIFIC_EVT:{
+        if(p_data[2] == 0x20){
+            return 1;
+        }
+         if(p_data[2] == 0x34){
+            ALOGE("userial_handle_event vendor event 0x34 , expected to restart Bluetooth");
+            userial_send_hw_error();
+         }
+    }
+    break;
+    
     default :
     break;
   }
@@ -2561,7 +2571,7 @@ static int userial_handle_recv_data(unsigned char * recv_buffer, unsigned int to
 static void h5_data_ready_cb(serial_data_type_t type, unsigned int total_length)
 {
     unsigned char buffer[1028] = {0};
-    int length = 0;
+    unsigned int length = 0;
     length = h5_int_interface->h5_int_read_data(&buffer[1], total_length);
     if(length == -1) {
         ALOGE("%s, error read length", __func__);

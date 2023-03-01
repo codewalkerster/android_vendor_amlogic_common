@@ -17,7 +17,7 @@
  ******************************************************************************/
 
 #define LOG_TAG "bt_hwcfg_uart"
-#define RTKBT_RELEASE_NAME "20221117_BT_ANDROID_13.0_BETA"
+#define RTKBT_RELEASE_NAME "20230221_BT_ANDROID_13.0"
 
 #include <utils/Log.h>
 #include <sys/types.h>
@@ -32,7 +32,6 @@
 #include <stdlib.h>
 #include "rtk_hci_layer.h"
 #include "bt_vendor_rtk.h"
-#include "userial.h"
 #include "userial_vendor.h"
 #include "upio.h"
 #include <unistd.h>
@@ -523,7 +522,7 @@ static void parse_extra_config(const char *path, patch_info *patch_entry, unsign
 {
     int fd, ret;
     unsigned char buf[1024];
-
+    if(!patch_entry) return;
     fd = open(path, O_RDONLY);
     if(fd == -1) {
         ALOGI("Couldn't open extra config %s, err:%s", path, strerror(errno));
@@ -588,7 +587,7 @@ static inline int getAltSettingVal(patch_info *patch_entry, unsigned short offse
     int res = 0;
     int i = 0;
     struct rtk_bt_vendor_config_entry *ptr = extra_extry;
-
+    if(!patch_entry) return res;
     while(ptr->offset)
     {
         if(ptr->offset == offset)
@@ -644,7 +643,7 @@ static void rtk_update_altsettings(patch_info *patch_entry, unsigned char* confi
     size_t config_len = *config_len_ptr;
     unsigned int  i = 0;
     int count = 0,temp = 0, j;
-
+    if(!patch_entry) return;
     if((extra_extry = (struct rtk_bt_vendor_config_entry *)malloc(MAX_ALT_CONFIG_SIZE)) == NULL)
     {
         ALOGE("malloc buffer for extra_extry failed");
@@ -865,7 +864,7 @@ static void rtk_get_bt_final_patch(bt_hw_cfg_cb_t* cfg_cb)
     }else if(2 == parsing_rule){
         fw_patch_len = rtk_get_v2_final_fw(cfg_cb);
     }
-    if(fw_patch_len < 0){
+    if(fw_patch_len == 0){
         goto free_buf;
     }
 
@@ -972,7 +971,7 @@ static int hci_download_patch_h4(HC_BT_HDR *p_buf, int index, uint8_t *data, int
 }
 
 static void dump_uart_chip_name(bt_hw_cfg_cb_t cfg_cb){
-    int i = 0,ret = 0;
+    unsigned int i = 0,ret = 0;
     for (i =0; i< sizeof(uart_chip_info_table)/sizeof(uart_chip_info);i++){
         if((cfg_cb.hci_version == uart_chip_info_table[i].hci_version) && (cfg_cb.hci_revision == uart_chip_info_table[i].hci_revision) 
         && (cfg_cb.lmp_subversion == uart_chip_info_table[i].lmp_subversion)){

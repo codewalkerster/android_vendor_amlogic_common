@@ -35,6 +35,10 @@ tv_firmware_files := \
 	vendor/amlogic/common/wifi_bt/bluetooth/realtek/rtkbt/Firmware/TV/rtl8822c_fw \
 	vendor/amlogic/common/wifi_bt/bluetooth/realtek/rtkbt/Firmware/TV/rtl8822cs_config \
 	vendor/amlogic/common/wifi_bt/bluetooth/realtek/rtkbt/Firmware/TV/rtl8822cs_fw \
+	vendor/amlogic/common/wifi_bt/bluetooth/realtek/rtkbt/Firmware/TV/rtl8822e_8822c_config \
+	vendor/amlogic/common/wifi_bt/bluetooth/realtek/rtkbt/Firmware/TV/rtl8822e_8822c_fw \
+	vendor/amlogic/common/wifi_bt/bluetooth/realtek/rtkbt/Firmware/TV/rtl8822es_8822cs_config \
+	vendor/amlogic/common/wifi_bt/bluetooth/realtek/rtkbt/Firmware/TV/rtl8822es_8822cs_fw \
 	vendor/amlogic/common/wifi_bt/bluetooth/realtek/rtkbt/Firmware/TV/rtl8761b_config \
 	vendor/amlogic/common/wifi_bt/bluetooth/realtek/rtkbt/Firmware/TV/rtl8761b_fw \
 	vendor/amlogic/common/wifi_bt/bluetooth/realtek/rtkbt/Firmware/TV/rtl8761bt_config \
@@ -58,6 +62,8 @@ tv_firmware_files := \
 	vendor/amlogic/common/wifi_bt/bluetooth/realtek/rtkbt/Firmware/TV/rtl8852cu_config \
 	vendor/amlogic/common/wifi_bt/bluetooth/realtek/rtkbt/Firmware/TV/rtl8852cu_fw \
 	vendor/amlogic/common/wifi_bt/bluetooth/realtek/rtkbt/Firmware/TV/rtl8852cs_config \
-	vendor/amlogic/common/wifi_bt/bluetooth/realtek/rtkbt/Firmware/TV/rtl8852cs_fw
+	vendor/amlogic/common/wifi_bt/bluetooth/realtek/rtkbt/Firmware/TV/rtl8852cs_fw \
+	vendor/amlogic/common/wifi_bt/bluetooth/realtek/rtkbt/Firmware/TV/rtl8852bps_config \
+	vendor/amlogic/common/wifi_bt/bluetooth/realtek/rtkbt/Firmware/TV/rtl8852bps_fw
 
 PRODUCT_COPY_FILES += $(call copy-files,$(tv_firmware_files),$(TARGET_COPY_OUT_VENDOR)/firmware)

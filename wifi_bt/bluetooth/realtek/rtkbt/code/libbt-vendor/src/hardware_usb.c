@@ -17,7 +17,7 @@
  ******************************************************************************/
 
 #define LOG_TAG "bt_hwcfg_usb"
-#define RTKBT_RELEASE_NAME "20221117_BT_ANDROID_13.0_BETA"
+#define RTKBT_RELEASE_NAME "20230221_BT_ANDROID_13.0"
 
 #include <utils/Log.h>
 #include <sys/types.h>
@@ -30,10 +30,8 @@
 #include <ctype.h>
 #include <cutils/properties.h>
 #include <stdlib.h>
-#include "bt_hci_bdroid.h"
-#include "bt_vendor_rtk.h"
-#include "userial.h"
 #include "rtk_hci_layer.h"
+#include "bt_vendor_rtk.h"
 #include "userial_vendor.h"
 #include "upio.h"
 #include <unistd.h>
@@ -98,29 +96,29 @@ typedef struct {
 } usb_chip_info;
 
 static usb_chip_info usb_chip_info_table[] = {
-    {HCI_VERSION_5_1   ,   0x000C   ,   0x8822   ,   "8822CU-CG or 8822CU-VN-CG or 8822CU-VB-CG or 8822CU-VBN-CG"},
-    {HCI_VERSION_4_1   ,   0x000B   ,   0x8822   ,   "8822BU"},
-    {HCI_VERSION_4_2   ,   0x000C   ,   0x8821   ,   "8821CU or 8821CUH"},
-    {HCI_VERSION_5_2   ,   0x000C   ,   0x8852   ,   "8852CU"},
-    {HCI_VERSION_5_2   ,   0x000B   ,   0x8852   ,   "8852BU"},
-    {HCI_VERSION_5_2   ,   0x000A   ,   0x8852   ,   "8852AU"},
-    {HCI_VERSION_5_2   ,   0x000F   ,   0x8723   ,   "8733BU_8723FU"},
-    {HCI_VERSION_4_2   ,   0x000C   ,   0x8821   ,   "8821CU or 8821CUH"},
-    {HCI_VERSION_5_0   ,   0x000A   ,   0x8725   ,   "8725AU"},
-    {HCI_VERSION_4_2   ,   0x000D   ,   0x8723   ,   "8723DU"},
-    {HCI_VERSION_4_1   ,   0x000C   ,   0x8723   ,   "8723CS"},
-    {HCI_VERSION_2_1   ,   0x000B   ,   0x8703   ,   "8703BS"},
-    {HCI_VERSION_4_0   ,   0x000A   ,   0x8821   ,   "8821AU"},
-    {HCI_VERSION_4_0   ,   0x000B   ,   0x8723   ,   "8723BU"},
-    {HCI_VERSION_4_2   ,   0x000A   ,   0x8761   ,   "8761AU or 8761AUV"},
-    {HCI_VERSION_5_1   ,   0x000B   ,   0x8761   ,   "8761BUV"},
-    {HCI_VERSION_4_0   ,   0x000B   ,   0x8723   ,   "8723BU"},
-    {HCI_VERSION_4_2   ,   0x000D   ,   0x8723   ,   "8723DU"},
-    {HCI_VERSION_4_0   ,   0x000A   ,   0x8821   ,   "8821AU"},
-    {HCI_VERSION_4_1   ,   0x000B   ,   0x8822   ,   "8822BU"},
-    {HCI_VERSION_5_2   ,   0x000B   ,   0x8852   ,   "8852BU or 8852BPU"},
-    {HCI_VERSION_5_2   ,   0x000E   ,   0x8822   ,   "8822EU"}
-
+{HCI_VERSION_5_1   ,   0x000C   ,   0x8822   ,   "8822CU-CG or 8822CU-VN-CG or 8822CU-VB-CG or 8822CU-VBN-CG"},
+{HCI_VERSION_4_1   ,   0x000B   ,   0x8822   ,   "8822BU"},
+{HCI_VERSION_4_2   ,   0x000C   ,   0x8821   ,   "8821CU or 8821CUH"},
+{HCI_VERSION_5_2   ,   0x000C   ,   0x8852   ,   "8852CU"},
+{HCI_VERSION_5_2   ,   0x000B   ,   0x8852   ,   "8852BU"},
+{HCI_VERSION_5_2   ,   0x000A   ,   0x8852   ,   "8852AU"},
+{HCI_VERSION_5_2   ,   0x000F   ,   0x8723   ,   "8733BU_8723FU"},
+{HCI_VERSION_4_2   ,   0x000C   ,   0x8821   ,   "8821CU or 8821CUH"},
+{HCI_VERSION_5_0   ,   0x000A   ,   0x8725   ,   "8725AU"},
+{HCI_VERSION_4_2   ,   0x000D   ,   0x8723   ,   "8723DU"},
+{HCI_VERSION_4_1   ,   0x000C   ,   0x8723   ,   "8723CS"},
+{HCI_VERSION_2_1   ,   0x000B   ,   0x8703   ,   "8703BS"},
+{HCI_VERSION_4_0   ,   0x000A   ,   0x8821   ,   "8821AU"},
+{HCI_VERSION_4_0   ,   0x000B   ,   0x8723   ,   "8723BU"},
+{HCI_VERSION_4_2   ,   0x000A   ,   0x8761   ,   "8761AU or 8761AUV"},
+{HCI_VERSION_5_1   ,   0x000B   ,   0x8761   ,   "8761BUV"},
+{HCI_VERSION_4_0   ,   0x000B   ,   0x8723   ,   "8723BU"},
+{HCI_VERSION_4_2   ,   0x000D   ,   0x8723   ,   "8723DU"},
+{HCI_VERSION_4_0   ,   0x000A   ,   0x8821   ,   "8821AU"},
+{HCI_VERSION_4_1   ,   0x000B   ,   0x8822   ,   "8822BU"},
+{HCI_VERSION_5_2   ,   0x000B   ,   0x8852   ,   "8852BU or 8852BPU"},
+{HCI_VERSION_5_3   ,   0x000E    ,    0x8822     ,     "8822EU"},
+{HCI_VERSION_5_3   ,   0x000B    ,    0x8851     ,     "8851BU"}
 };
 
 static usb_patch_info usb_fw_patch_table[] = {
@@ -198,10 +196,18 @@ static usb_patch_info usb_fw_patch_table[] = {
 { 0x0BDA, 0xB733, 0x8723, 0, 0, "mp_rtl8733b_8723f_fw", "rtl8733b_8723f_fw", "rtl8733b_8723f_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_3PLUS, MAX_PATCH_SIZE_49_2K}, /* RTL8723FU */
 { 0x0BDA, 0xB73A, 0x8723, 0, 0, "mp_rtl8733b_8723f_fw", "rtl8733b_8723f_fw", "rtl8733b_8723f_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_3PLUS, MAX_PATCH_SIZE_49_2K}, /* RTL8723FU */
 { 0x0BDA, 0xF72B, 0x8723, 0, 0, "mp_rtl8733b_8723f_fw", "rtl8733b_8723f_fw", "rtl8733b_8723f_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_3PLUS, MAX_PATCH_SIZE_49_2K}, /* RTL8723FU */
+//RTL8821C
 { 0x0BDA, 0xB820, 0x8821, 0, 0, "mp_rtl8821c_fw", "rtl8821c_fw", "rtl8821c_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_3PLUS, MAX_PATCH_SIZE_40K}, /* RTL8821CU */
 { 0x0BDA, 0xC820, 0x8821, 0, 0, "mp_rtl8821c_fw", "rtl8821c_fw", "rtl8821c_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_3PLUS, MAX_PATCH_SIZE_40K}, /* RTL8821CU */
 { 0x0BDA, 0xC82A, 0x8821, 0, 0, "mp_rtl8821c_fw", "rtl8821c_fw", "rtl8821c_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_3PLUS, MAX_PATCH_SIZE_40K}, /* RTL8821CU BT only */
 { 0x0BDA, 0xC821, 0x8821, 0, 0, "mp_rtl8821c_fw", "rtl8821c_fw", "rtl8821c_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_3PLUS, MAX_PATCH_SIZE_40K}, /* RTL8821CE */
+{ 0x13D3, 0x3529, 0x8821, 0, 0, "mp_rtl8821c_fw", "rtl8821c_fw", "rtl8821c_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_3PLUS, MAX_PATCH_SIZE_40K}, /* RTL8821CE */
+{ 0x13D3, 0x3532, 0x8821, 0, 0, "mp_rtl8821c_fw", "rtl8821c_fw", "rtl8821c_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_3PLUS, MAX_PATCH_SIZE_40K}, /* RTL8821CE */
+{ 0x13D3, 0x3533, 0x8821, 0, 0, "mp_rtl8821c_fw", "rtl8821c_fw", "rtl8821c_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_3PLUS, MAX_PATCH_SIZE_40K}, /* RTL8821CE */
+{ 0x13D3, 0x3552, 0x8821, 0, 0, "mp_rtl8821c_fw", "rtl8821c_fw", "rtl8821c_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_3PLUS, MAX_PATCH_SIZE_40K}, /* RTL8821CE */
+//RTL8851B
+{ 0x0BDA, 0xB851, 0x8851, 0, 0, "mp_rtl8851b_fw", "rtl8851b_fw", "rtl8851b_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_65_2K}, /*RTL8851BU */
+//RTL8852A
 { 0x0BDA, 0x885A, 0x8852, 0, 0, "mp_rtl8852au_fw", "rtl8852au_fw", "rtl8852au_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_69_2K}, /*RTL8852AU */
 { 0x0BDA, 0x8852, 0x8852, 0, 0, "mp_rtl8852au_fw", "rtl8852au_fw", "rtl8852au_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_69_2K}, /*RTL8852AE */
 { 0x0BDA, 0xA852, 0x8852, 0, 0, "mp_rtl8852au_fw", "rtl8852au_fw", "rtl8852au_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_69_2K}, /*RTL8852AU */
@@ -216,7 +222,6 @@ static usb_patch_info usb_fw_patch_table[] = {
 { 0x0BDA, 0x588A, 0x8852, 0, 0, "mp_rtl8852au_fw", "rtl8852au_fw", "rtl8852au_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_69_2K}, /*RTL8852AU */
 { 0x0BDA, 0x589A, 0x8852, 0, 0, "mp_rtl8852au_fw", "rtl8852au_fw", "rtl8852au_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_69_2K}, /*RTL8852AU */
 { 0x0BDA, 0x590A, 0x8852, 0, 0, "mp_rtl8852au_fw", "rtl8852au_fw", "rtl8852au_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_69_2K}, /*RTL8852AU */
-{ 0x0BDA, 0x590A, 0x8852, 0, 0, "mp_rtl8852au_fw", "rtl8852au_fw", "rtl8852au_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_69_2K}, /*RTL8852AU */
 { 0x1358, 0xC125, 0x8852, 0, 0, "mp_rtl8852au_fw", "rtl8852au_fw", "rtl8852au_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_69_2K}, /*RTL8852AU */
 { 0x0BDA, 0xE852, 0x8852, 0, 0, "mp_rtl8852au_fw", "rtl8852au_fw", "rtl8852au_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_69_2K}, /*RTL8852AU */
 { 0x0CB8, 0xC549, 0x8852, 0, 0, "mp_rtl8852au_fw", "rtl8852au_fw", "rtl8852au_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_69_2K}, /*RTL8852AU */
@@ -224,12 +229,29 @@ static usb_patch_info usb_fw_patch_table[] = {
 { 0x13D3, 0x3565, 0x8852, 0, 0, "mp_rtl8852au_fw", "rtl8852au_fw", "rtl8852au_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_69_2K}, /*RTL8852AU */
 { 0x13D3, 0x3566, 0x8852, 0, 0, "mp_rtl8852au_fw", "rtl8852au_fw", "rtl8852au_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_69_2K}, /*RTL8852AU */
 { 0x04C5, 0x165C, 0x8852, 0, 0, "mp_rtl8852au_fw", "rtl8852au_fw", "rtl8852au_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_69_2K}, /*RTL8852AU */
-{ 0x0BDA, 0xB852, 0x8852, 0, 0, "mp_rtl8852au_fw", "rtl8852au_fw", "rtl8852au_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_65_2K}, /*RTL8852AU */
+//RTL8852B
+{ 0x0BDA, 0x024C, 0x8852, 0, 0, "mp_rtl8852bu_fw", "rtl8852bu_fw", "rtl8852bu_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_65_2K}, /*RTL8852B */
 { 0x0BDA, 0xA85B, 0x8852, 0, 0, "mp_rtl8852bu_fw", "rtl8852bu_fw", "rtl8852bu_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_65_2K}, /*RTL8852B */
 { 0x0BDA, 0xB85B, 0x8852, 0, 0, "mp_rtl8852bu_fw", "rtl8852bu_fw", "rtl8852bu_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_65_2K}, /*RTL8852B */
+{ 0x0BDA, 0x4853, 0x8852, 0, 0, "mp_rtl8852bu_fw", "rtl8852bu_fw", "rtl8852bu_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_65_2K}, /*RTL8852B */
+{ 0x13D3, 0x3570, 0x8852, 0, 0, "mp_rtl8852bu_fw", "rtl8852bu_fw", "rtl8852bu_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_65_2K}, /*RTL8852B */
+//RTL8852C
 { 0x0BDA, 0xC85A, 0x8852, 0, 0, "mp_rtl8852cu_fw", "rtl8852cu_fw", "rtl8852cu_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_78K}, /*RTL8852C */
 { 0x0BDA, 0xC85D, 0x8852, 0, 0, "mp_rtl8852cu_fw", "rtl8852cu_fw", "rtl8852cu_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_78K}, /*RTL8852C */
 { 0x0BDA, 0x885C, 0x8852, 0, 0, "mp_rtl8852cu_fw", "rtl8852cu_fw", "rtl8852cu_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_78K}, /*RTL8852CU */
+{ 0x0BDA, 0x5852, 0x8852, 0, 0, "mp_rtl8852cu_fw", "rtl8852cu_fw", "rtl8852cu_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_78K}, /*RTL8852C */
+{ 0x0BDA, 0xC85C, 0x8852, 0, 0, "mp_rtl8852cu_fw", "rtl8852cu_fw", "rtl8852cu_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_78K}, /*RTL8852C */
+{ 0x0BDA, 0x886C, 0x8852, 0, 0, "mp_rtl8852cu_fw", "rtl8852cu_fw", "rtl8852cu_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_78K}, /*RTL8852C */
+{ 0x0BDA, 0x887C, 0x8852, 0, 0, "mp_rtl8852cu_fw", "rtl8852cu_fw", "rtl8852cu_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_78K}, /*RTL8852C */
+{ 0x04CA, 0x4007, 0x8852, 0, 0, "mp_rtl8852cu_fw", "rtl8852cu_fw", "rtl8852cu_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_78K}, /*RTL8852C */
+{ 0x0BDA, 0xC801, 0x8852, 0, 0, "mp_rtl8852cu_fw", "rtl8852cu_fw", "rtl8852cu_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_78K}, /*RTL8852C */
+{ 0x0BDA, 0xC802, 0x8852, 0, 0, "mp_rtl8852cu_fw", "rtl8852cu_fw", "rtl8852cu_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_78K}, /*RTL8852C */
+{ 0x0BDA, 0xC803, 0x8852, 0, 0, "mp_rtl8852cu_fw", "rtl8852cu_fw", "rtl8852cu_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_78K}, /*RTL8852C */
+{ 0x04C5, 0x1675, 0x8852, 0, 0, "mp_rtl8852cu_fw", "rtl8852cu_fw", "rtl8852cu_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_78K}, /*RTL8852C */
+{ 0x0CB8, 0xC558, 0x8852, 0, 0, "mp_rtl8852cu_fw", "rtl8852cu_fw", "rtl8852cu_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_78K}, /*RTL8852C */
+{ 0x13D3, 0x3587, 0x8852, 0, 0, "mp_rtl8852cu_fw", "rtl8852cu_fw", "rtl8852cu_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_78K}, /*RTL8852C */
+{ 0x13D3, 0x3586, 0x8852, 0, 0, "mp_rtl8852cu_fw", "rtl8852cu_fw", "rtl8852cu_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_78K}, /*RTL8852C */
+//RTL8852BP
 { 0x0BDA, 0xA85C, 0x8852, 0, 0, "mp_rtl8852bpu_fw", "rtl8852bpu_fw", "rtl8852bpu_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_65_2K}, /*RTL8852BP */
 { 0x0BDA, 0xA850, 0x8852, 0, 0, "mp_rtl8852bpu_fw", "rtl8852bpu_fw", "rtl8852bpu_config", NULL, 0 ,CONFIG_MAC_OFFSET_GEN_4PLUS, MAX_PATCH_SIZE_65_2K}, /*RTL8852BPE */
 /* todo: RTL8703CU */
@@ -347,7 +369,7 @@ static void usb_parse_extra_config(const char *path, usb_patch_info *patch_entry
 {
     int fd, ret;
     unsigned char buf[1024];
-
+    if(!patch_entry) return;
     fd = open(path, O_RDONLY);
     if(fd == -1) {
         ALOGI("Couldn't open extra config %s, err:%s", path, strerror(errno));
@@ -414,6 +436,7 @@ static inline int getUsbAltSettingVal(usb_patch_info *patch_entry, unsigned shor
 
     int i = 0;
     struct rtk_bt_vendor_config_entry *ptr = extra_extry;
+    if(!patch_entry) return res;
 
     while(ptr->offset)
     {
@@ -468,6 +491,8 @@ static void rtk_usb_update_altsettings(usb_patch_info *patch_entry, unsigned cha
     size_t config_len = *config_len_ptr;
     unsigned int  i = 0;
     int count = 0,temp = 0, j;
+
+    if(!patch_entry) return;
 
     if((extra_extry = (struct rtk_bt_vendor_config_entry *)malloc(MAX_ALT_CONFIG_SIZE)) == NULL)
     {
@@ -755,7 +780,7 @@ static void rtk_usb_get_bt_final_patch(bt_hw_cfg_cb_t* cfg_cb)
     }else if(2 == parsing_rule){
         fw_patch_len = rtk_get_v2_final_fw(cfg_cb);
     }
-    if(fw_patch_len <= 0){
+    if(fw_patch_len == 0){
         goto free_buf;
     }
     
@@ -922,7 +947,7 @@ void hw_usb_config_cback(void *p_mem)
 
                 hw_cfg_cb.config_len = rtk_usb_get_bt_config(&hw_cfg_cb.config_buf, prtk_usb_patch_file_info->config_name, prtk_usb_patch_file_info->mac_offset);
                 hw_cfg_cb.fw_len = rtk_get_bt_firmware(&hw_cfg_cb.fw_buf, prtk_usb_patch_file_info->patch_name);
-                ALOGE("hw_cfg_cb.config_len %d", hw_cfg_cb.config_len);
+                ALOGE("hw_cfg_cb.config_len %d", (int)hw_cfg_cb.config_len);
                 if (hw_cfg_cb.config_len)
                 {
                    ALOGE("update altsettings");

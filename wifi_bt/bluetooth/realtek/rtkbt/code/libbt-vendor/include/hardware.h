@@ -40,7 +40,7 @@
 #define MAX_PATCH_SIZE_24K            (1024*24 + 529)   //24K
 #define MAX_PATCH_SIZE_25K            (1024*25 + 529)   //25K for rtl8822b
 #define MAX_PATCH_SIZE_40K            (1024*40 + 529)   //40K
-#define MAX_PATCH_SIZE_49_2K          (0xC4Cf + 529)   //49.2K 8723f
+#define MAX_PATCH_SIZE_49_2K          (0xC4CF + 529)   //49.2K 8723f
 #define MAX_PATCH_SIZE_69_2K          (0x114D0 + 529)  //69.2K 8852a
 #define MAX_PATCH_SIZE_65_2K          (0x104D0 + 529)   //65.2K 8852b
 #define MAX_PATCH_SIZE_78K            (1024*78 + 529)   //78K  8852c
@@ -163,8 +163,8 @@ typedef struct
     uint8_t     *fw_buf;         /* FW patch file buf */
     uint8_t     *config_buf;     /* Config patch file buf */
     uint8_t     *total_buf;      /* FW & config extracted buf */
-    uint32_t     patch_frag_cnt;  /* Patch fragment count download */
-    uint8_t     patch_frag_idx;  /* Current patch fragment index */
+    uint16_t     patch_frag_cnt;  /* Patch fragment count download */
+    uint16_t     patch_frag_idx;  /* Current patch fragment index */
     uint8_t     patch_frag_len;  /* Patch fragment length */
     uint8_t     patch_frag_tail; /* Last patch fragment length */
     uint8_t     hw_flow_cntrl;   /* Uart flow control, bit7:set, bit0:enable */
@@ -219,6 +219,7 @@ typedef struct
 #define ROM_LMP_8851b               0x8851
 #define ROM_LMP_8822e               0x8822
 
+#define HCI_VERSION_5_3             0x000C
 #define HCI_VERSION_5_2             0x000B
 #define HCI_VERSION_5_1             0x000A
 #define HCI_VERSION_5_0             0x0009

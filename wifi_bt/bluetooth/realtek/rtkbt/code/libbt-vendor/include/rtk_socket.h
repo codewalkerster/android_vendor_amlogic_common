@@ -29,7 +29,6 @@
 #define RTK_SOCKET_H
 
 #include "bt_vendor_rtk.h"
-#include "userial.h"
 #include <sys/poll.h>
 #include <assert.h>
 #include <sys/select.h>

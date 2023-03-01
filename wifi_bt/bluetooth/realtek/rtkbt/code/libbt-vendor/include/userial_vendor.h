@@ -29,7 +29,6 @@
 #define USERIAL_VENDOR_H
 
 #include "bt_vendor_rtk.h"
-#include "userial.h"
 #include "hci_h5_int.h"
 #include <sys/poll.h>
 #include <assert.h>

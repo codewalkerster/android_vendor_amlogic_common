@@ -27,7 +27,7 @@
  ******************************************************************************/
 
 #define LOG_TAG "bt_hwcfg"
-#define RTKBT_RELEASE_NAME "20221117_BT_ANDROID_13.0_BETA"
+#define RTKBT_RELEASE_NAME "20230221_BT_ANDROID_13.0"
 
 #include <utils/Log.h>
 #include <sys/types.h>
@@ -40,10 +40,8 @@
 #include <ctype.h>
 #include <cutils/properties.h>
 #include <stdlib.h>
-#include "bt_hci_bdroid.h"
-#include "bt_vendor_rtk.h"
-#include "userial.h"
 #include "rtk_hci_layer.h"
+#include "bt_vendor_rtk.h"
 #include "userial_vendor.h"
 #include "upio.h"
 #include <unistd.h>
@@ -361,7 +359,7 @@ struct rtk_epatch_entry *rtk_get_patch_entry(bt_hw_cfg_cb_t *cfg_cb)
 
 uint16_t rtk_get_v1_final_fw(bt_hw_cfg_cb_t* cfg_cb)
 {
-    uint16_t fw_patch_len = -1;
+    uint16_t fw_patch_len = 0;
     struct rtk_epatch_entry* entry = NULL;
     struct rtk_epatch *patch = (struct rtk_epatch *)cfg_cb->fw_buf;
     entry = rtk_get_patch_entry(cfg_cb);
@@ -372,6 +370,7 @@ uint16_t rtk_get_v1_final_fw(bt_hw_cfg_cb_t* cfg_cb)
     else
     {
         cfg_cb->dl_fw_flag = 0;
+        return fw_patch_len;
     }
 
     ALOGI("total_len = 0x%x", cfg_cb->total_len);
@@ -414,10 +413,10 @@ uint16_t rtk_get_v1_final_fw(bt_hw_cfg_cb_t* cfg_cb)
 uint8_t rtk_insert_fw_patch_fragment_to_linklist(struct rtk_epatch_fragment *fragment,
         struct rtk_epatch_fragment_linklist **header)
 {
-    struct rtk_epatch_fragment_linklist *p = *header;
+    struct rtk_epatch_fragment_linklist *p ;
     struct rtk_epatch_fragment_linklist *q ;
     struct rtk_epatch_fragment_linklist *tmp;
-    tmp = (struct rtk_epatch_fragment_linklist *)malloc(sizeof(*p));
+    tmp = (struct rtk_epatch_fragment_linklist *)malloc(sizeof(struct rtk_epatch_fragment_linklist));
     //ALOGI("rtk_insert_fw_patch_fragment_to_linklist ");
     if(!tmp)
     {
@@ -437,7 +436,7 @@ uint8_t rtk_insert_fw_patch_fragment_to_linklist(struct rtk_epatch_fragment *fra
         *header = tmp;
         return 0;
     }
-
+    p = *header;
     q = p ->next;
     while(p){
          if(q) {
@@ -494,11 +493,9 @@ uint32_t rtk_get_fw_patch_link_list(bt_hw_cfg_cb_t* cfg_cb,
         p = p + 8 + section->length;
         if(section->length == 0)
             continue;
-
         section->number_of_fragment = le16_to_cpu(section->number_of_fragment);
         ALOGI("rtk_get_fw_patch_link_list: opcode: %d,  length:%d, number_of_fragment: %d",
            section->opcode, section->length, section->number_of_fragment);
-
         //Traversal patch fragment
         for(j = 0; j < section->number_of_fragment; j++){
             if(section->opcode != FW_OTA_FLAG){
@@ -558,10 +555,10 @@ uint32_t rtk_get_fw_patch_link_list(bt_hw_cfg_cb_t* cfg_cb,
            p = p + 8 + section->length;
            if(section->length == 0)
                continue;
-
            section->number_of_fragment = le16_to_cpu(section->number_of_fragment);
            ALOGI("rtk_get_fw_patch_link_list 2: opcode: %d,  length:%d, number_of_fragment: %d",
               section->opcode, section->length, section->number_of_fragment);
+
            //Traversal patch fragment
            if(section->opcode == FW_DUMMY_HEADER){
                for(j = 0; j < section->number_of_fragment; j++){
@@ -605,7 +602,7 @@ free_linklist:
 uint32_t rtk_get_v2_final_fw(bt_hw_cfg_cb_t* cfg_cb)
 {
     uint8_t *p, *data;
-    uint32_t fw_patch_len = -1;
+    uint32_t fw_patch_len = 0;
     uint32_t fw_version, svn_version, coex_version;
     uint16_t chip_id = cfg_cb->eversion + 1;
     struct rtk_epatch_fragment_linklist *fw_patch_link = NULL;
@@ -619,6 +616,7 @@ uint32_t rtk_get_v2_final_fw(bt_hw_cfg_cb_t* cfg_cb)
     else
     {
         cfg_cb->dl_fw_flag = 0;
+        return fw_patch_len;
     }
 
     ALOGI("fw_patch_len = 0x%x, total_len = 0x%x", fw_patch_len, cfg_cb->total_len);
@@ -627,7 +625,7 @@ uint32_t rtk_get_v2_final_fw(bt_hw_cfg_cb_t* cfg_cb)
     {
         ALOGE("Can't alloc memory for multi fw&config, errno:%d", errno);
         cfg_cb->dl_fw_flag = 0;
-        fw_patch_len = -1;
+        fw_patch_len = 0;
     }
     else
     {

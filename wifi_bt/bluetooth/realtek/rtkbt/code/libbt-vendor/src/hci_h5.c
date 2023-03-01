@@ -52,9 +52,8 @@
 #include "hci_h5_int.h"
 #include "bt_skbuff.h"
 #include "bt_list.h"
-#include "bt_hci_bdroid.h"
-#include "userial.h"
 #include "rtk_hci_layer.h"
+
 
 /******************************************************************************
 **  Constants & Macros

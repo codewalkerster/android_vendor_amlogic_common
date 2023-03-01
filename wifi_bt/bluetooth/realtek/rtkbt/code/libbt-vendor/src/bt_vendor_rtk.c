@@ -26,7 +26,7 @@
 
 #undef NDEBUG
 #define LOG_TAG "libbt_vendor"
-#define RTKBT_RELEASE_NAME "20221117_BT_ANDROID_13.0_BETA"
+#define RTKBT_RELEASE_NAME "20230221_BT_ANDROID_13.0"
 #include <utils/Log.h>
 #include "bt_vendor_rtk.h"
 #include "upio.h"
@@ -425,7 +425,7 @@ static int op(bt_vendor_opcode_t opcode, void *param)
     {
         case BT_VND_OP_POWER_CTRL:
             {
-                if (rtkbt_transtype & RTKBT_TRANS_UART) {
+                if(rtkbt_transtype & RTKBT_TRANS_UART) {
                     int *state = (int *) param;
                     if (*state == BT_VND_PWR_OFF)
                     {
@@ -456,7 +456,8 @@ static int op(bt_vendor_opcode_t opcode, void *param)
                   retval = userial_vendor_usb_ioctl(GET_USB_INFO, &usb_info);
                   if(retval == -1) {
                     ALOGE("get usb info fail");
-                    bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_FAIL);
+                    if(bt_vendor_cbacks)
+                       bt_vendor_cbacks->fwcfg_cb(BT_VND_OP_RESULT_FAIL);
                     return retval;
                   }
                   else
@@ -511,12 +512,11 @@ static int op(bt_vendor_opcode_t opcode, void *param)
                     BTVNDDBG("USB op for %d", opcode);
                     int fd, idx = 0;
                     int (*fd_array)[] = (int (*)[]) param;
-                    for(idx = 0; idx < 50; idx++) {
+                    for(idx = 0; idx < 10; idx++) {
                         if(userial_vendor_usb_open() != -1){
                             retval = 1;
                             break;
-                        } else
-                            usleep(20000);
+                        }
                     }
                     fd = userial_socket_open();
                     if (fd != -1)

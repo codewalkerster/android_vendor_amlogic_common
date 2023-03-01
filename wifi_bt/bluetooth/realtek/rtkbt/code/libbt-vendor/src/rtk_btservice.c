@@ -25,7 +25,7 @@
  ******************************************************************************/
 
 #define LOG_TAG "bt_service"
-#define RTKBT_RELEASE_NAME "20221027_BT_ANDROID_13.0"
+#define RTKBT_RELEASE_NAME "20230203_BT_ANDROID_13.0"
 
 #include <utils/Log.h>
 #include <sys/types.h>
@@ -40,10 +40,8 @@
 #include <ctype.h>
 #include <cutils/properties.h>
 #include <stdlib.h>
-#include "bt_hci_bdroid.h"
-#include "bt_vendor_rtk.h"
-#include "userial.h"
 #include "rtk_hci_layer.h"
+#include "bt_vendor_rtk.h"
 #include "userial_vendor.h"
 #include "rtk_btservice.h"
 #include "upio.h"
@@ -338,8 +336,9 @@ static void Rtk_Client_Cmd_Cback(void *p_mem)
 void Rtk_Service_Vendorcmd_Hook(Rtk_Service_Data *RtkData, int client_sock)
 {
     Rtkqueuedata* rtkqueue_data = NULL;
+    if(!rtk_btservice) return;
     pthread_mutex_lock(&rtk_btservice->cmdqueue_mutex);
-    if(!rtk_btservice || (rtk_btservice->cmdqueue_thread_running == 0)){
+    if(rtk_btservice->cmdqueue_thread_running == 0){
         ALOGE("rtkbt service is null or cmdqueue stop");
         pthread_mutex_unlock(&rtk_btservice->cmdqueue_mutex);
         return;
@@ -1021,3 +1020,5 @@ void RTK_btservice_destroyed()
 #endif
     ALOGD("%s destroyed done!", __func__);
 }
+
+

@@ -34,7 +34,7 @@
 *
 ******************************************************************************/
 #define LOG_TAG "rtk_parse"
-#define RTKBT_RELEASE_NAME "20221117_BT_ANDROID_13.0_BETA"
+#define RTKBT_RELEASE_NAME "20230221_BT_ANDROID_13.0"
 
 #include <utils/Log.h>
 #include <stdlib.h>
@@ -61,7 +61,6 @@
 #include <poll.h>
 
 #include "bt_list.h"
-#include "bt_hci_bdroid.h"
 #include "rtk_hci_layer.h"
 #include "rtk_parse.h"
 #include <sys/syscall.h>
