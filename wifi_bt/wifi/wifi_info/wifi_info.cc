@@ -117,6 +117,7 @@ static const dongle_info dongle_registerd[]={\
     {"0000","0000","8723bu","/vendor/lib/modules/8723bu.ko","ifname=wlan0 if2name=ap0",no_base,"rtl8723bu",0xb720,""}, \
     {"0000","0000","8822bu","/vendor/lib/modules/8822bu.ko","ifname=wlan0 if2name=ap0",no_base,"rtl8822bu",0xb82c,""}, \
     {"0000","0000","88x2cu","/vendor/lib/modules/88x2cu.ko","ifname=wlan0 if2name=ap0",no_base,"rtl88x2cu",0xc82c,""}, \
+    {"0000","0000","88x2eu","/vendor/lib/modules/88x2eu.ko","ifname=wlan0 if2name=ap0",no_base,"rtl88x2eu",0xa82a,""}, \
     {"0000","0000","8821cu","/vendor/lib/modules/8821cu.ko","ifname=wlan0 if2name=ap0",no_base,"rtl8821cu",0xc820,""}, \
     {"0000","0000","8821cu","/vendor/lib/modules/8821cu.ko","ifname=wlan0 if2name=ap0",no_base,"rtl8821cu",0xc811,""}, \
     {"3030","0000","ssv_hwif_ctrl","/vendor/lib/modules/ssv_hwif_ctrl.ko",no_base,ssv6051_base,"ssv6051",0x0,""}, \

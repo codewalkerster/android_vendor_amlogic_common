@@ -138,6 +138,17 @@ ifeq ($(rtl8822cu_build),true)
 WIFI_BUILT_MODULES += $(rtl8822cu_modules)
 endif
 
+WIFI_SUPPORT_DRIVERS += rtl8822eu
+rtl8822eu_build ?= true
+rtl8822eu_modules ?= rtl8822eu
+rtl8822eu_src_path ?= $(DRIVER_DIR)/realtek/8822eu
+rtl8822eu_copy_path ?=
+rtl8822eu_build_path ?= rtl88x2EU
+rtl8822eu_args ?=
+ifeq ($(rtl8822eu_build),true)
+WIFI_BUILT_MODULES += $(rtl8822eu_modules)
+endif
+
 WIFI_SUPPORT_DRIVERS += rtl8822cs
 rtl8822cs_build ?= false
 rtl8822cs_modules ?= rtl8822cs
