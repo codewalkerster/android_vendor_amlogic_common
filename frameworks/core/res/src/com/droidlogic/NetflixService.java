@@ -39,6 +39,11 @@ import android.view.Display;
 import android.os.Handler;
 
 import java.io.File;
+import java.lang.NumberFormatException;
+import java.lang.StringBuffer;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import android.os.SystemProperties;
@@ -47,6 +52,8 @@ import android.os.HandlerExecutor;
 import com.droidlogic.app.DroidLogicUtils;
 import com.droidlogic.app.SystemControlManager;
 import com.droidlogic.app.OutputModeManager;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class NetflixService extends Service {
     private static final String TAG = "NetflixService";
@@ -79,7 +86,10 @@ public class NetflixService extends Service {
     private static final String STR_ALWAYS = "0";
     private static final String STR_ADAPTIVE = "1";
     private static final int WAKEUP_REASON_CUSTOM = 9;
+    private static final int UI_AUDIO_DELAY_OFFSET_TV_NON_DOLBY = 60;
+    private static final int UI_AUDIO_DELAY_OFFSET_TV_MS12 = 110;
     private static boolean atmosSupported = false;
+    private static boolean atmosSupportedByConfig = false;
     private static boolean doblySupported = false;
     private boolean mIsNetflixFg = false;
     private boolean mIsYoutubeFg = false;
@@ -197,6 +207,8 @@ public class NetflixService extends Service {
         String buildDate = PlatformAPI.getStringProperty("ro.build.version.incremental", "");
         boolean needUpdate = !buildDate.equals(SettingsPref.getSavedBuildDate(mContext));
         hasMS12 = mOutputModeManager.isAudioSupportMs12System();
+        atmosSupportedByConfig = isAtmosConfiged();
+        Log.d(TAG, "atmosSupportedByConfig = " + atmosSupportedByConfig);
         setNrdpCapabilitiesIfNeed(NRDP_PLATFORM_CAP, needUpdate);
         setNrdpCapabilitiesIfNeed(NRDP_AUDIO_PLATFORM_CAP, needUpdate);
         if (needUpdate) {
@@ -407,17 +419,23 @@ public class NetflixService extends Service {
     }
 
     private void refreshAudioCapabilities(boolean isHdmiPlugged) {
+        boolean isTv = DroidLogicUtils.isTv();
         int surround = mOutputModeManager.getDigitalAudioFormatOut();
-        Log.i(TAG, "onReceived HDMI_PLUGGED: " + isHdmiPlugged + ", surround:" + DroidLogicUtils.audioFormatOutputToString(surround));
-        String audioSinkCap = mSCM.readSysFs(SYS_AUDIO_CAP);
-        atmosSupported = audioSinkCap.contains("Dolby_Digital+/ATMOS");
-        doblySupported = audioSinkCap.contains("Dolby_Digital");
-        if (isHdmiPlugged && (OutputModeManager.DIGITAL_AUDIO_FORMAT_AUTO == surround
-                || OutputModeManager.DIGITAL_AUDIO_FORMAT_PASSTHROUGH == surround)) {
-            Log.i(TAG, "ATMOS: " + atmosSupported + ", audioSinkCap: " + audioSinkCap);
-            setAtmosEnabled(atmosSupported);
-            if (hasMS12) {
-                setUiAudioBufferDelayOffset(doblySupported);
+        Log.i(TAG, "onReceived HDMI_PLUGGED: " + isHdmiPlugged + ", isTv:" + isTv + ", surround:" +
+                DroidLogicUtils.audioFormatOutputToString(surround));
+        if (isTv) {
+            tvNrdpAudioPlatformCapabilitiesConfig();
+        } else {
+            String audioSinkCap = mSCM.readSysFs(SYS_AUDIO_CAP);
+            atmosSupported = audioSinkCap.contains("Dolby_Digital+/ATMOS");
+            doblySupported = audioSinkCap.contains("Dolby_Digital");
+            if (isHdmiPlugged && (OutputModeManager.DIGITAL_AUDIO_FORMAT_AUTO == surround
+                || OutputModeManager.DIGITAL_AUDIO_FORMAT_PASSTHROUGH == surround) ) {
+                Log.i(TAG, "ATMOS: " + atmosSupported + ", audioSinkCap: " + audioSinkCap);
+                setAtmosEnabled(atmosSupported);
+                if (hasMS12) {
+                    setUiAudioBufferDelayOffset(doblySupported);
+                }
             }
         }
     }
@@ -450,7 +468,11 @@ public class NetflixService extends Service {
         }
     }
 
-    private void setUiAudioBufferDelayOffset(boolean enabled) {
+    private void setUiAudioBufferDelayOffset(boolean isDoblySupported) {
+        setUiAudioBufferDelayOffset(isDoblySupported ? 90 : 95);
+    }
+
+    private void setUiAudioBufferDelayOffset(int setOffset) {
         // Refer to /vendor/etc/nrdp_audio_platform_capabilities.json
         String audioCap = Settings.Global.getString(getContentResolver(), NRDP_AUDIO_PLATFORM_CAP);
         if (audioCap == null)
@@ -460,7 +482,6 @@ public class NetflixService extends Service {
             JSONObject rootObject = new JSONObject(audioCap);
             JSONObject audioCapsObject = rootObject.getJSONObject("audiocaps");
             int uiOffset = audioCapsObject.getInt("uiAudioBufferDelayOffset");
-            int setOffset = enabled ? 90 : 95;
             if (uiOffset != setOffset) {
                 Log.i(TAG, "uiOffset from  " + uiOffset + "to " + setOffset);
                 audioCapsObject.put("uiAudioBufferDelayOffset", setOffset);
@@ -469,6 +490,90 @@ public class NetflixService extends Service {
         } catch (org.json.JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean isAtmosConfiged() {
+        String capName_File = NRDP_AUDIO_PLATFORM_CAP;
+        if (hasMS12 && mOutputModeManager.getDigitalAudioFormatOut() == OutputModeManager.DIGITAL_AUDIO_FORMAT_AUTO) {
+            capName_File = NRDP_AUDIO_PLATFORM_CAP_MS12;
+        }
+
+        try {
+            Log.i(TAG, "capName_File = " + capName_File);
+            StringBuilder sb = new StringBuilder();
+            Scanner scanner = new Scanner(new File(NRDP_PLATFORM_CONFIG_DIR + capName_File + ".json"));
+            while (scanner.hasNextLine()) {
+                sb.append(scanner.nextLine());
+                sb.append('\n');
+            }
+            scanner.close();
+
+            JSONObject rootObject = new JSONObject(sb.toString());
+            JSONObject audioCapsObject = rootObject.getJSONObject("audiocaps");
+            JSONObject atmosObject = audioCapsObject.getJSONObject("atmos");
+
+            return atmosObject.getBoolean("enabled");
+        } catch(java.io.FileNotFoundException e) {
+            Log.d(TAG, e.getMessage());
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+            return false;
+        }
+
+    boolean isArcPluged(String hdmiArcStr)
+    {
+        if (TextUtils.isEmpty(hdmiArcStr)) {
+            Log.e(TAG, "hdmiArcStr is empty!");
+            return false;
+        }
+
+        if (hdmiArcStr != null && hdmiArcStr.contains("7, 0, 0, 0, 0") && hdmiArcStr.contains("10, 0, 0, 0, 0"))
+            return false;
+
+        return true;
+    }
+
+    boolean isArcSupportAtmos(String hdmiArcStr)
+    {
+        String regex = "\\[(10,\\s+\\d+,\\s+\\d+,\\s+\\d+,\\s+\\d+)]\\|set_";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(hdmiArcStr);
+        String formatStr = null;
+
+        if (matcher.find()) {
+            formatStr = matcher.group(1);
+            if (!TextUtils.isEmpty(formatStr)) {
+                Log.d(TAG, "formatStr:" + formatStr);
+                String[] formatArray = formatStr.split(",");
+                if (formatArray.length  > 0) {
+                    atmosSupported = (Integer.parseInt(formatArray[formatArray.length - 1].trim()) & 0x1)	> 0;
+                    Log.d(TAG,  "atmosSupported:" + atmosSupported  + " ,value:" + formatArray[formatArray.length - 1]);
+                    return atmosSupported;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private void tvNrdpAudioPlatformCapabilitiesConfig()
+    {
+        boolean isAtmos = atmosSupportedByConfig;
+
+        String hdmiArcStr = Settings.System.getString(getContentResolver(), "settings_audio_descriptor");
+
+        if (!TextUtils.isEmpty(hdmiArcStr)) {
+            Log.d(TAG, "hdmiArcStr = " + hdmiArcStr);
+            if (isArcPluged(hdmiArcStr)) {
+                isAtmos = isArcSupportAtmos(hdmiArcStr);
+            }
+        }
+
+        setAtmosEnabled(isAtmos);
+
+        setUiAudioBufferDelayOffset(hasMS12 ? UI_AUDIO_DELAY_OFFSET_TV_MS12 : UI_AUDIO_DELAY_OFFSET_TV_NON_DOLBY);
     }
 
     private class ProcessObserver extends IProcessObserver.Stub {
