@@ -42,10 +42,10 @@
 
 #include <utils/Log.h>
 
-#include "wifi_hal.h"
+#include <hardware_legacy/wifi_hal.h>
+#include <hardware_legacy/rtt.h>
 #include "common.h"
 #include "cpp_bindings.h"
-#include "rtt.h"
 /*
  BUGBUG: normally, libnl allocates ports for all connections it makes; but
  being a static library, it doesn't really know how many other netlink connections
