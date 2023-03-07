@@ -67,8 +67,7 @@
 
 #include <linux/videodev2.h>
 #include "ScreenControlDebug.h"
-#include "libyuv/scale_argb.h"
-#include "libyuv/convert_argb.h"
+
 
 namespace android {
 
@@ -130,7 +129,7 @@ ScreenManager::ScreenManager() :
     mWidth(-1),
     mHeight(-1),
     mSourceType(-1),
-    mBufferSize(0),
+    mMeanWhileFlag(false),
     mStartTimeOffsetUs(0){
 
     mCorpX = mCorpY = mCorpWidth = mCorpHeight =0;
@@ -223,37 +222,6 @@ static inline void yuv_to_rgb32(unsigned char y,unsigned char u,unsigned char v,
     *rgb = (unsigned char)b;
     rgb++;
     *rgb = 0xff;
-}
-
-void nv21_to_rgb32_(unsigned char *buf, unsigned char *rgb, int width, int height)
-{
-    int x,y,z=0;
-    int h,w;
-    int blocks;
-    unsigned char Y1, Y2, U, V;
-
-    blocks = (width * height) * 2;
-
-    for (h=0, z=0; h< height; h+=2) {
-        for (y = 0; y < width*2; y+=2) {
-
-            Y1 = buf[ h*width + y + 0];
-            V = buf[ blocks/2 + h*width/2 + y%width + 0 ];
-            Y2 = buf[ h*width + y + 1];
-            U = buf[ blocks/2 + h*width/2 + y%width + 1 ];
-
-            yuv_to_rgb32(Y1, U, V, &rgb[z]);
-            yuv_to_rgb32(Y2, U, V, &rgb[z + 4]);
-            z+=8;
-        }
-    }
-}
-static inline void argb_scale(unsigned char *src, unsigned char* dst, int width, int height, int dWidth, int dHeight)
-{
-    if (dWidth == 0 || dHeight == 0 || width == 0 || height == 0) {
-        return;
-    }
-    libyuv::ARGBScale((uint8_t*)src, width * 4, width, height, (uint8_t*)dst, dWidth * 4, dWidth, dHeight, libyuv::kFilterNone);
 }
 
 ScreenManager* ScreenManager::instantiate() {
@@ -602,59 +570,24 @@ status_t ScreenManager::stop(int32_t client_id)
     return OK;
 }
 
-status_t ScreenManager::readRawData(int32_t client_id,MediaBuffer *buffer, int width, int height) {
+status_t ScreenManager::readRawData(int32_t client_id,void **buffer) {
     Mutex::Autolock autoLock(mLock);
-    ALOGI("[%s %d] in ", __FUNCTION__, __LINE__);
+    // ALOGI("[%s %d] in ", __FUNCTION__, __LINE__);
     ScreenClient* client;
     FrameBufferInfo* frame = NULL;
     SCREENCONTROLDATATYPE source_data_type;
     client = mClientList.valueFor(client_id);
     source_data_type = client->data_type;
     if (mTempBuffer == NULL) {
-        mTempBuffer = new MediaBuffer(mWidth*mHeight*3);
-        mTempBuffer->set_range(0, 0);
+        mMeanWhileFlag = true;
         return !OK;
     }
-    if (mTempBuffer->data() == nullptr) {
-        ALOGE("get the null pointer !");
-        return !OK;
-    }
-    if (source_data_type == SCREENCONTROL_CANVAS_TYPE && mTempBuffer->range_length() > 0 ) {
-        if (width != mWidth || height != mHeight) {
-            size_t temp_size = mWidth*mHeight*4;
-            MediaBuffer* temp = new MediaBuffer(temp_size);
-            if (temp) {
-                nv21_to_rgb32_((unsigned char *)mTempBuffer->data(), (unsigned char *)temp->data() , mWidth, mHeight);
-                if (temp->data() == NULL) {
-                    ALOGE("[%s %d] nv21_to_rgb32_ error !", __FUNCTION__, __LINE__);
-                    temp->release();
-                    /* coverity[leaked_storage] */
-                    return !OK;
-                }
-                temp->set_range(0, temp_size);
-                argb_scale((unsigned char *)temp->data(), (unsigned char *)buffer->data(), mWidth, mHeight, width, height);
-                temp->release();
-                /* coverity[leaked_storage] */
-            }else {
-                ALOGE("new MediaBuffer failed");
-                return !OK;
-            }
-            /* coverity[leaked_storage] */
-        }else {
-            nv21_to_rgb32_((unsigned char *)mTempBuffer->data(), (unsigned char *)buffer->data() , mWidth, mHeight);
-            if (buffer->data() == NULL) {
-                ALOGE("[%s %d] nv21_to_rgb32_ error 2!", __FUNCTION__, __LINE__);
-                buffer->release();
-                /* coverity[leaked_storage] */
-                return !OK;
-            }
-        }
-
-        mTempBuffer->release();
-        mTempBuffer = NULL;
+    if (source_data_type == SCREENCONTROL_CANVAS_TYPE ) {
+        *buffer = mTempBuffer;
+        mMeanWhileFlag = false;
+        ALOGI("[%s %d] ok", __FUNCTION__, __LINE__);
         return OK;
     }
-    ALOGI("[%s %d] exit", __FUNCTION__, __LINE__);
     return !OK;
 
 }
@@ -766,7 +699,8 @@ status_t ScreenManager::freeBuffer(int32_t client_id, sp<IMemory>buffer) {
     if (SCREENCONTROL_CANVAS_TYPE == source_data_type && buffer->unsecurePointer() != NULL) {
         long buff_info[3] = {0,0,0};
         memcpy(&buff_info[0],(long *)buffer->unsecurePointer(), sizeof(buff_info));
-
+        if (mTempBuffer == (long *)buff_info[1])
+            mTempBuffer = NULL;
         if (mScreenDev)
             mScreenDev->ops.release_buffer(mScreenDev, (long *)buff_info[1]);
     }
@@ -849,9 +783,8 @@ int ScreenManager::dataCallBack(aml_screen_buffer_info_t *buffer){
                         frame->timestampUs = 0;
                         mCanvasFramesReceived.push_back(frame);
                         mCanvasClientExist = 1;
-                        if (mTempBuffer != NULL && mTempBuffer->data() != NULL) {
-                            memcpy(mTempBuffer->data(),buffer->buffer_mem,client->width*client->height*3/2);
-                            mTempBuffer->set_range(0, client->width*client->height*3/2);
+                        if (mMeanWhileFlag) {
+                            mTempBuffer = buffer->buffer_mem;
                         }
                     }
                 }

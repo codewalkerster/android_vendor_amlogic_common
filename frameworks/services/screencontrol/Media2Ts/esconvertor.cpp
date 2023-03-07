@@ -59,6 +59,8 @@
 #include <binder/IServiceManager.h>
 #include <binder/MemoryBase.h>
 #include <binder/MemoryHeapBase.h>
+#include "libyuv/scale_argb.h"
+#include "libyuv/convert_argb.h"
 
 #define TEST_VIDEO_BITRATE
 
@@ -69,6 +71,61 @@ namespace android {
 
 //#define ESCDUMPAUDIOAAC 1
 //#define ESCDUMPAUDIOPCM 1
+
+static inline void yuv_to_rgb32(unsigned char y,unsigned char u,unsigned char v,unsigned char *rgb)
+{
+    int r,g,b;
+
+    r = (1192 * (y - 16) + 1634 * (v - 128) ) >> 10;
+    g = (1192 * (y - 16) - 833 * (v - 128) - 400 * (u -128) ) >> 10;
+    b = (1192 * (y - 16) + 2066 * (u - 128) ) >> 10;
+
+    r = r > 255 ? 255 : r < 0 ? 0 : r;
+    g = g > 255 ? 255 : g < 0 ? 0 : g;
+    b = b > 255 ? 255 : b < 0 ? 0 : b;
+
+    /*ARGB*/
+    *rgb = (unsigned char)r;
+    rgb++;
+    *rgb = (unsigned char)g;
+    rgb++;
+    *rgb = (unsigned char)b;
+    rgb++;
+    *rgb = 0xff;
+}
+
+void nv21_to_rgb32_(unsigned char *buf, unsigned char *rgb, int width, int height)
+{
+    int x,y,z=0;
+    int h,w;
+    int blocks;
+    unsigned char Y1, Y2, U, V;
+
+    blocks = (width * height) * 2;
+
+    for (h=0, z=0; h< height; h+=2) {
+        for (y = 0; y < width*2; y+=2) {
+
+            Y1 = buf[ h*width + y + 0];
+            V = buf[ blocks/2 + h*width/2 + y%width + 0 ];
+            Y2 = buf[ h*width + y + 1];
+            U = buf[ blocks/2 + h*width/2 + y%width + 1 ];
+
+            yuv_to_rgb32(Y1, U, V, &rgb[z]);
+            yuv_to_rgb32(Y2, U, V, &rgb[z + 4]);
+            z+=8;
+        }
+    }
+}
+static inline void argb_scale(unsigned char *src, unsigned char* dst, int width, int height, int dWidth, int dHeight)
+{
+    if (dWidth == 0 || dHeight == 0 || width == 0 || height == 0) {
+        return;
+    }
+    libyuv::ARGBScale((uint8_t*)src, width * 4, width, height, (uint8_t*)dst, dWidth * 4, dWidth, dHeight, libyuv::kFilterNone);
+}
+
+
 
 int ESConvertor::CanvasdataCallBack(const sp<IMemory>& data){
     int ret = NO_ERROR;
@@ -132,6 +189,7 @@ ESConvertor::ESConvertor(int sourceType, int IsAudio) :
     mEncoder(NULL),
     mClientId(-1),
     mScreenManager(NULL),
+    mCaptureBuffer(NULL),
     mEscDumpAAC(-1),
     mEscDumpPcm(-1) {
     int fd1 = open("/dev/amvenc_avc", O_RDWR);
@@ -226,7 +284,54 @@ bool ESConvertor::isHaveOutputData(){
 }
 
 status_t ESConvertor::readRawData(MediaBuffer *buffer, int width, int height){
-    return mScreenManager->readRawData(mClientId,buffer,width,height);
+    void * raw = NULL;
+    status_t res = OK;
+    if (mScreenManager->readRawData(mClientId,(void **)&raw) != OK) {
+        return !OK;
+    }
+    if (raw == NULL) {
+        return !OK;
+    }
+    mCaptureBuffer = raw;
+    if (width != mWidth || height != mHeight) {
+        size_t temp_size = mWidth*mHeight*4;
+        MediaBuffer* temp = new MediaBuffer(temp_size);
+        if (temp) {
+            nv21_to_rgb32_((unsigned char *)raw, (unsigned char *)temp->data() , mWidth, mHeight);
+            if (temp->data() == NULL) {
+                ALOGE("[%s %d] nv21_to_rgb32_ error !", __FUNCTION__, __LINE__);
+                temp->release();
+                /* coverity[leaked_storage] */
+                return !OK;
+            }
+            temp->set_range(0, temp_size);
+            argb_scale((unsigned char *)temp->data(), (unsigned char *)buffer->data(), mWidth, mHeight, width, height);
+            temp->release();
+            /* coverity[leaked_storage] */
+        }else {
+            ALOGE("new MediaBuffer failed");
+            return !OK;
+        }
+        /* coverity[leaked_storage] */
+    }else {
+        nv21_to_rgb32_((unsigned char *)raw, (unsigned char *)buffer->data() , mWidth, mHeight);
+        if (buffer->data() == NULL) {
+            ALOGE("[%s %d] nv21_to_rgb32_ error 2!", __FUNCTION__, __LINE__);
+            buffer->release();
+            /* coverity[leaked_storage] */
+            return !OK;
+        }
+    }
+    mCaptureBuffer = NULL;
+    long buf_info[3] ={0};
+    sp<MemoryHeapBase> newMemoryHeap = new MemoryHeapBase(128*sizeof(long));
+    sp<MemoryBase> memory = new MemoryBase(newMemoryHeap, 0, 3*sizeof(long));
+    if (memory->unsecurePointer() == NULL)
+        return !OK;
+    buf_info[1] = (long) raw;
+    memcpy(memory->unsecurePointer(), buf_info, 3*sizeof(long));
+    mScreenManager->freeBuffer(mClientId, memory);
+    return OK;
 }
 
 status_t ESConvertor::checkAvcConvertDone(){
@@ -898,6 +1003,7 @@ int ESConvertor::threadVideoFunc() {
     bool first_pkt = 0;
 
     while (1) {
+        Mutex::Autolock autoLock(mLock);
         videoDequeueInputBuffer();
         if (mIsSoftwareEncoder) {
             videoSwEncoderFeedInputBuffer();
@@ -910,12 +1016,11 @@ int ESConvertor::threadVideoFunc() {
         if (err == !OK)
             usleep(2000);
 
-        if (mStarted == false)
+        if (mStarted == false) {
+            mThreadOutCondition.signal();
             break;
+        }
     }
-
-THREADOUT:
-    mThreadOutCondition.signal();
     ALOGI("[%s %d] mDequeueBufferTotal:%lld mQueueBufferTotal:%lld video thread out\n", __FUNCTION__, __LINE__, mDequeueBufferTotal, mQueueBufferTotal);
     return OK;
 }
@@ -1103,6 +1208,7 @@ status_t ESConvertor::stop()
     if (!mStarted) {
         return OK;
     }
+    Mutex::Autolock autoLock(mLock);
     mStarted = false;
     if (mIsSoftwareEncoder) {
         if (mIsAudio == VIDEO_ENCODE) {
@@ -1318,9 +1424,12 @@ void ESConvertor::signalBufferReturned(MediaBufferBase *buffer) {
             long buff_info[3] = {0,0,0};
             memcpy(buff_info, buffer->data(), 3*sizeof(long));
             memcpy(mBufferRelease->unsecurePointer(), buffer->data(), 3*sizeof(long));
-
-            //ALOGE("[%s %d] buff_info[0]:%x buff_info[1]:%x buff_info[2]:%x mClientId:%d pointer:%x",
-            //__FUNCTION__, __LINE__, buff_info[0], buff_info[1], buff_info[2], mClientId, mBufferRelease->pointer());
+            // ALOGE("[%s %d] buff_info[0]:%x buff_info[1]:%x buff_info[2]:%x mClientId:%d pointer:%x",
+            // __FUNCTION__, __LINE__, buff_info[0], buff_info[1], buff_info[2], mClientId, mBufferRelease->unsecurePointer());
+            if (mCaptureBuffer == (long *)buff_info[1]) {
+                ALOGD("cap running ,don't need to free");
+                return;
+            }
             mScreenManager->freeBuffer(mClientId, mBufferRelease);
         }
     }

@@ -181,6 +181,7 @@ private:
     sp<MemoryBase> mBufferGet;
     sp<MemoryBase> mBufferRelease;
     sp<ABuffer> mCSDbuffer;
+    void * mCaptureBuffer;
     ScreenManager* mScreenManager;
     int64_t mDequeueBufferTotal;
     int64_t mQueueBufferTotal;
