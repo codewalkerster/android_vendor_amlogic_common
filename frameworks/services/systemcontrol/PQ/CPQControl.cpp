@@ -1979,31 +1979,31 @@ int CPQControl::SaveColorTemperatureParams(vpp_color_temperature_mode_t Tempmode
     }else if (VPP_COLOR_TEMPERATURE_MODE_USER == Tempmode) {
         usuc.s = params.en;
         ret |= mSSMAction->SSMSaveRGBOGOValue(60, 2, usuc.c);
-        
+
         suc.s = params.r_pre_offset;
         ret |= mSSMAction->SSMSaveRGBOGOValue(62, 2, suc.c);
-        
+
         suc.s = params.g_pre_offset;
         ret |= mSSMAction->SSMSaveRGBOGOValue(64, 2, suc.c);
-        
+
         suc.s = params.b_pre_offset;
         ret |= mSSMAction->SSMSaveRGBOGOValue(66, 2, suc.c);
-        
+
         usuc.s = params.r_gain;
         ret |= mSSMAction->SSMSaveRGBOGOValue(68, 2, usuc.c);
-        
+
         usuc.s = params.g_gain;
         ret |= mSSMAction->SSMSaveRGBOGOValue(70, 2, usuc.c);
-        
+
         usuc.s = params.b_gain;
         ret |= mSSMAction->SSMSaveRGBOGOValue(72, 2, usuc.c);
-        
+
         suc.s = params.r_post_offset;
         ret |= mSSMAction->SSMSaveRGBOGOValue(74, 2, suc.c);
-        
+
         suc.s = params.g_post_offset;
         ret |= mSSMAction->SSMSaveRGBOGOValue(76, 2, suc.c);
-        
+
         suc.s = params.b_post_offset;
         ret |= mSSMAction->SSMSaveRGBOGOValue(78, 2, suc.c);
     }
@@ -3053,10 +3053,10 @@ int CPQControl::DBGammaBlend(tcon_gamma_table_t *wb_gamma, GAMMA_TABLE *index_ga
 {
     unsigned int i, final_value;
     unsigned int blend_alp, blend_bet;
-    for(i = 1; i < 255; i++) {
+    for (i = 1; i < (GAMMA_NUMBER - 1); i++) {
         blend_alp = index_gamma->data[i] / 1000;
         blend_bet = index_gamma->data[i] % 1000;
-        if (blend_alp > 255) {
+        if (blend_alp > (GAMMA_NUMBER - 1)) {
             SYS_LOGD("%s, blend_gamma->data[i] = %d\n", __FUNCTION__, i, index_gamma->data[i]);
             SYS_LOGD("%s, blend_alp = %d\n", __FUNCTION__, blend_alp);
             SYS_LOGD("%s, blend_bet = %d\n", __FUNCTION__, blend_bet);
@@ -3064,20 +3064,21 @@ int CPQControl::DBGammaBlend(tcon_gamma_table_t *wb_gamma, GAMMA_TABLE *index_ga
         }
         final_value = wb_gamma->data[blend_alp] + (wb_gamma->data[blend_alp + 1] - wb_gamma->data[blend_alp]) * (blend_bet / 1000);
         target_gamma->data[i] = (unsigned short)final_value;
+        SYS_LOGD("%s, target_gamma->data[%d] = %d\n", __FUNCTION__, i, target_gamma->data[i]);
     }
 
     target_gamma->data[0] = wb_gamma->data[0];
-    target_gamma->data[255] = wb_gamma->data[255];
+    target_gamma->data[GAMMA_NUMBER - 1] = wb_gamma->data[GAMMA_NUMBER - 1];
 
     return 0;
 }
 
-int CPQControl::Cpq_SetGammaTbl_R(unsigned short red[256])
+int CPQControl::Cpq_SetGammaTbl_R(unsigned short red[GAMMA_NUMBER])
 {
     struct tcon_gamma_table_s Redtbl;
     int ret = -1, i = 0;
 
-    for (i = 0; i < 256; i++) {
+    for (i = 0; i < GAMMA_NUMBER; i++) {
         Redtbl.data[i] = red[i];
     }
 
@@ -3088,12 +3089,12 @@ int CPQControl::Cpq_SetGammaTbl_R(unsigned short red[256])
     return ret;
 }
 
-int CPQControl::Cpq_SetGammaTbl_G(unsigned short green[256])
+int CPQControl::Cpq_SetGammaTbl_G(unsigned short green[GAMMA_NUMBER])
 {
     struct tcon_gamma_table_s Greentbl;
     int ret = -1, i = 0;
 
-    for (i = 0; i < 256; i++) {
+    for (i = 0; i < GAMMA_NUMBER; i++) {
         Greentbl.data[i] = green[i];
     }
 
@@ -3105,12 +3106,12 @@ int CPQControl::Cpq_SetGammaTbl_G(unsigned short green[256])
     return ret;
 }
 
-int CPQControl::Cpq_SetGammaTbl_B(unsigned short blue[256])
+int CPQControl::Cpq_SetGammaTbl_B(unsigned short blue[GAMMA_NUMBER])
 {
     struct tcon_gamma_table_s Bluetbl;
     int ret = -1, i = 0;
 
-    for (i = 0; i < 256; i++) {
+    for (i = 0; i < GAMMA_NUMBER; i++) {
         Bluetbl.data[i] = blue[i];
     }
 
@@ -5667,9 +5668,9 @@ int CPQControl::FactorySetGamma(int gamma_r_value, int gamma_g_value, int gamma_
     int ret = 0;
     tcon_gamma_table_t gamma_r, gamma_g, gamma_b;
 
-    memset(gamma_r.data, (unsigned short)gamma_r_value, 256);
-    memset(gamma_g.data, (unsigned short)gamma_g_value, 256);
-    memset(gamma_b.data, (unsigned short)gamma_b_value, 256);
+    memset(gamma_r.data, (unsigned short)gamma_r_value, GAMMA_NUMBER);
+    memset(gamma_g.data, (unsigned short)gamma_g_value, GAMMA_NUMBER);
+    memset(gamma_b.data, (unsigned short)gamma_b_value, GAMMA_NUMBER);
 
     ret |= Cpq_SetGammaTbl_R((unsigned short *) gamma_r.data);
     ret |= Cpq_SetGammaTbl_G((unsigned short *) gamma_g.data);

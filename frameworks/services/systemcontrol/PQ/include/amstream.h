@@ -128,8 +128,10 @@
 #define AUDIO_EXTRA_DATA_SIZE   (4096)
 #define MAX_SUB_NUM     32
 
+#define GAMMA_NUMBER 257
+
 typedef struct tcon_gamma_table_s {
-    unsigned short data[256];
+    unsigned short data[GAMMA_NUMBER];
 } tcon_gamma_table_t;
 
 typedef struct _GAMMA_TABLE {

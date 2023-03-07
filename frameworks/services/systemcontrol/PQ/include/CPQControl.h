@@ -448,9 +448,9 @@ public:
     int Cpq_GetRGBOGO(const struct tcon_rgb_ogo_s *rgbogo);
     int Cpq_LoadGamma(vpp_gamma_curve_t gamma_curve, vpp_color_temperature_mode_t colortemp_mode);
     int DBGammaBlend(tcon_gamma_table_t *wb_gamma, GAMMA_TABLE *index_gamma, tcon_gamma_table_t *target_gamma);
-    int Cpq_SetGammaTbl_R(unsigned short red[256]);
-    int Cpq_SetGammaTbl_G(unsigned short green[256]);
-    int Cpq_SetGammaTbl_B(unsigned short blue[256]);
+    int Cpq_SetGammaTbl_R(unsigned short red[GAMMA_NUMBER]);
+    int Cpq_SetGammaTbl_G(unsigned short green[GAMMA_NUMBER]);
+    int Cpq_SetGammaTbl_B(unsigned short blue[GAMMA_NUMBER]);
     int Cpq_SetGammaOnOff(int onoff);
     int Cpq_SetCABC(const db_cabc_param_t *pCABC);
     int SetCabc(void);
