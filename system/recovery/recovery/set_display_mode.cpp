@@ -27,6 +27,10 @@ int set_display_mode(const char *path)
 
     //don't end this progress, wait for hdmi plug detect thread.
     while (1) {
+        /*
+         * This is the logic, no need check return value.
+         */
+        /* coverity[side_effect_free:SUPPRESS] */
         usleep(10000000);
     }
 

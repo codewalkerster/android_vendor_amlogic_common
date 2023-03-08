@@ -74,11 +74,19 @@ static int exec_cmd_aml(const std::vector<std::string>& args) {
 
     pid_t child;
     if ((child = fork()) == 0) {
+        /*
+         * This is the logic, no need check return value.
+         */
+        /* coverity[side_effect_free:SUPPRESS] */
         execv(argv[0], argv.data());
         _exit(EXIT_FAILURE);
     }
 
     int status;
+    /*
+     * This is the logic, no need check return value.
+     */
+    /* coverity[side_effect_free:SUPPRESS] */
     waitpid(child, &status, 0);
     if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
         LOG(ERROR) << args[0] << " failed with status " << WEXITSTATUS(status);
