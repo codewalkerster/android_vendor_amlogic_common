@@ -173,7 +173,7 @@ public class OutputModeManager {
     public static final String DB_ID_AUDIO_OUTPUT_DEVICE_ARC_ENABLE     = "db_id_audio_output_device_arc_enable";
 
     public static final String TV_ARC_LATENCY                           = "tv_arc_latency";
-    public static final String PROPERTY_LOCAL_ARC_LATENCY               = "media.amnuplayer.audio.delayus";
+    public static final String PROPERTY_LOCAL_ARC_LATENCY               = "vendor.media.amnuplayer.audio.delayus";
     public static final int TV_ARC_LATENCY_MIN                          = -200;
     public static final int TV_ARC_LATENCY_MAX                          = 200;
     public static final int TV_ARC_LATENCY_DEFAULT                      = -40;
