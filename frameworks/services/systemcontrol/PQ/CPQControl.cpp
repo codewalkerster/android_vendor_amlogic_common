@@ -1488,7 +1488,7 @@ tcon_rgb_ogo_t CPQControl::GetColorTemperatureUserParam(void)
     param.g_gain = data.g_gain_value;
     param.b_gain = data.b_gain_value;
     param.r_post_offset = data.r_offset_value;
-    param.g_post_offset = data.b_offset_value;
+    param.g_post_offset = data.g_offset_value;
     param.b_post_offset = data.b_offset_value;
 
     return param;
@@ -1678,7 +1678,7 @@ int CPQControl::Cpq_SaveColorTemperatureUser(vpp_color_temperature_mode_t mode, 
             ret |= mSSMAction->SSMSaveRGBPostOffsetGStart(offset, value);
         break;
         case B_POST_OFFSET:
-            ret |= mSSMAction->SSMSaveRGBPostOffsetBStart((int)mode, value);
+            ret |= mSSMAction->SSMSaveRGBPostOffsetBStart(offset, value);
         break;
         default:
             ret = -1;
@@ -2995,26 +2995,6 @@ int CPQControl::GetGammaValue()
     SYS_LOGD("%s, source: %d, value = %d\n", __FUNCTION__, mSourceInputForSaveParam, gammaValue);
     return gammaValue;
 }
-
-/*int CPQControl::Cpq_LoadGamma(vpp_gamma_curve_t gamma_curve)
-{
-    int ret = 0;
-    tcon_gamma_table_t gamma_r, gamma_g, gamma_b;
-
-    ret |= mPQdb->PQ_GetGammaSpecialTable(gamma_curve, "Red", &gamma_r);
-    ret |= mPQdb->PQ_GetGammaSpecialTable(gamma_curve, "Green", &gamma_g);
-    ret |= mPQdb->PQ_GetGammaSpecialTable(gamma_curve, "Blue", &gamma_b);
-
-    if (ret < 0) {
-        SYS_LOGE("%s, PQ_GetGammaSpecialTable failed!", __FUNCTION__);
-    } else {
-        Cpq_SetGammaTbl_R((unsigned short *) gamma_r.data);
-        Cpq_SetGammaTbl_G((unsigned short *) gamma_g.data);
-        Cpq_SetGammaTbl_B((unsigned short *) gamma_b.data);
-    }
-
-    return ret;
-}*/
 
 int CPQControl::Cpq_LoadGamma(vpp_gamma_curve_t gamma_curve, vpp_color_temperature_mode_t colortemp_mode)
 {
