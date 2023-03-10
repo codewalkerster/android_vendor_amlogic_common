@@ -56,6 +56,6 @@ cc_library_static {
 }
 
 filegroup {
-    name: "android.hardware.wifi.supplicant.xml",
-    srcs: ["android.hardware.wifi.supplicant.xml"],
+    name: "android.hardware.wifi.supplicant.amlogic.xml",
+    srcs: ["android.hardware.wifi.supplicant.amlogic.xml"],
 }

@@ -25,7 +25,6 @@ bootstrap_go_package {
     pluginFor: ["soong_build"],
 }
 
-
 droidlogic_icu_go_defaults {
     name: "droidlogic_icu_go_defaults",
 }
