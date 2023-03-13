@@ -124,6 +124,11 @@ public class DataProvider extends ContentProvider {
                 db.execSQL(SQL_CREATE_TABLE_CHANNEL);
             }
         }
+
+        @Override
+        public void onDowngrade(final SQLiteDatabase db, final int oldVersion, final int newVersion) {
+            Log.d(TAG, "onDowngrade");
+        }
     }
 
     @Override
