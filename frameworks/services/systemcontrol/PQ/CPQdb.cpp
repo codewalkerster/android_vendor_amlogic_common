@@ -111,6 +111,10 @@ int CPQdb::getRegValues(const char *table_name, am_regs_t *regs)
         strcpy(table_name_copy, table_name);
         SYS_LOGD("%s, table_name_copy=%s\n", __FUNCTION__, table_name_copy);
         table_name_split = strtok(table_name_copy, delim);
+        if (table_name_split == NULL) {
+            SYS_LOGE("%s, table_name_split is null\n", __FUNCTION__);
+            return rval;
+        }
         SYS_LOGD("%s, table_name_split=%s\n", __FUNCTION__, table_name_split);
 
         if (strcmp(table_name_split, "Sharpness") == 0) { //Sharpness_xx.xml

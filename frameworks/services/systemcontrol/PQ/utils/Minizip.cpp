@@ -660,7 +660,8 @@ int Minizip::testCompressFile(const char *dst_path, const char *src_name)
     if (access(dst_path, 0) < 0)
     {
         SYS_LOGD("folder \"%s\"is not exist, create it.\n", dst_path);
-        mkdir(dst_path, 0777);
+        if (mkdir(dst_path, 0777) < 0)
+            SYS_LOGE("dst_path \"%s\" create failed!\n", dst_path);
     }
 
     strcpy(tmp_path, dst_path);

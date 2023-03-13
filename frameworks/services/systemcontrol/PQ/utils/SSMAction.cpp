@@ -89,7 +89,8 @@ void SSMAction::init(const char *SsmDataPath, const char *SsmDataHandlerPath, co
         if (DeviceMarkCheck() < 0 || SSM_status == SSM_HEADER_INVALID) {
             if (mpObserver != NULL) {
                 mpObserver->resetAllUserSettingParam();
-                mSSMHandler->SSMRecreateHeader();
+                if (mSSMHandler->SSMRecreateHeader())
+                    SYS_LOGD ("%s, SSMRecreateHeader success\n", __FUNCTION__);
                 RestoreDeviceMarkValues();
             } else {
                 SYS_LOGE ("%s: SSMActionObserver is NULL!\n", __FUNCTION__);
@@ -214,6 +215,11 @@ int SSMAction::RestoreDeviceMarkValues()
 
 int SSMAction::WriteBytes(int offset, int size, int *buf)
 {
+    if (m_dev_fd < 0) {
+        SYS_LOGE("%s m_dev_fd is negative.\n", __FUNCTION__);
+        return -1;
+    }
+
     if (lseek(m_dev_fd, offset, SEEK_SET) == -1) {
         SYS_LOGE("%s lseek failed\n", __FUNCTION__);
         return -1;
@@ -228,6 +234,10 @@ int SSMAction::WriteBytes(int offset, int size, int *buf)
 }
 int SSMAction::ReadBytes(int offset, int size, int *buf)
 {
+    if (m_dev_fd < 0) {
+        SYS_LOGE("%s m_dev_fd is negative.\n", __FUNCTION__);
+        return -1;
+    }
 
     if (lseek(m_dev_fd, offset, SEEK_SET) == -1) {
         SYS_LOGE("%s lseek failed\n", __FUNCTION__);
@@ -243,7 +253,13 @@ int SSMAction::ReadBytes(int offset, int size, int *buf)
 }
 int SSMAction::EraseAllData()
 {
-    ftruncate(m_dev_fd, 0);
+    if (m_dev_fd < 0) {
+        SYS_LOGE("%s m_dev_fd is negative.\n", __FUNCTION__);
+        return -1;
+    }
+
+    if (ftruncate(m_dev_fd, 0) < 0)
+        SYS_LOGE("%s ftruncate failed\n", __FUNCTION__);
     lseek(m_dev_fd, 0, SEEK_SET);
 
     return 0;
@@ -906,7 +922,7 @@ int SSMAction::SSMSaveDDRSSC(unsigned char rw_val)
 
 int SSMAction::SSMReadDDRSSC(unsigned char *rw_val)
 {
-    int tmp_val;
+    int tmp_val = 0;
     int ret = 0;
     ret = SSMReadNTypes(VPP_DATA_POS_DDR_SSC_START, 1, &tmp_val);
     *rw_val = tmp_val;
@@ -916,17 +932,12 @@ int SSMAction::SSMReadDDRSSC(unsigned char *rw_val)
 
 int SSMAction::SSMSaveLVDSSSC(int *rw_val)
 {
-    int tmp_val;
-    int ret = 0;
-    ret = SSMWriteNTypes(VPP_DATA_POS_LVDS_SSC_START, 3, &tmp_val);
-    *rw_val = tmp_val;
-
-    return ret;
+    return SSMWriteNTypes(VPP_DATA_POS_LVDS_SSC_START, 3, rw_val);
 }
 
 int SSMAction::SSMReadLVDSSSC(int *rw_val)
 {
-    int tmp_val;
+    int tmp_val = 0;
     int ret = 0;
     ret = SSMReadNTypes(VPP_DATA_POS_LVDS_SSC_START, 3, &tmp_val);
     *rw_val = tmp_val;

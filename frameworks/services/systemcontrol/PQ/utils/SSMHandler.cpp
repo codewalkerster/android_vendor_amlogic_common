@@ -422,7 +422,8 @@ bool SSMHandler::SSMRecreateHeader()
 {
     bool ret = true;
 
-    ftruncate(mFd, 0);
+    if (ftruncate(mFd, 0) < 0)
+        SYS_LOGE("%s ftruncate failed\n", __FUNCTION__);
     lseek(mFd, 0, SEEK_SET);
 
     //cal Addr and write

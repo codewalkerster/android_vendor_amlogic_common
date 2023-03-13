@@ -182,7 +182,8 @@ bool CDynamicBackLight::threadLoop()
 
     while (!exitPending()) {
         if (mArithmeticPauseTime != -1) {
-            usleep(mArithmeticPauseTime);
+            if (usleep(mArithmeticPauseTime) < 0)
+                SYS_LOGE("usleep interrupt!\n");
             SYS_LOGD ("Pasuse %d usecs", mArithmeticPauseTime);
             mArithmeticPauseTime = -1;
         }

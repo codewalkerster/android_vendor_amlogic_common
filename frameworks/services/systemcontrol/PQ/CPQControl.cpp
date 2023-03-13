@@ -54,7 +54,9 @@ CPQControl::CPQControl()
     mDiFd = -1;
     mLdFd = -1;
     mMemcFd = -1;
-    mLcdFd=  -1;
+    mLcdFd =  -1;
+    mVideoTunelFd = -1;
+    mCurrentNodeNumber = 0;
     mSourceInputForSaveParam = SOURCE_MPEG;
     mCurrentAfdInfo = TVIN_ASPECT_NULL;
     mInitialized   = false;
@@ -10159,6 +10161,11 @@ int CPQControl::getHdrPolicy(void)
 
     memset(hdr_policy, 0, sizeof(hdr_policy));
     ret = pqReadSys(PQ_DISPLAY_HDR_POLICY, hdr_policy, sizeof(hdr_policy));
+    if (ret >= 0) {
+        hdr_policy[ret] = 0;
+    } else {
+        memset(hdr_policy, 0, sizeof(hdr_policy));
+    }
     SYS_LOGD("%s ret %d hdr_policy %s\n", __FUNCTION__, ret, hdr_policy);
 
     if (strcmp(hdr_policy, "1") == 0) { //adaptive Hdr
