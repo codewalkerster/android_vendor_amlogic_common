@@ -12,7 +12,7 @@
  */
 #include "res_pack_i.h"
 
-#define BUFSIZE     1024*16
+#define BUFSIZE     1024*8
 
 static unsigned int crc_table[256];
 

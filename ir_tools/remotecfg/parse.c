@@ -111,9 +111,9 @@ int GetKeyValue(char *line, char **key, char **value)
 	}
 	if (!p2 || !*p2)
 		return -1;
-	StrTrim(&p1);
 	if (!p1 || !*p1)
 		return -1;
+	StrTrim(&p1);
 	*value = p2;
 	*key = p1;
 	return 0;

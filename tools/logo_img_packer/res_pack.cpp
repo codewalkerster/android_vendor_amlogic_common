@@ -23,7 +23,7 @@ COMPILE_TYPE_CHK(AML_RES_ITEM_HEAD_SZ == sizeof(AmlResItemHead_t), b);//assert t
 #define ITEM_READ_BUF_SZ    (64U<<10)//64K to test
 
 #define cov_fseek(fp, off, pos, ret) do {\
-    if (fseek(fp, off, pos)) {fprintf(stderr, "fseek err, err %d\n", __LINE__, errno); return ret;} \
+    if (fseek(fp, off, pos)) {fprintf(stderr, "fseek err, err %d, %s\n", __LINE__, strerror(errno)); return ret;} \
 } while(0)
 
 typedef int (*pFunc_getFile)(const char** const , __hdle *, char* );
@@ -426,7 +426,8 @@ int res_img_unpack(const char* const path_src, const char* const unPackDirPath, 
                         itemTotalReadLen += thisReadSz;
 
                         const unsigned thisWriteSz = itemTotalReadLen < thisItemBodySz ? thisReadSz : (thisReadSz - stuffLen);
-                        actualReadSz = fwrite(itemReadBuf, 1, thisWriteSz, fp_item);
+                        if (thisWriteSz <= thisReadSz)
+                            actualReadSz = fwrite(itemReadBuf, 1, thisWriteSz, fp_item);
                         if (thisWriteSz != actualReadSz) {
                                 errorP("want write 0x%x, but 0x%x\n", thisWriteSz, actualReadSz);
                                 ret = __LINE__;goto _exit;
