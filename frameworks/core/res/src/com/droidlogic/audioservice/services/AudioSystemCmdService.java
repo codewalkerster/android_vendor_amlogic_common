@@ -374,7 +374,7 @@ public class AudioSystemCmdService extends Service {
         final IntentFilter filter = new IntentFilter();
         filter.addAction(AudioManager.VOLUME_CHANGED_ACTION);
         filter.addAction(AudioManager.STREAM_MUTE_CHANGED_ACTION);
-        mContext.registerReceiver(mVolumeReceiver, filter);
+        mContext.registerReceiver(mVolumeReceiver, filter, mContext.RECEIVER_EXPORTED);
         mObserver.startObserving(PATH_AUDIOFORMAT_UEVENT);
         mObserver.startObserving(PATH_TXLX_AUDIOFORMAT_UEVENT);
         if (mTvInputManager != null) {

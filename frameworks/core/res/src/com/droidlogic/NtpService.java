@@ -71,7 +71,7 @@ public class NtpService extends Service {
         if (!register) {
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-            registerReceiver(mConnectivityReceiver, intentFilter);
+            registerReceiver(mConnectivityReceiver, intentFilter, this.RECEIVER_EXPORTED);
             register = true;
         }
     }

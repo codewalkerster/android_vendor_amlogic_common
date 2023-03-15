@@ -39,7 +39,7 @@ public class DroidLogicBenchService extends Service {
         PackageManager mPackageManager = mContext.getPackageManager();
         final IntentFilter packageFilter = new IntentFilter();
         packageFilter.addAction(ACTION_LAUNCH_BENCH_APP);
-        mContext.registerReceiver(new PackageReceiver(), packageFilter);
+        mContext.registerReceiver(new PackageReceiver(), packageFilter, mContext.RECEIVER_EXPORTED);
         initPoorApp();
     }
 

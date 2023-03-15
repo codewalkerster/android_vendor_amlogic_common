@@ -53,7 +53,7 @@ public class NetworkSwitchService extends Service {
         super.onCreate();
         IntentFilter filter = new IntentFilter();
         filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
-        registerReceiver(mReceiver, filter);
+        registerReceiver(mReceiver, filter, this.RECEIVER_EXPORTED);
     }
 
     @Override

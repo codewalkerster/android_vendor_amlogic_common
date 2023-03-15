@@ -154,7 +154,7 @@ public class ArcVolumeController {
         filter.addAction(AudioManager.VOLUME_CHANGED_ACTION);
         filter.addAction(AudioManager.STREAM_MUTE_CHANGED_ACTION);
         filter.addAction(HdmiControlManager.ACTION_OSD_MESSAGE);
-        mContext.registerReceiver(mVolumeReceiver, filter);
+        mContext.registerReceiver(mVolumeReceiver, filter, mContext.RECEIVER_EXPORTED);
     }
 
     private void handleVolumeChange(Context context, Intent intent) {

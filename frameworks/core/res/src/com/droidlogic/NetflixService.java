@@ -204,7 +204,7 @@ public class NetflixService extends Service {
         }
 
         IntentFilter filter = new IntentFilter("android.intent.action.HDMI_PLUGGED");
-        registerReceiver(mHPReceiver, filter);
+        registerReceiver(mHPReceiver, filter, mContext.RECEIVER_EXPORTED);
         refreshAudioCapabilities(true);
 
         mSettingsObserver = new SettingsObserver(new Handler());

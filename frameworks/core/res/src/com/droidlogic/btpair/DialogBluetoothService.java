@@ -364,8 +364,7 @@ public class DialogBluetoothService extends Service {
         filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
         //filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         //filter.addAction(BluetoothHidHost.ACTION_CONNECTION_STATE_CHANGED);
-        registerReceiver(receiver, filter);
-
+        registerReceiver(receiver, filter, mContext.RECEIVER_EXPORTED);
         // On service start, check for supported devices
         mHandler.postDelayed(mConnRunnable, CONNECT_DELAY_MS_BOOT);
         mHandler.postDelayed(mStartDiscoveryRunnable, CONNECTING_TIMEOUT);

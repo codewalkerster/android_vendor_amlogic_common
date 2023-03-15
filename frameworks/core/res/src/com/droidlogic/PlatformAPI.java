@@ -46,7 +46,7 @@ final class PlatformAPI {
             Handler receiverHandler) {
         try {
             sMethod_registerReceiverAsUser.invoke(context, receiver, user,
-                    filter, broadcastPermission, receiverHandler);
+                    filter, broadcastPermission, receiverHandler, context.RECEIVER_EXPORTED);
          } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
        } catch (InvocationTargetException e) {

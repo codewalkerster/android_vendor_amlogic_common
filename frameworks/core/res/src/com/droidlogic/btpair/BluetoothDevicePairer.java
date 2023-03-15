@@ -115,7 +115,7 @@ public class BluetoothDevicePairer {
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
         filter.addAction(BluetoothHidHost.ACTION_CONNECTION_STATE_CHANGED);
-        mContext.registerReceiver(mReceiver, filter);
+        mContext.registerReceiver(mReceiver, filter, mContext.RECEIVER_EXPORTED);
         msHandler = new Handler(Looper.getMainLooper());
         mHandler = new Handler() {
             @Override

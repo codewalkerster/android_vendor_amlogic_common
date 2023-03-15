@@ -55,7 +55,7 @@ public class DroidLogicPowerService extends Service {
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         filter.addAction(Intent.ACTION_SCREEN_ON);
         filter.addAction(Intent.ACTION_SHUTDOWN);
-        registerReceiver (mReceiver, filter);
+        registerReceiver (mReceiver, filter, this.RECEIVER_EXPORTED);
     }
 
     @Override

@@ -63,7 +63,7 @@ public class EsmService extends Service {
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
             intentFilter.addAction(Intent.ACTION_SCREEN_ON);
-            registerReceiver(mScreenReceiver, intentFilter);
+            registerReceiver(mScreenReceiver, intentFilter, this.RECEIVER_EXPORTED);
             register = true;
         }
     }

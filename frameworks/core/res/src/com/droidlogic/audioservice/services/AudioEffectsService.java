@@ -228,7 +228,7 @@ public class AudioEffectsService extends Service {
     private void registerCommandReceiver(Context context) {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(RESET_ACTION);
-        context.registerReceiver(mSoundEffectSettingsReceiver, intentFilter);
+        context.registerReceiver(mSoundEffectSettingsReceiver, intentFilter, context.RECEIVER_EXPORTED);
         context.getContentResolver().registerContentObserver(Settings.Global.getUriFor(SoundEffectManager.DB_ID_SOUND_EFFECT_SOUND_MODE), false,
                 mSoundEffectParametersObserver);
         context.getContentResolver().registerContentObserver(Settings.Global.getUriFor(SoundEffectManager.DB_ID_SOUND_EFFECT_SOUND_MODE_EQ_VALUE), false,

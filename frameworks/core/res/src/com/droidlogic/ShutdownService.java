@@ -63,7 +63,7 @@ public class ShutdownService extends Service {
         if (qcabt) {
             IntentFilter shutdownFilter = new IntentFilter();
             shutdownFilter.addAction(Intent.ACTION_SHUTDOWN);
-            registerReceiver (shutdownReceiver, shutdownFilter);
+            registerReceiver (shutdownReceiver, shutdownFilter, mContext.RECEIVER_EXPORTED);
         }
     }
 
