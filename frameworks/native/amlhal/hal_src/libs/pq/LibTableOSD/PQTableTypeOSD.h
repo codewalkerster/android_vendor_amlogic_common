@@ -206,7 +206,7 @@ typedef enum vpp_pq_level_e {
 */
 
 typedef enum pq_source_input_e {
-    PQ_SRC_DEFAUT = 0,
+    PQ_SRC_DEFAULT = 0,
     PQ_SRC_TV,
     PQ_SRC_AV1,
     PQ_SRC_AV2,
@@ -228,7 +228,7 @@ typedef enum pq_source_input_e {
 } pq_source_input_t;
 
 typedef enum pq_sig_fmt_e {
-    PQ_SIGFMT_DEFAUT = 0,
+    PQ_SIGFMT_DEFAULT = 0,
     PQ_SIGFMT_SDR,
     PQ_SIGFMT_HDR,
     PQ_SIGFMT_HDRP,

@@ -141,7 +141,7 @@ static int init_rfkill(char **rfkill_state_path)
     }
 
     asprintf(rfkill_state_path, "/sys/class/rfkill/rfkill%d/state", id);
-    ALOGD("rfkill state path init successed: %s", *rfkill_state_path);
+    ALOGD("rfkill state path init succeeded: %s", *rfkill_state_path);
     return 0;
 }
 

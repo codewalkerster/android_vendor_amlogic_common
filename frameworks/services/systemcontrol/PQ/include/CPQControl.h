@@ -696,14 +696,14 @@ private:
     tcon_rgb_ogo_t rgbfrompq[3];
     source_input_param_t mCurrentSourceInputInfo;
     tv_source_input_t mSourceInputForSaveParam;
-    pq_src_param_t mCurentPqSource;
+    pq_src_param_t mCurrentPqSource;
     bool mCurrentHdrStatus;
     unsigned int mHdmiHdrInfo = 0;
     bool mbDtvKitEnable;
     bool mbDatabaseMatchChipStatus;
     mutable Mutex mLock;
-    output_type_t mCurentOutputType;
-    tvin_aspect_ratio_e mCurentAfdInfo;
+    output_type_t mCurrentOutputType;
+    tvin_aspect_ratio_e mCurrentAfdInfo;
     bool mbVideoIsPlaying = false;//video don't playing
     hdr_type_t mCurrentHdrType = HDR_TYPE_NONE;
     bool screenColorEnable = false;

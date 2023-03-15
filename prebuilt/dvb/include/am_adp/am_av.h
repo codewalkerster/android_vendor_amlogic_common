@@ -131,8 +131,8 @@ typedef enum
 {
 	AM_AV_MP_STATE_UNKNOWN = 0,        /**< Unknown*/
 	AM_AV_MP_STATE_INITING,            /**< Initializing*/
-	AM_AV_MP_STATE_NORMALERROR,        /**< Error occured*/
-	AM_AV_MP_STATE_FATALERROR,         /**< Fatal error occured*/
+	AM_AV_MP_STATE_NORMALERROR,        /**< Error occurred*/
+	AM_AV_MP_STATE_FATALERROR,         /**< Fatal error occurred*/
 	AM_AV_MP_STATE_PARSERED,           /**< The file's header has been parsed*/
 	AM_AV_MP_STATE_STARTED,            /**< Start playing*/
 	AM_AV_MP_STATE_PLAYING,            /**< Playing*/
@@ -347,7 +347,7 @@ typedef enum
 typedef enum
 {
 	AM_AV_JPEG_OPT_THUMBNAIL_ONLY     = 1, /**< Decode in thumbnail only mode*/
-	AM_AV_JPEG_OPT_THUMBNAIL_PREFERED = 2, /**< Decode in thumbnail prefered mode*/
+	AM_AV_JPEG_OPT_THUMBNAIL_PREFERED = 2, /**< Decode in thumbnail preferred mode*/
 	AM_AV_JPEG_OPT_FULLRANGE          = 4  /**< Normal*/
 } AM_AV_JPEGOption_t;
 

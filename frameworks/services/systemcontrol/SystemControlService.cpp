@@ -37,7 +37,7 @@
 #include "DisplayModeMgr.h"
 #include "SysTokenizer.h"
 
-#define SCENSE_DATE_POLIY_COFIG "vendor/etc/scenes_data.txt"
+#define SCENSE_DATE_POLIY_CONFIG "vendor/etc/scenes_data.txt"
 
 //using android::hardware::keymaster::V3_0::check_AttestationKey;
 namespace android {
@@ -1929,9 +1929,9 @@ bool SystemControlService::readAiPqTable(std::string *aiPqTable) {
 
     SysTokenizer* tokenizer;
     SYS_LOGI("%s:run readAiPqTable\n", __FUNCTION__);
-    int status = SysTokenizer::open(SCENSE_DATE_POLIY_COFIG, &tokenizer);
+    int status = SysTokenizer::open(SCENSE_DATE_POLIY_CONFIG, &tokenizer);
     if (status) {
-        SYS_LOGE("Error %d opening aipq config file %s.", status, SCENSE_DATE_POLIY_COFIG);
+        SYS_LOGE("Error %d opening aipq config file %s.", status, SCENSE_DATE_POLIY_CONFIG);
     } else {
         while (!tokenizer->isEof()) {
             tokenizer->skipDelimiters(WHITESPACE);

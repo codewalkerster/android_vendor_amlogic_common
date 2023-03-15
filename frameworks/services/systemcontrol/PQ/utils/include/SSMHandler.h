@@ -204,7 +204,7 @@ typedef enum ssm_source_input_e {
 } ssm_source_input_t;
 
 typedef enum ssm_sig_fmt_e {
-    SSM_FMT_DEFAUT = 0,
+    SSM_FMT_DEFAULT = 0,
     SSM_FMT_SDR,
     SSM_FMT_HDR,
     SSM_FMT_HDRP,

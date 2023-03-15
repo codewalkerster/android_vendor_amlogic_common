@@ -820,7 +820,7 @@ void DisplayMode::setActiveDispMode(const char*value) {
         pSysWrite->writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "-1");
         pSysWrite->setProperty("vendor.sys.hdcp_result", "1");
     } else {
-        mHdmidata.reason = OUPTUT_CHANGE_BY_HWC;
+        mHdmidata.reason = OUTPUT_CHANGE_BY_HWC;
         SYS_LOGI("setDisplayed by hwc %s", value);
         setSourceOutputMode(value);
         mHdmidata.reason = OUTPUT_CHANGE_BY_INIT;
@@ -2445,7 +2445,7 @@ void DisplayMode::setPosition(const char* curMode, int left, int top, int width,
     }
 
     pthread_mutex_lock(&mEnvLock);
-    if (mHdmidata.reason != OUPTUT_CHANGE_BY_HWC) {
+    if (mHdmidata.reason != OUTPUT_CHANGE_BY_HWC) {
         sprintf(ubootvar, "ubootenv.var.%s_x", keyValue);
         setBootEnv(ubootvar, x);
         sprintf(ubootvar, "ubootenv.var.%s_y", keyValue);

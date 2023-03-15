@@ -1767,7 +1767,7 @@ fw_upload_FW(int8 * pPortName, int32 iBaudRate, uint8 ucFlowCtrl,
 
     // Jump to here in case of protocol resync.
     if (setjmp(resync) > 1) {
-        PRINT("\nSome error occured");
+        PRINT("\nSome error occurred");
         free(pFileBuffer);
         return UNEXPECTED_BEHAVIOUR_IN_SETJMP;
     }

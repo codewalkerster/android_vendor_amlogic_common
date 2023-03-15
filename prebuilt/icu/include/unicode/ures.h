@@ -301,7 +301,7 @@ ures_getVersion(const UResourceBundle* resB,
  * you to query for the real locale of the resource. For example, if you requested
  * "en_US_CALIFORNIA" and only "en_US" bundle exists, "en_US" will be returned.
  * For subresources, the locale where this resource comes from will be returned.
- * If fallback has occured, getLocale will reflect this.
+ * If fallback has occurred, getLocale will reflect this.
  *
  * @param resourceBundle resource bundle in question
  * @param status just for catching illegal arguments
@@ -580,7 +580,7 @@ ures_hasNext(const UResourceBundle *resourceBundle);
  * @param fillIn            if NULL a new UResourceBundle struct is allocated and must be closed by the caller.
  *                          Alternatively, you can supply a struct to be filled by this function.
  * @param status            fills in the outgoing error code. You may still get a non NULL result even if an
- *                          error occured. Check status instead.
+ *                          error occurred. Check status instead.
  * @return                  a pointer to a UResourceBundle struct. If fill in param was NULL, caller must close it
  * @stable ICU 2.0
  */
@@ -596,7 +596,7 @@ ures_getNextResource(UResourceBundle *resourceBundle,
  * @param resourceBundle    a resource
  * @param len               fill in length of the string
  * @param key               fill in for key associated with this string. NULL if no key
- * @param status            fills in the outgoing error code. If an error occured, we may return NULL, but don't
+ * @param status            fills in the outgoing error code. If an error occurred, we may return NULL, but don't
  *                          count on it. Check status instead!
  * @return a pointer to a zero-terminated UChar array which lives in a memory mapped/DLL file.
  * @stable ICU 2.0
@@ -615,7 +615,7 @@ ures_getNextString(UResourceBundle *resourceBundle,
  * @param fillIn            if NULL a new UResourceBundle struct is allocated and must be closed by the caller.
  *                          Alternatively, you can supply a struct to be filled by this function.
  * @param status            fills in the outgoing error code. Don't count on NULL being returned if an error has
- *                          occured. Check status instead.
+ *                          occurred. Check status instead.
  * @return                  a pointer to a UResourceBundle struct. If fill in param was NULL, caller must close it
  * @stable ICU 2.0
  */
@@ -631,7 +631,7 @@ ures_getByIndex(const UResourceBundle *resourceBundle,
  * @param resourceBundle    a resource
  * @param indexS            an index to the wanted string.
  * @param len               fill in length of the string
- * @param status            fills in the outgoing error code. If an error occured, we may return NULL, but don't
+ * @param status            fills in the outgoing error code. If an error occurred, we may return NULL, but don't
  *                          count on it. Check status instead!
  * @return                  a pointer to a zero-terminated UChar array which lives in a memory mapped/DLL file.
  * @stable ICU 2.0
@@ -722,7 +722,7 @@ ures_getByKey(const UResourceBundle *resourceBundle,
  * @param resB              a resource
  * @param key               a key associated with the wanted string
  * @param len               fill in length of the string
- * @param status            fills in the outgoing error code. If an error occured, we may return NULL, but don't
+ * @param status            fills in the outgoing error code. If an error occurred, we may return NULL, but don't
  *                          count on it. Check status instead!
  * @return                  a pointer to a zero-terminated UChar array which lives in a memory mapped/DLL file.
  * @stable ICU 2.0

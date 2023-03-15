@@ -104,7 +104,7 @@ int removeAidlObjectFromMap(
 	const std::string &key,
 	std::map<const std::string, std::shared_ptr<ObjectType>> &object_map)
 {
-	// Return failure if we dont have an object for that |key|.
+	// Return failure if we don't have an object for that |key|.
 	const auto &object_iter = object_map.find(key);
 	if (object_iter == object_map.end())
 		return 1;
@@ -641,7 +641,7 @@ int AidlManager::unregisterNetwork(
  * Notify all listeners about any state changes on a particular interface.
  *
  * @param wpa_s |wpa_supplicant| struct corresponding to the interface on which
- * the state change event occured.
+ * the state change event occurred.
  */
 int AidlManager::notifyStateChange(struct wpa_supplicant *wpa_s)
 {

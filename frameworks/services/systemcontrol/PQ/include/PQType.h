@@ -593,7 +593,7 @@ typedef enum tv_source_input_e {
 } tv_source_input_t;
 
 typedef enum pq_sig_fmt_e {
-    PQ_FMT_DEFAUT = 0,
+    PQ_FMT_DEFAULT = 0,
     PQ_FMT_SDR,
     PQ_FMT_HDR,
     PQ_FMT_HDRP,

@@ -863,7 +863,7 @@ status_t TSPacker::read( MediaBufferBase **buffer,
     MediaBuffer *tBuffer = new MediaBuffer(aBuffer->size() + 16);
 
     if (tBuffer->data() == NULL) {
-        ALOGE("buffer is cant malloc");
+        ALOGE("buffer is can't malloc");
         tBuffer->release();
         /* coverity[leaked_storage] */
         return !OK;

@@ -22,7 +22,7 @@ NonlinearModeType mDefaultNonlinearMapping = {
 };
 
 TABLE_DATA_STRUCT mNonlinearMappingTable[] = {
-    {PQ_SRC_DEFAUT, PQ_SIGFMT_DEFAUT, (void *) &mDefaultNonlinearMapping, sizeof(mDefaultNonlinearMapping) / sizeof(NonlinearModeType)},
+    {PQ_SRC_DEFAULT, PQ_SIGFMT_DEFAULT, (void *) &mDefaultNonlinearMapping, sizeof(mDefaultNonlinearMapping) / sizeof(NonlinearModeType)},
 };
 /* NonlinearMapping end*/
 
@@ -47,7 +47,7 @@ PICTURE_MODE_DATA mDefaultPictureMode[] = {
 
 
 TABLE_DATA_STRUCT mPictureModeTable[] = {
-    {PQ_SRC_DEFAUT, PQ_SIGFMT_DEFAUT, (void *) &mDefaultPictureMode[0], sizeof(mDefaultPictureMode) / sizeof(PICTURE_MODE_DATA) },
+    {PQ_SRC_DEFAULT, PQ_SIGFMT_DEFAULT, (void *) &mDefaultPictureMode[0], sizeof(mDefaultPictureMode) / sizeof(PICTURE_MODE_DATA) },
 };
 /* Picture Mode end*/
 
@@ -66,7 +66,7 @@ COLORTEMP_DATA mDefaultColorTemp[COLOR_TMP_MODE_MAX] = {
 };
 
 TABLE_DATA_STRUCT mColorTempTable[] = {
-    {PQ_SRC_DEFAUT, PQ_SIGFMT_DEFAUT, (void *) &mDefaultColorTemp[0], sizeof(mDefaultColorTemp) / sizeof(COLORTEMP_DATA)},
+    {PQ_SRC_DEFAULT, PQ_SIGFMT_DEFAULT, (void *) &mDefaultColorTemp[0], sizeof(mDefaultColorTemp) / sizeof(COLORTEMP_DATA)},
 };
 /* Color Temperature end*/
 

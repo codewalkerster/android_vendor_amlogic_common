@@ -217,8 +217,8 @@ typedef struct wifi_p2p_status_se_s wifi_p2p_status_se_t;
 BWL_PRE_PACKED_STRUCT struct wifi_p2p_ext_se_s {
 	uint8	eltId;		/* ID: P2P_SEID_EXT_TIMING */
 	uint8	len[2];		/* length not including eltId, len fields */
-	uint8	avail[2];	/* availibility period */
-	uint8	interval[2];	/* availibility interval */
+	uint8	avail[2];	/* availability period */
+	uint8	interval[2];	/* availability interval */
 } BWL_POST_PACKED_STRUCT;
 typedef struct wifi_p2p_ext_se_s wifi_p2p_ext_se_t;
 

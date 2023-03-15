@@ -47,7 +47,7 @@
 #define SYSFS_DLG_PROP                          "persist.vendor.sys.display.dlg"
 #define VENDOR_BOOT_COMPLETE                    "vendor.sys.display.boot_complete"
 #define HDMI_TX_FRAMERATE_POLICY                 "/sys/class/amhdmitx/amhdmitx0/frac_rate_policy"
-#define FRAME_RATE_POLIY_COFIG                  "/vendor/etc/framerate.cfg"
+#define FRAME_RATE_POLIY_CONFIG                  "/vendor/etc/framerate.cfg"
 #define PANEL_FRAME_RATE                        "/sys/class/lcd/frame_rate"
 #define HDMI_FRAME_RATE_AUTO                    "/sys/class/display/fr_policy"
 //sysfs of panel framerate change
@@ -131,7 +131,7 @@ private:
     bool enter4k1k(int framerate);
     int mVdinEventFd;
     Callback *mHdmiCallback;
-    void initalDefaultValue();
+    void initialDefaultValue();
     int isDLGOn();
     int mLastFrameRate;
     bool videoLayerOn;

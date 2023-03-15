@@ -87,9 +87,9 @@ int FrameRateAutoAdaption::parseConfigFile() {
     const char* WHITESPACE = " \t\r";
 
     SysTokenizer* tokenizer;
-    int status = SysTokenizer::open(FRAME_RATE_POLIY_COFIG, &tokenizer);
+    int status = SysTokenizer::open(FRAME_RATE_POLIY_CONFIG, &tokenizer);
     if (status) {
-        SYS_LOGE("Error %d opening framerate config file %s.", status, FRAME_RATE_POLIY_COFIG);
+        SYS_LOGE("Error %d opening framerate config file %s.", status, FRAME_RATE_POLIY_CONFIG);
     } else {
         while (!tokenizer->isEof()) {
             tokenizer->skipDelimiters(WHITESPACE);
@@ -135,7 +135,7 @@ void FrameRateAutoAdaption::readSinkEdid(char *edid) {
     }
 }
 
-void FrameRateAutoAdaption::initalDefaultValue() {
+void FrameRateAutoAdaption::initialDefaultValue() {
 
     if (mFracDefaultValue == -1) {
         char policyVal[MODE_LEN] = {0};
@@ -146,7 +146,7 @@ void FrameRateAutoAdaption::initalDefaultValue() {
 
 void FrameRateAutoAdaption::onTxUeventReceived(uevent_data_t* ueventData){
     SYS_LOGD("[%s] +++ ", __FUNCTION__ );
-    initalDefaultValue();
+    initialDefaultValue();
     if (isFrameRateOn()) {
         inputValidateAndParse(ueventData, INPUT_TYPE_UEVENT);
     }

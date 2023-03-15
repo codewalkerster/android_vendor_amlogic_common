@@ -275,7 +275,7 @@
 **  Unfreed:
 **      A memory buffer you allocated has not been freed.
 **      You are informed where it was allocated, and whether any
-**      over or underflow has occured. MemWatch also displays up to
+**      over or underflow has occurred. MemWatch also displays up to
 **      16 bytes of the data, as much as it can, in hex and text.
 **      Detect: When MemWatch terminates.
 **      Action: The buffer is freed.

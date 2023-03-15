@@ -120,7 +120,7 @@ typedef struct
 	};
 } AM_FEND_BlindEvent_t;
 
-/**\brief Blindscan callback function*/
+/**\brief Blindsca callback function*/
 typedef void (*AM_FEND_BlindCallback_t) (int dev_no, AM_FEND_BlindEvent_t *evt, void *user_data);
 
 
@@ -361,7 +361,7 @@ extern AM_ErrorCode_t AM_FEND_EnableHighLnbVoltage(int dev_no, long arg);
 
 /**\brief start satellite blind scan
  * \param dev_no frontend device number
- * \param[in] cb blind scan callback function
+ * \param[in] cb blind sca callback function
  * \param[in] user_data callback function parameter
  * \param start_freq start frequency unit HZ
  * \param stop_freq stop frequency unit HZ
