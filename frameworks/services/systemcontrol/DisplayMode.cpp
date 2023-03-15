@@ -130,6 +130,7 @@ static const char* CONTENT_TYPE[] = {
 };
 
 #define SYS_BOOT_COMPLETE       "/sys/class/tee_info/sys_boot_complete"
+#define HWC_BOOT_CONFIG_PROP "ro.vendor.hwc.default.config"
 
 /**
  * strstr - Find the first substring in a %NUL terminated string
@@ -343,6 +344,14 @@ void DisplayMode::init() {
         pSysWrite->writeSysfs("/sys/class/amhdmitx/amhdmitx0/attr", "rgb,8bit", strlen("rgb,8bit"));
         return ;
     }
+
+#ifndef RECOVERY_MODE
+    /* boot config enable, hwc will take care of it */
+    if (pSysWrite->getPropertyBoolean(HWC_BOOT_CONFIG_PROP, false)) {
+        SYS_LOGI("init return, hwc boot config enable");
+        return;
+    }
+#endif
 
     if (DISPLAY_TYPE_MBOX == mDisplayType) {
         setSourceDisplay(OUTPUT_MODE_STATE_INIT);
@@ -3287,7 +3296,13 @@ void DisplayMode::onTxEvent (char* switchName, char* hpdstate, int outputState) 
             }
         }
     }
+
+    if (pSysWrite->getPropertyBoolean(HWC_BOOT_CONFIG_PROP, false)) {
+        SYS_LOGI("onTxEvent boot config enable do nothing, just return");
+        return;
+    }
 #endif
+
     //plugout or suspend,set dummy_l
     if (hpdstate && hpdstate[0] == '0') {
         SYS_LOGI("hwc will set dummy when hdmi plugout or suspend \n");
