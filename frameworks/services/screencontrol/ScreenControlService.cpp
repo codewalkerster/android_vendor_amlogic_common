@@ -74,6 +74,8 @@ using android::hardware::LazyServiceRegistrar;
 using ::vendor::amlogic::hardware::screencontrol::V1_0::implementation::ScreenControlHal;
 using ::android::hidl::base::V1_0::IBase;
 
+#define TIMEOUT_VAL 2 * 1000 * 1000
+
 //#include <android/bitmap.h>
 
 namespace android {
@@ -337,6 +339,7 @@ int ScreenControlService::startScreenCapBuffer(int32_t left, int32_t top, int32_
     uint32_t f = PIXEL_FORMAT_RGBA_8888;
     status_t result = NO_ERROR;
     ScreenCatch* mScreenCatch;
+    struct timeval timeNow;
     const size_t size = width * height * 4;
     mNeedStop = false;
     if ((mTSPacker != NULL || mVideoConvertor != NULL) && mRecordSourceType == sourceType ) {
@@ -373,6 +376,8 @@ int ScreenControlService::startScreenCapBuffer(int32_t left, int32_t top, int32_
     result = mScreenCatch->start(pMeta);
     pMeta->clear();
     delete pMeta;
+    gettimeofday(&timeNow, NULL);
+    int64_t firsetNowUs = (int64_t)timeNow.tv_sec*1000*1000 + (int64_t)timeNow.tv_usec;
     if (result != OK) {
         ALOGE("[%s %d] screenCatch start fail", __FUNCTION__, __LINE__);
         delete mScreenCatch;
@@ -384,6 +389,12 @@ int ScreenControlService::startScreenCapBuffer(int32_t left, int32_t top, int32_
     while ((!mNeedStop) && (count < 1)) {
         status = mScreenCatch->read(&buffer);
         if (status != OK) {
+            gettimeofday(&timeNow, NULL);
+            int64_t nowUs = (int64_t)timeNow.tv_sec*1000*1000 + (int64_t)timeNow.tv_usec;
+            if ((nowUs - firsetNowUs) >= TIMEOUT_VAL) {
+                ALOGE("[%s %d] no data !!!! break", __FUNCTION__, __LINE__);
+                break;
+            }
             usleep(10 *1000);
             continue;
         }
