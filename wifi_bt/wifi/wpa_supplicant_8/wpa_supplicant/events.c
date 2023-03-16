@@ -51,7 +51,13 @@
 #include "wmm_ac.h"
 #include "dpp_supplicant.h"
 #include "rsn_supp/wpa_i.h"
-
+#ifdef ANDROID
+#include "android_drv.h"
+#include <cutils/properties.h>
+#if defined(__BIONIC_FORTIFY)
+#include <sys/system_properties.h>
+#endif
+#endif
 
 #define MAX_OWE_TRANSITION_BSS_SELECT_COUNT 5
 
@@ -3130,12 +3136,16 @@ no_pfs:
 	}
 #endif /* CONFIG_SME */
 #ifdef CONFIG_DRIVER_NL80211_BRCM
+	char wifi_status[PROPERTY_VALUE_MAX] = {'\0'};
+	property_get("vendor.wifi_name", wifi_status, NULL);
+	if (os_strncasecmp(wifi_status, "bcm", 3) == 0) {
 	if (((wpa_s->key_mgmt == WPA_KEY_MGMT_FT_PSK) ||
 		(wpa_s->key_mgmt == WPA_KEY_MGMT_FT_IEEE8021X) ||
 		(wpa_s->key_mgmt == WPA_KEY_MGMT_FT_SAE) ||
 		(wpa_s->key_mgmt == WPA_KEY_MGMT_FT_IEEE8021X_SHA384)) &&
 		wpa_ft_is_completed(wpa_s->wpa)) {
 		return 0;
+	}
 	}
 #endif /* CONFIG_DRIVER_NL80211_BRCM */
 
@@ -3321,6 +3331,9 @@ static void wpa_supplicant_event_assoc(struct wpa_supplicant *wpa_s,
 	wpa_s->own_reconnect_req = 0;
 
 #ifdef CONFIG_DRIVER_NL80211_BRCM
+	char wifi_status[PROPERTY_VALUE_MAX] = {'\0'};
+	property_get("vendor.wifi_name", wifi_status, NULL);
+	if (os_strncasecmp(wifi_status, "bcm", 3) == 0) {
 	if (!(wpa_sm_parse_own_wpa_ie(wpa_s->wpa, &ie) < 0)) {
 		struct wpa_ft_ies parse;
 		/* Check for FT reassociation is done by the driver */
@@ -3338,6 +3351,7 @@ static void wpa_supplicant_event_assoc(struct wpa_supplicant *wpa_s,
 			}
 		}
 #endif  /* CONFIG_IEEE80211R */
+	}
 	}
 #endif /* CONFIG_DRIVER_NL80211_BRCM */
 
@@ -3360,12 +3374,14 @@ static void wpa_supplicant_event_assoc(struct wpa_supplicant *wpa_s,
 	}
 
 #ifdef CONFIG_DRIVER_NL80211_BRCM
+	if (os_strncasecmp(wifi_status, "bcm", 3) == 0) {
 	/* For driver based roaming, insert PSK during the initial association */
 	if (is_zero_ether_addr(wpa_s->bssid) &&
 		wpa_key_mgmt_wpa_psk(wpa_s->key_mgmt)) {
 		/* In case the driver wants to handle re-assocs, pass it down the PMK. */
 		wpa_dbg(wpa_s, MSG_DEBUG, "Pass the PMK to the driver");
 		wpa_sm_install_pmk(wpa_s->wpa);
+	}
 	}
 #endif /* CONFIG_DRIVER_NL80211_BRCM */
 	wpa_supplicant_set_state(wpa_s, WPA_ASSOCIATED);
@@ -3505,6 +3521,7 @@ static void wpa_supplicant_event_assoc(struct wpa_supplicant *wpa_s,
 		eapol_sm_notify_portValid(wpa_s->eapol, true);
 	}
 #ifdef CONFIG_DRIVER_NL80211_BRCM
+	if (os_strncasecmp(wifi_status, "bcm", 3) == 0) {
 	if (ft_completed && wpa_key_mgmt_ft(wpa_s->key_mgmt)) {
 		if (wpa_drv_get_bssid(wpa_s, bssid) < 0) {
 			wpa_dbg(wpa_s, MSG_ERROR, "Failed to get BSSID, key_mgmt: 0x%0x",
@@ -3516,6 +3533,7 @@ static void wpa_supplicant_event_assoc(struct wpa_supplicant *wpa_s,
 		os_memcpy(wpa_s->bssid, bssid, ETH_ALEN);
 		wpa_s->assoc_freq = data->assoc_info.freq;
 		wpa_sm_notify_brcm_ft_reassoc(wpa_s->wpa, bssid);
+	}
 	}
 #endif /* CONFIG_DRIVER_NL80211_BRCM */
 	wpa_s->last_eapol_matches_bssid = 0;

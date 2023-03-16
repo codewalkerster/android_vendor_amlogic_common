@@ -41,6 +41,13 @@
 #ifdef CONFIG_DRIVER_NL80211_BRCM
 #include "common/brcm_vendor.h"
 #endif /* CONFIG_DRIVER_NL80211_BRCM */
+#ifdef ANDROID
+#include "android_drv.h"
+#include <cutils/properties.h>
+#if defined(__BIONIC_FORTIFY)
+#include <sys/system_properties.h>
+#endif
+#endif
 
 #ifndef NETLINK_CAP_ACK
 #define NETLINK_CAP_ACK 10
@@ -3193,6 +3200,9 @@ static int wpa_key_mgmt_to_suites(unsigned int key_mgmt_suites, u32 suites[],
 static int wpa_driver_do_broadcom_acs(struct wpa_driver_nl80211_data *drv,
 				      struct drv_acs_params *params)
 {
+	char wifi_status[PROPERTY_VALUE_MAX] = {'\0'};
+	property_get("vendor.wifi_name", wifi_status, NULL);
+	if (os_strncasecmp(wifi_status, "bcm", 3) == 0) {
 	struct nl_msg *msg;
 	struct nlattr *data;
 	int freq_list_len;
@@ -3238,6 +3248,9 @@ static int wpa_driver_do_broadcom_acs(struct wpa_driver_nl80211_data *drv,
 fail:
 	nlmsg_free(msg);
 	return ret;
+	} else {
+	return -1;
+	}
 }
 #endif /* CONFIG_DRIVER_NL80211_BRCM */
 
@@ -3276,6 +3289,9 @@ static int issue_key_mgmt_set_key(struct wpa_driver_nl80211_data *drv,
 static int key_mgmt_set_key(struct wpa_driver_nl80211_data *drv,
 				  const u8 *key, size_t key_len)
 {
+	char wifi_status[PROPERTY_VALUE_MAX] = {'\0'};
+	property_get("vendor.wifi_name", wifi_status, NULL);
+	if (os_strncasecmp(wifi_status, "bcm", 3) == 0) {
 	struct nl_msg *msg;
 	int ret;
 	struct nlattr *params;
@@ -3299,6 +3315,9 @@ static int key_mgmt_set_key(struct wpa_driver_nl80211_data *drv,
 	}
 
 	return ret;
+	} else {
+	return 0;
+	}
 }
 #endif /* CONFIG_DRIVER_NL80211_BRCM */
 
@@ -3390,10 +3409,14 @@ static int wpa_driver_nl80211_set_key(struct i802_bss *bss,
 		if (drv->capa.flags & WPA_DRIVER_FLAGS_4WAY_HANDSHAKE_8021X)
 			return nl80211_set_pmk(drv, key, key_len, addr);
 #ifdef CONFIG_DRIVER_NL80211_BRCM
+	char wifi_status[PROPERTY_VALUE_MAX] = {'\0'};
+	property_get("vendor.wifi_name", wifi_status, NULL);
+	if (os_strncasecmp(wifi_status, "bcm", 3) == 0) {
 		if (drv->vendor_set_pmk) {
 			wpa_printf(MSG_INFO, "nl80211: key_mgmt_set_key with key_len %lu", (unsigned long) key_len);
 			return key_mgmt_set_key(drv, key, key_len);
 		}
+	}
 #endif /* CONFIG_DRIVER_NL80211_BRCM */
 		/* The driver does not have any offload mechanism for PMK, so
 		 * there is no need to configure this key. */
@@ -10507,6 +10530,9 @@ static int nl80211_set_mac_addr(void *priv, const u8 *addr)
 		return -1;
 	if (drv->nlmode == NL80211_IFTYPE_P2P_DEVICE) {
 #ifdef CONFIG_DRIVER_NL80211_BRCM
+	char wifi_status[PROPERTY_VALUE_MAX] = {'\0'};
+	property_get("vendor.wifi_name", wifi_status, NULL);
+	if (os_strncasecmp(wifi_status, "bcm", 3) == 0) {
 		if (!addr ) {
 			addr = drv->global->p2p_perm_addr;
 		}
@@ -10531,6 +10557,7 @@ static int nl80211_set_mac_addr(void *priv, const u8 *addr)
 		}
 		memcpy(bss->addr, addr, ETH_ALEN);
 		return ret;
+	}
 #else
 		return -ENOTSUP;
 #endif /* CONFIG_DRIVER_NL80211_BRCM */
@@ -11849,8 +11876,12 @@ static int nl80211_do_acs(void *priv, struct drv_acs_params *params)
 #endif /* CONFIG_DRIVER_NL80211_QCA */
 
 #ifdef CONFIG_DRIVER_NL80211_BRCM
+	char wifi_status[PROPERTY_VALUE_MAX] = {'\0'};
+	property_get("vendor.wifi_name", wifi_status, NULL);
+	if (os_strncasecmp(wifi_status, "bcm", 3) == 0) {
 	if (drv->brcm_do_acs)
 		return wpa_driver_do_broadcom_acs(drv, params);
+	}
 #endif /* CONFIG_DRIVER_NL80211_BRCM */
 
 	return -1;

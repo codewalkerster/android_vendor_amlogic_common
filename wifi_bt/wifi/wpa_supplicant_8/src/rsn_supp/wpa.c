@@ -34,6 +34,13 @@
 #include "wpa_ie.h"
 #include "wpa_supplicant_i.h"
 #include "driver_i.h"
+#ifdef ANDROID
+#include "android_drv.h"
+#include <cutils/properties.h>
+#if defined(__BIONIC_FORTIFY)
+#include <sys/system_properties.h>
+#endif
+#endif
 
 static const u8 null_rsc[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
@@ -3900,6 +3907,9 @@ void wpa_sm_external_pmksa_cache_flush(struct wpa_sm *sm, void *network_ctx)
 #ifdef CONFIG_DRIVER_NL80211_BRCM
 void wpa_sm_install_pmk(struct wpa_sm *sm)
 {
+	char wifi_status[PROPERTY_VALUE_MAX] = {'\0'};
+	property_get("vendor.wifi_name", wifi_status, NULL);
+	if (os_strncasecmp(wifi_status, "bcm", 3) == 0) {
 	/* In case the driver wants to handle re-assocs, pass it down the PMK. */
 	if (wpa_sm_set_key(sm, wpa_cipher_to_alg(sm->pairwise_cipher), NULL, 0, 0, NULL, 0,
 		(u8*)sm->pmk, sm->pmk_len, KEY_FLAG_PMK) < 0) {
@@ -3909,10 +3919,14 @@ void wpa_sm_install_pmk(struct wpa_sm *sm)
 		wpa_msg(sm->ctx->msg_ctx, MSG_DEBUG,
 			"WPA: Failed to set PMK to the driver");
 	}
+	}
 }
 
 void wpa_sm_notify_brcm_ft_reassoc(struct wpa_sm *sm, const u8 *bssid)
 {
+	char wifi_status[PROPERTY_VALUE_MAX] = {'\0'};
+	property_get("vendor.wifi_name", wifi_status, NULL);
+	if (os_strncasecmp(wifi_status, "bcm", 3) == 0) {
 	u8 buf[256];
 	struct wpa_supplicant *wpa_s = sm->ctx->ctx;
 
@@ -3934,6 +3948,7 @@ void wpa_sm_notify_brcm_ft_reassoc(struct wpa_sm *sm, const u8 *bssid)
 		os_memcpy(sm->ptk.kek, buf + 16, 16);
 		wpa_msg(sm->ctx->msg_ctx, MSG_INFO,
 			"WPA: Updated KCK and KEK after FT reassoc");
+	}
 	}
 }
 #endif /* CONFIG_DRIVER_NL80211_BRCM */

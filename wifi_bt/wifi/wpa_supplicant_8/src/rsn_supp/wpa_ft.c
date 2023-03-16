@@ -21,6 +21,13 @@
 #include "wpa_i.h"
 #include "wpa_ie.h"
 #include "pmksa_cache.h"
+#ifdef ANDROID
+#include "android_drv.h"
+#include <cutils/properties.h>
+#if defined(__BIONIC_FORTIFY)
+#include <sys/system_properties.h>
+#endif
+#endif
 
 #ifdef CONFIG_IEEE80211R
 
@@ -746,6 +753,9 @@ int wpa_ft_is_completed(struct wpa_sm *sm)
 #ifdef CONFIG_DRIVER_NL80211_BRCM
 int wpa_ft_is_ft_protocol(struct wpa_sm *sm)
 {
+	char wifi_status[PROPERTY_VALUE_MAX] = {'\0'};
+	property_get("vendor.wifi_name", wifi_status, NULL);
+	if (os_strncasecmp(wifi_status, "bcm", 3) == 0) {
 	if (sm == NULL)
 		return 0;
 
@@ -753,6 +763,9 @@ int wpa_ft_is_ft_protocol(struct wpa_sm *sm)
 		return 0;
 
 	return sm->ft_protocol;
+	} else {
+	return 0;
+	}
 }
 #endif /* CONFIG_DRIVER_NL80211_BRCM */
 

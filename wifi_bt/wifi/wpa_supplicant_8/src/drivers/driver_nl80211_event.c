@@ -19,6 +19,13 @@
 #include "common/ieee802_11_defs.h"
 #include "common/ieee802_11_common.h"
 #include "driver_nl80211.h"
+#ifdef ANDROID
+#include "android_drv.h"
+#include <cutils/properties.h>
+#if defined(__BIONIC_FORTIFY)
+#include <sys/system_properties.h>
+#endif
+#endif
 
 static void
 nl80211_control_port_frame_tx_status(struct wpa_driver_nl80211_data *drv,
@@ -2415,6 +2422,9 @@ static void nl80211_vendor_event_qca(struct wpa_driver_nl80211_data *drv,
 static void brcm_nl80211_acs_select_ch(struct wpa_driver_nl80211_data *drv,
 				       const u8 *data, size_t len)
 {
+	char wifi_status[PROPERTY_VALUE_MAX] = {'\0'};
+	property_get("vendor.wifi_name", wifi_status, NULL);
+	if (os_strncasecmp(wifi_status, "bcm", 3) == 0) {
 	struct nlattr *tb[BRCM_VENDOR_ATTR_ACS_LAST + 1];
 	union wpa_event_data event;
 
@@ -2464,12 +2474,16 @@ static void brcm_nl80211_acs_select_ch(struct wpa_driver_nl80211_data *drv,
 		   event.acs_selected_channels.vht_seg1_center_ch,
 		   event.acs_selected_channels.hw_mode);
 	wpa_supplicant_event(drv->ctx, EVENT_ACS_CHANNEL_SELECTED, &event);
+	}
 }
 
 
 static void nl80211_vendor_event_brcm(struct wpa_driver_nl80211_data *drv,
 				      u32 subcmd, u8 *data, size_t len)
 {
+	char wifi_status[PROPERTY_VALUE_MAX] = {'\0'};
+	property_get("vendor.wifi_name", wifi_status, NULL);
+	if (os_strncasecmp(wifi_status, "bcm", 3) == 0) {
 	wpa_printf(MSG_DEBUG, "nl80211: Got BRCM vendor event %u", subcmd);
 	switch (subcmd) {
 	case BRCM_VENDOR_EVENT_PRIV_STR:
@@ -2485,6 +2499,7 @@ static void nl80211_vendor_event_brcm(struct wpa_driver_nl80211_data *drv,
 			   "%s: Ignore unsupported BRCM vendor event %u",
 			   __func__, subcmd);
 		break;
+	}
 	}
 }
 

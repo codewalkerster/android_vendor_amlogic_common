@@ -18,6 +18,13 @@
 #include "common/qca-vendor-attr.h"
 #include "common/brcm_vendor.h"
 #include "driver_nl80211.h"
+#ifdef ANDROID
+#include "android_drv.h"
+#include <cutils/properties.h>
+#if defined(__BIONIC_FORTIFY)
+#include <sys/system_properties.h>
+#endif
+#endif
 
 static int protocol_feature_handler(struct nl_msg *msg, void *arg)
 {
@@ -1021,6 +1028,9 @@ static int wiphy_info_handler(struct nl_msg *msg, void *arg)
 #endif /* CONFIG_DRIVER_NL80211_QCA */
 				}
 #ifdef CONFIG_DRIVER_NL80211_BRCM
+		char wifi_status[PROPERTY_VALUE_MAX] = {'\0'};
+		property_get("vendor.wifi_name", wifi_status, NULL);
+		if (os_strncasecmp(wifi_status, "bcm", 3) == 0) {
 			} else if (vinfo->vendor_id == OUI_BRCM) {
 				switch (vinfo->subcmd) {
 				case BRCM_VENDOR_SCMD_ACS:
@@ -1038,6 +1048,7 @@ static int wiphy_info_handler(struct nl_msg *msg, void *arg)
 				default:
 					break;
 				}
+		}
 #endif /* CONFIG_DRIVER_NL80211_BRCM */
 			}
 			wpa_printf(MSG_DEBUG, "nl80211: Supported vendor command: vendor_id=0x%x subcmd=%u",
