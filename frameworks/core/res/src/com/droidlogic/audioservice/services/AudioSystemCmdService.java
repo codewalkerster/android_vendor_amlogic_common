@@ -556,6 +556,11 @@ public class AudioSystemCmdService extends Service {
                 Log.d(TAG, "CMD_SET_VOLUME, audio volume:" + param1);
                 break;
             case AudioSystemCmdManager.AUDIO_SERVICE_CMD_SET_MUTE:
+                if (!isDtvkit) {
+                    mAudioManager.setParameters("hal_param_tv_mute=" + param1);
+                    break;
+                }
+
                 param1 = param1 & ((1 << mDtvDemuxIdBase) - 1);
                 mDtvDemuxIdCurrentWork = param3;
                 // if there have received the mute cmd but have not open the decoder,
