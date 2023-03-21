@@ -3115,7 +3115,8 @@ static void btusb_intr_complete(struct urb *urb)
         }
     }
     /* Avoid suspend failed when usb_kill_urb */
-    else if(urb->status == -ENOENT)    {
+    else if ((urb->status == -ENOENT) || (urb->status == -EPROTO)) {
+        RTKBT_ERR("%s: urb->status = %d", __func__, urb->status);
         return;
     }
 
@@ -4561,6 +4562,11 @@ static int btusb_probe(struct usb_interface *intf, const struct usb_device_id *i
 
     for (i = 0; i < intf->cur_altsetting->desc.bNumEndpoints; i++) {
         ep_desc = &intf->cur_altsetting->endpoint[i].desc;
+
+        if (!data->intr_ep && usb_endpoint_is_bulk_in(ep_desc) && (ep_desc->bEndpointAddress == 0x81)) {
+            data->intr_ep = ep_desc;
+            continue;
+        }
 
         if (!data->intr_ep && usb_endpoint_is_int_in(ep_desc)) {
             data->intr_ep = ep_desc;
