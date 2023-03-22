@@ -80,7 +80,7 @@ public class BootComplete extends BroadcastReceiver {
         if (SystemProperties.get("sys.vendor.usb_otg.control").equals("enable")) {
             context.startService(new Intent(context, DeviceControlService.class));
         }
-        context.startService(new Intent(context, DroidLogicCpuService.class));
+
         context.startService(new Intent(context,NtpService.class));
         context.startService(new Intent(context,ShutdownService.class));
 
