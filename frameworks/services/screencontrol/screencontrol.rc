@@ -7,5 +7,4 @@ service screen_control /vendor/bin/screencontrol
     class hal
     oneshot
     disabled
-    user root
-    group sdcard_rw media system root everybody
+    group sdcard_rw media system everybody
