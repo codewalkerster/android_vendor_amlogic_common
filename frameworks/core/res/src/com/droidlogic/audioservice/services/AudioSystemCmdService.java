@@ -495,7 +495,7 @@ public class AudioSystemCmdService extends Service {
                 //1.if there are the multi-demux case, the start and stop need be controled bu mute or mute.
                 //2.if there have not received the open cmd, we could not start the decoder directly.
                 //3.if there have started the decoder, we need not restart the decoder.
-                if (mDemuxIds.size() > 1 || mStartStatus.get(mDemuxIds.indexOf(param3)) == 1 || mOpenStatus.get(mDemuxIds.indexOf(param3)) == 0) {
+                if (mDemuxIds.size() > 1 ) {
                     Log.d(TAG, "mMuteStatus:" + mMuteStatus.get(mDemuxIds.indexOf(param3))+",DemuxId:"+param3);
                     break;
                 }
