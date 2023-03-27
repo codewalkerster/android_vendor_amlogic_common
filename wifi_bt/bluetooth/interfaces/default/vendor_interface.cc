@@ -361,6 +361,8 @@ size_t VendorInterface::Send(uint8_t type, const uint8_t* data, size_t length) {
 
   int fd,sz;
   char buf[2];
+  char shutdown_val[PROPERTY_VALUE_MAX];
+
   fd = open(BT_WAKE_EVT,O_RDONLY);
   if (fd < 0) {
     ALOGE("open(%s) failed: %s (%d)\n", \
@@ -397,16 +399,17 @@ size_t VendorInterface::Send(uint8_t type, const uint8_t* data, size_t length) {
       return length+1;
   }
 
-   if(opcode == HCI_VSC_WAKE_ON_BLE)
+  if (opcode == HCI_VSC_WAKE_ON_BLE)
       gVscWakeEnabled = 1;
 
   /*As Android T will disable bluetooth while shutdown. Not to send HCI_LE_Clear_White_List to controller as we need whitelist to know who can wake it up*/
-  if( gVscWakeEnabled && PreOpcode == 0x0c1a /*HCI_Write_ScanEnable*/ && opcode == 0x2010 /*HCI_LE_Clear_White_List*/ )
-  {
-      ALOGE("Send a fake HCI_LE_Clear_White_List to stack");
+  // if( gVscWakeEnabled && PreOpcode == 0x0c1a /*HCI_Write_ScanEnable*/ && opcode == 0x2010 /*HCI_LE_Clear_White_List*/ )
+  property_get("sys.shutdown.requested", shutdown_val, "unknown");
+  if (gVscWakeEnabled && (opcode == 0x2010) && (strstr(shutdown_val, "0userrequested") != NULL)) {
+      ALOGD("%s: Send a fake HCI_LE_Clear_White_List to stack", __func__);
       hidl_vec<uint8_t> LE_Clear_White_List_Complete_Packet = {0x0e,0x04,0x01,0x10,0x20,0x00};
       event_cb_(LE_Clear_White_List_Complete_Packet);
-	  return length+1;
+      return length+1;
   }
   PreOpcode=opcode;
 
