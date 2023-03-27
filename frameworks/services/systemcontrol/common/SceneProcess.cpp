@@ -136,6 +136,16 @@ static const char* MODE_FRAMERATE_FIRST[] = {
 };
 
 //for check hdr 4k support or not
+static const char* MODE_ALL_4K_LIST[] = {
+    MODE_4K2K60HZ,
+    MODE_4K2K50HZ,
+    MODE_4K2K30HZ,
+    MODE_4K2K25HZ,
+    MODE_4K2K24HZ,
+};
+
+
+//for check hdr 4k support or not
 static const char* MODE_4K_LIST[] = {
     MODE_4K2K60HZ,
     MODE_4K2K50HZ,
@@ -206,6 +216,16 @@ static const char* COLOR_ATTRIBUTE_LIST4[] = {
     COLOR_RGB_10BIT,
     COLOR_YCBCR444_12BIT,
     COLOR_YCBCR422_12BIT,
+    COLOR_RGB_12BIT,
+};
+
+//this is prior selected list of HDR colorspace
+static const char* HDR_COLOR_ATTRIBUTE_LIST[] = {
+    COLOR_YCBCR420_10BIT,
+    COLOR_YCBCR422_12BIT,
+    COLOR_YCBCR444_10BIT,
+    COLOR_RGB_10BIT,
+    COLOR_YCBCR444_12BIT,
     COLOR_RGB_12BIT,
 };
 
@@ -1021,21 +1041,32 @@ bool SceneProcess::isSupport4KHDR(scene_output_info_t *output_info) {
     } else {
         const char **colorList = NULL;
         int colorList_length   = 0;
+        const char **resolutionList = NULL;
+        int resolutionList_length   = 0;
 
-        //use 4k hdr color format table
-        colorList        = HDR_4K_COLOR_ATTRIBUTE_LIST;
-        colorList_length = ARRAY_SIZE(HDR_4K_COLOR_ATTRIBUTE_LIST);
+        if (isFrameratePriority()) {
+            //use 4k hdr color format table
+            colorList        = HDR_4K_COLOR_ATTRIBUTE_LIST;
+            colorList_length = ARRAY_SIZE(HDR_4K_COLOR_ATTRIBUTE_LIST);
+
+            //use 4k hdr resolution table
+            resolutionList        = MODE_4K_LIST;
+            resolutionList_length = ARRAY_SIZE(MODE_4K_LIST);
+        } else {
+            //use 4k hdr color format table
+            colorList        = HDR_COLOR_ATTRIBUTE_LIST;
+            colorList_length = ARRAY_SIZE(HDR_COLOR_ATTRIBUTE_LIST);
+
+            //use 4k hdr resolution table
+            resolutionList        = MODE_ALL_4K_LIST;
+            resolutionList_length = ARRAY_SIZE(MODE_ALL_4K_LIST);
+        }
 
         //choose prefer color format and resolution for 4k hdr
         //disp_cap:the list of TV support resolution from driver parse edid
         //dc_cap:the list of TV support color format from driver parse edid
         for (int i = 0; i < colorList_length; i++) {
             if (strstr(mScene_Input_Info.hdmi_input_info.dc_cap, colorList[i]) != NULL) {
-                const char **resolutionList = NULL;
-                int resolutionList_length   = 0;
-                //use 4k hdr resolution table
-                resolutionList        = MODE_4K_LIST;
-                resolutionList_length = ARRAY_SIZE(MODE_4K_LIST);
                 for (int j = 0; j < resolutionList_length; j++) {
                     if (strstr(mScene_Input_Info.hdmi_input_info.disp_cap, resolutionList[j]) != NULL) {
                         if (isModeSupportDeepColorAttr(resolutionList[j], colorList[i])) {
