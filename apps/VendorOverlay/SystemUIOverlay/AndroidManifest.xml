@@ -14,8 +14,8 @@
   ~ limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        package="com.android.systemui.statusbar.tv.TvStatusBar"
+        package="com.droidlogic.systemui.overlay"
         android:versionCode="1"
         android:versionName="1.0">
-        <overlay android:targetPackage="com.android.providers.settings" android:priority="0" android:isStatic="true"/>
+        <overlay android:targetPackage="com.android.systemui" android:priority="0" android:isStatic="true"/>
 </manifest>
