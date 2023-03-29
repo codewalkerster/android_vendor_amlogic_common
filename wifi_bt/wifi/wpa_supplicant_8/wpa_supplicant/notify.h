@@ -19,6 +19,7 @@ struct wps_event_m2d;
 struct wps_event_fail;
 struct tls_cert_data;
 struct wpa_cred;
+struct rsn_pmksa_cache_entry;
 
 int wpas_notify_supplicant_initialized(struct wpa_global *global);
 void wpas_notify_supplicant_deinitialized(struct wpa_global *global);
@@ -39,6 +40,7 @@ void wpas_notify_bss_tm_status(struct wpa_supplicant *wpa_s);
 void wpas_notify_network_changed(struct wpa_supplicant *wpa_s);
 void wpas_notify_ap_scan_changed(struct wpa_supplicant *wpa_s);
 void wpas_notify_bssid_changed(struct wpa_supplicant *wpa_s);
+void wpas_notify_mac_address_changed(struct wpa_supplicant *wpa_s);
 void wpas_notify_auth_changed(struct wpa_supplicant *wpa_s);
 void wpas_notify_network_enabled_changed(struct wpa_supplicant *wpa_s,
 					 struct wpa_ssid *ssid);
@@ -48,6 +50,7 @@ void wpas_notify_network_request(struct wpa_supplicant *wpa_s,
 				 struct wpa_ssid *ssid,
 				 enum wpa_ctrl_req_type rtype,
 				 const char *default_txt);
+void wpas_notify_permanent_id_req_denied(struct wpa_supplicant *wpa_s);
 void wpas_notify_scanning(struct wpa_supplicant *wpa_s);
 void wpas_notify_scan_done(struct wpa_supplicant *wpa_s, int success);
 void wpas_notify_scan_results(struct wpa_supplicant *wpa_s);
@@ -180,8 +183,10 @@ void wpas_notify_hs20_rx_deauth_imminent_notice(struct wpa_supplicant *wpa_s,
 void wpas_notify_hs20_rx_terms_and_conditions_acceptance(
 		struct wpa_supplicant *wpa_s, const char *url);
 void wpas_notify_dpp_config_received(struct wpa_supplicant *wpa_s,
-	    struct wpa_ssid *ssid);
+		struct wpa_ssid *ssid, bool conn_status_requested);
 void wpas_notify_dpp_config_sent(struct wpa_supplicant *wpa_s);
+void wpas_notify_dpp_connection_status_sent(struct wpa_supplicant *wpa_s,
+		enum dpp_status_error result);
 void wpas_notify_dpp_auth_success(struct wpa_supplicant *wpa_s);
 void wpas_notify_dpp_resp_pending(struct wpa_supplicant *wpa_s);
 void wpas_notify_dpp_not_compatible(struct wpa_supplicant *wpa_s);
@@ -196,8 +201,6 @@ void wpas_notify_dpp_conn_status(struct wpa_supplicant *wpa_s,
 		const char *channel_list, unsigned short band_list[], int size);
 void wpas_notify_dpp_config_accepted(struct wpa_supplicant *wpa_s);
 void wpas_notify_dpp_config_rejected(struct wpa_supplicant *wpa_s);
-void wpas_notify_pmk_cache_added(struct wpa_supplicant *wpa_s,
-				 struct rsn_pmksa_cache_entry *entry);
 void wpas_notify_transition_disable(struct wpa_supplicant *wpa_s,
 				    struct wpa_ssid *ssid,
 				    u8 bitmap);
@@ -208,5 +211,19 @@ void wpas_notify_interworking_ap_added(struct wpa_supplicant *wpa_s,
 				       const char *type, int bh, int bss_load,
 				       int conn_capab);
 void wpas_notify_interworking_select_done(struct wpa_supplicant *wpa_s);
+void wpas_notify_eap_method_selected(struct wpa_supplicant *wpa_s,
+		const char* reason_string);
+void wpas_notify_ssid_temp_disabled(struct wpa_supplicant *wpa_s,
+		const char *reason_string);
+void wpas_notify_open_ssl_failure(struct wpa_supplicant *wpa_s,
+		const char *reason_string);
+void wpas_notify_qos_policy_reset(struct wpa_supplicant *wpa_s);
+void wpas_notify_qos_policy_request(struct wpa_supplicant *wpa_s,
+		struct dscp_policy_data *policies, int num_policies);
+void wpas_notify_frequency_changed(struct wpa_supplicant *wpa_s, int frequency);
+ssize_t wpas_get_certificate(const char *alias, uint8_t** value);
+void wpas_notify_pmk_cache_added(struct wpa_supplicant *wpa_s,
+				 struct rsn_pmksa_cache_entry *entry);
+void wpas_notify_signal_change(struct wpa_supplicant *wpa_s);
 
 #endif /* NOTIFY_H */

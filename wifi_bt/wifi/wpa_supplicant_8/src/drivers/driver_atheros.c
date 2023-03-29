@@ -17,7 +17,6 @@
 #include "eloop.h"
 #include "common/ieee802_11_defs.h"
 #include "l2_packet/l2_packet.h"
-#include "p2p/p2p.h"
 
 #include "common.h"
 #ifndef _BYTE_ORDER
@@ -722,7 +721,7 @@ atheros_set_opt_ie(void *priv, const u8 *ie, size_t ie_len)
 		os_memcpy(&(app_ie->app_buf[0]), ie, ie_len);
 	app_ie->app_buflen = ie_len;
 
-	app_ie->app_form_type = IEEE80211_APPIE_FRAME_BEACON;
+	app_ie->app_frmtype = IEEE80211_APPIE_FRAME_BEACON;
 
 	/* append WPS IE for Beacon */
 	if (drv->wps_beacon_ie != NULL) {
@@ -738,7 +737,7 @@ atheros_set_opt_ie(void *priv, const u8 *ie, size_t ie_len)
 		     app_ie->app_buflen);
 
 	/* append WPS IE for Probe Response */
-	app_ie->app_form_type = IEEE80211_APPIE_FRAME_PROBE_RESP;
+	app_ie->app_frmtype = IEEE80211_APPIE_FRAME_PROBE_RESP;
 	if (drv->wps_probe_resp_ie != NULL) {
 		os_memcpy(&(app_ie->app_buf[ie_len]),
 			  wpabuf_head(drv->wps_probe_resp_ie),
@@ -957,20 +956,20 @@ static int atheros_receive_pkt(struct atheros_driver_data *drv)
 	struct ieee80211req_set_filter filt;
 
 	wpa_printf(MSG_DEBUG, "%s Enter", __func__);
-	filt.app_filter_type = 0;
+	filt.app_filterype = 0;
 #ifdef CONFIG_WPS
-	filt.app_filter_type |= IEEE80211_FILTER_TYPE_PROBE_REQ;
+	filt.app_filterype |= IEEE80211_FILTER_TYPE_PROBE_REQ;
 #endif /* CONFIG_WPS */
-	filt.app_filter_type |= (IEEE80211_FILTER_TYPE_ASSOC_REQ |
+	filt.app_filterype |= (IEEE80211_FILTER_TYPE_ASSOC_REQ |
 			       IEEE80211_FILTER_TYPE_AUTH |
 			       IEEE80211_FILTER_TYPE_ACTION);
 #ifdef CONFIG_WNM
-	filt.app_filter_type |= IEEE80211_FILTER_TYPE_ACTION;
+	filt.app_filterype |= IEEE80211_FILTER_TYPE_ACTION;
 #endif /* CONFIG_WNM */
 #ifdef CONFIG_HS20
-	filt.app_filter_type |= IEEE80211_FILTER_TYPE_ACTION;
+	filt.app_filterype |= IEEE80211_FILTER_TYPE_ACTION;
 #endif /* CONFIG_HS20 */
-	if (filt.app_filter_type) {
+	if (filt.app_filterype) {
 		ret = set80211priv(drv, IEEE80211_IOCTL_FILTERFRAME, &filt,
 				   sizeof(struct ieee80211req_set_filter));
 		if (ret)
@@ -989,7 +988,7 @@ static int atheros_receive_pkt(struct atheros_driver_data *drv)
 static int atheros_reset_appfilter(struct atheros_driver_data *drv)
 {
 	struct ieee80211req_set_filter filt;
-	filt.app_filter_type = 0;
+	filt.app_filterype = 0;
 	return set80211priv(drv, IEEE80211_IOCTL_FILTERFRAME, &filt,
 			    sizeof(struct ieee80211req_set_filter));
 }
@@ -1007,7 +1006,7 @@ atheros_set_wps_ie(void *priv, const u8 *ie, size_t len, u32 frametype)
 	wpa_hexdump(MSG_DEBUG, "atheros: IE", ie, len);
 
 	beac_ie = (struct ieee80211req_getset_appiebuf *) buf;
-	beac_ie->app_form_type = frametype;
+	beac_ie->app_frmtype = frametype;
 	beac_ie->app_buflen = len;
 	if (ie)
 		os_memcpy(&(beac_ie->app_buf[0]), ie, len);
@@ -1236,7 +1235,7 @@ static void
 atheros_wireless_event_wireless_custom(struct atheros_driver_data *drv,
 				       char *custom, char *end)
 {
-#define MGMT_FRAME_TAG_SIZE 30 /* hardcoded in driver */
+#define MGMT_FRAM_TAG_SIZE 30 /* hardcoded in driver */
 	wpa_printf(MSG_DEBUG, "Custom wireless event: '%s'", custom);
 
 	if (os_strncmp(custom, "MLME-MICHAELMICFAILURE.indication", 33) == 0) {
@@ -1300,49 +1299,49 @@ atheros_wireless_event_wireless_custom(struct atheros_driver_data *drv,
 		 * Format: "Manage.prob_req <frame len>" | zero padding | frame
 		 */
 		int len = atoi(custom + 16);
-		if (len < 0 || MGMT_FRAME_TAG_SIZE + len > end - custom) {
+		if (len < 0 || MGMT_FRAM_TAG_SIZE + len > end - custom) {
 			wpa_printf(MSG_DEBUG, "Invalid Manage.prob_req event "
 				   "length %d", len);
 			return;
 		}
 		atheros_raw_receive(drv, NULL,
-				    (u8 *) custom + MGMT_FRAME_TAG_SIZE, len);
+				    (u8 *) custom + MGMT_FRAM_TAG_SIZE, len);
 #endif /* CONFIG_WPS */
 	} else if (os_strncmp(custom, "Manage.assoc_req ", 17) == 0) {
 		/* Format: "Manage.assoc_req <frame len>" | zero padding |
 		 * frame */
 		int len = atoi(custom + 17);
-		if (len < 0 || MGMT_FRAME_TAG_SIZE + len > end - custom) {
+		if (len < 0 || MGMT_FRAM_TAG_SIZE + len > end - custom) {
 			wpa_printf(MSG_DEBUG,
 				   "Invalid Manage.assoc_req event length %d",
 				   len);
 			return;
 		}
 		atheros_raw_receive(drv, NULL,
-				    (u8 *) custom + MGMT_FRAME_TAG_SIZE, len);
+				    (u8 *) custom + MGMT_FRAM_TAG_SIZE, len);
 	} else if (os_strncmp(custom, "Manage.auth ", 12) == 0) {
 		/* Format: "Manage.auth <frame len>" | zero padding | frame */
 		int len = atoi(custom + 12);
 		if (len < 0 ||
-		    MGMT_FRAME_TAG_SIZE + len > end - custom) {
+		    MGMT_FRAM_TAG_SIZE + len > end - custom) {
 			wpa_printf(MSG_DEBUG,
 				   "Invalid Manage.auth event length %d", len);
 			return;
 		}
 		atheros_raw_receive(drv, NULL,
-				    (u8 *) custom + MGMT_FRAME_TAG_SIZE, len);
+				    (u8 *) custom + MGMT_FRAM_TAG_SIZE, len);
 	} else if (os_strncmp(custom, "Manage.action ", 14) == 0) {
 		/* Format: "Manage.assoc_req <frame len>" | zero padding | frame
 		 */
 		int len = atoi(custom + 14);
-		if (len < 0 || MGMT_FRAME_TAG_SIZE + len > end - custom) {
+		if (len < 0 || MGMT_FRAM_TAG_SIZE + len > end - custom) {
 			wpa_printf(MSG_DEBUG,
 				   "Invalid Manage.action event length %d",
 				   len);
 			return;
 		}
 		atheros_raw_receive(drv, NULL,
-				    (u8 *) custom + MGMT_FRAME_TAG_SIZE, len);
+				    (u8 *) custom + MGMT_FRAM_TAG_SIZE, len);
 	}
 }
 
@@ -2111,7 +2110,7 @@ static int athr_wnm_tfs(struct atheros_driver_data *drv, const u8* peer,
 			return -1;
 		}
 		tfs_ie = (struct ieee80211req_getset_appiebuf *) buf;
-		tfs_ie->app_form_type = IEEE80211_APPIE_FRAME_WNM;
+		tfs_ie->app_frmtype = IEEE80211_APPIE_FRAME_WNM;
 		tfs_ie->app_buflen = ETH_ALEN + 2 + 2 + *len;
 
 		/* Command header for driver */
@@ -2133,7 +2132,7 @@ static int athr_wnm_tfs(struct atheros_driver_data *drv, const u8* peer,
 		break;
 	case WNM_SLEEP_TFS_RESP_IE_ADD:
 		tfs_ie = (struct ieee80211req_getset_appiebuf *) buf;
-		tfs_ie->app_form_type = IEEE80211_APPIE_FRAME_WNM;
+		tfs_ie->app_frmtype = IEEE80211_APPIE_FRAME_WNM;
 		tfs_ie->app_buflen = IEEE80211_APPIE_MAX -
 			sizeof(struct ieee80211req_getset_appiebuf);
 		/* Command header for driver */
@@ -2160,7 +2159,7 @@ static int athr_wnm_tfs(struct atheros_driver_data *drv, const u8* peer,
 		break;
 	case WNM_SLEEP_TFS_IE_DEL:
 		tfs_ie = (struct ieee80211req_getset_appiebuf *) buf;
-		tfs_ie->app_form_type = IEEE80211_APPIE_FRAME_WNM;
+		tfs_ie->app_frmtype = IEEE80211_APPIE_FRAME_WNM;
 		tfs_ie->app_buflen = IEEE80211_APPIE_MAX -
 			sizeof(struct ieee80211req_getset_appiebuf);
 		/* Command header for driver */

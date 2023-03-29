@@ -870,7 +870,7 @@ static void eap_ttls_process_phase2_eap_response(struct eap_sm *sm,
 
 	if (in_len > sizeof(*hdr) && *pos == EAP_TYPE_NAK) {
 		left = in_len - sizeof(*hdr);
-		wpa_hexdump(MSG_DEBUG, "EAP-TTLS/EAP: Phase2 type Naked; "
+		wpa_hexdump(MSG_DEBUG, "EAP-TTLS/EAP: Phase2 type Nak'ed; "
 			    "allowed types", pos + 1, left - 1);
 		eap_sm_process_nak(sm, pos + 1, left - 1);
 		if (sm->user && sm->user_eap_method_index < EAP_MAX_METHODS &&

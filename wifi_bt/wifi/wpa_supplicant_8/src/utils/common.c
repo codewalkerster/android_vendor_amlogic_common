@@ -13,7 +13,7 @@
 #include "common.h"
 
 
-static int hex2num(char c)
+int hex2num(char c)
 {
 	if (c >= '0' && c <= '9')
 		return c - '0';
@@ -106,7 +106,7 @@ int hwaddr_masked_aton(const char *txt, u8 *addr, u8 *mask, u8 maskable)
 
 
 /**
- * hwaddr_compact_aton - Convert ASCII string to MAC address (no colon delimiters format)
+ * hwaddr_compact_aton - Convert ASCII string to MAC address (no colon delimitors format)
  * @txt: MAC address as a string (e.g., "001122334455")
  * @addr: Buffer for the MAC address (ETH_ALEN = 6 bytes)
  * Returns: 0 on success, -1 on failure (e.g., string not a MAC address)

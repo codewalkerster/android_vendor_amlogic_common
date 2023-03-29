@@ -261,7 +261,7 @@ static TNC_Result TNC_TNCS_ProvideRecommendation(
 static TNC_Result TNC_TNCS_GetAttribute(
 	TNC_IMVID imvID,
 	TNC_ConnectionID connectionID,
-	TNC_AttributeID attributeID,
+	TNC_AttributeID attribureID,
 	TNC_UInt32 bufferLength,
 	TNC_BufferReference buffer,
 	TNC_UInt32 *pOutValueLength)
@@ -275,7 +275,7 @@ static TNC_Result TNC_TNCS_GetAttribute(
 static TNC_Result TNC_TNCS_SetAttribute(
 	TNC_IMVID imvID,
 	TNC_ConnectionID connectionID,
-	TNC_AttributeID attributeID,
+	TNC_AttributeID attribureID,
 	TNC_UInt32 bufferLength,
 	TNC_BufferReference buffer)
 {

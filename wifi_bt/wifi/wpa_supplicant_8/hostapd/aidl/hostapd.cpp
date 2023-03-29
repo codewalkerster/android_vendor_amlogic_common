@@ -39,7 +39,7 @@ extern "C"
 // each interface. This file can then be used to hook onto the normal config
 // file parsing logic in hostapd code.  Helps us to avoid duplication of code
 // in the AIDL interface.
-// TODO(b/71872409): Add unit tests for this.
+// TOOD(b/71872409): Add unit tests for this.
 namespace {
 constexpr char kConfFileNameFmt[] = "/data/vendor/wifi/hostapd/hostapd_%s.conf";
 
@@ -321,6 +321,7 @@ std::string CreateHostapdConfig(
 	// Encryption config string
 	uint32_t band = 0;
 	band |= static_cast<uint32_t>(channelParams.bandMask);
+	bool is_2Ghz_band_only = band == static_cast<uint32_t>(band2Ghz);
 	bool is_6Ghz_band_only = band == static_cast<uint32_t>(band6Ghz);
 	bool is_60Ghz_band_only = band == static_cast<uint32_t>(band60Ghz);
 	std::string encryption_config_as_string;
@@ -375,12 +376,18 @@ std::string CreateHostapdConfig(
 		encryption_config_as_string = StringPrintf(
 			"wpa=2\n"
 			"rsn_pairwise=%s\n"
-			"wpa_key_mgmt=WPA-PSK SAE\n"
+			"wpa_key_mgmt=%s\n"
 			"ieee80211w=1\n"
 			"sae_require_mfp=1\n"
 			"wpa_passphrase=%s\n"
 			"sae_password=%s",
 			is_60Ghz_band_only ? "GCMP" : "CCMP",
+#ifdef CONFIG_IEEE80211BE
+			iface_params.hwModeParams.enable80211BE ?
+			    "WPA-PSK SAE SAE-EXT-KEY" : "WPA-PSK SAE",
+#else
+			"WPA-PSK SAE",
+#endif
 			nw_params.passphrase.c_str(),
 			nw_params.passphrase.c_str());
 		break;
@@ -391,12 +398,17 @@ std::string CreateHostapdConfig(
 		encryption_config_as_string = StringPrintf(
 			"wpa=2\n"
 			"rsn_pairwise=%s\n"
-			"wpa_key_mgmt=SAE\n"
+			"wpa_key_mgmt=%s\n"
 			"ieee80211w=2\n"
 			"sae_require_mfp=2\n"
 			"sae_pwe=%d\n"
 			"sae_password=%s",
 			is_60Ghz_band_only ? "GCMP" : "CCMP",
+#ifdef CONFIG_IEEE80211BE
+			iface_params.hwModeParams.enable80211BE ? "SAE SAE-EXT-KEY" : "SAE",
+#else
+			"SAE",
+#endif
 			is_6Ghz_band_only ? 1 : 2,
 			nw_params.passphrase.c_str());
 		break;
@@ -460,9 +472,7 @@ std::string CreateHostapdConfig(
 	std::string hw_mode_as_string;
 	std::string enable_edmg_as_string;
 	std::string edmg_channel_as_string;
-#ifdef CONFIG_IEEE80211AX
 	bool is_60Ghz_used = false;
-#endif /* CONFIG_IEEE80211AX */
 
 	if (((band & band60Ghz) != 0)) {
 		hw_mode_as_string = "hw_mode=ad";
@@ -472,9 +482,7 @@ std::string CreateHostapdConfig(
 				"edmg_channel=%d",
 				channelParams.channel);
 		}
-#ifdef CONFIG_IEEE80211AX
 		is_60Ghz_used = true;
-#endif /* CONFIG_IEEE80211AX */
 	} else if ((band & band2Ghz) != 0) {
 		if (((band & band5Ghz) != 0)
 		    || ((band & band6Ghz) != 0)) {
@@ -507,6 +515,15 @@ std::string CreateHostapdConfig(
 		he_params_as_string = "ieee80211ax=0";
 	}
 #endif /* CONFIG_IEEE80211AX */
+	std::string eht_params_as_string;
+#ifdef CONFIG_IEEE80211BE
+	if (iface_params.hwModeParams.enable80211BE && !is_60Ghz_used) {
+		eht_params_as_string = "ieee80211be=1";
+		/* TODO set eht_su_beamformer, eht_su_beamformee, eht_mu_beamformer */
+	} else {
+		eht_params_as_string = "ieee80211be=0";
+	}
+#endif /* CONFIG_IEEE80211BE */
 
 	std::string ht_cap_vht_oper_he_oper_chwidth_as_string;
 	switch (iface_params.hwModeParams.maximumChannelBandwidth) {
@@ -550,22 +567,18 @@ std::string CreateHostapdConfig(
 			iface_params.hwModeParams.enable80211AC ? 2 : 0);
 		break;
 	default:
-	if ((band & band2Ghz) != 0)
-	{
-		break;
-	}
-
-		ht_cap_vht_oper_he_oper_chwidth_as_string = StringPrintf(
-			"ht_capab=[HT40+]\n"
+		if (!is_2Ghz_band_only && !is_60Ghz_used) {
+			if (iface_params.hwModeParams.enable80211AC) {
+				ht_cap_vht_oper_he_oper_chwidth_as_string =
+					"ht_capab=[HT40+]\n"
+					"vht_oper_chwidth=1\n";
+			}
 #ifdef CONFIG_IEEE80211AX
-			"he_oper_chwidth=%d\n"
+			if (iface_params.hwModeParams.enable80211AX) {
+				ht_cap_vht_oper_he_oper_chwidth_as_string += "he_oper_chwidth=1";
+			}
 #endif
-			"vht_oper_chwidth=%d",
-#ifdef CONFIG_IEEE80211AX
-			(iface_params.hwModeParams.enable80211AX && !is_60Ghz_used) ? 1 : 0,
-#endif
-			((((band & band5Ghz) != 0) || ((band & band6Ghz) != 0))
-			&& iface_params.hwModeParams.enable80211AC) ? 1 : 0);
+		}
 		break;
 	}
 
@@ -618,6 +631,7 @@ std::string CreateHostapdConfig(
 		"%s\n"
 		"%s\n"
 		"%s\n"
+		"%s\n"
 		"ignore_broadcast_ssid=%d\n"
 		"wowlan_triggers=any\n"
 #ifdef CONFIG_INTERWORKING
@@ -634,6 +648,7 @@ std::string CreateHostapdConfig(
 		iface_params.hwModeParams.enable80211N ? 1 : 0,
 		iface_params.hwModeParams.enable80211AC ? 1 : 0,
 		he_params_as_string.c_str(),
+		eht_params_as_string.c_str(),
 		hw_mode_as_string.c_str(), ht_cap_vht_oper_he_oper_chwidth_as_string.c_str(),
 		nw_params.isHidden ? 1 : 0,
 #ifdef CONFIG_INTERWORKING
@@ -678,27 +693,27 @@ ChannelBandwidth getChannelBandwidth(struct hostapd_config *iconf)
 		   iconf->vht_oper_chwidth, iconf->ieee80211n,
 		   iconf->secondary_channel);
 	switch (iconf->vht_oper_chwidth) {
-	case CHANWIDTH_80MHZ:
+	case CONF_OPER_CHWIDTH_80MHZ:
 		return ChannelBandwidth::BANDWIDTH_80;
-	case CHANWIDTH_80P80MHZ:
+	case CONF_OPER_CHWIDTH_80P80MHZ:
 		return ChannelBandwidth::BANDWIDTH_80P80;
 		break;
-	case CHANWIDTH_160MHZ:
+	case CONF_OPER_CHWIDTH_160MHZ:
 		return ChannelBandwidth::BANDWIDTH_160;
 		break;
-	case CHANWIDTH_USE_HT:
+	case CONF_OPER_CHWIDTH_USE_HT:
 		if (iconf->ieee80211n) {
 			return iconf->secondary_channel != 0 ?
 				ChannelBandwidth::BANDWIDTH_40 : ChannelBandwidth::BANDWIDTH_20;
 		}
 		return ChannelBandwidth::BANDWIDTH_20_NOHT;
-	case CHANWIDTH_2160MHZ:
+	case CONF_OPER_CHWIDTH_2160MHZ:
 		return ChannelBandwidth::BANDWIDTH_2160;
-	case CHANWIDTH_4320MHZ:
+	case CONF_OPER_CHWIDTH_4320MHZ:
 		return ChannelBandwidth::BANDWIDTH_4320;
-	case CHANWIDTH_6480MHZ:
+	case CONF_OPER_CHWIDTH_6480MHZ:
 		return ChannelBandwidth::BANDWIDTH_6480;
-	case CHANWIDTH_8640MHZ:
+	case CONF_OPER_CHWIDTH_8640MHZ:
 		return ChannelBandwidth::BANDWIDTH_8640;
 	default:
 		return ChannelBandwidth::BANDWIDTH_INVALID;
@@ -709,6 +724,9 @@ bool forceStaDisconnection(struct hostapd_data* hapd,
 			   const std::vector<uint8_t>& client_address,
 			   const uint16_t reason_code) {
 	struct sta_info *sta;
+	if (client_address.size() != ETH_ALEN) {
+		return false;
+	}
 	for (sta = hapd->sta_list; sta; sta = sta->next) {
 		int res;
 		res = memcmp(sta->addr, client_address.data(), ETH_ALEN);
@@ -1018,7 +1036,9 @@ std::vector<uint8_t>  generateRandomOweSsid()
 			for (const auto &callback : callbacks_) {
 				callback->onApInstanceInfoChanged(info);
 			}
-		} else if (os_strncmp(txt, AP_EVENT_DISABLED, strlen(AP_EVENT_DISABLED)) == 0) {
+		} else if (os_strncmp(txt, AP_EVENT_DISABLED, strlen(AP_EVENT_DISABLED)) == 0
+                           || os_strncmp(txt, INTERFACE_DISABLED, strlen(INTERFACE_DISABLED)) == 0)
+		{
 			// Invoke the failure callback on all registered clients.
 			for (const auto& callback : callbacks_) {
 				callback->onFailure(strlen(iface_hapd->conf->bridge) > 0 ?
@@ -1033,7 +1053,7 @@ std::vector<uint8_t>  generateRandomOweSsid()
 	iface_hapd->setup_complete_cb_ctx = iface_hapd;
 	iface_hapd->sta_authorized_cb = onAsyncStaAuthorizedCb;
 	iface_hapd->sta_authorized_cb_ctx = iface_hapd;
-	wpa_msg_register_cb(onAsyncWpaEventCb);
+	wpa_msg_register_aidl_cb(onAsyncWpaEventCb);
 
 	if (hostapd_enable_iface(iface_hapd->iface) < 0) {
 		wpa_printf(

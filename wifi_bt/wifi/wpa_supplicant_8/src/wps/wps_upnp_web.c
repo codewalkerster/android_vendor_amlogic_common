@@ -627,7 +627,7 @@ web_process_put_wlan_response(struct upnp_wps_device_sm *sm, char *data,
 		if (hwaddr_aton2(val, macaddr) > 0) {
 			/*
 			 * At least some versions of Intel PROset seem to be
-			 * using dot-delaminated MAC address format here.
+			 * using dot-deliminated MAC address format here.
 			 */
 			wpa_printf(MSG_DEBUG, "WPS UPnP: Workaround - allow "
 				   "incorrect MAC address format in "

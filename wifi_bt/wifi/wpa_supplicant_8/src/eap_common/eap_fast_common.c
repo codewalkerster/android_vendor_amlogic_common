@@ -130,7 +130,7 @@ int eap_fast_derive_eap_msk(const u8 *simck, u8 *msk)
 int eap_fast_derive_eap_emsk(const u8 *simck, u8 *emsk)
 {
 	/*
-	 * RFC 4851, Section 5.4: EAP Master Session Key Generation
+	 * RFC 4851, Section 5.4: EAP Master Session Key Genreration
 	 * EMSK = T-PRF(S-IMCK[j],
 	 *        "Extended Session Key Generating Function", 64)
 	 */

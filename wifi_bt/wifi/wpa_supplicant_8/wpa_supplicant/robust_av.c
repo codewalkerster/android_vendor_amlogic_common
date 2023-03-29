@@ -14,6 +14,7 @@
 #include "wpa_supplicant_i.h"
 #include "driver_i.h"
 #include "bss.h"
+#include "notify.h"
 
 
 #define SCS_RESP_TIMEOUT 1
@@ -705,14 +706,15 @@ void wpas_scs_deinit(struct wpa_supplicant *wpa_s)
 
 
 static int write_ipv4_info(char *pos, int total_len,
-			   const struct ipv4_params *v4)
+			   const struct ipv4_params *v4,
+			   u8 classifier_mask)
 {
 	int res, rem_len;
 	char addr[INET_ADDRSTRLEN];
 
 	rem_len = total_len;
 
-	if (v4->param_mask & BIT(1)) {
+	if (classifier_mask & BIT(1)) {
 		if (!inet_ntop(AF_INET, &v4->src_ip, addr, INET_ADDRSTRLEN)) {
 			wpa_printf(MSG_ERROR,
 				   "QM: Failed to set IPv4 source address");
@@ -727,7 +729,7 @@ static int write_ipv4_info(char *pos, int total_len,
 		rem_len -= res;
 	}
 
-	if (v4->param_mask & BIT(2)) {
+	if (classifier_mask & BIT(2)) {
 		if (!inet_ntop(AF_INET, &v4->dst_ip, addr, INET_ADDRSTRLEN)) {
 			wpa_printf(MSG_ERROR,
 				   "QM: Failed to set IPv4 destination address");
@@ -742,7 +744,7 @@ static int write_ipv4_info(char *pos, int total_len,
 		rem_len -= res;
 	}
 
-	if (v4->param_mask & BIT(3)) {
+	if (classifier_mask & BIT(3)) {
 		res = os_snprintf(pos, rem_len, " src_port=%d", v4->src_port);
 		if (os_snprintf_error(rem_len, res))
 			return -1;
@@ -751,7 +753,7 @@ static int write_ipv4_info(char *pos, int total_len,
 		rem_len -= res;
 	}
 
-	if (v4->param_mask & BIT(4)) {
+	if (classifier_mask & BIT(4)) {
 		res = os_snprintf(pos, rem_len, " dst_port=%d", v4->dst_port);
 		if (os_snprintf_error(rem_len, res))
 			return -1;
@@ -760,7 +762,7 @@ static int write_ipv4_info(char *pos, int total_len,
 		rem_len -= res;
 	}
 
-	if (v4->param_mask & BIT(6)) {
+	if (classifier_mask & BIT(6)) {
 		res = os_snprintf(pos, rem_len, " protocol=%d", v4->protocol);
 		if (os_snprintf_error(rem_len, res))
 			return -1;
@@ -774,14 +776,15 @@ static int write_ipv4_info(char *pos, int total_len,
 
 
 static int write_ipv6_info(char *pos, int total_len,
-			   const struct ipv6_params *v6)
+			   const struct ipv6_params *v6,
+			   u8 classifier_mask)
 {
 	int res, rem_len;
 	char addr[INET6_ADDRSTRLEN];
 
 	rem_len = total_len;
 
-	if (v6->param_mask & BIT(1)) {
+	if (classifier_mask & BIT(1)) {
 		if (!inet_ntop(AF_INET6, &v6->src_ip, addr, INET6_ADDRSTRLEN)) {
 			wpa_printf(MSG_ERROR,
 				   "QM: Failed to set IPv6 source addr");
@@ -796,7 +799,7 @@ static int write_ipv6_info(char *pos, int total_len,
 		rem_len -= res;
 	}
 
-	if (v6->param_mask & BIT(2)) {
+	if (classifier_mask & BIT(2)) {
 		if (!inet_ntop(AF_INET6, &v6->dst_ip, addr, INET6_ADDRSTRLEN)) {
 			wpa_printf(MSG_ERROR,
 				   "QM: Failed to set IPv6 destination addr");
@@ -811,7 +814,7 @@ static int write_ipv6_info(char *pos, int total_len,
 		rem_len -= res;
 	}
 
-	if (v6->param_mask & BIT(3)) {
+	if (classifier_mask & BIT(3)) {
 		res = os_snprintf(pos, rem_len, " src_port=%d", v6->src_port);
 		if (os_snprintf_error(rem_len, res))
 			return -1;
@@ -820,7 +823,7 @@ static int write_ipv6_info(char *pos, int total_len,
 		rem_len -= res;
 	}
 
-	if (v6->param_mask & BIT(4)) {
+	if (classifier_mask & BIT(4)) {
 		res = os_snprintf(pos, rem_len, " dst_port=%d", v6->dst_port);
 		if (os_snprintf_error(rem_len, res))
 			return -1;
@@ -829,7 +832,7 @@ static int write_ipv6_info(char *pos, int total_len,
 		rem_len -= res;
 	}
 
-	if (v6->param_mask & BIT(6)) {
+	if (classifier_mask & BIT(6)) {
 		res = os_snprintf(pos, rem_len, " protocol=%d",
 				  v6->next_header);
 		if (os_snprintf_error(rem_len, res))
@@ -841,22 +844,6 @@ static int write_ipv6_info(char *pos, int total_len,
 
 	return total_len - rem_len;
 }
-
-
-struct dscp_policy_data {
-	u8 policy_id;
-	u8 req_type;
-	u8 dscp;
-	bool dscp_info;
-	const u8 *frame_classifier;
-	u8 frame_classifier_len;
-	struct type4_params type4_param;
-	const u8 *domain_name;
-	u8 domain_name_len;
-	u16 start_port;
-	u16 end_port;
-	bool port_range_info;
-};
 
 
 static int set_frame_classifier_type4_ipv4(struct dscp_policy_data *policy)
@@ -876,7 +863,7 @@ static int set_frame_classifier_type4_ipv4(struct dscp_policy_data *policy)
 
 	/* Classifier Mask - bit 1 = Source IP Address */
 	if (classifier_mask & BIT(1)) {
-		type4_param->ip_params.v4.param_mask |= BIT(1);
+		type4_param->classifier_mask |= BIT(1);
 		os_memcpy(&type4_param->ip_params.v4.src_ip,
 			  &frame_classifier[3], 4);
 	}
@@ -889,14 +876,14 @@ static int set_frame_classifier_type4_ipv4(struct dscp_policy_data *policy)
 			return -1;
 		}
 
-		type4_param->ip_params.v4.param_mask |= BIT(2);
+		type4_param->classifier_mask |= BIT(2);
 		os_memcpy(&type4_param->ip_params.v4.dst_ip,
 			  &frame_classifier[7], 4);
 	}
 
 	/* Classifier Mask - bit 3 = Source Port */
 	if (classifier_mask & BIT(3)) {
-		type4_param->ip_params.v4.param_mask |= BIT(3);
+		type4_param->classifier_mask |= BIT(3);
 		type4_param->ip_params.v4.src_port =
 			WPA_GET_BE16(&frame_classifier[11]);
 	}
@@ -909,7 +896,7 @@ static int set_frame_classifier_type4_ipv4(struct dscp_policy_data *policy)
 			return -1;
 		}
 
-		type4_param->ip_params.v4.param_mask |= BIT(4);
+		type4_param->classifier_mask |= BIT(4);
 		type4_param->ip_params.v4.dst_port =
 			WPA_GET_BE16(&frame_classifier[13]);
 	}
@@ -918,7 +905,7 @@ static int set_frame_classifier_type4_ipv4(struct dscp_policy_data *policy)
 
 	/* Classifier Mask - bit 6 = Protocol */
 	if (classifier_mask & BIT(6)) {
-		type4_param->ip_params.v4.param_mask |= BIT(6);
+		type4_param->classifier_mask |= BIT(6);
 		type4_param->ip_params.v4.protocol = frame_classifier[16];
 	}
 
@@ -943,7 +930,7 @@ static int set_frame_classifier_type4_ipv6(struct dscp_policy_data *policy)
 
 	/* Classifier Mask - bit 1 = Source IP Address */
 	if (classifier_mask & BIT(1)) {
-		type4_param->ip_params.v6.param_mask |= BIT(1);
+		type4_param->classifier_mask |= BIT(1);
 		os_memcpy(&type4_param->ip_params.v6.src_ip,
 			  &frame_classifier[3], 16);
 	}
@@ -955,14 +942,14 @@ static int set_frame_classifier_type4_ipv6(struct dscp_policy_data *policy)
 				   "QM: IPv6: Both domain name and destination IP address not expected");
 			return -1;
 		}
-		type4_param->ip_params.v6.param_mask |= BIT(2);
+		type4_param->classifier_mask |= BIT(2);
 		os_memcpy(&type4_param->ip_params.v6.dst_ip,
 			  &frame_classifier[19], 16);
 	}
 
 	/* Classifier Mask - bit 3 = Source Port */
 	if (classifier_mask & BIT(3)) {
-		type4_param->ip_params.v6.param_mask |= BIT(3);
+		type4_param->classifier_mask |= BIT(3);
 		type4_param->ip_params.v6.src_port =
 				WPA_GET_BE16(&frame_classifier[35]);
 	}
@@ -975,7 +962,7 @@ static int set_frame_classifier_type4_ipv6(struct dscp_policy_data *policy)
 			return -1;
 		}
 
-		type4_param->ip_params.v6.param_mask |= BIT(4);
+		type4_param->classifier_mask |= BIT(4);
 		type4_param->ip_params.v6.dst_port =
 				WPA_GET_BE16(&frame_classifier[37]);
 	}
@@ -984,7 +971,7 @@ static int set_frame_classifier_type4_ipv6(struct dscp_policy_data *policy)
 
 	/* Classifier Mask - bit 6 = Next Header */
 	if (classifier_mask & BIT(6)) {
-		type4_param->ip_params.v6.param_mask |= BIT(6);
+		type4_param->classifier_mask |= BIT(6);
 		type4_param->ip_params.v6.next_header = frame_classifier[40];
 	}
 
@@ -1062,7 +1049,7 @@ static bool dscp_valid_domain_name(const char *str)
 }
 
 
-static void wpas_add_dscp_policy(struct wpa_supplicant *wpa_s,
+static int  wpas_add_dscp_policy(struct wpa_supplicant *wpa_s,
 				 struct dscp_policy_data *policy)
 {
 	int ip_ver = 0, res;
@@ -1090,9 +1077,11 @@ static void wpas_add_dscp_policy(struct wpa_supplicant *wpa_s,
 		}
 
 		if (type4->ip_version == IPV4)
-			res = write_ipv4_info(pos, len, &type4->ip_params.v4);
+			res = write_ipv4_info(pos, len, &type4->ip_params.v4,
+					      type4->classifier_mask);
 		else
-			res = write_ipv6_info(pos, len, &type4->ip_params.v6);
+			res = write_ipv6_info(pos, len, &type4->ip_params.v6,
+					      type4->classifier_mask);
 
 		if (res <= 0) {
 			wpa_printf(MSG_ERROR,
@@ -1147,10 +1136,11 @@ static void wpas_add_dscp_policy(struct wpa_supplicant *wpa_s,
 	wpa_msg(wpa_s, MSG_INFO, WPA_EVENT_DSCP_POLICY
 		"add policy_id=%u dscp=%u ip_version=%d%s",
 		policy->policy_id, policy->dscp, ip_ver, policy_str);
-	return;
+	return 0;
 fail:
 	wpa_msg(wpa_s, MSG_INFO, WPA_EVENT_DSCP_POLICY "reject policy_id=%u",
 		policy->policy_id);
+	return -1;
 }
 
 
@@ -1231,6 +1221,9 @@ void wpas_handle_qos_mgmt_recv_action(struct wpa_supplicant *wpa_s,
 	const u8 *qos_ie, *attr;
 	int more, reset;
 
+        struct dscp_policy_data *policies = NULL, *policies_temp;
+        int num_dscp_policies = 0;
+
 	if (!wpa_s->enable_dscp_policy_capa) {
 		wpa_printf(MSG_ERROR,
 			   "QM: Ignore DSCP Policy frame since the capability is not enabled");
@@ -1276,6 +1269,9 @@ void wpas_handle_qos_mgmt_recv_action(struct wpa_supplicant *wpa_s,
 	more = buf[2] & DSCP_POLICY_CTRL_MORE;
 	reset = buf[2] & DSCP_POLICY_CTRL_RESET;
 
+        if (reset)
+                wpas_notify_qos_policy_reset(wpa_s);
+
 	wpa_msg(wpa_s, MSG_INFO, WPA_EVENT_DSCP_POLICY "request_start%s%s",
 		reset ? " clear_all" : "", more ? " more" : "");
 
@@ -1283,6 +1279,7 @@ void wpas_handle_qos_mgmt_recv_action(struct wpa_supplicant *wpa_s,
 	rem_len = len - 3;
 	while (rem_len > 2) {
 		struct dscp_policy_data policy;
+		int res = 0;
 		int rem_attrs_len, ie_len;
 
 		ie_len = 2 + qos_ie[1];
@@ -1301,11 +1298,17 @@ void wpas_handle_qos_mgmt_recv_action(struct wpa_supplicant *wpa_s,
 		attr = qos_ie + 6;
 		rem_attrs_len = qos_ie[1] - 4;
 
-		while (rem_attrs_len > 2 && rem_attrs_len >= 2 + attr[1]) {
-			wpas_fill_dscp_policy(&policy, attr[0], attr[1],
-					      &attr[2]);
-			rem_attrs_len -= 2 + attr[1];
-			attr += 2 + attr[1];
+		while (rem_attrs_len > 2) {
+			u8 attr_id, attr_len;
+
+			attr_id = *attr++;
+			attr_len = *attr++;
+			rem_attrs_len -= 2;
+			if (attr_len > rem_attrs_len)
+				break;
+			wpas_fill_dscp_policy(&policy, attr_id, attr_len, attr);
+			rem_attrs_len -= attr_len;
+			attr += attr_len;
 		}
 
 		rem_len -= ie_len;
@@ -1318,16 +1321,37 @@ void wpas_handle_qos_mgmt_recv_action(struct wpa_supplicant *wpa_s,
 		}
 
 		if (policy.req_type == DSCP_POLICY_REQ_ADD)
-			wpas_add_dscp_policy(wpa_s, &policy);
+			res = wpas_add_dscp_policy(wpa_s, &policy);
 		else if (policy.req_type == DSCP_POLICY_REQ_REMOVE)
 			wpa_msg(wpa_s, MSG_INFO, WPA_EVENT_DSCP_POLICY
 				"remove policy_id=%u", policy.policy_id);
-		else
+		else {
 			wpa_msg(wpa_s, MSG_INFO, WPA_EVENT_DSCP_POLICY
 				"reject policy_id=%u", policy.policy_id);
+			res = -1;
+		}
+
+		if (res)
+			continue;
+
+		policies_temp = os_realloc(policies,
+					   (num_dscp_policies + 1)  *
+					   sizeof(struct dscp_policy_data));
+		if (!policies_temp)
+			goto fail;
+
+		policies = policies_temp;
+		policies[num_dscp_policies] = policy;
+		num_dscp_policies++;
 	}
 
+	wpas_notify_qos_policy_request(wpa_s, policies, num_dscp_policies);
+
 	wpa_msg(wpa_s, MSG_INFO, WPA_EVENT_DSCP_POLICY "request_end");
+
+fail:
+        os_free(policies);
+        return;
 }
 
 

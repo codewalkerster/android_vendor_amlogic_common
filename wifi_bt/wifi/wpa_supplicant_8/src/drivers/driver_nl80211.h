@@ -68,6 +68,7 @@ struct i802_bss {
 	unsigned int use_nl_connect:1;
 
 	u8 addr[ETH_ALEN];
+	u8 prev_addr[ETH_ALEN];
 
 	int freq;
 	int bandwidth;
@@ -128,6 +129,7 @@ struct wpa_driver_nl80211_data {
 	u8 bssid[ETH_ALEN];
 	u8 prev_bssid[ETH_ALEN];
 	int associated;
+	struct driver_sta_mlo_info sta_mlo_info;
 	u8 ssid[SSID_MAX_LEN];
 	size_t ssid_len;
 	enum nl80211_iftype nlmode;
@@ -180,6 +182,8 @@ struct wpa_driver_nl80211_data {
 	unsigned int unsol_bcast_probe_resp:1;
 	unsigned int qca_do_acs:1;
 	unsigned int brcm_do_acs:1;
+	unsigned int uses_6ghz:1;
+	unsigned int secure_ranging_ctx_vendor_cmd_avail:1;
 
 	u64 vendor_scan_cookie;
 	u64 remain_on_chan_cookie;
@@ -221,6 +225,9 @@ struct wpa_driver_nl80211_data {
 	int auth_wep_tx_keyidx;
 	int auth_local_state_change;
 	int auth_p2p;
+	bool auth_mld;
+	u8 auth_mld_link_id;
+	u8 auth_ap_mld_addr[ETH_ALEN];
 
 	/*
 	 * Tells whether the last scan issued from wpa_supplicant was a normal
@@ -228,14 +235,13 @@ struct wpa_driver_nl80211_data {
 	 * (NL80211_CMD_VENDOR). 0 if no pending scan request.
 	 */
 	int last_scan_cmd;
-#ifdef CONFIG_DRIVER_NL80211_BRCM
+#if defined(CONFIG_DRIVER_NL80211_BRCM) || defined(CONFIG_DRIVER_NL80211_SYNA)
 	unsigned int vendor_set_pmk:1; /* for legacy set_pmk method before NL80211_CMD_SET_PMK */
-#endif /* CONFIG_DRIVER_NL80211_BRCM */
+#endif /* CONFIG_DRIVER_NL80211_BRCM || CONFIG_DRIVER_NL80211_SYNA */
 #ifdef CONFIG_DRIVER_NL80211_QCA
 	bool roam_indication_done;
 	u8 *pending_roam_data;
 	size_t pending_roam_data_len;
-	struct os_reltime pending_roam_ind_time;
 #endif /* CONFIG_DRIVER_NL80211_QCA */
 };
 
@@ -269,7 +275,8 @@ int is_ap_interface(enum nl80211_iftype nlmode);
 int is_sta_interface(enum nl80211_iftype nlmode);
 int wpa_driver_nl80211_authenticate_retry(struct wpa_driver_nl80211_data *drv);
 int nl80211_get_link_signal(struct wpa_driver_nl80211_data *drv,
-			    struct wpa_signal_info *sig);
+			    const u8 *bssid,
+			    struct hostap_sta_driver_data *data);
 int nl80211_get_link_noise(struct wpa_driver_nl80211_data *drv,
 			   struct wpa_signal_info *sig_change);
 int nl80211_get_wiphy_index(struct i802_bss *bss);
@@ -303,7 +310,7 @@ int android_nl_socket_set_nonblocking(struct nl_sock *handle);
 int android_pno_start(struct i802_bss *bss,
 		      struct wpa_driver_scan_params *params);
 int android_pno_stop(struct i802_bss *bss);
-int wpa_driver_nl80211_driver_cmd(void *priv, char *cmd, char *buf,
+extern int wpa_driver_nl80211_driver_cmd(void *priv, char *cmd, char *buf,
 					 size_t buf_len);
 extern int wpa_driver_nl80211_driver_event(struct wpa_driver_nl80211_data *drv,
 					   u32 vendor_id, u32 subcmd,

@@ -12,6 +12,8 @@
 #include "common/ieee802_11_defs.h"
 #include "wps/wps.h"
 
+struct weighted_pcl;
+
 /* P2P ASP Setup Capability */
 #define P2PS_SETUP_NONE 0
 #define P2PS_SETUP_NEW BIT(0)
@@ -294,7 +296,7 @@ struct p2ps_advertisement {
 	/**
 	 * cpt_priority - Coordination Protocol Transport priority list
 	 *
-	 * Priorities of supported ASP Coordination Protocol Transports.
+	 * Priorities of supported ASP Coordinatin Protocol Transports.
 	 * This property is set together and corresponds with cpt_mask.
 	 * The CPT priority list is 0 terminated.
 	 */
@@ -1132,7 +1134,8 @@ struct p2p_config {
 	 * the driver specific to a particular interface type.
 	 */
 	int (*get_pref_freq_list)(void *ctx, int go,
-				  unsigned int *len, unsigned int *freq_list);
+				  unsigned int *len,
+				  struct weighted_pcl *freq_list);
 };
 
 
@@ -1377,7 +1380,7 @@ int p2p_reject(struct p2p_data *p2p, const u8 *peer_addr);
  * (config_methods = WPS_CONFIG_KEYPAD). The Provision Discovery Request frame
  * is transmitted once immediately and if no response is received, the frame
  * will be sent again whenever the target device is discovered during device
- * discovery (start with a p2p_find() call). Response from the peer is
+ * dsicovery (start with a p2p_find() call). Response from the peer is
  * indicated with the p2p_config::prov_disc_resp() callback.
  */
 int p2p_prov_disc_req(struct p2p_data *p2p, const u8 *peer_addr,
@@ -2338,6 +2341,8 @@ struct wpabuf * p2p_build_nfc_handover_sel(struct p2p_data *p2p,
 					   const u8 *go_dev_addr,
 					   const u8 *ssid, size_t ssid_len);
 
+bool p2p_pref_freq_allowed(const struct weighted_pcl *freq_list, bool go);
+
 struct p2p_nfc_params {
 	int sel;
 	const u8 *wsc_attr;
@@ -2397,7 +2402,7 @@ struct p2ps_advertisement * p2p_get_p2ps_adv_list(struct p2p_data *p2p);
 void p2p_expire_peers(struct p2p_data *p2p);
 
 void p2p_set_own_pref_freq_list(struct p2p_data *p2p,
-				const unsigned int *pref_freq_list,
+				const struct weighted_pcl *pref_freq_list,
 				unsigned int size);
 void p2p_set_override_pref_op_chan(struct p2p_data *p2p, u8 op_class,
 				   u8 chan);
@@ -2422,6 +2427,7 @@ bool p2p_peer_wfd_enabled(struct p2p_data *p2p, const u8 *peer_addr);
 bool p2p_wfd_enabled(struct p2p_data *p2p);
 bool is_p2p_allow_6ghz(struct p2p_data *p2p);
 void set_p2p_allow_6ghz(struct p2p_data *p2p, bool value);
-int p2p_remove_6ghz_channels(unsigned int *pref_freq_list, int size);
+int p2p_remove_6ghz_channels(struct weighted_pcl *pref_freq_list, int size);
+int p2p_channel_to_freq(int op_class, int channel);
 
 #endif /* P2P_H */

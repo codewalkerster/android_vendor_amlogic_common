@@ -102,6 +102,10 @@ static void eap_tls_params_flags(struct tls_connection_params *params,
 		params->flags |= TLS_CONN_SUITEB_NO_ECDH;
 	if (os_strstr(txt, "tls_suiteb_no_ecdh=0"))
 		params->flags &= ~TLS_CONN_SUITEB_NO_ECDH;
+	if (os_strstr(txt, "allow_unsafe_renegotiation=1"))
+		params->flags |= TLS_CONN_ALLOW_UNSAFE_RENEGOTIATION;
+	if (os_strstr(txt, "allow_unsafe_renegotiation=0"))
+		params->flags &= ~TLS_CONN_ALLOW_UNSAFE_RENEGOTIATION;
 }
 
 
@@ -113,7 +117,6 @@ static void eap_tls_cert_params_from_conf(struct tls_connection_params *params,
 	params->client_cert = config->client_cert;
 	params->private_key = config->private_key;
 	params->private_key_passwd = config->private_key_passwd;
-	params->dh_file = config->dh_file;
 	params->subject_match = config->subject_match;
 	params->altsubject_match = config->altsubject_match;
 	params->check_cert_subject = config->check_cert_subject;
@@ -171,7 +174,7 @@ static int eap_tls_params_from_conf(struct eap_sm *sm,
 		 * handle the TLS Session Ticket extension (they are supposed
 		 * to ignore unrecognized TLS extensions, but end up rejecting
 		 * the ClientHello instead). As a workaround, disable use of
-		 * TLS Session Ticket extension for EAP-TLS, EAP-PEAP, and
+		 * TLS Sesson Ticket extension for EAP-TLS, EAP-PEAP, and
 		 * EAP-TTLS (EAP-FAST uses session ticket, so any server that
 		 * supports EAP-FAST does not need this workaround).
 		 */
@@ -192,18 +195,20 @@ static int eap_tls_params_from_conf(struct eap_sm *sm,
 		 * TLS v1.3 changes, so disable this by default for now. */
 		params->flags |= TLS_CONN_DISABLE_TLSv1_3;
 	}
+#ifndef EAP_TLSV1_3
 	if (data->eap_type == EAP_TYPE_TLS ||
 	    data->eap_type == EAP_UNAUTH_TLS_TYPE ||
 	    data->eap_type == EAP_WFA_UNAUTH_TLS_TYPE) {
 		/* While the current EAP-TLS implementation is more or less
-		 * complete for TLS v1.3, there has been no interoperability
-		 * testing with other implementations, so disable for by default
-		 * for now until there has been chance to confirm that no
-		 * significant interoperability issues show up with TLS version
-		 * update.
+		 * complete for TLS v1.3, there has been only minimal
+		 * interoperability testing with other implementations, so
+		 * disable it by default for now until there has been chance to
+		 * confirm that no significant interoperability issues show up
+		 * with TLS version update.
 		 */
 		params->flags |= TLS_CONN_DISABLE_TLSv1_3;
 	}
+#endif /* EAP_TLSV1_3 */
 	if (phase2 && sm->use_machine_cred) {
 		wpa_printf(MSG_DEBUG, "TLS: using machine config options");
 		eap_tls_params_from_conf2m(params, config);
@@ -228,9 +233,7 @@ static int eap_tls_params_from_conf(struct eap_sm *sm,
 			       &params->client_cert_blob_len) ||
 	    eap_tls_check_blob(sm, &params->private_key,
 			       &params->private_key_blob,
-			       &params->private_key_blob_len) ||
-	    eap_tls_check_blob(sm, &params->dh_file, &params->dh_blob,
-			       &params->dh_blob_len)) {
+			       &params->private_key_blob_len)) {
 		wpa_printf(MSG_INFO, "SSL: Failed to get configuration blobs");
 		return -1;
 	}
@@ -778,6 +781,10 @@ int eap_peer_tls_process_helper(struct eap_sm *sm, struct eap_ssl_data *data,
 		wpa_printf(MSG_DEBUG, "SSL: Failed - tls_out available to "
 			   "report error (len=%u)",
 			   (unsigned int) wpabuf_len(data->tls_out));
+		if (sm->eapol_cb->notify_open_ssl_failure) {
+			sm->eapol_cb->notify_open_ssl_failure(sm->eapol_ctx,
+				"TLS processing has failed");
+		}
 		ret = -1;
 		/* TODO: clean pin if engine used? */
 		if (wpabuf_len(data->tls_out) == 0) {

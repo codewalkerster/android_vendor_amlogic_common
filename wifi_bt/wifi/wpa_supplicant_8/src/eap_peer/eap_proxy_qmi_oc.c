@@ -183,12 +183,12 @@ static void wpa_qmi_client_indication_cb
 	}
 
 	if (eap_proxy == NULL) {
-		wpa_printf(MSG_ERROR, "eap_proxy: not initialized, discard client indication");
+		wpa_printf(MSG_ERROR, "eap_proxy: not initialized, discard client indiataion");
 		return;
 	}
 
 	if (ind_buf_ptr == NULL) {
-		wpa_printf(MSG_ERROR, "eap_proxy: indication buffer NULL, discard client indication");
+		wpa_printf(MSG_ERROR, "eap_proxy: indication buffer NULL, discard client indiataion");
 		return;
 	}
 
@@ -197,7 +197,7 @@ static void wpa_qmi_client_indication_cb
 					 &decoded_payload_len);
 
 	if(!decoded_payload_len) {
-		wpa_printf(MSG_ERROR, "eap_proxy: can't decode payload, discard client indication");
+		wpa_printf(MSG_ERROR, "eap_proxy: cann't decode payload, discard client indiataion");
 		return;
 	}
 
@@ -230,7 +230,7 @@ static void wpa_qmi_client_indication_cb
 			}
 			break;
 		default:
-			wpa_printf(MSG_DEBUG, "eap_proxy: Unknown QMI Indication %lu", msg_id);
+			wpa_printf(MSG_DEBUG, "eap_proxy: Unknown QMI Indicaiton %lu", msg_id);
 			break;
 		}
 	}
@@ -552,7 +552,7 @@ static Boolean wpa_qmi_read_card_imsi(int sim_num, wpa_uim_struct_type *wpa_uim)
                         imsi = os_zalloc(2 * length);
                         if (imsi == NULL) {
                                 wpa_printf(MSG_ERROR,
-                                        "eap_proxy: Couldn't allocate memory for imsi");
+                                        "eap_proxy: Couldn't allocate memmory for imsi");
                                 return FALSE;
                         }
                         for (src = 1, dst = 0;
@@ -704,7 +704,7 @@ static void eap_proxy_post_init(struct eap_proxy_sm *eap_proxy)
 
         /* Call ESOC API to get the number of modems.
          * If the number of modems is not zero, only then proceed
-         * with the eap_proxy initialization.
+         * with the eap_proxy intialization.
          */
         ret = get_system_info(&mdm_detect_info);
         if (ret > 0)
@@ -870,7 +870,7 @@ int eap_auth_end_eap_session(qmi_client_type qmi_auth_svc_client_ptr)
         }
 
         wpa_printf(MSG_ERROR, "eap_proxy: eap_auth_end_eap_session:"
-                " EAP auth session ended successfully");
+                " EAP auth session ended successfuly");
 
         return 0;
 }
@@ -1069,7 +1069,7 @@ static void handle_qmi_eap_ind(qmi_client_type user_handle,
                                         "message_decode; error_code=%d \n", qmi_err);
                         }
                         sm->notification_code = eap_notification.eap_notification_code;
-                        wpa_printf(MSG_ERROR, "eap_proxy: notification code is %x\n",
+                        wpa_printf(MSG_ERROR, "eap_proxy: notificatio code is %x\n",
                                         eap_notification.eap_notification_code);
                         break;
 
@@ -1671,7 +1671,7 @@ static Boolean eap_proxy_build_identity(struct eap_proxy_sm *eap_proxy, u8 id, s
         auth_set_subscription_binding_resp_msg_v01 sub_resp_binding;
 
         struct eap_method_type *m;
-        eap_identity_format_e identity_format = EAP_IDENTITY_ANONYMOUS;
+        eap_identity_format_e identity_format = EAP_IDENTITY_ANNONYMOUS;
         Boolean simEnabled = FALSE, akaEnabled = FALSE;
         struct eap_peer_config *config = eap_get_config(eap_sm);
         const char *realm_3gpp = "@wlan.mnc000.mcc000.3gppnetwork.org";
@@ -1824,10 +1824,10 @@ static Boolean eap_proxy_build_identity(struct eap_proxy_sm *eap_proxy, u8 id, s
                                                 config->anonymous_identity ,
                                                 config->anonymous_identity_len);
 
-                        identity_format = EAP_IDENTITY_ANONYMOUS;
+                        identity_format = EAP_IDENTITY_ANNONYMOUS;
                         eap_auth_start.eap_meta_identity_valid = 1;
-                        wpa_printf(MSG_ERROR, "eap_proxy: EAP_IDENTITY_ANONYMOUS selected user id "
-                                "%d, ANONYMOUS %d\n", eap_auth_start.user_id_len,
+                        wpa_printf(MSG_ERROR, "eap_proxy: EAP_IDENTITY_ANNONYMOUS selected user id "
+                                "%d, annonymous %d\n", eap_auth_start.user_id_len,
                                 eap_auth_start.eap_meta_identity_len);
                 } else {
                         /* config file doesn't contain any identity
@@ -2031,8 +2031,8 @@ static Boolean eap_proxy_build_identity(struct eap_proxy_sm *eap_proxy, u8 id, s
                 if ((QMI_NO_ERR != qmiRetCode ||
                      sub_resp_binding.resp.result != QMI_RESULT_SUCCESS_V01 ) &&
                     (QMI_ERR_OP_DEVICE_UNSUPPORTED_V01 != sub_resp_binding.resp.error)) {
-                        wpa_printf(MSG_ERROR, "QMI-ERROR Unable to get the qmi_auth_set_subscription_"
-                                "binding for sim 1; error_ret=%d; error_code=%d\n", qmiRetCode,
+                        wpa_printf(MSG_ERROR, "QMI-ERROR Unable to get the qmi_auth_set_subscriptio"
+                                "n_binding for sim 1; error_ret=%d; error_code=%d\n", qmiRetCode,
                                 sub_resp_binding.resp.error);
                         return FALSE;
                 }
@@ -2049,8 +2049,8 @@ static Boolean eap_proxy_build_identity(struct eap_proxy_sm *eap_proxy, u8 id, s
 
                 if (QMI_NO_ERR != qmiRetCode ||
                     sub_resp_binding.resp.result != QMI_RESULT_SUCCESS_V01 ) {
-                        wpa_printf(MSG_ERROR, "QMI-ERROR Unable to get the qmi_auth_set_subscription_"
-                                "binding for sim 2; error_ret=%d; error_code=%d\n", qmiRetCode,
+                        wpa_printf(MSG_ERROR, "QMI-ERROR Unable to get the qmi_auth_set_subscriptio"
+                                "n_binding for sim 2; error_ret=%d; error_code=%d\n", qmiRetCode,
                                 sub_resp_binding.resp.error);
                         return FALSE;
                 }

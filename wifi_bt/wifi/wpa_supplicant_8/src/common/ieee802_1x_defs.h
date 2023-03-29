@@ -78,7 +78,7 @@ enum confidentiality_offset {
 
 /* IEEE Std 802.1X-2010 - Table 9-2 */
 #define DEFAULT_PRIO_INFRA_PORT        0x10
-#define DEFAULT_PRIO_PRIMARY_AP        0x30
+#define DEFAULT_PRIO_PRIMRAY_AP        0x30
 #define DEFAULT_PRIO_SECONDARY_AP      0x50
 #define DEFAULT_PRIO_GROUP_CA_MEMBER   0x70
 #define DEFAULT_PRIO_NOT_KEY_SERVER    0xFF

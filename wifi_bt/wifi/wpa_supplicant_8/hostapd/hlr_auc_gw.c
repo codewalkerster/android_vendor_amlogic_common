@@ -40,7 +40,7 @@
  * implementation and for EAP-SIM/AKA/AKA' testing.
  *
  * For a stronger example design, Milenage and GSM-Milenage algorithms can be
- * used to dynamically generate authentication information for EAP-AKA/AKA' and
+ * used to dynamically generate authenticatipn information for EAP-AKA/AKA' and
  * EAP-SIM, respectively, if Ki is known.
  *
  * SQN generation follows the not time-based Profile 2 described in

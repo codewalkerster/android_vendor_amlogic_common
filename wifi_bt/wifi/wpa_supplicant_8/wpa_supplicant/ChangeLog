@@ -849,7 +849,7 @@ ChangeLog for wpa_supplicant
 	  and build parameters
 	* changed P2P GO mode configuration to use driver capabilities to
 	  automatically enable HT operations when supported
-	* added "wpa_cli status wps" command to fetch WPA2-Personal passphrase
+	* added "wpa_cli status wps" command to fetch WPA2-Personal passhrase
 	  for WPS use cases in AP mode
 	* EAP-AKA: keep pseudonym identity across EAP exchanges to match EAP-SIM
 	  behavior

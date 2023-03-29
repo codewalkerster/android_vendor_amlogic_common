@@ -460,8 +460,8 @@ int wpa_driver_nl80211_driver_cmd(void *priv, char *cmd, char *buf,
 	char wifi_status[PROPERTY_VALUE_MAX] = {'\0'};
 
 	property_get("vendor.wifi_name", wifi_status, NULL);
-	wpa_printf(MSG_ERROR, "%s: wifi vendor: %s", __func__, wifi_status);
-	wpa_printf(MSG_ERROR, "%s: %s: private command: %s", __func__, bss->ifname, cmd);
+	wpa_printf(MSG_INFO, "%s: wifi vendor: %s", __func__, wifi_status);
+	wpa_printf(MSG_INFO, "%s: %s: private command: %s", __func__, bss->ifname, cmd);
 
 	if (os_strncasecmp(wifi_status, "nxp", 3) == 0)
 		return wpa_driver_nl80211_driver_cmd_nxp(priv, cmd, buf, buf_len);
@@ -519,14 +519,13 @@ int wpa_driver_nl80211_driver_cmd(void *priv, char *cmd, char *buf,
         os_strncasecmp(cmd, "SETBAND", 7) == 0)
         return 0;
 
-    if ((os_strncasecmp(wifi_status, "uwe", 3) ==0 ) && os_strncasecmp(cmd, "SET_AP_WPS_P2P_IE", 17) == 0)
-        return 0;
-
-    if ((os_strncasecmp(wifi_status, "mtk", 3) == 0) && os_strncasecmp(cmd, "SET_AP_WPS_P2P_IE", 17) == 0)
-        return 0;
-
-    if ((os_strncasecmp(wifi_status, "rtl8852bs", 9) == 0) && os_strncasecmp(cmd, "SET_AP_WPS_P2P_IE", 17) == 0)
-        return 0;
+    if (os_strncasecmp(cmd, "SET_AP_WPS_P2P_IE", 17) == 0) {
+        if ((os_strncasecmp(wifi_status, "mtk", 3) == 0) ||
+            (os_strncasecmp(wifi_status, "rtl8852bs", 9) == 0) ||
+            (os_strncasecmp(wifi_status, "uwe", 3) ==0 )) {
+            return 0;
+        }
+    }
 
 	if (os_strcasecmp(cmd, "STOP") == 0) {
 		linux_set_iface_flags(drv->global->ioctl_sock, bss->ifname, 0);

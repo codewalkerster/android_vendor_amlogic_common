@@ -267,6 +267,7 @@ SM_STATE(EAP, INITIALIZE)
 	sm->reauthInit = false;
 	sm->erp_seq = (u32) -1;
 	sm->use_machine_cred = 0;
+	sm->eap_fast_mschapv2 = false;
 }
 
 
@@ -429,6 +430,17 @@ SM_STATE(EAP, GET_METHOD)
 	wpa_msg(sm->msg_ctx, MSG_INFO, WPA_EVENT_EAP_METHOD
 		"EAP vendor %u method %u (%s) selected",
 		sm->reqVendor, method, sm->m->name);
+
+	if (sm->eapol_cb->notify_eap_method_selected) {
+		char *format_str = "EAP vendor %u method %u (%s) selected";
+		int msg_len = snprintf(NULL, 0, format_str,
+			sm->reqVendor, method, sm->m->name) + 1;
+		char *msg = os_malloc(msg_len);
+		snprintf(msg, msg_len, format_str,
+			sm->reqVendor, method, sm->m->name);
+		sm->eapol_cb->notify_eap_method_selected(sm->eapol_ctx, msg);
+		os_free(msg);
+	}
 	return;
 
 nak:
@@ -1511,7 +1523,7 @@ static void eap_sm_processIdentity(struct eap_sm *sm, const struct wpabuf *req)
 	 * RFC 3748 - 5.1: Identity
 	 * Data field may contain a displayable message in UTF-8. If this
 	 * includes NUL-character, only the data before that should be
-	 * displayed. Some EAP implementations may piggy-back additional
+	 * displayed. Some EAP implementasitons may piggy-back additional
 	 * options after the NUL.
 	 */
 	/* TODO: could save displayable message so that it can be shown to the
@@ -1673,6 +1685,7 @@ struct wpabuf * eap_sm_buildIdentity(struct eap_sm *sm, int id, int encrypted)
 	struct wpabuf *resp;
 	const u8 *identity;
 	size_t identity_len;
+	struct wpabuf *privacy_identity = NULL;
 
 	if (config == NULL) {
 		wpa_printf(MSG_WARNING, "EAP: buildIdentity: configuration "
@@ -1695,6 +1708,33 @@ struct wpabuf * eap_sm_buildIdentity(struct eap_sm *sm, int id, int encrypted)
 		identity_len = config->machine_identity_len;
 		wpa_hexdump_ascii(MSG_DEBUG, "EAP: using machine identity",
 				  identity, identity_len);
+	} else if (config->imsi_privacy_cert && config->identity &&
+		   config->identity_len > 0) {
+		const u8 *pos = config->identity;
+		const u8 *end = config->identity + config->identity_len;
+
+		privacy_identity = wpabuf_alloc(9 + config->identity_len);
+		if (!privacy_identity)
+			return NULL;
+
+		/* Include method prefix */
+		if (*pos == '0' || *pos == '1' || *pos == '6')
+			wpabuf_put_u8(privacy_identity, *pos);
+		wpabuf_put_str(privacy_identity, "anonymous");
+
+		/* Include realm */
+		while (pos < end && *pos != '@')
+			pos++;
+		wpabuf_put_data(privacy_identity, pos, end - pos);
+
+		identity = wpabuf_head(privacy_identity);
+		identity_len = wpabuf_len(privacy_identity);
+		wpa_hexdump_ascii(MSG_DEBUG,
+				  "EAP: using IMSI privacy anonymous identity",
+				  identity, identity_len);
+	} else if (config->strict_conservative_peer_mode) {
+		wpa_printf(MSG_DEBUG, "EAP: never use real identity in conservative peer mode.");
+		return NULL;
 	} else {
 		identity = config->identity;
 		identity_len = config->identity_len;
@@ -1731,6 +1771,7 @@ struct wpabuf * eap_sm_buildIdentity(struct eap_sm *sm, int id, int encrypted)
 		return NULL;
 
 	wpabuf_put_data(resp, identity, identity_len);
+	wpabuf_free(privacy_identity);
 
 	return resp;
 }
@@ -2146,11 +2187,24 @@ static void eap_peer_sm_tls_event(void *ctx, enum tls_event ev,
 			eap_notify_status(sm, "remote TLS alert",
 					  data->alert.description);
 		break;
+	case TLS_UNSAFE_RENEGOTIATION_DISABLED:
+		wpa_printf(MSG_INFO,
+			   "TLS handshake failed due to the server not supporting safe renegotiation (RFC 5746); phase1 parameter allow_unsafe_renegotiation=1 can be used to work around this");
+		eap_notify_status(sm, "unsafe server renegotiation", "failure");
+		break;
 	}
 
 	os_free(hash_hex);
 }
 
+ssize_t tls_certificate_callback(void* ctx, const char* alias, uint8_t** value) {
+	if (alias == NULL || ctx == NULL || value == NULL) return -1;
+	struct eap_sm *sm = (struct eap_sm*) ctx;
+	if (sm->eapol_cb && sm->eapol_cb->get_certificate) {
+		return sm->eapol_cb->get_certificate(sm->eapol_ctx, alias, value);
+	}
+	return -1;
+}
 
 /**
  * eap_peer_sm_init - Allocate and initialize EAP peer state machine
@@ -2194,6 +2248,7 @@ struct eap_sm * eap_peer_sm_init(void *eapol_ctx,
 	tlsconf.event_cb = eap_peer_sm_tls_event;
 	tlsconf.cb_ctx = sm;
 	tlsconf.cert_in_cb = conf->cert_in_cb;
+	tls_register_cert_callback(&tls_certificate_callback);
 	sm->ssl_ctx = tls_init(&tlsconf);
 	if (sm->ssl_ctx == NULL) {
 		wpa_printf(MSG_WARNING, "SSL: Failed to initialize TLS "
@@ -2775,6 +2830,81 @@ const u8 * eap_get_config_identity(struct eap_sm *sm, size_t *len)
 }
 
 
+/**
+ * eap_get_config_strict_conservative_peer_mode - get the value of
+ * strict conservative peer mode in eap_peer_config.
+ * @sm: Pointer to EAP state machine allocated with eap_peer_sm_init()
+*/
+int eap_get_config_strict_conservative_peer_mode(struct eap_sm *sm)
+{
+	struct eap_peer_config *config;
+	config = eap_get_config(sm);
+	if (config) {
+		return config->strict_conservative_peer_mode;
+	}
+
+	return 0;
+}
+
+
+static const u8 * strnchr(const u8 *str, size_t len, u8 needle) {
+	const u8 *cur = str;
+
+	if (NULL == str) return NULL;
+	if (0 >= len) return NULL;
+
+	while (cur < str + len) {
+		if (*cur == needle)
+			return cur;
+		cur++;
+	}
+	return NULL;
+}
+
+const u8 * eap_get_config_realm(struct eap_sm *sm, size_t *len) {
+	struct eap_peer_config *config = eap_get_config(sm);
+	const u8 *realm = NULL;
+	size_t realm_len = 0;
+	const u8 *identity = NULL;
+	size_t identity_len = 0;
+
+	if (!config)
+		return NULL;
+
+	/* Look for the realm of the permanent identity */
+	identity = eap_get_config_identity(sm, &identity_len);
+	realm = strnchr(identity, identity_len, '@');
+	if (NULL != realm) {
+		wpa_printf(MSG_DEBUG, "Get the realm from identity.");
+		*len = identity_len - (realm - identity);
+		return realm;
+	}
+
+	/* Look for the realm of the anonymous identity. */
+	identity = config->anonymous_identity;
+	identity_len = config->anonymous_identity_len;
+	realm = strnchr(identity, identity_len, '@');
+	if (NULL != realm) {
+		wpa_printf(MSG_DEBUG, "Get the realm from anonymous identity.");
+		*len = identity_len - (realm - identity);
+		return realm;
+	}
+
+	/* Look for the realm of the real identity. */
+	identity = config->imsi_identity;
+	identity_len = config->imsi_identity_len;
+	realm = strnchr(identity, identity_len, '@');
+	if (NULL != realm) {
+		wpa_printf(MSG_DEBUG, "Get the realm from IMSI identity.");
+		*len = identity_len - (realm - identity);
+		return realm;
+	}
+	wpa_printf(MSG_DEBUG, "No realm information in identities.");
+	*len = 0;
+	return NULL;
+}
+
+
 static int eap_get_ext_password(struct eap_sm *sm,
 				struct eap_peer_config *config)
 {
@@ -2979,6 +3109,19 @@ int eap_get_config_fragment_size(struct eap_sm *sm)
 int eap_key_available(struct eap_sm *sm)
 {
 	return sm ? sm->eapKeyAvailable : 0;
+}
+
+/**
+ * eap_notify_permanent_id_req_denied - Notify that the AT_PERMANENT_ID_REQ
+ * is denied from eap_peer when the strict conservative mode is enabled.
+ * @sm: Pointer to EAP state machine allocated with eap_peer_sm_init()
+*/
+void eap_notify_permanent_id_req_denied(struct eap_sm *sm)
+{
+	if (!sm || !sm->eapol_cb->notify_permanent_id_req_denied)
+		return;
+
+	sm->eapol_cb->notify_permanent_id_req_denied(sm->eapol_ctx);
 }
 
 

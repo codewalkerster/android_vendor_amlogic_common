@@ -57,7 +57,7 @@ enum l2_packet_filter_type {
  * Returns: Pointer to internal data or %NULL on failure
  *
  * rx_callback function will be called with src_addr pointing to the source
- * address (MAC address) of the packet. If l2_hdr is set to 0, buf
+ * address (MAC address) of the the packet. If l2_hdr is set to 0, buf
  * points to len bytes of the payload after the layer 2 header and similarly,
  * TX buffers start with payload. This behavior can be changed by setting
  * l2_hdr=1 to include the layer 2 header in the data buffer.

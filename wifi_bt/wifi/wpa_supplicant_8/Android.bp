@@ -28,11 +28,19 @@ license {
     name: "external_wpa_supplicant_8_license",
     visibility: [":__subpackages__"],
     license_kinds: [
-        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-BSD-3-Clause",
         "legacy_proprietary",
     ],
     license_text: [
         "COPYING",
         "NOTICE",
+    ],
+}
+
+cc_library_headers {
+    name: "libnetlink_iface_headers_amlogic_droidlogic",
+    vendor_available: true,
+    export_include_dirs: [
+        "src/drivers",
     ],
 }

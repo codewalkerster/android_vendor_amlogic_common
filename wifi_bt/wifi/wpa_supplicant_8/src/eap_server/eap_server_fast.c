@@ -357,18 +357,7 @@ static int eap_fast_get_phase2_key(struct eap_sm *sm,
 
 	if (key_len > isk_len)
 		key_len = isk_len;
-	if (key_len == 32 &&
-	    data->phase2_method->vendor == EAP_VENDOR_IETF &&
-	    data->phase2_method->method == EAP_TYPE_MSCHAPV2) {
-		/*
-		 * EAP-FAST uses reverse order for MS-MPPE keys when deriving
-		 * MSK from EAP-MSCHAPv2. Swap the keys here to get the correct
-		 * ISK for EAP-FAST cryptobinding.
-		 */
-		os_memcpy(isk, key + 16, 16);
-		os_memcpy(isk + 16, key, 16);
-	} else
-		os_memcpy(isk, key, key_len);
+	os_memcpy(isk, key, key_len);
 	os_free(key);
 
 	return 0;
@@ -961,6 +950,7 @@ static int eap_fast_phase2_init(struct eap_sm *sm, struct eap_fast_data *data,
 		sm->auth_challenge = data->key_block_p->server_challenge;
 		sm->peer_challenge = data->key_block_p->client_challenge;
 	}
+	sm->eap_fast_mschapv2 = true;
 	sm->init_phase2 = 1;
 	data->phase2_priv = data->phase2_method->init(sm);
 	sm->init_phase2 = 0;
@@ -995,12 +985,12 @@ static void eap_fast_process_phase2_response(struct eap_sm *sm,
 
 	if (in_len > sizeof(*hdr) && *pos == EAP_TYPE_NAK) {
 		left = in_len - sizeof(*hdr);
-		wpa_hexdump(MSG_DEBUG, "EAP-FAST: Phase2 type Naked; "
+		wpa_hexdump(MSG_DEBUG, "EAP-FAST: Phase2 type Nak'ed; "
 			    "allowed types", pos + 1, left - 1);
 #ifdef EAP_SERVER_TNC
 		if (m && m->vendor == EAP_VENDOR_IETF &&
 		    m->method == EAP_TYPE_TNC) {
-			wpa_printf(MSG_DEBUG, "EAP-FAST: Peer Naked required "
+			wpa_printf(MSG_DEBUG, "EAP-FAST: Peer Nak'ed required "
 				   "TNC negotiation");
 			next_vendor = EAP_VENDOR_IETF;
 			next_type = eap_fast_req_failure(sm, data);

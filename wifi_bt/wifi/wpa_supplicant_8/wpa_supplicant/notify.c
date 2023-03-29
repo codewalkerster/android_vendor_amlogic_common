@@ -16,6 +16,7 @@
 #include "dbus/dbus_common.h"
 #include "dbus/dbus_new.h"
 #include "rsn_supp/wpa.h"
+#include "rsn_supp/pmksa_cache.h"
 #include "fst/fst.h"
 #include "crypto/tls.h"
 #include "bss.h"
@@ -24,7 +25,7 @@
 #include "p2p_supplicant.h"
 #include "sme.h"
 #include "notify.h"
-#include "aidl.h"
+#include "aidl/aidl.h"
 
 int wpas_notify_supplicant_initialized(struct wpa_global *global)
 {
@@ -237,6 +238,15 @@ void wpas_notify_bssid_changed(struct wpa_supplicant *wpa_s)
 }
 
 
+void wpas_notify_mac_address_changed(struct wpa_supplicant *wpa_s)
+{
+	if (wpa_s->p2p_mgmt)
+		return;
+
+	wpas_dbus_signal_prop_changed(wpa_s, WPAS_DBUS_PROP_MAC_ADDRESS);
+}
+
+
 void wpas_notify_auth_changed(struct wpa_supplicant *wpa_s)
 {
 	if (wpa_s->p2p_mgmt)
@@ -277,6 +287,12 @@ void wpas_notify_network_request(struct wpa_supplicant *wpa_s,
 	wpas_dbus_signal_network_request(wpa_s, ssid, rtype, default_txt);
 
 	wpas_aidl_notify_network_request(wpa_s, ssid, rtype, default_txt);
+}
+
+
+void wpas_notify_permanent_id_req_denied(struct wpa_supplicant *wpa_s)
+{
+	wpas_aidl_notify_permanent_id_req_denied(wpa_s);
 }
 
 
@@ -420,6 +436,14 @@ void wpas_notify_network_removed(struct wpa_supplicant *wpa_s,
 {
 	if (wpa_s->next_ssid == ssid)
 		wpa_s->next_ssid = NULL;
+	if (wpa_s->last_ssid == ssid)
+		wpa_s->last_ssid = NULL;
+	if (wpa_s->current_ssid == ssid)
+		wpa_s->current_ssid = NULL;
+#if defined(CONFIG_SME) && defined(CONFIG_SAE)
+	if (wpa_s->sme.ext_auth_wpa_ssid == ssid)
+		wpa_s->sme.ext_auth_wpa_ssid = NULL;
+#endif /* CONFIG_SME && CONFIG_SAE */
 	if (wpa_s->wpa)
 		wpa_sm_pmksa_cache_flush(wpa_s->wpa, ssid);
 	if (!ssid->p2p_group && wpa_s->global->p2p_group_formation != wpa_s &&
@@ -433,11 +457,6 @@ void wpas_notify_network_removed(struct wpa_supplicant *wpa_s,
 		wpas_notify_persistent_group_removed(wpa_s, ssid);
 
 	wpas_p2p_network_removed(wpa_s, ssid);
-
-#ifdef CONFIG_PASN
-	if (wpa_s->pasn.ssid == ssid)
-		wpa_s->pasn.ssid = NULL;
-#endif /* CONFIG_PASN */
 }
 
 
@@ -472,8 +491,6 @@ void wpas_notify_bss_freq_changed(struct wpa_supplicant *wpa_s,
 		return;
 
 	wpas_dbus_bss_signal_prop_changed(wpa_s, WPAS_DBUS_BSS_PROP_FREQ, id);
-
-	wpas_aidl_notify_bss_freq_changed(wpa_s);
 }
 
 
@@ -785,7 +802,7 @@ void wpas_notify_p2p_group_started(struct wpa_supplicant *wpa_s,
 
 	wpas_dbus_signal_p2p_group_started(wpa_s, client, persistent, ip);
 
-	wpas_aidl_notify_p2p_group_started(wpa_s, ssid, persistent, client);
+	wpas_aidl_notify_p2p_group_started(wpa_s, ssid, persistent, client, ip);
 }
 
 
@@ -911,7 +928,7 @@ void wpas_notify_certification(struct wpa_supplicant *wpa_s,
 		wpa_msg(wpa_s, MSG_INFO, WPA_EVENT_EAP_PEER_ALT
 			"depth=%d %s", cert->depth, cert->altsubject[i]);
 
-	wpas_aidl_notify_certification(wpa_s, cert->depth, cert->subject,
+	wpas_aidl_notify_ceritification(wpa_s, cert->depth, cert->subject,
 				       cert->altsubject, cert->num_altsubject,
 				       cert_hash, cert->cert);
 
@@ -1097,13 +1114,13 @@ void wpas_notify_mesh_peer_disconnected(struct wpa_supplicant *wpa_s,
 /* DPP Success notifications */
 
 void wpas_notify_dpp_config_received(struct wpa_supplicant *wpa_s,
-	    struct wpa_ssid *ssid)
+	    struct wpa_ssid *ssid, bool conn_status_requested)
 {
 #ifdef CONFIG_DPP
 	if (!wpa_s)
 		return;
 
-	wpas_aidl_notify_dpp_config_received(wpa_s, ssid);
+	wpas_aidl_notify_dpp_config_received(wpa_s, ssid, conn_status_requested);
 #endif /* CONFIG_DPP */
 }
 
@@ -1115,6 +1132,17 @@ void wpas_notify_dpp_config_sent(struct wpa_supplicant *wpa_s)
 
 	wpas_aidl_notify_dpp_config_sent(wpa_s);
 #endif /* CONFIG_DPP */
+}
+
+void wpas_notify_dpp_connection_status_sent(struct wpa_supplicant *wpa_s,
+	    enum dpp_status_error result)
+{
+#ifdef CONFIG_DPP2
+	if (!wpa_s)
+		return;
+
+	wpas_aidl_notify_dpp_connection_status_sent(wpa_s, result);
+#endif /* CONFIG_DPP2 */
 }
 
 /* DPP Progress notifications */
@@ -1287,3 +1315,56 @@ void wpas_notify_interworking_select_done(struct wpa_supplicant *wpa_s)
 
 #endif /* CONFIG_INTERWORKING */
 
+void wpas_notify_eap_method_selected(struct wpa_supplicant *wpa_s,
+			const char* reason_string)
+{
+	wpas_aidl_notify_eap_method_selected(wpa_s, reason_string);
+}
+
+void wpas_notify_ssid_temp_disabled(struct wpa_supplicant *wpa_s,
+			const char *reason_string)
+{
+	wpas_aidl_notify_ssid_temp_disabled(wpa_s, reason_string);
+}
+
+void wpas_notify_open_ssl_failure(struct wpa_supplicant *wpa_s,
+			const char *reason_string)
+{
+	wpas_aidl_notify_open_ssl_failure(wpa_s, reason_string);
+}
+
+void wpas_notify_qos_policy_reset(struct wpa_supplicant *wpa_s)
+{
+	if (!wpa_s)
+		return;
+
+	wpas_aidl_notify_qos_policy_reset(wpa_s);
+}
+
+void wpas_notify_qos_policy_request(struct wpa_supplicant *wpa_s,
+	struct dscp_policy_data *policies, int num_policies)
+{
+	if (!wpa_s || !policies)
+		return;
+
+	wpas_aidl_notify_qos_policy_request(wpa_s, policies, num_policies);
+}
+
+void wpas_notify_frequency_changed(struct wpa_supplicant *wpa_s, int frequency)
+{
+	if (!wpa_s)
+		return;
+
+	wpas_aidl_notify_frequency_changed(wpa_s, frequency);
+}
+
+ssize_t wpas_get_certificate(const char *alias, uint8_t** value)
+{
+	return wpas_aidl_get_certificate(alias, value);
+}
+
+
+void wpas_notify_signal_change(struct wpa_supplicant *wpa_s)
+{
+	wpas_dbus_signal_prop_changed(wpa_s, WPAS_DBUS_PROP_SIGNAL_CHANGE);
+}

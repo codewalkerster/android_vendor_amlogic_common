@@ -447,7 +447,7 @@ void eap_aka_prime_derive_ck_ik_prime(u8 *ck, u8 *ik, const u8 *sqn_ak,
 	 * Key = CK || IK
 	 * FC = 0x20
 	 * P0 = access network identity (3GPP TS 24.302)
-	 * L0 = length of access network identity (2 octets, big endian)
+	 * L0 = length of acceess network identity (2 octets, big endian)
 	 * P1 = SQN xor AK (if AK is not used, AK is treaded as 000..0
 	 * L1 = 0x00 0x06
 	 */

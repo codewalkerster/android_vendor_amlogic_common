@@ -355,6 +355,8 @@ DBusMessage * wpas_dbus_handler_p2p_group_add(DBusMessage *message,
 	char *pg_object_path = NULL;
 	int persistent_group = 0;
 	int freq = 0;
+	int retry_limit = 0;
+	int force_go_bssid = 0;
 	char *iface = NULL;
 	unsigned int group_id = 0;
 	struct wpa_ssid *ssid;
@@ -376,6 +378,14 @@ DBusMessage * wpas_dbus_handler_p2p_group_add(DBusMessage *message,
 			freq = entry.int32_value;
 			if (freq <= 0)
 				goto inv_args_clear;
+		} else if (os_strcmp(entry.key, "retry_limit") == 0 &&
+			   entry.type == DBUS_TYPE_INT32) {
+			retry_limit = entry.int32_value;
+			if (retry_limit <= 0)
+				goto inv_args_clear;
+		} else if (os_strcmp(entry.key, "force_go_bssid") == 0 &&
+			   entry.type == DBUS_TYPE_BOOLEAN) {
+			force_go_bssid = entry.bool_value;
 		} else if (os_strcmp(entry.key, "persistent_group_object") ==
 			   0 &&
 			   entry.type == DBUS_TYPE_OBJECT_PATH)
@@ -426,7 +436,8 @@ DBusMessage * wpas_dbus_handler_p2p_group_add(DBusMessage *message,
 
 		if (wpas_p2p_group_add_persistent(wpa_s, ssid, 0, freq, 0, 0, 0,
 						  0, 0, 0, 0, NULL, 0, 0,
-						  false)) {
+						  false, retry_limit,
+						  force_go_bssid)) {
 			reply = wpas_dbus_error_unknown_error(
 				message,
 				"Failed to reinvoke a persistent group");
@@ -2582,7 +2593,7 @@ dbus_bool_t wpas_dbus_setter_p2p_group_vendor_ext(
 
 			dbus_message_iter_recurse(&array_iter, &sub);
 			dbus_message_iter_get_fixed_array(&sub, &val, &len);
-			wpa_hexdump(MSG_DEBUG, "dbus: WPSVendorExtension[]",
+			wpa_hexdump(MSG_DEBUG, "dbus: WPSVendorExtentions[]",
 				    val, len);
 			vals[i] = wpabuf_alloc_copy(val, len);
 			if (vals[i] == NULL) {

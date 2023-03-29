@@ -33,8 +33,8 @@
  * While uncommon, if we have to do it then it will stall the entire
  * hostapd program, which is bad.
  * This is because we use the standard linux getaddrinfo() function
- * which is synchronous.
- * An asynchronous solution would be to use the free "ares" library.
+ * which is syncronous.
+ * An asyncronous solution would be to use the free "ares" library.
  * -- Does not have a robust output buffering scheme.  Uses a single
  * fixed size output buffer per TCP/HTTP connection, with possible (although
  * unlikely) possibility of overflow and likely excessive use of RAM.

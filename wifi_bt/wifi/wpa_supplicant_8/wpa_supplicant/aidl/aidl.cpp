@@ -22,6 +22,7 @@ extern "C"
 }
 
 using aidl::android::hardware::wifi::supplicant::AidlManager;
+using aidl::android::hardware::wifi::supplicant::AuxiliarySupplicantEventCode;
 using aidl::android::hardware::wifi::supplicant::DppEventType;
 using aidl::android::hardware::wifi::supplicant::DppFailureCode;
 using aidl::android::hardware::wifi::supplicant::DppProgressCode;
@@ -65,7 +66,7 @@ struct wpas_aidl_priv *wpas_aidl_init(struct wpa_global *global)
 		goto err;
 	}
 	// We may not need to store this aidl manager reference in the
-	// global data structure because we've made it a singleton class.
+	// global data strucure because we've made it a singleton class.
 	priv->aidl_manager = (void *)aidl_manager;
 
 	return priv;
@@ -183,6 +184,21 @@ int wpas_aidl_notify_network_request(
 
 	return aidl_manager->notifyNetworkRequest(
 		wpa_s, ssid, rtype, default_txt);
+}
+
+void wpas_aidl_notify_permanent_id_req_denied(
+		struct wpa_supplicant *wpa_s)
+{
+	if (!wpa_s || !wpa_s->global->aidl)
+		return;
+
+	wpa_printf(MSG_DEBUG, "Notifying permanent_id_req denied to aidl control.");
+
+	AidlManager *aidl_manager = AidlManager::getInstance();
+	if (!aidl_manager)
+		return;
+
+	return aidl_manager->notifyPermanentIdReqDenied(wpa_s);
 }
 
 void wpas_aidl_notify_anqp_query_done(
@@ -501,7 +517,7 @@ void wpas_aidl_notify_p2p_group_formation_failure(
 
 void wpas_aidl_notify_p2p_group_started(
 	struct wpa_supplicant *wpa_s, const struct wpa_ssid *ssid, int persistent,
-	int client)
+	int client, const u8 *ip)
 {
 	if (!wpa_s || !ssid)
 		return;
@@ -514,7 +530,7 @@ void wpas_aidl_notify_p2p_group_started(
 	if (!aidl_manager)
 		return;
 
-	aidl_manager->notifyP2pGroupStarted(wpa_s, ssid, persistent, client);
+	aidl_manager->notifyP2pGroupStarted(wpa_s, ssid, persistent, client, ip);
 }
 
 void wpas_aidl_notify_p2p_group_removed(
@@ -670,7 +686,7 @@ void wpas_aidl_notify_eap_error(struct wpa_supplicant *wpa_s, int error_code)
 }
 
 void wpas_aidl_notify_dpp_config_received(struct wpa_supplicant *wpa_s,
-		struct wpa_ssid *ssid)
+		struct wpa_ssid *ssid, bool conn_status_requested)
 {
 	if (!wpa_s || !ssid)
 		return;
@@ -683,12 +699,27 @@ void wpas_aidl_notify_dpp_config_received(struct wpa_supplicant *wpa_s,
 	if (!aidl_manager)
 		return;
 
-	aidl_manager->notifyDppConfigReceived(wpa_s, ssid);
+	aidl_manager->notifyDppConfigReceived(wpa_s, ssid, conn_status_requested);
 }
 
 void wpas_aidl_notify_dpp_config_sent(struct wpa_supplicant *wpa_s)
 {
 	wpas_aidl_notify_dpp_success(wpa_s, DppEventType::CONFIGURATION_SENT);
+}
+
+void wpas_aidl_notify_dpp_connection_status_sent(struct wpa_supplicant *wpa_s,
+                                                 enum dpp_status_error result)
+{
+	if (!wpa_s)
+		return;
+
+	wpa_printf(MSG_DEBUG, "wpas_aidl_notify_dpp_connection_status_sent %d ", result);
+
+	AidlManager *aidl_manager = AidlManager::getInstance();
+	if (!aidl_manager)
+		return;
+
+	aidl_manager->notifyDppConnectionStatusSent(wpa_s, result);
 }
 
 /* DPP Progress notifications */
@@ -922,7 +953,7 @@ void wpas_aidl_notify_network_not_found(struct wpa_supplicant *wpa_s)
 	aidl_manager->notifyNetworkNotFound(wpa_s);
 }
 
-void wpas_aidl_notify_bss_freq_changed(struct wpa_supplicant *wpa_s)
+void wpas_aidl_notify_frequency_changed(struct wpa_supplicant *wpa_s, int frequency)
 {
 	if (!wpa_s)
 		return;
@@ -931,13 +962,13 @@ void wpas_aidl_notify_bss_freq_changed(struct wpa_supplicant *wpa_s)
 	if (!aidl_manager)
 		return;
 
-	wpa_printf(MSG_DEBUG, "Notify %s frequency changed to %d",
-	    wpa_s->ifname, wpa_s->assoc_freq);
+	wpa_printf(MSG_INFO, "Notify %s frequency changed to %d",
+	    wpa_s->ifname, frequency);
 
-	aidl_manager->notifyBssFreqChanged(wpa_s);
+	aidl_manager->notifyFrequencyChanged(wpa_s, frequency);
 }
 
-void wpas_aidl_notify_certification(struct wpa_supplicant *wpa_s,
+void wpas_aidl_notify_ceritification(struct wpa_supplicant *wpa_s,
 		int depth, const char *subject,
 		const char *altsubject[],
 		int num_altsubject,
@@ -960,4 +991,83 @@ void wpas_aidl_notify_certification(struct wpa_supplicant *wpa_s,
 			num_altsubject,
 			cert_hash,
 			cert);
+}
+
+void wpas_aidl_notify_auxiliary_event(struct wpa_supplicant *wpa_s,
+	AuxiliarySupplicantEventCode event_code, const char *reason_string)
+{
+	if (!wpa_s)
+		return;
+
+	AidlManager *aidl_manager = AidlManager::getInstance();
+	if (!aidl_manager)
+		return;
+
+	wpa_printf(MSG_DEBUG, "Notify auxiliary event, code=%d",
+		static_cast<int>(event_code));
+	aidl_manager->notifyAuxiliaryEvent(wpa_s, event_code, reason_string);
+}
+
+void wpas_aidl_notify_eap_method_selected(struct wpa_supplicant *wpa_s,
+	const char *reason_string)
+{
+	wpas_aidl_notify_auxiliary_event(wpa_s,
+		AuxiliarySupplicantEventCode::EAP_METHOD_SELECTED,
+		reason_string);
+}
+
+void wpas_aidl_notify_ssid_temp_disabled(struct wpa_supplicant *wpa_s,
+	const char *reason_string)
+{
+	wpas_aidl_notify_auxiliary_event(wpa_s,
+		AuxiliarySupplicantEventCode::SSID_TEMP_DISABLED,
+		reason_string);
+}
+
+void wpas_aidl_notify_open_ssl_failure(struct wpa_supplicant *wpa_s,
+	const char *reason_string)
+{
+	wpas_aidl_notify_auxiliary_event(wpa_s,
+		AuxiliarySupplicantEventCode::OPEN_SSL_FAILURE,
+		reason_string);
+}
+
+void wpas_aidl_notify_qos_policy_reset(
+	struct wpa_supplicant *wpa_s)
+{
+	if (!wpa_s)
+		return;
+	wpa_printf(
+		MSG_DEBUG, "Notifying Qos Policy Reset");
+
+	AidlManager *aidl_manager = AidlManager::getInstance();
+	if (!aidl_manager)
+		return;
+
+	aidl_manager->notifyQosPolicyReset(wpa_s);
+}
+
+void wpas_aidl_notify_qos_policy_request(struct wpa_supplicant *wpa_s,
+	struct dscp_policy_data *policies, int num_policies)
+{
+	if (!wpa_s || !policies)
+		return;
+
+	wpa_printf(
+		MSG_DEBUG, "Notifying Qos Policy Request");
+
+	AidlManager *aidl_manager = AidlManager::getInstance();
+	if (!aidl_manager)
+		return;
+
+	aidl_manager->notifyQosPolicyRequest(wpa_s, policies, num_policies);
+}
+
+ssize_t wpas_aidl_get_certificate(const char* alias, uint8_t** value)
+{
+	AidlManager *aidl_manager = AidlManager::getInstance();
+	if (!aidl_manager)
+		return -1;
+
+	return aidl_manager->getCertificate(alias, value);
 }

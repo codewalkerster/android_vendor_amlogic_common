@@ -218,7 +218,7 @@ void os_program_deinit(void);
 int os_setenv(const char *name, const char *value, int overwrite);
 
 /**
- * os_unsetenv - Delete environment variable
+ * os_unsetenv - Delete environent variable
  * @name: Name of the variable
  * Returns: 0 on success, -1 on error
  *

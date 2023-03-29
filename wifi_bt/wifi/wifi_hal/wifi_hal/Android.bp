@@ -36,7 +36,9 @@ cc_library_static {
     ],
 
     header_libs: [
-        "libnetlink_iface_headers",
+	"libnetlink_iface_headers_amlogic_droidlogic",
+	//external wpa_supplicant use next line
+	//"libnetlink_iface_headers",
         "libhardware_legacy_headers",
     ],
 
