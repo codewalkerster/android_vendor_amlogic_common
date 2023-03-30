@@ -382,21 +382,21 @@ size_t VendorInterface::Send(uint8_t type, const uint8_t* data, size_t length) {
     lib_interface_->op(BT_VND_OP_LPM_WAKE_SET_STATE, &wakeState);
     ALOGV("%s: Sent wake before (%02x)", __func__, data[0] | (data[1] << 8));
   }
-  if( type == HCI_PACKET_TYPE_COMMAND &&
-		   (sz >= 1 && memcmp(buf, "1", 1) == 0)&& internal_command.opcode != opcode)  {
+  if( type == HCI_PACKET_TYPE_COMMAND && (sz >= 1 && memcmp(buf, "1", 1) == 0))  {
     ALOGV("rtc wake: %s: opcode: %02x,	data[2] = %02x,length = %d ", __func__,
 			data[0]|data[1] <<8 , data[2], (int)length);
     if( data[0] == 0x54 && data[1] == 0xFD) {
       hidl_vec<uint8_t> fake_rsp = {0x0E, 0x05,0x01, data[0],data[1],0x00,data[3]};
       ALOGV("Send fake rsp for 0xfd54");
       event_cb_(fake_rsp);
-    } else {
+      return length+1;
+    } else if (internal_command.opcode == opcode){
       // rtc wake up. response fake rsp to hci command
       ALOGE("Send fake rsp");
       hidl_vec<uint8_t> fake_rsp = {0x0E, 0x04,0x01, data[0],data[1],0x00};
       event_cb_(fake_rsp);
-    }
       return length+1;
+    }
   }
 
   if (opcode == HCI_VSC_WAKE_ON_BLE)
