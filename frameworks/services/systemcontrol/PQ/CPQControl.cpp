@@ -8354,7 +8354,7 @@ int CPQControl::SetHDRTMData(int *reGain)
         SYS_LOGI("hdrToneMapping.lutlength = %d\n", hdrToneMapping.lutlength);
         //SYS_LOGV("hdrToneMapping.tm_lut = %s\n", hdrToneMapping.tm_lut);
 
-        int ret = VPPDeviceIOCtl(AMVECM_IOC_S_HDR_TM, &hdrToneMapping);
+        ret = VPPDeviceIOCtl(AMVECM_IOC_S_HDR_TM, &hdrToneMapping);
     }
 
     if (ret < 0) {
