@@ -202,7 +202,7 @@ static void checkAndSaveBufferToFile(char *baseFile, char *filename, void *buffe
     }
 }
 
-static inline void yuv_to_rgb32(unsigned char y,unsigned char u,unsigned char v,unsigned char *rgb)
+void yuv_to_rgb32(unsigned char y,unsigned char u,unsigned char v,unsigned char *rgb)
 {
     int r,g,b;
 
@@ -223,6 +223,28 @@ static inline void yuv_to_rgb32(unsigned char y,unsigned char u,unsigned char v,
     rgb++;
     *rgb = 0xff;
 }
+
+void nv21_to_rgb32_(unsigned char *buf, unsigned char *rgb, int width, int height)
+{
+    int x,y,z=0;
+    int h,w;
+    int blocks;
+    unsigned char Y1, Y2, U, V;
+
+    blocks = (width * height) * 2;
+    for (h=0, z=0; h< height; h+=2) {
+        for (y = 0; y < width*2; y+=2) {
+            Y1 = buf[ h*width + y + 0];
+            V = buf[ blocks/2 + h*width/2 + y%width + 0 ];
+            Y2 = buf[ h*width + y + 1];
+            U = buf[ blocks/2 + h*width/2 + y%width + 1 ];
+            yuv_to_rgb32(Y1, U, V, &rgb[z]);
+            yuv_to_rgb32(Y2, U, V, &rgb[z + 4]);
+            z+=8;
+        }
+    }
+}
+
 
 ScreenManager* ScreenManager::instantiate() {
     ScreenManager *mScreenControl = new ScreenManager();
@@ -582,14 +604,11 @@ status_t ScreenManager::readRawData(int32_t client_id,void **buffer) {
         mMeanWhileFlag = true;
         return !OK;
     }
-    if (source_data_type == SCREENCONTROL_CANVAS_TYPE ) {
-        *buffer = mTempBuffer;
-        mMeanWhileFlag = false;
-        ALOGI("[%s %d] ok", __FUNCTION__, __LINE__);
-        return OK;
-    }
-    return !OK;
-
+    *buffer = mTempBuffer;
+    mMeanWhileFlag = false;
+    mTempBuffer = NULL;
+    ALOGI("[%s %d] ok", __FUNCTION__, __LINE__);
+    return OK;
 }
 
 status_t ScreenManager::readBuffer(int32_t client_id, sp<IMemory> buffer, int64_t* pts)
@@ -751,6 +770,12 @@ int ScreenManager::dataCallBack(aml_screen_buffer_info_t *buffer){
                                 mRawBufferQueue.push_back(accessUnit);
                             } else {
                                 ALOGE("datacallback error: accessUnit or buffer = NULL");
+                            }
+                            if (mMeanWhileFlag) {
+                                mTempBuffer = (long*) malloc(client->width*client->height*3/2);
+                                if (mTempBuffer != NULL) {
+                                    memmove(mTempBuffer, accessUnit->data(), client->width*client->height*3/2);
+                                }
                             }
                             /* coverity[leaked_storage] */
                         }

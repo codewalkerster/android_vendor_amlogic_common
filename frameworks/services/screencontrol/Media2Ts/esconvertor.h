@@ -32,6 +32,10 @@ namespace android {
 // ----------------------------------------------------------------------------
 #define PROP_MAX_BUFSIZE "ro.vendor.screencontrol.maxbufsize" // means max buffer size to store unencoded yuv data
 
+void argb_scale(unsigned char *src, unsigned char* dst, int width, int height, int dWidth, int dHeight);
+
+
+
 class ESConvertor : public MediaBufferObserver,
                             public virtual RefBase {
 public:

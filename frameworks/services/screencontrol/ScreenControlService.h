@@ -48,6 +48,7 @@
 #include <Media2Ts/tspack.h>
 
 
+
 namespace android {
 
 #define SCREENCONTROL_GRALLOC_USAGE  ( GRALLOC_USAGE_HW_TEXTURE | GRALLOC_USAGE_HW_RENDER | GRALLOC_USAGE_SW_READ_RARELY | GRALLOC_USAGE_SW_WRITE_NEVER )
@@ -103,11 +104,14 @@ private:
     int32_t mRecordCorpY;
     int32_t mRecordCorpWidth;
     int32_t mRecordCorpHeight;
+    int32_t mRecordWidth;
+    int32_t mRecordHeight;
     ScreenManager* mScreenManager;
     int mYuvClientId;
     Mutex mLock;
     int32_t mRecordSourceType;
     sp<TSPacker> mTSPacker;
+    void *mYuvBuffer;
 };
 
 // ----------------------------------------------------------------------------

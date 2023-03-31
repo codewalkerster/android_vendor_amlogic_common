@@ -70,6 +70,7 @@
 #include <hidl/HidlBinderSupport.h>
 #include "ScreenControlHal.h"
 
+
 using android::hardware::LazyServiceRegistrar;
 using ::vendor::amlogic::hardware::screencontrol::V1_0::implementation::ScreenControlHal;
 using ::android::hidl::base::V1_0::IBase;
@@ -95,6 +96,7 @@ class DeathNotifier: public IBinder::DeathRecipient
 };
 } // namespace android
 
+
 namespace android {
 
 ScreenControlService::ScreenControlService():
@@ -103,6 +105,8 @@ ScreenControlService::ScreenControlService():
     mRecordCorpY(-1),
     mRecordCorpWidth(-1),
     mRecordCorpHeight(-1),
+    mRecordWidth(-1),
+    mRecordHeight(-1),
     mYuvClientId(-1) ,
     mScreenManager(NULL),
     mRecordSourceType(-1) {
@@ -117,6 +121,8 @@ ScreenControlService* ScreenControlService::getInstance() {
     ScreenControlService *mScreenControl = new ScreenControlService();
     return mScreenControl;
 }
+
+
 
 void ScreenControlService::instantiate(bool lazyMode) {
     android::status_t ret;
@@ -141,6 +147,8 @@ void ScreenControlService::forceStop() {
     mRecordCorpY = -1;
     mRecordCorpWidth = -1;
     mRecordCorpHeight = -1;
+    mRecordWidth = -1;
+    mRecordHeight = -1;
 }
 int ScreenControlService::setScreenRecordCropArea(int32_t left, int32_t top, int32_t right, int32_t bottom) {
     Mutex::Autolock autoLock(mLock);
@@ -187,6 +195,8 @@ int ScreenControlService::startScreenRecord(int32_t width, int32_t height, int32
     gettimeofday(&timeNow, NULL);
     firsetNowUs = (int64_t)timeNow.tv_sec*1000*1000 + (int64_t)timeNow.tv_usec;
     mRecordSourceType = sourceType;
+    mRecordWidth = width;
+    mRecordHeight = height;
     while (!mNeedStop) {
         tVideoBuffer = NULL;
         err = mTSPacker->read(&tVideoBuffer);
@@ -342,7 +352,7 @@ int ScreenControlService::startScreenCapBuffer(int32_t left, int32_t top, int32_
     struct timeval timeNow;
     const size_t size = width * height * 4;
     mNeedStop = false;
-    if ((mTSPacker != NULL || mVideoConvertor != NULL) && mRecordSourceType == sourceType ) {
+    if ((mTSPacker != NULL || mVideoConvertor != NULL ) && mRecordSourceType == sourceType ) {
         ALOGI("[%s %d] get same parameter", __FUNCTION__, __LINE__);
         long buf[3] ={ 0 };
         int32_t bufferSize = width * height * 4;
@@ -365,6 +375,47 @@ int ScreenControlService::startScreenCapBuffer(int32_t left, int32_t top, int32_
         ALOGI("[%s %d] get readRawData size:%d", __FUNCTION__, __LINE__, tBuffer->size());
         tBuffer->release();
         /* coverity[leaked_storage] */
+        return result;
+    }else if(mScreenManager != NULL) {
+        void * raw = NULL;
+        while (!OK == mScreenManager->readRawData(mYuvClientId,&raw)) {
+                usleep(5 *1000); //5ms
+        }
+        if (raw == NULL)
+            return !OK;
+        if (width != mRecordWidth || height != mRecordHeight) {
+            size_t temp_size = mRecordWidth*mRecordHeight*4;
+            MediaBuffer* temp = new MediaBuffer(temp_size);
+            if (temp) {
+                nv21_to_rgb32_((unsigned char *)raw, (unsigned char *)temp->data() , mRecordWidth, mRecordHeight);
+                if (temp->data() == NULL) {
+                    ALOGE("[%s %d] nv21_to_rgb32 error !", __FUNCTION__, __LINE__);
+                    temp->release();
+                    free(raw);
+                    /* coverity[leaked_storage] */
+                    return !OK;
+                }
+                temp->set_range(0, temp_size);
+                argb_scale((unsigned char *)temp->data(), (unsigned char *)dstBuffer, mRecordWidth, mRecordHeight, width, height);
+                temp->release();
+                /* coverity[leaked_storage] */
+            }else {
+                ALOGE("new MediaBuffer failed");
+                free(raw);
+                return !OK;
+            }
+            /* coverity[leaked_storage] */
+        }else {
+            nv21_to_rgb32_((unsigned char *)raw, (unsigned char *)dstBuffer , width, height);
+            if (dstBuffer == NULL) {
+                ALOGE("[%s %d] nv21_to_rgb32_ error 2!", __FUNCTION__, __LINE__);
+                free(raw);
+                return !OK;
+            }
+        }
+        *dstBufferSize = size;
+        ALOGI("[%s %d] get readRawData size:%d", __FUNCTION__, __LINE__, size);
+        free(raw);
         return result;
     }
 
@@ -437,14 +488,16 @@ int ScreenControlService::startYuvRecord(int32_t width, int32_t height, int32_t 
         ALOGE("[%s %d] ScreenManage init error\n", __FUNCTION__, __LINE__);
         return !OK;
     }
-    mYuvClientId = client_id;
-
     err = mScreenManager->start(client_id);
     if ( err != OK ) {
         ALOGE("[%s %d] ScreenManage init error\n", __FUNCTION__, __LINE__);
         return !OK;
     }
     mNeedStop = false;
+    mYuvClientId = client_id;
+    mRecordSourceType = sourceType;
+    mRecordWidth = width;
+    mRecordHeight = height;
 
     return OK;
 }
@@ -510,6 +563,8 @@ int ScreenControlService::startAvcRecord(int32_t width, int32_t height, int32_t 
         return !OK;
     }
     mRecordSourceType = sourceType;
+    mRecordWidth = width;
+    mRecordHeight = height;
     return OK;
 
 }

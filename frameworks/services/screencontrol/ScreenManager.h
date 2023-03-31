@@ -60,6 +60,11 @@ enum aml_capture_source_type {
     AML_CAPTURE_OSD_VIDEO
 };
 
+void yuv_to_rgb32(unsigned char y,unsigned char u,unsigned char v,unsigned char *rgb);
+
+void nv21_to_rgb32_(unsigned char *buf, unsigned char *rgb, int width, int height);
+
+
 class ScreenManager  : virtual public RefBase {
 public:
     ScreenManager();

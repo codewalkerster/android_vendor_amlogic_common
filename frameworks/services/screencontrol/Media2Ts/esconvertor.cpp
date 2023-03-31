@@ -72,52 +72,9 @@ namespace android {
 //#define ESCDUMPAUDIOAAC 1
 //#define ESCDUMPAUDIOPCM 1
 
-static inline void yuv_to_rgb32(unsigned char y,unsigned char u,unsigned char v,unsigned char *rgb)
-{
-    int r,g,b;
 
-    r = (1192 * (y - 16) + 1634 * (v - 128) ) >> 10;
-    g = (1192 * (y - 16) - 833 * (v - 128) - 400 * (u -128) ) >> 10;
-    b = (1192 * (y - 16) + 2066 * (u - 128) ) >> 10;
 
-    r = r > 255 ? 255 : r < 0 ? 0 : r;
-    g = g > 255 ? 255 : g < 0 ? 0 : g;
-    b = b > 255 ? 255 : b < 0 ? 0 : b;
-
-    /*ARGB*/
-    *rgb = (unsigned char)r;
-    rgb++;
-    *rgb = (unsigned char)g;
-    rgb++;
-    *rgb = (unsigned char)b;
-    rgb++;
-    *rgb = 0xff;
-}
-
-void nv21_to_rgb32_(unsigned char *buf, unsigned char *rgb, int width, int height)
-{
-    int x,y,z=0;
-    int h,w;
-    int blocks;
-    unsigned char Y1, Y2, U, V;
-
-    blocks = (width * height) * 2;
-
-    for (h=0, z=0; h< height; h+=2) {
-        for (y = 0; y < width*2; y+=2) {
-
-            Y1 = buf[ h*width + y + 0];
-            V = buf[ blocks/2 + h*width/2 + y%width + 0 ];
-            Y2 = buf[ h*width + y + 1];
-            U = buf[ blocks/2 + h*width/2 + y%width + 1 ];
-
-            yuv_to_rgb32(Y1, U, V, &rgb[z]);
-            yuv_to_rgb32(Y2, U, V, &rgb[z + 4]);
-            z+=8;
-        }
-    }
-}
-static inline void argb_scale(unsigned char *src, unsigned char* dst, int width, int height, int dWidth, int dHeight)
+void argb_scale(unsigned char *src, unsigned char* dst, int width, int height, int dWidth, int dHeight)
 {
     if (dWidth == 0 || dHeight == 0 || width == 0 || height == 0) {
         return;
