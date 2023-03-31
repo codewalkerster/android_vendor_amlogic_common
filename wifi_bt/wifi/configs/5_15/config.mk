@@ -94,6 +94,17 @@ ifeq ($(w1u_build),true)
 WIFI_BUILT_MODULES += $(w1u_modules)
 endif
 
+WIFI_SUPPORT_DRIVERS += rtl8188ftv
+rtl8188ftv_build ?= false
+rtl8188ftv_modules ?= rtl8188ftv
+rtl8188ftv_src_path ?= $(DRIVER_DIR)/realtek/8188ftv
+rtl8188ftv_copy_path ?=
+rtl8188ftv_build_path ?= rtl8188FU
+rtl8188ftv_args ?=
+ifeq ($(rtl8188ftv_build),true)
+WIFI_BUILT_MODULES += $(rtl8188ftv_modules)
+endif
+
 WIFI_SUPPORT_DRIVERS += rtl8723du
 rtl8723du_build ?= false
 rtl8723du_modules ?= rtl8723du
