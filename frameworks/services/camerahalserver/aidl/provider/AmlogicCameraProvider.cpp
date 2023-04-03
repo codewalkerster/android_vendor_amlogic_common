@@ -400,7 +400,7 @@ ndk::ScopedAStatus AmlogicCameraProvider::setCallback(
     mCallbacks = in_callback;
 
     if (mCallbacks == nullptr) {
-        return fromStatus(Status::OK);
+        return fromStatus(Status::ILLEGAL_ARGUMENT);
     }
 
     for (const auto& statusPair : mCameraStatusMap) {
