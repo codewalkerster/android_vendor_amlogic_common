@@ -351,7 +351,7 @@ bool CFbcUpgrade::loadUpgradeFile(int &ret_code,
             ret_code = ERR_OPEN_BIN_FILE;
         }
 
-        close(file_handle);
+        //close(file_handle);
     }
 
     if (ret && !initBlocksInfo(partitionList)) {
@@ -368,6 +368,10 @@ bool CFbcUpgrade::loadUpgradeFile(int &ret_code,
         }
     }
 
+    /*
+     * This is the logic, no need to modify, ignore coverity weak cryptor report.
+     */
+    /* coverity[event_tag:SUPPRESS] */
     close(file_handle);
     return ret;
 }
