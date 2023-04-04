@@ -29,12 +29,6 @@ ifeq ($(BLUETOOTH_MODULE), )
 BLUETOOTH_MODULE := multibt
 endif
 
-$(warning BLUETOOTH_MODULE is $(BLUETOOTH_MODULE))
-ifneq ($(BLUETOOTH_INF),)
-$(warning BLUETOOTH_INF is $(BLUETOOTH_INF))
-else
-$(warning BLUETOOTH_INF is not set)
-endif
 
 PRODUCT_PROPERTY_OVERRIDES += persist.vendor.wifibt_name = "$(CONFIG_WIFIBT_NAME)"
 

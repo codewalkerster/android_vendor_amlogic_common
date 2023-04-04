@@ -38,7 +38,6 @@ WIFI_MODULES := $(WIFI_BUILT_MODULES)
 else ifeq ($(WIFI_MODULES), )
 WIFI_MODULES := $(WIFI_BUILT_MODULES)
 else ifneq (,$(filter-out $(WIFI_BUILT_MODULES),$(WIFI_MODULES)))
-$(warning wifi modules "$(filter-out $(WIFI_BUILT_MODULES),$(WIFI_MODULES))" have no driver support!)
 endif
 
 #enable clang CFI for arm64
