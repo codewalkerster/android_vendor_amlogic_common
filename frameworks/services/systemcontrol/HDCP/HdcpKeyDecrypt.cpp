@@ -132,6 +132,7 @@ int hdcpKeyUnpack(const char* inBuf, int inBufLen,
     AmlResItemHead_t *packedImgItem = NULL;
     unsigned gensum = 0;
     int i = 0;
+    int len = 0;
 
     packedImgHead = (AmlResImgHead_t*)inBuf;
     packedImgItem = (AmlResItemHead_t*)(packedImgHead + 1);
@@ -180,7 +181,18 @@ int hdcpKeyUnpack(const char* inBuf, int inBufLen,
 
             //origin firmware.aic append the end
             int srcFd = open(srcAicPath, O_RDONLY);
+            if (srcFd < 0) {
+                SYS_LOGE("unpack dhcp key, open %s error(%s)", srcAicPath, strerror(errno));
+                close(desFd);
+                return -1;
+            }
             int srcSize = lseek(srcFd, 0, SEEK_END);
+            if (srcSize < 0) {
+                SYS_LOGE("%d:srcSize lseek %s.\n", __LINE__, strerror(errno));
+                close(desFd);
+                close(srcFd);
+                return -1;
+            }
             lseek(srcFd, 0, SEEK_SET);
             char *pSrcData = (char *)malloc(srcSize + 1);
             if (NULL == pSrcData) {
@@ -190,7 +202,14 @@ int hdcpKeyUnpack(const char* inBuf, int inBufLen,
                 return -1;
             }
             memset((void*)pSrcData, 0, srcSize + 1);
-            read(srcFd, (void*)pSrcData, srcSize);
+            len = read(srcFd, (void*)pSrcData, srcSize);
+            if (len < 0) {
+                SYS_LOGE("read error: %s, %s\n", srcAicPath, strerror(errno));
+                close(desFd);
+                close(srcFd);
+                free(pSrcData);
+                return -1;
+            }
             //write source aic file data to destination aic file
             write(desFd, pSrcData, srcSize);
 

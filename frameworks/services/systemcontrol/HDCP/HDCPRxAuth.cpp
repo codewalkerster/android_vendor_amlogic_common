@@ -137,7 +137,9 @@ void HDCPRxAuth::initKey() {
             int ret = hdcpRx22.copyHdcpFwToParam(HDCP_RPTX22_SRC_FW_PATH, HDCP_RPTX22_DES_FW_PATH);
             if (ret == -1) {
                 SYS_LOGE("copy RPTX firmware fail\n");
-                remove(HDCP_RPTX22_DES_FW_PATH);
+                //remove(HDCP_RPTX22_DES_FW_PATH);
+                if (remove(HDCP_RPTX22_DES_FW_PATH) == -1)
+                    SYS_LOGE("remove %s failed!\n", HDCP_RPTX22_DES_FW_PATH);
             }
         }
 

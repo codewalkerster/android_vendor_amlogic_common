@@ -481,11 +481,25 @@ int HDCPRxKey::setHdcpRX22key(const char *value, const int size)
                 combineFirmwarewithArmTool(HDCP_RX22_SRC_FW_PATH, HDCP_RX22_DES_FW_PATH, HDCP_RX22_OUT_2080_BYTE); //combine firmware RX22
 
                 //remove temporary files
-                remove(HDCP_RX22_KEY_PATH);
+                /*remove(HDCP_RX22_KEY_PATH);
                 remove(HDCP_RX22_CFG_AIC_DES);
                 remove(HDCP_RX22_OUT_KEY_IMG);
                 remove(HDCP_RX22_OUT_KEY_LE);
-                remove(HDCP_RX22_OUT_2080_BYTE);
+                remove(HDCP_RX22_OUT_2080_BYTE);*/
+                if (remove(HDCP_RX22_KEY_PATH) == -1)
+                    SYS_LOGE("remove %s failed!\n", HDCP_RX22_KEY_PATH);
+
+                if (remove(HDCP_RX22_CFG_AIC_DES) == -1)
+                    SYS_LOGE("remove %s failed!\n", HDCP_RX22_CFG_AIC_DES);
+
+                if (remove(HDCP_RX22_OUT_KEY_IMG) == -1)
+                    SYS_LOGE("remove %s failed!\n", HDCP_RX22_OUT_KEY_IMG);
+
+                if (remove(HDCP_RX22_OUT_KEY_LE) == -1)
+                    SYS_LOGE("remove %s failed!\n", HDCP_RX22_OUT_KEY_LE);
+
+                if (remove(HDCP_RX22_OUT_2080_BYTE) == -1)
+                    SYS_LOGE("remove %s failed!\n", HDCP_RX22_OUT_2080_BYTE);
                 ret = 0;
                     //3. generate firmware success, save the key's crc value
                 saveFile(HDCP_RX22_KEY_CRC_PATH, keyCrcData, HDCP_RX22_KEY_CRC_LEN);
@@ -592,11 +606,20 @@ _reGenerate:
                 combineFirmwarewithArmTool(HDCP_RX22_SRC_FW_PATH, HDCP_RX22_DES_FW_PATH, HDCP_RX22_OUT_2080_BYTE); //combine firmware RX22
 
                 //remove temporary files
-                remove(HDCP_RX22_KEY_PATH);
-                remove(HDCP_RX22_CFG_AIC_DES);
-                remove(HDCP_RX22_OUT_KEY_IMG);
-                remove(HDCP_RX22_OUT_KEY_LE);
-                remove(HDCP_RX22_OUT_2080_BYTE);
+                if (remove(HDCP_RX22_KEY_PATH) == -1)
+                    SYS_LOGE("remove %s failed!\n", HDCP_RX22_KEY_PATH);
+
+                if (remove(HDCP_RX22_CFG_AIC_DES) == -1)
+                    SYS_LOGE("remove %s failed!\n", HDCP_RX22_CFG_AIC_DES);
+
+                if (remove(HDCP_RX22_OUT_KEY_IMG) == -1)
+                    SYS_LOGE("remove %s failed!\n", HDCP_RX22_OUT_KEY_IMG);
+
+                if (remove(HDCP_RX22_OUT_KEY_LE) == -1)
+                    SYS_LOGE("remove %s failed!\n", HDCP_RX22_OUT_KEY_LE);
+
+                if (remove(HDCP_RX22_OUT_2080_BYTE) == -1)
+                    SYS_LOGE("remove %s failed!\n", HDCP_RX22_OUT_2080_BYTE);
                 //3. generate firmware success, save the key's crc value
                 saveFile(HDCP_RX22_KEY_CRC_PATH, keyCrcData, HDCP_RX22_KEY_CRC_LEN);
             }
@@ -622,7 +645,9 @@ _reGenerate:
     }
 
     if (st.st_size < 100) {
-        remove(pDestPath);
+        //remove(pDestPath);
+        if (remove(pDestPath) == -1)
+            SYS_LOGE("remove %s failed!\n", pDestPath);
 
         SYS_LOGE("generate firmware.le error, for the %d time", countNum);
         if (countNum < 2) {
@@ -745,6 +770,7 @@ bool HDCPRxKey::combineFirmwarewithArmTool(const char* pSourcePath, const char* 
     int srcSize = 0;
     int insertSize = 0;
     int writeSize =0;
+    int len = 0;
 
     if (!pSourcePath || !pDestPath) {
         SYS_LOGE("firmware source path and dest path isn't ready\n");
@@ -752,8 +778,15 @@ bool HDCPRxKey::combineFirmwarewithArmTool(const char* pSourcePath, const char* 
     }
     //read origin firmware.le to buffer
     srcFd = open(pSourcePath, O_RDONLY);
-
+    if (srcFd < 0) {
+        SYS_LOGE("combine firware, open %s error(%s)", pSourcePath, strerror(errno));
+        goto exit;
+    }
     srcSize = lseek(srcFd, 0, SEEK_END);
+    if (srcSize < 0) {
+        SYS_LOGE("%d:srcSize lseek %s.\n", __LINE__, strerror(errno));
+        goto exit;
+    }
     lseek(srcFd, 0, SEEK_SET);
     pSrcData = (char *)malloc(srcSize + 1);
     if (NULL == pSrcData) {
@@ -761,13 +794,25 @@ bool HDCPRxKey::combineFirmwarewithArmTool(const char* pSourcePath, const char* 
         goto exit;
     }
     memset((void*)pSrcData, 0, srcSize + 1);
-    read(srcFd, (void*)pSrcData, srcSize);
+    len = read(srcFd, (void*)pSrcData, srcSize);
+    if (len < 0) {
+        SYS_LOGE("read error: %s, %s\n", pSourcePath, strerror(errno));
+        goto exit;
+    }
     close(srcFd);
     srcFd = -1;
 
     //read 2080 bytes to buffer
     insertFd = open(pTempPath, O_RDONLY);
+    if (insertFd < 0) {
+        SYS_LOGE("combine firware, open %s error(%s)", pTempPath, strerror(errno));
+        goto exit;
+    }
     insertSize = lseek(insertFd, 0, SEEK_END);
+    if (insertSize < 0) {
+        SYS_LOGE("%d:insertSize lseek %s.\n", __LINE__, strerror(errno));
+        goto exit;
+    }
     if (2080 != insertSize)
         SYS_LOGE("combine firmware, key size is not 2080 bytes\n");
     lseek(insertFd, 0, SEEK_SET);
@@ -777,7 +822,10 @@ bool HDCPRxKey::combineFirmwarewithArmTool(const char* pSourcePath, const char* 
         goto exit;
     }
     memset((void*)pInsertData, 0, insertSize + 1);
-    read(insertFd, (void*)pInsertData, insertSize);
+    if (read(insertFd, (void*)pInsertData, insertSize) < 0) {
+        SYS_LOGE("read error: %s, %s\n", pTempPath, strerror(errno));
+        goto exit;
+    }
     close(insertFd);
     insertFd = -1;
 
@@ -793,7 +841,6 @@ bool HDCPRxKey::combineFirmwarewithArmTool(const char* pSourcePath, const char* 
     if ((writeSize = write(desFd, pSrcData, srcSize)) <= 0)
         SYS_LOGE("write firmware.le data error,write size: %d", writeSize);
     close(desFd);
-    desFd = -1;
 
     ret= true;
 exit:
@@ -801,8 +848,6 @@ exit:
         close(srcFd);
     if (insertFd >= 0)
         close(insertFd);
-    if (desFd >= 0)
-        close(desFd);
 
     if (NULL != pSrcData)
         free(pSrcData);
@@ -826,6 +871,7 @@ bool HDCPRxKey::combineFirmwarewithPCTool(const char* pKeyName, const char* pCrc
     long keyCrcValue = 0;
     char lastCrcData[HDCP_RX22_KEY_CRC_LEN] = {0};
     long lastCrcValue = 0;
+    int len = 0;
 
     if (!pSourcePath || !pDestPath) {
         SYS_LOGE("firmware source path and dest path isn't ready\n");
@@ -864,8 +910,16 @@ bool HDCPRxKey::combineFirmwarewithPCTool(const char* pKeyName, const char* pCrc
             (unsigned int)lastCrcValue, (unsigned int)keyCrcValue);
         //read origin firmware.le to buffer
         srcFd = open(pSourcePath, O_RDONLY);
+        if (srcFd < 0) {
+            SYS_LOGE("combine firware, open %s error(%s)", pSourcePath, strerror(errno));
+            goto exit;
+        }
 
         srcSize = lseek(srcFd, 0, SEEK_END);
+        if (srcSize < 0) {
+            SYS_LOGE("%d:srcSize lseek %s.\n", __LINE__, strerror(errno));
+            goto exit;
+        }
         lseek(srcFd, 0, SEEK_SET);
         pSrcData = (char *)malloc(srcSize + 1);
         if (NULL == pSrcData) {
@@ -873,7 +927,11 @@ bool HDCPRxKey::combineFirmwarewithPCTool(const char* pKeyName, const char* pCrc
             goto exit;
         }
         memset((void*)pSrcData, 0, srcSize + 1);
-        read(srcFd, (void*)pSrcData, srcSize);
+        len = read(srcFd, (void*)pSrcData, srcSize);
+        if (len < 0) {
+            SYS_LOGE("read error: %s, %s\n", pSourcePath, strerror(errno));
+            goto exit;
+        }
         close(srcFd);
         srcFd = -1;
 
@@ -906,7 +964,6 @@ bool HDCPRxKey::combineFirmwarewithPCTool(const char* pKeyName, const char* pCrc
         if ((writeSize = write(desFd, pSrcData, srcSize)) <= 0)
             SYS_LOGE("write firmware.le data error,write size: %d", writeSize);
         close(desFd);
-        desFd = -1;
         saveFile(pCrcName, keyCrcData, HDCP_RX22_KEY_CRC_LEN);
         ret= true;
     }
@@ -916,8 +973,6 @@ exit:
 
     if (srcFd >= 0)
         close(srcFd);
-    if (desFd >= 0)
-        close(desFd);
 
     if (NULL != pSrcData)
         free(pSrcData);

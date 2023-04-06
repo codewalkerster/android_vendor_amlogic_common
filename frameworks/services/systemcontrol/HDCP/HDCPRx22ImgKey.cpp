@@ -103,7 +103,12 @@ unsigned calc_img_crc(FILE* fp, off_t offset, unsigned checkSz)
         free(buf);
         return 0;
     }
-    fseeko(fp, offset, SEEK_SET);
+
+    if (fseeko(fp, offset, SEEK_SET) != 0) {
+        errorP("fseeko Fail!\n");
+        free(buf);
+        return 0;
+    }
 
     while (totalLenToCheck < checkSz)
     {
@@ -323,7 +328,10 @@ int generateHdcpFw(const char* firmwarele, const char* packedImg, const char* ne
         goto _exit4;
     }
 
-    fseek(fd_dest, 0x2800, SEEK_SET);
+    if (fseek(fd_dest, 0x2800, SEEK_SET) != 0) {
+        HDCP_LOGE("fseek Fail!\n");
+        goto _exit4;
+    }
     wantLen = fwrite(itemBuf, 1, itemSz, fd_dest);
     if (wantLen != itemSz) {
         HDCP_LOGE("wantLen %d != itemSz %d\n", wantLen, itemSz);
@@ -383,6 +391,7 @@ int writeSysBin(const char *path, const char *val, const int size) {
 
     if (::write(fd, val, size) != size) {
         HDCP_LOGE("write %s size:%d failed!\n", path, size);
+        close(fd);
         return -1;
     }
 
@@ -434,7 +443,10 @@ int storage_extract_one_item_to_buf(const char* itemName,
 
     writeSys("/sys/class/unifykeys/attach", "1");
     writeSys("/sys/class/unifykeys/name", "hdcp22_rx_fw");
-    readSys("/sys/class/unifykeys/read", keyBuf, KEY_SIZE);
+    if (readSys("/sys/class/unifykeys/read", keyBuf, KEY_SIZE) < 0) {
+        SYS_LOGE("read /sys/class/unifykeys/read error:%s\n", strerror(errno));
+        goto _exit3;
+    }
     //read key storage end
 
     itemBuf = new char[ITEM_READ_BUF_SZ * 2];
@@ -549,7 +561,12 @@ int generateHdcpFwFromStorage(const char* firmwarele, const char* newFw)
     //read key storage end
 #endif
 
-    fseek(fd_dest, 0x2800, SEEK_SET);
+    if (fseek(fd_dest, 0x2800, SEEK_SET) != 0) {
+        HDCP_LOGE("fseek Fail!\n");
+        iRet = -1;
+        goto _exit4;
+    }
+
     wantLen = fwrite(itemBuf, 1, itemSz, fd_dest);
     if (wantLen != itemSz) {
         HDCP_LOGE("wantLen %d != itemSz %d\n", wantLen, itemSz);
@@ -676,7 +693,12 @@ int setImgPath(const char *path)
         return -1;
     }
 
-    fseek(fdImg, IMG_HEAD_SZ, SEEK_SET);
+    if (fseek(fdImg, IMG_HEAD_SZ, SEEK_SET) != 0) {
+        errorP("fseek Fail.\n");
+        fclose(fdImg);
+        free(itemReadBuf);
+        return -1;
+   }
     int ItemHeadSz = (pImgHead->imgItemNum)*ITEM_HEAD_SZ;
     actualReadSz = fread(itemReadBuf+IMG_HEAD_SZ, 1, ItemHeadSz, fdImg);
     if (actualReadSz != ItemHeadSz) {
@@ -693,7 +715,7 @@ int setImgPath(const char *path)
         errorP("pItemHead->size:%d\n", pItemHead->dataSz);
         errorP("pItemHead->dataOffset:%d\n", pItemHead->dataOffset);
 
-        if (!strcmp(pItemHead->name, HDCP_RX_PRIVATE)) {
+        if (!strncmp(pItemHead->name, HDCP_RX_PRIVATE, sizeof(pItemHead->name))) {
             char *tmpbuffer = (char *)malloc(pItemHead->dataSz + 4);
             if (!tmpbuffer) {
                 errorP("Fail to malloc buffer  size 0x%x\n", pItemHead->dataSz + 4);
@@ -712,7 +734,14 @@ int setImgPath(const char *path)
 
             memset(tmpbuffer, 0, pItemHead->dataSz + 4);
             memset(writebuffer, 0, pItemHead->dataSz + 4);
-            fseek(fdImg, pItemHead->dataOffset, SEEK_SET);
+            if (fseek(fdImg, pItemHead->dataOffset, SEEK_SET) != 0) {
+                errorP("fseek Fail.\n");
+                fclose(fdImg);
+                free(itemReadBuf);
+                free(tmpbuffer);
+                free(writebuffer);
+                return -1;
+            }
             unsigned int readlen = fread(tmpbuffer, 1, pItemHead->dataSz, fdImg);
             if (readlen != pItemHead->dataSz) {
                 fclose(fdImg);
@@ -765,7 +794,13 @@ int setImgPath(const char *path)
             }
 
             memset(writebuffer, 0, pItemHead->dataSz + 4);
-            fseek(fdImg, pItemHead->dataOffset, SEEK_SET);
+            if (fseek(fdImg, pItemHead->dataOffset, SEEK_SET) != 0) {
+                errorP("fseek Fail.\n");
+                fclose(fdImg);
+                free(itemReadBuf);
+                free(writebuffer);
+                return -1;
+            }
             unsigned int readlen = fread(writebuffer, 1, pItemHead->dataSz, fdImg);
             if (readlen != pItemHead->dataSz) {
                 fclose(fdImg);
@@ -792,7 +827,7 @@ int setImgPath(const char *path)
                 return -1;
             }
             #endif
-        } else if (!strcmp(pItemHead->name, HDCP_RX_FW)) {
+        } else if (!strncmp(pItemHead->name, HDCP_RX_FW, sizeof(pItemHead->name))) {
             #if 1
             char *writebuffer = (char *)malloc(pItemHead->dataSz + 4);
             if (!writebuffer) {
@@ -803,7 +838,13 @@ int setImgPath(const char *path)
             }
 
             memset(writebuffer, 0, pItemHead->dataSz + 4);
-            fseek(fdImg, pItemHead->dataOffset, SEEK_SET);
+            if (fseek(fdImg, pItemHead->dataOffset, SEEK_SET) != 0) {
+                errorP("fseek Fail!\n");
+                fclose(fdImg);
+                free(itemReadBuf);
+                free(writebuffer);
+                return -1;
+            }
             unsigned int readlen = fread(writebuffer, 1, pItemHead->dataSz, fdImg);
             if (readlen != pItemHead->dataSz) {
                 fclose(fdImg);
@@ -867,7 +908,10 @@ int getFileSize(const char* filePath)
     }
 
     struct stat statbuf;
-    stat(filePath, &statbuf);
+    if (stat(filePath, &statbuf) < 0) {
+        errorP("Can't stat %s : %s\n", filePath, strerror(errno));
+        return -1;
+    }
     int size = statbuf.st_size;
 
     return size;
