@@ -102,12 +102,12 @@ public class FileListManager {
 
     /* file type extensions */
     //video
-    private static final String video_extensions = "3gp,asf,avi,dat,divx,f4v,flv,h264,lst,m2ts,m4v,mkv,mp2,mp4,mov,mpe,mpeg,mpg,mts,rm,rmvb,ts,tp,mvc,vc1,vob,wm,wmv,webm,m2v,pmp,bit,h265,3g2,mlv,hm10,ogm,vp9,trp,bin,ivf";
+    private static final String video_extensions = "3gpp,3gp,asf,avi,dat,divx,f4v,flv,h264,lst,m2ts,m4v,mkv,mp2,mp4,mov,mpe,mpeg,mpg,mts,rm,rmvb,ts,tp,mvc,vc1,vob,wm,wmv,webm,m2v,pmp,bit,h265,3g2,mlv,hm10,ogm,vp9,trp,bin,ivf";
 
     //music
     private static final String[] music_extensions = {
         ".mp3", ".wma", ".m4a", ".aac", ".ape", ".mp2", ".ogg", ".flac", ".alac", ".wav",
-        ".mid", ".xmf", ".mka", ".aiff", ".aifc", ".aif", ".pcm", ".adpcm"
+        ".mid", ".xmf", ".mka", ".aiff", ".aifc", ".aif", ".pcm", ".adpcm", ".dsf", ".wsd",".dff"
     };
 
     //photo
