@@ -23,6 +23,9 @@
 #define DOLBY_BIN_FILE_DEFAULT_PATH_1       "/odm/etc/tvconfig/panel/dv_config.bin"
 #define DOLBY_CFG_FILE_DEFAULT_PATH_1       "/odm/etc/tvconfig/panel/Amlogic_dv.cfg"
 
+#define DOLBY_BIN_FILE_DEFAULT_PATH_2       "/vendor/lib/firmware/amdv/dv_config.bin"
+#define DOLBY_CFG_FILE_DEFAULT_PATH_2       "/vendor/lib/firmware/amdv/Amlogic_dv.cfg"
+
 //pq file running dir path
 #define PARAM_PQ_DB_PATH                    "/mnt/vendor/param/pq/pq.db"
 #define PARAM_OVERSCAN_DB_PATH              "/mnt/vendor/param/pq/overscan.db"

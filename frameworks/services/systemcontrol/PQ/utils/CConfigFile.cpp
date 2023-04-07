@@ -541,7 +541,7 @@ void CConfigFile::GetDvFilePath(char *bin_file_path, char *cfg_file_path)
 {
     //read dv file path from pq_default.ini
     const char *pqdvbinPath    = NULL;
-    pqdvbinPath = GetString(CFG_SECTION_PQ, CFG_PQ_DV_BIN_PATH, DOLBY_BIN_FILE_DEFAULT_PATH_0);
+    pqdvbinPath = GetString(CFG_SECTION_PQ, CFG_PQ_DV_BIN_PATH, DOLBY_BIN_FILE_DEFAULT_PATH_2);
 
     if (isFileExist(pqdvbinPath)) {
         strcpy(bin_file_path, pqdvbinPath);
@@ -549,12 +549,14 @@ void CConfigFile::GetDvFilePath(char *bin_file_path, char *cfg_file_path)
         strcpy(bin_file_path, DOLBY_BIN_FILE_DEFAULT_PATH_0);
     } else if (isFileExist(DOLBY_BIN_FILE_DEFAULT_PATH_1)) {
         strcpy(bin_file_path, DOLBY_BIN_FILE_DEFAULT_PATH_1);
+    } else if (isFileExist(DOLBY_BIN_FILE_DEFAULT_PATH_2)) {
+        strcpy(bin_file_path, DOLBY_BIN_FILE_DEFAULT_PATH_2);
     } else {
-        SYS_LOGE("no dv_config.bin in %s and %s\n", DOLBY_BIN_FILE_DEFAULT_PATH_0, DOLBY_BIN_FILE_DEFAULT_PATH_1);
+        SYS_LOGE("no dv_config.bin in %s and %s and %s\n", DOLBY_BIN_FILE_DEFAULT_PATH_0, DOLBY_BIN_FILE_DEFAULT_PATH_1, DOLBY_BIN_FILE_DEFAULT_PATH_2);
     }
 
     const char *pqdvcfgPath = NULL;
-    pqdvcfgPath = GetString(CFG_SECTION_PQ, CFG_PQ_DV_CFG_PATH, DOLBY_CFG_FILE_DEFAULT_PATH_0);
+    pqdvcfgPath = GetString(CFG_SECTION_PQ, CFG_PQ_DV_CFG_PATH, DOLBY_CFG_FILE_DEFAULT_PATH_2);
 
     if (isFileExist(pqdvcfgPath)) {
         strcpy(cfg_file_path, pqdvcfgPath);
@@ -562,7 +564,9 @@ void CConfigFile::GetDvFilePath(char *bin_file_path, char *cfg_file_path)
         strcpy(cfg_file_path, DOLBY_CFG_FILE_DEFAULT_PATH_0);
     } else if (isFileExist(DOLBY_CFG_FILE_DEFAULT_PATH_1)) {
         strcpy(cfg_file_path, DOLBY_CFG_FILE_DEFAULT_PATH_1);
+    } else if (isFileExist(DOLBY_CFG_FILE_DEFAULT_PATH_2)) {
+        strcpy(cfg_file_path, DOLBY_CFG_FILE_DEFAULT_PATH_2);
     } else {
-        SYS_LOGE("no Amlogic_dv.cfg in %s and %s\n", DOLBY_CFG_FILE_DEFAULT_PATH_0, DOLBY_CFG_FILE_DEFAULT_PATH_1);
+        SYS_LOGE("no Amlogic_dv.cfg in %s and %s and %s\n", DOLBY_CFG_FILE_DEFAULT_PATH_0, DOLBY_CFG_FILE_DEFAULT_PATH_1, DOLBY_CFG_FILE_DEFAULT_PATH_2);
     }
 }
