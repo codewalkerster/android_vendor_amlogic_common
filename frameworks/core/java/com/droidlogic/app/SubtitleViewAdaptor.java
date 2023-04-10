@@ -187,7 +187,11 @@ class SubtitleViewAdaptor {
         ensureSubLayoutCreated();
 
         mDisplay = mWindowManager.getDefaultDisplay();
-        initialLayoutParams(TYPE_APPLICATION_MEDIA_OVERLAY/*LayoutParams.TYPE_APPLICATION_PANEL*/, title, 0, 0, mDisplay.getWidth(), mDisplay.getHeight());
+        if (mSubtitleType == SubtitleManager.TYPE_SUBTITLE_DVB_TELETEXT) {
+            initialLayoutParams(TYPE_APPLICATION_MEDIA_OVERLAY/*LayoutParams.TYPE_APPLICATION_PANEL*/, title, 0, 0, mDisplay.getWidth(), mDisplay.getHeight());
+        } else {
+            initialLayoutParams(LayoutParams.TYPE_APPLICATION_PANEL, title, 0, 0, mDisplay.getWidth(), mDisplay.getHeight());
+        }
 
         // Add window for subtitle
         try {
