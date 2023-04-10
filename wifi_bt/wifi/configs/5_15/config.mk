@@ -172,12 +172,12 @@ WIFI_BUILT_MODULES += $(rtl8821cs_modules)
 endif
 
 WIFI_SUPPORT_DRIVERS += rtl8852be
-rtl8852be_build ?= false
+rtl8852be_build ?= true
 rtl8852be_modules ?= rtl8852be
 rtl8852be_src_path ?= $(DRIVER_DIR)/realtek/8852be
 rtl8852be_copy_path ?=
 rtl8852be_build_path ?= rtl8852BE
-rtl8852be_args ?=
+rtl8852be_args ?= CONFIG_RTKM=m
 ifeq ($(rtl8852be_build),true)
 WIFI_BUILT_MODULES += $(rtl8852be_modules)
 endif

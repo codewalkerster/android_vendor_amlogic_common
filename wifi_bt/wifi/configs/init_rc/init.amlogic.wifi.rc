@@ -39,6 +39,9 @@ on property:vendor.wifi_name=rtl
 on property:vendor.wifi_name=rtl8852bs
    setprop wifi.direct.interface p2p0
 
+on property:vendor.wifi_name=rtl8852be
+   setprop wifi.direct.interface p2p0
+
 on property:vendor.wifi_name=mtk
    setprop wifi.direct.interface p2p0
 

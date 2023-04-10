@@ -28,6 +28,7 @@ char mtk7663u_base[] = "/vendor/lib/modules/wlan_mt7663_usb_prealloc.ko#";
 char mtk760_base[] = "/vendor/lib/modules/mtprealloc.ko#";
 char ssv6051_base[] = "/vendor/lib/modules/ssv6051.ko#stacfgpath=/vendor/etc/wifi/ssv6051/ssv6051-wifi.cfg#/vendor/lib/modules/ssv6x5x.ko#tu_stacfgpath=/vendor/etc/wifi/ssv6x5x/ssv6x5x-wifi.cfg#";
 char qca6391_base[] = "/vendor/lib/modules/wlan_cnss_core_pcie_6391.ko# #/vendor/lib/modules/wlan_resident_6391.ko#";
+char rtl8852be_base[] = "/vendor/lib/modules/rtl8852be_rtkm.ko#";
 char aml_w1_base[] = "/vendor/lib/modules/aml_sdio.ko#";
 char aml_w1u_base[] = "/vendor/lib/modules/aml_com.ko#hif_type=USB#";
 char aml_w1u_s_base[] = "/vendor/lib/modules/aml_com.ko#hif_type=SDIO#";
@@ -133,8 +134,8 @@ static const dongle_info dongle_registerd[]={\
     {"aae8","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=../../etc/wifi/43752a2/fw_bcm43752a2_ag.bin nvram_path=../../etc/wifi/43752a2/nvram_ap6275s.txt",no_base,"bcm43752a2s",0x0,"/vendor/etc/wifi/43752a2/fw_bcm43752a2_ag"},\
     {"0000","1101","wlan","/vendor/lib/modules/wlan_6391.ko","",qca6391_base,"qca6391",0x0,""},\
     {"0000","1103","wlan","/vendor/lib/modules/wlan_206x.ko","",qca206x_base,"qca206x",0x0,""},\
-    {"0000","8852","8852ae","/vendor/lib/modules/8852ae.ko","ifname=wlan0 if2name=ap0",no_base,"rtl8852ae",0x0,""},\
-    {"0000","b852","8852be","/vendor/lib/modules/8852be.ko","ifname=wlan0 if2name=ap0",no_base,"rtl8852be",0x0,""},\
+    {"0000","8852","8852ae","/vendor/lib/modules/8852ae.ko","ifname=wlan0 if2name=p2p0",rtl8852be_base,"rtl8852ae",0x0,""},\
+    {"0000","b852","8852be","/vendor/lib/modules/8852be.ko","ifname=wlan0 if2name=p2p0",rtl8852be_base,"rtl8852be",0x0,""},\
     {"9149","0000","moal_sd8987","/vendor/lib/modules/moal_sd8987.ko","mod_para=nxp/wifi_mod_para_8987.conf",nxp8987_base,"nxp8987",0x0,""},\
     {"9141","0000","moal_sd8997","/vendor/lib/modules/moal_sd8997.ko","mod_para=nxp/wifi_mod_para_8997.conf",nxp8997_base,"nxp8997",0x0,""},\
     {"0000","2b56","moal_iw620","/vendor/lib/modules/moal_iw620.ko","mod_para=nxp/wifi_mod_para_iw620.conf",nxpiw620_base,"nxpiw620",0x0,""},\
