@@ -98,7 +98,7 @@ int CPQdb::getRegValues(const char *table_name, am_regs_t *regs)
     CSqlite::Cursor c_reg_list;
     int rval = -1;
     int index_am_reg = 0;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     if (table_name == NULL || !strlen(table_name)) {
         SYS_LOGE("%s, table_name is null\n", __FUNCTION__);
         return rval;
@@ -165,7 +165,7 @@ int CPQdb::getRegValuesByValue(const char *name, const char *f_name, const char 
                                  const int val, const int val2, am_regs_t *regs)
 {
     CSqlite::Cursor c_reg_list;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     int rval = -1;
 
     if ((strlen(f2_name) == 0) && (val2 == 0)) {
@@ -218,7 +218,7 @@ int CPQdb::getRegValuesByValue_long(const char *name, const char *f_name, const 
                                       const int val, const int val2, am_regs_t *regs, am_regs_t *regs_1)
 {
     CSqlite::Cursor c_reg_list;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     int rval = -1;
 
     if ((strlen(f2_name) == 0) && (val2 == 0)) {
@@ -564,7 +564,7 @@ int CPQdb::getDIRegValuesByValue(const char *name, const char *f_name, const cha
                                                    const int val, const int val2, am_regs_t *regs)
 {
     CSqlite::Cursor c_reg_list;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     int rval = -1;
 
     if ((strlen(f2_name) == 0) && (val2 == 0)) {
@@ -617,7 +617,7 @@ int CPQdb::PQ_GetColorTemperatureParams(vpp_color_temperature_mode_t Tempmode, s
                                                    tcon_rgb_ogo_t *params)
 {
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
 
     int rval = -1;
     //default
@@ -665,7 +665,7 @@ int CPQdb::PQ_SetColorTemperatureParams(vpp_color_temperature_mode_t Tempmode,so
                                                    tcon_rgb_ogo_t params)
 {
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     char sql[512];
 
     int rval = -1;
@@ -699,7 +699,7 @@ int CPQdb::PQ_SetColorTemperatureParams(vpp_color_temperature_mode_t Tempmode,so
 int CPQdb::PQ_ResetAllColorTemperatureParams(void)
 {
     CSqlite::Cursor c;
-    char sqlmaster[512];
+    char sqlmaster[512] = {0};
 
     int rval = -1;
 
@@ -737,7 +737,7 @@ int CPQdb::PQ_ResetAllColorTemperatureParams(void)
 int CPQdb::PQ_GetHDRTMOParams(source_input_param_t source_input_param, hdr_tmo_t mode, hdr_tmo_sw_s *newParams)
 {
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     int rval = -1;
     char buf[512];
     char *buffer = NULL;
@@ -850,7 +850,7 @@ int CPQdb::PQ_GetHDRTMOParams(source_input_param_t source_input_param, hdr_tmo_t
 int CPQdb::PQ_GetAADParams(source_input_param_t source_input_param, aad_param_t *newParams)
 {
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     char buf[512];
     char *buffer = NULL;
     char *aa = NULL;
@@ -1061,7 +1061,7 @@ int CPQdb::PQ_GetAADParams(source_input_param_t source_input_param, aad_param_t 
 int CPQdb::PQ_GetCABCParams(source_input_param_t source_input_param, cabc_param_t *newParams)
 {
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     char buf[512];
     char *buffer = NULL;
     char *aa = NULL;
@@ -1174,7 +1174,7 @@ int CPQdb::PQ_GetDNLPParams(source_input_param_t source_input_param, Dynamic_con
 {
     CSqlite::Cursor c;
     CSqlite::Cursor c1;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     char buf[512];
     char *buffer = NULL;
     char *aa = NULL;
@@ -1580,7 +1580,7 @@ int CPQdb::PQ_GetDNLPParams(source_input_param_t source_input_param, Dynamic_con
 int CPQdb::PQ_GetLocalContrastNodeParams(source_input_param_t source_input_param, local_contrast_mode_t mode, ve_lc_curve_parm_t *Params)
 {
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     char buf[512];
     char *buffer = NULL;
     char *aa = NULL;
@@ -1802,7 +1802,7 @@ int CPQdb::PQ_GetLocalContrastRegParams(source_input_param_t source_input_param,
 
 int CPQdb::PQ_SetDNLPGains(source_input_param_t source_input_param, Dynamic_contrast_status_t level, int final_gain)
 {
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     int final_gain_reg_num = 46;
     int rval = -1;
 
@@ -1823,7 +1823,7 @@ int CPQdb::PQ_SetDNLPGains(source_input_param_t source_input_param, Dynamic_cont
 int CPQdb::PQ_GetDNLPGains(source_input_param_t source_input_param, Dynamic_contrast_status_t level)
 {
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     int final_gain = -1;
     int final_gain_reg_num = 46;
 
@@ -1917,7 +1917,7 @@ int CPQdb::PQ_GetRGBCMYFcolor(source_input_param_t source_input_param, int data_
 {
     int rval = -1;;
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     String8 tableName;
     tv_source_input_t source_input = source_input_param.source_input;
     if (source_input == SOURCE_TV) {
@@ -2171,7 +2171,6 @@ int CPQdb::PQ_GetPLLParams(source_input_param_t source_input_param, am_regs_t *r
 int CPQdb::PQ_GetAIParams(source_input_param_t source_input_param, ai_pic_table_t *aiRegs)
 {
     CSqlite::Cursor c;
-    char sqlmaster[256];
     char buf[512];
     int ret = -1;
 
@@ -2181,7 +2180,7 @@ int CPQdb::PQ_GetAIParams(source_input_param_t source_input_param, ai_pic_table_
 
     String8 TableName = GetTableName("GeneralAITable", source_input_param);
     if ((TableName.string() != NULL) && (TableName.length() != 0) ) {
-        char sqlmaster[256];
+        char sqlmaster[256] = {0};
         getSqlParams(
             __FUNCTION__,
             sqlmaster,
@@ -2235,7 +2234,7 @@ int CPQdb::PQ_GetNoLineAllVolumeParams(tv_source_input_t source_input, int *osd0
 int CPQdb::PQ_ResetAllNoLineParams(void)
 {
     int rval = 0;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
 
     getSqlParams(
         __FUNCTION__,
@@ -2255,7 +2254,7 @@ int CPQdb::PQ_ResetAllNoLineParams(void)
 int CPQdb::PQ_GetNoiseReductionParams(vpp_noise_reduction_mode_t nr_mode, source_input_param_t source_input_param, int reg_addr)
 {
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     int reg_val = -1;
 
     String8 TableName = GetTableName("GeneralNR2Table", source_input_param);
@@ -2276,7 +2275,7 @@ int CPQdb::PQ_GetNoiseReductionParams(vpp_noise_reduction_mode_t nr_mode, source
 int CPQdb::PQ_SetNoiseReductionParams(vpp_noise_reduction_mode_t nr_mode, source_input_param_t source_input_param , int reg_addr, int value)
 {
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     int err = -1;
 
     String8 TableName = GetTableName("GeneralNR2Table", source_input_param);
@@ -2296,7 +2295,7 @@ int CPQdb::PQ_SetNoiseReductionParams(vpp_noise_reduction_mode_t nr_mode, source
 int CPQdb::PQ_GetCVD2Param(source_input_param_t source_input_param, int reg_addr, int param_type, int reg_mask)
 {
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     int rval = -1;
     int reg_val = -1;
 
@@ -2331,7 +2330,7 @@ int CPQdb::PQ_GetCVD2Param(source_input_param_t source_input_param, int reg_addr
 int CPQdb::PQ_SetCVD2Param(source_input_param_t source_input_param, int reg_addr,
                                  int value, int param_type, int reg_mask)
 {
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     int rval = -1;
 
     if (param_type == CVD_YC_DELAY || param_type == DECODE_CTI)
@@ -2375,7 +2374,7 @@ int CPQdb::PQ_GetSharpnessCTIParams(source_input_param_t source_input_param, int
                                               int param_type, int reg_mask)
 {
     CSqlite::Cursor c, c1;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     int err = -1;
     unsigned int reg_val = 0;
     char table_name[128];
@@ -2451,7 +2450,7 @@ int CPQdb::PQ_SetSharpnessCTIParams(source_input_param_t source_input_param, int
                                               int value, int param_type, int reg_mask)
 {
     CSqlite::Cursor c, c1;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     int err = -1;
 
     if (param_type == CVD_YC_DELAY || param_type == DECODE_CTI) {
@@ -2592,7 +2591,7 @@ int CPQdb::getSharpnessRegValues(const char *table_name, source_input_param_t so
 {
     CSqlite::Cursor c_tablelist, c_reg_list;
     int index_am_reg = 0;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     tvin_sig_fmt_t signal = source_input_param.sig_fmt;
 
     if (table_name == NULL || !strlen(table_name)) {
@@ -2663,7 +2662,7 @@ int CPQdb::PQ_SetSharpnessAdvancedParams(source_input_param_t source_input_param
   CSqlite::Cursor c_tablelist, c_reg_list;
   int err = -1;
   int index_am_reg = 0;
-  char sqlmaster[256];
+  char sqlmaster[256] = {0};
   const char *table_name = "GeneralCommonTable";
   tvin_sig_fmt_t signal = source_input_param.sig_fmt;
 
@@ -2726,7 +2725,7 @@ int CPQdb::PQ_SetSharpnessAdvancedParams(source_input_param_t source_input_param
 int CPQdb::PQ_ResetAllOverscanParams(void)
 {
     int rval;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
 
     getSqlParams(
         __FUNCTION__,
@@ -2746,7 +2745,7 @@ bool CPQdb::PQ_GetPqVersion(String8& ToolVersion, String8& ProjectVersion, Strin
 {
     bool ret = false;
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
 
     getSqlParams(__FUNCTION__, sqlmaster,"select ToolVersion,ProjectVersion,GenerateTime from PQ_VersionTable;");
 
@@ -2769,7 +2768,7 @@ bool CPQdb::PQ_GetDataBaseAttribute(database_attribute_t *DbAttribute)
         SYS_LOGE("%s: DbAttribute is NULL!\n", __FUNCTION__);
     } else {
         CSqlite::Cursor c;
-        char sqlmaster[256];
+        char sqlmaster[256] = {0};
         bool chipVersionExist = false;
         if (CheckIdExistInDb("ChipVersion", "PQ_VersionTable")) {
             chipVersionExist = true;
@@ -2856,7 +2855,7 @@ int CPQdb::PQ_GetPQModeParams(tv_source_input_t source_input, vpp_picture_mode_t
                                 vpp_pq_para_t *params)
 {
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
 
     int rval = -1;
 
@@ -2926,7 +2925,7 @@ int CPQdb::PQ_SetPQModeParamsByName(const char *name, tv_source_input_t source_i
 int CPQdb::PQ_ResetAllPQModeParams(void)
 {
     int rval;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
 
     getSqlParams(
         __FUNCTION__,
@@ -2947,7 +2946,7 @@ int CPQdb::PQ_GetPictureModeParams(pq_src_param_t source_input, vpp_picture_mode
                                 vpp_pictur_mode_para_t *params)
 {
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
 
     int rval = -1;
 
@@ -3019,7 +3018,7 @@ int CPQdb::PQ_GetTconGammaTable(int gamma_curve, gm_tbl_t *gamma_value)
 {
     CSqlite::Cursor c;
     int rval;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
 
     getSqlParams(__FUNCTION__, sqlmaster, "select Red, Green, Blue from TconGAMMA_%d;", gamma_curve);
     rval = this->select(sqlmaster, c);
@@ -3044,7 +3043,7 @@ int CPQdb::PQ_GetGammaSpecialTable(vpp_gamma_curve_t gamma_curve, const char *f_
                                      GAMMA_TABLE *gamma_value)
 {
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     int rval = -1;
 
     if (gamma_curve == VPP_GAMMA_CURVE_DEFAULT) {
@@ -3070,7 +3069,7 @@ int CPQdb::PQ_GetGammaSpecialTable(vpp_gamma_curve_t gamma_curve, const char *f_
 int CPQdb::PQ_GetWhiteBalanceGammaSpecialTable(vpp_color_temperature_mode_t mode, const char *f_name, tcon_gamma_table_t *gamma_value)
 {
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     int rval = -1;
 
     switch (mode) {
@@ -3123,7 +3122,7 @@ int CPQdb::PQ_GetGammaTableB(int panel_id, source_input_param_t source_input_par
 int CPQdb::PQ_GetGammaTable(int panel_id, source_input_param_t source_input_param, const char *f_name, tcon_gamma_table_t *val)
 {
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     int rval = -1;
 
     getSqlParams(__FUNCTION__, sqlmaster, "select TableName from GeneralGammaTable where "
@@ -3151,7 +3150,7 @@ int CPQdb::PQ_GetGammaTable(int panel_id, source_input_param_t source_input_para
 int CPQdb::PQ_GetVGAAdjustPara(tvin_sig_fmt_t vga_fmt, tvafe_vga_parm_t *adjparam)
 {
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     int rval = -1;
 
     adjparam->clk_step = 0;
@@ -3243,7 +3242,7 @@ int CPQdb::PQ_SetVGAAdjustPara(tvin_sig_fmt_t vga_fmt, tvafe_vga_parm_t adjparam
 String8 CPQdb::GetTableName(const char *GeneralTableName, source_input_param_t source_input_param)
 {
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     int ret = -1;
 
     SYS_LOGD("%s: mDbMatchType %d\n", __FUNCTION__, mDbMatchType);
@@ -3329,7 +3328,7 @@ String8 CPQdb::GetTableName(const char *GeneralTableName, source_input_param_t s
 String8 CPQdb::GetPqOsdTableName(const char *GeneralTableName, pq_src_param_t source_input_param)
 {
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     int ret = -1;
 
     getSqlParams(__FUNCTION__, sqlmaster, "select TableName from %s where "
@@ -3459,7 +3458,7 @@ int CPQdb::GetNonlinearMapping(tvpq_data_type_t data_type, tv_source_input_t sou
                                  int *params)
 {
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     int rval = -1;
 
     getSqlParams(__FUNCTION__, sqlmaster, "select Value from NonlinearMapping where "
@@ -3478,7 +3477,7 @@ int CPQdb::GetNonlinearMapping(tvpq_data_type_t data_type, tv_source_input_t sou
 int CPQdb::GetNonlinearMappingByOSDFac(tvpq_data_type_t data_type, tv_source_input_t source_input, int *params)
 {
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     int rval = -1;
 
     getSqlParams(__FUNCTION__, sqlmaster, "select Value from NonlinearMapping where "
@@ -3586,7 +3585,7 @@ int CPQdb::loadSharpnessData(const char *table_name, int sharpness_number)
     CSqlite::Cursor c;
     int rval;
     int *pq_nodes = NULL;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
 
     getSqlParams(__FUNCTION__, sqlmaster,
                  "select TotalNode, NodeNumber, RegType, RegAddr, RegMask,"
@@ -3716,7 +3715,7 @@ int CPQdb::LoadVppBasicParam(tvpq_data_type_t data_type, source_input_param_t so
 {
     CSqlite::Cursor c;
     int rval = -1;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     char table_name[128];
     tvpq_data_t *pq_data = NULL;
     int *pq_nodes = NULL;
@@ -3823,7 +3822,7 @@ int CPQdb::PQ_GetPhaseArray(am_phase_t *am_phase)
 {
     CSqlite::Cursor c;
     int iOutRet = 0;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     getSqlParams(__FUNCTION__, sqlmaster, "select Phase from Phase order by Format ASC; ");
 
     this->select(sqlmaster, c);
@@ -3881,7 +3880,7 @@ bool CPQdb::PQ_GetLDIM_Regs(vpu_ldim_param_s *vpu_ldim_param)
 int CPQdb::PQ_GetLocalDimmingParams(int level, source_input_param_t source_input_param, aml_ldim_pq_s *newParams)
 {
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     char buf[512];
     char *buffer = NULL;
     char *aa = NULL;
@@ -4066,7 +4065,7 @@ int CPQdb::PQ_GetLocalDimmingParams(int level, source_input_param_t source_input
 bool CPQdb::CheckHdrStatus(const char *tableName)
 {
     bool ret = false;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     CSqlite::Cursor tempCursor;
 
     if (mHdrStatus) {
@@ -4118,7 +4117,7 @@ int CPQdb::GetFileAttrIntValue(const char *fp, int flag)
 bool CPQdb::CheckCVBSParamValidStatus()
 {
     bool ret = false;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     CSqlite::Cursor tempCursor;
 
     if (CheckIdExistInDb(CVBS_NAME_ID, "GeneralNR2Table")) {
@@ -4144,7 +4143,7 @@ bool CPQdb::CheckCVBSParamValidStatus()
 bool CPQdb::CheckIdExistInDb(const char *Id, const char *TableName)
 {
     bool ret = false;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     CSqlite::Cursor tempCursor;
 
     getSqlParams(__FUNCTION__, sqlmaster,

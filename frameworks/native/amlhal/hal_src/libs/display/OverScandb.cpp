@@ -76,7 +76,7 @@ bool COverScandb::GetOverScanDbVersion(std::string& ToolVersion, std::string& Pr
 {
     bool ret = false;
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
 
     bool dbversionExist   = false;
 
@@ -112,7 +112,7 @@ bool COverScandb::GetOverScanDbVersion(std::string& ToolVersion, std::string& Pr
 int COverScandb::PQ_GetOverscanParams(source_input_param_t source_input_param, vpp_display_mode_t dmode, tvin_cutwin_t *cutwin_t)
 {
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     int rval = -1;
     char table_name[30];
     tv_source_input_t source_input = source_input_param.source_input;
@@ -190,7 +190,7 @@ int COverScandb::PQ_GetOverscanParams(source_input_param_t source_input_param, v
 int COverScandb::PQ_SetOverscanParams(source_input_param_t source_input_param , tvin_cutwin_t cutwin_t)
 {
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     int rval = -1;
     tv_source_input_t source_input = source_input_param.source_input;
     tvin_sig_fmt_t fmt = source_input_param.sig_fmt;
@@ -235,7 +235,7 @@ int COverScandb::PQ_SetOverscanParams(source_input_param_t source_input_param , 
 int COverScandb::PQ_ResetAllOverscanParams(void)
 {
     int rval;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
 
     getSqlParams(
         __FUNCTION__,
@@ -254,7 +254,7 @@ int COverScandb::PQ_ResetAllOverscanParams(void)
 std::string COverScandb::GetTableName(const char *GeneralTableName, source_input_param_t source_input_param)
 {
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     int ret = -1;
 
     if (mOverScanDbVersion < OVERSCAN_DB_CODE_VERSION_1) {
@@ -310,7 +310,7 @@ int COverScandb::PQ_GetPQModeParams(tv_source_input_t source_input, vpp_picture_
                                 vpp_pq_para_t *params)
 {
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
 
     int rval = -1;
 
@@ -381,7 +381,7 @@ int COverScandb::PQ_SetPQModeParamsByName(const char *name, tv_source_input_t so
 int COverScandb::PQ_ResetAllPQModeParams(void)
 {
     int rval = -1;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
 
     if (mOverScanDbVersion < OVERSCAN_DB_CODE_VERSION_2) {
         getSqlParams(
@@ -405,7 +405,7 @@ int COverScandb::PQ_ResetAllPQModeParams(void)
 bool COverScandb::CheckIdExistInDb(const char *Id, const char *TableName)
 {
     bool ret = false;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     CSqlite::Cursor tempCursor;
 
     getSqlParams(__FUNCTION__, sqlmaster,

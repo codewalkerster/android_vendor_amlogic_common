@@ -3157,6 +3157,9 @@ int CPQControl::DBGammaBlend(tcon_gamma_table_t *wb_gamma, GAMMA_TABLE *index_ga
             SYS_LOGD("%s, blend_bet = %d\n", __FUNCTION__, blend_bet);
             continue;
         }
+        if (blend_alp > GAMMA_NUMBER - 2) {
+            blend_alp = GAMMA_NUMBER - 2;
+        }
         final_value = wb_gamma->data[blend_alp] + (wb_gamma->data[blend_alp + 1] - wb_gamma->data[blend_alp]) * (blend_bet / 1000);
         target_gamma->data[i] = (unsigned short)final_value;
         //SYS_LOGD("%s, target_gamma->data[%d] = %d\n", __FUNCTION__, i, target_gamma->data[i]);
@@ -10258,11 +10261,11 @@ bool CPQControl::getBootEnv(const char *name, char *value)
 int CPQControl::getHdrPolicy(void)
 {
     int ret = -1;
-    char hdr_policy[8] = {0};
+    char hdr_policy[9] = {0};
 
     memset(hdr_policy, 0, sizeof(hdr_policy));
-    ret = pqReadSys(PQ_DISPLAY_HDR_POLICY, hdr_policy, sizeof(hdr_policy));
-    if (ret >= 0) {
+    ret = pqReadSys(PQ_DISPLAY_HDR_POLICY, hdr_policy, (sizeof(hdr_policy)-1));
+    if (ret > 0) {
         hdr_policy[ret] = 0;
     } else {
         memset(hdr_policy, 0, sizeof(hdr_policy));

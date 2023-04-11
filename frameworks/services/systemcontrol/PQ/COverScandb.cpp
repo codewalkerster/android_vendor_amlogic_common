@@ -62,7 +62,7 @@ bool COverScandb::GetOverScanDbVersion(String8& ToolVersion, String8& ProjectVer
 {
     bool ret = false;
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
 
     getSqlParams(__FUNCTION__, sqlmaster,
                  "select ToolVersion,ProjectVersion,GenerateTime from PQ_VersionTable;");
@@ -126,7 +126,7 @@ void COverScandb::PQ_GetOverscanTableName(vpp_display_mode_t dmode, char *table_
 int COverScandb::PQ_GetOverscanParams(source_input_param_t source_input_param, vpp_display_mode_t dmode, tvin_cutwin_t *cutwin_t)
 {
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     int rval = -1;
     char table_name[30];
     tv_source_input_t source_input = source_input_param.source_input;
@@ -167,7 +167,7 @@ int COverScandb::PQ_GetOverscanParams(source_input_param_t source_input_param, v
 int COverScandb::PQ_SetOverscanParams(source_input_param_t source_input_param, vpp_display_mode_t dmode, tvin_cutwin_t cutwin_t)
 {
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
     char table_name[30];
     int rval = -1;
     tv_source_input_t source_input = source_input_param.source_input;
@@ -216,7 +216,7 @@ int COverScandb::PQ_SetOverscanParams(source_input_param_t source_input_param, v
 int COverScandb::PQ_ResetAllOverscanParams(void)
 {
     int rval;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
 
     getSqlParams(
         __FUNCTION__,
@@ -236,7 +236,7 @@ int COverScandb::PQ_GetPQModeParams(tv_source_input_t source_input, vpp_picture_
                                 vpp_pq_para_t *params)
 {
     CSqlite::Cursor c;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
 
     int rval = -1;
 
@@ -306,7 +306,7 @@ int COverScandb::PQ_SetPQModeParamsByName(const char *name, tv_source_input_t so
 int COverScandb::PQ_ResetAllPQModeParams(void)
 {
     int rval;
-    char sqlmaster[256];
+    char sqlmaster[256] = {0};
 
     getSqlParams(
         __FUNCTION__,
