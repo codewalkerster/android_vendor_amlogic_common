@@ -789,6 +789,10 @@ int SystemControlClient::getSmoothPlusMode(void) {
     return mSysCtrl->getSmoothPlusMode();
 }
 
+bool SystemControlClient::hasSmoothPlusFunc(void) {
+   return (mSysCtrl->hasSmoothPlusFunc() == Result::OK);
+}
+
 int SystemControlClient::setHDRTMOMode(int hdr_tmo_mode, int isSave) {
     return mSysCtrl->setHDRTMOMode(hdr_tmo_mode, isSave);
 }

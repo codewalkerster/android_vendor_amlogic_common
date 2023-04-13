@@ -173,6 +173,7 @@ class SystemControlHal : public ISystemControl, public SystemControlNotify, publ
     Return<int32_t> saveNoiseReductionMode(int32_t nr_mode) override;
     Return<int32_t> setSmoothPlusMode(int32_t smoothplus_mode, int32_t isSave) override;
     Return<int32_t> getSmoothPlusMode(void) override;
+    Return<Result> hasSmoothPlusFunc(void) override;
     Return<int32_t> setHDRTMOMode(int32_t hdr_tmo_mode, int32_t isSave);
     Return<int32_t> getHDRTMOMode(void);
     Return<int32_t> setEyeProtectionMode(int32_t inputSrc, int32_t enable, int32_t isSave) override;

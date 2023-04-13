@@ -173,6 +173,7 @@ public:
     int saveNoiseReductionMode(int nr_mode);
     int setSmoothPlusMode(int smoothplus_mode, int is_save);
     int getSmoothPlusMode(void);
+    bool hasSmoothPlusFunc(void);
     int setHDRTMOMode(int hdrtmo_mode, int is_save);
     int getHDRTMOMode(void);
     int setEyeProtectionMode(int source_input, int enable, int isSave);

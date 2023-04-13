@@ -1941,6 +1941,18 @@ public class SystemControlManager {
         return -1;
     }
 
+    public boolean hasSmoothPlusFunc() {
+         synchronized (mLock) {
+             try {
+                 Log.i(TAG, "run hasSmoothPlusFunc");
+                 return (mProxy.hasSmoothPlusFunc() == Result.OK);
+             } catch (Exception e) {
+                 Log.e(TAG, "hasSmoothPlusFunc:" + e);
+             }
+         }
+         return false;
+     }
+
     public enum HDR_TMO_Mode {
         HDR_TMO_OFF(0),
         HDR_TMO_DYNAMIC(1),

@@ -321,6 +321,9 @@ interface ISystemControl {
   getSmoothPlusMode()
       generates (int32_t ret);
 
+  hasSmoothPlusFunc ()
+      generates (Result result);
+
   setHDRTMOMode(int32_t mode, int32_t isSave)
       generates (int32_t ret);
 

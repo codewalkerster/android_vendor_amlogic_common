@@ -996,6 +996,13 @@ Return<int32_t> SystemControlHal::getSmoothPlusMode(void) {
     return mSysControl->getSmoothPlusMode();
 }
 
+Return<Result> SystemControlHal::hasSmoothPlusFunc(void) {
+    if (mSysControl->hasSmoothPlusFunc()) {
+        return Result::OK;
+    }
+    return Result::FAIL;
+}
+
 Return<int32_t> SystemControlHal::setHDRTMOMode(int32_t hdr_tmo_mode, int32_t isSave) {
     return mSysControl->setHDRTMOMode(hdr_tmo_mode, isSave);
 }

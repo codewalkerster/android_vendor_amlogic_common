@@ -8440,6 +8440,11 @@ int CPQControl::Cpq_SetSmoothPlusMode(vpp_smooth_plus_mode_t smoothplus_mode, so
     return ret;
 }
 
+bool CPQControl::hasSmoothPlusFunc(void)
+{
+    return mbCpqCfg_smoothplus_enable;
+}
+
 int CPQControl::SetHDRTMData(int *reGain)
 {
     int ret = -1;

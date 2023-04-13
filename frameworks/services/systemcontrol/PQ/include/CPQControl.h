@@ -356,6 +356,7 @@ public:
     int GetSmoothPlusMode(void);
     int SaveSmoothPlusMode(int smoothplus_mode);
     int Cpq_SetSmoothPlusMode(vpp_smooth_plus_mode_t smoothplus_mode, source_input_param_t source_input_param);
+    bool hasSmoothPlusFunc(void);
     //DLG
     int SetDLGEnable(int enable, int is_save);
     int GetDLGEnable(void);

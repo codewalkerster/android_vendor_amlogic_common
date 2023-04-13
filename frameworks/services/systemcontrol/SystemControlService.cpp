@@ -1124,6 +1124,16 @@ int SystemControlService::getSmoothPlusMode(void)
     }
 }
 
+bool SystemControlService::hasSmoothPlusFunc(void) {
+    int ret = -1;
+    if (pCPQControl != NULL) {
+        SYS_LOGI("%s:run hasSmoothPlusFunc\n", __FUNCTION__);
+        ret = pCPQControl->hasSmoothPlusFunc();
+    }
+
+    return ret;
+}
+
 int SystemControlService::setHDRTMOMode(int hdrtmo_mode, int is_save)
 {
     if (pCPQControl != NULL) {
