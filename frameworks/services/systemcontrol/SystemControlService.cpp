@@ -64,6 +64,7 @@ SystemControlService::SystemControlService(const char *path)
     //load PQ
     pCPQControl = CPQControl::GetInstance();
     pCPQControl->CPQControlInit();
+    pDisplayMode->setPQHandle(pCPQControl);
 
     pDimension = new Dimension(pDisplayMode, pSysWrite);
 

@@ -503,6 +503,11 @@ bool FrameRateAutoAdaption::backFrom4k1k(int frameRate) {
     }
     return false;
 }
+#ifdef FRAMERATE_MODE
+void FrameRateAutoAdaption::setPQHandle(CPQControl* handle) {
+    pCPQControl = handle;
+}
+#endif
 void FrameRateAutoAdaption::outputDispatch(char* outputMode, int outType, int state, int frameRate, bool isVdinShrink) {
     /*support hdmi out and panel output*/
     switch (outType) {
@@ -551,6 +556,15 @@ void FrameRateAutoAdaption::outputDispatch(char* outputMode, int outType, int st
                     frameRateValue = doubleRate? "11988":"5994";
                 }
                 int dlgOn = isDLGOn();
+#ifdef FRAMERATE_MODE
+                //memc on+dlgOn 60->120hz
+                if ((dlgOn == 1) && (pCPQControl != NULL) && pCPQControl->GetMemcMode() > 0
+                    && pCPQControl->GetPQMode() != 6 && pCPQControl->GetPQMode() != 7) {
+                    enter4k1k(frameRate);
+                    SYS_LOGD("memc on,force enter4k1k");
+                    return;
+                }
+#endif
                 SYS_LOGD("isDLGOn() %d frameRate %d videoLayerOn %d isVdinShrink %d",dlgOn,frameRate,videoLayerOn,isVdinShrink);
                 if ((dlgOn == 1) && !isVdinShrink && enter4k1k(frameRate)) {
                     SYS_LOGD("Enter 4k1k");

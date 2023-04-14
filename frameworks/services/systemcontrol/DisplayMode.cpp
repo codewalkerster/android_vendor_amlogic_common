@@ -355,7 +355,11 @@ DisplayMode::DisplayMode(const char *path, Ubootenv *ubootenv)
     }
     resetMemc();
 }
-
+#ifdef FRAMERATE_MODE
+void DisplayMode::setPQHandle(CPQControl* handle) {
+    pFrameRateAutoAdaption->setPQHandle(handle);
+}
+#endif
 DisplayMode::~DisplayMode() {
     delete pSysWrite;
     delete pmDeepColor;

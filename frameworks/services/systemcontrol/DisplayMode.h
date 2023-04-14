@@ -43,10 +43,11 @@
 #include "ubootenv/Ubootenv.h"
 #ifndef RECOVERY_MODE
 #include "SystemControlNotify.h"
-
 using namespace android;
 #endif
-
+#ifdef FRAMERATE_MODE
+#include "PQ/include/CPQControl.h"
+#endif
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
 //frame rate auto adapter feature
@@ -527,6 +528,10 @@ public:
     void notifyEvent(int event);
     void setListener(const sp<SystemControlNotify>& listener);
 #endif
+#ifdef FRAMERATE_MODE
+    void setPQHandle(CPQControl* handle);
+#endif
+
     virtual void onHdcpTxAuthEvent (const char* status);
     virtual void onTxEvent (char* switchName, char* hpdstate, int outputState);
     virtual void onDispModeSyncEvent (const char* outputmode, int state);
@@ -621,7 +626,6 @@ private:
     HDCPRxAuth *pRxAuth = NULL;
     UEventObserver *pUEventObserver = NULL;
     FormatColorDepth *pmDeepColor = NULL;
-
     // bootAnimation flag
     bool setDolbyVisionState = true;
     char mEdid[EDID_MAX_SIZE] = {0};

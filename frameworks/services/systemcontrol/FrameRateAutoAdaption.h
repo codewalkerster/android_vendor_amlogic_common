@@ -35,6 +35,7 @@
 #include <sys/ioctl.h>
 #ifdef FRAMERATE_MODE
 #include "FrameRateMessage.h"
+#include "PQ/include/CPQControl.h"
 #endif
 //Frame rate switch
 #define FRAME_RATE_DECODER_UEVENT               "DEVPATH=/devices/virtual/framerate_adapter/framerate_dev"
@@ -121,6 +122,9 @@ public:
     void setPlayFlag(bool play);
     bool isFrameRateOn();
     int getLastFrame();
+#ifdef FRAMERATE_MODE
+    void setPQHandle(CPQControl* handle);
+#endif
     int mFracDefaultValue;
 private:
     int findNearlyFrame(int frameRate);
@@ -145,6 +149,7 @@ private:
     struct timeval mClock;
     std::vector<double> mFramerateList;
 #ifdef FRAMERATE_MODE
+    CPQControl *pCPQControl = NULL;
     sp<MessageTask> mTask;
 #endif
     bool mAFRDisabled{false};
