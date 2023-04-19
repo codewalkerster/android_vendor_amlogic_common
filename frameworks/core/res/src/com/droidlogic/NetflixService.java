@@ -82,6 +82,7 @@ public class NetflixService extends Service {
      // Power State Change on Active Source Lost Settings values
     private static final String LOST_NONE = "none";
     private static final String LOST_STANDBY_NOW = "standby_now";
+    private final String NDRP_CEC_STATUS = "nrdp_video_platform_capabilities";
 
     private static final String STR_ALWAYS = "0";
     private static final String STR_ADAPTIVE = "1";
@@ -101,6 +102,7 @@ public class NetflixService extends Service {
     private HdmiControlManager mHdmiControlManager;
     private DisplayManager mDisplayManager;
     private SettingsObserver mSettingsObserver;
+    private CecStatusObserver mCecStatusObserver;
     private OutputModeManager mOutputModeManager = null;
     private final Object mLock = new Object();
     private IActivityManager mIActivityManager;
@@ -143,6 +145,24 @@ public class NetflixService extends Service {
                     Log.d(TAG, "error surround format");
                     break;
             }
+        }
+    }
+
+    private class CecStatusObserver extends ContentObserver {
+        public CecStatusObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri, int flags) {
+            notifyChange("nrdp_video_platform_capabilities/activeCecState");
+        }
+
+        private void notifyChange(String settingsNote) {
+            ContentResolver cr = mContext.getContentResolver();
+            cr.notifyChange(Settings.Global.getUriFor(settingsNote), null,
+                ContentResolver.NOTIFY_NO_DELAY);
+            Log.i(TAG,"notify activeness changes without delay");
         }
     }
 
@@ -225,6 +245,9 @@ public class NetflixService extends Service {
                 false, mSettingsObserver);
         getContentResolver().registerContentObserver(Settings.Global.getUriFor(OutputModeManager.DIGITAL_AUDIO_SUBFORMAT),
                 false, mSettingsObserver);
+        mCecStatusObserver = new CecStatusObserver(new Handler());
+        getContentResolver().registerContentObserver(Settings.Global.getUriFor(NDRP_CEC_STATUS),
+                false, mCecStatusObserver);
 
         startNetflixIfNeed();
 
