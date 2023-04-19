@@ -11,7 +11,7 @@ $(strip $(patsubst %/,%,$(shell echo\
 endef
 
 ####################################################################################
-DRIVER_DIR ?= vendor/wifi_driver
+DRIVER_DIR ?= common14-5.15/driver_modules/wifi_bt/wifi
 ANDROID_ROOT_DIR     ?= $(shell cd $(call to-root-path,.) && pwd)
 KERNEL_TO_ROOT_PATH  ?= $(call to-root-path,$(KERNEL_SRC))
 WIFI_SUPPORT_DRIVERS ?= $(EXTRA_WIFI_SUPPORT_DRIVERS)
