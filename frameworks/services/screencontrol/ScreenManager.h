@@ -57,9 +57,9 @@ enum SCREENCONTROLDATATYPE{
 
 enum aml_capture_source_type {
     AML_CAPTURE_VIDEO = 0,
-    AML_CAPTURE_OSD_VIDEO
+    AML_CAPTURE_OSD_VIDEO,
+    AML_CAPTURE_OSD_ONLY,
 };
-
 void yuv_to_rgb32(unsigned char y,unsigned char u,unsigned char v,unsigned char *rgb);
 
 void nv21_to_rgb32_(unsigned char *buf, unsigned char *rgb, int width, int height);

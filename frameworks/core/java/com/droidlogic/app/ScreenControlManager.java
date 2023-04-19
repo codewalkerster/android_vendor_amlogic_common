@@ -205,38 +205,13 @@ public class ScreenControlManager {
         Log.d(TAG, "startScreenCap left:" + left + ",top:"+ top + ",right:" + right + ",bottom:" + bottom + ",width:" + width + ",height:" + height + ",sourceType:" + sourceType + ",filename:" + filename);
         int result = 0;
         synchronized (mLock) {
-            if (sourceType == 2) { // osd only
-                File file = new File(filename);
-                try {
-                    Class clz = Class.forName("android.view.SurfaceControl");
-                    Method screenshot = clz.getMethod("screenshot", Rect.class, int.class, int.class, int.class);
-                    Bitmap mBitmap = (Bitmap)screenshot.invoke(null, new Rect(left, top, right, bottom), width, height, 0);
-                    //mBitmap = SurfaceControl.screenshot(new Rect(left, top, right, bottom), width, height, 0);
-                    if (mBitmap != null) {
-                        // Convert to a software bitmap so it can be set in an ImageView.
-                        Bitmap swBitmap = mBitmap.copy(Bitmap.Config.ARGB_8888, true);
-                        saveBitmapAsPicture(swBitmap, file);
-                    } else {
-                        result = REMOTE_EXCEPTION;
-                    }
-                } catch (Exception e) {
-                    result = REMOTE_EXCEPTION;
-                    e.printStackTrace();
-                }
+            byte[] byteArr = startScreenCapBuffer(left, top, right, bottom, width, height, sourceType);
+            if (byteArr != null) {
+                Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+                bitmap.copyPixelsFromBuffer(ByteBuffer.wrap(byteArr));
+                saveBitmapAsPicture(bitmap, new File(filename));
             } else {
-//                try {
-//                    return native_ScreenCap(left, top, right, bottom, width, height, sourceType, filename);
-//                } catch (Exception e) {
-//                    Log.e(TAG, "startScreenCap: ScreenControlService is dead!:" + e);
-//                }
-                byte[] byteArr = startScreenCapBuffer(left, top, right, bottom, width, height, sourceType);
-                if (byteArr != null) {
-                    Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-                    bitmap.copyPixelsFromBuffer(ByteBuffer.wrap(byteArr));
-                    saveBitmapAsPicture(bitmap, new File(filename));
-                } else {
-                    result = REMOTE_EXCEPTION;
-                }
+                result = REMOTE_EXCEPTION;
             }
         }
         return result;
@@ -247,29 +222,10 @@ public class ScreenControlManager {
         ByteBuffer byteBuffer;
         byte[] byteArray = null;
         synchronized (mLock) {
-            if (sourceType == 2) { // osd only
-                try {
-                    Class clz = Class.forName("android.view.SurfaceControl");
-                    Method screenshot = clz.getMethod("screenshot", Rect.class, int.class, int.class, int.class);
-                    Bitmap mBitmap = (Bitmap)screenshot.invoke(null, new Rect(left, top, right, bottom), width, height, 0);
-                    //mBitmap = SurfaceControl.screenshot(new Rect(left, top, right, bottom), width, height, 0);
-                    if (mBitmap != null) {
-                        // Convert to a software bitmap so it can be set in an ImageView.
-                        Bitmap swBitmap = mBitmap.copy(Bitmap.Config.ARGB_8888, true);
-                        byteBuffer = ByteBuffer.allocate(swBitmap.getByteCount());
-                        swBitmap.copyPixelsToBuffer(byteBuffer);
-                        byteArray = byteBuffer.array();
-                        return byteArray;
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } else {
-                try {
-                    return native_ScreenCapBuffer(left, top, right, bottom, width, height, sourceType);
-                } catch (Exception e) {
-                    Log.e(TAG, "startScreenCapBuffer: ScreenControlService is dead!:" + e);
-                }
+            try {
+                return native_ScreenCapBuffer(left, top, right, bottom, width, height, sourceType);
+            } catch (Exception e) {
+                Log.e(TAG, "startScreenCapBuffer: ScreenControlService is dead!:" + e);
             }
         }
         return null;

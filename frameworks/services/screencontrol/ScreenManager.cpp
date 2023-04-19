@@ -75,8 +75,11 @@ namespace android {
 #define ALIGN(x) (x + (BOUNDARY) - 1)& ~((BOUNDARY) - 1)
 
 #define MAX_CLIENT 4
-#define PORTTYPE_VALUE_VIDEO_OSD  0x11000001
-#define PORTTYPE_VALUE_VIDEO_ONLY 0x11000000
+#define PORTTYPE_VALUE_VPP0_VIDEO_OSD  0x11000001
+#define PORTTYPE_VALUE_VPP0_VIDEO_ONLY 0x11000000
+#define PORTTYPE_VALUE_VPP1_VIDEO_ONLY 0x11000002
+#define PORTTYPE_VALUE_VPP1_VIDEO_OSD  0x11000003
+#define PORTTYPE_VALUE_VPP0_OSD_ONLY   0x11000004
 
 #define SCREENMANAGER_DUMP_BASEDIR "/data/temp/sm-drvin"
 #define PERSIST_SYS_ROTATION_PROP "persist.sys.builtinrotation"
@@ -485,16 +488,18 @@ status_t ScreenManager::start(int32_t client_id)
         char sourceType[] = "1";
         int port_type;
         if (mSourceType == AML_CAPTURE_VIDEO) { //video only
-            port_type = PORTTYPE_VALUE_VIDEO_ONLY;
+            port_type = PORTTYPE_VALUE_VPP0_VIDEO_ONLY;
         } else if(mSourceType == AML_CAPTURE_OSD_VIDEO) {
-            port_type = PORTTYPE_VALUE_VIDEO_OSD;
+            port_type = PORTTYPE_VALUE_VPP0_VIDEO_OSD;
+        } else if(mSourceType == AML_CAPTURE_OSD_ONLY) {
+            port_type = PORTTYPE_VALUE_VPP0_OSD_ONLY;
         } else {
             ALOGE("[%s %d] For now ,we don't capture osd only by AML_SCREEN_HARDWARE_MODULE_ID module!", __FUNCTION__, __LINE__);
             return !OK;
         }
 
         ALOGI("[%s %d] sourcetype=%s, port_type=%#x(%s)", __FUNCTION__, __LINE__, sourceType,
-	    port_type, (PORTTYPE_VALUE_VIDEO_ONLY==port_type?"video only":"video+osd"));
+        port_type, (PORTTYPE_VALUE_VPP0_VIDEO_ONLY==port_type?"video only":(PORTTYPE_VALUE_VPP0_VIDEO_OSD==port_type?"video+osd":"osd only")));
 
         if (mScreenModule->common.methods->open((const hw_module_t *)mScreenModule, sourceType,
                 (struct hw_device_t**)&mScreenDev) < 0) {
