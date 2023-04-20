@@ -43,16 +43,25 @@
 #include <utils/List.h>
 #include <utils/threads.h>
 
+
+
 namespace android {
 
 #define SCREENCONTROL_GRALLOC_USAGE  ( GRALLOC_USAGE_HW_TEXTURE | GRALLOC_USAGE_HW_RENDER | GRALLOC_USAGE_SW_READ_RARELY | GRALLOC_USAGE_SW_WRITE_NEVER )
 #define kMetadataBufferTypeCanvasSource 3
 #define MODE_LEN 8
 
+#define NB_BUFFER 6
+
+#define SCREENCONTROL_SCREEN_CATCH                                      0x01
+#define SCREENCONTROL_SCREEN_RECORD_SOFTWARE_ENCODER                    0x02
+#define SCREENCONTROL_SCREEN_RECORD_HARDWARE_ENCODER                    0x04
+
 enum SCREENCONTROLDATATYPE{
     SCREENCONTROL_CANVAS_TYPE,
     SCREENCONTROL_HANDLE_TYPE,
     SCREENCONTROL_RAWDATA_TYPE,
+    SCREENCONTROL_RGBA888_TYPE,
 };
 
 enum aml_capture_source_type {
@@ -80,9 +89,9 @@ public:
     virtual status_t uninit(int32_t client_id);
 
     // For the MediaSource interface for use by StageFrightRecorder:
-    virtual status_t start(int32_t client_id);
+    virtual status_t start(int32_t client_id, int  flag);
     virtual status_t stop(int32_t client_id);
-    virtual status_t readBuffer(int32_t client_id, sp<IMemory> buffer, int64_t* pts);
+    virtual status_t readBuffer(int32_t client_id, sp<IMemory> buffer, int *index);
     virtual status_t freeBuffer(int32_t client_id, sp<IMemory> buffer);
 
     static ScreenManager* instantiate();
@@ -123,6 +132,7 @@ public:
     virtual void setPauseMode(bool isPause);
     virtual status_t checkConvertDone();
     virtual status_t readRawData(int32_t client_id, void **buffer);
+    virtual status_t getBufferByID(int32_t index,long **buffer);
 
     bool mIsScreenRecord;
 
@@ -192,7 +202,7 @@ private:
     int64_t mFrameCount;
     Condition mFrameAvailableCondition;
     List<FrameBufferInfo*> mCanvasFramesReceived;
-    List<MediaBuffer*> mRawBufferQueue;
+    List<int> mRawBufferQueue;
 
     int64_t mTimeBetweenFrameCaptureUs;
 
@@ -217,6 +227,7 @@ private:
     aml_screen_device_t* mScreenDev;
     long *mTempBuffer;
     bool mMeanWhileFlag;
+    long* mScreenBuffers[NB_BUFFER];
 };
 
 }; // namespace android

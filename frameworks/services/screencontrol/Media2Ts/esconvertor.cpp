@@ -741,8 +741,8 @@ int ESConvertor::videoFeedInputBuffer() {
 
     {
 RETRY:
-        int64_t pts;
-        err = mScreenManager->readBuffer(mClientId, mBufferGet, &pts);
+        int index;
+        err = mScreenManager->readBuffer(mClientId, mBufferGet, &index);
 
         if (err == OK && mStarted != false && mBufferGet ->unsecurePointer() != NULL) {
             mFrameCounter ++;
@@ -833,9 +833,9 @@ int ESConvertor::videoSwEncoderFeedInputBuffer() {
 
     {
 RETRY:
-        int64_t pts;
+        int index;
         sp<ABuffer> accessUnit = new ABuffer(bufferSize);
-        err = mScreenManager->readBuffer(mClientId, mBufferGet, &pts);
+        err = mScreenManager->readBuffer(mClientId, mBufferGet, &index);
 
         if (err == OK && mStarted != false && mBufferGet ->unsecurePointer() != NULL) {
             mFrameCounter++;
@@ -1119,7 +1119,7 @@ status_t ESConvertor::start(MetaDataBase *params) {
         initEncoder();
 
     if (mIsAudio == VIDEO_ENCODE) {
-        err = mScreenManager->start(client_id);
+        err = mScreenManager->start(client_id,mIsSoftwareEncoder?SCREENCONTROL_SCREEN_RECORD_SOFTWARE_ENCODER:SCREENCONTROL_SCREEN_RECORD_HARDWARE_ENCODER);
         if (err != OK) {
             ALOGE("[%s %d] mVideoSource start fail err:%d\n", __FUNCTION__, __LINE__, err);
             return !OK;

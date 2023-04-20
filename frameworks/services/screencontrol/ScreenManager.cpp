@@ -123,7 +123,6 @@ ScreenManager::ScreenManager() :
     mFrameCount(0),
     mTimeBetweenFrameCaptureUs(0),
     mScreenModule(NULL),
-    mIsSoftwareEncoder(false),
     mIsScreenRecord(false),
     mScreenDev(NULL),
     mTempBuffer(NULL),
@@ -138,22 +137,6 @@ ScreenManager::ScreenManager() :
     mCorpX = mCorpY = mCorpWidth = mCorpHeight =0;
     ALOGI("[%s %d] ScreenManager mCorpX:%d mCorpY:%d mCorpWidth:%d mCorpHeight:%d", __FUNCTION__, __LINE__, mCorpX, mCorpY, mCorpWidth, mCorpHeight);
 
-    int fd1 = open("/dev/amvenc_avc", O_RDWR);
-    int fd2 = open("/dev/amvenc_multi", O_RDWR);
-    int fd3 = open("/dev/vc8000", O_RDWR);
-    if (fd1 < 0 && fd2 < 0 && fd3 < 0) {
-        mIsSoftwareEncoder = true;
-        ALOGW("%s Open /dev/amvenc_avc failed, use software encoder instead!\n", __FUNCTION__);
-    }
-    if (fd1 >= 0 ) {
-        close(fd1);
-    }
-    if (fd2 >= 0 ) {
-        close(fd2);
-    }
-    if (fd3 >= 0 ) {
-        close(fd2);
-    }
 
     mRawBufferQueue.clear();
 
@@ -276,7 +259,7 @@ status_t ScreenManager::init(int32_t width,
     int clientTotalNum;
     int clientNum = -1;
     clientTotalNum = mClientList.size();
-
+    ScreenControlDebug::initDebug();
     ALOGI("[%s %d] clientTotalNum:%d width:%d height:%d framerate:%d data_type:%d", __FUNCTION__, __LINE__,
              clientTotalNum, width, height, framerate, data_type);
 
@@ -336,7 +319,7 @@ status_t ScreenManager::init(int32_t width,
         mFrameRate = framerate;
         mBufferSize = mWidth * mHeight * 3/2;
 
-    } else if (SCREENCONTROL_RAWDATA_TYPE == data_type) {
+    } else if (SCREENCONTROL_RAWDATA_TYPE == data_type || SCREENCONTROL_RGBA888_TYPE == data_type) {
         ALOGI("[%s %d] clientTotalNum:%d width:%d height:%d framerate:%d data_type:%d", __FUNCTION__, __LINE__,
             clientTotalNum, width, height, framerate, data_type);
         if (clientTotalNum == 0) {
@@ -473,18 +456,22 @@ status_t ScreenManager::setVideoCrop(int32_t client_id, const int32_t x, const i
     return OK;
 }
 
-status_t ScreenManager::start(int32_t client_id)
+status_t ScreenManager::start(int32_t client_id, int flag )
 {
     Mutex::Autolock autoLock(mLock);
 
     int client_num = mClientList.size();
-
+    SCREENCONTROLDATATYPE source_data_type;
+    ScreenClient* client;
+    bool isSoftwareEncoder = false;
+    bool mIsScreenRecord = true;
+    client = mClientList.valueFor(client_id);
+    source_data_type = client->data_type;
     if (!mScreenModule || client_num == 1) {
         if (hw_get_module(AML_SCREEN_HARDWARE_MODULE_ID, (const hw_module_t **)&mScreenModule) < 0) {
             ALOGE("[%s %d] can`t get AML_SCREEN_HARDWARE_MODULE_ID module", __FUNCTION__, __LINE__);
             return !OK;
         }
-
         char sourceType[] = "1";
         int port_type;
         if (mSourceType == AML_CAPTURE_VIDEO) { //video only
@@ -516,21 +503,31 @@ status_t ScreenManager::start(int32_t client_id)
         }
         mScreenDev->ops.set_port_type(mScreenDev, port_type);
         mScreenDev->ops.set_frame_rate(mScreenDev, mFrameRate);
-        if (mIsSoftwareEncoder && mIsScreenRecord) {
+        if (flag & SCREENCONTROL_SCREEN_CATCH) {
+            mIsScreenRecord =false;
+        }else if (flag & SCREENCONTROL_SCREEN_RECORD_SOFTWARE_ENCODER)
+            isSoftwareEncoder =true;
+
+        if (mIsScreenRecord) {
+            mScreenDev->ops.set_mode(mScreenDev, AML_SCREEN_RECODE_MODE);
+        }else
+            mScreenDev->ops.set_mode(mScreenDev, AML_SCREEN_CATCH_MODE);
+
+        if (isSoftwareEncoder && mIsScreenRecord) {
             mScreenDev->ops.set_format(mScreenDev, mWidth, mHeight, V4L2_PIX_FMT_NV12);
-        } else {
+        } else if (SCREENCONTROL_RGBA888_TYPE == source_data_type) {
+            mScreenDev->ops.set_format(mScreenDev, mWidth, mHeight, V4L2_PIX_FMT_RGB32);
+        }else {
             mScreenDev->ops.set_format(mScreenDev, mWidth, mHeight, V4L2_PIX_FMT_NV21);
         }
         mScreenDev->ops.setDataCallBack(mScreenDev, VdinDataCallBack, (void*)this);
         mScreenDev->ops.set_amlvideo2_crop(mScreenDev, mCorpX, mCorpY, mCorpWidth-mCorpX, mCorpHeight-mCorpY);
         mScreenDev->ops.start(mScreenDev);
+        mScreenDev->ops.get_all_ptr(mScreenDev,mScreenBuffers);
     }
 
-    SCREENCONTROLDATATYPE source_data_type;
-    ScreenClient* client;
+
     ALOGI("[%s %d] client_id:%d client_num:%d", __FUNCTION__, __LINE__, client_id, client_num);
-    client = mClientList.valueFor(client_id);
-    source_data_type = client->data_type;
 #if 0
     if (SCREENCONTROL_HANDLE_TYPE == source_data_type && mANativeWindow != NULL) {
         mANativeWindow->incStrong((void*)ANativeWindow_acquire);
@@ -586,12 +583,12 @@ status_t ScreenManager::stop(int32_t client_id)
         mANativeWindow->decStrong((void*)ANativeWindow_acquire);
     }
 #endif
-    if (SCREENCONTROL_RAWDATA_TYPE == source_data_type) {
+    if (SCREENCONTROL_RAWDATA_TYPE == source_data_type ||SCREENCONTROL_RGBA888_TYPE == source_data_type) {
         while (!mRawBufferQueue.empty()) {
-            MediaBuffer* rawBuffer = *mRawBufferQueue.begin();
+            int index = *mRawBufferQueue.begin();
             mRawBufferQueue.erase(mRawBufferQueue.begin());
-            if (rawBuffer != NULL)
-                rawBuffer->release();
+            if (mScreenDev)
+                mScreenDev->ops.release_buffer(mScreenDev,(long *)mScreenBuffers[index]);
         }
     }
     return OK;
@@ -616,7 +613,7 @@ status_t ScreenManager::readRawData(int32_t client_id,void **buffer) {
     return OK;
 }
 
-status_t ScreenManager::readBuffer(int32_t client_id, sp<IMemory> buffer, int64_t* pts)
+status_t ScreenManager::readBuffer(int32_t client_id, sp<IMemory> buffer, int *index)
 {
     Mutex::Autolock autoLock(mLock);
 
@@ -630,7 +627,7 @@ status_t ScreenManager::readBuffer(int32_t client_id, sp<IMemory> buffer, int64_
     client = mClientList.valueFor(client_id);
     source_data_type = client->data_type;
 
-    if (!mStarted || buffer->unsecurePointer() == NULL) {
+    if (!mStarted ) {
         ALOGE("[%s %d]", __FUNCTION__, __LINE__);
         return !OK;
     }
@@ -659,37 +656,29 @@ status_t ScreenManager::readBuffer(int32_t client_id, sp<IMemory> buffer, int64_
             checkAndSaveBufferToFile(SCREENMANAGER_DUMP_BASEDIR, filename, frame->buf_ptr, mWidth*mHeight*3/2);
         }
 
-        *pts = frame->timestampUs;
 
-        ALOGI("[%s %d] buf_ptr:%x canvas:%x pts:%llx size:%d OK:%d", __FUNCTION__, __LINE__,
-                frame->buf_ptr, frame->canvas, frame->timestampUs, mCanvasFramesReceived.size(), OK);
+        ALOGI("[%s %d] buf_ptr:%x canvas:%x  size:%d OK:%d", __FUNCTION__, __LINE__,
+                frame->buf_ptr, frame->canvas, mCanvasFramesReceived.size(), OK);
 
         delete frame;
         return OK;
 
     }
 
-    if (SCREENCONTROL_RAWDATA_TYPE == source_data_type && !mRawBufferQueue.empty()) {
-        MediaBuffer* rawBuffer = *mRawBufferQueue.begin();
+    if ((SCREENCONTROL_RAWDATA_TYPE == source_data_type || SCREENCONTROL_RGBA888_TYPE == source_data_type) && !mRawBufferQueue.empty()) {
+        int index_ = *mRawBufferQueue.begin();
         mRawBufferQueue.erase(mRawBufferQueue.begin());
-        if (rawBuffer != NULL && buffer != NULL) {
-            if (rawBuffer->data()) {
-                memmove((char *)buffer->unsecurePointer(), (char *)rawBuffer->data(), mWidth*mHeight*3/2);
-                if (ScreenControlDebug::canDebug()) {
-                    // dump buffer to file
-                    static int i = 0;
-                    char filename[64] = {0};
-                    snprintf(filename, 64, "%s/drvin-rd-%d.yuv", SCREENMANAGER_DUMP_BASEDIR, i++);
-                    checkAndSaveBufferToFile(SCREENMANAGER_DUMP_BASEDIR, filename, rawBuffer->data(), mWidth*mHeight*3/2);
-                }
-                rawBuffer->release();
-            } else
-                ALOGE("[%s] rawBuffer invalid data(null)", __func__);
-        } else {
-            ALOGE("read buffer error T_T");
-            return !OK;
+        *index = index_;
+        if (ScreenControlDebug::canDebug()) {
+            // dump buffer to file
+            static int i = 0;
+            char filename[64] = {0};
+            int size = mWidth*mHeight*3/2;
+            snprintf(filename, 64, "%s/drvin-rd-%d.bin", SCREENMANAGER_DUMP_BASEDIR, i++);
+            if (SCREENCONTROL_RGBA888_TYPE == source_data_type)
+                size = mWidth*mHeight*4;
+            checkAndSaveBufferToFile(SCREENMANAGER_DUMP_BASEDIR, filename, mScreenBuffers[index_], size);
         }
-        *pts = 0;
     } else {
         //ALOGE("[%s %d] read raw data fail", __FUNCTION__, __LINE__);
         return !OK;
@@ -700,6 +689,10 @@ status_t ScreenManager::readBuffer(int32_t client_id, sp<IMemory> buffer, int64_
     return OK;
 }
 
+status_t ScreenManager::getBufferByID(int32_t index,long **buffer) {
+    *buffer = mScreenBuffers[index];
+    return OK;
+}
 
 status_t ScreenManager::checkConvertDone(){
     Mutex::Autolock autoLock(mLock);
@@ -720,7 +713,7 @@ status_t ScreenManager::freeBuffer(int32_t client_id, sp<IMemory>buffer) {
     client = mClientList.valueFor(client_id);
     source_data_type = client->data_type;
 
-    if (SCREENCONTROL_CANVAS_TYPE == source_data_type && buffer->unsecurePointer() != NULL) {
+    if (buffer->unsecurePointer() != NULL) {
         long buff_info[3] = {0,0,0};
         memcpy(&buff_info[0],(long *)buffer->unsecurePointer(), sizeof(buff_info));
         if (mTempBuffer == (long *)buff_info[1])
@@ -768,25 +761,22 @@ int ScreenManager::dataCallBack(aml_screen_buffer_info_t *buffer){
                 client = mClientList.valueAt(i);
                 switch (client->data_type) {
                     case SCREENCONTROL_RAWDATA_TYPE:{
-                        if (mRawBufferQueue.size() < 60 && !mNeedPause) {
-                            MediaBuffer* accessUnit = new MediaBuffer(client->width*client->height*3/2);
-                            if (accessUnit != NULL && accessUnit->data() != NULL) {
-                                memmove(accessUnit->data(), buffer->buffer_mem, client->width*client->height*3/2);
-                                mRawBufferQueue.push_back(accessUnit);
-                            } else {
-                                ALOGE("datacallback error: accessUnit or buffer = NULL");
-                            }
+                        if (!mNeedPause) {
+                            ALOGD("dataCallBack index =%d",buffer->index);
+                            mRawBufferQueue.push_back(buffer->index);
                             if (mMeanWhileFlag) {
                                 mTempBuffer = (long*) malloc(client->width*client->height*3/2);
                                 if (mTempBuffer != NULL) {
-                                    memmove(mTempBuffer, accessUnit->data(), client->width*client->height*3/2);
+                                    memmove(mTempBuffer, buffer->buffer_mem, client->width*client->height*3/2);
                                 }
                             }
                             /* coverity[leaked_storage] */
                         }
-
-                        if (mCanvasClientExist == 0) {//release buffer
-                            mScreenDev->ops.release_buffer(mScreenDev, buffer->buffer_mem);
+                    } break;
+                    case SCREENCONTROL_RGBA888_TYPE:{
+                        if (!mNeedPause) {
+                            ALOGD("dataCallBack index =%d",buffer->index);
+                            mRawBufferQueue.push_back(buffer->index);
                         }
                     } break;
                     default:{

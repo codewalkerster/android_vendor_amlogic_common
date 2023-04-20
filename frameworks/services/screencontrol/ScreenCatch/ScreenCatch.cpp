@@ -193,7 +193,7 @@ void nv21_to_rgb24(unsigned char *buf, unsigned char *rgb, int width, int height
 
 int ScreenCatch::threadFuncForScreenManager()
 {
-    int64_t pts;
+    int index;
     int status;
 
     sp<MemoryHeapBase> newMemoryHeap = new MemoryHeapBase(mWidth*mHeight*3/2);
@@ -206,7 +206,7 @@ int ScreenCatch::threadFuncForScreenManager()
     ALOGI("[%s %d] empty:%d", __FUNCTION__, __LINE__, mRawBufferQueue.empty());
 
     while (mStart == true) {
-        status = mScreenManager->readBuffer(mClientId, buffer, &pts);
+        status = mScreenManager->readBuffer(mClientId, buffer, &index);
 
         if (status != OK && mStart == true) {
             usleep(100);
@@ -219,27 +219,32 @@ int ScreenCatch::threadFuncForScreenManager()
         {
             Mutex::Autolock autoLock(mLock);
             MediaBuffer* accessUnit = NULL;
+            long *raw = NULL;
+            mScreenManager->getBufferByID(index,&raw);
 
             if (OMX_COLOR_Format24bitRGB888 == mColorFormat) {//rgb 24bit
                 accessUnit = new MediaBuffer(mWidth*mHeight*3);
                 if (accessUnit != NULL && accessUnit->data() != NULL) {
-                    nv21_to_rgb24((unsigned char *)buffer->unsecurePointer(), (unsigned char *)accessUnit->data(), mWidth, mHeight);
+                    nv21_to_rgb24((unsigned char *)raw, (unsigned char *)accessUnit->data(), mWidth, mHeight);
                     accessUnit->set_range(0, mWidth*mHeight*3);
                 }
             } else if (OMX_COLOR_Format32bitARGB8888 == mColorFormat) {//rgba 32bit
                 accessUnit = new MediaBuffer(mWidth*mHeight*4);
                 if (accessUnit != NULL && accessUnit->data() != NULL) {
-                    nv21_to_rgb32_((unsigned char *)buffer->unsecurePointer(), (unsigned char *)accessUnit->data(), mWidth, mHeight);
+                    nv21_to_rgb32_((unsigned char *)raw, (unsigned char *)accessUnit->data(), mWidth, mHeight);
                     accessUnit->set_range(0, mWidth*mHeight*4);
                 }
             } else if (OMX_COLOR_FormatYUV420SemiPlanar ==  mColorFormat){//nv21
                 accessUnit = new MediaBuffer(mWidth*mHeight*3/2);
                 if (accessUnit != NULL && accessUnit->data() != NULL) {
-                    memcpy((unsigned char *)accessUnit->data(), (unsigned char *)buffer->unsecurePointer(), mWidth*mHeight*3/2);
+                    memcpy((unsigned char *)raw, (unsigned char *)buffer->unsecurePointer(), mWidth*mHeight*3/2);
                     accessUnit->set_range(0, mWidth*mHeight*3/2);
                 }
             }
-
+            long buf_info[3] ={0};
+            buf_info[1] = (long) raw;
+            memcpy(buffer->unsecurePointer(), buf_info, 3*sizeof(long));
+            mScreenManager->freeBuffer(mClientId, buffer);
             if (accessUnit != NULL)
                 mRawBufferQueue.push_back(accessUnit);
         }
@@ -267,7 +272,6 @@ void *ScreenCatch::ThreadWrapper(void *me) {
     Convertor->threadFunc();
     return NULL;
 }
-
 
 
 status_t ScreenCatch::start(MetaDataBase *params)
@@ -378,7 +382,7 @@ status_t ScreenCatch::start(MetaDataBase *params)
         if (mCorpX != -1)
             mScreenManager->setVideoCrop(client_id, mCorpX, mCorpY, mCorpWidth, mCorpHeight);
 
-        status = mScreenManager->start(client_id);
+        status = mScreenManager->start(client_id,SCREENCONTROL_SCREEN_CATCH);
 
         if (status != OK) {
             mScreenManager->uninit(mClientId);

@@ -233,8 +233,8 @@ int ScreenControlClient::startYuvScreenRecord(int32_t width, int32_t height, int
 {
     Mutex::Autolock autoLock(mLock);
     int result = -1;
-    //ALOGI("enter %s,width=%d,height=%d,srctype=%d",
-    //    __func__, width, height, sourceType);
+    ALOGI("enter %s,width=%d,height=%d,srctype=%d",
+       __func__, width, height, sourceType);
     if (Result::OK == mScreenCtrl->startYuvRecord(width, height, frameRate, sourceType))
       result = 0;
     mRecordType = RECORD_TYPE_YUV;

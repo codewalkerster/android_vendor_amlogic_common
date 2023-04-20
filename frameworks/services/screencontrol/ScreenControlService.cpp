@@ -346,6 +346,7 @@ int ScreenControlService::startScreenCapBuffer(int32_t left, int32_t top, int32_
 
     int status;
     int count = 0;
+    int32_t client_id = 0;
     uint32_t f = PIXEL_FORMAT_RGBA_8888;
     status_t result = NO_ERROR;
     ScreenCatch* mScreenCatch;
@@ -376,7 +377,7 @@ int ScreenControlService::startScreenCapBuffer(int32_t left, int32_t top, int32_
         tBuffer->release();
         /* coverity[leaked_storage] */
         return result;
-    }else if(mScreenManager != NULL) {
+    }else if(mScreenManager != NULL && mRecordSourceType == sourceType) {
         void * raw = NULL;
         while (!OK == mScreenManager->readRawData(mYuvClientId,&raw)) {
                 usleep(5 *1000); //5ms
@@ -419,61 +420,66 @@ int ScreenControlService::startScreenCapBuffer(int32_t left, int32_t top, int32_
         return result;
     }
 
-    mScreenCatch = new ScreenCatch(width, height, 32, sourceType);
-    mScreenCatch->setVideoCrop(left, top, right, bottom);
 
-    MetaDataBase* pMeta;
-    pMeta = new MetaDataBase();
-    pMeta->setInt32(kKeyColorFormat, OMX_COLOR_Format32bitARGB8888);
-    result = mScreenCatch->start(pMeta);
-    pMeta->clear();
-    delete pMeta;
+    mScreenManager = ScreenManager::instantiate();
+    if (mScreenManager == NULL)
+      return !OK;
+    status_t err = mScreenManager->init(width, height, sourceType, 1, SCREENCONTROL_RGBA888_TYPE, &client_id);
+    if ( err != OK ) {
+        ALOGE("[%s %d] ScreenManage init error\n", __FUNCTION__, __LINE__);
+        return !OK;
+    }
+    mScreenManager->setVideoCrop(client_id, left, top, right, bottom);
+    err = mScreenManager->start(client_id,SCREENCONTROL_SCREEN_CATCH);
+    if ( err != OK ) {
+        ALOGE("[%s %d] ScreenManage init error\n", __FUNCTION__, __LINE__);
+        return !OK;
+    }
     gettimeofday(&timeNow, NULL);
     int64_t firsetNowUs = (int64_t)timeNow.tv_sec*1000*1000 + (int64_t)timeNow.tv_usec;
-    if (result != OK) {
-        ALOGE("[%s %d] screenCatch start fail", __FUNCTION__, __LINE__);
-        delete mScreenCatch;
-        return UNKNOWN_ERROR;
-    }
-
-    MediaBuffer *buffer = NULL;
-
     while ((!mNeedStop) && (count < 1)) {
-        status = mScreenCatch->read(&buffer);
+        int index = 0;
+        long* buffer = NULL;
+        status = mScreenManager->readBuffer(client_id,NULL,&index);
         if (status != OK) {
             gettimeofday(&timeNow, NULL);
             int64_t nowUs = (int64_t)timeNow.tv_sec*1000*1000 + (int64_t)timeNow.tv_usec;
             if ((nowUs - firsetNowUs) >= TIMEOUT_VAL) {
-                ALOGE("[%s %d] no data !!!! break", __FUNCTION__, __LINE__);
+                ALOGE("[%s %d] no data !!!! break,firsetNowUs=%ld,nowUs=%ld", __FUNCTION__, __LINE__,firsetNowUs,nowUs);
                 break;
             }
-            usleep(10 *1000);
+            usleep(5 *1000);
             continue;
         }
 
         count++;
-        ALOGI("[%s %d] readed size:%d", __FUNCTION__, __LINE__, buffer->size());
-        if (buffer->data() == NULL) {
-            buffer->release();
-            buffer = NULL;
+        mScreenManager->getBufferByID(index,&buffer);
+        if (buffer == NULL)
             break;
-        }
-        memcpy(dstBuffer, buffer->data(), buffer->size());
-        *dstBufferSize = buffer->size();
-
-        buffer->release();
+        ALOGI("[%s %d] get the data ", __FUNCTION__, __LINE__);
+        memcpy(dstBuffer,buffer,width * height *4);
+        ALOGI("[%s %d] memcpy over", __FUNCTION__, __LINE__);
+        *dstBufferSize = width * height * 4;
+        long buf_info[3] ={0};
+        sp<MemoryHeapBase> newMemoryHeap = new MemoryHeapBase(128*sizeof(long));
+        sp<MemoryBase> memory = new MemoryBase(newMemoryHeap, 0, 3*sizeof(long));
+        if (memory->unsecurePointer() == NULL)
+            return !OK;
+        buf_info[1] = (long) buffer;
+        memcpy(memory->unsecurePointer(), buf_info, 3*sizeof(long));
+        mScreenManager->freeBuffer(client_id, memory);
         buffer = NULL;
+        ALOGI("[%s %d] readed buffer size = %d", __FUNCTION__, __LINE__,*dstBufferSize);
     }
-
-    mScreenCatch->stop();
-    delete mScreenCatch;
-
+    mScreenManager->stop(client_id);
+    mScreenManager = NULL;
     if (mNeedStop) {
         ALOGD("Control to stop capture screen buf");
     }
     if (count < 1) {
         result = UNKNOWN_ERROR;
     }
+    ALOGI("[%s %d] finish", __FUNCTION__, __LINE__);
     return result;
 }
 
@@ -488,7 +494,7 @@ int ScreenControlService::startYuvRecord(int32_t width, int32_t height, int32_t 
         ALOGE("[%s %d] ScreenManage init error\n", __FUNCTION__, __LINE__);
         return !OK;
     }
-    err = mScreenManager->start(client_id);
+    err = mScreenManager->start(client_id,SCREENCONTROL_SCREEN_RECORD_HARDWARE_ENCODER);
     if ( err != OK ) {
         ALOGE("[%s %d] ScreenManage init error\n", __FUNCTION__, __LINE__);
         return !OK;
@@ -512,15 +518,22 @@ bool ScreenControlService::isHaveYuvDate(){
 int ScreenControlService::getYuvRecordData(void *dstBuffer,int32_t bufSize){
     Mutex::Autolock autoLock(mLock);
     int64_t pts;
+    long *raw = NULL;
+    int index = 0;
+    long buf_info[3] ={0};
     //ALOGE("[%s %d]", __FUNCTION__, __LINE__);
     sp<MemoryHeapBase> newMemoryHeap = new MemoryHeapBase(bufSize);
     sp<MemoryBase> buffer = new MemoryBase(newMemoryHeap, 0, bufSize);
-    int status = mScreenManager->readBuffer(mYuvClientId, buffer, &pts);
-    if (status == !OK || buffer->unsecurePointer() == NULL) {
+    int status = mScreenManager->readBuffer(mYuvClientId, buffer, &index);
+    mScreenManager->getBufferByID(index,&raw);
+    if (status == !OK || raw== NULL) {
       return status;
-}
+    }
+    buf_info[1] = (long) raw;
+    memcpy(buffer->unsecurePointer(), buf_info, 3*sizeof(long));
+    mScreenManager->freeBuffer(mYuvClientId, buffer);
 
-    memmove(dstBuffer,buffer->unsecurePointer(),bufSize);
+    memmove(dstBuffer,raw,bufSize);
     buffer.clear();
     newMemoryHeap.clear();
     return OK;
@@ -546,7 +559,7 @@ int ScreenControlService::checkYuvRecordDone(){
 int ScreenControlService::startAvcRecord(int32_t width, int32_t height, int32_t frameRate, int32_t bitRate, int32_t sourceType){
     Mutex::Autolock autoLock(mLock);
     int err;
-    ALOGI("startScreenRecord width:%d, height:%d, frameRate:%d, bitRate:%d, sourceType:%d\n", width, height, frameRate, bitRate, sourceType);
+    ALOGI("startAvcRecord width:%d, height:%d, frameRate:%d, bitRate:%d, sourceType:%d\n", width, height, frameRate, bitRate, sourceType);
     MetaDataBase* params_video = new MetaDataBase();
     params_video->setInt32(kKeyWidth, width);
     params_video->setInt32(kKeyHeight, height);
