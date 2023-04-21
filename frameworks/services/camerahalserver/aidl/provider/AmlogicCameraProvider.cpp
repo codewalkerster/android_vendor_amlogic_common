@@ -123,7 +123,9 @@ void AmlogicCameraProvider::addDeviceNames(int camera_id, CameraDeviceStatus sta
     }
 
 }
-AmlogicCameraProvider::AmlogicCameraProvider() {
+AmlogicCameraProvider::AmlogicCameraProvider() :
+    camera_module_callbacks_t({sCameraDeviceStatusChange,
+                                   sTorchModeStatusChange}) {
     mInitFailed = initialize();
 }
 
