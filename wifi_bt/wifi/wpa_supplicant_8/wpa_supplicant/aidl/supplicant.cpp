@@ -390,6 +390,7 @@ Supplicant::addP2pInterfaceInternal(const std::string& name)
 			SupplicantStatusCode::FAILURE_UNKNOWN, "Conf file does not exist")};
 	}
 	iface_params.confname = kP2pIfaceConfPath;
+	property_get("vendor.wifi_name", wifi_status, NULL);
 	const char* path = resolvePath(
 		    kP2pIfaceConfOverlayPaths,
 		    sizeof(kP2pIfaceConfOverlayPaths)/sizeof(kP2pIfaceConfOverlayPaths[0]));
@@ -398,7 +399,6 @@ Supplicant::addP2pInterfaceInternal(const std::string& name)
 	}
 
 	iface_params.ifname = name.c_str();
-	property_get("vendor.wifi_name", wifi_status, NULL);
 	if (strncmp(iface_params.ifname, P2P_MGMT_DEVICE_PREFIX,
 		strlen(P2P_MGMT_DEVICE_PREFIX)) == 0) {
 		status = addP2pDevInterface(iface_params);
