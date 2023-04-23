@@ -93,8 +93,8 @@ public class DisplayDensityManager {
     }
 
     private void initialDisplayManager() {
-        int mxHeight = SystemProperties.getInt(MAX_SIZE_HEIGHT_PROP,1920);
-        int mxWidth = SystemProperties.getInt(MAX_SIZE_WIDTH_PROP,1080);
+        int mxHeight = SystemProperties.getInt(MAX_SIZE_HEIGHT_PROP,1080);
+        int mxWidth = SystemProperties.getInt(MAX_SIZE_WIDTH_PROP,1920);
         mDefaultSize = new Size(mxWidth, mxHeight);
         if (mxHeight >0 && mxWidth > 0) {
             mMxDensity = getPrefDensity(mxWidth, mxHeight);

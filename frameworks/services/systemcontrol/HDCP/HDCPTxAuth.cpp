@@ -56,7 +56,7 @@ HDCPTxAuth::HDCPTxAuth() :
     if (ret != 0) {
         SYS_LOGE("pthreadTxMutex init failed\n");
     }
-
+    mExitHdcpTxThread = false;
     if (sem_init(&pthreadTxSem, 0, 0) < 0) {
         SYS_LOGE("HDCPTxAuth, sem_init failed\n");
         exit(0);

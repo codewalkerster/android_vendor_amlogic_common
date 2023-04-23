@@ -53,94 +53,6 @@ using namespace android;
 #include <DisplayAdapter.h>
 using ConnectorType = meson::DisplayAdapter::ConnectorType;
 
-static const char* DISPLAY_MODE_LIST[] = {
-    MODE_480I,
-    MODE_480P,
-    MODE_480CVBS,
-    MODE_576I,
-    MODE_576P,
-    MODE_576CVBS,
-    MODE_720P50HZ,
-    MODE_720P,
-    MODE_1080P24HZ,
-    MODE_1080I50HZ,
-    MODE_1080P50HZ,
-    MODE_1080I,
-    MODE_1080P,
-    MODE_4K2K24HZ,
-    MODE_4K2K25HZ,
-    MODE_4K2K30HZ,
-    MODE_4K2K50HZ,
-    MODE_4K2K60HZ,
-    MODE_4K2KSMPTE,
-    MODE_4K2KSMPTE30HZ,
-    MODE_4K2KSMPTE50HZ,
-    MODE_4K2KSMPTE60HZ,
-    MODE_4K2K100HZ,
-    MODE_4K2K120HZ,
-    MODE_8K4K24HZ,
-    MODE_8K4K25HZ,
-    MODE_8K4K30HZ,
-    MODE_8K4K48HZ,
-    MODE_8K4K50HZ,
-    MODE_8K4K60HZ,
-    MODE_768P,
-    MODE_PANEL,
-    MODE_PAL_M,
-    MODE_PAL_N,
-    MODE_NTSC_M,
-};
-static const char* MODE_RESOLUTION_FIRST[] = {
-    MODE_480I,
-    MODE_576I,
-    MODE_480P,
-    MODE_576P,
-    MODE_720P50HZ,
-    MODE_720P,
-    MODE_1080I50HZ,
-    MODE_1080I,
-    MODE_1080P50HZ,
-    MODE_1080P,
-    MODE_4K2K24HZ,
-    MODE_4K2K25HZ,
-    MODE_4K2K30HZ,
-    MODE_4K2K50HZ,
-    MODE_4K2K60HZ,
-    MODE_4K2K100HZ,
-    MODE_4K2K120HZ,
-    MODE_8K4K24HZ,
-    MODE_8K4K25HZ,
-    MODE_8K4K30HZ,
-    MODE_8K4K48HZ,
-    MODE_8K4K50HZ,
-    MODE_8K4K60HZ,
-};
-static const char* MODE_FRAMERATE_FIRST[] = {
-    MODE_480I,
-    MODE_576I,
-    MODE_480P,
-    MODE_576P,
-    MODE_720P50HZ,
-    MODE_720P,
-    MODE_1080I50HZ,
-    MODE_1080I,
-    MODE_4K2K24HZ,
-    MODE_4K2K25HZ,
-    MODE_4K2K30HZ,
-    MODE_1080P50HZ,
-    MODE_1080P,
-    MODE_4K2K50HZ,
-    MODE_4K2K60HZ,
-    MODE_4K2K100HZ,
-    MODE_4K2K120HZ,
-    MODE_8K4K24HZ,
-    MODE_8K4K25HZ,
-    MODE_8K4K30HZ,
-    MODE_8K4K48HZ,
-    MODE_8K4K50HZ,
-    MODE_8K4K60HZ,
-};
-
 // Sink reference table, sorted by priority, per CDF
 static const char* MODES_SINK[] = {
     "2160p60hz",
@@ -178,6 +90,17 @@ static const char* DV_MODE_TYPE[] = {
     "LL_YCbCr_422_12BIT",
     "LL_RGB_444_12BIT",
     "LL_RGB_444_10BIT"
+};
+
+/*
+ * 0:parse original tv edid,hdmi output dv/hdr/sdr signal
+ * 1:mark dv capability,hdmi only output hdr/sdr signal
+ * 2:mark dv and hdr capability,hdmi always output sdr signal
+ */
+static const char* HDR_PRIORITY_TYPE[] = {
+    "0",
+    "1",
+    "2"
 };
 
 static const char* ALLM_MODE_CAP[] = {
@@ -248,6 +171,8 @@ DisplayMode::DisplayMode(const char *path) {
     mLogLevel = LOG_LEVEL_DEFAULT;
     memset(&mHdmidata, 0, sizeof(hdmi_data_t));
     mScene_output_info.dv_type = DOLBY_VISION_SET_DISABLE;
+    strcpy(mScene_output_info.final_displaymode, DEFAULT_HDMI_MODE);
+    strcpy(mScene_output_info.final_deepcolor, DEFAULT_COLOR_FORMAT);
     DisplayMode(path, NULL);
 }
 
@@ -596,7 +521,8 @@ void DisplayMode::setTvRecoveryDisplay() {
     getDisplayMode(outputmode);
     updateDefaultUI();
 
-    usleep(1000000LL);
+    if (usleep(1000000LL) < 0)
+        SYS_LOGE("usleep interrupt!\n");
     pSysWrite->writeSysfs(DISPLAY_FB0_BLANK, "1");
     //1.need close fb1, because uboot logo show in fb1 for old soc(g12a)
     //2.recovery will open fb0
@@ -625,6 +551,7 @@ void DisplayMode::sceneProcess(hdmi_data_t* data) {
 
     //1. read screne input info
     scene_input_info_t scene_input_info;
+    memset(&scene_input_info, 0, sizeof(scene_input_info_t));
 
     //1.1 common input info
     if ((data->state == OUTPUT_MODE_STATE_INIT) ||
@@ -663,7 +590,11 @@ void DisplayMode::sceneProcess(hdmi_data_t* data) {
     strcpy(scene_input_info.hdmi_input_info.dc_cap, data->dc_cap);
     strcpy(scene_input_info.hdmi_input_info.ubootenv_cvbsmode, data->ubootenv_cvbsmode);
 
-    getBootEnv(UBOOTENV_COLORATTRIBUTE, data->ubootenv_colorattribute);
+    bool ret = getBootEnv(UBOOTENV_USER_COLORATTRIBUTE, data->ubootenv_colorattribute);
+    if (!ret) {
+        //if env is null,use none as default value
+        strcpy(data->ubootenv_colorattribute, "none");
+    }
     strcpy(scene_input_info.hdmi_input_info.ubootenv_colorattribute, data->ubootenv_colorattribute);
 
     //2 scene process
@@ -729,21 +660,18 @@ void DisplayMode::setSourceDisplay(output_mode_state state) {
         return;
     }
 
-    //2. hdmi edid parse error and hpd = 1
+    //2. update hdmi info when boot and hdmi plug/suspend/resume
+    memset(&mHdmidata, 0, sizeof(hdmi_data_t));
+    mHdmidata.state = state;
+    getHdmiData(&mHdmidata);
+
+    //3. hdmi edid parse error and hpd = 1
     //set default reolsution and color format
     if ((isHdmiEdidParseOK() == false) &&
         (isHdmiHpd() == true)) {
         setDefaultMode();
         return;
     }
-
-    //3. update hdmi info when boot and hdmi plug/suspend/resume
-    if ((state == OUTPUT_MODE_STATE_INIT) ||
-        (state == OUTPUT_MODE_STATE_POWER)) {
-        memset(&mHdmidata, 0, sizeof(hdmi_data_t));
-        mHdmidata.state = state;
-        getHdmiData(&mHdmidata);
-     }
 
     //4. scene logic process
     sceneProcess(&mHdmidata);
@@ -754,7 +682,6 @@ void DisplayMode::setSourceDisplay(output_mode_state state) {
 
     //5. apply settings to driver
     hdmi_output_info_t output_info;
-
     strcpy(output_info.final_displaymode, mHdmidata.final_displaymode);
     strcpy(output_info.final_deepcolor, mHdmidata.final_deepcolor);
     output_info.dv_type = mHdmidata.dv_info.dv_type;
@@ -763,35 +690,14 @@ void DisplayMode::setSourceDisplay(output_mode_state state) {
     applyDisplaySetting(&output_info);
 }
 
-bool DisplayMode::setColorSpace(const char* colorspace) {
-    SYS_LOGI("user change color space to %s\n", colorspace);
-    setBootEnv(UBOOTENV_BESTCOLORSPACE, "false");
-    setBootEnv(UBOOTENV_COLORATTRIBUTE, colorspace);
-
-    return true;
-}
-
 void DisplayMode::clearBootDisplayConfig(const char*value) {
     SYS_LOGI("clear boot display config to %s\n",  value);
     setBootEnv(UBOOTENV_ISBESTMODE, value);
     // after clear boot config, need save the bestMode to uenv
     if (!strcmp(value, "true")) {
-        //1. get hdmi data
-        hdmi_data_t data;
-
-        memset(&data, 0, sizeof(hdmi_data_t));
-        getHdmiData_cached(&data);
-        getCommonData(&data);
-        data.state = OUTPUT_MODE_STATE_INIT;
-        data.isbestpolicy     = true;
-        data.isbestcolorspace = true;
-
-        //2. scene logic process
-        sceneProcess(&data);
-
-        //save color space and hdmi resolution to env
-        setBootEnv(UBOOTENV_COLORATTRIBUTE, data.final_deepcolor);
-        setBootEnv(UBOOTENV_HDMIMODE, data.final_displaymode);
+        //save color space and hdmi resolution env to default value
+        setBootEnv(UBOOTENV_USER_COLORATTRIBUTE, "none");
+        setBootEnv(UBOOTENV_HDMIMODE, "none");
         //need to keep the same value with the defaul value
         setBootEnv(UBOOTENV_FRAC_RATE_POLICY, "1");
         //need enable color space best policy
@@ -801,8 +707,14 @@ void DisplayMode::clearBootDisplayConfig(const char*value) {
 
 void DisplayMode::setBootDisplayConfig(const char* savemode) {
     SYS_LOGI("set boot display config to %s\n", savemode);
+
     setBootEnv(UBOOTENV_ISBESTMODE, "false");
-    setBootEnv(UBOOTENV_HDMIMODE, savemode);
+
+    if (strstr(savemode, "cvbs") != NULL) {
+        setBootEnv(UBOOTENV_CVBSMODE, savemode);
+    } else if (strstr(savemode, "hz") != NULL) {
+        setBootEnv(UBOOTENV_HDMIMODE, savemode);
+    }
 }
 
 bool DisplayMode::getPreferredDisplayConfig(char* mode) {
@@ -882,29 +794,25 @@ void DisplayMode::setSourceOutputMode(const char* outputmode) {
         setSinkOutputMode(outputmode, false);
     } else {
         //1. get hdmi data
-        hdmi_data_t data;
-        memset(&data, 0, sizeof(hdmi_data_t));
-
         if (DISPLAY_TYPE_TABLET == mDisplayType) {
-            getHdmiData(&data);
+            getHdmiData(&mHdmidata);
         } else {
-            getHdmiData_cached(&data);
-            getCommonData(&data);
+            getCommonData(&mHdmidata);
         }
 
-        data.state = OUTPUT_MODE_STATE_SWITCH;
-        strcpy(data.ui_hdmimode, outputmode);
+        mHdmidata.state = OUTPUT_MODE_STATE_SWITCH;
+        strcpy(mHdmidata.ui_hdmimode, outputmode);
 
         //2. scene logic process
-        sceneProcess(&data);
+        sceneProcess(&mHdmidata);
 
         //3. setting apply
         hdmi_output_info_t output_info;
 
-        strcpy(output_info.final_displaymode, data.final_displaymode);
-        strcpy(output_info.final_deepcolor, data.final_deepcolor);
-        output_info.dv_type = data.dv_info.dv_type;
-        output_info.reason  = data.state;
+        strcpy(output_info.final_displaymode, mHdmidata.final_displaymode);
+        strcpy(output_info.final_deepcolor, mHdmidata.final_deepcolor);
+        output_info.dv_type = mHdmidata.dv_info.dv_type;
+        output_info.reason  = mHdmidata.state;
 
         applyDisplaySetting(&output_info);
     }
@@ -1001,6 +909,7 @@ void DisplayMode::applyDisplaySetting(hdmi_output_info_t* output_info) {
     getHdrStrategy(hdr_policy);
 
     if (strstr(cur_hdr_policy.c_str(), hdr_policy) == NULL) {
+        SYS_LOGI("set hdr policy from:%s to %s\n", cur_hdr_policy.c_str(), hdr_policy);
         hdr_policy_change = true;
     }
 
@@ -1016,7 +925,20 @@ void DisplayMode::applyDisplaySetting(hdmi_output_info_t* output_info) {
         }
     }
 
-    // 4. check dolby vision
+    // 4. update hdr priority
+    bool hdr_priority_change = false;
+    hdr_priority_e cur_hdr_priority;
+    cur_hdr_priority = (hdr_priority_e)getCurrentHdrPriority();
+
+    hdr_priority_e hdr_priority;
+    hdr_priority = (hdr_priority_e)getHdrPriority();
+
+    if (cur_hdr_priority != hdr_priority) {
+        SYS_LOGI("set hdr priority from:%d to %d\n", cur_hdr_priority, hdr_priority);
+        hdr_priority_change = true;
+    }
+
+    // 5. check dolby vision
     int  dv_type    = DOLBY_VISION_SET_DISABLE;
     bool dv_change  = false;
 
@@ -1024,16 +946,16 @@ void DisplayMode::applyDisplaySetting(hdmi_output_info_t* output_info) {
     dv_change = checkDolbyVisionStatusChanged(dv_type);
     if (isMboxSupportDolbyVision()
         && dv_change) {
-        //4.1 set avmute when signal change at boot
+        //5.1 set avmute when signal change at boot
         if ((OUTPUT_MODE_STATE_INIT == output_info->reason)
             && (strstr(hdr_policy, HDR_POLICY_SINK))) {
             pSysWrite->writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "1");
         }
-        //4.2 set dummy_l mode when dv change at UI switch
+        //5.2 set dummy_l mode when dv change at UI switch
         if ((OUTPUT_MODE_STATE_SWITCH == output_info->reason) && dv_change) {
             setDisplayMode("dummy_l");
         }
-        //4.3 enable or disable dolby vision core
+        //5.3 enable or disable dolby vision core
         if (DOLBY_VISION_SET_DISABLE != dv_type) {
             enableDolbyVision(dv_type);
         } else {
@@ -1045,7 +967,7 @@ void DisplayMode::applyDisplaySetting(hdmi_output_info_t* output_info) {
         SYS_LOGI("cur DvMode is equals\n");
     }
 
-    // 5. check hdmi output resolution
+    // 6. check hdmi output resolution
     char final_displaymode[MODE_LEN] = {0};
     char curDisplayMode[MODE_LEN]    = {0};
     bool modeChange                  = false;
@@ -1060,25 +982,27 @@ void DisplayMode::applyDisplaySetting(hdmi_output_info_t* output_info) {
         SYS_LOGI("cur mode is equals\n");
     }
 
-    //6. check any change
+    //7. check any change
     bool isNeedChange = false;
 
-    if (modeChange || attr_change || frac_rate_policy_change || hdr_policy_change) {
+    if (modeChange || attr_change || frac_rate_policy_change || hdr_policy_change || hdr_priority_change) {
         isNeedChange = true;
     } else {
         SYS_LOGI("nothing need to be changed\n");
     }
 
-    // 7. stop hdcp
+    // 8. stop hdcp
     if (isNeedChange) {
         pSysWrite->writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "1");
         if (OUTPUT_MODE_STATE_POWER != output_info->reason) {
-            usleep(100000);//100ms
+            if (usleep(100000) < 0)//100ms
+                SYS_LOGE("usleep interrupt!\n");
             pSysWrite->writeSysfs(DISPLAY_HDMI_HDCP_MODE, "-1");
             //usleep(100000);//100ms
             pSysWrite->writeSysfs(DISPLAY_HDMI_PHY, "0"); /* Turn off TMDS PHY */
             phy_enabled_already = false;
-            usleep(50000);//50ms
+            if (usleep(50000) < 0)//50ms
+                SYS_LOGE("usleep interrupt!\n");
         }
         // stop hdcp tx
         pTxAuth->stop();
@@ -1096,7 +1020,7 @@ void DisplayMode::applyDisplaySetting(hdmi_output_info_t* output_info) {
         }
     }
 
-    // 8. set hdmi final output mode
+    // 9. set hdmi final output mode
     if (isNeedChange) {
         //need drive to do
         if (strstr(final_displaymode, MODE_8K4K_PREFIX)) {
@@ -1104,7 +1028,8 @@ void DisplayMode::applyDisplaySetting(hdmi_output_info_t* output_info) {
         } else {
             pSysWrite->writeSysfs(DISPLAY_HDMI_FRL_RATE, "0");
         }
-        //apply driver sysfs
+
+        //apply hdr policy to driver sysfs
         if (hdr_policy_change) {
             if (strstr(hdr_policy, HDR_POLICY_SINK)) {
                 DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDR_POLICY, HDR_POLICY_SINK, ConnectorType::CONN_TYPE_HDMI);
@@ -1118,6 +1043,12 @@ void DisplayMode::applyDisplaySetting(hdmi_output_info_t* output_info) {
                 }
             }
         }
+
+        //apply hdr priority to driver sysfs
+        if (hdr_priority_change) {
+            DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDR_PRIORITY, HDR_PRIORITY_TYPE[hdr_priority], ConnectorType::CONN_TYPE_HDMI);
+        }
+
         //set hdmi mode
         setDisplayMode(final_displaymode);
         /* phy already turned on after write display/mode node */
@@ -1170,7 +1101,8 @@ void DisplayMode::applyDisplaySetting(hdmi_output_info_t* output_info) {
         /*if (!phy_enabled_already) {
             pSysWrite->writeSysfs(DISPLAY_HDMI_PHY, "1"); // Turn on TMDS PHY
         }*/
-        usleep(20000);
+        if (usleep(20000) < 0)
+                SYS_LOGE("usleep interrupt!\n");
         char fail_case[8] = {0};
         pSysWrite->getPropertyString(HDCP_TX_AUTH_FAIL, fail_case, "4");
         if (!strcmp(fail_case, "1")) {
@@ -1184,7 +1116,8 @@ void DisplayMode::applyDisplaySetting(hdmi_output_info_t* output_info) {
             pSysWrite->writeSysfs(DISPLAY_HDMI_AUDIO_MUTE, "0");
         }
         if (isDolbyVisionEnable()) {
-            usleep(20000);
+            if (usleep(20000) < 0)
+                SYS_LOGE("usleep interrupt!\n");
         }
     }
 
@@ -1221,10 +1154,7 @@ void DisplayMode::applyDisplaySetting(hdmi_output_info_t* output_info) {
     setDigitalMode(value);
 
 #ifndef RECOVERY_MODE
-    if ((output_info->reason == OUTPUT_MODE_STATE_INIT) ||
-        (output_info->reason == OUTPUT_MODE_STATE_POWER)) {
-        saveHdmiParamToEnv();
-    }
+    saveHdmiParamToEnv();
 #endif
 }
 
@@ -1272,11 +1202,13 @@ void DisplayMode::setSourceOutputMode(const char* outputmode, output_mode_state 
     if (OUTPUT_MODE_STATE_INIT != state) {
         pSysWrite->writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "1");
         if (OUTPUT_MODE_STATE_POWER != state) {
-            usleep(50000);//50ms
+            if (usleep(50000) < 0)//50ms
+                SYS_LOGE("usleep interrupt!\n");
             pSysWrite->writeSysfs(DISPLAY_HDMI_HDCP_MODE, "-1");
             //usleep(100000);//100ms
             pSysWrite->writeSysfs(DISPLAY_HDMI_PHY, "0"); /* Turn off TMDS PHY */
-            usleep(50000);//50ms
+            if (usleep(50000) < 0)//50ms
+                SYS_LOGE("usleep interrupt!\n");
         }
     }
 
@@ -1362,11 +1294,13 @@ void DisplayMode::setSourceOutputMode(const char* outputmode, output_mode_state 
     //4. turn on phy and clear avmute
     if (OUTPUT_MODE_STATE_INIT != state && !cvbsMode) {
         pSysWrite->writeSysfs(DISPLAY_HDMI_PHY, "1"); /* Turn on TMDS PHY */
-        usleep(20000);
+        if (usleep(20000) < 0)
+            SYS_LOGE("usleep interrupt!\n");
         pSysWrite->writeSysfs(DISPLAY_HDMI_AUDIO_MUTE, "1");
         pSysWrite->writeSysfs(DISPLAY_HDMI_AUDIO_MUTE, "0");
         if ((state == OUTPUT_MODE_STATE_SWITCH) && isDolbyVisionEnable())
-            usleep(20000);
+            if (usleep(20000) < 0)
+                SYS_LOGE("usleep interrupt!\n");
         pSysWrite->writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "-1");
     }
 
@@ -1469,98 +1403,15 @@ bool DisplayMode::updataLogoBmp(const char *path) {
         return false;
 }
 
-
-//get the best hdmi mode by edid
-void DisplayMode::getBestHdmiMode(char* mode, hdmi_data_t* data) {
-    char* pos = strchr(data->disp_cap, '*');
-    if (pos != NULL) {
-        char* findReturn = pos;
-        while (*findReturn != 0x0a && findReturn >= data->disp_cap) {
-            findReturn--;
-        }
-
-        findReturn = findReturn + 1;
-        strncpy(mode, findReturn, pos - findReturn);
-        SYS_LOGI("set HDMI to best edid mode: %s\n", mode);
-    }
-
-    if (strlen(mode) == 0) {
-        pSysWrite->getPropertyString(PROP_BEST_OUTPUT_MODE, mode, DEFAULT_HDMI_MODE);
-    }
-}
-
-//get the highest hdmi mode by edid
-void DisplayMode::getHighestHdmiMode(char* mode, hdmi_data_t* data) {
-    char value[MODE_LEN] = {0};
-    char tempMode[MODE_LEN] = {0};
-
-    char* startpos;
-    char* destpos;
-
-    startpos = data->disp_cap;
-    strcpy(value, DEFAULT_HDMI_MODE);
-
-    while (strlen(startpos) > 0) {
-        //get edid resolution to tempMode in order.
-        destpos = strstr(startpos, "\n");
-        if (NULL == destpos)
-            break;
-        memset(tempMode, 0, MODE_LEN);
-        strncpy(tempMode, startpos, destpos - startpos);
-        startpos = destpos + 1;
-        if (!pSysWrite->getPropertyBoolean(PROP_SUPPORT_4K, true)
-            &&(strstr(tempMode, "2160") || strstr(tempMode, "smpte"))) {
-            SYS_LOGE("This platform not support : %s\n", tempMode);
-            continue;
-        }
-
-        if (tempMode[strlen(tempMode) - 1] == '*') {
-            tempMode[strlen(tempMode) - 1] = '\0';
-        }
-
-        if (resolveResolutionValue(tempMode, FRAMERATE_PRIORITY) > resolveResolutionValue(value, FRAMERATE_PRIORITY)) {
-            memset(value, 0, MODE_LEN);
-            strcpy(value, tempMode);
-        }
-    }
-
-    strcpy(mode, value);
-    SYS_LOGI("set HDMI to highest edid mode: %s\n", mode);
-}
-
 int64_t DisplayMode::resolveResolutionValue(const char *mode) {
     return resolveResolutionValue(mode, RESOLUTION_PRIORITY);
 }
 
 int64_t DisplayMode::resolveResolutionValue(const char *mode, int flag) {
-    bool validMode = false;
-    if (strlen(mode) != 0) {
-        for (int i = 0; i < sizeof(DISPLAY_MODE_LIST)/sizeof(char *); i++) {
-            if (strcmp(mode, DISPLAY_MODE_LIST[i]) == 0) {
-                validMode = true;
-                break;
-            }
-        }
+    if (mpSceneProcess == NULL) {
+        mpSceneProcess = new SceneProcess();
     }
-    if (!validMode) {
-        SYS_LOGI("the resolveResolution mode [%s] is not valid\n", mode);
-        return -1;
-    }
-
-    if (pSysWrite->getPropertyBoolean(PROP_HDMI_FRAMERATE_PRIORITY, true) && flag == FRAMERATE_PRIORITY) {
-        for (int64_t index = 0; index < sizeof(MODE_FRAMERATE_FIRST)/sizeof(char *); index++) {
-            if (strcmp(mode, MODE_FRAMERATE_FIRST[index]) == 0) {
-                return index;
-            }
-        }
-    } else {
-        for (int64_t index = 0; index < sizeof(MODE_RESOLUTION_FIRST)/sizeof(char *); index++) {
-            if (strcmp(mode, MODE_RESOLUTION_FIRST[index]) == 0) {
-                return index;
-            }
-        }
-    }
-    return -1;
+    return mpSceneProcess->resolveResolutionValue(mode, flag);
 }
 
 //get the highest priority mode defined by CDF table
@@ -1613,68 +1464,6 @@ bool DisplayMode::isMatchMode(char* curmode, const char* outputmode) {
     }
 
     return ret;
-}
-
-//check if the edid support current hdmi mode
-void DisplayMode::filterHdmiMode(char* mode, hdmi_data_t* data) {
-    char *pCmp = data->disp_cap;
-    while ((pCmp - data->disp_cap) < (int)strlen(data->disp_cap)) {
-        char *pos = strchr(pCmp, 0x0a);
-        if (NULL == pos)
-            break;
-
-        int step = 1;
-        if (*(pos - 1) == '*') {
-            pos -= 1;
-            step += 1;
-        }
-        if (!strncmp(pCmp, data->ubootenv_hdmimode, pos - pCmp)) {
-            strncpy(mode, pCmp, pos - pCmp);
-            return;
-        }
-        pCmp = pos + step;
-    }
-
-    if (DISPLAY_TYPE_TV == mDisplayType) {
-        #ifdef TEST_UBOOT_MODE
-            getBootEnv(UBOOTENV_TESTMODE, mode);
-            if (strlen(mode) != 0)
-               return;
-        #endif
-    }
-
-    //old mode is not support in this TV, so switch to best mode.
-#ifdef USE_BEST_MODE
-    getBestHdmiMode(mode, data);
-#else
-    getHighestHdmiMode(mode, data);
-#endif
-}
-
-void DisplayMode::getHdmiOutputMode(char* mode, hdmi_data_t* data) {
-    char edidParsing[MODE_LEN] = {0};
-    pSysWrite->readSysfs(DISPLAY_EDID_STATUS, edidParsing);
-
-    /* Fall back to 480p if EDID can't be parsed */
-    if (strcmp(edidParsing, "ok")) {
-        strcpy(mode, DEFAULT_HDMI_MODE);
-        SYS_LOGE("EDID parsing error detected\n");
-        return;
-    }
-
-    if (pSysWrite->getPropertyBoolean(PROP_HDMIONLY, true)) {
-        if (isBestOutputmode()) {
-        #ifdef USE_BEST_MODE
-            getBestHdmiMode(mode, data);
-        #else
-            getHighestHdmiMode(mode, data);
-            //getHighestPriorityMode(mode, data);
-        #endif
-        } else {
-            filterHdmiMode(mode, data);
-        }
-    }
-    SYS_LOGI("set HDMI mode to %s\n", mode);
 }
 
 void DisplayMode::filterHdmiDispcap(hdmi_data_t* data) {
@@ -1766,16 +1555,21 @@ void DisplayMode::getCommonData(hdmi_data_t* data) {
         SYS_LOGE("%s data is NULL\n", __FUNCTION__);
         return;
     }
+
+    bool ret;
+
     //hdmi resolution best policy flag
     data->isbestpolicy = isBestOutputmode();
 
     //hdmi color space best policy flag
     data->isbestcolorspace = isBestColorSpace();
 
+    //hdmi hdr policy flag:always hdr or match content hdr
     char hdr_policy[MODE_LEN] = {0};
     getHdrStrategy(hdr_policy);
     data->hdr_policy = (hdr_policy_e)atoi(hdr_policy);
 
+    //hdmi hdr priority flag:dv/hdr/sdr
     data->hdr_priority = (hdr_priority_e)getHdrPriority();
 
     SYS_LOGI("isbestcolorspace:%d, isbestpolicy:%d, hdr_policy:%d, hdr_priority :%d\n",
@@ -1795,14 +1589,17 @@ void DisplayMode::getCommonData(hdmi_data_t* data) {
     std::string curColorAttribute;
     DisplayModeMgr::getInstance().getDisplayAttribute(DISPLAY_HDMI_COLOR_ATTR, curColorAttribute);
     strcpy(data->hdmi_current_attr, curColorAttribute.c_str());
-    getBootEnv(UBOOTENV_COLORATTRIBUTE, data->ubootenv_colorattribute);
+    ret = getBootEnv(UBOOTENV_USER_COLORATTRIBUTE, data->ubootenv_colorattribute);
+    if (!ret) {
+        //if env is null,use none as default value
+        strcpy(data->ubootenv_colorattribute, "none");
+    }
     SYS_LOGI("hdmi_current_attr:%s, ubootenv_colorattribute:%s\n",
             data->hdmi_current_attr,
             data->ubootenv_colorattribute);
 
     //if no dolby_status env set to std for enable dolby vision
     //if box support dolby vision
-    bool ret;
     char dv_enable[MODE_LEN];
     ret = getBootEnv(UBOOTENV_DV_ENABLE, dv_enable);
     if (ret) {
@@ -1884,7 +1681,8 @@ void DisplayMode::getHdmiDispCap(char* disp_cap) {
             break;
         }
         count++;
-        usleep(500000);
+        if (usleep(500000) < 0)
+            SYS_LOGE("usleep interrupt!\n");
     }
 }
 
@@ -1905,7 +1703,8 @@ void DisplayMode::getHdmiDcCap(char* dc_cap) {
             break;
         }
         count++;
-        usleep(500000);
+        if (usleep(500000) < 0)
+            SYS_LOGE("usleep interrupt!\n");
     }
 }
 
@@ -2008,7 +1807,8 @@ void* DisplayMode::bootanimDetect(void* data) {
 
     if (pThiz->mIsRecovery) {
         SYS_LOGI("this is recovery mode");
-        usleep(1000000LL);
+        if (usleep(1000000LL) < 0)
+            SYS_LOGE("usleep interrupt!\n");
         pThiz->pSysWrite->writeSysfs(DISPLAY_FB0_BLANK, "1");
         //need close fb1, because uboot logo show in fb1
         pThiz->pSysWrite->writeSysfs(DISPLAY_FB1_BLANK, "1");
@@ -2320,9 +2120,6 @@ void DisplayMode::updateDeepColor(bool cvbsMode, output_mode_state state, const 
             SYS_LOGI("cur deepcolor attr value is equals to colorAttribute, Do not need set it\n");
         }
         SYS_LOGI("setMboxOutputMode colorAttribute = %s\n", colorAttribute);
-        //save to ubootenv
-        saveDeepColorAttr(outputmode, colorAttribute);
-        setBootEnv(UBOOTENV_COLORATTRIBUTE, colorAttribute);
     }
 }
 
@@ -2360,6 +2157,18 @@ void DisplayMode::getPosition(const char* curMode, int *position) {
         strcpy(keyValue, MODE_480CVBS);
         defaultWidth = FULL_WIDTH_480;
         defaultHeight = FULL_HEIGHT_480;
+    } else if (strstr(curMode, MODE_640x480p)) {
+        strcpy(keyValue, MODE_640x480p);
+        defaultWidth = FULL_WIDTH_640x480;
+        defaultHeight = FULL_HEIGHT_640x480;
+    } else if (strstr(curMode, MODE_800x480p)) {
+        strcpy(keyValue, MODE_800x480p);
+        defaultWidth = FULL_WIDTH_800x480;
+        defaultHeight = FULL_HEIGHT_800x480;
+    } else if (strstr(curMode, MODE_1024x600p)) {
+        strcpy(keyValue, MODE_1024x600p);
+        defaultWidth = FULL_WIDTH_1024x600;
+        defaultHeight = FULL_HEIGHT_1024x600;
     } else if (strstr(curMode, "480")) {
         strcpy(keyValue, strstr(curMode, MODE_480P_PREFIX) ? MODE_480P_PREFIX : MODE_480I_PREFIX);
         defaultWidth = FULL_WIDTH_480;
@@ -2392,8 +2201,8 @@ void DisplayMode::getPosition(const char* curMode, int *position) {
         strcpy(keyValue, MODE_768P_PREFIX);
         defaultWidth = FULL_WIDTH_768;
         defaultHeight = FULL_HEIGHT_768;
-    } else if (strstr(curMode, MODE_4K2K1080)) {
-        strcpy(keyValue, MODE_4K2K1080);
+    } else if (strstr(curMode, MODE_4K1K_PREFIX)) {
+        strcpy(keyValue, MODE_4K1K_PREFIX);
         defaultWidth = FULL_WIDTH_4K2K;
         defaultHeight = FULL_HEIGHT_1080;
     } else if (strstr(curMode, MODE_1080I_PREFIX)) {
@@ -2462,6 +2271,12 @@ void DisplayMode::setPosition(const char* curMode, int left, int top, int width,
     char ubootvar[100] = {0};
     if (strstr(curMode, MODE_480CVBS)) {
         strcpy(keyValue, MODE_480CVBS);
+    } else if (strstr(curMode, MODE_640x480p)) {
+        strcpy(keyValue, MODE_640x480p);
+    } else if (strstr(curMode, MODE_800x480p)) {
+        strcpy(keyValue, MODE_800x480p);
+    } else if (strstr(curMode, MODE_1024x600p)) {
+        strcpy(keyValue, MODE_1024x600p);
     } else if (strstr(curMode, "480")) {
         strcpy(keyValue, strstr(curMode, MODE_480P_PREFIX) ? MODE_480P_PREFIX : MODE_480I_PREFIX);
     } else if (strstr(curMode, MODE_576CVBS)) {
@@ -2478,8 +2293,8 @@ void DisplayMode::setPosition(const char* curMode, int left, int top, int width,
         strcpy(keyValue, MODE_720P_PREFIX);
     } else if (strstr(curMode, MODE_768P_PREFIX)) {
         strcpy(keyValue, MODE_768P_PREFIX);
-    } else if (strstr(curMode, MODE_4K2K1080)){
-        strcpy(keyValue, MODE_4K2K1080);
+    } else if (strstr(curMode, MODE_4K1K_PREFIX)){
+        strcpy(keyValue, MODE_4K1K_PREFIX);
     } else if (strstr(curMode, MODE_1080I_PREFIX)) {
         strcpy(keyValue, MODE_1080I_PREFIX);
     } else if (strstr(curMode, MODE_1080P_PREFIX)) {
@@ -2524,6 +2339,18 @@ void DisplayMode::getDeepColorAttr(const char* mode, char* value) {
     strcpy(value, cur_ColorAttribute.c_str());
 
     SYS_LOGI("%s colorspace:%s\n", __FUNCTION__, value);
+}
+
+bool DisplayMode::setColorSpace(const char* colorspace) {
+    SYS_LOGI("user change color space to %s\n", colorspace);
+    setBootEnv(UBOOTENV_BESTCOLORSPACE, "false");
+    setBootEnv(UBOOTENV_USER_COLORATTRIBUTE, colorspace);
+
+    char outputmode[MODE_LEN] = {0};
+    getDisplayMode(outputmode);
+    saveDeepColorAttr(outputmode, colorspace);
+
+    return true;
 }
 
 bool DisplayMode::getDisplayMode(char* mode) {
@@ -2667,10 +2494,12 @@ void DisplayMode::setTvDolbyVisionEnable(void) {
     setHdrMode(HDR_MODE_OFF);
     DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_POLICY, DV_POLICY_FOLLOW_SINK, ConnectorType::CONN_TYPE_HDMI);
 
-    usleep(100000);//100ms
+    if (usleep(100000) < 0)//100ms
+        SYS_LOGE("usleep interrupt!\n");
     DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_ENABLE, DV_ENABLE, ConnectorType::CONN_TYPE_HDMI);
     DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_MODE, DV_MODE_IPT_TUNNEL, ConnectorType::CONN_TYPE_HDMI);
-    usleep(100000);//100ms
+    if (usleep(100000) < 0)//100ms
+        SYS_LOGE("usleep interrupt!\n");
 
     setHdrMode(HDR_MODE_AUTO);
 
@@ -2685,13 +2514,15 @@ void DisplayMode::setTvDolbyVisionDisable(void) {
 
     DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_POLICY, DV_POLICY_FORCE_MODE, ConnectorType::CONN_TYPE_HDMI);
     DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_MODE, DV_MODE_BYPASS, ConnectorType::CONN_TYPE_HDMI);
-    usleep(100000);//100ms
+    if (usleep(100000) < 0)//100ms
+        SYS_LOGE("usleep interrupt!\n");
     std::string dvstatus = "";
     DisplayModeMgr::getInstance().getDisplayAttribute(DISPLAY_DOLBY_VISION_STATUS, dvstatus, ConnectorType::CONN_TYPE_HDMI);
 
     if (strcmp(dvstatus.c_str(), BYPASS_PROCESS)) {
         while (++check_status_count <30) {
-            usleep(20000);//20ms
+            if (usleep(20000) < 0)//20ms
+                SYS_LOGE("usleep interrupt!\n");
             DisplayModeMgr::getInstance().getDisplayAttribute(DISPLAY_DOLBY_VISION_STATUS, dvstatus, ConnectorType::CONN_TYPE_HDMI);
             if (!strcmp(dvstatus.c_str(), BYPASS_PROCESS)) {
                 break;
@@ -2764,10 +2595,12 @@ void DisplayMode::enableDolbyVision(int DvMode) {
         //setDvHdrPolicy(DV_HDR_SINK_PROCESS);
     }
 
-    usleep(100000);//100ms
+    if (usleep(100000) < 0)//100ms
+        SYS_LOGE("usleep interrupt!\n");
     DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_ENABLE, DV_ENABLE, ConnectorType::CONN_TYPE_HDMI);
     DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_MODE, DV_MODE_IPT_TUNNEL, ConnectorType::CONN_TYPE_HDMI);
-    usleep(100000);//100ms
+    if (usleep(100000) < 0)//100ms
+        SYS_LOGE("usleep interrupt!\n");
 
     if (DISPLAY_TYPE_TV == mDisplayType) {
         setHdrMode(HDR_MODE_AUTO);
@@ -2796,13 +2629,15 @@ void DisplayMode::disableDolbyVision(int DvMode) {
 
     DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_POLICY, DV_POLICY_FORCE_MODE, ConnectorType::CONN_TYPE_HDMI);
     DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_MODE, DV_MODE_BYPASS, ConnectorType::CONN_TYPE_HDMI);
-    usleep(100000);//100ms
+    if (usleep(100000) < 0)//100ms
+        SYS_LOGE("usleep interrupt!\n");
     std::string dvstatus = "";
     DisplayModeMgr::getInstance().getDisplayAttribute(DISPLAY_DOLBY_VISION_STATUS, dvstatus, ConnectorType::CONN_TYPE_HDMI);
 
     if (strcmp(dvstatus.c_str(), BYPASS_PROCESS)) {
         while (++check_status_count <30) {
-            usleep(20000);//20ms
+            if (usleep(20000) < 0)//20ms
+                SYS_LOGE("usleep interrupt!\n");
             DisplayModeMgr::getInstance().getDisplayAttribute(DISPLAY_DOLBY_VISION_STATUS, dvstatus, ConnectorType::CONN_TYPE_HDMI);
             if (!strcmp(dvstatus.c_str(), BYPASS_PROCESS)) {
                 break;
@@ -2868,23 +2703,6 @@ void DisplayMode::setDolbyVisionEnable(int state,  output_mode_state mode_state)
             sprintf(dvstatus, "%d", state);
         }
         setBootEnv(UBOOTENV_DOLBYSTATUS, dvstatus);
-
-        //2. get final display mode and color format
-        setBootEnv(UBOOTENV_ISBESTMODE, "false");
-        mHdmidata.state = OUTPUT_MODE_STATE_INIT;
-        getCommonData(&mHdmidata);
-        sceneProcess(&mHdmidata);
-
-        // 3. save uboot env
-        //3.1 save hdmimode
-        if (strstr(mHdmidata.final_displaymode, "cvbs") != NULL) {
-            setBootEnv(UBOOTENV_CVBSMODE, mHdmidata.final_displaymode);
-        } else if (strstr(mHdmidata.final_displaymode, "hz") != NULL) {
-            setBootEnv(UBOOTENV_HDMIMODE, mHdmidata.final_displaymode);
-        }
-        //3.2 save colorattribute
-        saveDeepColorAttr(mHdmidata.final_displaymode, mHdmidata.final_deepcolor);
-        setBootEnv(UBOOTENV_COLORATTRIBUTE, mHdmidata.final_deepcolor);
     }
 }
 
@@ -2926,6 +2744,24 @@ void DisplayMode::setHdrStrategy(const char* type) {
     setSourceOutputMode(cur_displaymode);
 }
 
+int DisplayMode::getCurrentHdrPriority(void) {
+    hdr_priority_e value = DOLBY_VISION_PRIORITY;
+
+    std::string cur_hdr_priority;
+    DisplayModeMgr::getInstance().getDisplayAttribute(DISPLAY_HDR_PRIORITY, cur_hdr_priority);
+
+    if (strstr(cur_hdr_priority.c_str(), "2")) {
+        value = SDR_PRIORITY;
+    } else if (strstr(cur_hdr_priority.c_str(), "1")) {
+        value = HDR10_PRIORITY;
+    } else {
+        value = DOLBY_VISION_PRIORITY;
+    }
+
+    SYS_LOGI("getCurrentHdrPriority is [%d]", value);
+    return (int)value;
+}
+
 int DisplayMode::getHdrPriority(void) {
     char hdr_priority[MODE_LEN] = {0};
     hdr_priority_e value = DOLBY_VISION_PRIORITY;
@@ -2950,89 +2786,31 @@ void DisplayMode::setHdrPriority(const char* type) {
 
     setBootEnv(UBOOTENV_HDR_PRIORITY, (char *)type);
 
-    if  (strstr(type, "2"))  {
-        //1. get final display mode and color format
-        setBootEnv(UBOOTENV_ISBESTMODE, "true");
-        mHdmidata.state = OUTPUT_MODE_STATE_INIT;
-        getCommonData(&mHdmidata);
-        sceneProcess(&mHdmidata);
+    //2. set hdmi mode
+    char cur_displaymode[MODE_LEN] = {0};
+    getDisplayMode(cur_displaymode);
 
-        // 2. save uboot env
-        //2.1 save hdmimode
-        if (strstr(mHdmidata.final_displaymode, "cvbs") != NULL) {
-            setBootEnv(UBOOTENV_CVBSMODE, mHdmidata.final_displaymode);
-        } else if (strstr(mHdmidata.final_displaymode, "hz") != NULL) {
-            setBootEnv(UBOOTENV_HDMIMODE, mHdmidata.final_displaymode);
-        }
-        //2.2 save colorattribute
-        saveDeepColorAttr(mHdmidata.final_displaymode, mHdmidata.final_deepcolor);
-        setBootEnv(UBOOTENV_COLORATTRIBUTE, mHdmidata.final_deepcolor);
-    } else if  (strstr(type, "1")) {
-        //1. get final display mode and color format
-        setBootEnv(UBOOTENV_ISBESTMODE, "true");
-        mHdmidata.state = OUTPUT_MODE_STATE_INIT;
-        getCommonData(&mHdmidata);
-        sceneProcess(&mHdmidata);
-
-        // 2. save uboot env
-        //2.1 save hdmimode
-        if (strstr(mHdmidata.final_displaymode, "cvbs") != NULL) {
-            setBootEnv(UBOOTENV_CVBSMODE, mHdmidata.final_displaymode);
-        } else if (strstr(mHdmidata.final_displaymode, "hz") != NULL) {
-            setBootEnv(UBOOTENV_HDMIMODE, mHdmidata.final_displaymode);
-        }
-        //2.2 save colorattribute
-        saveDeepColorAttr(mHdmidata.final_displaymode, mHdmidata.final_deepcolor);
-        setBootEnv(UBOOTENV_COLORATTRIBUTE, mHdmidata.final_deepcolor);
-    } else {
-        char hdr_policy[MODE_LEN] = {0};
-        char dvstatus[MODE_LEN]   = {0};
-        char dv_type[MODE_LEN]    = {0};
-        std::string dv_cap;
-        DisplayModeMgr::getInstance().getDisplayAttribute(DISPLAY_DOLBY_VISION_CAP2, dv_cap, ConnectorType::CONN_TYPE_HDMI);
-        SYS_LOGI("This TV dv cap: %s", dv_cap.c_str());
-        //1. get final display mode and color format
-        setBootEnv(UBOOTENV_ISBESTMODE, "true");
-        mHdmidata.state = OUTPUT_MODE_STATE_INIT;
-        getCommonData(&mHdmidata);
-        sceneProcess(&mHdmidata);
-
-        // 2. save uboot env
-        //2.1 save hdmimode
-        if (strstr(mHdmidata.final_displaymode, "cvbs") != NULL) {
-            setBootEnv(UBOOTENV_CVBSMODE, mHdmidata.final_displaymode);
-        } else if (strstr(mHdmidata.final_displaymode, "hz") != NULL) {
-            setBootEnv(UBOOTENV_HDMIMODE, mHdmidata.final_displaymode);
-        }
-        //2.2 save colorattribute
-        saveDeepColorAttr(mHdmidata.final_displaymode, mHdmidata.final_deepcolor);
-        setBootEnv(UBOOTENV_COLORATTRIBUTE, mHdmidata.final_deepcolor);
-
-        // 2.3 save dolby status/dv_type
-        // In follow sink mode: 0:disable 1:STD(or enable dv) 2:LL YUV 3: LL RGB
-        // In follow source mode: dv is disable  in uboot.
-        if (!(strstr(dv_cap.c_str(), "The Rx don't support DolbyVision")) &&
-            (isMboxSupportDolbyVision() == true)) {
-            getHdrStrategy(hdr_policy);
-            if (!strcmp(hdr_policy, HDR_POLICY_SOURCE)) {
-                sprintf(dvstatus, "%d", 0);
-            } else {
-                sprintf(dvstatus, "%d", mHdmidata.dv_info.dv_type);
-            }
-            setBootEnv(UBOOTENV_DOLBYSTATUS, dvstatus);
-
-            sprintf(dv_type, "%d", mHdmidata.dv_info.dv_type);
-            setBootEnv(UBOOTENV_DV_TYPE, dv_type);
-
-            setBootEnv(UBOOTENV_DV_ENABLE, mHdmidata.dv_info.dv_enable);
-
-            SYS_LOGI("dvstatus %s dv_type %s dv_enable %s\n",
-                dvstatus, dv_type, mHdmidata.dv_info.dv_enable);
-
+    if (strstr(type, HDR_PRIORITY_TYPE[HDR10_PRIORITY])) {
+        if (mpSceneProcess->isHDRSupportMode(cur_displaymode)) {
+            setSourceOutputMode(cur_displaymode);
         } else {
-            SYS_LOGI("MBOX or Rx is not support dolby vision, dvstatus %s dv_type %d dv_enable %s\n",
-                dvstatus, mHdmidata.dv_info.dv_type, mHdmidata.dv_info.dv_enable);
+            //1. get hdmi data
+            char displaymode[MODE_LEN] = {0};
+            hdmi_data_t data;
+
+            memset(&data, 0, sizeof(hdmi_data_t));
+            getHdmiData_cached(&data);
+            getCommonData(&data);
+            data.state = OUTPUT_MODE_STATE_INIT;
+            data.isbestpolicy     = true;
+
+            //2. scene logic process
+            sceneProcess(&data);
+            strcpy(displaymode, data.final_displaymode);
+            setSourceOutputMode(displaymode);
         }
+    } else {
+        setSourceOutputMode(cur_displaymode);
     }
 }
 
@@ -3481,19 +3259,6 @@ void DisplayMode::initHdrSdrMode() {
     setSdrMode(mode);
 }
 
-int DisplayMode::modeToIndex(const char *mode) {
-    int index = DISPLAY_MODE_1080P;
-    for (int i = 0; i < sizeof(DISPLAY_MODE_LIST)/sizeof(char *); i++) {
-        if (!strcmp(mode, DISPLAY_MODE_LIST[i])) {
-            index = i;
-            break;
-        }
-    }
-
-    //SYS_LOGI("modeToIndex mode:%s index:%d", mode, index);
-    return index;
-}
-
 void DisplayMode::isHDCPTxAuthSuccess(int *status) {
 #ifndef RECOVERY_MODE
     pTxAuth->isAuthSuccess(status);
@@ -3526,14 +3291,6 @@ void DisplayMode::onTxEvent (char* switchName, char* hpdstate, int outputState) 
     //plugout or suspend,set dummy_l
     if (hpdstate && hpdstate[0] == '0') {
         SYS_LOGI("hwc will set dummy when hdmi plugout or suspend \n");
-        return;
-    }
-
-    //hdmi edid parse error and hpd = 1
-    //set default reolsution and color format
-    if ((isHdmiEdidParseOK() == false) &&
-        (isHdmiHpd() == true)) {
-        setDefaultMode();
         return;
     }
 
@@ -3668,10 +3425,6 @@ void DisplayMode::saveHdmiParamToEnv() {
             setBootEnv(UBOOTENV_OUTPUTMODE, (char *)outputMode);
         }
 
-        if (strstr(outputMode, "hz") != NULL) {
-            setBootEnv(UBOOTENV_HDMIMODE, (char *)outputMode);
-        }
-
         // 2.3 save dolby status/dv_type
         // In follow sink mode: 0:disable 1:STD(or enable dv) 2:LL YUV 3: LL RGB
         // In follow source mode: dv is disable  in uboot.
@@ -3747,6 +3500,7 @@ bool DisplayMode::memcContrl(bool on) {
     }
 
     ioctl(memDev, MEMDEV_CONTRL, &value);
+    close(memDev);
     return true;
 
 }

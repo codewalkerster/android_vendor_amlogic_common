@@ -340,6 +340,7 @@ int img_pack(const char* const path_src, const char* const packedImg,
         while ((ptr=readdir(dir)) != NULL)
         {
                 char filePath[MAX_PATH * 2];
+                memset(filePath, 0, sizeof(filePath));
                 if (strcmp(ptr->d_name,".") == 0 || strcmp(ptr->d_name,"..") == 0)    ///current dir OR parent dir
                     continue;
                 else if (ptr->d_type == 8)

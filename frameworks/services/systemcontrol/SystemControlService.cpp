@@ -145,6 +145,7 @@ bool SystemControlService::getSupportDispModeList(std::vector<std::string> *supp
     hdmi_data_t data;
     char *save_ptr = NULL;
 
+    memset(&data, 0, sizeof(hdmi_data_t));
     pDisplayMode->getHdmiData(&data);
     char *ptr = strtok_r(data.disp_cap, delim, &save_ptr);
     while (ptr != NULL) {

@@ -41,7 +41,8 @@ int main(int argc, char** argv)
 
     //don't end this progress, wait for hdmi plug detect thread.
     while (1) {
-        usleep(10000000);
+        if (usleep(10000000) < 0)
+            SYS_LOGE("usleep interrupt!\n");
     }
 
     return 0;

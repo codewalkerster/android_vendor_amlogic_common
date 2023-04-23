@@ -37,6 +37,7 @@ const char *PROFIX_UBOOTENV_VAR = "ubootenv.var.";
 Ubootenv::Ubootenv() :
     mEnvLock(PTHREAD_MUTEX_INITIALIZER) {
 
+    memset(mEnvPartitionName, 0, sizeof(mEnvPartitionName));
     init();
 
     //printValues();
@@ -449,12 +450,19 @@ int Ubootenv::save() {
         err = ioctl (fd, MEMERASE,&erase);
         if (err < 0) {
             SYS_LOGE ("[ubootenv] MEMERASE SYS_LOGE %d\n",err);
+            free(data);
             close(fd);
             return  -2;
         }
 
         if (info.erasesize > (unsigned int)mEnvPartitionSize) {
-            lseek(fd, 0L, SEEK_SET);
+            err = lseek(fd, 0L, SEEK_SET);
+            if (err < 0) {
+                SYS_LOGE("%s() %d: err is %d\n", __func__, __LINE__, err);
+                free(data);
+                close(fd);
+                return -7;
+            }
             if (data != NULL)
                 err = write(fd , data, info.erasesize);
             else
@@ -468,6 +476,7 @@ int Ubootenv::save() {
                 SYS_LOGE("[ubootenv] can not lseek, seek num = %d \n", lseeknum);
             }
             err = write(fd ,mEnvData.image, mEnvPartitionSize);
+            free(data);
         }
 
     } else {

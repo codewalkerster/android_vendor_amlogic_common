@@ -344,7 +344,8 @@ int SysWrite::writeUnifyKeyfs(const char *path, const char *value) {
         return -1;
     }
 
-    usleep(100*1000);
+    if (usleep(100*1000) < 0)
+        SYS_LOGE("usleep interrupt!\n");
 
     int len = readSys(UNIFYKEY_EXIST, (char*)existKey, 10);
     if (len >= 1)
@@ -386,7 +387,8 @@ int SysWrite::writePlayreadyKeyfs(const char *path, const char *value, const int
         return -1;
     }
 
-    usleep(100*1000);
+    if (usleep(100*1000) < 0)
+        SYS_LOGE("usleep interrupt!\n");
 
     int len = readSys(UNIFYKEY_EXIST, (char*)existKey, 10);
     if (len >= 1)
@@ -429,7 +431,8 @@ bool SysWrite::writeNetflixKeyfs(const char *path, const char *value, const int 
         return -1;
     }
 
-    usleep(100*1000);
+    if (usleep(100*1000) < 0)
+        SYS_LOGE("usleep interrupt!\n");
 
     int len = readSys(UNIFYKEY_EXIST, (char*)existKey, 10);
     if (len >= 1)
@@ -473,7 +476,8 @@ bool SysWrite::writeWidevineKeyfs(const char *path, const char *value, const int
         return -1;
     }
 
-    usleep(100*1000);
+    if (usleep(100*1000) < 0)
+        SYS_LOGE("usleep interrupt!\n");
 
     int len = readSys(UNIFYKEY_EXIST, (char*)existKey, 10);
     if (len >= 1)
@@ -804,6 +808,7 @@ void SysWrite::initConstCharforSysNode() {
     mPathforSysNode[DISPLAY_EDID_RAW]           = "/sys/class/amhdmitx/amhdmitx0/rawedid";
     mPathforSysNode[DISPLAY_HDMI_PHY]           = "/sys/class/amhdmitx/amhdmitx0/phy";
     mPathforSysNode[DISPLAY_HDMI_FRL_RATE]      = "/sys/class/amhdmitx/amhdmitx0/frl_rate";
+    mPathforSysNode[DISPLAY_HDMI_HDR_PRIORITY]  = "/sys/class/amhdmitx/amhdmitx0/hdr_priority";
     mPathforSysNode[AUDIO_DSP_DIGITAL_RAW]      = "/sys/class/audiodsp/digital_raw";
     mPathforSysNode[AV_HDMI_CONFIG]             = "/sys/class/amhdmitx/amhdmitx0/config";
     mPathforSysNode[AV_HDMI_3D_SUPPORT]         = "/sys/class/amhdmitx/amhdmitx0/support_3d";

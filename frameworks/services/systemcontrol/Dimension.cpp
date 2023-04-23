@@ -55,6 +55,8 @@ Dimension::Dimension(DisplayMode *displayMode, SysWrite *sysWrite)
     strcpy(mMode3d, VIDEO_3D_OFF);
 
     mSupport.total = 0;
+    memset(mSupport.stored, 0, sizeof(mSupport.stored));
+    memset(mSupport.dst, 0, sizeof(mSupport.dst));
     for (int i = 0; i < NUM_MAX; i++) {
         memset(mSupport.info[i].mode, 0, sizeof(mSupport.info[i].mode));
         memset(mSupport.info[i].list, 0, sizeof(mSupport.info[i].list));
@@ -364,10 +366,12 @@ int32_t Dimension::set3DMode(const char* mode3d) {
         return -1;
     }
     pSysWrite->writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "1");
-    usleep(100 * 1000);
+    if (usleep(100 * 1000) < 0)
+        ALOGE("usleep interrupt!\n");
     pTxAuth->stopVerAll();
     pSysWrite->writeSysfs(DISPLAY_HDMI_HDCP_MODE, "-1"); // "-1" means stop hdcp 14/22
-    usleep(100 * 1000);
+    if (usleep(100 * 1000) < 0)
+        ALOGE("usleep interrupt!\n");
     pSysWrite->writeSysfs(DISPLAY_HDMI_PHY, "0"); // Turn off TMDS PHY
 
     //1. set display_mode null
@@ -376,14 +380,17 @@ int32_t Dimension::set3DMode(const char* mode3d) {
     //2. 3D mode implement
     strcpy(mMode3d, mode3d);
     mode3DImpl(mode3d);
-    usleep(100 * 1000);
+    if (usleep(100 * 1000) < 0)
+        ALOGE("usleep interrupt!\n");
 
     //3. check display mode and set
     setDispMode(mode3d);
 
-    usleep(100 * 1000);
+    if (usleep(100 * 1000) < 0)
+        ALOGE("usleep interrupt!\n");
     pSysWrite->writeSysfs(DISPLAY_HDMI_PHY, "1"); // Turn on TMDS PHY
-    usleep(100 * 1000);
+    if (usleep(100 * 1000) < 0)
+        ALOGE("usleep interrupt!\n");
     pSysWrite->writeSysfs(DISPLAY_HDMI_AVMUTE_SYSFS, "-1");
     pTxAuth->stop();
     pTxAuth->start();
@@ -550,7 +557,8 @@ void* Dimension::detect3DThread(void* data) {
         retry--;
         di3Dformat[retry] = pThiz->getVideo3DFormat();
         //ALOGI("[detect3DThread]di3Dformat[%d]:%d\n", retry, di3Dformat[retry]);
-        usleep(200000);//200ms
+        if (usleep(200000) < 0)//200ms
+            ALOGE("usleep interrupt!\n");
     }
 
     //get the 3d format which was detected most times

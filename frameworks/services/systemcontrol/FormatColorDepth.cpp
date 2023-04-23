@@ -124,7 +124,8 @@ bool FormatColorDepth::initColorAttribute(char* supportedColorList, int len) {
         if (count++ >= 5) {
             break;
         }
-        usleep(500000);
+        if (usleep(500000) < 0)
+                SYS_LOGE("usleep interrupt!\n");
     }
 
     return result;

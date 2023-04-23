@@ -25,6 +25,56 @@
 #include "common.h"
 #include "SysWrite.h"
 
+//mode definition
+#define MODE_1024x600p                  "1024x600p60hz"
+#define MODE_800x480p                   "800x480p60hz"
+#define MODE_640x480p                   "640x480p60hz"
+#define MODE_480I                       "480i60hz"
+#define MODE_480P                       "480p60hz"
+#define MODE_480CVBS                    "480cvbs"
+#define MODE_576I                       "576i50hz"
+#define MODE_576P                       "576p50hz"
+#define MODE_576CVBS                    "576cvbs"
+#define MODE_720P50HZ                   "720p50hz"
+#define MODE_720P                       "720p60hz"
+#define MODE_720P100HZ                  "1280x720p100hz"
+#define MODE_720P120HZ                  "1280x720p120hz"
+#define MODE_768P                       "768p60hz"
+#define MODE_1080P24HZ                  "1080p24hz"
+#define MODE_1080P25HZ                  "1080p25hz"
+#define MODE_1080P30HZ                  "1080p30hz"
+#define MODE_1080I50HZ                  "1080i50hz"
+#define MODE_1080P50HZ                  "1080p50hz"
+#define MODE_1080I                      "1080i60hz"
+#define MODE_1080P                      "1080p60hz"
+#define MODE_1080P100HZ                 "1920x1080p100hz"
+#define MODE_1080P120HZ                 "1920x1080p120hz"
+#define MODE_1440P50HZ                  "2560x1440p50hz"
+#define MODE_1440P60HZ                  "2560x1440p60hz"
+#define MODE_1440P100HZ                 "2560x1440p100hz"
+#define MODE_1440P120HZ                 "2560x1440p120hz"
+#define MODE_4K2K24HZ                   "2160p24hz"
+#define MODE_4K2K25HZ                   "2160p25hz"
+#define MODE_4K2K30HZ                   "2160p30hz"
+#define MODE_4K2K50HZ                   "2160p50hz"
+#define MODE_4K2K60HZ                   "2160p60hz"
+#define MODE_4K2K100HZ                  "3840x2160p100hz"
+#define MODE_4K2K120HZ                  "3840x2160p120hz"
+#define MODE_4K2KSMPTE                  "smpte24hz"
+#define MODE_4K2KSMPTE30HZ              "smpte30hz"
+#define MODE_4K2KSMPTE50HZ              "smpte50hz"
+#define MODE_4K2KSMPTE60HZ              "smpte60hz"
+#define MODE_8K4K24HZ                   "7680x4320p24hz"
+#define MODE_8K4K25HZ                   "7680x4320p25hz"
+#define MODE_8K4K30HZ                   "7680x4320p30hz"
+#define MODE_8K4K48HZ                   "7680x4320p48hz"
+#define MODE_8K4K50HZ                   "7680x4320p50hz"
+#define MODE_8K4K60HZ                   "7680x4320p60hz"
+#define MODE_PANEL                      "panel"
+#define MODE_PAL_M                      "pal_m"
+#define MODE_PAL_N                      "pal_n"
+#define MODE_NTSC_M                     "ntsc_m"
+
 //default value
 #define DEFAULT_COLOR_FORMAT_4K         "420,8bit"
 #define DEFAULT_COLOR_FORMAT            "rgb,8bit"
@@ -61,6 +111,109 @@ typedef enum {
 enum {
     RESOLUTION_PRIORITY = 0,
     FRAMERATE_PRIORITY  = 1,
+};
+
+enum {
+    DISPLAY_MODE_480I                   = 0,
+    DISPLAY_MODE_480P                   = 1,
+    DISPLAY_MODE_480CVBS                = 2,
+    DISPLAY_MODE_576I                   = 3,
+    DISPLAY_MODE_576P                   = 4,
+    DISPLAY_MODE_576CVBS                = 5,
+    DISPLAY_MODE_720P50HZ               = 6,
+    DISPLAY_MODE_720P                   = 7,
+    DISPLAY_MODE_1080P24HZ              = 8,
+    DISPLAY_MODE_1080P25HZ              = 9,
+    DISPLAY_MODE_1080P30HZ              = 10,
+    DISPLAY_MODE_1080I50HZ              = 11,
+    DISPLAY_MODE_1080P50HZ              = 12,
+    DISPLAY_MODE_1080I                  = 13,
+    DISPLAY_MODE_1080P                  = 14,
+    DISPLAY_MODE_4K2K24HZ               = 15,
+    DISPLAY_MODE_4K2K25HZ               = 16,
+    DISPLAY_MODE_4K2K30HZ               = 17,
+    DISPLAY_MODE_4K2K50HZ               = 18,
+    DISPLAY_MODE_4K2K60HZ               = 19,
+    DISPLAY_MODE_4K2KSMPTE              = 20,
+    DISPLAY_MODE_4K2KSMPTE30HZ          = 21,
+    DISPLAY_MODE_4K2KSMPTE50HZ          = 22,
+    DISPLAY_MODE_4K2KSMPTE60HZ          = 23,
+    DISPLAY_MODE_768P                   = 24,
+    DISPLAY_MODE_PANEL                  = 25,
+    DISPLAY_MODE_PAL_M                  = 26,
+    DISPLAY_MODE_PAL_N                  = 27,
+    DISPLAY_MODE_NTSC_M                 = 28,
+    DISPLAY_MODE_8K4K24HZ               = 29,
+    DISPLAY_MODE_8K4K25HZ               = 30,
+    DISPLAY_MODE_8K4K30HZ               = 31,
+    DISPLAY_MODE_8K4K48HZ               = 32,
+    DISPLAY_MODE_8K4K50HZ               = 33,
+    DISPLAY_MODE_8K4K60HZ               = 34,
+    DISPLAY_MODE_720P100HZ              = 35,
+    DISPLAY_MODE_720P120HZ              = 36,
+    DISPLAY_MODE_1080P100HZ             = 37,
+    DISPLAY_MODE_1080P120HZ             = 38,
+    DISPLAY_MODE_1440P50HZ              = 39,
+    DISPLAY_MODE_1440P60HZ              = 40,
+    DISPLAY_MODE_1440P100HZ             = 41,
+    DISPLAY_MODE_1440P120HZ             = 42,
+    DISPLAY_MODE_4K2K100HZ              = 43,
+    DISPLAY_MODE_4K2K120HZ              = 44,
+    DISPLAY_MODE_640x480p               = 45,
+    DISPLAY_MODE_800x480p               = 46,
+    DISPLAY_MODE_1024x600p              = 47,
+    DISPLAY_MODE_TOTAL                  = 48
+};
+
+static const char* DISPLAY_MODE_LIST[] = {
+    MODE_800x480p,
+    MODE_1024x600p,
+    MODE_640x480p,
+    MODE_480I,
+    MODE_480P,
+    MODE_480CVBS,
+    MODE_576I,
+    MODE_576P,
+    MODE_576CVBS,
+    MODE_720P,
+    MODE_720P50HZ,
+    MODE_720P100HZ,
+    MODE_720P120HZ,
+    MODE_1080P24HZ,
+    MODE_1080P25HZ,
+    MODE_1080P30HZ,
+    MODE_1080I50HZ,
+    MODE_1080P50HZ,
+    MODE_1080I,
+    MODE_1080P,
+    MODE_1080P100HZ,
+    MODE_1080P120HZ,
+    MODE_1440P50HZ,
+    MODE_1440P60HZ,
+    MODE_1440P100HZ,
+    MODE_1440P120HZ,
+    MODE_4K2K24HZ,
+    MODE_4K2K25HZ,
+    MODE_4K2K30HZ,
+    MODE_4K2K50HZ,
+    MODE_4K2K60HZ,
+    MODE_4K2KSMPTE,
+    MODE_4K2KSMPTE30HZ,
+    MODE_4K2KSMPTE50HZ,
+    MODE_4K2KSMPTE60HZ,
+    MODE_4K2K100HZ,
+    MODE_4K2K120HZ,
+    MODE_8K4K24HZ,
+    MODE_8K4K25HZ,
+    MODE_8K4K30HZ,
+    MODE_8K4K48HZ,
+    MODE_8K4K50HZ,
+    MODE_8K4K60HZ,
+    MODE_768P,
+    MODE_PANEL,
+    MODE_PAL_M,
+    MODE_PAL_N,
+    MODE_NTSC_M,
 };
 
 typedef struct dv_input_info {
@@ -138,7 +291,9 @@ public:
     void setdvcap(const char* value);
     void setdvdisplaymode(const char* value);
     void setdvdeepcolor(const char* value);
+    bool isHDRSupportMode(const char *mode);
     void UpdateSceneInputInfo(scene_input_info_t * input_info);
+    int64_t resolveResolutionValue(const char *mode, int flag = FRAMERATE_PRIORITY);
 
     void Process(scene_output_info_t* output_info);
 
@@ -163,7 +318,6 @@ private:
     bool isLowPowerMode();
     bool isDVSupportMode(char *mode);
     scene_state getSceneState();
-    int64_t resolveResolutionValue(const char *mode, int flag = FRAMERATE_PRIORITY);
     bool isModeSupportDeepColorAttr(const char *mode, const char * color);
     void getBestHdmiDeepColorAttr(const char *outputmode, char* colorAttribute);
     void getHdmiColorAttribute(const char* outputmode, char* colorAttribute, int state);

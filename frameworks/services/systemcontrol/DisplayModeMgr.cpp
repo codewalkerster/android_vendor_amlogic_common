@@ -51,6 +51,8 @@ DisplayModeMgr::DisplayModeMgr() {
 #else
     mDisplayAdapter = meson::DisplayAdapterCreateLocal(meson::DisplayAdapter::BackendType::DISPLAY_TYPE_FBDEV);
 #endif
+    mDisplayType = DISPLAY_TYPE_MBOX;
+
     init();
 }
 
@@ -64,7 +66,8 @@ bool DisplayModeMgr::init() {
             if (mDisplayAdapter->isReady()) {
                 break;
             }
-            usleep(1000);
+            if (usleep(1000) < 0)
+                SYS_LOGE("usleep interrupt!\n");
         }
     }
     initConnectType();

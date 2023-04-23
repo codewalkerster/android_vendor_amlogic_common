@@ -203,23 +203,119 @@ using namespace android;
 
 
 #define UBOOTENV_DIGITAUDIO             "ubootenv.var.digitaudiooutput"
-#define UBOOTENV_HDMIMODE               "ubootenv.var.hdmimode"
-#define UBOOTENV_TESTMODE               "ubootenv.var.testmode"
-#define UBOOTENV_CVBSMODE               "ubootenv.var.cvbsmode"
-#define UBOOTENV_OUTPUTMODE             "ubootenv.var.outputmode"
-#define UBOOTENV_ISBESTMODE             "ubootenv.var.is.bestmode"
-#define UBOOTENV_BESTCOLORSPACE         "ubootenv.var.bestcolorspace"
-#define UBOOTENV_BESTDOLBYVISION        "ubootenv.var.bestdolbyvision"
-#define UBOOTENV_EDIDCRCVALUE           "ubootenv.var.hdmichecksum"
-#define UBOOTENV_HDMICOLORSPACE         "ubootenv.var.hdmi_colorspace"
-#define UBOOTENV_HDMICOLORDEPTH         "ubootenv.var.hdmi_colordepth"
-#define UBOOTENV_DOLBYSTATUS            "ubootenv.var.dolby_status"
-#define UBOOTENV_DV_TYPE                "ubootenv.var.dv_type"
-#define UBOOTENV_DV_ENABLE              "ubootenv.var.dv_enable"
-#define UBOOTENV_HDR_POLICY             "ubootenv.var.hdr_policy"
-#define UBOOTENV_FRAC_RATE_POLICY       "ubootenv.var.frac_rate_policy"
-#define UBOOTENV_HDR_PRIORITY           "ubootenv.var.hdr_priority"
+/*
+ * save user set color format
+ */
+#define UBOOTENV_USER_COLORATTRIBUTE   "ubootenv.var.user_colorattribute"
 
+/*
+ * save user set hdmi output resolution or tv prefer resolution
+ */
+#define UBOOTENV_HDMIMODE               "ubootenv.var.hdmimode"
+
+/*
+ * test for tv product
+ */
+#define UBOOTENV_TESTMODE               "ubootenv.var.testmode"
+
+/*
+ * save user prefer cvbs output resolution
+ */
+#define UBOOTENV_CVBSMODE               "ubootenv.var.cvbsmode"
+/*
+ * save device output resolution(hdmi/cvbs/panel) at uboot
+ * and uboot transmit this value to kernel.
+ */
+#define UBOOTENV_OUTPUTMODE             "ubootenv.var.outputmode"
+/*
+ * best resolution policy
+ * false:use user set resolution as hdmi output
+ * true :choose the high and max fps resolution as hdmi output,
+ *       resolution priority show as the table of MODE_FRAMERATE_FIRST[] in sceneprocess.cpp,
+ *       ex:2160p60hz->216050hz->1080p60hz->1080p50hz->2160p30hz->2160p25hz->2160p24hz...
+ */
+#define UBOOTENV_ISBESTMODE             "ubootenv.var.is.bestmode"
+
+/*
+ * best color space policy
+ * false:use user set color space as hdmi output
+ * true :choose prefer color space as hdmi output,
+ *       color space priority show as the table in sceneprocess.cpp,
+ *       HDR_4K_COLOR_ATTRIBUTE_LIST and HDR_NON4K_COLOR_ATTRIBUTE_LIST for hdr tv
+ *       COLOR_ATTRIBUTE_LIST1 and SDR_NON4K_COLOR_ATTRIBUTE_LIST for non hdr tv
+ */
+
+#define UBOOTENV_BESTCOLORSPACE         "ubootenv.var.bestcolorspace"
+
+/*
+ * dv best policy
+ * false:use user set dv mode as hdmi output
+ * true :choose prefer dv mode as hdmi output,
+ *       priority as std dv(444,8bit)-->low latency dv(422,12bit)
+ */
+#define UBOOTENV_BESTDOLBYVISION        "ubootenv.var.bestdolbyvision"
+
+/*
+ * save edid checksum
+ */
+#define UBOOTENV_EDIDCRCVALUE           "ubootenv.var.hdmichecksum"
+/*
+ * save user set hdmi output color space,ex444/422/420/rgb
+ */
+#define UBOOTENV_HDMICOLORSPACE         "ubootenv.var.hdmi_colorspace"
+/*
+ * save user set hdmi output color depth,ex:8bit/10bit/12bit
+ */
+#define UBOOTENV_HDMICOLORDEPTH         "ubootenv.var.hdmi_colordepth"
+/*
+ * dolby_status/dv_type/dv_enable maybe be merged to one variable
+ * but for the backward compatible so keeping them.
+ */
+/*
+ * save user set dv mode
+ * uboot output dv signal or not base this value
+ * 0:dv disable or match content hdr mode
+ * 1:sink-led
+ * 2:source-led
+ */
+#define UBOOTENV_DOLBYSTATUS            "ubootenv.var.dolby_status"
+/*
+ * save user set dv mode
+ * systemcontrol output dv signal base this value
+ * 0:disable dv
+ * 1:sink-led
+ * 2:source-led
+ */
+#define UBOOTENV_DV_TYPE                "ubootenv.var.dv_type"
+/*
+ * save user prefer dv enable or disable
+ * 0:disable
+ * 1:enable
+ */
+#define UBOOTENV_DV_ENABLE              "ubootenv.var.dv_enable"
+/*
+ * save user prefer hdr policy
+ * 0:always hdr(output signal base TV)
+ * 1:adaptive hdr(output signal base tv and play content)
+ */
+#define UBOOTENV_HDR_POLICY             "ubootenv.var.hdr_policy"
+/*
+ * save user prefer fps
+ * 0:24hz/30hz/60hz
+ * 1:23.97hz/29.97/59.94hz
+ */
+#define UBOOTENV_FRAC_RATE_POLICY       "ubootenv.var.frac_rate_policy"
+/*
+ * save user prefer hdr priority
+ * 0:keep tv dv/hdr/sdr capability
+ * 1:disable tv dv capability
+ * 2:disable tv dv and hdr capability
+ */
+#define UBOOTENV_HDR_PRIORITY           "ubootenv.var.hdr_priority"
+/*
+ *save user prefer sdr to hdr enable or disable
+ *sdr content force be converted to hdr content
+ */
 #define UBOOTENV_SDR2HDR                "ubootenv.var.sdr2hdr"
 #define PROP_DEEPCOLOR_CTL              "persist.sys.open.deepcolor" // 8, 10, 12
 #define PROP_PIXFMT                     "persist.sys.open.pixfmt" // rgb, ycbcr
@@ -229,6 +325,12 @@ using namespace android;
 #define DISPLAY_MEMC_SYSFS              "/dev/frc"
 #define MEMDEV_CONTRL                     _IOW('F', 0x06, unsigned int)
 
+#define FULL_WIDTH_1024x600             1024
+#define FULL_HEIGHT_1024x600            600
+#define FULL_WIDTH_800x480              800
+#define FULL_HEIGHT_800x480             480
+#define FULL_WIDTH_640x480              640
+#define FULL_HEIGHT_640x480             480
 #define FULL_WIDTH_480                  720
 #define FULL_HEIGHT_480                 480
 #define FULL_WIDTH_576                  720
@@ -276,51 +378,6 @@ enum {
     DISPLAY_TYPE_REPEATER               = 4
 };
 
-#define MODE_480I                       "480i60hz"
-#define MODE_480P                       "480p60hz"
-#define MODE_480CVBS                    "480cvbs"
-#define MODE_576I                       "576i50hz"
-#define MODE_576P                       "576p50hz"
-#define MODE_576CVBS                    "576cvbs"
-#define MODE_720P50HZ                   "720p50hz"
-#define MODE_720P                       "720p60hz"
-#define MODE_720P100HZ                  "1280x720p100hz"
-#define MODE_720P120HZ                  "1280x720p120hz"
-#define MODE_768P                       "768p60hz"
-#define MODE_1080P24HZ                  "1080p24hz"
-#define MODE_1080I50HZ                  "1080i50hz"
-#define MODE_1080P50HZ                  "1080p50hz"
-#define MODE_1080I                      "1080i60hz"
-#define MODE_1080P                      "1080p60hz"
-#define MODE_1080P100HZ                 "1920x1080p100hz"
-#define MODE_1080P120HZ                 "1920x1080p120hz"
-#define MODE_1440P50HZ                  "2560x1440p50hz"
-#define MODE_1440P60HZ                  "2560x1440p60hz"
-#define MODE_1440P100HZ                 "2560x1440p100hz"
-#define MODE_1440P120HZ                 "2560x1440p120hz"
-#define MODE_4K2K24HZ                   "2160p24hz"
-#define MODE_4K2K25HZ                   "2160p25hz"
-#define MODE_4K2K30HZ                   "2160p30hz"
-#define MODE_4K2K50HZ                   "2160p50hz"
-#define MODE_4K2K60HZ                   "2160p60hz"
-#define MODE_4K2K100HZ                  "3840x2160p100hz"
-#define MODE_4K2K120HZ                  "3840x2160p120hz"
-#define MODE_4K2KSMPTE                  "smpte24hz"
-#define MODE_4K2KSMPTE30HZ              "smpte30hz"
-#define MODE_4K2KSMPTE50HZ              "smpte50hz"
-#define MODE_4K2KSMPTE60HZ              "smpte60hz"
-#define MODE_8K4K24HZ                   "7680x4320p24hz"
-#define MODE_8K4K25HZ                   "7680x4320p25hz"
-#define MODE_8K4K30HZ                   "7680x4320p30hz"
-#define MODE_8K4K48HZ                   "7680x4320p48hz"
-#define MODE_8K4K50HZ                   "7680x4320p50hz"
-#define MODE_8K4K60HZ                   "7680x4320p60hz"
-#define MODE_4K2K1080                   "3840x1080"
-#define MODE_PANEL                      "panel"
-#define MODE_PAL_M                      "pal_m"
-#define MODE_PAL_N                      "pal_n"
-#define MODE_NTSC_M                     "ntsc_m"
-
 #define MODE_480I_PREFIX                "480i"
 #define MODE_480P_PREFIX                "480p"
 #define MODE_576I_PREFIX                "576i"
@@ -333,6 +390,7 @@ enum {
 #define MODE_4K2K_PREFIX                "2160p"
 #define MODE_4K2KSMPTE_PREFIX           "smpte"
 #define MODE_8K4K_PREFIX                "4320p"
+#define MODE_4K1K_PREFIX                "3840x1080"
 
 #define DV_HDR_SINK_SOURCE_BYPASS       "0"
 #define DV_HDR_SINK_PROCESS             "1"
@@ -341,51 +399,6 @@ enum {
 
 #define HDR_POLICY_SINK                 "0"
 #define HDR_POLICY_SOURCE               "1"
-
-enum {
-    DISPLAY_MODE_480I                   = 0,
-    DISPLAY_MODE_480P                   = 1,
-    DISPLAY_MODE_480CVBS                = 2,
-    DISPLAY_MODE_576I                   = 3,
-    DISPLAY_MODE_576P                   = 4,
-    DISPLAY_MODE_576CVBS                = 5,
-    DISPLAY_MODE_720P50HZ               = 6,
-    DISPLAY_MODE_720P                   = 7,
-    DISPLAY_MODE_1080P24HZ              = 8,
-    DISPLAY_MODE_1080I50HZ              = 9,
-    DISPLAY_MODE_1080P50HZ              = 10,
-    DISPLAY_MODE_1080I                  = 11,
-    DISPLAY_MODE_1080P                  = 12,
-    DISPLAY_MODE_4K2K24HZ               = 13,
-    DISPLAY_MODE_4K2K25HZ               = 14,
-    DISPLAY_MODE_4K2K30HZ               = 15,
-    DISPLAY_MODE_4K2K50HZ               = 16,
-    DISPLAY_MODE_4K2K60HZ               = 17,
-    DISPLAY_MODE_4K2KSMPTE              = 18,
-    DISPLAY_MODE_4K2KSMPTE30HZ          = 19,
-    DISPLAY_MODE_4K2KSMPTE50HZ          = 20,
-    DISPLAY_MODE_4K2KSMPTE60HZ          = 21,
-    DISPLAY_MODE_8K4K24HZ               = 22,
-    DISPLAY_MODE_8K4K25HZ               = 23,
-    DISPLAY_MODE_8K4K30HZ               = 24,
-    DISPLAY_MODE_8K4K48HZ               = 25,
-    DISPLAY_MODE_8K4K50HZ               = 26,
-    DISPLAY_MODE_8K4K60HZ               = 27,
-    DISPLAY_MODE_1080P100HZ             = 30,
-    DISPLAY_MODE_1080P120HZ             = 31,
-    DISPLAY_MODE_1440P50HZ              = 32,
-    DISPLAY_MODE_1440P60HZ              = 33,
-    DISPLAY_MODE_1440P100HZ             = 34,
-    DISPLAY_MODE_1440P120HZ             = 35,
-    DISPLAY_MODE_4K2K100HZ              = 36,
-    DISPLAY_MODE_4K2K120HZ              = 37,
-    DISPLAY_MODE_768P                   = 38,
-    DISPLAY_MODE_PANEL                  = 39,
-    DISPLAY_MODE_PAL_M                  = 40,
-    DISPLAY_MODE_PAL_N                  = 41,
-    DISPLAY_MODE_NTSC_M                 = 42,
-    DISPLAY_MODE_TOTAL                  = 43
-};
 
 typedef enum {
     OUTPUT_MODE_STATE_INIT               = 0,
@@ -520,6 +533,7 @@ public:
     void setGraphicsPriority(const char* mode);
     void getGraphicsPriority(char* mode);
     bool isTvSupportHDR();
+    bool setColorSpace(const char* colorspace);
     void getDeepColorAttr(const char* mode, char *value);
     void saveDeepColorAttr(const char* mode, const char* dcValue);
     int64_t resolveResolutionValue(const char *mode);
@@ -543,7 +557,6 @@ public:
     void getCommonData(hdmi_data_t* data);
     void getHdmiData(hdmi_data_t* data);
     void setActiveDispMode(const char*value);
-    bool setColorSpace(const char* colorspace);
     void notifyPlugin();
     int readHdcpRX22Key(char *value, int size);
     bool writeHdcpRX22Key(const char *value, const int size);
@@ -580,24 +593,21 @@ public:
     bool getPrefHdmiDispMode(char* mode);
     void getHdrStrategy(char* value);
     void setHdrStrategy(const char* type);
+    int getCurrentHdrPriority(void);
     int getHdrPriority(void);
     void setHdrPriority(const char* type);
     int  updateDolbyVisionType(void);
     bool memcContrl(bool on);
 private:
 
-    void getHdmiData_cached(hdmi_data_t* data);
     bool getBootEnv(const char* key, char* value);
     void setBootEnv(const char* key, const char* value);
 
+    void getHdmiData_cached(hdmi_data_t* data);
     int parseConfigFile();
     int parseFilterEdidConfigFile();
-    void getBestHdmiMode(char * mode, hdmi_data_t* data);
-    void getHighestHdmiMode(char* mode, hdmi_data_t* data);
     void getHighestPriorityMode(char* mode, hdmi_data_t* data);
     bool isMatchMode(char* curmode, const char* outputmode);
-    void filterHdmiMode(char * mode, hdmi_data_t* data);
-    void getHdmiOutputMode(char *mode, hdmi_data_t* data);
     void filterHdmiDispcap(hdmi_data_t* data);
     void applyDisplaySetting(hdmi_output_info_t* output_info);
     void sceneProcess(hdmi_data_t* data);
@@ -623,7 +633,6 @@ private:
     void setSourceOutputMode(const char* outputmode, output_mode_state state);
     void setDefaultMode();
     int64_t resolveResolutionValue(const char *mode, int flag);
-    int modeToIndex(const char *mode);
     void startHdmiPlugDetectThread();
     void startBootvideoDetectThread();
     bool getCurDolbyVisionState(int state, output_mode_state mode_state);
@@ -647,8 +656,6 @@ private:
 
     int mDisplayWidth;
     int mDisplayHeight;
-
-    char mRebootMode[128];
 
     char mSocType[64];
     char mDefaultUI[64];//this used for mbox

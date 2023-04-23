@@ -55,53 +55,6 @@
 #define DV_MODE_4K2K60HZ                "2160p60hz"
 #define DV_MODE_LIST_SIZE               10
 
-#define MODE_480I                       "480i60hz"
-#define MODE_480P                       "480p60hz"
-#define MODE_480CVBS                    "480cvbs"
-#define MODE_576I                       "576i50hz"
-#define MODE_576P                       "576p50hz"
-#define MODE_576CVBS                    "576cvbs"
-#define MODE_720P50HZ                   "720p50hz"
-#define MODE_720P                       "720p60hz"
-#define MODE_720P100HZ                  "1280x720p100hz"
-#define MODE_720P120HZ                  "1280x720p120hz"
-#define MODE_768P                       "768p60hz"
-#define MODE_1080P24HZ                  "1080p24hz"
-#define MODE_1080P25HZ                  "1080p25hz"
-#define MODE_1080P30HZ                  "1080p30hz"
-#define MODE_1080I50HZ                  "1080i50hz"
-#define MODE_1080P50HZ                  "1080p50hz"
-#define MODE_1080I                      "1080i60hz"
-#define MODE_1080P                      "1080p60hz"
-#define MODE_1080P100HZ                 "1920x1080p100hz"
-#define MODE_1080P120HZ                 "1920x1080p120hz"
-#define MODE_1440P50HZ                  "2560x1440p50hz"
-#define MODE_1440P60HZ                  "2560x1440p60hz"
-#define MODE_1440P100HZ                 "2560x1440p100hz"
-#define MODE_1440P120HZ                 "2560x1440p120hz"
-#define MODE_4K2K24HZ                   "2160p24hz"
-#define MODE_4K2K25HZ                   "2160p25hz"
-#define MODE_4K2K30HZ                   "2160p30hz"
-#define MODE_4K2K50HZ                   "2160p50hz"
-#define MODE_4K2K60HZ                   "2160p60hz"
-#define MODE_4K2K100HZ                  "3840x2160p100hz"
-#define MODE_4K2K120HZ                  "3840x2160p120hz"
-#define MODE_4K2KSMPTE                  "smpte24hz"
-#define MODE_4K2KSMPTE30HZ              "smpte30hz"
-#define MODE_4K2KSMPTE50HZ              "smpte50hz"
-#define MODE_4K2KSMPTE60HZ              "smpte60hz"
-#define MODE_8K4K24HZ                   "7680x4320p24hz"
-#define MODE_8K4K25HZ                   "7680x4320p25hz"
-#define MODE_8K4K30HZ                   "7680x4320p30hz"
-#define MODE_8K4K48HZ                   "7680x4320p48hz"
-#define MODE_8K4K50HZ                   "7680x4320p50hz"
-#define MODE_8K4K60HZ                   "7680x4320p60hz"
-#define MODE_PANEL                      "panel"
-#define MODE_PAL_M                      "pal_m"
-#define MODE_PAL_N                      "pal_n"
-#define MODE_NTSC_M                     "ntsc_m"
-
-
 #define COLOR_YCBCR444_12BIT             "444,12bit"
 #define COLOR_YCBCR444_10BIT             "444,10bit"
 #define COLOR_YCBCR444_8BIT              "444,8bit"
@@ -117,55 +70,6 @@
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
-enum {
-    DISPLAY_MODE_480I                   = 0,
-    DISPLAY_MODE_480P                   = 1,
-    DISPLAY_MODE_480CVBS                = 2,
-    DISPLAY_MODE_576I                   = 3,
-    DISPLAY_MODE_576P                   = 4,
-    DISPLAY_MODE_576CVBS                = 5,
-    DISPLAY_MODE_720P50HZ               = 6,
-    DISPLAY_MODE_720P                   = 7,
-    DISPLAY_MODE_1080P24HZ              = 8,
-    DISPLAY_MODE_1080P25HZ              = 9,
-    DISPLAY_MODE_1080P30HZ              = 10,
-    DISPLAY_MODE_1080I50HZ              = 11,
-    DISPLAY_MODE_1080P50HZ              = 12,
-    DISPLAY_MODE_1080I                  = 13,
-    DISPLAY_MODE_1080P                  = 14,
-    DISPLAY_MODE_4K2K24HZ               = 15,
-    DISPLAY_MODE_4K2K25HZ               = 16,
-    DISPLAY_MODE_4K2K30HZ               = 17,
-    DISPLAY_MODE_4K2K50HZ               = 18,
-    DISPLAY_MODE_4K2K60HZ               = 19,
-    DISPLAY_MODE_4K2KSMPTE              = 20,
-    DISPLAY_MODE_4K2KSMPTE30HZ          = 21,
-    DISPLAY_MODE_4K2KSMPTE50HZ          = 22,
-    DISPLAY_MODE_4K2KSMPTE60HZ          = 23,
-    DISPLAY_MODE_768P                   = 24,
-    DISPLAY_MODE_PANEL                  = 25,
-    DISPLAY_MODE_PAL_M                  = 26,
-    DISPLAY_MODE_PAL_N                  = 27,
-    DISPLAY_MODE_NTSC_M                 = 28,
-    DISPLAY_MODE_8K4K24HZ               = 29,
-    DISPLAY_MODE_8K4K25HZ               = 30,
-    DISPLAY_MODE_8K4K30HZ               = 31,
-    DISPLAY_MODE_8K4K48HZ               = 32,
-    DISPLAY_MODE_8K4K50HZ               = 33,
-    DISPLAY_MODE_8K4K60HZ               = 34,
-    DISPLAY_MODE_720P100HZ              = 35,
-    DISPLAY_MODE_720P120HZ              = 36,
-    DISPLAY_MODE_1080P100HZ             = 37,
-    DISPLAY_MODE_1080P120HZ             = 38,
-    DISPLAY_MODE_1440P50HZ              = 39,
-    DISPLAY_MODE_1440P60HZ              = 40,
-    DISPLAY_MODE_1440P100HZ             = 41,
-    DISPLAY_MODE_1440P120HZ             = 42,
-    DISPLAY_MODE_4K2K100HZ              = 43,
-    DISPLAY_MODE_4K2K120HZ              = 44,
-    DISPLAY_MODE_TOTAL                  = 45
-};
-
 static const char* DV_MODE_LIST[] = {
     DV_MODE_720P,
     DV_MODE_720P50HZ,
@@ -179,63 +83,18 @@ static const char* DV_MODE_LIST[] = {
     DV_MODE_4K2K60HZ,
 };
 
-static const char* DISPLAY_MODE_LIST[DISPLAY_MODE_TOTAL] = {
-    MODE_480I,
-    MODE_480P,
-    MODE_480CVBS,
-    MODE_576I,
-    MODE_576P,
-    MODE_576CVBS,
-    MODE_720P,
-    MODE_720P50HZ,
-    MODE_720P100HZ,
-    MODE_720P120HZ,
-    MODE_1080P24HZ,
-    MODE_1080P25HZ,
-    MODE_1080P30HZ,
-    MODE_1080I50HZ,
-    MODE_1080P50HZ,
-    MODE_1080I,
-    MODE_1080P,
-    MODE_1080P100HZ,
-    MODE_1080P120HZ,
-    MODE_1440P50HZ,
-    MODE_1440P60HZ,
-    MODE_1440P100HZ,
-    MODE_1440P120HZ,
-    MODE_4K2K24HZ,
-    MODE_4K2K25HZ,
-    MODE_4K2K30HZ,
-    MODE_4K2K50HZ,
-    MODE_4K2K60HZ,
-    MODE_4K2KSMPTE,
-    MODE_4K2KSMPTE30HZ,
-    MODE_4K2KSMPTE50HZ,
-    MODE_4K2KSMPTE60HZ,
-    MODE_4K2K100HZ,
-    MODE_4K2K120HZ,
-    MODE_8K4K24HZ,
-    MODE_8K4K25HZ,
-    MODE_8K4K30HZ,
-    MODE_8K4K48HZ,
-    MODE_8K4K50HZ,
-    MODE_8K4K60HZ,
-    MODE_768P,
-    MODE_PANEL,
-    MODE_PAL_M,
-    MODE_PAL_N,
-    MODE_NTSC_M,
-};
-
 static const char* MODE_RESOLUTION_FIRST[] = {
     MODE_480I,
     MODE_576I,
-    MODE_1080I50HZ,
-    MODE_1080I,
+    MODE_800x480p,
+    MODE_1024x600p,
+    MODE_640x480p,
     MODE_480P,
     MODE_576P,
     MODE_720P50HZ,
     MODE_720P,
+    MODE_1080I50HZ,
+    MODE_1080I,
     MODE_1080P50HZ,
     MODE_1080P,
     MODE_4K2K24HZ,
@@ -243,6 +102,8 @@ static const char* MODE_RESOLUTION_FIRST[] = {
     MODE_4K2K30HZ,
     MODE_4K2K50HZ,
     MODE_4K2K60HZ,
+    MODE_4K2K100HZ,
+    MODE_4K2K120HZ,
     MODE_8K4K24HZ,
     MODE_8K4K25HZ,
     MODE_8K4K30HZ,
@@ -256,6 +117,9 @@ static const char* MODE_FRAMERATE_FIRST[] = {
     MODE_576I,
     MODE_1080I50HZ,
     MODE_1080I,
+    MODE_800x480p,
+    MODE_1024x600p,
+    MODE_640x480p,
     MODE_480P,
     MODE_576P,
     MODE_720P50HZ,
@@ -366,6 +230,7 @@ SceneProcess::SceneProcess()
 
     mScene_Input_Info.state                   = SCENE_STATE_INIT;
     mScene_Input_Info.isbestpolicy            = true;
+    mScene_Input_Info.isbestcolorspace        = true;
     mScene_Input_Info.isDvEnable              = false;
     mScene_Input_Info.isTvSupportHDR          = true;
     mScene_Input_Info.isTvSupportDv           = false;
@@ -387,6 +252,8 @@ SceneProcess::SceneProcess()
     strcpy(mScene_Input_Info.dv_input_info.ubootenv_dv_type, "0");
 
     mScene_output_info.dv_type = DOLBY_VISION_DISABLE;
+    strcpy(mScene_output_info.final_displaymode, DEFAULT_HDMI_MODE);
+    strcpy(mScene_output_info.final_deepcolor, DEFAULT_COLOR_FORMAT);
 }
 
 SceneProcess::~SceneProcess() {
@@ -692,7 +559,17 @@ void SceneProcess::updateDolbyVisionDisplayMode(char * cur_outputmode, int dv_ty
         //ex:dolby vision support 1080p60hz,only can output small 1080p60hz resolution
         if ((resolveResolutionValue(cur_outputmode, RESOLUTION_PRIORITY) > resolveResolutionValue(dv_displaymode, RESOLUTION_PRIORITY))
             || !isDVSupportMode(cur_outputmode)) {
-            strcpy(final_displaymode, dv_displaymode);
+            //TV support dolby vision non 2160p60hz case
+            if (!strcmp(dv_displaymode, DV_MODE_4K2K30HZ)
+                || !strcmp(dv_displaymode, DV_MODE_4K2K25HZ) || !strcmp(dv_displaymode, DV_MODE_4K2K24HZ)) {
+                //TV support dolby vision support 2160p30hz or 2160p25hz or 2160p24hz
+                //1080p60hz prefer to 2160p30hz 2160p25hz 2160p24hz
+                strcpy(final_displaymode, DV_MODE_1080P);
+            } else {
+                //TV support dolby vision non 2160p30hz 2160p25hz 2160p24hz
+                //use tv support dolby vision resolution
+                strcpy(final_displaymode, dv_displaymode);
+            }
         } else {
             strcpy(final_displaymode, cur_outputmode);
         }
@@ -705,7 +582,7 @@ void SceneProcess::updateDolbyVisionDisplayMode(char * cur_outputmode, int dv_ty
 int64_t SceneProcess::resolveResolutionValue(const char *mode, int flag) {
     bool validMode = false;
     if (strlen(mode) != 0) {
-        for (int i = 0; i < DISPLAY_MODE_TOTAL; i++) {
+        for (int i = 0; i < sizeof(DISPLAY_MODE_LIST)/sizeof(char *); i++) {
             if (strcmp(mode, DISPLAY_MODE_LIST[i]) == 0) {
                 validMode = true;
                 break;
@@ -874,6 +751,48 @@ bool SceneProcess::isModeSupportDeepColorAttr(const char *mode, const char * col
     mpSysWrite->readSysfs(DISPLAY_HDMI_VALID_MODE, valueStr);
 
     return atoi(valueStr) ? true : false;
+}
+
+//check resolution support or not for HDR
+bool SceneProcess::isHDRSupportMode(const char *mode) {
+    bool ret = false;
+    char outputmode[MODE_LEN] = {0};
+    int length = 0;
+    const char **colorList = NULL;
+    char supportedColorList[MAX_STR_LEN];
+
+    strcpy(supportedColorList, mScene_Input_Info.hdmi_input_info.dc_cap);
+    strcpy(outputmode, mode);
+    //1. select the color format table for different resolution
+    if (!strcmp(outputmode, MODE_4K2K60HZ) || !strcmp(outputmode, MODE_4K2K50HZ)
+        || !strcmp(outputmode, MODE_4K2KSMPTE60HZ) || !strcmp(outputmode, MODE_4K2KSMPTE50HZ)
+        || !strcmp(outputmode, MODE_4K2K100HZ) || !strcmp(outputmode, MODE_4K2K120HZ)
+        || !strcmp(outputmode, MODE_8K4K60HZ) || !strcmp(outputmode, MODE_8K4K50HZ)
+        || !strcmp(outputmode, MODE_8K4K48HZ) || !strcmp(outputmode, MODE_8K4K30HZ)
+        || !strcmp(outputmode, MODE_8K4K25HZ) || !strcmp(outputmode, MODE_8K4K24HZ)) {
+        //resolution support 420 case
+        colorList = HDR_4K_COLOR_ATTRIBUTE_LIST;
+        length    = ARRAY_SIZE(HDR_4K_COLOR_ATTRIBUTE_LIST);
+
+    } else {
+        //resolution not support 420 case
+        colorList = HDR_NON4K_COLOR_ATTRIBUTE_LIST;
+        length    = ARRAY_SIZE(HDR_NON4K_COLOR_ATTRIBUTE_LIST);
+    }
+
+    //2. check support or not
+    for (int i = 0; i < length; i++) {
+        if (strstr(supportedColorList, colorList[i]) != NULL) {
+            //check resolution+color format support or not base driver edid
+            if (isModeSupportDeepColorAttr(outputmode, colorList[i])) {
+                SYS_LOGI("support current mode:[%s], deep color:[%s]\n", outputmode, colorList[i]);
+                ret = true;
+                break;
+            }
+        }
+    }
+
+    return ret;
 }
 
 void SceneProcess::getBestHdmiDeepColorAttr(const char *outputmode, char* colorAttribute) {
@@ -1054,7 +973,7 @@ void SceneProcess::UpdateSceneInputInfo(scene_input_info_t* input_info) {
         mScene_Input_Info.hdmi_input_info.isSupport4K,
         mScene_Input_Info.hdmi_input_info.isSupport4K30Hz);
 
-    SYS_LOGD("sinkType:%d, edidParsing:%s\n",
+    SYS_LOGI("sinkType:%d, edidParsing:%s\n",
         mScene_Input_Info.hdmi_input_info.sinkType,
         mScene_Input_Info.hdmi_input_info.edidParsing);
 
@@ -1201,23 +1120,109 @@ bool SceneProcess::findHDRpreferMode(scene_output_info_t *output_info) {
 }
 
 void SceneProcess::HDRSceneProcess(scene_output_info_t* output_info) {
-     if (isBestPolicy() && isBestColorSpace()
-         && ((mScene_Input_Info.state == SCENE_STATE_INIT) ||
-         (mScene_Input_Info.state == SCENE_STATE_POWER))) {
-         //best policy enable case
-         //and except from third apk or framework set mode.
-         bool find = false;
+    if ((mScene_Input_Info.state == SCENE_STATE_INIT) ||
+        (mScene_Input_Info.state == SCENE_STATE_POWER)) {
+        bool find = false;
+        if (isBestPolicy() && isBestColorSpace()) {
+            //best policy enable case
+            //and except from third apk or framework set mode.
+            scene_output_info_t   Scene_output_info;
+            memset(&Scene_output_info, 0, sizeof(scene_output_info_t));
 
-         scene_output_info_t   Scene_output_info;
-         memset(&Scene_output_info, 0, sizeof(scene_output_info_t));
+            find = findHDRpreferMode(&Scene_output_info);
+            if (find) {
+                strcpy(mScene_output_info.final_deepcolor, Scene_output_info.final_deepcolor);
+                strcpy(mScene_output_info.final_displaymode, Scene_output_info.final_displaymode);
+            } else {
+                SYS_LOGE("%s not find hdr support mode\n", __FUNCTION__);
+            }
+        } else if (isBestPolicy()) {
+            const char **resolutionList = NULL;
+            int resolutionList_length   = 0;
+            if (isFrameratePriority()) {
+                resolutionList        = MODE_FRAMERATE_FIRST;
+                resolutionList_length = ARRAY_SIZE(MODE_FRAMERATE_FIRST);
+            } else {
+                resolutionList        = MODE_RESOLUTION_FIRST;
+                resolutionList_length = ARRAY_SIZE(MODE_RESOLUTION_FIRST);
+            }
 
-         find = findHDRpreferMode(&Scene_output_info);
-         if (find) {
-             strcpy(mScene_output_info.final_deepcolor, Scene_output_info.final_deepcolor);
-             strcpy(mScene_output_info.final_displaymode, Scene_output_info.final_displaymode);
-         } else {
-             SYS_LOGE("%s not find hdr support mode\n", __FUNCTION__);
-         }
+            for (int j = resolutionList_length - 1; j >= 0 ; j--) {
+                if (strstr(mScene_Input_Info.hdmi_input_info.disp_cap, resolutionList[j]) != NULL) {
+                    if (isModeSupportDeepColorAttr(resolutionList[j], mScene_Input_Info.hdmi_input_info.ubootenv_colorattribute)) {
+                        SYS_LOGI("%s mode:[%s], deep color:[%s]\n", __FUNCTION__, resolutionList[j], mScene_Input_Info.hdmi_input_info.ubootenv_colorattribute);
+                        strcpy(mScene_output_info.final_deepcolor, mScene_Input_Info.hdmi_input_info.ubootenv_colorattribute);
+                        strcpy(mScene_output_info.final_displaymode, resolutionList[j]);
+                        find = true;
+                        break;
+                    }
+                }
+            }
+        } else if (isBestColorSpace()) {
+            const char **colorList = NULL;
+            int colorList_length   = 0;
+
+            if (!strcmp(mScene_Input_Info.cur_displaymode, MODE_4K2K60HZ) || !strcmp(mScene_Input_Info.cur_displaymode, MODE_4K2K50HZ)
+            || !strcmp(mScene_Input_Info.cur_displaymode, MODE_4K2KSMPTE60HZ) || !strcmp(mScene_Input_Info.cur_displaymode, MODE_4K2KSMPTE50HZ)
+            || !strcmp(mScene_Input_Info.cur_displaymode, MODE_4K2K100HZ) || !strcmp(mScene_Input_Info.cur_displaymode, MODE_4K2K120HZ)
+            || !strcmp(mScene_Input_Info.cur_displaymode, MODE_8K4K60HZ) || !strcmp(mScene_Input_Info.cur_displaymode, MODE_8K4K50HZ)
+            || !strcmp(mScene_Input_Info.cur_displaymode, MODE_8K4K48HZ) || !strcmp(mScene_Input_Info.cur_displaymode, MODE_8K4K30HZ)
+            || !strcmp(mScene_Input_Info.cur_displaymode, MODE_8K4K25HZ) || !strcmp(mScene_Input_Info.cur_displaymode, MODE_8K4K24HZ)) {
+                //2160p50hz 2160p60hz 3840x2160p60hz 3840x2160p50hz case
+                //use 4k color format table
+                colorList        = COLOR_ATTRIBUTE_LIST1;
+                colorList_length = ARRAY_SIZE(COLOR_ATTRIBUTE_LIST1);
+            } else {
+                //except 2160p60hz 2160p50hz 3840x2160p60hz 3840x2160p60hz case
+                //use non 4k color format table
+                colorList        = COLOR_ATTRIBUTE_LIST2;
+                colorList_length = ARRAY_SIZE(COLOR_ATTRIBUTE_LIST2);
+            }
+
+            for (int j = colorList_length - 1; j >= 0 ; j--) {
+                if (strstr(mScene_Input_Info.hdmi_input_info.dc_cap, colorList[j]) != NULL) {
+                    if (isModeSupportDeepColorAttr(mScene_Input_Info.cur_displaymode, colorList[j])) {
+                        SYS_LOGI("%s mode:[%s], deep color:[%s]\n", __FUNCTION__, mScene_Input_Info.cur_displaymode, colorList[j]);
+                        strcpy(mScene_output_info.final_deepcolor, colorList[j]);
+                        strcpy(mScene_output_info.final_displaymode, mScene_Input_Info.cur_displaymode);
+                        find = true;
+                        break;
+                   }
+              }
+            }
+        } else {
+            //1.check mode+color format support or not
+            if (isModeSupportDeepColorAttr(mScene_Input_Info.cur_displaymode, mScene_Input_Info.hdmi_input_info.ubootenv_colorattribute)) {
+                SYS_LOGI("support current mode:[%s], deep color:[%s]\n", mScene_Input_Info.cur_displaymode, mScene_Input_Info.hdmi_input_info.ubootenv_colorattribute);
+                strcpy(mScene_output_info.final_deepcolor, mScene_Input_Info.hdmi_input_info.ubootenv_colorattribute);
+                strcpy(mScene_output_info.final_displaymode, mScene_Input_Info.cur_displaymode);
+                find = true;
+            } else if (isSupportHdmiMode(mScene_Input_Info.cur_displaymode)) {
+                SYS_LOGI("support current mode:[%s]\n", mScene_Input_Info.cur_displaymode);
+                //2.check cur_displaymode support or not
+                //if displaymode support ,and find best color format base mode.
+                char colorAttribute[MODE_LEN] = {0};
+                getBestHdmiDeepColorAttr(mScene_Input_Info.cur_displaymode,  colorAttribute);
+                strcpy(mScene_output_info.final_deepcolor, colorAttribute);
+                strcpy(mScene_output_info.final_displaymode, mScene_Input_Info.cur_displaymode);
+                find = true;
+            }
+        }
+
+        //not find support mode and colorspace and try best policy
+        if (!find && !(isBestPolicy() && isBestColorSpace())) {
+             //best policy enable case
+             scene_output_info_t   Scene_output_info;
+             memset(&Scene_output_info, 0, sizeof(scene_output_info_t));
+
+             find = findHDRpreferMode(&Scene_output_info);
+             if (find) {
+                 strcpy(mScene_output_info.final_deepcolor, Scene_output_info.final_deepcolor);
+                 strcpy(mScene_output_info.final_displaymode, Scene_output_info.final_displaymode);
+             } else {
+                 SYS_LOGE("%s not find hdr support mode\n", __FUNCTION__);
+             }
+        }
      } else {
          //best policy disable case
          //1.check cur_displaymode + ubootenv.var.colorattribute support or not
@@ -1251,9 +1256,9 @@ void SceneProcess::HDRSceneProcess(scene_output_info_t* output_info) {
          }
     }
 
-     //return output info
-     strcpy(output_info->final_displaymode, mScene_output_info.final_displaymode);
-     strcpy(output_info->final_deepcolor, mScene_output_info.final_deepcolor);
+    //return output info
+    strcpy(output_info->final_displaymode, mScene_output_info.final_displaymode);
+    strcpy(output_info->final_deepcolor, mScene_output_info.final_deepcolor);
 }
 
 void SceneProcess::SDRSceneProcess(scene_output_info_t* output_info) {

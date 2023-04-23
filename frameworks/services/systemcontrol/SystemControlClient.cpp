@@ -37,7 +37,8 @@ SystemControlClient::SystemControlClient() {
     //mSysCtrl = ISystemControl::getService();
     sp<ISystemControl> ctrl = ISystemControl::tryGetService();
     while (ctrl == nullptr) {
-         usleep(200*1000);//sleep 200ms
+        if (usleep(200*1000) < 0)//sleep 200ms
+            ALOGE("usleep interrupt!\n");
          ctrl = ISystemControl::tryGetService();
          ALOGE("tryGet system control daemon Service");
     };

@@ -66,6 +66,10 @@ FrameRateAutoAdaption::FrameRateAutoAdaption(Callback *cb): mVdinEventFd(-1), mH
 }
 
 FrameRateAutoAdaption::~FrameRateAutoAdaption() {
+    if (mVdinEventFd >0) {
+        close(mVdinEventFd);
+        mVdinEventFd = -1;
+    }
 }
 int FrameRateAutoAdaption::isDLGOn() {
     int dlgSwith = -1;

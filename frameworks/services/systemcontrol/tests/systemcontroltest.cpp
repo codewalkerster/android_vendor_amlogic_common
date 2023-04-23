@@ -574,6 +574,9 @@ static int res_img_unpack(const char *path)
             char *data = (char *)malloc(pItemHead->dataSz);
             if (!data) {
                 ALOGE("Fail to malloc buffer  \n");
+                free(itemReadBuf);
+                free(writebuffer);
+                fclose(fdImg);
                 return -1;
             }
             memset(data, 0, pItemHead->dataSz);
@@ -613,6 +616,7 @@ static int read_write_bin(const char *path)
     char *writebuffer = (char *)malloc(hdcprx.st_size);
     if (!writebuffer) {
         ALOGE("Fail to malloc buffer  \n");
+        close(fdImg);
         return -1;
     }
 
@@ -627,6 +631,8 @@ static int read_write_bin(const char *path)
     mSysClient->writeSysfs(std::string("/sys/class/unifykeys/name"), std::string("usid"));
     mSysClient->writeSysfs(std::string("/sys/class/unifykeys/write"), writebuffer, actualReadSz);
 
+    free(writebuffer);
+    close(fdImg);
     return 0;
 }
 
