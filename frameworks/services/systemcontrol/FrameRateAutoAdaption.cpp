@@ -482,9 +482,9 @@ bool FrameRateAutoAdaption::enter4k1k(int framerate) {
     SYS_LOGD("FrameRateAutoAdaption::enter4k1k %d %d %s",framerate,videoLayerOn,curDisplayMode);
     if (strstr(curDisplayMode,"3840x1080p") == NULL && videoLayerOn) {
          if (framerate == FRAME_RATE_DURATION_25 ||framerate == FRAME_RATE_DURATION_50 || framerate == FRAME_RATE_DURATION_125) {
-           //mHdmiCallback->setDisplayModeinner("3840x1080p100hz");
-            mHdmiCallback->setDisplayModeinner("3840x1080p120hz");
-            DisplayModeMgr::getInstance().setFrameRate(100, "enter4k1k");
+            mHdmiCallback->setDisplayModeinner("3840x1080p100hz");
+            //mHdmiCallback->setDisplayModeinner("3840x1080p120hz");
+            //DisplayModeMgr::getInstance().setFrameRate(100, "enter4k1k");
             return true;
         }else {
             mHdmiCallback->setDisplayModeinner("3840x1080p120hz");
