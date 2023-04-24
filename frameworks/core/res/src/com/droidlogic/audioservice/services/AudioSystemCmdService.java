@@ -301,6 +301,7 @@ public class AudioSystemCmdService extends Service {
                             Slog.i(TAG, "onAudioPortListUpdate sink changed. sink:" + sink.toString());
                         }
                     }
+
                     mHasStartedDecoder = false;
                     mHandler.removeCallbacks(mHandleAudioSinkUpdatedRunnable);
                     if (mTvInputManager != null) {
@@ -571,6 +572,9 @@ public class AudioSystemCmdService extends Service {
                 }
 
                 param1 = param1 & ((1 << mDtvDemuxIdBase) - 1);
+                if (param1 == 0) {
+                    mDtvDemuxIdCurrentWork = param3;
+                }
                 mDtvDemuxIdCurrentWork = param3;
                 // if there have received the mute cmd but have not open the decoder,
                 // we need to save and init the path_id information(openstatus/mutestatus/Audioformat).
@@ -595,6 +599,16 @@ public class AudioSystemCmdService extends Service {
                 }
                 //CASE 1:single demux, there have not other control logic.When the decoder have opened, set the mute to audio_hal.
                 if (mDemuxIds.size() == 1 && mDemuxIds.contains(param3)) {
+                    if (mStartStatus.get(mDemuxIds.indexOf(param3)) == 0) {
+                        int apply_cmd = AudioSystemCmdManager.AUDIO_SERVICE_CMD_START_DECODE + (param3 << mDtvDemuxIdBase);
+                        mAudioManager.setParameters("hal_param_dtv_audio_fmt="+mAudioFormat.get(mDemuxIds.indexOf(param3)));
+                        mAudioManager.setParameters("hal_param_dtv_audio_id=" +mAudioPid.get(mDemuxIds.indexOf(param3)));
+                        mAudioManager.setParameters("hal_param_dtv_patch_cmd=" + apply_cmd);
+                        mStartStatus.set(mDemuxIds.indexOf(param3), 1);
+                        mHasReceivedStartDecoderCmd = true;
+                        mHasStartedDecoder = true;
+                        mAudioManager.setParameters("hal_param_dtv_audio_volume=" + mVolume.get(mDemuxIds.indexOf(param3)));
+                    }
                     mAudioManager.setParameters("hal_param_tv_mute=" + param1);
                 } else if (mDemuxIds.size() > 1 && mDemuxIds.contains(param3)) {
                     //CASE2:multi-demux
@@ -960,8 +974,17 @@ public class AudioSystemCmdService extends Service {
         findAudioSinkFromAudioPolicy(mAudioSink);
 
         // Returns true if mAudioSink and previousSink differs.
+        Log.w(TAG, "mAudioSink " + mAudioSink + "previousSink" + previousSink);
         if (mAudioSink.size() != previousSink.size()) {
             return true;
+        } else {
+            for (int i = 0; i < mAudioSink.size(); i++) {
+                AudioDevicePort prev_audioport = previousSink.get(i);
+                AudioDevicePort current_audioport = mAudioSink.get(i);
+                if (prev_audioport.type() != current_audioport.type()) {
+                    return true;
+                }
+            }
         }
         previousSink.removeAll(mAudioSink);
         return !previousSink.isEmpty();
