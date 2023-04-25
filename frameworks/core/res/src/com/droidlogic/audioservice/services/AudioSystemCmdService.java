@@ -290,7 +290,17 @@ public class AudioSystemCmdService extends Service {
             new AudioManager.OnAudioPortUpdateListener() {
                 @Override
                 public void onAudioPortListUpdate(AudioPort[] portList) {
-                    Slog.i(TAG, "onAudioPortListUpdate ++++");
+                    if (!updateAudioSinkLocked()) {
+                        Slog.i(TAG, "onAudioPortListUpdate cur sink does not change.");
+                        return;
+                    }
+                    if (mAudioSink.size() == 0) {
+                        Slog.w(TAG, "onAudioPortListUpdate sink changed. sinks num is 0");
+                    } else {
+                        for (AudioDevicePort sink : mAudioSink) {
+                            Slog.i(TAG, "onAudioPortListUpdate sink changed. sink:" + sink.toString());
+                        }
+                    }
                     mHasStartedDecoder = false;
                     mHandler.removeCallbacks(mHandleAudioSinkUpdatedRunnable);
                     if (mTvInputManager != null) {
