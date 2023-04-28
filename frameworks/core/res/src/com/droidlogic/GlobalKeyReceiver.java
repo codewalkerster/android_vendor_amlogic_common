@@ -168,6 +168,9 @@ public class GlobalKeyReceiver extends BroadcastReceiver {
                     break;
                 case KeyEvent.KEYCODE_TV_INPUT:
                     if (keyAction == KeyEvent.ACTION_UP) {
+                        if (isTargetPackageRunningOnTop(PACKAGE_NAME_LIVETV)) {
+                            intent1.putExtra("from_live_tv", 1);
+                        }
                         intent1.setComponent(new ComponentName(PACKAGE_NAME_DROIDTVSETTINGS, ACTIVITY_NAME_TVSOURCE));
                     }
                     break;
@@ -286,4 +289,15 @@ public class GlobalKeyReceiver extends BroadcastReceiver {
          return list.size() > 0;
     }
 
+    private boolean isTargetPackageRunningOnTop(String targetPackageName) {
+        try {
+            List<ActivityManager.RunningTaskInfo> tasks = ActivityManager.getService().getTasks(1);
+            ComponentName componentInfo = tasks.get(0).topActivity;
+            Log.d(TAG, "getTopActivityPackageName = " + componentInfo.getPackageName());
+            return componentInfo.getPackageName().equals(targetPackageName);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }
