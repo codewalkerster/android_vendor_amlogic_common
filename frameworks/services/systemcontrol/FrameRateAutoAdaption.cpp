@@ -307,10 +307,11 @@ void  FrameRateAutoAdaption::setPlayFlag(bool play) {
 }
 int  FrameRateAutoAdaption::findNearlyFrame(int frameRate) {
     int videoframe = (VIDEORATE*1.0/frameRate)*100;
-    int smalldip = 6000; //0hz to 6000hz is the bigest.
+    int smalldip = 12100; //0hz to 6000hz is the bigest.
     std::vector<double>::iterator itr = mFramerateList.begin();
-    if (videoframe > smalldip) return smalldip;
+    if (videoframe > smalldip) return 12000;
     if (videoframe < 0) return 0;
+
     for (; itr != mFramerateList.end(); ++itr) {
         int dip = abs(int((*itr)*100) - videoframe);
         if (dip < smalldip) {
@@ -550,7 +551,9 @@ void FrameRateAutoAdaption::outputDispatch(char* outputMode, int outType, int st
                 return;
             }else {
                 const char* frameRateValue = doubleRate? "12000":"6000";//default 60hz
-                if (frameRate == FRAME_RATE_DURATION_25 ||frameRate == FRAME_RATE_DURATION_50 || frameRate == FRAME_RATE_DURATION_125) {
+                if (frameRate == FRAME_RATE_DURATION_1440) {
+                    frameRateValue = "14400";
+                }else if (frameRate == FRAME_RATE_DURATION_25 ||frameRate == FRAME_RATE_DURATION_50 || frameRate == FRAME_RATE_DURATION_125) {
                     frameRateValue = doubleRate? "10000":"5000";
                 }else if (FRAME_RATE_DURATION_24 == frameRate ) {
                     frameRateValue = doubleRate? "12000":(mode24p ? "4800" : "6000");
@@ -579,7 +582,9 @@ void FrameRateAutoAdaption::outputDispatch(char* outputMode, int outType, int st
                         backFrom4k1k(frameRate);
                     }
                     frameRateValue = "6000";
-                    if (frameRate == FRAME_RATE_DURATION_25 ||frameRate == FRAME_RATE_DURATION_50 || frameRate == FRAME_RATE_DURATION_125) {
+                    if (frameRate == FRAME_RATE_DURATION_1440) {
+                        frameRateValue = "14400";
+                    }else if (frameRate == FRAME_RATE_DURATION_25 ||frameRate == FRAME_RATE_DURATION_50 || frameRate == FRAME_RATE_DURATION_125) {
                         frameRateValue = "5000";
                     }else if (FRAME_RATE_DURATION_24 == frameRate ) {
                         frameRateValue = (mode24p ? "4800" : "6000");

@@ -72,6 +72,7 @@
 #define FRAME_RATE_DURATION_5994                1601
 #define FRAME_RATE_DURATION_5992                1602
 #define FRAME_RATE_DURATION_60                  1600
+#define FRAME_RATE_DURATION_1440                1333
 #define FRAME_RATE_DURATION_125                 7860
 typedef void (*fun_t)(bool, bool, const char*);
 
