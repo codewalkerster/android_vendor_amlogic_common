@@ -111,7 +111,6 @@ private:
     Mutex mLock;
     int32_t mRecordSourceType;
     sp<TSPacker> mTSPacker;
-    void *mYuvBuffer;
 };
 
 // ----------------------------------------------------------------------------

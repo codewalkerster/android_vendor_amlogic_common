@@ -423,7 +423,7 @@ int ScreenControlService::startScreenCapBuffer(int32_t left, int32_t top, int32_
 
     mScreenManager = ScreenManager::instantiate();
     if (mScreenManager == NULL)
-      return !OK;
+        return !OK;
     status_t err = mScreenManager->init(width, height, sourceType, 1, SCREENCONTROL_RGBA888_TYPE, &client_id);
     if ( err != OK ) {
         ALOGE("[%s %d] ScreenManage init error\n", __FUNCTION__, __LINE__);
@@ -472,6 +472,7 @@ int ScreenControlService::startScreenCapBuffer(int32_t left, int32_t top, int32_
         ALOGI("[%s %d] readed buffer size = %d", __FUNCTION__, __LINE__,*dstBufferSize);
     }
     mScreenManager->stop(client_id);
+    delete mScreenManager;
     mScreenManager = NULL;
     if (mNeedStop) {
         ALOGD("Control to stop capture screen buf");
@@ -486,6 +487,8 @@ int ScreenControlService::startScreenCapBuffer(int32_t left, int32_t top, int32_
 int ScreenControlService::startYuvRecord(int32_t width, int32_t height, int32_t frameRate,int32_t sourceType){
     int32_t client_id = 0;
     Mutex::Autolock autoLock(mLock);
+    ALOGI("[%s] left:%d, width:%d, height:%d, frameRate =%d, sourceType:%d\n",
+        __func__, width, height, frameRate, sourceType);
     mScreenManager = ScreenManager::instantiate();
     if (mScreenManager == NULL)
       return !OK;
@@ -530,6 +533,8 @@ int ScreenControlService::getYuvRecordData(void *dstBuffer,int32_t bufSize){
       return status;
     }
     buf_info[1] = (long) raw;
+    if (buffer->unsecurePointer() == NULL)
+        return !OK;
     memcpy(buffer->unsecurePointer(), buf_info, 3*sizeof(long));
     mScreenManager->freeBuffer(mYuvClientId, buffer);
 

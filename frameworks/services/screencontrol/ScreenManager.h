@@ -159,7 +159,6 @@ private:
     int mHeight;
     int mSourceType;
 
-    bool mIsSoftwareEncoder;
     // mCurrentTimestamp is the timestamp for the current texture. It
     // gets set to mLastQueuedTimestamp each time updateTexImage is called.
     int64_t mCurrentTimestamp;

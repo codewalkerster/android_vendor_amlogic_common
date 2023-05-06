@@ -136,7 +136,12 @@ ScreenManager::ScreenManager() :
 
     mCorpX = mCorpY = mCorpWidth = mCorpHeight =0;
     ALOGI("[%s %d] ScreenManager mCorpX:%d mCorpY:%d mCorpWidth:%d mCorpHeight:%d", __FUNCTION__, __LINE__, mCorpX, mCorpY, mCorpWidth, mCorpHeight);
-
+    mScreenBuffers[0] = NULL;
+    mScreenBuffers[1] = NULL;
+    mScreenBuffers[2] = NULL;
+    mScreenBuffers[3] = NULL;
+    mScreenBuffers[4] = NULL;
+    mScreenBuffers[5] = NULL;
 
     mRawBufferQueue.clear();
 
@@ -149,8 +154,6 @@ ScreenManager::~ScreenManager() {
 
     reset();
 
-    if (mScreenDev)
-        mScreenDev->common.close((struct hw_device_t *)mScreenDev);
 }
 
 
@@ -567,6 +570,11 @@ status_t ScreenManager::stop(int32_t client_id)
     int client_num = mClientList.size();
     ALOGI("[%s %d] client_num:%d client_id:%d", __FUNCTION__, __LINE__, client_num, client_id);
 
+    if (!mStarted) {
+        ALOGE("ScreenSource::stop X Do nothing");
+        return OK;
+    }
+
     if (1 == client_num)
         reset();
 
@@ -590,6 +598,8 @@ status_t ScreenManager::stop(int32_t client_id)
             if (mScreenDev)
                 mScreenDev->ops.release_buffer(mScreenDev,(long *)mScreenBuffers[index]);
         }
+        if (mTempBuffer)
+            free(mTempBuffer);
     }
     return OK;
 }
@@ -646,6 +656,8 @@ status_t ScreenManager::readBuffer(int32_t client_id, sp<IMemory> buffer, int *i
         buff_info[0] = kMetadataBufferTypeCanvasSource;
         buff_info[1] = (long)frame->buf_ptr;
         buff_info[2] = (long)frame->canvas;
+        if (buffer->unsecurePointer() == NULL)
+            return !OK;
         memcpy((long *)buffer->unsecurePointer(), &buff_info[0],sizeof(buff_info));
 
         if (ScreenControlDebug::canDebug()) {
@@ -764,13 +776,12 @@ int ScreenManager::dataCallBack(aml_screen_buffer_info_t *buffer){
                         if (!mNeedPause) {
                             ALOGD("dataCallBack index =%d",buffer->index);
                             mRawBufferQueue.push_back(buffer->index);
-                            if (mMeanWhileFlag) {
+                            if (mMeanWhileFlag && mTempBuffer == NULL) {
                                 mTempBuffer = (long*) malloc(client->width*client->height*3/2);
                                 if (mTempBuffer != NULL) {
                                     memmove(mTempBuffer, buffer->buffer_mem, client->width*client->height*3/2);
                                 }
                             }
-                            /* coverity[leaked_storage] */
                         }
                     } break;
                     case SCREENCONTROL_RGBA888_TYPE:{
@@ -803,7 +814,7 @@ int ScreenManager::dataCallBack(aml_screen_buffer_info_t *buffer){
                         frame->timestampUs = 0;
                         mCanvasFramesReceived.push_back(frame);
                         mCanvasClientExist = 1;
-                        if (mMeanWhileFlag) {
+                        if (mMeanWhileFlag && mTempBuffer == NULL) {
                             mTempBuffer = buffer->buffer_mem;
                         }
                     }

@@ -193,7 +193,7 @@ void nv21_to_rgb24(unsigned char *buf, unsigned char *rgb, int width, int height
 
 int ScreenCatch::threadFuncForScreenManager()
 {
-    int index;
+    int index = 0;
     int status;
 
     sp<MemoryHeapBase> newMemoryHeap = new MemoryHeapBase(mWidth*mHeight*3/2);
