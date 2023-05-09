@@ -72,16 +72,13 @@ FrameRateAutoAdaption::~FrameRateAutoAdaption() {
     }
 }
 int FrameRateAutoAdaption::isDLGOn() {
-    int dlgSwith = -1;
-    char DisplayVdin[MODE_LEN] = {0};
-    bool ret= mSysWrite.getPropertyString(SYSFS_DLG_PROP, DisplayVdin,"change");
-    if (!strncmp(DisplayVdin, "on", 2)) {
-        return 1;
+#ifdef FRAMERATE_MODE
+    if (pCPQControl != NULL) {
+        SYS_LOGD("get pCPQControl dlgenable");
+        return pCPQControl->GetDLGEnable();
     }
-    if (!strncmp(DisplayVdin, "off",3)) {
-        return 2;
-    }
-    return -1;
+#endif
+    return 0;
 }
 int FrameRateAutoAdaption::getLastFrame() {
     return mLastFrameRate;
