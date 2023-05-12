@@ -101,6 +101,7 @@ public class AudioSystemCmdService extends Service {
     private ArcVolumeController mArcVolumeController;
     private TvInputManager mTvInputManager;
     protected TvControlManager mTvControlManager;
+    private boolean sinkUpdated = false;
   //  protected TvControlManager mTvControlManager;
     private static final String PATH_AUDIOFORMAT_UEVENT = "/devices/platform/auge_sound";
     private static final String PATH_NEW_AUDIOFORMAT_UEVENT = "/devices/platform/auge_sound/sound/card0/controlC0";
@@ -301,7 +302,7 @@ public class AudioSystemCmdService extends Service {
                             Slog.i(TAG, "onAudioPortListUpdate sink changed. sink:" + sink.toString());
                         }
                     }
-
+                    sinkUpdated = true;
                     mHasStartedDecoder = false;
                     mHandler.removeCallbacks(mHandleAudioSinkUpdatedRunnable);
                     if (mTvInputManager != null) {
@@ -1049,8 +1050,6 @@ public class AudioSystemCmdService extends Service {
 
     private void updateAudioConfigLocked() {
 
-        boolean sinkUpdated = updateAudioSinkLocked();
-
         if (mAudioSource == null || mAudioSink.isEmpty()) {
             Log.i(TAG, "updateAudioConfigLocked return, mAudioSource:" +
                     mAudioSource + ", mAudioSink empty:" +  mAudioSink.isEmpty());
@@ -1074,6 +1073,7 @@ public class AudioSystemCmdService extends Service {
         List<AudioPortConfig> sinkConfigs = new ArrayList<>();
         AudioPatch[] audioPatchArray = new AudioPatch[] { mAudioPatch };
         boolean shouldRecreateAudioPatch = sinkUpdated;
+        sinkUpdated = false;
         boolean shouldApplyGain = false;
 
         Log.i(TAG, "updateAudioConfigLocked sinkUpdated:" + sinkUpdated + ", mAudioPatch is empty:"
