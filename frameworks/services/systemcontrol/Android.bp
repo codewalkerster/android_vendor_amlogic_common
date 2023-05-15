@@ -111,6 +111,8 @@ cc_library_shared {
     defaults: ["systemcontrol_defaults"],
     vendor_available: true,
     system_ext_specific: true,
+    recovery_available: true,
+
     cflags: [
         "-Wno-unused-parameter",
         "-Wno-unused-variable",
@@ -252,7 +254,6 @@ cc_library_static {
     recovery_available: true,
 
     srcs: [
-        "main_recovery.cpp",
         "ubootenv/Ubootenv.cpp",
         "logo_img_packer/res_pack.cpp",
         "logo_img_packer/crc32.cpp",
@@ -285,7 +286,7 @@ cc_library_static {
         "ubootenv",
         "PQ/include"
     ],
-    
+
     whole_static_libs: [
         "libmeson_display_adapter_local_static",
         "libsceneprocess_recovery_static",
