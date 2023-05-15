@@ -20,6 +20,7 @@ import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.media.AudioManager;
+import android.media.AudioSystem;
 import android.hardware.hdmi.HdmiControlManager;
 import android.hardware.hdmi.HdmiTvClient;
 import android.os.Handler;
@@ -63,6 +64,7 @@ public class ArcVolumeController {
 
     private HdmiTvClient mTvClient;
     private HdmiControlManager mHdmiControlManager;
+    private AudioManager mAudioManager;
 
     // Use a dialog as the volume bar for avr volume events.
     private AlertDialog mVolumeBar;
@@ -118,6 +120,11 @@ public class ArcVolumeController {
             Log.d(TAG, "Can't get hdmi tv client!");
             return;
         }
+        mAudioManager = mContext.getSystemService(AudioManager.class);
+        if (null == mAudioManager) {
+            Log.d(TAG, "Can't get audio manager!");
+            return;
+        }
 
         Log.d(TAG, "create ArcVolumeController");
         createVolumeBar();
@@ -161,6 +168,11 @@ public class ArcVolumeController {
         String action = intent.getAction();
         boolean audioMode = mHdmiControlManager.getSystemAudioMode();
         if (!audioMode) {
+            return;
+        }
+        int devices = mAudioManager.getDevicesForStream(AudioManager.STREAM_MUSIC);
+        if ((devices & AudioSystem.DEVICE_OUT_HDMI_ARC) == 0) {
+            // current device is not hdmi_arc.
             return;
         }
 
