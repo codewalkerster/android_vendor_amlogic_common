@@ -214,6 +214,7 @@ static void write_power_type(char * str)
 	{
 		ALOGE("open(%s) failed: %s (%d)\n", \
 			BT_POWER_TYPE, strerror(errno), errno);
+		return;
 	}
 
 	ret = write(fd, str, 1);
