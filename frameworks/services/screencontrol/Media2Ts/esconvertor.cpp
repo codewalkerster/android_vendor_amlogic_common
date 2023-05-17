@@ -328,13 +328,12 @@ status_t ESConvertor::feedEncoderInputBuffers() {
                 write(mDumpYuvFd, buffer->data(), buffer->size());
             }
 
+
             if (!mIsSoftwareEncoder) {
                 // release buffer from screenmanager
                 void *mediaBuffer = NULL;
                 if (buffer->meta()->findPointer("mediaBuffer", &mediaBuffer) && mediaBuffer != NULL) {
-                    ((MediaBuffer *)mediaBuffer)->release();
-                    mediaBuffer = NULL;
-                    buffer->meta()->setPointer("mediaBuffer", NULL);
+                    mFrameEndecoding.add(bufferIndex, (MediaBuffer*)mediaBuffer);
                 }
             }
         } else {
@@ -725,6 +724,14 @@ int ESConvertor::videoDequeueInputBuffer()
     }
     mAvailEncoderInputIndices.push_back(bufferIndex);
     mDequeueBufferTotal++;
+    if (!mIsSoftwareEncoder && !mFrameEndecoding.isEmpty()) {
+        MediaBuffer* buffer = mFrameEndecoding.valueFor(bufferIndex);
+        if (buffer != NULL) {
+            buffer->release();
+            mFrameEndecoding.removeItem(bufferIndex);
+        }
+    }
+
 
     return OK;
 }

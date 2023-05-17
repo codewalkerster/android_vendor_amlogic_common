@@ -179,6 +179,7 @@ private:
     List<sp<ABuffer> > mInputBufferQueue;
     List<sp<ABuffer> > mOutputBufferQueue;
     List<MediaBuffer*> mFramesReceived;
+    KeyedVector<int, MediaBuffer* > mFrameEndecoding;
 
     int32_t mClientId;
     sp<MemoryHeapBase> mNewMemoryHeap;
