@@ -381,7 +381,7 @@ bool PQTableOSD::GetNonlinearModeType(NonlinearModeType *pData)
 
 bool PQTableOSD::SetPictureModeData(PICTURE_MODE_DATA *pData)
 {
-    if (pData != NULL) {
+    if (pData == NULL) {
         return false;
     }
 

@@ -113,7 +113,7 @@ bool PQTable::Set_PQBinPath(char *path)
 
 bool PQTable::Set_VPQ_GammaTable(int index)
 {
-    if (index > GAMMA_TABLE_NUM_MAX) {
+    if (index >= GAMMA_TABLE_NUM_MAX) {
         return false;
     }
 
