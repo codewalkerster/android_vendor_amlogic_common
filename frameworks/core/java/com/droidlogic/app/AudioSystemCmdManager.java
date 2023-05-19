@@ -66,6 +66,9 @@ public class AudioSystemCmdManager {
     public static final int AUDIO_SERVICE_CMD_SET_MEDIA_FIRST_LANG                  = 29;
     public static final int AUDIO_SERVICE_CMD_SET_MEDIA_SECOND_LANG                 = 30;
 
+    public static final String PROP_AUDIO_OUTPUT_STRATEGY                           = "persist.vendor.media.audio.output.strategy";
+    public static final String PROP_AUDIO_OUTPUT_SPDIF_COEXIST                      = "persist.vendor.media.audio.spdif.coexist";
+
     /* 0: Auto  1: Semi-Auto  2: Manual (refer to: audio_output_strategy enum in Engine.cpp) */
     public static final int OUTPUT_STRATEGY_AUTO                                    = 0;
     public static final int OUTPUT_STRATEGY_SEMI_AUTO                               = 1;
@@ -291,5 +294,16 @@ public class AudioSystemCmdManager {
             Log.e(TAG, "getOutputDevices failed:" + e);
             return null;
         }
+    }
+
+
+    public int setCoexistSpdifOther(boolean enable) {
+        if (audioCmdServiceIsNull()) return 0;
+        try {
+            return mAudioSystemCmdService.setCoexistSpdifOther(enable);
+        } catch (RemoteException e) {
+            Log.e(TAG, "setCoexistSpdifOther failed:" + e);
+        }
+        return 0;
     }
 }

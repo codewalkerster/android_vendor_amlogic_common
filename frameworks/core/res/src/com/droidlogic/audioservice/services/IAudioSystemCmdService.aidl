@@ -25,4 +25,5 @@ interface IAudioSystemCmdService{
     void closeTvAudio();
     int setOutputDevices(in byte[] devices);
     byte[] getOutputDevices();
+    int setCoexistSpdifOther(boolean enable);
 }

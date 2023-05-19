@@ -404,6 +404,7 @@ public class AudioSystemCmdService extends Service {
         mAudioEventThread = new HandlerThread("AudioEventThread");
         mAudioEventThread.start();
         mAudioEventHandler = new Handler(mAudioEventThread.getLooper());
+        updateCoexistSpdifOther();
     }
 
     @Override
@@ -1210,6 +1211,18 @@ public class AudioSystemCmdService extends Service {
         }
 
     }
+
+    private void updateCoexistSpdifOther() {
+        boolean enable = mSystemControlManager.getPropertyBoolean(AudioSystemCmdManager.PROP_AUDIO_OUTPUT_SPDIF_COEXIST, true);
+        int coexist = enable ? 1 : 0;
+        int curState = AudioSystem.getDeviceConnectionState(AudioSystem.DEVICE_OUT_SPDIF, "");
+        Log.i(TAG, "setCoexistSpdifOther coexist:" + coexist + ", spdif status:" + curState);
+        if (coexist == curState) {
+            mAudioManager.setWiredDeviceConnectionState(new android.media.AudioDeviceAttributes(
+                    AudioSystem.DEVICE_OUT_SPDIF, "", ""), enable ? 0 : 1);
+        }
+    }
+
     private final IAudioSystemCmdService.Stub mBinder = new IAudioSystemCmdService.Stub() {
         public void setParameters(String arg) {
             if (DroidLogicUtils.getAudioDebugEnable()) {
@@ -1264,10 +1277,13 @@ public class AudioSystemCmdService extends Service {
             }
 
             if (devices.length == 1 && devices[0] == AudioDeviceInfo.TYPE_UNKNOWN ) {
+                mSystemControlManager.setProperty(AudioSystemCmdManager.PROP_AUDIO_OUTPUT_STRATEGY, AudioSystemCmdManager.OUTPUT_STRATEGY_AUTO + "");
                 AudioSystem.setForceUse(AudioSystem.FOR_MEDIA, FORCE_NONE);
-                Log.i(TAG, "setOutputDevices devices TYPE_UNKNOWN, setForceUse NONE.");
+                Log.i(TAG, "setOutputDevices Auto Mode, setForceUse NONE.");
                 return 0;
             }
+
+            mSystemControlManager.setProperty(AudioSystemCmdManager.PROP_AUDIO_OUTPUT_STRATEGY, AudioSystemCmdManager.OUTPUT_STRATEGY_MANUAL + "");
 
             ArrayList<Integer> allInternalDevicesList = new ArrayList<Integer>();
             int allInternalDevicesMask = 0;
@@ -1360,6 +1376,22 @@ public class AudioSystemCmdService extends Service {
                 devices[i++] = dev;
             }
             return devices;
+        }
+
+        public int setCoexistSpdifOther(boolean enable) {
+            if (DroidLogicUtils.getAudioDebugEnable()) {
+                Log.i(TAG, "setCoexistSpdifOther enable:" + enable);
+            }
+            mSystemControlManager.setProperty(AudioSystemCmdManager.PROP_AUDIO_OUTPUT_SPDIF_COEXIST, enable ? "1" : "0");
+            updateCoexistSpdifOther();
+            int forceUse = AudioSystem.getForceUse(AudioSystem.FOR_MEDIA);
+            if (forceUse == FORCE_SPDIF) {
+                mSystemControlManager.setProperty(AudioSystemCmdManager.PROP_AUDIO_OUTPUT_STRATEGY, AudioSystemCmdManager.OUTPUT_STRATEGY_AUTO + "");
+                AudioSystem.setForceUse(AudioSystem.FOR_MEDIA, FORCE_NONE);
+                Log.i(TAG, "setCoexistSpdifOther delete spdif, setForceUse NONE.");
+            }
+            mAudioManager.setParameters("hal_param_spdif_coexist_other=" + (enable ? "1" : "0"));
+            return 0;
         }
     };
 }
