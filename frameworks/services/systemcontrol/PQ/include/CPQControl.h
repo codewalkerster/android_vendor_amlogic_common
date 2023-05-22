@@ -245,7 +245,6 @@ public:
     unsigned short Cpq_CalColorTemperatureParamsChecksum(void);
     int Cpq_SetColorTemperatureParamsChecksum(void);
     unsigned short Cpq_GetColorTemperatureParamsChecksum(void);
-    int Cpq_ClearColorTemperatureParamsChecksum(void);
     int Cpq_SetColorTemperatureUser(tv_source_input_t source_input, tcon_rgb_ogo_t *pData);
     int Cpq_GetColorTemperatureUser(vpp_color_temperature_mode_t mode, RGB_UI_OFFSET* pData);
     int Cpq_SaveColorTemperatureUser(vpp_color_temperature_mode_t mode, rgb_ogo_type_t rgb_ogo_type, int value);

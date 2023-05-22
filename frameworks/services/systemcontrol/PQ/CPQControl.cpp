@@ -1609,18 +1609,6 @@ unsigned short CPQControl::Cpq_GetColorTemperatureParamsChecksum(void)
     return usuc.s;
 }
 
-int CPQControl::Cpq_ClearColorTemperatureParamsChecksum(void)
-{
-    int ret = 0;
-    USUC usuc;
-
-    usuc.s = 0x00;
-
-    ret |= mSSMAction->SSMSaveRGBOGOValue(SSM_CR_RGBOGO_LEN, SSM_CR_RGBOGO_CHKSUM_LEN, usuc.c);
-
-    return ret;
-}
-
 int CPQControl::Cpq_SetColorTemperatureUser(tv_source_input_t source_input, tcon_rgb_ogo_t *pData)
 {
     if (!mbCpqCfg_whitebalance_enable) {
@@ -1814,7 +1802,6 @@ int CPQControl::GetColorTemperatureParams(vpp_color_temperature_mode_t Tempmode,
 
         ret |= mSSMAction->SSMReadRGBOGOValue(28, 2, usuc.c);
         params->r_gain = usuc.s;
-
         ret |= mSSMAction->SSMReadRGBOGOValue(30, 2, usuc.c);
         params->g_gain = usuc.s;
 
@@ -1844,13 +1831,11 @@ int CPQControl::GetColorTemperatureParams(vpp_color_temperature_mode_t Tempmode,
 
         ret |= mSSMAction->SSMReadRGBOGOValue(48, 2, usuc.c);
         params->r_gain = usuc.s;
-
         ret |= mSSMAction->SSMReadRGBOGOValue(50, 2, usuc.c);
         params->g_gain = usuc.s;
 
         ret |= mSSMAction->SSMReadRGBOGOValue(52, 2, usuc.c);
         params->b_gain = usuc.s;
-
         ret |= mSSMAction->SSMReadRGBOGOValue(54, 2, suc.c);
         params->r_post_offset = suc.s;
 
@@ -1874,13 +1859,11 @@ int CPQControl::GetColorTemperatureParams(vpp_color_temperature_mode_t Tempmode,
 
         ret |= mSSMAction->SSMReadRGBOGOValue(68, 2, usuc.c);
         params->r_gain = usuc.s;
-
         ret |= mSSMAction->SSMReadRGBOGOValue(70, 2, usuc.c);
         params->g_gain = usuc.s;
 
         ret |= mSSMAction->SSMReadRGBOGOValue(72, 2, usuc.c);
         params->b_gain = usuc.s;
-
         ret |= mSSMAction->SSMReadRGBOGOValue(74, 2, suc.c);
         params->r_post_offset = suc.s;
 
@@ -7749,11 +7732,6 @@ int CPQControl::SetCurrentSourceInputInfo(source_input_param_t source_input_para
 
     //check env hdr policy (always hdr or adaptive hdr)
     getHdrPolicy();
-
-    //when switch src, clear ctemp rgb gain&offset checksum value
-    if (mCurrentSourceInputInfo.source_input != source_input_param.source_input) {
-        Cpq_ClearColorTemperatureParamsChecksum();
-    }
 
     if ((mCurrentSourceInputInfo.source_input != source_input_param.source_input) ||
          (mCurrentSourceInputInfo.sig_fmt != source_input_param.sig_fmt) ||
