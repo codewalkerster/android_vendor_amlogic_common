@@ -226,6 +226,8 @@ ExternalCameraConfig::ExternalCameraConfig()
     fpsLimits.push_back(
             {/* size */ {/* width */ 1920, /* height */ 1080}, /* fpsUpperBound */ 5.0});
     minStreamSize = {0, 0};
+    maxVideoSize.width = 0;
+    maxVideoSize.height = 0;
 }
 
 }  // namespace common
@@ -290,7 +292,7 @@ int V4L2Frame::unmap() {
     return 0;
 }
 
-AllocatedFrame::AllocatedFrame(uint32_t w, uint32_t h) : Frame(w, h, V4L2_PIX_FMT_YUV420) {}
+AllocatedFrame::AllocatedFrame(uint32_t w, uint32_t h) : Frame(w, h, V4L2_PIX_FMT_YUV420), mBufferSize(0) {}
 AllocatedFrame::~AllocatedFrame() {}
 
 int AllocatedFrame::getData(uint8_t** outData, size_t* dataSize) {

@@ -283,7 +283,7 @@ Status AmlogicCameraDeviceSession::importRequestImpl(
     for (size_t i = 0; i < numOutputBufs; i++) {
         allBufs[i] = ::android::makeFromAidl(request.outputBuffers[i].buffer);
         allBufIds[i] = request.outputBuffers[i].bufferId;
-        allBufPtrs[i] = &allBufs[i];
+        //allBufPtrs[i] = &allBufs[i];
         streamIds[i] = request.outputBuffers[i].streamId;
     }
 
@@ -331,7 +331,7 @@ void AmlogicCameraDeviceSession::cleanupInflightFences(
 }
 
 AmlogicCameraDeviceSession::ResultBatcher::ResultBatcher(
-        const std::shared_ptr<ICameraDeviceCallback>& callback) : mCallback(callback) {};
+        const std::shared_ptr<ICameraDeviceCallback>& callback) : mNumPartialResults(0), mCallback(callback) {};
 
 bool AmlogicCameraDeviceSession::ResultBatcher::InflightBatch::allDelivered() const {
     if (!mShutterDelivered) return false;

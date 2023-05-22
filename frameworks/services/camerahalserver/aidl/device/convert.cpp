@@ -113,6 +113,7 @@ void convertFromAidl(const Stream &src, Camera3Stream* dst) {
     // Fields to be filled by HAL (max_buffers, priv) are initialized to 0
     dst->max_buffers = 0;
     dst->priv = 0;
+    dst->physical_camera_id = NULL;
     return;
 }
 
