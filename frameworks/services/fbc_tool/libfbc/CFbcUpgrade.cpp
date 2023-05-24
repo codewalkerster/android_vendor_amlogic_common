@@ -371,7 +371,7 @@ bool CFbcUpgrade::loadUpgradeFile(int &ret_code,
     /*
      * This is the logic, no need to modify, ignore coverity weak cryptor report.
      */
-    /* coverity[event_tag:SUPPRESS] */
+    /* coverity[negative_returns:SUPPRESS] */
     close(file_handle);
     return ret;
 }
