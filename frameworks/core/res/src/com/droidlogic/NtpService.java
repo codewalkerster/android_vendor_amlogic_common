@@ -107,13 +107,13 @@ public class NtpService extends Service {
         try {
             Class<?> sntpClass = Class.forName("android.net.SntpClient");
             Object sntpObject = sntpClass.newInstance();
-            Method getnptMethod = sntpClass.getMethod("getNtpTime", null);
+            Method getnptMethod = sntpClass.getMethod("getNtpTime", (Class<?>[]) null);
             Method reqtimeMethod = sntpClass.getMethod("requestTime", String.class, int.class);
-            Method getreference = sntpClass.getMethod("getNtpTimeReference", null);
+            Method getreference = sntpClass.getMethod("getNtpTimeReference", (Class<?>[]) null);
             for ( int i=0; (NtpServers != null) && i<NtpServers.length; i++ ) {
                 boolean ret = (boolean) reqtimeMethod.invoke(sntpObject, NtpServers[i], NTP_TIMEOUT);
                 if (ret) {
-                    long now = (long) getnptMethod.invoke(sntpObject, null) + SystemClock.elapsedRealtime() - (long) getreference.invoke(sntpObject, null);
+                    long now = (long) getnptMethod.invoke(sntpObject) + SystemClock.elapsedRealtime() - (long) getreference.invoke(sntpObject);
                     Log.d(TAG,"TIME Set to"+now);
                     SystemClock.setCurrentTimeMillis(now);
                     cancelReceiver();

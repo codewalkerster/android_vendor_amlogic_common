@@ -4,8 +4,6 @@ LOCAL_PATH:= $(call my-dir)
 
 ifneq ($(BOARD_AML_SECUREBOOT_SOC_TYPE),)
 
-$(warning LOCAL_PATH is $(LOCAL_PATH))
-$(warning BUILD_NUMBER_FROM_FILE $(BUILD_NUMBER_FROM_FILE))
 AML_SECUREBOOT_SIGN_TOOL := $(LOCAL_PATH)/Aml_Linux_SecureBootV3_SignTool/amlogic_secureboot_sign_whole_pkg.bash
 ifeq ($(AML_SECUREBOOT_USE_SCS_MODE),true)
 AML_SECUREBOOT_SIGN_TOOL := $(LOCAL_PATH)/Aml_Linux_SCS_SignTool/amlogic_scs_sign_whole_pkg.bash
@@ -60,9 +58,7 @@ $(1): $(2)
 	@echo installed $$@
 endef
 $(foreach otakey,$(wildcard $(DEFAULT_SYSTEM_DEV_CERTIFICATE)*),$(eval $(call OTA_KEY_4_SIGN_template,$(OTA_KEY_DIR)/$(notdir $(otakey)),$(otakey))))
-$(warning OTA_SIGN_KEYS $(OTA_SIGN_KEYS))
 
-$(warning BUILT_TARGET_FILES_PACKAGE $(BUILT_TARGET_FILES_PACKAGE))
 BUILT_TARGET_SIGNED_PACKAGE := $(AML_TARGET).signed.zip
 $(BUILT_TARGET_SIGNED_PACKAGE): $(AML_TARGET).zip $(OTA_SIGN_KEYS)
 	@echo "Package $@"
@@ -78,7 +74,6 @@ $(BUILT_TARGET_SIGNED_PACKAGE): $(AML_TARGET).zip $(OTA_SIGN_KEYS)
 .PHONY: signed_target_zip
 signed_target_zip:$(BUILT_TARGET_SIGNED_PACKAGE)
 
-$(warning INTERNAL_OTA_PACKAGE_TARGET $(INTERNAL_OTA_PACKAGE_TARGET))
 INSTALLED_OTA_SIGNED_PACKAGE := $(basename $(INTERNAL_OTA_PACKAGE_TARGET)).signed.zip
 $(INSTALLED_OTA_SIGNED_PACKAGE): $(INTERNAL_OTA_PACKAGE_TARGET) $(OTA_SIGN_KEYS)
 	@echo "Package $@"

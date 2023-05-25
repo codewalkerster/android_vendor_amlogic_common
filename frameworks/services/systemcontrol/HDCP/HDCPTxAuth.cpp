@@ -382,7 +382,7 @@ void HDCPTxAuth::AuthResult(bool result) {
 #ifndef RECOVERY_MODE
 void HDCPTxAuth::sfRepaintEverything() {
     sp<IServiceManager> sm = defaultServiceManager();
-    sp<IBinder> sf = sm->getService(String16("SurfaceFlinger"));
+    sp<IBinder> sf = sm->checkService(String16("SurfaceFlinger"));
     if (sf != NULL) {
         Parcel data;
         data.writeInterfaceToken(String16("android.ui.ISurfaceComposer"));

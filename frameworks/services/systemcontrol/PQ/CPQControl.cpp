@@ -9829,7 +9829,7 @@ void CPQControl::InitPGammaBin()
         CTconPGamma *pgammaDev = CTconPGamma::GetInstance();
         if (pgammaDev && !pgammaDev->Init(NULL)) {
             pgammaDev->PrintInfo(-1);
-            if (pgammaDev->GenerateBin("default") < 0)
+            if (pgammaDev->GenerateBin((char *)"default") < 0)
                 SYS_LOGE("Gen pgamma bin failed, exit...\n");
             else
                 SYS_LOGD("Gen pgamma bin Ok\n");

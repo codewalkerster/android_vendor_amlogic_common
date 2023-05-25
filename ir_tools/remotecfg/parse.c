@@ -123,7 +123,7 @@ static int ReadFile(FILE *fp, pfileHandle handler, void *data)
 {
 	char *key;
 	char *value;
-	unsigned int  mapcode;
+	int  mapcode;
 	unsigned char parse_flag = CONFIG_LEVEL;
 	char *line;
 	char *savep;
