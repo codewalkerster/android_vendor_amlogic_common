@@ -87,8 +87,7 @@ class DeathNotifier: public IBinder::DeathRecipient
             mScreenControlService = screencontrolservice;
         }
 
-        void binderDied(const wp<IBinder>& who) {
-            ALOGE("native screen control client binder died!");
+        void binderDied(const wp<IBinder>&) {
             mScreenControlService->release();
         }
     private:
@@ -100,17 +99,18 @@ class DeathNotifier: public IBinder::DeathRecipient
 namespace android {
 
 ScreenControlService::ScreenControlService():
+    mNeedStop(false),
     mPicFd(-1),
+    mVideoConvertor(NULL),
     mRecordCorpX(-1),
     mRecordCorpY(-1),
     mRecordCorpWidth(-1),
     mRecordCorpHeight(-1),
     mRecordWidth(-1),
     mRecordHeight(-1),
-    mYuvClientId(-1) ,
     mScreenManager(NULL),
+    mYuvClientId(-1) ,
     mRecordSourceType(-1) {
-    mNeedStop = false;
 }
 
 ScreenControlService::~ScreenControlService() {
@@ -263,7 +263,7 @@ int ScreenControlService::startScreenCap(int32_t left, int32_t top, int32_t righ
     void* const base = memoryBase->getBase();
 
     if (base != nullptr) {
-        mScreenCatch = new ScreenCatch(width, height, 32, sourceType);
+        mScreenCatch = new ScreenCatch(width, height, sourceType);
         mScreenCatch->setVideoCrop(left, top, right, bottom);
 
         MetaDataBase* pMeta;
@@ -363,11 +363,11 @@ int ScreenControlService::startScreenCapBuffer(int32_t left, int32_t top, int32_
             return UNKNOWN_ERROR;
         }
         if (mTSPacker != NULL ) {
-            while (!OK == mTSPacker->readRawData(tBuffer,width,height)) {
+            while (mTSPacker->readRawData(tBuffer,width,height) == !OK) {
                 usleep(5 *1000); //5ms
             }
         }else {
-            while (!OK == mVideoConvertor->readRawData(tBuffer,width,height)) {
+            while (mVideoConvertor->readRawData(tBuffer,width,height) == !OK ) {
                 usleep(5 *1000); //5ms
             }
         }
@@ -379,7 +379,7 @@ int ScreenControlService::startScreenCapBuffer(int32_t left, int32_t top, int32_
         return result;
     }else if(mScreenManager != NULL && mRecordSourceType == sourceType) {
         void * raw = NULL;
-        while (!OK == mScreenManager->readRawData(mYuvClientId,&raw)) {
+        while (mScreenManager->readRawData(mYuvClientId,&raw) == !OK) {
                 usleep(5 *1000); //5ms
         }
         if (raw == NULL)
@@ -429,7 +429,7 @@ int ScreenControlService::startScreenCapBuffer(int32_t left, int32_t top, int32_
         ALOGE("[%s %d] ScreenManage init error\n", __FUNCTION__, __LINE__);
         return !OK;
     }
-    mScreenManager->setVideoCrop(client_id, left, top, right, bottom);
+    mScreenManager->setVideoCrop(left, top, right, bottom);
     err = mScreenManager->start(client_id,SCREENCONTROL_SCREEN_CATCH);
     if ( err != OK ) {
         ALOGE("[%s %d] ScreenManage init error\n", __FUNCTION__, __LINE__);
@@ -445,7 +445,7 @@ int ScreenControlService::startScreenCapBuffer(int32_t left, int32_t top, int32_
             gettimeofday(&timeNow, NULL);
             int64_t nowUs = (int64_t)timeNow.tv_sec*1000*1000 + (int64_t)timeNow.tv_usec;
             if ((nowUs - firsetNowUs) >= TIMEOUT_VAL) {
-                ALOGE("[%s %d] no data !!!! break,firsetNowUs=%ld,nowUs=%ld", __FUNCTION__, __LINE__,firsetNowUs,nowUs);
+                ALOGE("[%s %d] no data !!!! break,firsetNowUs=%lld,nowUs=%lld", __FUNCTION__, __LINE__,firsetNowUs,nowUs);
                 break;
             }
             usleep(5 *1000);

@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
     int isAudio;
     int dump_time = 0, video_dump_size = 0, audio_dump_size = 0;
     MediaBufferBase *tVideoBuffer, *tAudioBuffer;
-    char *filename = "/data/temp/video.ts";
+    const char *filename = "/data/temp/video.ts";
     int ch;
     int framerate=30, bitrate=4000000, type=AML_CAPTURE_OSD_VIDEO, timeSecond=30;
     int left=0, top=0, right=1280, bottom=720;

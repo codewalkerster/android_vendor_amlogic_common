@@ -46,8 +46,7 @@ public:
     // For the MediaSource interface for use by StageFrightRecorder:
     virtual status_t start(MetaDataBase *params = NULL);
     virtual status_t stop();
-    virtual status_t read(MediaBufferBase **buffer,
-            const struct ReadOptions *options = NULL);
+    virtual status_t read(MediaBufferBase **buffer);
      virtual status_t readRawData(MediaBuffer *buffer, int width, int height);
     virtual MetaDataBase* getFormat();
 
@@ -155,7 +154,6 @@ private:
     int mIsPCMAudio;
     AMediaFormat *mInputFormat;
     AMediaFormat *mOutputFormat;
-    sp<AMessage> mEncoderActivityNotify;
     int64_t mStartTimeNs;
     int mAudioChannelCount;
     int mAudioSampleRate;
@@ -171,7 +169,6 @@ private:
     int64_t mCurrentTimestamp;
     bool mStarted;
     sp<ABuffer> mPartialAudioAU;
-//    sp<AudioSource> mAudioSource;
 
     AMediaCodec *mEncoder;
     List<size_t> mAvailEncoderInputIndices;

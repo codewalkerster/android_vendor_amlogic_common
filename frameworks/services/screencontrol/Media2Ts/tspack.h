@@ -37,10 +37,9 @@ public:
     virtual ~TSPacker();
 
     // For the MediaSource interface for use by StageFrightRecorder:
-    virtual status_t start(MetaDataBase *params = NULL);
+    virtual status_t start();
     virtual status_t stop();
-    virtual status_t read(MediaBufferBase **buffer,
-            const ReadOptions *options = NULL);
+    virtual status_t read(MediaBufferBase **buffer);
     virtual status_t readRawData(MediaBuffer *buffer, int width, int height);
     // valid function after call setMaxFrameCount()
     virtual status_t checkConvertDone();
@@ -94,15 +93,15 @@ public:
 
 private:
     mutable Mutex mMutex;
-    int mFrameRate;
     bool mStarted;
     int mWidth;
     int mHeight;
-    int mSourceType;
+    int mFrameRate;
     int mBitRate;
+    int mSourceType;
     bool mHasAudio;
-    bool mIsPcmAudio;
     int mheadFinalize;
+    bool mIsPcmAudio;
     int mMaxFrameCnt;  // limit frame count when > 0
     int mLimitTimeMs;  // limit time when > 0, priority: mLimitTimeMs > mMaxFrameCnt
 

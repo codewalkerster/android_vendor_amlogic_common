@@ -107,48 +107,53 @@ int ESConvertor::CanvasdataCallBack(const sp<IMemory>& data){
 }
 
 ESConvertor::ESConvertor(int sourceType, int IsAudio) :
-    mIsAudio(IsAudio),
+    mThread((pthread_t)0),
     mWidth(1280),
     mHeight(720),
     mSourceType(sourceType),
-    mAudioChannelCount(2),
-    mAudioSampleRate(48000),
     mVideoFrameRate(30),
     mVIdeoBitRate(2000000),
-    mStarted(false),
-    mIsPCMAudio(1),
-    mDequeueBufferTotal(0),
-    mQueueBufferTotal(0),
     mIsSoftwareEncoder(false),
     mMaxInFrameCnt(-1),
-    mLimitTimeMs(-1),
-    mMaxBufSize(-1),
     mFrameCounter(0),
     mInFrameCounter(0),
     mOutFrameCounter(0),
     mDropFrameCounter(0),
-    mDumpYuvFd(-1),
-    mDumpEsFd(-1),
-    mCorpX(-1),
-    mCorpY(-1),
-    mCorpWidth(-1),
-    mCorpHeight(-1),
     mFirstPtsUs(0),
     mLastPtsUs(0),
-    mThread ((pthread_t)0),
+    mLimitTimeMs(-1),
+    mMaxBufSize(-1),
+    mIsAudio(IsAudio),
+    mIsPCMAudio(1),
     mInputFormat(NULL),
     mOutputFormat(NULL),
     mStartTimeNs(0),
+    mAudioChannelCount(2),
+    mAudioSampleRate(48000),
+    mDumpYuvFd(-1),
+    mDumpEsFd(-1),
     mMaxAcquiredBufferCount(0),
     mUseAbsoluteTimestamps(false),
     mFrameRate(0),
     mCurrentTimestamp(0),
+    mStarted(false),
+    mPartialAudioAU(NULL),
     mEncoder(NULL),
     mClientId(-1),
-    mScreenManager(NULL),
+    mNewMemoryHeap(NULL),
+    mBufferGet(NULL),
+    mBufferRelease(NULL),
+    mCSDbuffer(NULL),
     mCaptureBuffer(NULL),
+    mScreenManager(NULL),
+    mDequeueBufferTotal(0),
+    mQueueBufferTotal(0),
     mEscDumpAAC(-1),
-    mEscDumpPcm(-1) {
+    mEscDumpPcm(-1),
+    mCorpX(-1),
+    mCorpY(-1),
+    mCorpWidth(-1),
+    mCorpHeight(-1){
     int fd1 = open("/dev/amvenc_avc", O_RDWR);
     int fd2 = open("/dev/amvenc_multi", O_RDWR);
     int fd3 = open("/dev/vc8000", O_RDWR);
@@ -215,7 +220,7 @@ int32_t ESConvertor::getMaxFrameCount() const {
 }
 
 status_t ESConvertor::setTimeLimit(int32_t timeLimitMs) {
-    ALOGE("setTimeLimit(), timeLimitMs=%ld", timeLimitMs);
+    ALOGE("setTimeLimit(), timeLimitMs=%d", timeLimitMs);
     Mutex::Autolock lock(mMutex);
     mLimitTimeMs = timeLimitMs;
     return OK;
@@ -357,7 +362,7 @@ status_t ESConvertor::initEncoder() {
 
     mInputFormat = AMediaFormat_new();
 
-    char *outputMIME = NULL;
+    const char *outputMIME = NULL;
 
     if (mIsAudio == VIDEO_ENCODE) {
         outputMIME = "video/avc";
@@ -1042,12 +1047,11 @@ status_t ESConvertor::start(MetaDataBase *params) {
 
         mScreenManager = ScreenManager::instantiate();
         if (mIsSoftwareEncoder) {
-            mScreenManager->mIsScreenRecord = true;
             mScreenManager->init(mWidth, mHeight, mSourceType, mVideoFrameRate, SCREENCONTROL_RAWDATA_TYPE, &client_id);
         } else {
             mScreenManager->init(mWidth, mHeight, mSourceType, mVideoFrameRate, SCREENCONTROL_CANVAS_TYPE, &client_id);
         }
-        mScreenManager->setVideoCrop(client_id, mCorpX, mCorpY, mCorpWidth, mCorpHeight);
+        mScreenManager->setVideoCrop(mCorpX, mCorpY, mCorpWidth, mCorpHeight);
 
         mClientId = client_id;
 
@@ -1284,8 +1288,7 @@ MetaDataBase* ESConvertor::getFormat()
     return meta;
 }
 
-status_t ESConvertor::read( MediaBufferBase **buffer,
-                                    const struct ReadOptions *options)
+status_t ESConvertor::read( MediaBufferBase **buffer)
 {
     Mutex::Autolock lock(mMutex);
 

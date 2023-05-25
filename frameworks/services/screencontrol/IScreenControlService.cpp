@@ -51,7 +51,6 @@ public:
     }
 
     virtual int startScreenRecord(int32_t width, int32_t height, int32_t frameRate, int32_t bitRate, int32_t limitTimeSec, int32_t sourceType, const char* fileName) {
-        ALOGI("BpScreenControlService startScreenRecord width:%d, height:%d, frameRate:%d, bitRate:%d, limitTimeSec:%d, sourceType:%d, fileName\n", width, height, frameRate, bitRate, limitTimeSec, sourceType, fileName);
         Parcel data, reply;
         data.writeInterfaceToken(IScreenControlService::getInterfaceDescriptor());
         data.writeInt32(width);

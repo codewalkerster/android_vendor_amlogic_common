@@ -300,12 +300,13 @@ namespace implementation {
     }
 
     void ScreenControlHal::handleServiceDeath(uint32_t cookie) {
+        ALOGE("handleServiceDeath  died cookie:%d",(int)cookie);
 
     }
 
     ScreenControlHal::DeathRecipient::DeathRecipient(sp<ScreenControlHal> sch):mScreenControlHal(sch) {}
     void ScreenControlHal::DeathRecipient::serviceDied(uint64_t cookie,
-                    const ::android::wp<::android::hidl::base::V1_0::IBase>& who) {
+                    const ::android::wp<::android::hidl::base::V1_0::IBase>& ) {
         ALOGE("screencontrolservice daemon client died cookie:%d",(int)cookie);
         uint32_t type = static_cast<uint32_t>(cookie);
         mScreenControlHal->handleServiceDeath(type);

@@ -107,6 +107,9 @@ static int getRotationDegree(){
 }
 
 ScreenManager::ScreenManager() :
+    mWidth(-1),
+    mHeight(-1),
+    mSourceType(-1),
     mCurrentTimestamp(0),
     mFrameRate(30),
     mStarted(false),
@@ -114,28 +117,23 @@ ScreenManager::ScreenManager() :
     mNumFramesReceived(0),
     mNumFramesEncoded(0),
     mFirstFrameTimestamp(0),
+    mStartTimeOffsetUs(0),
     mMaxAcquiredBufferCount(4),  // XXX double-check the default
     mUseAbsoluteTimestamps(false),
-    mDropFrame(2),
-    mBufferGet(NULL),
-    mCanvasClientExist(0),
     bufferTimeUs(0),
-    mFrameCount(0),
-    mTimeBetweenFrameCaptureUs(0),
-    mScreenModule(NULL),
-    mIsScreenRecord(false),
-    mScreenDev(NULL),
-    mTempBuffer(NULL),
+    mCanvasClientExist(0),
+    mBufferGet(NULL),
+    mCorpX(0),
+    mCorpY(0),
+    mCorpWidth(0),
+    mCorpHeight(0),
     mOutFrameCounter(0),
     mNeedPause(false),
-    mWidth(-1),
-    mHeight(-1),
-    mSourceType(-1),
-    mMeanWhileFlag(false),
-    mStartTimeOffsetUs(0){
-
-    mCorpX = mCorpY = mCorpWidth = mCorpHeight =0;
-    ALOGI("[%s %d] ScreenManager mCorpX:%d mCorpY:%d mCorpWidth:%d mCorpHeight:%d", __FUNCTION__, __LINE__, mCorpX, mCorpY, mCorpWidth, mCorpHeight);
+    mIsScreenRecord(false),
+    mScreenModule(NULL),
+    mScreenDev(NULL),
+    mTempBuffer(NULL),
+    mMeanWhileFlag(false){
     mScreenBuffers[0] = NULL;
     mScreenBuffers[1] = NULL;
     mScreenBuffers[2] = NULL;
@@ -180,7 +178,7 @@ static int saveBufferAsFile(void *buffer, size_t size, char *file)
     return ret;
 }
 
-static void checkAndSaveBufferToFile(char *baseFile, char *filename, void *buffer, size_t size)
+static void checkAndSaveBufferToFile(const char *baseFile, char *filename, void *buffer, size_t size)
 {
     if (0 == access(baseFile, F_OK)) {
         if (saveBufferAsFile(buffer, size, filename) >= 0) {
@@ -252,12 +250,10 @@ void ScreenManager::setPauseMode(bool isPause){
     mNeedPause=isPause;
 }
 
-status_t ScreenManager::init(int32_t width,
-                                    int32_t height,
-				    int32_t source_type,
-                                    int32_t framerate,
-                                    SCREENCONTROLDATATYPE data_type,
-                                    int32_t* client_id) {
+status_t ScreenManager::init(int32_t width,int32_t height,
+                            int32_t source_type,int32_t framerate,
+                            SCREENCONTROLDATATYPE data_type,
+                            int32_t* client_id) {
     Mutex::Autolock autoLock(mLock);
     int clientTotalNum;
     int clientNum = -1;
@@ -320,7 +316,6 @@ status_t ScreenManager::init(int32_t width,
         mHeight = height;
         mSourceType = source_type;
         mFrameRate = framerate;
-        mBufferSize = mWidth * mHeight * 3/2;
 
     } else if (SCREENCONTROL_RAWDATA_TYPE == data_type || SCREENCONTROL_RGBA888_TYPE == data_type) {
         ALOGI("[%s %d] clientTotalNum:%d width:%d height:%d framerate:%d data_type:%d", __FUNCTION__, __LINE__,
@@ -381,7 +376,6 @@ status_t ScreenManager::init(int32_t width,
         if (clientTotalNum == 0) {
             mWidth = 1280;
             mHeight = 720;
-            mBufferSize = mWidth * mHeight * 3/2;
         }
     }
 #endif
@@ -448,7 +442,7 @@ status_t ScreenManager::setVideoRotation(int degree)
     return OK;
 }
 
-status_t ScreenManager::setVideoCrop(int32_t client_id, const int32_t x, const int32_t y, const int32_t width, const int32_t height)
+status_t ScreenManager::setVideoCrop(const int32_t x, const int32_t y, const int32_t width, const int32_t height)
 {
     ALOGI("[%s %d] setVideoCrop x:%d y:%d width:%d height:%d", __FUNCTION__, __LINE__, x, y, width, height);
     Mutex::Autolock autoLock(mLock);
@@ -651,7 +645,6 @@ status_t ScreenManager::readBuffer(int32_t client_id, sp<IMemory> buffer, int *i
         if (!frame)
             return !OK;
 
-        //ALOGE("ptr:%x canvas:%d", frame->buf_ptr, frame->canvas);
 
         buff_info[0] = kMetadataBufferTypeCanvasSource;
         buff_info[1] = (long)frame->buf_ptr;
@@ -664,12 +657,13 @@ status_t ScreenManager::readBuffer(int32_t client_id, sp<IMemory> buffer, int *i
             // dump buffer to file
             static int i = 0;
             char filename[64] = {0};
-            snprintf(filename, 64, "%s/drvin-cvs-%d.yuv", SCREENMANAGER_DUMP_BASEDIR, i++);
-            checkAndSaveBufferToFile(SCREENMANAGER_DUMP_BASEDIR, filename, frame->buf_ptr, mWidth*mHeight*3/2);
+            const char *dump_path = SCREENMANAGER_DUMP_BASEDIR;
+            snprintf(filename, 64, "%s/drvin-cvs-%d.yuv", dump_path, i++);
+            checkAndSaveBufferToFile(dump_path, filename, frame->buf_ptr, mWidth*mHeight*3/2);
         }
 
 
-        ALOGI("[%s %d] buf_ptr:%x canvas:%x  size:%d OK:%d", __FUNCTION__, __LINE__,
+        ALOGI("[%s %d] buf_ptr:%p canvas:%x  size:%d OK:%d", __FUNCTION__, __LINE__,
                 frame->buf_ptr, frame->canvas, mCanvasFramesReceived.size(), OK);
 
         delete frame;
@@ -686,10 +680,11 @@ status_t ScreenManager::readBuffer(int32_t client_id, sp<IMemory> buffer, int *i
             static int i = 0;
             char filename[64] = {0};
             int size = mWidth*mHeight*3/2;
-            snprintf(filename, 64, "%s/drvin-rd-%d.bin", SCREENMANAGER_DUMP_BASEDIR, i++);
+            const char *dump_path = SCREENMANAGER_DUMP_BASEDIR;
+            snprintf(filename, 64, "%s/drvin-rd-%d.bin", dump_path, i++);
             if (SCREENCONTROL_RGBA888_TYPE == source_data_type)
                 size = mWidth*mHeight*4;
-            checkAndSaveBufferToFile(SCREENMANAGER_DUMP_BASEDIR, filename, mScreenBuffers[index_], size);
+            checkAndSaveBufferToFile(dump_path, filename, mScreenBuffers[index_], size);
         }
     } else {
         //ALOGE("[%s %d] read raw data fail", __FUNCTION__, __LINE__);
@@ -749,7 +744,6 @@ int ScreenManager::dataCallBack(aml_screen_buffer_info_t *buffer){
 
     if ((mStarted) && (mError == false)) {
         if (buffer == NULL || (buffer->buffer_mem == 0)) {
-            ALOGE("aquire_buffer fail, ptr:0x%x", buffer);
             return BAD_VALUE;
         }
         if (buffer->buffer_canvas == 0) {
@@ -758,7 +752,6 @@ int ScreenManager::dataCallBack(aml_screen_buffer_info_t *buffer){
             return BAD_VALUE;
         }
 
-        mFrameCount++;
 
         ++mNumFramesReceived;
         {

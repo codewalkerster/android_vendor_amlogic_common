@@ -39,7 +39,7 @@ namespace android {
 
 class ScreenCatch {
 public:
-    ScreenCatch(uint32_t bufferWidth, uint32_t bufferHeight, uint32_t bitSize, uint32_t type);
+    ScreenCatch(uint32_t bufferWidth, uint32_t bufferHeight, uint32_t type);
 
     virtual ~ScreenCatch();
 

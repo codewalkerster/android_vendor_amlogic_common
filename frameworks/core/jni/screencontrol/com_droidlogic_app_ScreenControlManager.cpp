@@ -121,7 +121,7 @@ static void ConnectScreenControl(JNIEnv *env __unused, jclass clazz __unused)
     ALOGI("Connect Screen Control");
 }
 
-static jint ScreenControlCapScreen(JNIEnv *env, jobject clazz, jint left, jint top,
+static jint ScreenControlCapScreen(JNIEnv *env, jobject, jint left, jint top,
     jint right, jint bottom, jint width, jint height, jint sourceType, jstring jfilename)
 {
     sp<ScreenControlClient>& scc = getScreenControlClient();
@@ -136,6 +136,7 @@ static jint ScreenControlCapScreen(JNIEnv *env, jobject clazz, jint left, jint t
 static jint ScreenControlRecordScreen(JNIEnv *env, jobject clazz, jint width, jint height,
     jint frameRate, jint bitRate, jint limitTimeSec, jint sourceType, jstring jfilename)
 {
+    std::ignore = clazz;
     sp<ScreenControlClient>& scc = getScreenControlClient();
     if (scc != NULL) {
         const char *filename = env->GetStringUTFChars(jfilename, nullptr);
@@ -144,7 +145,7 @@ static jint ScreenControlRecordScreen(JNIEnv *env, jobject clazz, jint width, ji
     } else
         return -1;
 }
-static jint ScreenControlRecordScreenByCrop(JNIEnv *env, jobject clazz, jint left,
+static jint ScreenControlRecordScreenByCrop(JNIEnv *env, jobject, jint left,
     jint top, jint right, jint bottom, jint width, jint height,jint frameRate, jint bitRate, jint limitTimeSec, jint sourceType, jstring jfilename)
 {
     ALOGI("EScreenControlRecordScreenByCrop......\n");
@@ -157,7 +158,7 @@ static jint ScreenControlRecordScreenByCrop(JNIEnv *env, jobject clazz, jint lef
         return -1;
 }
 
-static jbyteArray ScreenControlCapScreenBuffer(JNIEnv *env, jobject clazz, jint left,
+static jbyteArray ScreenControlCapScreenBuffer(JNIEnv *env, jobject, jint left,
     jint top, jint right, jint bottom, jint width, jint height, jint sourceType)
 {
     sp<ScreenControlClient>& scc = getScreenControlClient();
@@ -176,7 +177,7 @@ static jbyteArray ScreenControlCapScreenBuffer(JNIEnv *env, jobject clazz, jint 
         return NULL;
 }
 
-static void ScreenControlStartYuvReceiver(JNIEnv *env , jobject clazz, jobject wo)
+static void ScreenControlStartYuvReceiver(JNIEnv *env , jobject, jobject wo)
 {
     jclass cls;
     if ((cls = env->FindClass("com/droidlogic/app/ScreenControlManager")) == NULL) {
@@ -195,7 +196,7 @@ static void ScreenControlStartYuvReceiver(JNIEnv *env , jobject clazz, jobject w
     }
 }
 
-static jint ScreenControlStartAvcRecord(JNIEnv *env, jobject clazz,jint width, jint height, jint frameRate, int bitRate, jint sourceType)
+static jint ScreenControlStartAvcRecord(JNIEnv *, jobject,jint width, jint height, jint frameRate, int bitRate, jint sourceType)
 {
     sp<ScreenControlClient>& scc = getScreenControlClient();
     if (scc != NULL) {
@@ -207,7 +208,7 @@ static jint ScreenControlStartAvcRecord(JNIEnv *env, jobject clazz,jint width, j
     }
     return -1;
 }
-static void ScreenControlStartAvcReceiver(JNIEnv *env , jobject clazz, jobject wo)
+static void ScreenControlStartAvcReceiver(JNIEnv *env , jobject, jobject wo)
 {
     jclass cls;
     if ((cls = env->FindClass("com/droidlogic/app/ScreenControlManager")) == NULL) {
@@ -228,7 +229,7 @@ static void ScreenControlStartAvcReceiver(JNIEnv *env , jobject clazz, jobject w
 
 }
 
-static jint ScreenControlStartYuvRecord(JNIEnv *env, jobject clazz,jint width, jint height, jint frameRate, jint sourceType)
+static jint ScreenControlStartYuvRecord(JNIEnv *, jobject, jint width, jint height, jint frameRate, jint sourceType)
 {
     sp<ScreenControlClient>& scc = getScreenControlClient();
     if (scc != NULL) {
@@ -241,7 +242,7 @@ static jint ScreenControlStartYuvRecord(JNIEnv *env, jobject clazz,jint width, j
     return -1;
 }
 
-static void ScreenControlForceStop(JNIEnv *env, jobject clazz)
+static void ScreenControlForceStop(JNIEnv *, jobject)
 {
     sp<ScreenControlClient>& scc = getScreenControlClient();
     if (scc != NULL) {

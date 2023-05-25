@@ -56,34 +56,37 @@ namespace android {
 //#define DUMPAUDIOPCM
 
 TSPacker::TSPacker(int width, int height, int frameRate, int bitRate, int sourceType, bool hasAudio) :
+    mStarted(false),
     mWidth(width),
     mHeight(height),
     mFrameRate(frameRate),
     mBitRate(bitRate),
     mSourceType(sourceType),
     mHasAudio(hasAudio),
-    mPrevTimeUs(-1ll),
-    mStarted(false),
-    mMaxFrameCnt(-1),
-    mLimitTimeMs(-1),
-    mCorpX(-1),
-    mCorpY(-1),
-    mCorpWidth(-1),
-    mCorpHeight(-1),
     mheadFinalize(0),
     mIsPcmAudio(0),
+    mMaxFrameCnt(-1),
+    mLimitTimeMs(-1),
+    mVideoConvertor(NULL),
+    mAudioConvertor(NULL),
     mThread((pthread_t)0),
+    mPATContinuityCounter(0),
+    mPMTContinuityCounter(0),
+    mAudioContinuityCounter(0),
+    mVideoContinuityCounter(0),
+    mPrevTimeUs(-1ll),
     mFirstVideoFrame(-1),
     mFirstAudioFrame(-1),
     mDumpVideoEs(-1),
     mDumpVideoTs(-1),
     mDumpAudioEs(-1),
-    mDumpAudioPCM(-1) {
-    mPATContinuityCounter = 0;
-    mPMTContinuityCounter = 0;
-    mAudioContinuityCounter = 0;
-    mVideoContinuityCounter = 0;
+    mDumpAudioPCM(-1),
+    mCorpX(-1),
+    mCorpY(-1),
+    mCorpWidth(-1),
+    mCorpHeight(-1){
     initCrcTable();
+    memset(mCrcTable,0,256);
     ScreenControlDebug::initDebug();
 
     ALOGI("TSPacker construct\n");
@@ -116,7 +119,7 @@ status_t TSPacker::setTimeLimit(int32_t timeLimitMs) {
 
 
 int32_t TSPacker::getTimeLimit() const {
-    ALOGD("getTimeLimit()=%ld", mLimitTimeMs);
+    ALOGD("getTimeLimit()=%d", mLimitTimeMs);
     Mutex::Autolock lock(mMutex);
     return mLimitTimeMs;
 }
@@ -250,7 +253,7 @@ uint32_t TSPacker::crc32(const uint8_t *start, size_t size) const {
     return crc;
 }
 
-status_t TSPacker::start(MetaDataBase *params)
+status_t TSPacker::start()
 {
     int err;
 
@@ -848,8 +851,7 @@ status_t TSPacker::packetize(
 
 
 
-status_t TSPacker::read( MediaBufferBase **buffer,
-				 const ReadOptions *options)
+status_t TSPacker::read( MediaBufferBase **buffer)
 {
     Mutex::Autolock lock(mMutex);
 

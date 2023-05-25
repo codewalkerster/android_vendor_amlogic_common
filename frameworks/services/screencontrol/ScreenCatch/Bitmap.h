@@ -45,10 +45,6 @@ namespace android {
 
 class Bitmap {
 public:
-    // create from file
-    Bitmap(int inFd);
-    Bitmap(FILE *inFile);
-    Bitmap(const char *inFilePath);
     // create from buffer
     Bitmap(void *rgb, int width, int height, int bytePerPixel);
     ~Bitmap();

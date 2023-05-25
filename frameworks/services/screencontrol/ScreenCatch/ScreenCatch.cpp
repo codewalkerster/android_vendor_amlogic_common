@@ -108,27 +108,25 @@ static inline void rgb24_to_rgb32(unsigned char *src, unsigned char *dist, int s
     }
 }
 
-ScreenCatch::ScreenCatch(uint32_t bufferWidth, uint32_t bufferHeight, uint32_t bitSize, uint32_t type) :
-    /*mWidth(ALIGN(bufferWidth)),*/
+ScreenCatch::ScreenCatch(uint32_t bufferWidth, uint32_t bufferHeight, uint32_t type) :
+    mStart(false),
+    mClientId(-1),
+    mThread((pthread_t)0),
+    mScreenManager(NULL),
     mWidth(bufferWidth),
     mHeight(bufferHeight),
     mType(type),
-    mUseKeystone(false),
-    mScreenManager(NULL),
     mColorFormat(OMX_COLOR_Format32bitARGB8888),
-    mStart(false),
-    mThread(NULL),
-    mClientId(-1) {
+    mCorpX(-1),
+    mCorpY(-1),
+    mCorpWidth(-1),
+    mCorpHeight(-1),
+    mUseKeystone(false){
     ALOGI("ScreenCatch: %dx%d", bufferWidth, bufferHeight);
 
     if (bufferWidth <= 0 || bufferHeight <= 0 || bufferWidth > 1920 || bufferHeight > 1080) {
         ALOGE("Invalid dimensions %dx%d", bufferWidth, bufferHeight);
     }
-
-    mCorpX = -1;
-    mCorpY = -1;
-    mCorpWidth = -1;
-    mCorpHeight = -1;
     mRawBufferQueue.clear();
     ScreenControlDebug::initDebug();
 }
@@ -380,7 +378,7 @@ status_t ScreenCatch::start(MetaDataBase *params)
         ALOGI("[%s %d] mCorpX:%d mCorpY:%d mCorpWidth:%d mCorpHeight:%d", __FUNCTION__, __LINE__,  mCorpX, mCorpY, mCorpWidth, mCorpHeight);
 
         if (mCorpX != -1)
-            mScreenManager->setVideoCrop(client_id, mCorpX, mCorpY, mCorpWidth, mCorpHeight);
+            mScreenManager->setVideoCrop(mCorpX, mCorpY, mCorpWidth, mCorpHeight);
 
         status = mScreenManager->start(client_id,SCREENCONTROL_SCREEN_CATCH);
 

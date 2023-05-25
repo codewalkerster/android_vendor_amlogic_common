@@ -126,7 +126,7 @@ public:
     virtual int dataCallBack(aml_screen_buffer_info_t *buffer);
 
     virtual status_t setVideoRotation(int degree);
-    virtual status_t setVideoCrop(int32_t client_id, const int32_t x, const int32_t y, const int32_t width, const int32_t height);
+    virtual status_t setVideoCrop(const int32_t x, const int32_t y, const int32_t width, const int32_t height);
 
     virtual bool isHaveOutputData();
     virtual void setPauseMode(bool isPause);
@@ -134,7 +134,6 @@ public:
     virtual status_t readRawData(int32_t client_id, void **buffer);
     virtual status_t getBufferByID(int32_t index,long **buffer);
 
-    bool mIsScreenRecord;
 
 private:
     typedef struct ScreenClient_S{
@@ -198,21 +197,18 @@ private:
     bool mUseAbsoluteTimestamps;
 
     int64_t bufferTimeUs;
-    int64_t mFrameCount;
     Condition mFrameAvailableCondition;
     List<FrameBufferInfo*> mCanvasFramesReceived;
     List<int> mRawBufferQueue;
 
     int64_t mTimeBetweenFrameCaptureUs;
 
-    int32_t mDropFrame;
 
     KeyedVector<int, ScreenClient* > mClientList;
     bool mCanvasClientExist;
 //    sp<MemoryDealer> mScreenManagerDealer;
     sp<IMemory> mBufferGet;
     //sp<ANativeWindow> mANativeWindow;
-    int mBufferSize;
 
     int32_t mCorpX;
     int32_t mCorpY;
@@ -221,6 +217,7 @@ private:
 
     int mOutFrameCounter;
     bool mNeedPause;
+    bool mIsScreenRecord;
 
     aml_screen_module_t* mScreenModule;
     aml_screen_device_t* mScreenDev;

@@ -35,7 +35,7 @@ using ::android::hardware::configureRpcThreadpool;
 using ::vendor::amlogic::hardware::screencontrol::V1_0::implementation::ScreenControlHal;
 using ::vendor::amlogic::hardware::screencontrol::V1_0::IScreenControl;
 
-int main(int argc, char** argv)
+int main()
 {
     ALOGI("screen_control daemon starting");
     bool treble = property_get_bool("persist.screen_control.treble", false);

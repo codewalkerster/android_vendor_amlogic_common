@@ -192,7 +192,7 @@ int main(int argc, char **argv)
 
     if (base != MAP_FAILED) {
         fprintf(stderr, "start screencap\n");
-        mScreenCatch = new ScreenCatch(outWidth, outHeight, 32, type);
+        mScreenCatch = new ScreenCatch(outWidth, outHeight, type);
         mScreenCatch->setVideoCrop(left, top, right, bottom);
 
         MetaDataBase* pMeta;

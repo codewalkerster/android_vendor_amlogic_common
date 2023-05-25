@@ -30,30 +30,7 @@
 
 namespace android {
 
-Bitmap::Bitmap(int inFd) {
-    initPriv();
-    assert(inFd >= 0);
-    assert(readHeader(inFd));
-    assert(readData(fd));
-}
 
-Bitmap::Bitmap(FILE *inFile) {
-    initPriv();
-    assert(inFile != NULL);
-    assert(readHeader(fileno(inFile)));
-    assert(readData(fd));
-}
-
-Bitmap::Bitmap(const char *inFilePath) {
-    initPriv();
-    assert(inFilePath != NULL);
-    int fd = open(inFilePath, O_RDONLY, 0666);
-    if (fd >= 0) {
-        assert(readHeader(fd));
-        assert(readData(fd));
-        close(fd);
-    }
-}
 
 bool Bitmap::readHeader(int fd) {
     int BfhLen =0;
