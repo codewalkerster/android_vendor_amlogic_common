@@ -40,11 +40,12 @@ WIFI_MODULES := $(WIFI_BUILT_MODULES)
 else ifneq (,$(filter-out $(WIFI_BUILT_MODULES),$(WIFI_MODULES)))
 endif
 
-#enable clang CFI for arm64
-ifeq ($(ANDROID_BUILD_TYPE), 64)
+#enable clang CFI
 PRODUCT_CFI_INCLUDE_PATHS += vendor/amlogic/common/wifi_bt/wifi/bcm_ampak/wpa_supplicant_8_lib
 PRODUCT_CFI_INCLUDE_PATHS += vendor/amlogic/common/wifi_bt/wifi/wifi_hal/wpa_supplicant_8_lib
-endif
+PRODUCT_CFI_INCLUDE_PATHS += hardware/amlogic/wifi/libwifi_hal
+PRODUCT_CFI_INCLUDE_PATHS += hardware/amlogic/wifi
+PRODUCT_CFI_INCLUDE_PATHS += vendor/amlogic/common/wifi_bt/wifi/wpa_supplicant_8
 
 PRODUCT_PACKAGES += wpa_supplicant.conf
 
@@ -57,8 +58,8 @@ PRODUCT_PACKAGES += \
     libwifi-hal-common-ext
 
 MULTI_WIFI_SUPPORT := true
-WIFI_DRIVER_MODULE_PATH := /vendor/lib/modules/
-WIFI_DRIVER_MODULE_NAME := dhd
+WIFI_DRIVER_MODULE_PATH := "/vendor/lib/modules/"
+WIFI_DRIVER_MODULE_NAME := "dhd"
 BOARD_WLAN_DEVICE := MediaTek
 WPA_SUPPLICANT_VERSION			:= VER_0_8_X_AML
 BOARD_WPA_SUPPLICANT_DRIVER	:= NL80211
@@ -67,6 +68,35 @@ BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_multi
 BOARD_HOSTAPD_PRIVATE_LIB   := lib_driver_cmd_multi
 BOARD_HOSTAPD_DRIVER				:= NL80211
 WIFI_DRIVER_FW_PATH_PARAM   := "/sys/module/dhd/parameters/firmware_path"
+#WIFI_DRIVER_FW_PATH_PARAM   := /sys/module/dhd/parameters/firmware_path
+
+##android U API Version >= 34 build config reference androidU/build/make/core/board_config_wifi.mk
+##if BOARD_SYSTEMSDK_VERSIONS >= 34
+ifeq ($(WIFI_HIDL_FEATURE_DUAL_INTERFACE),true)
+$(call soong_config_set,wifi,hidl_feature_dual_interface,true)
+endif
+
+ifdef MULTI_WIFI_SUPPORT
+$(call soong_config_set,wifi,amlogic_vendorconfig_multi_wifi_support,$(MULTI_WIFI_SUPPORT))
+endif
+
+ifdef WIFI_DRIVER_MODULE_PATH
+$(call soong_config_set,wifi,driver_module_path,$(WIFI_DRIVER_MODULE_PATH))
+endif
+
+ifdef WIFI_DRIVER_MODULE_NAME
+$(call soong_config_set,wifi,driver_module_path,$(WIFI_DRIVER_MODULE_NAME))
+endif
+
+ifdef WIFI_DRIVER_FW_PATH_PARAM
+$(call soong_config_set,wifi,driver_fw_path_param,$(WIFI_DRIVER_FW_PATH_PARAM))
+endif
+
+ifdef BOARD_WLAN_DEVICE
+$(call soong_config_set,wifi,board_wlan_device,$(BOARD_WLAN_DEVICE))
+endif
+##endif
+
 PRODUCT_COPY_FILES += \
         frameworks/native/data/etc/android.hardware.wifi.direct.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.wifi.direct.xml \
         frameworks/native/data/etc/android.hardware.wifi.passpoint.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.wifi.passpoint.xml

@@ -22,7 +22,7 @@ package {
 }
 
 cc_library_static {
-    name: "libwifi-hal-mt66xx",
+    name: "libwifi-hal-mt66xx-aml",
 
     cflags: [
         "-Wall",
