@@ -114,6 +114,7 @@ void convertFromAidl(const Stream &src, Camera3Stream* dst) {
     dst->max_buffers = 0;
     dst->priv = 0;
     dst->physical_camera_id = NULL;
+    memset(dst->reserved, 0, sizeof(dst->reserved));
     return;
 }
 
