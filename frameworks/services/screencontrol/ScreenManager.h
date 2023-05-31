@@ -151,7 +151,6 @@ private:
         int64_t timestampUs;
     }FrameBufferInfo;
 
-    status_t reset(void);
 
     // The permanent width and height of SMS buffers
     int mWidth;

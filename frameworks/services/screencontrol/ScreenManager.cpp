@@ -150,7 +150,7 @@ ScreenManager::~ScreenManager() {
     ALOGI("~ScreenManager");
     CHECK(!mStarted);
 
-    reset();
+    stop(1);
 
 }
 
@@ -562,15 +562,26 @@ status_t ScreenManager::stop(int32_t client_id)
     Mutex::Autolock autoLock(mLock);
 
     int client_num = mClientList.size();
+    FrameBufferInfo* frame = NULL;
     ALOGI("[%s %d] client_num:%d client_id:%d", __FUNCTION__, __LINE__, client_num, client_id);
 
     if (!mStarted) {
         ALOGE("ScreenSource::stop X Do nothing");
         return OK;
     }
+    if (mScreenDev)
+        mScreenDev->ops.stop(mScreenDev);
 
-    if (1 == client_num)
-        reset();
+    {
+        mFrameAvailableCondition.signal();
+        while (!mCanvasFramesReceived.empty()) {
+            frame = *mCanvasFramesReceived.begin();
+            mCanvasFramesReceived.erase(mCanvasFramesReceived.begin());
+            if (frame != NULL)
+                delete frame;
+        }
+    }
+
 
     SCREENCONTROLDATATYPE source_data_type;
     ScreenClient* client;
@@ -589,12 +600,18 @@ status_t ScreenManager::stop(int32_t client_id)
         while (!mRawBufferQueue.empty()) {
             int index = *mRawBufferQueue.begin();
             mRawBufferQueue.erase(mRawBufferQueue.begin());
-            if (mScreenDev)
-                mScreenDev->ops.release_buffer(mScreenDev,(long *)mScreenBuffers[index]);
         }
         if (mTempBuffer)
             free(mTempBuffer);
     }
+
+     if (mScreenDev)
+        mScreenDev->common.close((struct hw_device_t *)mScreenDev);
+
+    mScreenModule = NULL;
+    mStarted = false;
+    ALOGI("ScreenSource::stop done");
+
     return OK;
 }
 
@@ -703,7 +720,7 @@ status_t ScreenManager::getBufferByID(int32_t index,long **buffer) {
 
 status_t ScreenManager::checkConvertDone(){
     Mutex::Autolock autoLock(mLock);
-    if (mOutFrameCounter > 0 && mRawBufferQueue.size() <= 0)
+    if (mOutFrameCounter > 0)
       return OK;
     return !OK;
 }
@@ -819,41 +836,5 @@ int ScreenManager::dataCallBack(aml_screen_buffer_info_t *buffer){
     return ret;
 }
 
-status_t ScreenManager::reset(void) {
-
-    ALOGI("[%s %d]", __FUNCTION__, __LINE__);
-
-    FrameBufferInfo* frame = NULL;
-
-    if (!mStarted) {
-        ALOGE("ScreenSource::reset X Do nothing");
-        return OK;
-    }
-
-    {
-        mStarted = false;
-    }
-
-    if (mScreenDev)
-        mScreenDev->ops.stop(mScreenDev);
-
-    {
-        mFrameAvailableCondition.signal();
-        while (!mCanvasFramesReceived.empty()) {
-            frame = *mCanvasFramesReceived.begin();
-            mCanvasFramesReceived.erase(mCanvasFramesReceived.begin());
-            if (frame != NULL)
-                delete frame;
-        }
-    }
-
-    if (mScreenDev)
-        mScreenDev->common.close((struct hw_device_t *)mScreenDev);
-
-    mScreenModule = NULL;
-
-    ALOGI("ScreenSource::reset done");
-    return OK;
-}
 
 }; // namespace android

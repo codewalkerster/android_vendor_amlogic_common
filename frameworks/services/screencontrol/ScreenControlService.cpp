@@ -532,13 +532,13 @@ int ScreenControlService::getYuvRecordData(void *dstBuffer,int32_t bufSize){
     if (status == !OK || raw== NULL) {
       return status;
     }
+
+    memmove(dstBuffer,raw,bufSize);
     buf_info[1] = (long) raw;
     if (buffer->unsecurePointer() == NULL)
         return !OK;
     memcpy(buffer->unsecurePointer(), buf_info, 3*sizeof(long));
     mScreenManager->freeBuffer(mYuvClientId, buffer);
-
-    memmove(dstBuffer,raw,bufSize);
     buffer.clear();
     newMemoryHeap.clear();
     return OK;
@@ -551,6 +551,7 @@ int ScreenControlService::checkYuvRecordDone(){
       if (OK == mScreenManager->checkConvertDone()) {
         ALOGD("Detect record data stop and convert done, need stop packer...");
         mScreenManager->stop(mYuvClientId);
+        mScreenManager->uninit(mYuvClientId);
         mNeedStop = false;
         mScreenManager=NULL;
         return OK;

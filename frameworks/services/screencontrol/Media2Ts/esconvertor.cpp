@@ -339,6 +339,7 @@ status_t ESConvertor::feedEncoderInputBuffers() {
                 void *mediaBuffer = NULL;
                 if (buffer->meta()->findPointer("mediaBuffer", &mediaBuffer) && mediaBuffer != NULL) {
                     mFrameEndecoding.add(bufferIndex, (MediaBuffer*)mediaBuffer);
+                    buffer->meta()->setPointer("mediaBuffer", NULL);
                 }
             }
         } else {
