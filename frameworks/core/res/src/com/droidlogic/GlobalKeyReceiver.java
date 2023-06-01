@@ -171,6 +171,7 @@ public class GlobalKeyReceiver extends BroadcastReceiver {
                         if (isTargetPackageRunningOnTop(PACKAGE_NAME_LIVETV)) {
                             intent1.putExtra("from_live_tv", 1);
                         }
+                        intent1.setAction("com.android.tv.action.VIEW_INPUTS");
                         intent1.setComponent(new ComponentName(PACKAGE_NAME_DROIDTVSETTINGS, ACTIVITY_NAME_TVSOURCE));
                     }
                     break;
