@@ -108,7 +108,14 @@ public class OutputModeManager {
     public static final String ENV_DOLBYSTATUS              = "ubootenv.var.dolby_status";
     public static final String ENV_FRAC_RATE_POLICY         = "ubootenv.var.frac_rate_policy";
 
-    public static final String PROP_BEST_OUTPUT_MODE        = "ro.vendor.platform.best_outputmode";
+    /*
+     * cvbs mode extern
+     *  null or cvbs:480cvbs and 576 cvbs
+     *           pal:pal_n and pal_m
+     *          ntsc:ntsc_m
+     * ntsc_cvbs_pal:480cvbs/576 cvbs/pal_n/pal_m/ntsc_m
+     */
+    public static final String PROP_CVBS_MODE_EXTERN        = "ro.vendor.cvbs_extern";
     public static final String PROP_HDMI_ONLY               = "ro.vendor.platform.hdmionly";
     public static final String PROP_SUPPORT_4K              = "ro.vendor.platform.support.4k";
     public static final String PROP_SUPPORT_OVER_4K30       = "ro.platform.support.over.4k30";
@@ -133,6 +140,9 @@ public class OutputModeManager {
     public static final String FULL_WIDTH_4K2KSMPTE         = "4096";
     public static final String FULL_HEIGHT_4K2KSMPTE        = "2160";
 
+    public static final String ALL_EXTERN_MODE = "ntsc_cvbs_pal";
+    public static final String NTSC_MODE = "ntsc";
+    public static final String PAL_MODE  = "pal";
     public static final String CVBS_MODE = "cvbs";
     public static final String HDMI_MODE = "hdmi";
     private static String mUiMode;
@@ -227,6 +237,9 @@ public class OutputModeManager {
     public static final String UI_720P                      = "720p";
     public static final String UI_1080P                     = "1080p";
     public static final String UI_2160P                     = "2160p";
+    public static final String PAL_M                        = "pal_m";
+    public static final String PAL_N                        = "pal_n";
+    public static final String NTSC_M                       = "ntsc_m";
     public static final String HDMI_480                     = "480";
     public static final String HDMI_576                     = "576";
     public static final String HDMI_720                     = "720p";
@@ -262,7 +275,7 @@ public class OutputModeManager {
     public static final int FORCE_DDP_ON    = 1;
 
     //hdmi mode list
-    private static final String[] HDMI_LIST = {
+    public static final String[] HDMI_LIST = {
         "7680x4320p60hz",
         "7680x4320p50hz",
         "7680x4320p48hz",
@@ -294,52 +307,75 @@ public class OutputModeManager {
         "1080i50hz",
         "576p50hz",
         "480p60hz",
+        "640x480p60hz",
         "576i50hz",
         "480i60hz"
     };
-    private static final String[] HDMI_TITLE = {
-        "7680x4320p60hz",
-        "7680x4320p50hz",
-        "7680x4320p48hz",
-        "7680x4320p30hz",
-        "7680x4320p25hz",
-        "7680x4320p24hz",
-        "3840x2160p120hz",
-        "3840x2160p100hz",
-        "3840x2160p60hz",
-        "3840x2160p50hz",
-        "3840x2160p30hz",
-        "3840x2160p25hz",
-        "3840x2160p24hz",
-        "4096x2160p24hz",
-        "2560x1440p120hz",
-        "2560x1440p100hz",
-        "2560x1440p60hz",
-        "2560x1440p50hz",
-        "1920x1080p120hz",
-        "1920x1080p100hz",
-        "1920x1080p60hz",
-        "1920x1080p50hz",
-        "1920x1080p24hz",
-        "1280x720p120hz",
-        "1280x720p100hz",
-        "1280x720p60hz",
-        "1280x720p50hz",
-        "1920x1080i60hz",
-        "1920x1080i50hz",
-        "720x576p50hz",
-        "720x480p60hz",
-        "720x576i50hz",
-        "720x480i60hz"
+
+    public static final String[] HDMI_TITLE = {
+        "7680x4320p 60hz",
+        "7680x4320p 50hz",
+        "7680x4320p 48hz",
+        "7680x4320p 30hz",
+        "7680x4320p 25hz",
+        "7680x4320p 24hz",
+        "3840x2160p 120hz",
+        "3840x2160p 100hz",
+        "3840x2160p 60hz",
+        "3840x2160p 50hz",
+        "3840x2160p 30hz",
+        "3840x2160p 25hz",
+        "3840x2160p 24hz",
+        "4096x2160p 24hz",
+        "2560x1440p 120hz",
+        "2560x1440p 100hz",
+        "2560x1440p 60hz",
+        "2560x1440p 50hz",
+        "1920x1080p 120hz",
+        "1920x1080p 100hz",
+        "1920x1080p 60hz",
+        "1920x1080p 50hz",
+        "1920x1080p 24hz",
+        "1280x720p 120hz",
+        "1280x720p 100hz",
+        "1280x720p 60hz",
+        "1280x720p 50hz",
+        "1920x1080i 60hz",
+        "1920x1080i 50hz",
+        "720x576p 50hz",
+        "720x480p 60hz",
+        "640x480p 60hz",
+        "720x576i 50hz",
+        "720x480i 60hz"
     };
 
     //cvbs mode list
-    private static final String[] CVBS_MODE_VALUE_LIST = {
+    public static final String[] CVBS_MODE_LIST = {
         "480cvbs",
         "576cvbs"
     };
 
-    private static final String[] HDMI_COLOR_LIST = {
+    //pal mode list
+    public static final String[] PAL_MODE_LIST = {
+        "pal_m",
+        "pal_n"
+    };
+
+    //ntsc mode list
+    public static final String[] NTSC_MODE_LIST = {
+        "ntsc_m"
+    };
+
+    //all cvbs extern mode list
+    public static final String[] ALL_CVBS_MODE_EXTERN_LIST = {
+        "480cvbs",
+        "576cvbs",
+        "pal_m",
+        "pal_n",
+        "ntsc_m"
+    };
+
+    public static final String[] HDMI_COLOR_LIST = {
         "444,12bit",
         "444,10bit",
         "444,8bit",
@@ -354,13 +390,28 @@ public class OutputModeManager {
         "rgb,8bit"
     };
 
-    private static final String[] HDMI_COLOR_LIST_8BIT = {
+    public static final String[] HDMI_COLOR_LIST_8BIT = {
         "444,8bit",
         "422,8bit",
         "rgb,8bit"
     };
 
-    private static final String[] DOLBY_VISION_TYPE = {
+    public static final String[] HDMI_COLOR_TITLE_LIST = {
+        "YCbCr 4:4:4 12-bit",
+        "YCbCr 4:4:4 10-bit",
+        "YCbCr 4:4:4 8-bit",
+        "YCbCr 4:2:2 12-bit",
+        "YCbCr 4:2:2 10-bit",
+        "YCbCr 4:2:2 8-bit",
+        "YCbCr 4:2:0 12-bit",
+        "YCbCr 4:2:0 10-bit",
+        "YCbCr 4:2:0 8-bit",
+        "RGB 12-bit",
+        "RGB 10-bit",
+        "RGB 8-bit"
+    };
+
+  public static final String[] DOLBY_VISION_TYPE = {
         "DV_RGB_444_8BIT",
 //         "DV_YCbCr_422_12BIT",  //box not support
         "LL_YCbCr_422_12BIT",
@@ -451,6 +502,10 @@ public class OutputModeManager {
         return mDolbyVisionSettingManager.isDolbyVisionEnable()
                && isTvSupportDolbyVision()
                && (getHdrPriority() == DV_PRIORITY);
+    }
+
+    public String getCVBSModeExtern() {
+         return mSystemControl.getPropertyString(PROP_CVBS_MODE_EXTERN, CVBS_MODE);
     }
 
     public long resolveResolutionValue(String mode) {
@@ -688,7 +743,9 @@ public class OutputModeManager {
     public String getUiMode() {
         String currentMode = getCurrentOutputMode();
         Log.d(TAG,"getUiMode currentMode = " + currentMode);
-        if (currentMode.contains(CVBS_MODE)) {
+        if (currentMode.contains(CVBS_MODE)
+            || currentMode.contains(PAL_MODE)
+            || currentMode.contains(NTSC_MODE)) {
             mUiMode = CVBS_MODE;
         } else {
             mUiMode = HDMI_MODE;
@@ -711,11 +768,29 @@ public class OutputModeManager {
                     mOutModeList.add(mHdmiSupportModeList[i]);
                 }
             }
-        } else if (currentUiMode.equalsIgnoreCase(CVBS_MODE)) {
-            for (int i = 0 ; i< CVBS_MODE_VALUE_LIST.length; i++) {
-                mOutTitleList.add(CVBS_MODE_VALUE_LIST[i]);
-                mOutModeList.add(CVBS_MODE_VALUE_LIST[i]);
-            }
+        } else {
+           String cvbs_extern_mode = getCVBSModeExtern();
+           if (cvbs_extern_mode.equalsIgnoreCase(CVBS_MODE)) {
+               for (int i = 0 ; i< CVBS_MODE_LIST.length; i++) {
+                   mOutTitleList.add(CVBS_MODE_LIST[i]);
+                   mOutModeList.add(CVBS_MODE_LIST[i]);
+               }
+           } else if (cvbs_extern_mode.equalsIgnoreCase(PAL_MODE)) {
+               for (int i = 0 ; i< PAL_MODE_LIST.length; i++) {
+                   mOutTitleList.add(PAL_MODE_LIST[i]);
+                   mOutModeList.add(PAL_MODE_LIST[i]);
+               }
+           } else if (cvbs_extern_mode.equalsIgnoreCase(NTSC_MODE)) {
+               for (int i = 0 ; i< NTSC_MODE_LIST.length; i++) {
+                   mOutTitleList.add(NTSC_MODE_LIST[i]);
+                   mOutModeList.add(NTSC_MODE_LIST[i]);
+               }
+           } else if (cvbs_extern_mode.equalsIgnoreCase(ALL_EXTERN_MODE)) {
+               for (int i = 0 ; i< ALL_CVBS_MODE_EXTERN_LIST.length; i++) {
+                   mOutTitleList.add(ALL_CVBS_MODE_EXTERN_LIST[i]);
+                   mOutModeList.add(ALL_CVBS_MODE_EXTERN_LIST[i]);
+               }
+           }
         }
 
         if (isLogPrint(2)) {

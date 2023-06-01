@@ -117,10 +117,13 @@ public class DisplayPositionManager {
     }
 
     private void initStep(String mode) {
-        if (mode.contains(OutputModeManager.HDMI_480)) {
+        if (mode.contains(OutputModeManager.HDMI_480)
+            || mode.contains(OutputModeManager.PAL_M)
+            || mode.contains(OutputModeManager.NTSC_M)) {
             mMaxRight  = 719;
             mMaxBottom = 479;
-        } else if (mode.contains(OutputModeManager.HDMI_576)) {
+        } else if (mode.contains(OutputModeManager.HDMI_576)
+            || mode.contains(OutputModeManager.PAL_N)) {
             mMaxRight  = 719;
             mMaxBottom = 575;
         } else if (mode.contains(OutputModeManager.HDMI_720)) {

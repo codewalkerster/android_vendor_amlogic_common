@@ -719,7 +719,9 @@ void DisplayMode::setBootDisplayConfig(const char* savemode) {
 
     setBootEnv(UBOOTENV_ISBESTMODE, "false");
 
-    if (strstr(savemode, "cvbs") != NULL) {
+    if (strstr(savemode, "cvbs") != NULL
+        || strstr(savemode, "pal") != NULL
+        || strstr(savemode, "ntsc") != NULL) {
         setBootEnv(UBOOTENV_CVBSMODE, savemode);
     } else if (strstr(savemode, "hz") != NULL) {
         setBootEnv(UBOOTENV_HDMIMODE, savemode);
@@ -2386,6 +2388,11 @@ void DisplayMode::setFrameRate(float frameRate) {
     DisplayModeMgr::getInstance().setFrameRate(frameRate);
 }
 
+void DisplayMode::setPerferredMode(const char* mode) {
+    SYS_LOGI("%s mode:%s\n", __FUNCTION__, mode);
+    DisplayModeMgr::getInstance().setPerferredMode(mode);
+}
+
 /* *
  * @Description: Detect Whether TV support HDR
  * @return: if TV support return true, or false
@@ -3409,8 +3416,10 @@ void DisplayMode::saveHdmiParamToEnv() {
         SYS_LOGD("tv sink changed\n");
     }
 
-    // 2. save coloattr/hdmimode to bootenv if mode is not null or dummy_l
-    if (strstr(outputMode, "cvbs") != NULL) {
+    // 2. save coloattr/hdmimode to bootenv if mode is not null and not dummy_l
+    if (strstr(outputMode, "cvbs") != NULL
+        || strstr(outputMode, "pal") != NULL
+        || strstr(outputMode, "ntsc") != NULL) {
         setBootEnv(UBOOTENV_CVBSMODE, (char *)outputMode);
     } else if (strcmp(outputMode, "null") && strcmp(outputMode, "dummy_l")) {
         std::string colorAttr;

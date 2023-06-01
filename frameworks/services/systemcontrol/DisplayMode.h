@@ -516,6 +516,7 @@ public:
     bool getDisplayMode(char* mode);
     void setDisplayMode(std::string mode);
     void setFrameRate(float frameRate);
+    void setPerferredMode(const char* mode);
     bool isExitDovi();
     bool isLoadDovi();
     void setDolbyVisionSupport();

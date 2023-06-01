@@ -166,6 +166,15 @@ bool DisplayModeMgr::setFrameRate(float frameRate, const char *what) {
     return mDisplayAdapter->setFrameRate(frameRate);
 }
 
+bool DisplayModeMgr::setPerferredMode(std::string mode) {
+    return setPerferredMode(mode, mConnType);
+}
+
+bool DisplayModeMgr::setPerferredMode(std::string mode, ConnectorType display) {
+    CHECK_DISPLAY_SERVICE();
+    return mDisplayAdapter->setPerferredMode(mode, display);
+}
+
 bool DisplayModeMgr::setDisplayAttribute(std::string name, std::string value) {
     return setDisplayAttribute(name, value, mConnType);
 }

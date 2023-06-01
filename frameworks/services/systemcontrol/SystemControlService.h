@@ -61,6 +61,7 @@ public:
     bool getActiveDispMode(std::string *activeDispMode);
     bool setActiveDispMode(std::string& activeDispMode);
     bool setColorSpace(std::string& colorspace);
+    bool setPerferredMode(std::string& activeDispMode);
     void notifyPlugin();
     //read write property and sysfs
     bool getProperty(const std::string &key, std::string *value);

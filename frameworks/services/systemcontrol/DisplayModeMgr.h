@@ -58,6 +58,9 @@ public:
 
     bool updateConnectorType();
 
+    bool setPerferredMode(std::string mode);
+    bool setPerferredMode(std::string mode, ConnectorType display);
+
 private:
     bool init();
     bool initConnectType();

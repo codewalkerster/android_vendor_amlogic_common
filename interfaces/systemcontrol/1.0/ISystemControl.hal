@@ -204,6 +204,17 @@ interface ISystemControl {
   getPrefHdmiDispMode()
       generates (Result result, string prefDispMode);
 
+ /**
+  * set cvbs/i timing mode
+  * @param mode name
+  *
+  * @return result OK, set success
+  *                FAIL, set fail
+  *
+  */
+  setPerferredMode(string mode)
+      generates (Result result);
+
   //3D
   set3DMode(string mode);
 

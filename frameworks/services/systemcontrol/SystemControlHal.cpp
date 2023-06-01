@@ -219,6 +219,15 @@ Return<Result> SystemControlHal::setColorSpace(const hidl_string &colorspace) {
         return Result::FAIL;
 }
 
+Return<Result> SystemControlHal::setPerferredMode(const hidl_string &activeDispMode) {
+    std::string mode = activeDispMode;
+
+    if (ENABLE_LOG_PRINT)
+        ALOGI("setPerferredMode mode :%s\n", mode.c_str());
+    mSysControl->setPerferredMode(mode);
+    return Result::OK;
+}
+
 Return<Result> SystemControlHal::notifyPlugin() {
     if (ENABLE_LOG_PRINT)
         ALOGI("notifyPlugin");

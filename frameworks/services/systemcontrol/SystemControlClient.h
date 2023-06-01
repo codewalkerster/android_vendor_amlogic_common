@@ -142,6 +142,8 @@ public:
     void clearBootDisplayConfig(const std::string& value);
     void setBootDisplayConfig(const std::string& savemode);
     bool getPreferredDisplayConfig(std::string& prefDispMode);
+    bool setPerferredMode(std::string& activeDispMode);
+
     //PQ
     int loadPQSettings(source_input_param_t srcInputParam);
     int setPQmode(int mode, int isSave, int is_autoswitch);

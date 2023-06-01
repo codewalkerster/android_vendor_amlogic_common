@@ -571,6 +571,14 @@ bool SystemControlClient::setColorSpace(std::string& colorspace) {
     return false;
 }
 
+bool SystemControlClient::setPerferredMode(std::string& activeDispMode) {
+    Result rtn = mSysCtrl->setPerferredMode(activeDispMode);
+    if (rtn == Result::OK) {
+        return true;
+    }
+    return false;
+}
+
 void SystemControlClient::notifyPlugin() {
     LOG(ERROR)<<"notify plugin"<<this;
     mSysCtrl->notifyPlugin();

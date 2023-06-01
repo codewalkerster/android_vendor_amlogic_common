@@ -185,6 +185,15 @@ bool SystemControlService::setColorSpace(std::string& colorspace) {
     return ret;
 }
 
+bool SystemControlService::setPerferredMode(std::string& activeDispMode) {
+    if (mLogLevel > LOG_LEVEL_1) {
+        ALOGI("set perferred mode:%s", activeDispMode.c_str());
+    }
+
+    pDisplayMode->setPerferredMode(activeDispMode.c_str());
+    return true;
+}
+
 void SystemControlService::notifyPlugin() {
     if (mLogLevel > LOG_LEVEL_1) {
         ALOGI("notify plugin");

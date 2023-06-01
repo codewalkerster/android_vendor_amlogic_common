@@ -2220,6 +2220,17 @@ public class SystemControlManager {
         return -1;
     }
 
+    public boolean setPerferredMode(String mode) {
+        synchronized (mLock) {
+            try {
+                return (mProxy.setPerferredMode(mode) == Result.OK);
+            } catch (RemoteException e) {
+                Log.e(TAG, "setPerferredMode:" + e);
+            }
+        }
+        return false;
+    }
+
      public int SetBacklight(int value, int isSave) {
            synchronized (mLock) {
              try {
