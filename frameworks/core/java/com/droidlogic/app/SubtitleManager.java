@@ -629,6 +629,14 @@ public class SubtitleManager {
         return true;
     }
 
+    private boolean filterVoidCCStr(byte[] subdata) {
+           String str = new String (subdata);
+           if (str.contains("\"content\":")) {
+               return false;
+           }
+           return true;
+    }
+
     // TODO: how to design API use default impl
     public boolean startSubtitle() {
         mHidlCallback = new SubtitleDataListener() {
@@ -636,6 +644,10 @@ public class SubtitleManager {
                     int width ,int height, int videoWidth, int videoHeight, boolean show) {
                 Log.d(TAG, "in SubtitleManager.java onSubtitleEvent:" + type+"; height="+height+"; width="+width+", show="+show);
                 // check window created or not
+                if (type == SUBTITLE_CC_JASON && filterVoidCCStr(subdata)) {
+                    Log.d(TAG, "has no cc content, not create subtitle window");
+                    return;
+                }
                 runOnMainThread(() -> {
                 mShowFlag = true;
                     if (!mUI.isDisplayWindowAdded()) {
