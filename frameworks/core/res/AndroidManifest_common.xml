@@ -18,6 +18,7 @@
 
     <protected-broadcast android:name="droidlogic.audioservice.action.AUDIO_FORMAT" />
     <protected-broadcast android:name="droidlogic.intent.action.SYSTEM_CONTROL_EVENT" />
+    <protected-broadcast android:name="com.amlogic.ACTION_LAUNCH_BENCH_APP" />
 
     <protected-broadcast android:name="com.droidvold.action.MEDIA_REMOVED" />
     <protected-broadcast android:name="com.droidvold.action.MEDIA_UNMOUNTED" />
