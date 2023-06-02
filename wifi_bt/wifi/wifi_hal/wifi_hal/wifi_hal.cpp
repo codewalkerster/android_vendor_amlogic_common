@@ -1354,9 +1354,11 @@ static wifi_error wifi_stop_rssi_monitoring(wifi_request_id id, wifi_interface_h
 static wifi_error wifi_get_packet_filter_capabilities(wifi_interface_handle handle,
         u32 *version, u32 *max_len)
 {
-    if (strncmp(get_wifi_name(), "rtl", 3) == 0 || strncmp(get_wifi_name(), "mtk", 3) == 0 || strncmp(get_wifi_name(), "qca", 3) == 0)
+    if (strncmp(get_wifi_name(), "rtl", 3) == 0 || strncmp(get_wifi_name(), "mtk", 3) == 0 || strncmp(get_wifi_name(), "qca", 3) == 0) {
+        *version = 4;
+        *max_len = 1024;
         return WIFI_SUCCESS;
-
+    }
     ALOGD("Getting APF capabilities, halHandle = %p\n", handle);
     AndroidPktFilterCommand *cmd = new AndroidPktFilterCommand(handle, version, max_len);
     NULL_CHECK_RETURN(cmd, "memory allocation failure", WIFI_ERROR_OUT_OF_MEMORY);
