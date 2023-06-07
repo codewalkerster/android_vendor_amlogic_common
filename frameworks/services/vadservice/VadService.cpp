@@ -315,12 +315,13 @@ static void getVadConfig(VadConfig* vadconfig) {
 }
 
 int main(int argc __attribute__((unused)), char **argv __attribute__((unused))) {
-    VadConfig tmpConfig;
+    VadConfig tmpConfig = {};
     bool is_snd_dev_ok = false;
 
     VadKernelLogging(argv);
     LOG(android::base::ERROR) << "VadService starting...";
 
+    tmpConfig.card = -1;
     if (/*isCoolboot() && */isFFVFreezeMode()) {
         int tmp_cnt = 0;
 
