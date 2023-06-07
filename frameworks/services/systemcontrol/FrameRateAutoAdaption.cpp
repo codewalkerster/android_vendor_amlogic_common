@@ -219,21 +219,19 @@ void FrameRateAutoAdaption::setVideoLayerOn(bool on) {
 
     char curDisplayMode[MODE_LEN] = {0};
     DisplayModeMgr::getInstance().getDisplayMode(curDisplayMode, MODE_LEN);
-    SYS_LOGD("setVideoLayerOn，on: %d, mLastFrameRate: %d curDisplayMode: %s", on, mLastFrameRate, curDisplayMode);
-
-    struct timeval t2;
-    if (on) {
-        gettimeofday( &mClock, NULL );
-    }else {
+    SYS_LOGD("setVideoLayerOn,on: %d, mLastFrameRate: %d curDisplayMode: %s", on, mLastFrameRate, curDisplayMode);
+    if (!on) {
+        struct timeval t2;
         gettimeofday( &t2, NULL );
         long dur = ((t2.tv_sec-mClock.tv_sec)*1000+(t2.tv_usec-mClock.tv_usec)/1000);
         SYS_LOGI("policycontrol by setVideoLayerOn %d on %d lastframe %d and cost %ld",videoLayerOn,on,mLastFrameRate,dur);
-        if (dur < 600) {
+        if (dur < 1000) {
             return;
         }
     }
     if (videoLayerOn == on) {
         SYS_LOGD("last is also videolayer %d",videoLayerOn);
+        return;
     }
     videoLayerOn = on;
     if (on) {
@@ -358,6 +356,7 @@ void FrameRateAutoAdaption::inputValidateAndParse(void* data, int inType) {
                 } else {
                     sscanf(ueventData->switchName, "%d", &frameRateValue);
                 }
+                SYS_LOGD("INPUT_TYPE_UEVENT mLastFromVdin:%d cur %d",mLastFrameRate,frameRateValue);
                 if (mLastFrameRate == frameRateValue) {
                     //double message between play videoLayer
                     break;
@@ -434,8 +433,8 @@ void FrameRateAutoAdaption::inputValidateAndParse(void* data, int inType) {
                     SYS_LOGD("new vdin pos fps: %d %d\n", fpsTemp,mLastFromVdin);
                     frameRateValue = VIDEORATE/fpsTemp;
                 }
-                if (frameRateValue <= 0) {
-                    SYS_LOGD("same framerate recv by vdin %d",mLastFromVdin);
+                if (frameRateValue <= 0 || frameRateValue == mLastFrameRate) {
+                    SYS_LOGD("same framerate recv by vdin %d",mLastFrameRate);
                     break;
                 }
                 mLastFrameRate = frameRateValue;
@@ -512,6 +511,7 @@ void FrameRateAutoAdaption::setPQHandle(CPQControl* handle) {
 #endif
 void FrameRateAutoAdaption::outputDispatch(char* outputMode, int outType, int state, int frameRate, bool isVdinShrink) {
     /*support hdmi out and panel output*/
+    gettimeofday( &mClock, NULL );
     switch (outType) {
         case OUTPUT_TYPE_HDMI_TX: {
             break;
@@ -524,11 +524,10 @@ void FrameRateAutoAdaption::outputDispatch(char* outputMode, int outType, int st
                 mode24p = true;
             }
             char newMode[MODE_LEN] = {0};
-            char PanelValue[MODE_LEN] = {0};
             char DisplayRange[MODE_LEN] = {0};
             bool doubleRate = false;
             const char blank[2]=" ";
-            mSysWrite.readSysfs(FRAMERAT_PANEL_OUT,PanelValue);
+            //mSysWrite.readSysfs(FRAMERAT_PANEL_OUT,PanelValue);
             char DisplayVdin[MODE_LEN] = {0};
             if (mSysWrite.readSysfsOriginal(VOUT_DISPLAY_RANGE,DisplayRange)) {
                 char *token = strtok(DisplayRange, blank);
@@ -540,11 +539,11 @@ void FrameRateAutoAdaption::outputDispatch(char* outputMode, int outType, int st
                 }
             }
             if (frameRate == 0) {
-                if (strcmp(PanelValue,"0")) {
-                    SYS_LOGD("tv set outputmode frameRate 0");
-                    DisplayModeMgr::getInstance().setFrameRate(0,
+                //if (strcmp(PanelValue,"0")) {
+                SYS_LOGD("tv set outputmode frameRate 0");
+                DisplayModeMgr::getInstance().setFrameRate(0,
                             "tv set outputmode frameRate 0");
-                }
+                //}
                 return;
             }else {
                 const char* frameRateValue = doubleRate? "12000":"6000";//default 60hz
@@ -561,6 +560,9 @@ void FrameRateAutoAdaption::outputDispatch(char* outputMode, int outType, int st
                 }
                 int dlgOn = isDLGOn();
 #ifdef FRAMERATE_MODE
+                if (pCPQControl != NULL) {
+                    SYS_LOGD("pCPQControl->GetPQMode() %d %d",pCPQControl->GetPQMode(),dlgOn);
+                }
                 //memc on+dlgOn 60->120hz
                 if ((dlgOn == 1) && (pCPQControl != NULL) && pCPQControl->GetMemcMode() > 0
                     && pCPQControl->GetPQMode() != 6 && pCPQControl->GetPQMode() != 7) {
@@ -595,16 +597,13 @@ void FrameRateAutoAdaption::outputDispatch(char* outputMode, int outType, int st
                             "outputDispatch 111");
                     return;
                 }
-                if ((dlgOn == 2) && backFrom4k1k(frameRate)) {
-                    mSysWrite.setProperty(SYSFS_DLG_PROP, "change");
+                if ((dlgOn == 0) && backFrom4k1k(frameRate)) {
                     SYS_LOGD("leave 4k1k");
                     return;
                 }
-                else if (strcmp(PanelValue,frameRateValue)) {
-                    DisplayModeMgr::getInstance().setFrameRate(atof(frameRateValue) / 100.f,
+                SYS_LOGD("afr output final %s", frameRateValue);
+                DisplayModeMgr::getInstance().setFrameRate(atof(frameRateValue) / 100.f,
                             "outputDispatch 222");
-                }
-                SYS_LOGD("Read panel %s final outputmode frameRate%s", PanelValue, frameRateValue);
             }
             break;
         }
