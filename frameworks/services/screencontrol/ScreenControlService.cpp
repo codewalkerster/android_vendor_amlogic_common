@@ -184,7 +184,8 @@ int ScreenControlService::startScreenRecord(int32_t width, int32_t height, int32
     mTSPacker->setTimeLimit(limitTimeSec*1000);
     if (mRecordCorpX != -1 && mRecordCorpY !=-1 && mRecordCorpWidth != -1 && mRecordCorpHeight != -1) {
         mTSPacker->setVideoCrop(mRecordCorpX, mRecordCorpY, mRecordCorpWidth, mRecordCorpHeight);
-    }
+    }else
+        mTSPacker->setVideoCrop(0, 0, width, height);
     err = mTSPacker->start();
 
     if (err != OK) {
@@ -456,9 +457,7 @@ int ScreenControlService::startScreenCapBuffer(int32_t left, int32_t top, int32_
         mScreenManager->getBufferByID(index,&buffer);
         if (buffer == NULL)
             break;
-        ALOGI("[%s %d] get the data ", __FUNCTION__, __LINE__);
         memcpy(dstBuffer,buffer,width * height *4);
-        ALOGI("[%s %d] memcpy over", __FUNCTION__, __LINE__);
         *dstBufferSize = width * height * 4;
         long buf_info[3] ={0};
         sp<MemoryHeapBase> newMemoryHeap = new MemoryHeapBase(128*sizeof(long));
@@ -497,6 +496,10 @@ int ScreenControlService::startYuvRecord(int32_t width, int32_t height, int32_t 
         ALOGE("[%s %d] ScreenManage init error\n", __FUNCTION__, __LINE__);
         return !OK;
     }
+    if (mRecordCorpX != -1 && mRecordCorpY !=-1 && mRecordCorpWidth != -1 && mRecordCorpHeight != -1) {
+        mScreenManager->setVideoCrop(mRecordCorpX, mRecordCorpY, mRecordCorpWidth, mRecordCorpHeight);
+    }else
+        mScreenManager->setVideoCrop(0, 0, width, height);
     err = mScreenManager->start(client_id,SCREENCONTROL_SCREEN_RECORD_HARDWARE_ENCODER);
     if ( err != OK ) {
         ALOGE("[%s %d] ScreenManage init error\n", __FUNCTION__, __LINE__);
@@ -574,6 +577,10 @@ int ScreenControlService::startAvcRecord(int32_t width, int32_t height, int32_t 
     params_video->setInt32(kKeyBitRate, bitRate);
 
     mVideoConvertor = new ESConvertor(sourceType, 0);
+    if (mRecordCorpX != -1 && mRecordCorpY !=-1 && mRecordCorpWidth != -1 && mRecordCorpHeight != -1) {
+        mVideoConvertor->setVideoCrop(mRecordCorpX, mRecordCorpY, mRecordCorpWidth, mRecordCorpHeight);
+    }else
+        mVideoConvertor->setVideoCrop(0, 0, width, height);
     err = mVideoConvertor->start(params_video);
     params_video->clear();
     delete params_video;

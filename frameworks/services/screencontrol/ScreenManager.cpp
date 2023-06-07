@@ -82,7 +82,7 @@ namespace android {
 #define PORTTYPE_VALUE_VPP0_OSD_ONLY   0x11000004
 
 #define SCREENMANAGER_DUMP_BASEDIR "/data/temp/sm-drvin"
-#define PERSIST_SYS_ROTATION_PROP "persist.sys.builtinrotation"
+#define PERSIST_SYS_ROTATION_PROP "persist.vendor.sys.builtinrotation"
 
 static const int64_t VDIN_MEDIA_SOURCE_TIMEOUT_NS = 3000000000LL;
 
@@ -496,6 +496,11 @@ status_t ScreenManager::start(int32_t client_id, int flag )
         int degree = getRotationDegree();
         if ( degree > 0) {
             setVideoRotation(degree);
+            if (degree == 90 || degree == 270) {
+                int temp = mCorpWidth-mCorpX;
+                mCorpWidth = mCorpHeight-mCorpY;
+                mCorpHeight = temp;
+            }
 
         }
         mScreenDev->ops.set_port_type(mScreenDev, port_type);
