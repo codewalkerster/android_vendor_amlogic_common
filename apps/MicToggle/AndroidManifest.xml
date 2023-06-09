@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.droidlogic.mictoggle">
+    package="com.droidlogic.mictoggle"
+    android:sharedUserId="android.uid.system">
 
     <application
         android:allowBackup="true"
@@ -11,6 +12,19 @@
             android:authorities="atv.hotwordmic"
             android:exported="true">
         </provider>
+
+        <service android:exported="true"
+            android:name="com.droidlogic.mictoggle.AssistantMicMuteService"
+            android:singleUser="true" />
+
+        <receiver android:exported="true"
+                  android:name="com.droidlogic.mictoggle.AssistantMicMuteReceiver"
+                  android:singleUser="true">
+            <intent-filter android:priority="100">
+                <action android:name="android.intent.action.PRE_BOOT_COMPLETED" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

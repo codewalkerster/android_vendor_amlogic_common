@@ -77,9 +77,7 @@ public class AssistantMicMuteProvider extends ContentProvider {
         db.execSQL("insert into " + TOGGLESTATE + " values(" + mic_state + ");");
 
         mContext.registerReceiver(mMuteChangeReceiver,
-            new IntentFilter(AudioManager.ACTION_MICROPHONE_MUTE_CHANGED));
-
-
+            new IntentFilter(AudioManager.ACTION_MICROPHONE_MUTE_CHANGED),mContext.RECEIVER_EXPORTED);
         return true;
     }
 
@@ -211,6 +209,7 @@ public class AssistantMicMuteProvider extends ContentProvider {
     private final BroadcastReceiver mMuteChangeReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "onReceive!!");
             updateMicToggleState(context);
         }
     };
