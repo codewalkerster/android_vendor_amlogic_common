@@ -248,6 +248,7 @@ class SubtitleViewAdaptor {
         }
         mWindowManager.removeViewImmediate(mSubLayout);
         mIsWindowCreated = false;
+        mSubLayout = null;//for switch resolution, the surface not update which cause the subtitle size and position error
     }
 
     public void showSubtitleString(String text, boolean showing) {
@@ -361,6 +362,8 @@ class SubtitleViewAdaptor {
         checkCallerOnUIThread();
         Log.d(TAG, "stopTtxLoading");
         mImageView.setBackground(null);
+        mImageView.setImageBitmap(null);
+        mCcSubtitleView.clearContent();//sometimes last cc subtitle will show after switch channel in iptv apk, so clear cc content
         if (mAnimationDrawable != null && mAnimationDrawable.isRunning()) {
             mAnimationDrawable.stop();
         }
@@ -378,6 +381,7 @@ class SubtitleViewAdaptor {
             mImageView.setVisibility(View.INVISIBLE);
         }
         else if (SubtitleManager.SUBTITLE_CC_JASON == mDisplayFlag) {
+            mCcSubtitleView.clearContent();//sometimes last cc subtitle will show after switch channel in iptv apk, so clear cc content
             mCcSubtitleView.setVisibility(View.INVISIBLE);
         }
     }
@@ -566,6 +570,7 @@ class SubtitleViewAdaptor {
         if (mIsWindowCreated) {
             removeSubtitleView();
         }
+        mSubLayout = null;//for switch resolution, the surface not update which cause the subtitle size and position error
 
         ensureSubLayoutCreated();
         initialLayoutParams(TYPE_APPLICATION_MEDIA_OVERLAY, title, x, y, w, h);

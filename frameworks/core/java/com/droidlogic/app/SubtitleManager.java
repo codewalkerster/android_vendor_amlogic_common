@@ -498,6 +498,9 @@ public class SubtitleManager {
         int modeY = curPosition[1];
         int modeW = curPosition[2];
         int modeH = curPosition[3];
+
+        initDefaultResolution();
+
         int fbW = mDm.widthPixels;
         int fbH = mDm.heightPixels;
 

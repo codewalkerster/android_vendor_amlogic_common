@@ -158,6 +158,14 @@ public class CCSubtitleView extends View {
         Log.e(TAG, "update");
          postInvalidate();
     }
+    public void clearContent() {
+      if (mQueueCaption != null) {
+        Log.d(TAG, "clear queue item");
+        mQueueCaption.clear();
+      }
+      hide();
+
+    }
 
     private void init() {
         synchronized(lock) {
