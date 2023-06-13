@@ -652,7 +652,6 @@ public class NetflixService extends Service {
                     mSCM.setProperty("vendor.netflix.state", fg ? "fg" : "bg");
                     mHdmiControlManager.setPowerStateChangeOnActiveSourceLost(fg ? LOST_NONE : LOST_STANDBY_NOW);
 
-                    setAlwayHDR(fg);
                 }
 
                 boolean fgYoutube = isVisibleApp(YOUTUBE_PKG_NAME);
