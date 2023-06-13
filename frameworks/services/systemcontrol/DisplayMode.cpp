@@ -2690,7 +2690,6 @@ void DisplayMode::setDolbyVisionEnable(int state,  output_mode_state mode_state)
     } else {
         //1. update dv env
         char tmp[10];
-        char hdr_policy[MODE_LEN] = {0};
         char dvstatus[MODE_LEN]   = {0};
 
         sprintf(tmp, "%d", state);
@@ -2702,15 +2701,11 @@ void DisplayMode::setDolbyVisionEnable(int state,  output_mode_state mode_state)
             strcpy(mHdmidata.dv_info.dv_enable, "1");
         }
 
+        //Save user prefer dv mode only user change dv through UI
         setBootEnv(UBOOTENV_DV_TYPE, mHdmidata.dv_info.ubootenv_dv_type);
         setBootEnv(UBOOTENV_DV_ENABLE, mHdmidata.dv_info.dv_enable);
 
-        getHdrStrategy(hdr_policy);
-        if (!strcmp(hdr_policy, HDR_POLICY_SOURCE)) {
-            sprintf(dvstatus, "%d", 0);
-        } else {
-            sprintf(dvstatus, "%d", state);
-        }
+        sprintf(dvstatus, "%d", state);
         setBootEnv(UBOOTENV_DOLBYSTATUS, dvstatus);
     }
 }
@@ -3422,8 +3417,7 @@ void DisplayMode::saveHdmiParamToEnv() {
         char colorDepth[MODE_LEN] = {0};
         char colorSpace[MODE_LEN] = {0};
         char dvstatus[MODE_LEN]   = {0};
-        char dv_type[MODE_LEN]    = {0};
-        char hdr_policy[MODE_LEN] = {0};
+
         // 2.1 save color attr
         DisplayModeMgr::getInstance().getDisplayAttribute(DISPLAY_HDMI_COLOR_ATTR, colorAttr);
         saveDeepColorAttr(outputMode, colorAttr.c_str());
@@ -3444,21 +3438,13 @@ void DisplayMode::saveHdmiParamToEnv() {
         // In follow sink mode: 0:disable 1:STD(or enable dv) 2:LL YUV 3: LL RGB
         // In follow source mode: dv is disable  in uboot.
         if (isMboxSupportDolbyVision()) {
-            getHdrStrategy(hdr_policy);
-            if (!strcmp(hdr_policy, HDR_POLICY_SOURCE)) {
-                sprintf(dvstatus, "%d", 0);
-            } else {
-                sprintf(dvstatus, "%d", mHdmidata.dv_info.dv_type);
-            }
+            sprintf(dvstatus, "%d", mHdmidata.dv_info.dv_type);
             setBootEnv(UBOOTENV_DOLBYSTATUS, dvstatus);
-
-            sprintf(dv_type, "%d", mHdmidata.dv_info.dv_type);
-            setBootEnv(UBOOTENV_DV_TYPE, dv_type);
 
             setBootEnv(UBOOTENV_DV_ENABLE, mHdmidata.dv_info.dv_enable);
 
-            SYS_LOGI("dvstatus %s dv_type %s dv_enable %s\n",
-                dvstatus, dv_type, mHdmidata.dv_info.dv_enable);
+            SYS_LOGI("dvstatus %s dv_type %d dv_enable %s\n",
+                dvstatus, mHdmidata.dv_info.dv_type, mHdmidata.dv_info.dv_enable);
 
         } else {
             SYS_LOGI("MBOX is not support dolby vision, dvstatus %s dv_type %d dv_enable %s\n",

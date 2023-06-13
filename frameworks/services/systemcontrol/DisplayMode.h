@@ -286,7 +286,7 @@ using namespace android;
  * 1:sink-led
  * 2:source-led
  */
-#define UBOOTENV_DV_TYPE                "ubootenv.var.dv_type"
+#define UBOOTENV_DV_TYPE                "ubootenv.var.user_prefer_dv_type"
 /*
  * save user prefer dv enable or disable
  * 0:disable
