@@ -15,8 +15,6 @@
 #
 LOCAL_PATH := $(call my-dir)
 
-ifeq ($(WPA_SUPPLICANT_VERSION),VER_0_8_X_AML)
-
 ifneq ($(BOARD_WPA_SUPPLICANT_DRIVER),)
   CONFIG_DRIVER_$(BOARD_WPA_SUPPLICANT_DRIVER) := y
 endif
@@ -80,5 +78,3 @@ endif
 include $(BUILD_STATIC_LIBRARY)
 
 ########################
-
-endif

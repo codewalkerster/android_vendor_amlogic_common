@@ -21,8 +21,47 @@ package {
     ],
 }
 
+//Legacy iface for adaptive vendor wpa_supplicant
+soong_config_module_type {
+    name: "wifi_hal_cc_defaults_aml",
+    module_type: "cc_defaults",
+    config_namespace: "wifi",
+    variables: [
+        "wpa_supplicant_version", // WPA_SUPPLICANT_VERSION
+    ],
+    properties: ["defaults","static_libs","header_libs"],
+}
+
+soong_config_string_variable {
+    name: "wpa_supplicant_version",
+    values: [
+        "VER_0_8_X_AML",
+        "VER_0_8_X",
+    ],
+}
+
+wifi_hal_cc_defaults_aml {
+    name: "libwifi_hal_header_default",
+    soong_config_variables: {
+        wpa_supplicant_version: {
+            VER_0_8_X_AML: {
+                header_libs: [
+                    "libnetlink_iface_headers_amlogic_droidlogic",
+                ],
+            },
+            VER_0_8_X: {
+                //external wpa_supplicant use next line
+                header_libs: [
+                    "libnetlink_iface_headers",
+                ],
+            },
+        },
+    },
+}
+
 cc_library_static {
     name: "libwifi-hal-mt66xx-aml",
+    defaults: ["libwifi_hal_header_default"],
 
     cflags: [
         "-Wall",
@@ -36,13 +75,10 @@ cc_library_static {
     ],
 
     header_libs: [
-	"libnetlink_iface_headers_amlogic_droidlogic",
-	//external wpa_supplicant use next line
-	//"libnetlink_iface_headers",
         "libhardware_legacy_headers",
     ],
 
-   shared_libs: [
+    shared_libs: [
         "liblog",
         "libnl",
         "libutils",

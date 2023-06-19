@@ -40,12 +40,12 @@ WIFI_MODULES := $(WIFI_BUILT_MODULES)
 else ifneq (,$(filter-out $(WIFI_BUILT_MODULES),$(WIFI_MODULES)))
 endif
 
-#enable clang CFI
+#enable clang CFI check
 PRODUCT_CFI_INCLUDE_PATHS += vendor/amlogic/common/wifi_bt/wifi/bcm_ampak/wpa_supplicant_8_lib
 PRODUCT_CFI_INCLUDE_PATHS += vendor/amlogic/common/wifi_bt/wifi/wifi_hal/wpa_supplicant_8_lib
-PRODUCT_CFI_INCLUDE_PATHS += hardware/amlogic/wifi/libwifi_hal
-PRODUCT_CFI_INCLUDE_PATHS += hardware/amlogic/wifi
-PRODUCT_CFI_INCLUDE_PATHS += vendor/amlogic/common/wifi_bt/wifi/wpa_supplicant_8
+PRODUCT_CFI_INCLUDE_PATHS += vendor/amlogic/common/wifi_bt/wifi/multi_wifi/wpa_supplicant_8_lib
+PRODUCT_CFI_INCLUDE_PATHS += vendor/amlogic/common/wifi_bt/wifi/wifi_hal/wifi_hal
+
 
 PRODUCT_PACKAGES += wpa_supplicant.conf
 
@@ -61,7 +61,7 @@ MULTI_WIFI_SUPPORT := true
 WIFI_DRIVER_MODULE_PATH := "/vendor/lib/modules/"
 WIFI_DRIVER_MODULE_NAME := "dhd"
 BOARD_WLAN_DEVICE := MediaTek
-WPA_SUPPLICANT_VERSION			:= VER_0_8_X_AML
+WPA_SUPPLICANT_VERSION			:= VER_0_8_X
 BOARD_WPA_SUPPLICANT_DRIVER	:= NL80211
 WIFI_HIDL_FEATURE_DUAL_INTERFACE := true
 BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_multi
@@ -97,6 +97,11 @@ $(call soong_config_set,wifi,board_wlan_device,$(BOARD_WLAN_DEVICE))
 endif
 ##endif
 
+###Legacy interface For Vendor WPAS###
+ifdef WPA_SUPPLICANT_VERSION
+$(call soong_config_set,wifi,wpa_supplicant_version,$(WPA_SUPPLICANT_VERSION))
+endif
+
 PRODUCT_COPY_FILES += \
         frameworks/native/data/etc/android.hardware.wifi.direct.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.wifi.direct.xml \
         frameworks/native/data/etc/android.hardware.wifi.passpoint.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.wifi.passpoint.xml
@@ -113,14 +118,13 @@ PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/multi_wifi/config/regul
 
 PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/configs/init_rc/init.amlogic.wifi.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/hw/init.amlogic.wifi.rc
 
-PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/multi_wifi/config/bcm_supplicant.conf:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/bcm_supplicant.conf
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/multi_wifi/config/unbcm_supplicant.conf:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/unbcm_supplicant.conf
+
 PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/multi_wifi/config/bcm_supplicant_overlay.conf:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/bcm_supplicant_overlay.conf
 
 PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/multi_wifi/config/wpa_supplicant.conf:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/wpa_supplicant.conf
-PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/multi_wifi/config/wpa_supplicant_overlay.conf:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/wpa_supplicant_overlay.conf
 
-PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/multi_wifi/config/wpa_supplicant.conf:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/p2p_supplicant.conf
-PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/multi_wifi/config/p2p_supplicant_overlay.conf:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/p2p_supplicant_overlay.conf
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/multi_wifi/config/p2p_supplicant.conf:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/p2p_supplicant.conf
 
 ifneq ($(filter ap6181,$(WIFI_MODULES)),)
 PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/bcm_ampak/config/AP6181/Wi-Fi/fw_bcm40181a2.bin:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/40181/fw_bcm40181a2.bin
