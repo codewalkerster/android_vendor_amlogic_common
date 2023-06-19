@@ -1095,7 +1095,13 @@ int SystemControlClient::sysSSMReadNTypes(int id, int data_len, int offset) {
 }
 
 int SystemControlClient::sysSSMWriteNTypes(int id, int data_len, int data_buf, int offset) {
-    return mSysCtrl->sysSSMWriteNTypes(id, data_len, data_buf, offset);
+    auto ret = mSysCtrl->sysSSMWriteNTypes(id, data_len, data_buf, offset);
+    if (ret.isOk()) {
+        return 0;
+    } else {
+        ALOGE("sysSSMWriteNTypes FAIL\n");
+        return -EFAULT;
+    }
 }
 
 int SystemControlClient::getActualAddr(int id) {
