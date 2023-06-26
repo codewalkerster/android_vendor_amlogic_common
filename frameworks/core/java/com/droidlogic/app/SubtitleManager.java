@@ -464,10 +464,10 @@ public class SubtitleManager {
             LOGI("updateChannelId  auth="+auth+";id="+id+";dlsv="+dlsv);
             if (mHidlCallback != null) {
                 Log.d(TAG, "onSubtitleEvent: mHidlCallback=" + mHidlCallback);
-                mHidlCallback.onSubtitleEvent(SUBTITLE_VCHIP_RATE, null, null, auth, id, dlsv, 0, 0, 0, false);
+                mHidlCallback.onSubtitleEvent(SUBTITLE_VCHIP_RATE, null, null, auth, id, dlsv, 0, 0, 0, false, 0);
             } else if (mHidlFallbackDisplay != null) {
                 Log.d(TAG, "onSubtitleEvent: mHidlFallbackDisplay=" + mHidlFallbackDisplay);
-                mHidlFallbackDisplay.onSubtitleEvent(SUBTITLE_VCHIP_RATE,  null, null, auth, id, dlsv, 0, 0, 0, false);
+                mHidlFallbackDisplay.onSubtitleEvent(SUBTITLE_VCHIP_RATE,  null, null, auth, id, dlsv, 0, 0, 0, false, 0);
             } else {
                 Log.e(TAG, "Cannot handle events!");
             }
@@ -475,10 +475,10 @@ public class SubtitleManager {
             LOGI("updateChannelId  mask ="+channelId);
             if (mHidlCallback != null) {
                 Log.d(TAG, "onSubtitleEvent: mHidlCallback = " + mHidlCallback);
-                mHidlCallback.onSubtitleEvent(SUBTITLE_VCHIP_RATE,  null, null, -1, -1, -1, channelId, 0, 0, false);
+                mHidlCallback.onSubtitleEvent(SUBTITLE_VCHIP_RATE,  null, null, -1, -1, -1, channelId, 0, 0, false, 0);
             } else if (mHidlFallbackDisplay != null) {
                 Log.d(TAG, "onSubtitleEvent: mHidlFallbackDisplay = " + mHidlFallbackDisplay);
-                mHidlFallbackDisplay.onSubtitleEvent(SUBTITLE_VCHIP_RATE,  null, null, -1, -1, -1, channelId, 0, 0, false);
+                mHidlFallbackDisplay.onSubtitleEvent(SUBTITLE_VCHIP_RATE,  null, null, -1, -1, -1, channelId, 0, 0, false, 0);
             } else {
                 Log.e(TAG, "Cannot handle events!");
             }
@@ -565,9 +565,9 @@ public class SubtitleManager {
     }
 
     private void processSubtileEvent(int type, Object data, byte[] subdata, int x, int y,
-            int width ,int height, int videoWidth, int videoHeight, boolean show) {
-        Log.d(TAG, "in SubtitleManager.java onSubtitleEvent:" + type+"; height="+height
-                +"; width="+width+", show="+show+";videoWidth="+videoWidth+";videoHeight="+videoHeight);
+            int width ,int height, int videoWidth, int videoHeight, boolean show, int objectSegmentId) {
+        Log.d(TAG, "in SubtitleManager.java onSubtitleEvent:" + type+"; x="+ x +", y="+ y +", height="+height
+                +"; width="+width+", show="+show+";videoWidth="+videoWidth+";videoHeight="+videoHeight+"; objectSegmentId="+objectSegmentId);
         runOnMainThread(() -> {
             if (!mShowFlag) {
                 Log.d(TAG, "processSubtileEvent:: the subtitle has stop!" );
@@ -600,18 +600,18 @@ public class SubtitleManager {
                 case SUBTITLE_IMAGE:
                 case SUBTITLE_IMAGE_CENTER:
                     if ((width <= 0) || (height <= 0)) {
-                        if (!show) mUI.showBitmap(null, 1, 1, false);
+                        if (!show) mUI.showBitmap(null, 1, 1, false, objectSegmentId);
                         return;
                     }
                     try {
                         int[] array = (int[])data;
-                        mUI.setCoordinate(x, y);
+                        mUI.setCoordinate(x, y, objectSegmentId);
                         Bitmap bitmap = Bitmap.createBitmap(array, width, height, Config.ARGB_8888);
                         // scaling.
                         float scaleW = ((mDisplayRect.right-mDisplayRect.left)*1.0f)/(float)videoWidth;
                         float scaleH = ((mDisplayRect.bottom-mDisplayRect.top)*1.0f)/(float)videoHeight;
-                        Log.d(TAG, "DisplayRect=" + mDisplayRect +" show bitmap scaleW:" + scaleW+", scaleH:"+scaleH);
-                        mUI.showBitmap(bitmap, scaleW, scaleH, show);
+                        Log.d(TAG, "DisplayRect=" + mDisplayRect +" show bitmap scaleW:" + scaleW+", scaleH:"+scaleH+" objectSegmentId:"+objectSegmentId);
+                        mUI.showBitmap(bitmap, scaleW, scaleH, show, objectSegmentId);
                     } catch(Exception e) {
                         e.printStackTrace();
                     }
@@ -644,7 +644,7 @@ public class SubtitleManager {
     public boolean startSubtitle() {
         mHidlCallback = new SubtitleDataListener() {
             public void onSubtitleEvent(int type, Object data, byte[] subdata, int x, int y,
-                    int width ,int height, int videoWidth, int videoHeight, boolean show) {
+                    int width ,int height, int videoWidth, int videoHeight, boolean show, int objectSegmentId) {
                 Log.d(TAG, "in SubtitleManager.java onSubtitleEvent:" + type+"; height="+height+"; width="+width+", show="+show);
                 // check window created or not
                 if (type == SUBTITLE_CC_JASON && filterVoidCCStr(subdata)) {
@@ -658,8 +658,9 @@ public class SubtitleManager {
                     }
                 });
 
-                processSubtileEvent(type, data, subdata, x, y, width, height, videoWidth, videoHeight, show);
+                processSubtileEvent(type, data, subdata, x, y, width, height, videoWidth, videoHeight, show, objectSegmentId);
             }
+
         };
 
         return true;
@@ -669,7 +670,7 @@ public class SubtitleManager {
         Log.d(TAG, "startFallbackDisplay 3", new Throwable());
         mHidlFallbackDisplay = new FallbackDisplayListener() {
             public void onSubtitleEvent(int type, Object data, byte[] subdata, int x, int y,
-                    int width ,int height, int videoWidth, int videoHeight, boolean show) {
+                    int width ,int height, int videoWidth, int videoHeight, boolean show, int objectSegmentId) {
                 Log.d(TAG, "here, FallbackDisplayListener: onSubtitleEvent mSurfaceRectFlag:" + mSurfaceRectFlag);
 
                 // Check subtitle view created or not, if not, create it
@@ -684,7 +685,7 @@ public class SubtitleManager {
                     }
                 });
 
-                processSubtileEvent(type, data, subdata, x, y, width, height, videoWidth, videoHeight, show);
+                processSubtileEvent(type, data, subdata, x, y, width, height, videoWidth, videoHeight, show, objectSegmentId);
             }
             public void onUiCommandEvent(int cmd, int params[]) {
                 Log.d(TAG, "receive message:" + cmd);
@@ -1504,14 +1505,14 @@ public class SubtitleManager {
     }
 
     private void notifySubtitleEvent(int data[], byte[] subdata, int type, int x, int y,
-            int width , int height, int videoWidth, int videoHeight, boolean show) {
+            int width , int height, int videoWidth, int videoHeight, boolean show, int objectSegmentId) {
         synchronized(SubtitleManager.this) {
             if (mHidlCallback != null) {
                 Log.d(TAG, "onSubtitleEvent: mHidlCallback=" + mHidlCallback);
-                mHidlCallback.onSubtitleEvent(type, data, subdata, x, y, width, height, videoWidth, videoHeight, show);
+                mHidlCallback.onSubtitleEvent(type, data, subdata, x, y, width, height, videoWidth, videoHeight, show, objectSegmentId);
             } else if (mHidlFallbackDisplay != null) {
                 Log.d(TAG, "onSubtitleEvent: mHidlFallbackDisplay=" + mHidlFallbackDisplay);
-                mHidlFallbackDisplay.onSubtitleEvent(type, data, subdata, x, y, width, height, videoWidth, videoHeight, show);
+                mHidlFallbackDisplay.onSubtitleEvent(type, data, subdata, x, y, width, height, videoWidth, videoHeight, show, objectSegmentId);
             } else {
                 Log.e(TAG, "Cannot handle events!");
             }
@@ -1615,14 +1616,14 @@ public class SubtitleManager {
          * Object: data
          */
         public void onSubtitleEvent(int type, Object data, byte[] subdata, int x, int y,
-                 int width ,int height, int videoW, int videoH, boolean showOrHide);
+                 int width ,int height, int videoW, int videoH, boolean showOrHide, int objectSegmentId);
     }
 
     /** This api not export to 3rd use **/
     public interface FallbackDisplayListener {
         // Received subtitle data
         public void onSubtitleEvent(int type, Object data, byte[] subdata, int x, int y,
-                int width ,int height, int videoW, int videoH, boolean showOrHide);
+                int width ,int height, int videoW, int videoH, boolean showOrHide, int objectSegmentId);
 
         public void onSubtitleInfo(int what, int extra);
 

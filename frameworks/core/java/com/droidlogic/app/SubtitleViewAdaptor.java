@@ -28,10 +28,12 @@ import android.util.DisplayMetrics;
 class SubtitleViewAdaptor {
     private static final String TAG = SubtitleViewAdaptor.class.getSimpleName();
     private static final boolean DEBUG_LAYOUT = false;
+    private static final int MAX_OBJECT_SEGMENT_ID = 2;
     private Context mContext;
     private FrameLayout mSubLayout = null;
     private TextView mTextView;
-    private ImageView mImageView;
+    private ImageView[] mImageView;
+
     private CCSubtitleView mCcSubtitleView;
     boolean mIsWindowCreated;
 
@@ -57,8 +59,8 @@ class SubtitleViewAdaptor {
     private int mPosHeight = 0;
     private int mTextSize = 0;
     private int mTextColor = 0;
-    private int mCoordinateX = 0;
-    private int mCoordinateY = 0;
+    private int[] mCoordinateX = {0,0};
+    private int[] mCoordinateY = {0,0};
     private int mDisplayFlag = 0;
     private int mSubtitleType = -1;
     private boolean mDisableDisplay = false;
@@ -96,6 +98,7 @@ class SubtitleViewAdaptor {
         mContext = ctx;
         mIsWindowCreated = false;
         mWindowManager = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
+        mImageView = new ImageView[MAX_OBJECT_SEGMENT_ID];
         ensureSubLayoutCreated();
     }
 
@@ -131,25 +134,24 @@ class SubtitleViewAdaptor {
         tlayout.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
         mTextView = (TextView) new TextView(mContext);
         tlayout.addView(mTextView, lparams);
-
-        RelativeLayout ilayout = new RelativeLayout(mContext);
-        ilayout.setLayoutParams(lparams);
-        mImageView = new ImageView (mContext);
-        ilayout.addView(mImageView, lparams);
-        //ilayout.setBackgroundColor(0x7f0000FF);
-
+        for (int i=0; i<MAX_OBJECT_SEGMENT_ID; i++) {
+           RelativeLayout ilayout = new RelativeLayout(mContext);
+           ilayout.setLayoutParams(lparams);
+           mImageView[i] = new ImageView(mContext);
+           ilayout.addView(mImageView[i], lparams);
+           mSubLayout.addView(ilayout, tparams);
+            mImageView[i].setVisibility(View.INVISIBLE);
+        }
+        //for cc
         RelativeLayout cclayout = new RelativeLayout(mContext);
-        ilayout.setLayoutParams(lparams);
         mCcSubtitleView = new CCSubtitleView(mContext);
         cclayout.setPadding(0, 0, 0, 50);
         cclayout.addView(mCcSubtitleView, lparams);
         mSubLayout.addView(tlayout, tparams);
-        mSubLayout.addView(ilayout, tparams);
         mSubLayout.addView(cclayout, tparams);
         Log.d(TAG, "mSubLayout2:"+mSubLayout);
 
         mTextView.setVisibility(View.INVISIBLE);
-        mImageView.setVisibility(View.INVISIBLE);
         mCcSubtitleView.setVisibility(View.INVISIBLE);
         //mCcSubtitleView.hide();
 
@@ -243,8 +245,10 @@ class SubtitleViewAdaptor {
         if (View.VISIBLE == mTextView.getVisibility()) {
             mTextView.setVisibility(View.INVISIBLE);
         }
-        if(View.VISIBLE == mImageView.getVisibility()) {
-            mImageView.setVisibility(View.INVISIBLE);
+        for (int i=0; i<MAX_OBJECT_SEGMENT_ID; i++) {
+            if (View.VISIBLE == mImageView[i].getVisibility()) {
+                mImageView[i].setVisibility(View.INVISIBLE);
+            }
         }
         mWindowManager.removeViewImmediate(mSubLayout);
         mIsWindowCreated = false;
@@ -281,8 +285,9 @@ class SubtitleViewAdaptor {
        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) mTextView.getLayoutParams();
        params.setMargins(0, 0, 0, mPosHeight);
        mTextView.setLayoutParams(params);
-
-       mImageView.setVisibility(View.INVISIBLE);;
+       for (int i=0; i<MAX_OBJECT_SEGMENT_ID; i++) {
+           mImageView[i].setVisibility(View.INVISIBLE);
+       }
        if (!showing) {
             mTextView.setVisibility(View.INVISIBLE);
             return;
@@ -332,10 +337,13 @@ class SubtitleViewAdaptor {
         }
         else if ((SubtitleManager.SUBTITLE_IMAGE == mDisplayFlag) ||
                   (SubtitleManager.SUBTITLE_IMAGE_CENTER == mDisplayFlag)) {
-            RelativeLayout.LayoutParams tt = new RelativeLayout.LayoutParams(mImageView.getLayoutParams());
-            tt.removeRule(RelativeLayout.CENTER_VERTICAL);
-            mImageView.setLayoutParams(tt);
-            mImageView.setVisibility(View.VISIBLE);
+            for (int i=0; i<MAX_OBJECT_SEGMENT_ID; i++) {
+                RelativeLayout.LayoutParams tt = new RelativeLayout.LayoutParams(mImageView[i].getLayoutParams());
+                tt.removeRule(RelativeLayout.CENTER_VERTICAL);
+                mImageView[i].setLayoutParams(tt);
+                mImageView[i].setVisibility(View.VISIBLE);
+            }
+
         }
         else if (SubtitleManager.SUBTITLE_CC_JASON == mDisplayFlag) {
             mCcSubtitleView.setVisibility(View.VISIBLE);
@@ -345,24 +353,29 @@ class SubtitleViewAdaptor {
     public void startTtxLoading(int loadingId) {
         checkCallerOnUIThread();
         if (mAnimationDrawable == null || !mAnimationDrawable.isRunning()) {
-            mImageView.setBackground(mContext.getResources().getDrawable(loadingId));
-            RelativeLayout.LayoutParams tt = new RelativeLayout.LayoutParams(mImageView.getLayoutParams());
-            tt.addRule(RelativeLayout.CENTER_VERTICAL);
-            tt.addRule(RelativeLayout.CENTER_HORIZONTAL);
-            mImageView.setLayoutParams(tt);
+             for (int i=0; i<MAX_OBJECT_SEGMENT_ID; i++) {
+                mImageView[i].setBackground(mContext.getResources().getDrawable(loadingId));
+                RelativeLayout.LayoutParams tt = new RelativeLayout.LayoutParams(mImageView[i].getLayoutParams());
+                tt.addRule(RelativeLayout.CENTER_VERTICAL);
+                tt.addRule(RelativeLayout.CENTER_HORIZONTAL);
+                mImageView[i].setLayoutParams(tt);
 
-            mAnimationDrawable = (AnimationDrawable) mImageView.getBackground();
-            mImageView.setImageBitmap(null);
-            mImageView.setVisibility(View.VISIBLE);
-            mAnimationDrawable.start();
+                mAnimationDrawable = (AnimationDrawable) mImageView[i].getBackground();
+                mImageView[i].setImageBitmap(null);
+                mImageView[i].setVisibility(View.VISIBLE);
+                mAnimationDrawable.start();
+            }
         }
     }
 
     public void stopTtxLoading() {
         checkCallerOnUIThread();
         Log.d(TAG, "stopTtxLoading");
-        mImageView.setBackground(null);
-        mImageView.setImageBitmap(null);
+        for (int i=0; i<MAX_OBJECT_SEGMENT_ID; i++) {
+            mImageView[i].setBackground(null);
+            mImageView[i].setImageBitmap(null);
+        }
+
         mCcSubtitleView.clearContent();//sometimes last cc subtitle will show after switch channel in iptv apk, so clear cc content
         if (mAnimationDrawable != null && mAnimationDrawable.isRunning()) {
             mAnimationDrawable.stop();
@@ -378,7 +391,10 @@ class SubtitleViewAdaptor {
         }
         else if ((SubtitleManager.SUBTITLE_IMAGE == mDisplayFlag) ||
                   (SubtitleManager.SUBTITLE_IMAGE_CENTER == mDisplayFlag)) {
-            mImageView.setVisibility(View.INVISIBLE);
+            for (int i=0; i<MAX_OBJECT_SEGMENT_ID; i++) {
+               mImageView[i].setVisibility(View.INVISIBLE);
+            }
+
         }
         else if (SubtitleManager.SUBTITLE_CC_JASON == mDisplayFlag) {
             mCcSubtitleView.clearContent();//sometimes last cc subtitle will show after switch channel in iptv apk, so clear cc content
@@ -393,7 +409,9 @@ class SubtitleViewAdaptor {
         }
         else if ((SubtitleManager.SUBTITLE_IMAGE == mDisplayFlag) ||
                   (SubtitleManager.SUBTITLE_IMAGE_CENTER == mDisplayFlag)) {
-            mImageView.setImageBitmap(null);
+            for (int i=0; i<MAX_OBJECT_SEGMENT_ID; i++) {
+               mImageView[i].setImageBitmap(null);
+            }
         }
    }
     public void showCaptionClose(String str) {
@@ -401,7 +419,9 @@ class SubtitleViewAdaptor {
         if (mDisableDisplay)
             return;
         mTextView.setVisibility(View.INVISIBLE);
-        mImageView.setVisibility(View.INVISIBLE);
+        for (int i=0; i<MAX_OBJECT_SEGMENT_ID; i++) {
+            mImageView[i].setVisibility(View.INVISIBLE);
+        }
         mCcSubtitleView.setVisibility(View.VISIBLE);
         mCcSubtitleView.showJsonStr(str);
     }
@@ -439,9 +459,9 @@ class SubtitleViewAdaptor {
         checkCallerOnUIThread();
          mTextColor = color;
     }
-    public void setCoordinate (int x, int y) {
-        mCoordinateX = x;
-        mCoordinateY = y;
+    public void setCoordinate (int x, int y, int subtitleObjectSegmentId) {
+        mCoordinateX[subtitleObjectSegmentId] = x;
+        mCoordinateY[subtitleObjectSegmentId] = y;
       }
 
     //set the teletext Subtitlebitmap by scale
@@ -503,7 +523,7 @@ class SubtitleViewAdaptor {
         return resizedBitmap;
     }
 
-    public void showBitmap(Bitmap bitmap, float wScale, float hScale, boolean showing) {
+    public void showBitmap(Bitmap bitmap, float wScale, float hScale, boolean showing, int subtitleObjectSegmentId) {
         checkCallerOnUIThread();
         if (mDisableDisplay)
             return;
@@ -512,33 +532,42 @@ class SubtitleViewAdaptor {
 
         if (!showing) {
             Log.d(TAG, "hidden!");
-            mImageView.setVisibility(View.INVISIBLE);
+
+            switch (subtitleObjectSegmentId) {
+                case 0:
+                case 1:
+                    mImageView[subtitleObjectSegmentId].setVisibility(View.INVISIBLE);
+                    break;
+                default:
+                    Log.d(TAG, "not support the object id:" + subtitleObjectSegmentId);
+                    break;
+            }
             return;
         }
 
-        Log.d(TAG, "showBitmap:" + bitmap);
+        Log.d(TAG, "showBitmap:" + bitmap + ",object id:" + subtitleObjectSegmentId);
         if (mSubtitleType == SubtitleManager.TYPE_SUBTITLE_DVB_TELETEXT) {
            interBitmap = createTTxBitmap(bitmap,wScale, hScale, (int)mWindowLayoutParams.width, (int)mWindowLayoutParams.height);
         } else {
            interBitmap = creatBitmapByScale(bitmap, wScale, hScale, mWmax, mHmax);
         }
 
-        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) mImageView.getLayoutParams();
-        android.view.ViewGroup.LayoutParams  layoutParams = mImageView.getLayoutParams();
+        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) mImageView[subtitleObjectSegmentId].getLayoutParams();
+        android.view.ViewGroup.LayoutParams  layoutParams = mImageView[subtitleObjectSegmentId].getLayoutParams();
         if ((mSubtitleType == SubtitleManager.TYPE_SUBTITLE_DVB)
             || (mSubtitleType == SubtitleManager.TYPE_SUBTITLE_SCTE27)
             || (mSubtitleType == SubtitleManager.TYPE_SUBTITLE_PGS)) {
             //Log.d(TAG, "mCoordinateX="+mCoordinateX+", mCoordinateY="+mCoordinateY + ",wScale:" + wScale + ",hScale:" + hScale);
 
-            mCoordinateX = (int)(mCoordinateX*wScale);
-            mCoordinateY = (int)(mCoordinateY*hScale);
+            mCoordinateX[subtitleObjectSegmentId] = (int)(mCoordinateX[subtitleObjectSegmentId]*wScale);
+            mCoordinateY[subtitleObjectSegmentId] = (int)(mCoordinateY[subtitleObjectSegmentId]*hScale);
 
-            params.setMargins(mCoordinateX, mCoordinateY, 0, 0);
-            mImageView.setLayoutParams(params);
+            params.setMargins(mCoordinateX[subtitleObjectSegmentId], mCoordinateY[subtitleObjectSegmentId], 0, 0);
+            mImageView[subtitleObjectSegmentId].setLayoutParams(params);
 
-            Log.d(TAG, "mCoordinateX="+mCoordinateX+", mCoordinateY="+mCoordinateY);
+            Log.d(TAG, "mCoordinateX="+mCoordinateX[subtitleObjectSegmentId]+", mCoordinateY="+mCoordinateY[subtitleObjectSegmentId]);
         } else {
-            RelativeLayout.LayoutParams tt = new RelativeLayout.LayoutParams(mImageView.getLayoutParams());
+            RelativeLayout.LayoutParams tt = new RelativeLayout.LayoutParams(mImageView[subtitleObjectSegmentId].getLayoutParams());
             if (mSubtitleType == SubtitleManager.TYPE_SUBTITLE_DVB_TELETEXT) {
                 stopTtxLoading();
                 tt.addRule(RelativeLayout.CENTER_VERTICAL);
@@ -546,12 +575,12 @@ class SubtitleViewAdaptor {
                 tt.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
             }
             tt.addRule(RelativeLayout.CENTER_HORIZONTAL);
-            mImageView.setLayoutParams(tt);
+            mImageView[subtitleObjectSegmentId].setLayoutParams(tt);
         }
-        if ( (interBitmap != null) && (mImageView != null) ) {
-            mImageView.setImageBitmap(interBitmap);
-            mImageView.setVisibility(View.VISIBLE);
-            Log.d(TAG, "Layout>>"+mSubLayout+", bitmap:"+interBitmap.getWidth()+", "+mImageView);
+        if ( (interBitmap != null) && (mImageView[subtitleObjectSegmentId] != null) ) {
+            mImageView[subtitleObjectSegmentId].setImageBitmap(interBitmap);
+            mImageView[subtitleObjectSegmentId].setVisibility(View.VISIBLE);
+            Log.d(TAG, "Layout>>"+mSubLayout+", bitmap:"+interBitmap.getWidth()+", "+mImageView[subtitleObjectSegmentId]);
         }
         if (DEBUG_LAYOUT) dumpViewHirarchy(mSubLayout);
     }
