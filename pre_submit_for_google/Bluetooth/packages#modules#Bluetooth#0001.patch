@@ -1,0 +1,59 @@
+From de64e3f306a4a63b9c46baf4d8e228822febf514 Mon Sep 17 00:00:00 2001
+From: Zhu Lv <zhu.lv@amlogic.com>
+Date: Sun, 25 Jun 2023 15:02:54 +0800
+Subject: [PATCH] BT: solve G10/G20 google bt rcu can't reconnect back [1/1]
+
+PD#SWPL-127171
+
+Problem:
+G10/G20 google bt rcu can't reconnect back
+
+Solution:
+host set Own_Address_Type to Random (static) Identity (RPA) of value 3
+
+Verify:
+ohm
+
+Change-Id: Ia911620a16a487306123b89313936840d76677a8
+Signed-off-by: Zhu Lv <zhu.lv@amlogic.com>
+---
+ system/gd/hci/acl_manager/le_impl.h | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
+
+diff --git a/system/gd/hci/acl_manager/le_impl.h b/system/gd/hci/acl_manager/le_impl.h
+index 8ab7582120..650bd5a0b8 100644
+--- a/system/gd/hci/acl_manager/le_impl.h
++++ b/system/gd/hci/acl_manager/le_impl.h
+@@ -42,6 +42,7 @@
+ #include "os/metrics.h"
+ #include "os/system_properties.h"
+ #include "packet/packet_view.h"
++#include "../osi/include/properties.h"
+ 
+ using bluetooth::crypto_toolbox::Octet16;
+ 
+@@ -928,8 +929,19 @@ struct le_impl : public bluetooth::hci::LeAddressManagerCallback {
+       le_scan_window_coded = le_scan_window;
+     }
+     InitiatorFilterPolicy initiator_filter_policy = InitiatorFilterPolicy::USE_FILTER_ACCEPT_LIST;
+-    OwnAddressType own_address_type =
+-        static_cast<OwnAddressType>(le_address_manager_->GetInitiatorAddress().GetAddressType());
++
++    // amlogic patch begin
++    char ble_privacy_text[PROPERTY_VALUE_MAX] = "true";  // default is enabled
++    OwnAddressType own_address_type;
++    if (osi_property_get("bluetooth.core.gap.le.privacy.enabled", ble_privacy_text, "true") &&
++        !strcmp(ble_privacy_text, "false")) {
++      own_address_type =
++          static_cast<OwnAddressType>(le_address_manager_->GetInitiatorAddress().GetAddressType());
++    } else {
++      own_address_type = OwnAddressType::RESOLVABLE_OR_RANDOM_ADDRESS;
++    }
++    // amlogic patch end
++
+     uint16_t conn_interval_min = os::GetSystemPropertyUint32(kPropertyMinConnInterval, kConnIntervalMin);
+     uint16_t conn_interval_max = os::GetSystemPropertyUint32(kPropertyMaxConnInterval, kConnIntervalMax);
+     uint16_t conn_latency = os::GetSystemPropertyUint32(kPropertyConnLatency, kConnLatency);
+-- 
+2.37.1
+
