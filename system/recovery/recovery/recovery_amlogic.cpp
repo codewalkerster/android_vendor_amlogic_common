@@ -96,7 +96,7 @@ static int exec_cmd_aml(const std::vector<std::string>& args) {
 
 int wipe_param(void) {
     //system/bin/mke2fs -F -t ext4 -b 4096 /dev/block/cache
-    std::vector<std::string> mke2fs_args = {"/system/bin/mke2fs", "-F", "-t", "ext4", "-b", "4096", "/dev/block/param",};
+    std::vector<std::string> mke2fs_args = {"/system/bin/mke2fs", "-F", "-t", "ext4", "-b", "4096", "/dev/block/by-name/param",};
 
     int result = exec_cmd_aml(mke2fs_args);
     return result;
