@@ -278,9 +278,7 @@ public class AudioSystemCmdService extends Service {
                 if (!mStartStatus.isEmpty() && mStartStatus.get(mDemuxIds.indexOf(mDtvDemuxIdCurrentWork)) != 0) {
                     if (mNotImptTvHardwareInputService)
                         handleAudioSinkUpdated();
-                    mHasOpenedDecoder = false;
                     reStartAdecDecoderIfPossible();
-                    mHasOpenedDecoder = true;
                 }
             }
         }
@@ -577,7 +575,6 @@ public class AudioSystemCmdService extends Service {
                 if (param1 == 0) {
                     mDtvDemuxIdCurrentWork = param3;
                 }
-                mDtvDemuxIdCurrentWork = param3;
                 // if there have received the mute cmd but have not open the decoder,
                 // we need to save and init the path_id information(openstatus/mutestatus/Audioformat).
                 if (!mDemuxIds.contains(param3))  {
@@ -666,7 +663,7 @@ public class AudioSystemCmdService extends Service {
                 if (mNotImptTvHardwareInputService)
                     handleAudioSinkUpdated();
                 if (DroidLogicUtils.isTv()) {
-                    reStartAdecDecoderIfPossible();
+                    mAudioManager.setParameters("hal_param_tuner_in=dtv");
                 }
                 synchronized (mLock) {
                     mAudioManager.setParameters("hal_param_dtv_fmt=" + param1);
@@ -1033,20 +1030,14 @@ public class AudioSystemCmdService extends Service {
     }
 
     private void reStartAdecDecoderIfPossible() {
-        Log.i(TAG, "reStartAdecDecoderIfPossible HasOpenedDecoder:" + mHasOpenedDecoder +
-                   " StartDecoderCmd:" + mHasReceivedStartDecoderCmd +
-                   ", mMixAdSupported:" + mMixAdSupported);
-        if (!mHasOpenedDecoder) {
-            setAudioPortGain();
+        Log.i(TAG, "reStartAdecDecoderIfPossible");
+        if (DroidLogicUtils.isTv()) {
             mAudioManager.setParameters("hal_param_tuner_in=dtv");
-            if (mHasReceivedStartDecoderCmd) {
-                mAudioManager.setParameters("hal_param_dtv_audio_fmt="+mCurrentFmt);
-                mAudioManager.setParameters("hal_param_has_dtv_video="+mCurrentHasDtvVideo);
-                int cmd = AudioSystemCmdManager.AUDIO_SERVICE_CMD_START_DECODE + (mDtvDemuxIdCurrentWork << mDtvDemuxIdBase);
-                mAudioManager.setParameters("hal_param_dtv_patch_cmd=" + cmd);
-                mHasStartedDecoder = true;
-             }
         }
+        mAudioManager.setParameters("hal_param_dtv_audio_fmt="+mAudioFormat.get(mDemuxIds.indexOf(mDtvDemuxIdCurrentWork)));
+        mAudioManager.setParameters("hal_param_has_dtv_video="+mCurrentHasDtvVideo);
+        int cmd = AudioSystemCmdManager.AUDIO_SERVICE_CMD_START_DECODE + (mDtvDemuxIdCurrentWork << mDtvDemuxIdBase);
+        mAudioManager.setParameters("hal_param_dtv_patch_cmd=" + cmd);
     }
 
     private void updateAudioConfigLocked() {
