@@ -20,7 +20,7 @@
     <application android:hasCode="false" />
 
     <overlay
-        android:targetPackage="com.google.android.networkstack.tethering"
+        android:targetPackage="com.android.networkstack.tethering"
         android:targetName="TetheringConfig"
         android:priority="1"
         android:isStatic="true"/>
