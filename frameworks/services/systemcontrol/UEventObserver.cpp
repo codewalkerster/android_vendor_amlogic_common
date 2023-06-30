@@ -33,6 +33,7 @@
 #include <sys/types.h>
 #include <linux/netlink.h>
 
+#include <android-base/threads.h>
 #include <log/log.h>
 #include "common.h"
 #include "UEventObserver.h"
@@ -64,7 +65,7 @@ int UEventObserver::ueventInit() {
     memset(&addr, 0, sizeof(addr));
     addr.nl_family = AF_NETLINK;
     //addr.nl_pid = pthread_self() << 16 | getpid();
-    addr.nl_pid = gettid();
+    addr.nl_pid = android::base::GetThreadId();
     addr.nl_groups = 0xffffffff;
 
     s = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_KOBJECT_UEVENT);
