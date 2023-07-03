@@ -556,6 +556,13 @@ Return<void> SystemControlHal::setHdrPriority(const hidl_string &value) {
     return Void();
 }
 
+Return<void> SystemControlHal::clearUserDisplayConfig() {
+    mSysControl->clearUserDisplayConfig();
+    if (ENABLE_LOG_PRINT)
+        ALOGI("clearUserDisplayConfig\n");
+    return Void();
+}
+
 Return<void> SystemControlHal::clearBootDisplayConfig(const hidl_string &value) {
     mSysControl->clearBootDisplayConfig(value);
     if (ENABLE_LOG_PRINT)

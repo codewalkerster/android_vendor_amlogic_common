@@ -653,7 +653,32 @@ public class SystemControlManager {
             return false;
     }
 
-     public boolean clearBootDisplayConfig(String type) {
+     /**
+      * clearUserDisplayConfig(...)
+      * Descriptor:
+      * Clears the user display config(color format/dv)
+      * The device should boot in the implementation's preferred display config.
+      *
+      */
+     public void clearUserDisplayConfig() {
+        synchronized (mLock) {
+           try {
+               mProxy.clearUserDisplayConfig();
+           } catch (RemoteException e) {
+               Log.e(TAG, "clearUserDisplayConfig:" + e);
+           }
+        }
+    }
+
+     /**
+      * clearBootDisplayConfig(...)
+      * Descriptor:
+      * Clears the boot display config(user prefer resolution)
+      * The device should boot in the implementation's preferred display config.
+      * @param type should be "true".
+      *
+      */
+     public void clearBootDisplayConfig(String type) {
         synchronized (mLock) {
            try {
                mProxy.clearBootDisplayConfig(type);
@@ -661,7 +686,6 @@ public class SystemControlManager {
                Log.e(TAG, "clearBootDisplayConfig:" + e);
            }
         }
-            return false;
     }
 
     public void setBootDisplayConfig(String mode) {

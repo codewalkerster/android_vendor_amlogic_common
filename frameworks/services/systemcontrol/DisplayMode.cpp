@@ -699,6 +699,23 @@ void DisplayMode::setSourceDisplay(output_mode_state state) {
     applyDisplaySetting(&output_info);
 }
 
+void DisplayMode::clearUserDisplayConfig() {
+    SYS_LOGI("clear user display config\n");
+
+    //clear user color format
+    setBootEnv(UBOOTENV_USER_COLORATTRIBUTE, "none");
+    //need enable color space best policy
+    setBootEnv(UBOOTENV_BESTCOLORSPACE, "true");
+
+    //clear user dv
+    setBootEnv(UBOOTENV_USER_DV_TYPE, "none");
+
+    //2. set hdmi mode for trigger setting
+    char cur_displaymode[MODE_LEN] = {0};
+    getDisplayMode(cur_displaymode);
+    setSourceOutputMode(cur_displaymode);
+}
+
 void DisplayMode::clearBootDisplayConfig(const char*value) {
     SYS_LOGI("clear boot display config to %s\n",  value);
     setBootEnv(UBOOTENV_ISBESTMODE, value);
@@ -1623,7 +1640,7 @@ void DisplayMode::getCommonData(hdmi_data_t* data) {
     SYS_LOGI("dv_enable:%s\n", data->dv_info.dv_enable);
 
     char ubootenv_dv_type[MODE_LEN];
-    ret = getBootEnv(UBOOTENV_DV_TYPE, ubootenv_dv_type);
+    ret = getBootEnv(UBOOTENV_USER_DV_TYPE, ubootenv_dv_type);
     if (ret) {
         strcpy(data->dv_info.ubootenv_dv_type, ubootenv_dv_type);
     } else if (isMboxSupportDolbyVision()) {
@@ -2709,7 +2726,7 @@ void DisplayMode::setDolbyVisionEnable(int state,  output_mode_state mode_state)
         }
 
         //Save user prefer dv mode only user change dv through UI
-        setBootEnv(UBOOTENV_DV_TYPE, mHdmidata.dv_info.ubootenv_dv_type);
+        setBootEnv(UBOOTENV_USER_DV_TYPE, mHdmidata.dv_info.ubootenv_dv_type);
         setBootEnv(UBOOTENV_DV_ENABLE, mHdmidata.dv_info.dv_enable);
 
         sprintf(dvstatus, "%d", state);
@@ -3133,7 +3150,7 @@ void DisplayMode::setALLMMode(int state) {
                 }
             }
             //2.4 get dv type before enable allm
-            getBootEnv(UBOOTENV_DV_TYPE, ubootenv_dv_type);
+            getBootEnv(UBOOTENV_USER_DV_TYPE, ubootenv_dv_type);
             //3 enable dv
             //when TV and current resolution support dv and dv is enable before enable allm
             if (isTVSupportDV

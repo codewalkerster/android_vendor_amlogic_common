@@ -464,6 +464,10 @@ void SystemControlService::setHdrPriority(const std::string& value) {
     pDisplayMode->setHdrPriority(value.c_str());
 }
 
+void SystemControlService::clearUserDisplayConfig() {
+    pDisplayMode->clearUserDisplayConfig();
+}
+
 void SystemControlService::clearBootDisplayConfig(const std::string& value) {
     pDisplayMode->clearBootDisplayConfig(value.c_str());
 }

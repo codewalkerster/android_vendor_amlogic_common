@@ -349,6 +349,10 @@ void SystemControlClient::setHdrPriority(const std::string& value) {
     mSysCtrl->setHdrPriority(value);
 }
 
+void SystemControlClient::clearUserDisplayConfig() {
+    mSysCtrl->clearUserDisplayConfig();
+}
+
 void SystemControlClient::clearBootDisplayConfig(const std::string& value) {
     mSysCtrl->clearBootDisplayConfig(value);
 }

@@ -52,6 +52,50 @@ interface ISystemControl {
   setActiveDispMode(string activeDispMode)
       generates (Result result);
 
+
+  /**
+   * clearUserDisplayConfig(...)
+   * Descriptor:
+   * Clears the user display config(color format/dv)
+   * The device should boot in the implementation's preferred display config.
+   *
+   */
+  clearUserDisplayConfig();
+
+  /**
+    * clearBootDisplayConfig(...)
+    * Descriptor:
+    * Clears the boot display config(user prefer resolution)
+    * The device should boot in the implementation's preferred display config.
+    * @param type should be "true".
+    *
+  */
+  clearBootDisplayConfig(string value);
+
+  /**
+    * setBootDisplayConfig(...)
+    * Descriptor:
+    * Sets the display config in which the device boots.
+    * If the device is unable to boot in this config for any reason (example HDMI display changed),
+    * the implementation should try to find a config which matches the resolution and refresh-rate
+    * of this config. If no such config exists, the implementation's preferred display config
+    * should be used.
+    * This api only be called when user switch resolution.
+    * @param mode:user prefer resolution.
+    *
+  */
+  setBootDisplayConfig(string savemode);
+
+  /**
+    * getPreferredDisplayConfig(...)
+    * Descriptor:
+    * Returns the implementation's preferred display config.
+    * @return best mode
+    *
+  */
+  getPreferredDisplayConfig()
+      generates (Result result, string prefDispMode);
+
  /**
   * set hdmi color space
   * @param color space
@@ -767,13 +811,6 @@ interface ISystemControl {
   setHdrStrategy(string value);
 
   setHdrPriority(string value);
-
-  clearBootDisplayConfig(string value);
-
-  setBootDisplayConfig(string savemode);
-
-  getPreferredDisplayConfig()
-      generates (Result result, string prefDispMode);
 
 //FBC
   StartUpgradeFBC(string fileName, int32_t mode, int32_t upgrade_blk_size)

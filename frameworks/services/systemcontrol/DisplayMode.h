@@ -286,7 +286,7 @@ using namespace android;
  * 1:sink-led
  * 2:source-led
  */
-#define UBOOTENV_DV_TYPE                "ubootenv.var.user_prefer_dv_type"
+#define UBOOTENV_USER_DV_TYPE                "ubootenv.var.user_prefer_dv_type"
 /*
  * save user prefer dv enable or disable
  * 0:disable
@@ -543,6 +543,7 @@ public:
     void isHDCPTxAuthSuccess( int *status);
     static void* bootanimDetect(void *data);
     void setSourceDisplay(output_mode_state state);
+    void clearUserDisplayConfig();
     void clearBootDisplayConfig(const char*value);
     void setBootDisplayConfig(const char*value);
     bool getPreferredDisplayConfig(char* mode);
