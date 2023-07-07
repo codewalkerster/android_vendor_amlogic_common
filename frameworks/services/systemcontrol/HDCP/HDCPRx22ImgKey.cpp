@@ -244,7 +244,10 @@ int aml_extract_one_item_to_buf(const char* packedImg, const char* itemName,
     fclose(fd);
     fd = NULL;
     //read img file end
-
+    /*
+     * The above has determined whether to read to the end of the file.
+     */
+    /* coverity[tainted_scalar:SUPPRESS] */
     for (; i < (int)aAmlResImgHead->imgItemNum; ++i) {
         pItemHeadInfo = pFirstItemHeadInfo + i;
         if (0 == strcmp(itemName, pItemHeadInfo->name))
@@ -363,7 +366,7 @@ int readSys(const char *path, char *buf, int count) {
     if (len < 0) {
         HDCP_LOGE("read error: %s, %s\n", path, strerror(errno));
     }
-
+    buf[len] = '\0';
     close(fd);
     return len;
 }
@@ -716,6 +719,10 @@ int setImgPath(const char *path)
         errorP("pItemHead->dataOffset:%d\n", pItemHead->dataOffset);
 
         if (!strncmp(pItemHead->name, HDCP_RX_PRIVATE, sizeof(pItemHead->name))) {
+            /*
+             * The value boundary has already been determined above.
+             */
+            /* coverity[tainted_scalar:SUPPRESS] */
             char *tmpbuffer = (char *)malloc(pItemHead->dataSz + 4);
             if (!tmpbuffer) {
                 errorP("Fail to malloc buffer  size 0x%x\n", pItemHead->dataSz + 4);

@@ -771,6 +771,7 @@ bool HDCPRxKey::combineFirmwarewithArmTool(const char* pSourcePath, const char* 
     int insertSize = 0;
     int writeSize =0;
     int len = 0;
+    int len_1 = 0;
 
     if (!pSourcePath || !pDestPath) {
         SYS_LOGE("firmware source path and dest path isn't ready\n");
@@ -822,7 +823,8 @@ bool HDCPRxKey::combineFirmwarewithArmTool(const char* pSourcePath, const char* 
         goto exit;
     }
     memset((void*)pInsertData, 0, insertSize + 1);
-    if (read(insertFd, (void*)pInsertData, insertSize) < 0) {
+    len_1 = read(insertFd, (void*)pInsertData, insertSize);
+    if (len_1 < 0) {
         SYS_LOGE("read error: %s, %s\n", pTempPath, strerror(errno));
         goto exit;
     }

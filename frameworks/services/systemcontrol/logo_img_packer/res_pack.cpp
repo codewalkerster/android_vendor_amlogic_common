@@ -170,6 +170,7 @@ int res_img_unpack(const char* const path_src, const char* const unPackDirPath, 
                 close(fdResImg);
                 return __LINE__;
         }
+        memset(itemReadBuf, 0, ITEM_READ_BUF_SZ * 2);
         pImgHead = (AmlResImgHeadLogo_t*)(itemReadBuf + ITEM_READ_BUF_SZ);
 
         ImgFileSz = read(fdResImg, pImgHead, ITEM_READ_BUF_SZ);
