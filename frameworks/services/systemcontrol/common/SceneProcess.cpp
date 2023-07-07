@@ -1206,7 +1206,7 @@ void SceneProcess::HDRSceneProcess(scene_output_info_t* output_info) {
                 colorList_length = ARRAY_SIZE(COLOR_ATTRIBUTE_LIST2);
             }
 
-            for (int j = colorList_length - 1; j >= 0 ; j--) {
+            for (int j = 0; j < colorList_length; j++) {
                 if (strstr(mScene_Input_Info.hdmi_input_info.dc_cap, colorList[j]) != NULL) {
                     if (isModeSupportDeepColorAttr(mScene_Input_Info.cur_displaymode, colorList[j])) {
                         SYS_LOGI("%s mode:[%s], deep color:[%s]\n", __FUNCTION__, mScene_Input_Info.cur_displaymode, colorList[j]);
