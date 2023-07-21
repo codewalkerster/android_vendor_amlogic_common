@@ -112,7 +112,7 @@ static const dongle_info dongle_registerd[]={\
     {"0000","0000","8852au","/vendor/lib/modules/8852au.ko","ifname=wlan0 if2name=ap0",no_base,"rtl8852au",0x885c,""},\
     {"0000","0000","8852au","/vendor/lib/modules/8852au.ko","ifname=wlan0 if2name=ap0",no_base,"rtl8852au",0x885a,""},\
     {"0701","0000","wlan","/vendor/lib/modules/wlan_9377.ko","",no_base,"qca9377",0x0,""},\
-    {"050a","0000","wlan","/vendor/lib/modules/wlan_6174.ko","ap_name=ap0 country_code=CN",no_base,"qca6174",0x0,""},\
+    {"050a","0000","wlan","/vendor/lib/modules/wlan_6174.ko","ap_name=ap0",no_base,"qca6174",0x0,""},\
     {"0801","0000","wlan","/vendor/lib/modules/wlan_9379.ko","",no_base,"qca9379",0x0,""},\
     {"0000","0000","wlan","/vendor/lib/modules/wlan_9379.ko","",no_base,"qca9379",0x9378,""},\
     {"0000","0000","wlan","/vendor/lib/modules/wlan_9379.ko","",no_base,"qca9379",0x7a85,""},\
