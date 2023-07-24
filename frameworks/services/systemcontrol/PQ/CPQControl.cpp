@@ -3999,8 +3999,6 @@ int CPQControl::SaveBacklight(int value, int index)
 
 int CPQControl::Cpq_SetBackLight(int value, int index)
 {
-    SYS_LOGI("%s: index = %d, value = %d\n", __FUNCTION__, index, value);
-
     unsigned int temp = value;
     int ret = 0;
     if (index == 1)
@@ -4011,9 +4009,9 @@ int CPQControl::Cpq_SetBackLight(int value, int index)
         ret = write_backlight3_value(&temp);
 
      if (ret == 0)
-        SYS_LOGD("%s:succeed; index = %d, value = %d\n", __FUNCTION__, index, temp);
+        SYS_LOGV("%s:succeed; index = %d, value = %d\n", __FUNCTION__, index, temp);
      else
-        SYS_LOGD("%s:fail; index = %d, ret = %d\n", __FUNCTION__, index, ret);
+        SYS_LOGV("%s:fail; index = %d, ret = %d\n", __FUNCTION__, index, ret);
 
      return ret;
 }
@@ -4030,9 +4028,9 @@ void CPQControl::Cpq_GetBacklight(int *value, int index)
         ret = read_backlight3_value(&temp);
 
     if (ret == 0) {
-        //SYS_LOGD("%s:succeed; index = %d, value = %d\n", __FUNCTION__, index, temp);
+        SYS_LOGV("%s:succeed; index = %d, value = %d\n", __FUNCTION__, index, temp);
     } else {
-        SYS_LOGD("%s:fail; index = %d, ret = %d\n", __FUNCTION__, index, ret);
+        SYS_LOGV("%s:fail; index = %d, ret = %d\n", __FUNCTION__, index, ret);
     }
 
     *value = temp;
