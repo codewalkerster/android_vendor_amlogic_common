@@ -181,4 +181,8 @@ public class SystemControlEvent extends ISystemControlCallback.Stub {
             outModeManager.setForceDDPEnable(ddpEnable);
         }
     }
+
+        public void notifyScreenColorChange(int newColor) {
+            Log.d(TAG, "notifyScreenColorChange callback");
+    }
 }

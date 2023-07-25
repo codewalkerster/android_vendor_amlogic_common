@@ -2726,6 +2726,9 @@ int SystemControlService::getStaticFrameEnable()
 int SystemControlService::setScreenColorForSignalChange(int screenColor, int isSave)
 {
     if (pCPQControl != NULL) {
+        if (mNotifyListener != NULL) {
+        mNotifyListener->onScreenColorChange(screenColor);
+        }
         return pCPQControl->SetScreenColorForSignalChange(screenColor, isSave);
     }
     return -1;
