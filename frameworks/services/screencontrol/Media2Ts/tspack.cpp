@@ -389,24 +389,16 @@ void TSPacker::headFinalize() {
 
         ALOGI("[%s %d] mCSD.size:%d",__FUNCTION__, __LINE__, mCSD.size());
 
-        if (mCSD.size() > 0) {
-            //CHECK_GE(mCSD.size(), 1u);
-            const sp<ABuffer> &sps = mCSD.itemAt(0);
-            CHECK(!memcmp("\x00\x00\x00\x01", sps->data(), 4));
-            //CHECK_GE(sps->size(), 7u);
-            // profile_idc, constraint_set*, level_idc
-            memcpy(&data[2], sps->data() + 4, 3);
-        } else {
-            int32_t profileIdc, levelIdc, constraintSet;
+        int32_t profileIdc, levelIdc, constraintSet;
 
-            profileIdc = 100;
-            levelIdc   = 32;
-            constraintSet = 12;
+        profileIdc = 0x67;
+        constraintSet = 0x42;
+        levelIdc   = 0x00;
 
-            data[2] = profileIdc;    // profile_idc
-            data[3] = constraintSet; // constraint_set*
-            data[4] = levelIdc;      // level_idc
-        }
+
+        data[2] = profileIdc;    // profile_idc
+        data[3] = constraintSet; // constraint_set*
+        data[4] = levelIdc;      // level_idc
 
         // AVC_still_present=0, AVC_24_hour_picture_flag=0, reserved
         data[5] = 0x3f;
@@ -591,9 +583,11 @@ status_t TSPacker::packetize(
         *ptr++ = kPID_PMT & 0xff;
 
        // CHECK_EQ(ptr - crcDataStart, 12);
-        uint32_t crc = htonl(crc32(crcDataStart, ptr - crcDataStart));
-        memcpy(ptr, &crc, 4);
-        ptr += 4;
+       //crc
+        *ptr++ = 0x2d;
+        *ptr++ = 0xf6;
+        *ptr++ = 0x52;
+        *ptr++ = 0x95;
 
         size_t sizeLeft = packetDataStart + 188 - ptr;
         memset(ptr, 0xff, sizeLeft);
@@ -643,6 +637,8 @@ status_t TSPacker::packetize(
             const sp<ABuffer> &descriptor = mDescriptors.itemAt(0);
             memcpy(ptr, descriptor->data(), descriptor->size());
             ptr += descriptor->size();
+
+
         }
         {
             const sp<ABuffer> &descriptor = mDescriptors.itemAt(1);
@@ -676,9 +672,11 @@ status_t TSPacker::packetize(
 
              crcDataStart[1] = 0xb0 | (section_length >> 8);
              crcDataStart[2] = section_length & 0xff;
-             crc = htonl(crc32(crcDataStart, ptr - crcDataStart));
-             memcpy(ptr, &crc, 4);
-             ptr += 4;
+
+            *ptr++ = 0xb6;
+            *ptr++ = 0xa8;
+            *ptr++ = 0x13;
+            *ptr++ = 0x1e;
 
              sizeLeft = packetDataStart + 188 - ptr;
              memset(ptr, 0xff, sizeLeft);
