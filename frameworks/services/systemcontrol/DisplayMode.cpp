@@ -345,15 +345,17 @@ void DisplayMode::init() {
         return ;
     }
 
-#ifndef RECOVERY_MODE
-    /* boot config enable, hwc will take care of it */
-    if (pSysWrite->getPropertyBoolean(HWC_BOOT_CONFIG_PROP, false)) {
-        SYS_LOGI("init return, hwc boot config enable");
-        return;
-    }
-#endif
-
     if (DISPLAY_TYPE_MBOX == mDisplayType) {
+#ifndef RECOVERY_MODE
+        /* boot config enable, hwc will take care of it */
+        if (isHWCProcess()) {
+            memset(&mHdmidata, 0, sizeof(hdmi_data_t));
+            mHdmidata.state = OUTPUT_MODE_STATE_INIT;
+            getHdmiData(&mHdmidata);
+            SYS_LOGI("init return, hwc boot config enable");
+            return;
+        }
+#endif
         setSourceDisplay(OUTPUT_MODE_STATE_INIT);
     } else if (DISPLAY_TYPE_TV == mDisplayType) {
 #ifndef RECOVERY_MODE
@@ -364,6 +366,16 @@ void DisplayMode::init() {
     } else if (DISPLAY_TYPE_TABLET == mDisplayType) {
 
     } else if (DISPLAY_TYPE_REPEATER == mDisplayType) {
+#ifndef RECOVERY_MODE
+        /* boot config enable, hwc will take care of it */
+        if (isHWCProcess()) {
+            memset(&mHdmidata, 0, sizeof(hdmi_data_t));
+            mHdmidata.state = OUTPUT_MODE_STATE_INIT;
+            getHdmiData(&mHdmidata);
+            SYS_LOGI("init return, hwc boot config enable");
+            return;
+        }
+#endif
         setSourceDisplay(OUTPUT_MODE_STATE_INIT);
     }
 }
@@ -579,6 +591,7 @@ void DisplayMode::sceneProcess(hdmi_data_t* data) {
     scene_input_info.isHdrResolutionPriority = isHdrResolutionPriority();
     scene_input_info.hdr_policy              = data->hdr_policy;
     scene_input_info.hdr_priority            = data->hdr_priority;
+    scene_input_info.hdr_force_mode          = data->hdr_force_mode;
 
     //1.2 dolby vision input info
     strcpy(scene_input_info.dv_input_info.ubootenv_dv_type, data->dv_info.ubootenv_dv_type);
@@ -704,9 +717,6 @@ void DisplayMode::clearUserDisplayConfig() {
 
     //clear user color format
     setBootEnv(UBOOTENV_USER_COLORATTRIBUTE, "none");
-    //need enable color space best policy
-    setBootEnv(UBOOTENV_BESTCOLORSPACE, "true");
-
     //clear user dv
     setBootEnv(UBOOTENV_USER_DV_TYPE, "none");
 
@@ -721,13 +731,10 @@ void DisplayMode::clearBootDisplayConfig(const char*value) {
     setBootEnv(UBOOTENV_ISBESTMODE, value);
     // after clear boot config, need save the bestMode to uenv
     if (!strcmp(value, "true")) {
-        //save color space and hdmi resolution env to default value
-        setBootEnv(UBOOTENV_USER_COLORATTRIBUTE, "none");
+        //save hdmi resolution env to default value
         setBootEnv(UBOOTENV_HDMIMODE, "none");
         //need to keep the same value with the defaul value
         setBootEnv(UBOOTENV_FRAC_RATE_POLICY, "1");
-        //need enable color space best policy
-        setBootEnv(UBOOTENV_BESTCOLORSPACE, value);
     }
 }
 
@@ -942,14 +949,10 @@ void DisplayMode::applyDisplaySetting(hdmi_output_info_t* output_info) {
     }
 
     if (!cvbsMode && (isMboxSupportDolbyVision() == false)) {
-        if (pSysWrite->getPropertyBoolean(PROP_DOLBY_VISION_FEATURE, false)) {
-            if (strstr(hdr_policy, HDR_POLICY_SINK)) {
-                DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDR_POLICY, HDR_POLICY_SINK, ConnectorType::CONN_TYPE_HDMI);
-            } else if (strstr(hdr_policy, HDR_POLICY_SOURCE)) {
-                DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDR_POLICY, HDR_POLICY_SOURCE, ConnectorType::CONN_TYPE_HDMI);
-            }
-        } else {
-            initHdrSdrMode();
+        if (strstr(hdr_policy, HDR_POLICY_SINK)) {
+            DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDR_POLICY, HDR_POLICY_SINK, ConnectorType::CONN_TYPE_HDMI);
+        } else if (strstr(hdr_policy, HDR_POLICY_SOURCE)) {
+            DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDR_POLICY, HDR_POLICY_SOURCE, ConnectorType::CONN_TYPE_HDMI);
         }
     }
 
@@ -1059,15 +1062,45 @@ void DisplayMode::applyDisplaySetting(hdmi_output_info_t* output_info) {
 
         //apply hdr policy to driver sysfs
         if (hdr_policy_change) {
-            if (strstr(hdr_policy, HDR_POLICY_SINK)) {
-                DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDR_POLICY, HDR_POLICY_SINK, ConnectorType::CONN_TYPE_HDMI);
-                if (isDolbyVisionEnable()) {
-                    DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_POLICY, HDR_POLICY_SINK, ConnectorType::CONN_TYPE_HDMI);
+            //box not support dv or dv disable
+            if (isDolbyVisionEnable() == false) {
+                if (strstr(hdr_policy, HDR_POLICY_SINK)) {
+                    DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDR_POLICY, HDR_POLICY_SINK, ConnectorType::CONN_TYPE_HDMI);
+                } else if (strstr(hdr_policy, HDR_POLICY_SOURCE)) {
+                    DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDR_POLICY, HDR_POLICY_SOURCE, ConnectorType::CONN_TYPE_HDMI);
+                } else if (strstr(hdr_policy, HDR_POLICY_FORCE)) {
+                    char hdr_force_mode[MODE_LEN] = {0};
+                    memset(hdr_force_mode, 0, MODE_LEN);
+                    getBootEnv(UBOOTENV_HDR_FORCE_MODE, hdr_force_mode);
+                    DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDR_POLICY, HDR_POLICY_SOURCE, ConnectorType::CONN_TYPE_HDMI);
+                    DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_FORCE_HDR_MODE, hdr_force_mode, ConnectorType::CONN_TYPE_HDMI);
                 }
-            } else if (strstr(hdr_policy, HDR_POLICY_SOURCE)) {
-                DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDR_POLICY, HDR_POLICY_SOURCE, ConnectorType::CONN_TYPE_HDMI);
-                if (isDolbyVisionEnable()) {
+            } else {
+                if (strstr(hdr_policy, HDR_POLICY_SINK)) {
+                    DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_POLICY, HDR_POLICY_SINK, ConnectorType::CONN_TYPE_HDMI);
+                } else if (strstr(hdr_policy, HDR_POLICY_SOURCE)) {
                     DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_POLICY, HDR_POLICY_SOURCE, ConnectorType::CONN_TYPE_HDMI);
+                } else if (strstr(hdr_policy, HDR_POLICY_FORCE)) {
+                    char hdr_force_mode[MODE_LEN] = {0};
+                    memset(hdr_force_mode, 0, MODE_LEN);
+                    getBootEnv(UBOOTENV_HDR_FORCE_MODE, hdr_force_mode);
+                    if (strstr(hdr_force_mode, FORCE_DV)) {
+                        DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_POLICY, HDR_POLICY_FORCE, ConnectorType::CONN_TYPE_HDMI);
+                        DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_MODE, FORCE_DV, ConnectorType::CONN_TYPE_HDMI);
+                    } else if (strstr(hdr_force_mode, FORCE_HDR10)) {
+                        DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_POLICY, HDR_POLICY_FORCE, ConnectorType::CONN_TYPE_HDMI);
+                        DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_MODE, FORCE_HDR10, ConnectorType::CONN_TYPE_HDMI);
+                    } else if (strstr(hdr_force_mode, FORCE_SDR)) {
+                        DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_POLICY, HDR_POLICY_FORCE, ConnectorType::CONN_TYPE_HDMI);
+                        // 8bit or not
+                        std::string cur_ColorAttribute;
+                        DisplayModeMgr::getInstance().getDisplayAttribute(DISPLAY_HDMI_COLOR_ATTR, cur_ColorAttribute, ConnectorType::CONN_TYPE_HDMI);
+                        if (cur_ColorAttribute.find("8bit", 0) != std::string::npos) {
+                            DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_MODE, DV_ENABLE_FORCE_SDR_8BIT, ConnectorType::CONN_TYPE_HDMI);
+                        } else {
+                            DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_MODE, DV_ENABLE_FORCE_SDR_10BIT, ConnectorType::CONN_TYPE_HDMI);
+                        }
+                    }
                 }
             }
         }
@@ -1592,6 +1625,10 @@ void DisplayMode::getCommonData(hdmi_data_t* data) {
     //hdmi color space best policy flag
     data->isbestcolorspace = isBestColorSpace();
 
+    char hdr_force_mode[MODE_LEN] = {0};
+    gethdrforcemode(hdr_force_mode);
+    data->hdr_force_mode = (hdr_force_mode_e)atoi(hdr_force_mode);
+
     //hdmi hdr policy flag:always hdr or match content hdr
     char hdr_policy[MODE_LEN] = {0};
     getHdrStrategy(hdr_policy);
@@ -1600,11 +1637,12 @@ void DisplayMode::getCommonData(hdmi_data_t* data) {
     //hdmi hdr priority flag:dv/hdr/sdr
     data->hdr_priority = (hdr_priority_e)getHdrPriority();
 
-    SYS_LOGI("isbestcolorspace:%d, isbestpolicy:%d, hdr_policy:%d, hdr_priority :%d\n",
+    SYS_LOGI("isbestcolorspace:%d, isbestpolicy:%d, hdr_policy:%d, hdr_priority :%d, hdr_force_mode:%d\n",
             data->isbestcolorspace,
             data->isbestpolicy,
             data->hdr_policy,
-            data->hdr_priority);
+            data->hdr_priority,
+            data->hdr_force_mode);
 
     getDisplayMode(data->hdmi_current_mode);
     getBootEnv(UBOOTENV_HDMIMODE, data->ubootenv_hdmimode);
@@ -1868,6 +1906,11 @@ bool DisplayMode::isEdidChange() {
     return false;
 }
 
+/* boot config enable, hwc will take care of it */
+bool DisplayMode::isHWCProcess() {
+    return pSysWrite->getPropertyBoolean(HWC_BOOT_CONFIG_PROP, false);
+}
+
 bool DisplayMode::isBestOutputmode() {
     char isBestMode[MODE_LEN] = {0};
     if (DISPLAY_TYPE_TV == mDisplayType) {
@@ -1877,11 +1920,21 @@ bool DisplayMode::isBestOutputmode() {
 }
 
 bool DisplayMode::isBestColorSpace() {
-    char isBestColorSpace[MODE_LEN] = {0};
+    bool ret = false;
+    char user_colorattr[MODE_LEN] = {0};
     if (DISPLAY_TYPE_TV == mDisplayType) {
         return false;
     }
-    return !getBootEnv(UBOOTENV_BESTCOLORSPACE, isBestColorSpace) || strcmp(isBestColorSpace, "true") == 0;
+
+    ret = getBootEnv(UBOOTENV_USER_COLORATTRIBUTE, user_colorattr);
+
+    if (!ret) {
+        return true;
+    } else if (strstr(user_colorattr, "bit") == NULL) {
+        return true;
+    }
+
+    return false;
 }
 
 bool DisplayMode::isHdrResolutionPriority() {
@@ -2185,8 +2238,8 @@ void DisplayMode::getPosition(const char* curMode, int *position) {
         strcpy(keyValue, MODE_480CVBS);
         defaultWidth = FULL_WIDTH_480;
         defaultHeight = FULL_HEIGHT_480;
-    } else if (strstr(curMode, MODE_640x480p)) {
-        strcpy(keyValue, MODE_640x480p);
+    } else if (strstr(curMode, MODE_640x480P)) {
+        strcpy(keyValue, MODE_640x480P);
         defaultWidth = FULL_WIDTH_640x480;
         defaultHeight = FULL_HEIGHT_640x480;
     } else if (strstr(curMode, MODE_800x480p)) {
@@ -2299,8 +2352,8 @@ void DisplayMode::setPosition(const char* curMode, int left, int top, int width,
     char ubootvar[100] = {0};
     if (strstr(curMode, MODE_480CVBS)) {
         strcpy(keyValue, MODE_480CVBS);
-    } else if (strstr(curMode, MODE_640x480p)) {
-        strcpy(keyValue, MODE_640x480p);
+    } else if (strstr(curMode, MODE_640x480P)) {
+        strcpy(keyValue, MODE_640x480P);
     } else if (strstr(curMode, MODE_800x480p)) {
         strcpy(keyValue, MODE_800x480p);
     } else if (strstr(curMode, MODE_1024x600p)) {
@@ -2371,7 +2424,6 @@ void DisplayMode::getDeepColorAttr(const char* mode, char* value) {
 
 bool DisplayMode::setColorSpace(const char* colorspace) {
     SYS_LOGI("user change color space to %s\n", colorspace);
-    setBootEnv(UBOOTENV_BESTCOLORSPACE, "false");
     setBootEnv(UBOOTENV_USER_COLORATTRIBUTE, colorspace);
 
     char outputmode[MODE_LEN] = {0};
@@ -2588,6 +2640,9 @@ void DisplayMode::enableDolbyVision(int DvMode) {
     }
 
     //if OTT
+    char hdr_policy[MODE_LEN] = {0};
+    getHdrStrategy(hdr_policy);
+
     if ((DISPLAY_TYPE_MBOX == mDisplayType) || (DISPLAY_TYPE_REPEATER == mDisplayType)) {
         if (isTvSupportDolbyVision(tvmode) && (mHdmidata.hdr_priority == DOLBY_VISION_PRIORITY)) {
             SYS_LOGI("Tv is Support DolbyVision, tvmode is [%s]", tvmode);
@@ -2611,8 +2666,6 @@ void DisplayMode::enableDolbyVision(int DvMode) {
             }
         }
 
-        char hdr_policy[MODE_LEN] = {0};
-        getHdrStrategy(hdr_policy);
         if (strstr(hdr_policy, HDR_POLICY_SINK)) {
             DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDR_POLICY, HDR_POLICY_SINK, ConnectorType::CONN_TYPE_HDMI);
             if (isDolbyVisionEnable()) {
@@ -2623,15 +2676,39 @@ void DisplayMode::enableDolbyVision(int DvMode) {
             if (isDolbyVisionEnable()) {
                 DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_POLICY, HDR_POLICY_SOURCE, ConnectorType::CONN_TYPE_HDMI);
             }
+        } else if (strstr(hdr_policy, HDR_POLICY_FORCE)) {
+            if (isDolbyVisionEnable()) {
+                DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_POLICY, HDR_POLICY_FORCE, ConnectorType::CONN_TYPE_HDMI);
+            }
         }
-        //use driver default value,doesn't update
-        //setDvHdrPolicy(DV_HDR_SINK_PROCESS);
     }
 
     if (usleep(100000) < 0)//100ms
         SYS_LOGE("usleep interrupt!\n");
     DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_ENABLE, DV_ENABLE, ConnectorType::CONN_TYPE_HDMI);
-    DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_MODE, DV_MODE_IPT_TUNNEL, ConnectorType::CONN_TYPE_HDMI);
+
+    if (strstr(hdr_policy, HDR_POLICY_FORCE)) {
+        char hdr_force_mode[MODE_LEN] = {0};
+        memset(hdr_force_mode, 0, MODE_LEN);
+        getBootEnv(UBOOTENV_HDR_FORCE_MODE, hdr_force_mode);
+        if (strstr(hdr_force_mode, FORCE_DV)) {
+            DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_MODE, FORCE_DV, ConnectorType::CONN_TYPE_HDMI);
+        } else if (strstr(hdr_force_mode, FORCE_HDR10)) {
+            DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_MODE, FORCE_HDR10, ConnectorType::CONN_TYPE_HDMI);
+        } else if (strstr(hdr_force_mode, FORCE_SDR)) {
+            // 8bit or not
+            std::string cur_ColorAttribute;
+            DisplayModeMgr::getInstance().getDisplayAttribute(DISPLAY_HDMI_COLOR_ATTR, cur_ColorAttribute, ConnectorType::CONN_TYPE_HDMI);
+            if (cur_ColorAttribute.find("8bit", 0) != std::string::npos) {
+                DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_MODE, DV_ENABLE_FORCE_SDR_8BIT, ConnectorType::CONN_TYPE_HDMI);
+            } else {
+                DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_MODE, DV_ENABLE_FORCE_SDR_10BIT, ConnectorType::CONN_TYPE_HDMI);
+            }
+        }
+    } else {
+        DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_MODE, DV_MODE_IPT_TUNNEL, ConnectorType::CONN_TYPE_HDMI);
+    }
+
     if (usleep(100000) < 0)//100ms
         SYS_LOGE("usleep interrupt!\n");
 
@@ -2734,6 +2811,26 @@ void DisplayMode::setDolbyVisionEnable(int state,  output_mode_state mode_state)
     }
 }
 
+void DisplayMode::gethdrforcemode(char* value) {
+    if (!value) {
+        SYS_LOGE("%s value is NULL\n", __FUNCTION__);
+        return;
+    }
+
+    bool ret = false;
+    char hdr_force_mode[MODE_LEN] = {0};
+
+    memset(hdr_force_mode, 0, MODE_LEN);
+    ret = getBootEnv(UBOOTENV_HDR_FORCE_MODE, hdr_force_mode);
+    if (ret) {
+        strcpy(value, hdr_force_mode);
+    } else {
+        strcpy(value, FORCE_DV);
+    }
+
+    SYS_LOGI("get hdr force mode is [%s]", value);
+}
+
 void DisplayMode::getHdrStrategy(char* value) {
     char hdr_policy[MODE_LEN] = {0};
 
@@ -2742,8 +2839,10 @@ void DisplayMode::getHdrStrategy(char* value) {
 
     if (strstr(hdr_policy, HDR_POLICY_SOURCE)) {
         strcpy(value, HDR_POLICY_SOURCE);
-    } else {
+    } else if (strstr(hdr_policy, HDR_POLICY_SINK)){
         strcpy(value, HDR_POLICY_SINK);
+    }  else if (strstr(hdr_policy, HDR_POLICY_FORCE)) {
+        strcpy(value, HDR_POLICY_FORCE);
     }
     SYS_LOGI("getHdrStrategy is [%s]", value);
 }

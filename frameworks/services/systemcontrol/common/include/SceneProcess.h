@@ -28,7 +28,7 @@
 //mode definition
 #define MODE_1024x600p                  "1024x600p60hz"
 #define MODE_800x480p                   "800x480p60hz"
-#define MODE_640x480p                   "640x480p60hz"
+#define MODE_640x480P                   "640x480p60hz"
 #define MODE_480I                       "480i60hz"
 #define MODE_480P                       "480p60hz"
 #define MODE_480CVBS                    "480cvbs"
@@ -90,7 +90,17 @@ typedef enum {
 typedef enum {
     HDR_POLICY_SINK   = 0,
     HDR_POLICY_SOURCE = 1,
+    HDR_POLICY_FORCE  = 2,
 }hdr_policy_e;
+
+typedef enum hdr_force_mode {
+    MESON_HDR_FORCE_MODE_INVALID    = 0,
+    MESON_HDR_FORCE_MODE_SDR        = 1,
+    MESON_HDR_FORCE_MODE_DV         = 2,
+    MESON_HDR_FORCE_MODE_HDR10      = 3,
+    MESON_HDR_FORCE_MODE_HDR10PLUS  = 4,  //need to do
+    MESON_HDR_FORCE_MODE_HLG        = 5,
+} hdr_force_mode_e;
 
 typedef enum {
     SCENE_STATE_INIT               = 0,//boot
@@ -168,7 +178,7 @@ enum {
 static const char* DISPLAY_MODE_LIST[] = {
     MODE_800x480p,
     MODE_1024x600p,
-    MODE_640x480p,
+    MODE_640x480P,
     MODE_480I,
     MODE_480P,
     MODE_480CVBS,
@@ -252,7 +262,8 @@ typedef struct scene_input_info {
     bool isHdrResolutionPriority;//Hdr Resolution Priority enable or not, false:disable true:enable
     hdr_priority_e hdr_priority; //dynamic range fromat preference,0:dolby vision,1:hdr,2:sdr
     hdr_policy_e hdr_policy;     //dynamic range policy,0 :follow sink, 1: match content
-    char cur_displaymode[MODE_LEN]; // hdmi current output mode
+    hdr_force_mode_e hdr_force_mode;  //hdr force mode,1 :force sdr, 2: force dv, 3: force hdr10, 5:force hlg
+    char cur_displaymode[MODE_LEN]; //hdmi current output mode
     dv_input_info_t dv_input_info;
     hdmi_input_info_t hdmi_input_info;
 }scene_input_info_t;

@@ -88,7 +88,7 @@ static const char* MODE_RESOLUTION_FIRST[] = {
     MODE_576I,
     MODE_800x480p,
     MODE_1024x600p,
-    MODE_640x480p,
+    MODE_640x480P,
     MODE_480P,
     MODE_576P,
     MODE_720P50HZ,
@@ -119,7 +119,7 @@ static const char* MODE_FRAMERATE_FIRST[] = {
     MODE_1080I,
     MODE_800x480p,
     MODE_1024x600p,
-    MODE_640x480p,
+    MODE_640x480P,
     MODE_480P,
     MODE_576P,
     MODE_720P50HZ,
@@ -481,13 +481,48 @@ void SceneProcess::updateDolbyVisionAttr(int dolbyvision_type, char * dv_attr) {
 }
 
 bool SceneProcess::isHDRPreference() {
-    return mScene_Input_Info.isTvSupportHDR && mScene_Input_Info.isHdrResolutionPriority
-        && ((mScene_Input_Info.hdr_priority == DOLBY_VISION_PRIORITY) || (mScene_Input_Info.hdr_priority == HDR10_PRIORITY));
+    /* not prefer hdr */
+    if (!mScene_Input_Info.isHdrResolutionPriority) {
+        SYS_LOGI("not prefer hdr is_hdr_resolution_priority:%d\n", mScene_Input_Info.isHdrResolutionPriority);
+        return false;
+    }
+    /* not force hdr */
+    if (mScene_Input_Info.hdr_policy == HDR_POLICY_FORCE
+        && !(mScene_Input_Info.hdr_force_mode == MESON_HDR_FORCE_MODE_HDR10
+        ||  mScene_Input_Info.hdr_force_mode == MESON_HDR_FORCE_MODE_HLG
+        ||  mScene_Input_Info.hdr_force_mode == MESON_HDR_FORCE_MODE_HDR10PLUS)) {
+        SYS_LOGI("not force hdr, hdr_policy:%d hdr_force_mode:%d\n", mScene_Input_Info.hdr_policy, mScene_Input_Info.hdr_force_mode);
+        return false;
+    }
+
+    /* hdr is enable and policy is also hdr */
+    if (mScene_Input_Info.isTvSupportHDR &&
+            ((mScene_Input_Info.hdr_priority == DOLBY_VISION_PRIORITY) ||
+             (mScene_Input_Info.hdr_priority == HDR10_PRIORITY)))
+        return true;
+
+    return false;
 }
 
 bool SceneProcess::isDolbyVisionPreference() {
-    return mScene_Input_Info.isDvEnable && mScene_Input_Info.isTvSupportDv
-        && (mScene_Input_Info.hdr_priority == DOLBY_VISION_PRIORITY);
+    /* not dv priority */
+    if (mScene_Input_Info.hdr_priority != DOLBY_VISION_PRIORITY) {
+        SYS_LOGI("not prefer dv, hdr_priority:%d", mScene_Input_Info.hdr_priority);
+        return false;
+    }
+
+    /* not force dv */
+    if (mScene_Input_Info.hdr_policy == HDR_POLICY_FORCE
+        && mScene_Input_Info.hdr_force_mode != MESON_HDR_FORCE_MODE_DV) {
+        SYS_LOGI("not force dv, hdr_policy:%d hdr_force_mode:%d\n", mScene_Input_Info.hdr_policy, mScene_Input_Info.hdr_force_mode);
+        return false;
+    }
+
+    /* dv is enable and tv also support it */
+    if (mScene_Input_Info.isDvEnable && mScene_Input_Info.isTvSupportDv)
+        return true;
+
+    return false;
 }
 
 bool SceneProcess::isBestPolicy() {
@@ -962,13 +997,14 @@ void SceneProcess::UpdateSceneInputInfo(scene_input_info_t* input_info) {
         mScene_Input_Info.isbestpolicy,
         mScene_Input_Info.cur_displaymode);
 
-    SYS_LOGI("isDvEnable:%d, isTvSupportDv:%d, isTvSupportHDR:%d, isHdrResolutionPriority:%d, hdr_priority:%d, hdr_policy:%d\n",
+    SYS_LOGI("isDvEnable:%d, isTvSupportDv:%d, isTvSupportHDR:%d, isHdrResolutionPriority:%d, hdr_priority:%d, hdr_policy:%d, hdr_force_mode:%d\n",
         mScene_Input_Info.isDvEnable,
         mScene_Input_Info.isTvSupportDv,
         mScene_Input_Info.isTvSupportHDR,
         mScene_Input_Info.isHdrResolutionPriority,
         mScene_Input_Info.hdr_priority,
-        mScene_Input_Info.hdr_policy);
+        mScene_Input_Info.hdr_policy,
+        mScene_Input_Info.hdr_force_mode);
 
     //dv info
     SYS_LOGD("dv_cap:%s\n",
@@ -1255,7 +1291,7 @@ void SceneProcess::HDRSceneProcess(scene_output_info_t* output_info) {
          //1.check cur_displaymode + ubootenv.var.colorattribute support or not
          // and except from third apk or framework set mode.
          if (isModeSupportDeepColorAttr(mScene_Input_Info.cur_displaymode, mScene_Input_Info.hdmi_input_info.ubootenv_colorattribute)
-             && !((mScene_Input_Info.state == SCENE_STATE_SWITCH) && isBestColorSpace())) {
+             && !isBestColorSpace()) {
              SYS_LOGI("support current mode:[%s], deep color:[%s]\n", mScene_Input_Info.cur_displaymode, mScene_Input_Info.hdmi_input_info.ubootenv_colorattribute);
              strcpy(mScene_output_info.final_deepcolor, mScene_Input_Info.hdmi_input_info.ubootenv_colorattribute);
              strcpy(mScene_output_info.final_displaymode, mScene_Input_Info.cur_displaymode);

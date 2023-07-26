@@ -237,17 +237,6 @@ using namespace android;
 #define UBOOTENV_ISBESTMODE             "ubootenv.var.is.bestmode"
 
 /*
- * best color space policy
- * false:use user set color space as hdmi output
- * true :choose prefer color space as hdmi output,
- *       color space priority show as the table in sceneprocess.cpp,
- *       HDR_4K_COLOR_ATTRIBUTE_LIST and HDR_NON4K_COLOR_ATTRIBUTE_LIST for hdr tv
- *       COLOR_ATTRIBUTE_LIST1 and SDR_NON4K_COLOR_ATTRIBUTE_LIST for non hdr tv
- */
-
-#define UBOOTENV_BESTCOLORSPACE         "ubootenv.var.bestcolorspace"
-
-/*
  * dv best policy
  * false:use user set dv mode as hdmi output
  * true :choose prefer dv mode as hdmi output,
@@ -312,6 +301,17 @@ using namespace android;
  * 2:disable tv dv and hdr capability
  */
 #define UBOOTENV_HDR_PRIORITY           "ubootenv.var.hdr_priority"
+/*
+ * save user force hdr mode
+ * 0:invalid hdr mode
+ * 1:force sdr
+ * 2:force dv
+ * 3:force hdr10
+ * 4:force hdr10+,need to do
+ * 5:force hlg
+ */
+#define UBOOTENV_HDR_FORCE_MODE         "ubootenv.var.hdr_force_mode"
+
 /*
  *save user prefer sdr to hdr enable or disable
  *sdr content force be converted to hdr content
@@ -396,9 +396,17 @@ enum {
 #define DV_HDR_SINK_PROCESS             "1"
 #define DV_HDR_SOURCE_PROCESS           "2"
 #define DV_HDR_SINK_SOURCE_PROCESS      "3"
+#define DV_ENABLE_FORCE_SDR_10BIT       "4"
+#define DV_ENABLE_FORCE_SDR_8BIT        "5"
 
 #define HDR_POLICY_SINK                 "0"
 #define HDR_POLICY_SOURCE               "1"
+#define HDR_POLICY_FORCE                "2"
+
+#define FORCE_SDR                       "1"
+#define FORCE_DV                        "2"
+#define FORCE_HDR10                     "3"
+#define FORCE_HLG                       "5"
 
 typedef enum {
     OUTPUT_MODE_STATE_INIT               = 0,
@@ -440,6 +448,7 @@ typedef struct hdmi_data {
     bool isbestpolicy;           //hdmi resolution best policy,false:disable true:enable
     hdr_priority_e hdr_priority; //dynamic range fromat preference,0:dolby vision,1:hdr,2:sdr
     hdr_policy_e   hdr_policy;   //dynamic range policy,0 :follow sink, 1: match content
+    hdr_force_mode_e hdr_force_mode;  /* hdr force mode,1 :force sdr, 2: force dv, 3: force hdr10, 5:force hlg*/
     char edidParsing[MODE_LEN];
     char dc_cap[MAX_STR_LEN];  //device colorspace cap
     char disp_cap[MAX_STR_LEN];
@@ -598,6 +607,7 @@ public:
     int getCurrentHdrPriority(void);
     int getHdrPriority(void);
     void setHdrPriority(const char* type);
+    void gethdrforcemode(char* value);
     int  updateDolbyVisionType(void);
     bool memcContrl(bool on);
 private:
@@ -622,6 +632,7 @@ private:
     void initGraphicsPriority();
     void initHdrSdrMode();
     bool isEdidChange();
+    bool isHWCProcess();
     bool isSupport4K30Hz();
     bool isSupport4K();
     bool isSupportDeepColor();
