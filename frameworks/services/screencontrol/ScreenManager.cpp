@@ -92,6 +92,54 @@ static void VdinDataCallBack(void *user, aml_screen_buffer_info_t *buffer){
     return;
 }
 
+static void microdimming(uint8_t *s, uint8_t *dest,int W,int H, int w_count,int h_count)
+{
+    ALOGE("[%s %d]", __FUNCTION__, __LINE__);
+    int c_width = w_count;
+    int c_height = h_count;
+    int map = 0;
+    int i=0;
+    int j=0;
+    int m=0;
+    int n=0;
+    int sum;
+    int k;
+    uint8_t* d = (uint8_t *)dest;
+
+    int mFrameHeight;
+    int mFrameWidth;
+    int count_m = 0;
+    int pixcount = 0;
+
+    mFrameWidth = W/c_width;
+    mFrameHeight = H/c_height;
+    memset(dest, 0x00, c_width*c_height);
+    ALOGE("[W:%d H:%d,mW:%d mH:%d,c_height:%d,c_width:%d]",W,H, mFrameWidth, mFrameHeight,c_height,c_width);
+
+    for (i = 0; i < c_height; i++) {
+            for (j = 0;j < c_width; j++) {
+                    sum = 0;
+                    pixcount = 0;
+                    for (m = 0; m < mFrameHeight ; m = m +4) {
+                            for (n = 0; n < mFrameWidth ; n = n +4) {
+                                    map = (m + i * mFrameHeight)* W + j * mFrameWidth + n;
+                                    k = s[map /8 *8] * 1.1 + 3;
+                                    if (k > 255)
+                                            k = 255;
+                                    sum = sum + k;
+                                    pixcount++;
+                            }
+                    }
+                    sum=sum / pixcount;
+                    *(d++) = (uint8_t)sum;
+                    //memset(d++, (unsigned char)sum, sizeof(unsigned char) );
+            }
+
+
+    }
+    //memset(dest+(c_width*c_height), 0x80, (c_width*c_height) / 2);
+}
+
 static int getRotationDegree(){
     char prop[PROPERTY_VALUE_MAX];
     if (property_get(PERSIST_SYS_ROTATION_PROP, prop, "0") > 0) {
@@ -133,7 +181,9 @@ ScreenManager::ScreenManager() :
     mScreenModule(NULL),
     mScreenDev(NULL),
     mTempBuffer(NULL),
-    mMeanWhileFlag(false){
+    mMeanWhileFlag(false),
+    mMicroWidth(0),
+    mMicroHeight(0) {
     mScreenBuffers[0] = NULL;
     mScreenBuffers[1] = NULL;
     mScreenBuffers[2] = NULL;
@@ -317,7 +367,8 @@ status_t ScreenManager::init(int32_t width,int32_t height,
         mSourceType = source_type;
         mFrameRate = framerate;
 
-    } else if (SCREENCONTROL_RAWDATA_TYPE == data_type || SCREENCONTROL_RGBA888_TYPE == data_type) {
+    } else if (SCREENCONTROL_RAWDATA_TYPE == data_type || SCREENCONTROL_RGBA888_TYPE == data_type ||
+                SCREENCONTROL_MICRODIM_TYPE == data_type) {
         ALOGI("[%s %d] clientTotalNum:%d width:%d height:%d framerate:%d data_type:%d", __FUNCTION__, __LINE__,
             clientTotalNum, width, height, framerate, data_type);
         if (clientTotalNum == 0) {
@@ -327,58 +378,6 @@ status_t ScreenManager::init(int32_t width,int32_t height,
             mFrameRate = framerate;
         }
     }
-#if 0
-    else if(SCREENCONTROL_HANDLE_TYPE == data_type) {
-        if (gbp != NULL) {
-            mANativeWindow = new Surface(gbp);
-            if (mANativeWindow != NULL) {
-                // Set gralloc usage bits for window.
-                int err = native_window_set_usage(mANativeWindow.get(), SCREENCONTROL_GRALLOC_USAGE);
-                if (err != 0) {
-                    ALOGE("native_window_set_usage failed: %s\n", strerror(-err));
-                    if (ENODEV == err) {
-                        ALOGE("Preview surface abandoned!");
-                        mANativeWindow = NULL;
-                    }
-                }
-
-                ///Set the number of buffers needed for camera preview
-                err = native_window_set_buffer_count(mANativeWindow.get(), 4);
-                if (err != 0) {
-                    ALOGE("native_window_set_buffer_count failed: %s (%d)", strerror(-err), -err);
-                    if (ENODEV == err) {
-                        ALOGE("Preview surface abandoned!");
-                        mANativeWindow = NULL;
-                    }
-                }
-
-                // Set window geometry
-                err = native_window_set_buffers_geometry(
-                    mANativeWindow.get(),
-                    ALIGN(1280),
-                    720,
-                    HAL_PIXEL_FORMAT_YCrCb_420_SP);
-
-                if (err != 0) {
-                    ALOGE("native_window_set_buffers_geometry failed: %s", strerror(-err));
-                    if ( ENODEV == err ) {
-                        ALOGE("Surface abandoned!");
-                        mANativeWindow = NULL;
-                    }
-                }
-                err = native_window_set_scaling_mode(mANativeWindow.get(), NATIVE_WINDOW_SCALING_MODE_SCALE_TO_WINDOW);
-                if (err != 0) {
-                    ALOGW("Failed to set scaling mode: %d", err);
-                }
-            }
-        }
-
-        if (clientTotalNum == 0) {
-            mWidth = 1280;
-            mHeight = 720;
-        }
-    }
-#endif
     ALOGI("[%s %d] clientNum:%d", __FUNCTION__, __LINE__, clientNum);
     mClientList.add(clientNum, Client_tmp);
 
@@ -608,6 +607,15 @@ status_t ScreenManager::stop(int32_t client_id)
         }
         if (mTempBuffer)
             free(mTempBuffer);
+    }else if (SCREENCONTROL_MICRODIM_TYPE == source_data_type) {
+        while (!mMicroBufferQueue.empty()) {
+            uint8_t* rawBuffer = *mMicroBufferQueue.begin();
+            mMicroBufferQueue.erase(mMicroBufferQueue.begin());
+            if (rawBuffer != NULL)
+                free(rawBuffer);
+        }
+        mMicroWidth = 0;
+        mMicroHeight = 0;
     }
 
      if (mScreenDev)
@@ -708,6 +716,18 @@ status_t ScreenManager::readBuffer(int32_t client_id, sp<IMemory> buffer, int *i
                 size = mWidth*mHeight*4;
             checkAndSaveBufferToFile(dump_path, filename, mScreenBuffers[index_], size);
         }
+    }else if (SCREENCONTROL_MICRODIM_TYPE == source_data_type && !mMicroBufferQueue.empty()){
+        uint8_t* microBuffer = *mMicroBufferQueue.begin();
+        mMicroBufferQueue.erase(mMicroBufferQueue.begin());
+        if (microBuffer != NULL && buffer != NULL) {
+            memmove((char *)buffer->unsecurePointer(), microBuffer, mMicroWidth*mMicroHeight);
+            free(microBuffer);
+        }else{
+            ALOGE("[%s] microBuffer invalid data(null)", __func__);
+            return !OK;
+        }
+
+
     } else {
         //ALOGE("[%s %d] read raw data fail", __FUNCTION__, __LINE__);
         return !OK;
@@ -754,6 +774,13 @@ status_t ScreenManager::freeBuffer(int32_t client_id, sp<IMemory>buffer) {
     ++mNumFramesEncoded;
 
     return OK;
+}
+
+void ScreenManager::setMicroSize(int32_t width, int32_t height) {
+    Mutex::Autolock autoLock(mLock);
+    mMicroWidth = width;
+    mMicroHeight = height;
+
 }
 
 int ScreenManager::dataCallBack(aml_screen_buffer_info_t *buffer){
@@ -804,6 +831,21 @@ int ScreenManager::dataCallBack(aml_screen_buffer_info_t *buffer){
                             ALOGD("dataCallBack index =%d",buffer->index);
                             mRawBufferQueue.push_back(buffer->index);
                         }
+                    } break;
+                    case SCREENCONTROL_MICRODIM_TYPE:{
+                        if (mMicroBufferQueue.size() < 2) {
+                            if (mMicroHeight > 0 && mMicroWidth > 0) {
+                                uint8_t *temp = (uint8_t *)malloc(mMicroWidth*mMicroHeight);
+                                microdimming((uint8_t *)buffer->buffer_mem,temp,client->width,client->height,mMicroWidth,mMicroHeight);
+                                mMicroBufferQueue.push_back(temp);
+                            }else{
+                                ALOGE("datacallback error: mMicroHeight < 0");
+                            }
+
+
+                        }
+                        if (mScreenDev)
+                            mScreenDev->ops.release_buffer(mScreenDev, buffer->buffer_mem);
                     } break;
                     default:{
                         if (mCanvasClientExist == 0) {//release buffer

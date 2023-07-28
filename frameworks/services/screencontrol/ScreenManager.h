@@ -62,6 +62,7 @@ enum SCREENCONTROLDATATYPE{
     SCREENCONTROL_HANDLE_TYPE,
     SCREENCONTROL_RAWDATA_TYPE,
     SCREENCONTROL_RGBA888_TYPE,
+    SCREENCONTROL_MICRODIM_TYPE,
 };
 
 enum aml_capture_source_type {
@@ -133,6 +134,7 @@ public:
     virtual status_t checkConvertDone();
     virtual status_t readRawData(int32_t client_id, void **buffer);
     virtual status_t getBufferByID(int32_t index,long **buffer);
+    virtual void setMicroSize(int32_t width, int32_t height);
 
 
 private:
@@ -199,6 +201,7 @@ private:
     Condition mFrameAvailableCondition;
     List<FrameBufferInfo*> mCanvasFramesReceived;
     List<int> mRawBufferQueue;
+    List<uint8_t*> mMicroBufferQueue;
 
     int64_t mTimeBetweenFrameCaptureUs;
 
@@ -223,6 +226,8 @@ private:
     long *mTempBuffer;
     bool mMeanWhileFlag;
     long* mScreenBuffers[NB_BUFFER];
+    int32_t mMicroWidth;
+    int32_t mMicroHeight;
 };
 
 }; // namespace android

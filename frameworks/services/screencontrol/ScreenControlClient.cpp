@@ -278,10 +278,47 @@ bool ScreenControlClient::checkYuvRecordDone()
     return result;
 }
 
+int ScreenControlClient::startMicroDim(int32_t width, int32_t height) {
+    Mutex::Autolock autoLock(mLock);
+    int result = -1;
+    int32_t w = width;
+    int32_t h = height;
+    ALOGI("enter %s width=%d,height=%d",__func__, width, height);
+    if (Result::OK == mScreenCtrl->startMicroDim(w,h))
+        result = 0;
+    return result;
+}
+
+int ScreenControlClient::getMicroDimData(uint8_t *data) {
+    Mutex::Autolock autoLock(mLock);
+    int result = -1;
+    ALOGI("enter %s",__func__);
+    mScreenCtrl->getMicroDimData([&](const Result &ret, const hidl_memory &mem){
+            if (Result::OK == ret) {
+                sp<IMemory> memory = mapMemory(mem);
+                int bufSize = memory->getSize();
+                memcpy(data, memory->getPointer(), bufSize);
+                ALOGI("getMicroDimData get memory, size=%d", bufSize);
+                result = 0;
+            }
+        });
+    return result;
+}
+
+int ScreenControlClient::stopMicroDim() {
+    Mutex::Autolock autoLock(mLock);
+    ALOGI("enter %s",__func__);
+    int result = -1;
+    if (Result::OK == mScreenCtrl->stopMicroDim())
+        result = 0;
+    return result;
+}
+
 void ScreenControlClient::forceStop()
 {
     mScreenCtrl->forceStop();
 }
+
 
 }
 

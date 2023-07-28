@@ -84,6 +84,12 @@ public:
 
     void forceStop();
 
+    int startMicroDim(int32_t width, int32_t height);
+
+	int getMicroDimData(uint8_t *data);
+
+    int stopMicroDim();
+
 private:
     wp<AvcCallback> mAvcCb;
     wp<YuvCallback> mYuvCb;

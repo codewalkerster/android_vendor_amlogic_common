@@ -299,6 +299,54 @@ namespace implementation {
         return Void();
     }
 
+    Return<Result> ScreenControlHal::startMicroDim(int32_t width, int32_t height) {
+        Mutex::Autolock autoLock(mLock);
+         if ( NULL != mScreenControl) {
+            ALOGI("enter %s width=%d,height=%d",__func__, width, height);
+            if (android::OK == mScreenControl->startMicroDim(width, height)) {
+                mMicroWidth = width;
+                mMicroHeight = height;
+                return Result::OK;
+            }
+        }
+        return Result::FAIL;
+    }
+
+    Return<void> ScreenControlHal::getMicroDimData(getMicroDimData_cb _hidl_cb) {
+        Mutex::Autolock autoLock(mLock);
+        sp<IAllocator> allocator = IAllocator::getService("ashmem");
+        allocator->allocate(mMicroWidth*mMicroHeight, [&](bool success, const hidl_memory& mem) {
+            int ret = android::OK;
+            if (success) {
+                sp<IMemory> memory = mapMemory(mem);
+                void* data = memory->getPointer();
+                memory->update();
+                ret = mScreenControl->getMicroDimData(data,mMicroWidth*mMicroHeight);
+                memory->commit();
+                if (android::OK == ret) {
+                    _hidl_cb(Result::OK, mem);
+                } else {
+                    _hidl_cb(Result::FAIL, mem);
+                }
+            } else {
+                ALOGI("alloc memory Fail");
+                _hidl_cb(Result::FAIL, mem);
+            }
+        });
+        return Void();
+
+    }
+
+    Return<Result> ScreenControlHal::stopMicroDim() {
+        Mutex::Autolock autoLock(mLock);
+        if (NULL != mScreenControl) {
+            ALOGI("enter %s",__func__);
+            mScreenControl->stopMicroDim();
+            return Result::OK;
+        }
+        return Result::FAIL;
+    }
+
     void ScreenControlHal::handleServiceDeath(uint32_t cookie) {
         ALOGE("handleServiceDeath  died cookie:%d",(int)cookie);
 

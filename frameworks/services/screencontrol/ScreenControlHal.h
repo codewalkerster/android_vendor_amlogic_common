@@ -65,6 +65,12 @@ class ScreenControlHal : public IScreenControl {
 
         Return<Result> checkAvcRecordDone();
 
+        Return<Result> startMicroDim(int32_t width, int32_t height);
+
+        Return<void> getMicroDimData(getMicroDimData_cb _hidl_cb);
+
+        Return<Result> stopMicroDim();
+
     private:
         void handleServiceDeath(uint32_t cookie);
         ScreenControlService* mScreenControl;
@@ -76,6 +82,8 @@ class ScreenControlHal : public IScreenControl {
         int32_t mAvcRecordFramerate;
         int32_t mAvcRecordBitrate;
         int32_t mAvcRecordSourceType;
+        int32_t mMicroWidth;
+        int32_t mMicroHeight;
         class  DeathRecipient : public android::hardware::hidl_death_recipient  {
             public:
                 DeathRecipient(sp<ScreenControlHal> sch);

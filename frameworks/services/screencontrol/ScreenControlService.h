@@ -89,6 +89,12 @@ public:
     virtual bool isHaveAvcDate();
     virtual int checkAvcRecordDone();
 
+    virtual int startMicroDim(int32_t width, int32_t height);
+
+    virtual int getMicroDimData(void *dstBuffer, int32_t bufSize);
+
+    virtual void stopMicroDim();
+
     virtual int release();
     static void instantiate(bool lazyMode=false);
     static ScreenControlService* getInstance();
@@ -106,6 +112,9 @@ private:
     int32_t mRecordCorpHeight;
     int32_t mRecordWidth;
     int32_t mRecordHeight;
+    int mMicroClientId;
+    int32_t mMicroWidth;
+    int32_t mMicroHeight;
     ScreenManager* mScreenManager;
     int mYuvClientId;
     Mutex mLock;

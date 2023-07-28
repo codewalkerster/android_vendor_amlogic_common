@@ -108,6 +108,9 @@ ScreenControlService::ScreenControlService():
     mRecordCorpHeight(-1),
     mRecordWidth(-1),
     mRecordHeight(-1),
+    mMicroClientId(-1),
+    mMicroWidth(-1),
+    mMicroHeight(-1),
     mScreenManager(NULL),
     mYuvClientId(-1) ,
     mRecordSourceType(-1) {
@@ -149,6 +152,12 @@ void ScreenControlService::forceStop() {
     mRecordCorpHeight = -1;
     mRecordWidth = -1;
     mRecordHeight = -1;
+    if (mVideoConvertor != NULL) {
+        mVideoConvertor->stop();
+        mNeedStop = false;
+        mRecordSourceType = -1;
+        mVideoConvertor=NULL;
+    }
 }
 int ScreenControlService::setScreenRecordCropArea(int32_t left, int32_t top, int32_t right, int32_t bottom) {
     Mutex::Autolock autoLock(mLock);
@@ -486,7 +495,7 @@ int ScreenControlService::startScreenCapBuffer(int32_t left, int32_t top, int32_
 int ScreenControlService::startYuvRecord(int32_t width, int32_t height, int32_t frameRate,int32_t sourceType){
     int32_t client_id = 0;
     Mutex::Autolock autoLock(mLock);
-    ALOGI("[%s] left:%d, width:%d, height:%d, frameRate =%d, sourceType:%d\n",
+    ALOGI("[%s] width:%d, height:%d, frameRate =%d, sourceType:%d\n",
         __func__, width, height, frameRate, sourceType);
     mScreenManager = ScreenManager::instantiate();
     if (mScreenManager == NULL)
@@ -633,35 +642,58 @@ int ScreenControlService::checkAvcRecordDone(){
     return !OK;
 }
 
-#if 0
-SkColorType ScreenControlService::flinger2skia(PixelFormat f) {
-    switch (f) {
-        case PIXEL_FORMAT_RGB_565:
-            return kRGB_565_SkColorType;
-        default:
-            return kN32_SkColorType;
-    }
+int ScreenControlService::startMicroDim(int32_t width, int32_t height) {
+    ALOGI("[%s %d]  width=%d,height=%d", __FUNCTION__, __LINE__,width,height);
+    int32_t client_id = 0;
+    mScreenManager = ScreenManager::instantiate();
+    if (mScreenManager == NULL)
+        return !OK;
+    mScreenManager->init(1280, 720, 0, 1, SCREENCONTROL_MICRODIM_TYPE, &client_id);
+    mScreenManager->setVideoCrop(0,0,1280,720);
+    mMicroClientId = client_id;
+    mMicroWidth = width;
+    mMicroHeight = height;
+    mScreenManager->setMicroSize(width,height);
+    mScreenManager->start(client_id, SCREENCONTROL_SCREEN_RECORD_HARDWARE_ENCODER);
+    return OK;
 }
 
-static uint32_t getBytesPerPixel(PixelFormat format) {
-    switch (format) {
-        case PIXEL_FORMAT_RGBA_FP16:
-            return 8;
-        case PIXEL_FORMAT_RGBA_8888:
-        case PIXEL_FORMAT_RGBX_8888:
-        case PIXEL_FORMAT_BGRA_8888:
-        case PIXEL_FORMAT_RGBA_1010102:
-            return 4;
-        case PIXEL_FORMAT_RGB_888:
-            return 3;
-        case PIXEL_FORMAT_RGB_565:
-        case PIXEL_FORMAT_RGBA_5551:
-        case PIXEL_FORMAT_RGBA_4444:
-            return 2;
+int ScreenControlService::getMicroDimData(void *dstBuffer,int32_t bufSize) {
+    int32_t index;
+    int status;
+    ALOGE("[%s %d] mMicroClientId=%d", __FUNCTION__, __LINE__ ,mMicroClientId);
+    sp<MemoryHeapBase> newMemoryHeap = new MemoryHeapBase(bufSize);
+    sp<MemoryBase> buffer = new MemoryBase(newMemoryHeap, 0, bufSize);
+
+    if (mScreenManager == NULL || mMicroClientId < 0) {
+        ALOGE("[%s %d] getMicroDimData mScreenManager == NULL || mMicroClientId < 0", __FUNCTION__, __LINE__);
+        return !OK;
     }
-    return 0;
+
+    status = mScreenManager->readBuffer(mMicroClientId, buffer, &index);
+    if (status == !OK) {
+      return status;
+    }
+    memmove(dstBuffer,buffer->unsecurePointer(),bufSize);
+    buffer.clear();
+    newMemoryHeap.clear();
+    ALOGE("[%s %d] finish ", __FUNCTION__, __LINE__);
+    return OK;
 }
-#endif
+
+void ScreenControlService::stopMicroDim() {
+    ALOGE("[%s %d]", __FUNCTION__, __LINE__);
+    if (mScreenManager == NULL || mMicroClientId < 0)
+        return;
+    mScreenManager->stop(mMicroClientId);
+    mScreenManager->uninit(mMicroClientId);
+    mScreenManager = NULL;
+    mMicroClientId =-1;
+    mMicroWidth = 0;
+    mMicroHeight = 0;
+    ALOGE("[%s %d] finish", __FUNCTION__, __LINE__);
+    return;
+}
 
 int ScreenControlService::notifyProcessDied (const sp<IBinder> &binder) {
     ALOGI("notifyProcessDied");
