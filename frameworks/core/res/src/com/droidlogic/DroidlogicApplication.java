@@ -32,6 +32,8 @@ import com.droidlogic.app.DroidLogicUtils;
 import com.droidlogic.app.OutputModeManager;
 import com.droidlogic.app.SystemControlEvent;
 import com.droidlogic.app.SystemControlManager;
+import android.content.pm.PackageManager;
+import com.droidlogic.btpair.BluetoothAutoPairReceiver;
 
 public class DroidlogicApplication extends Application {
     private static final String TAG = "DroidlogicApplication";
@@ -63,6 +65,7 @@ public class DroidlogicApplication extends Application {
             mWakeLock.acquire();
             Log.d(TAG, "wakelocked");
         }
+        DisableBtPairInstrumentation(this);
     }
 
     private boolean isGtvsVersion() {
@@ -178,6 +181,16 @@ public class DroidlogicApplication extends Application {
         intent.setAction(name + ".STARTUP");
         startService(intent);
         Log.i(TAG, "startDroidLogicServices startup service:" + name);
+    }
+
+    private void DisableBtPairInstrumentation(Context context) {
+        if (SystemProperties.get("ro.product.system.name", "aosp").contains("atv_generic"))
+            return;
+        PackageManager pm = context.getPackageManager();
+        ComponentName name = new ComponentName(context, BluetoothAutoPairReceiver.class);
+        Log.i(TAG, "set BluetoothAutoPairReceiver disabled");
+        pm.setComponentEnabledSetting(name, PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+        PackageManager.DONT_KILL_APP);
     }
 }
 

@@ -50,7 +50,9 @@ import android.content.ComponentName;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothClass;
-//import android.bluetooth.BluetoothHidHost;
+import android.os.SystemProperties;
+import android.text.TextUtils;
+import android.bluetooth.BluetoothHidHost;
 import android.text.TextUtils;
 /**
  * Service for managing connection and data communication with a GATT server hosted on a
@@ -136,6 +138,9 @@ public class DialogBluetoothService extends Service {
     private AudioManager mAudioManager = null;
     private int connectedState = 0;
 
+    private static int UNPAIR_SHOW_INSTRUMENT = 0;
+    private static int UNPAIR_RESET_BUTTON_TRIGGER = 1;
+    private static String DEFAULT_REMOTE_TYPE = "IR_NONE";
     private boolean flagjni = false;
     /**
      * Used in order for the service to be notified about HID devices connection and bond state.
@@ -200,15 +205,19 @@ public class DialogBluetoothService extends Service {
                     pending.add(device);
                     mHandler.removeCallbacks(mConnRunnable);
                     mHandler.postDelayed(mConnRunnable, CONNECTION_DELAY_MS);
-                } /*else if (bondStatePrev == BluetoothDevice.BOND_BONDED && bondStateNow == BluetoothDevice.BOND_NONE) {
+                } else if (bondStatePrev == BluetoothDevice.BOND_BONDED && bondStateNow == BluetoothDevice.BOND_NONE) {
+                    if (getBtUnpairBehavior(device.getName()) != UNPAIR_SHOW_INSTRUMENT) {
+                        Log.d(TAG, "No need to show instrument immediately");
+                        return;
+                    }
                     BluetoothClass btClass = device.getBluetoothClass();
-                    if (btClass != null && btClass.getMajorDeviceClass() == BluetoothClass.Device.Major.PERIPHERAL && (!hasBondedDevices())) {
+                    if (btClass != null && btClass.getMajorDeviceClass() == BluetoothClass.Device.Major.PERIPHERAL && (!hasBondedDefaultDevices())) {
                         Intent intent1 = new Intent();
                         intent1.setComponent(new ComponentName("com.droidlogic","com.droidlogic.btpair.BtSetupActivity"));
                         intent1.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         context.startActivity(intent1);
                     }
-                } */
+                }
             }
         }
     };
@@ -768,7 +777,7 @@ public class DialogBluetoothService extends Service {
      private native boolean initNative();
      private native boolean cleanupNative();
 
-     private boolean hasBondedDevices() {
+     private boolean hasBondedDefaultDevices() {
          BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
 
          if (btAdapter == null) {
@@ -781,6 +790,8 @@ public class DialogBluetoothService extends Service {
             return false;
         }
 
+        String remote_type = SystemProperties.get("sys.vendor.remote.type", DEFAULT_REMOTE_TYPE);
+        Log.w(TAG, "remote_type:" + remote_type);
         for (final BluetoothDevice device : bondedDevices) {
             final String deviceAddress = device.getAddress();
             Log.i(TAG, "device: "+ device.getName());
@@ -791,10 +802,23 @@ public class DialogBluetoothService extends Service {
             //bonded device will be connected automatically if user press a key on BT remote.
             // No need to check the connect status before showing bt-pairing screen.
             // boolean connected = device.isConnected();
-            return true;
+            BluetoothClass btClass = device.getBluetoothClass();
+            if (btClass != null && btClass.getMajorDeviceClass() == BluetoothClass.Device.Major.PERIPHERAL
+                                && remote_type.contains(device.getName()))
+                return true;
         }
         return false;
      }
 
+    private int getBtUnpairBehavior(String device_name) {
+        /*Once the default remote support BT, we we need to show pairint instrument
+        once there isn't any default bt paired.*/
+        String remote_type = SystemProperties.get("sys.vendor.remote.type", DEFAULT_REMOTE_TYPE);
+        if (remote_type.contains("BT")) {
+            if (remote_type.contains(device_name))
+                return UNPAIR_SHOW_INSTRUMENT;
+            }
+            return UNPAIR_RESET_BUTTON_TRIGGER;
+        }
 }
 
