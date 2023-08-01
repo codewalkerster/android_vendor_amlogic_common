@@ -5,6 +5,11 @@
 #
 # Normal rules
 #
+/adla
+/aml_npu_common
+/efuse
+/external/udf-reader
+/fvp
 /gpu
 /gpu-lib
 /tdk
@@ -19,7 +24,9 @@
 /external/DTVKit/releaseDTVKit
 /external/freetype
 /libdvr_release
+/libencoder
 /mediahal_sdk
+/npu
 /external/ffmpeg
 /external/pppoe
 /external/exfat/
@@ -30,6 +37,7 @@
 /prebuilt/libmediadrm/playready
 /dsp
 /aml_mp_sdk
+/pre_submit_for_google
 /system/libgdc
 /apps/automotive/
 /apps/DroidLiveTvSettings/
