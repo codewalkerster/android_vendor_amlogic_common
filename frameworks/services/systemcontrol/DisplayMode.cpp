@@ -940,20 +940,30 @@ void DisplayMode::applyDisplaySetting(hdmi_output_info_t* output_info) {
     DisplayModeMgr::getInstance().getDisplayAttribute(DISPLAY_HDR_POLICY, cur_hdr_policy);
     SYS_LOGI("cur hdr policy:%s\n", cur_hdr_policy.c_str());
 
+    std::string cur_hdr_force_mode;
+    DisplayModeMgr::getInstance().getDisplayAttribute(DISPLAY_FORCE_HDR_MODE, cur_hdr_force_mode);
+    SYS_LOGI("cur hdr force mode:%s\n", cur_hdr_force_mode.c_str());
+
+    std::string cur_dv_mode;
+    DisplayModeMgr::getInstance().getDisplayAttribute(DISPLAY_DOLBY_VISION_MODE, cur_dv_mode);
+    SYS_LOGI("cur dv mode:%s\n", cur_dv_mode.c_str());
+
+    char hdr_force_mode[MODE_LEN] = {0};
+    gethdrforcemode(hdr_force_mode);
+
     char hdr_policy[MODE_LEN] = {0};
     getHdrStrategy(hdr_policy);
 
     if (strstr(cur_hdr_policy.c_str(), hdr_policy) == NULL) {
         SYS_LOGI("set hdr policy from:%s to %s\n", cur_hdr_policy.c_str(), hdr_policy);
         hdr_policy_change = true;
-    }
-
-    if (!cvbsMode && (isMboxSupportDolbyVision() == false)) {
-        if (strstr(hdr_policy, HDR_POLICY_SINK)) {
-            DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDR_POLICY, HDR_POLICY_SINK, ConnectorType::CONN_TYPE_HDMI);
-        } else if (strstr(hdr_policy, HDR_POLICY_SOURCE)) {
-            DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDR_POLICY, HDR_POLICY_SOURCE, ConnectorType::CONN_TYPE_HDMI);
-        }
+    } else if (!strcmp(hdr_policy, HDR_POLICY_FORCE) && (strstr(cur_hdr_force_mode.c_str(), hdr_force_mode) == NULL)) {
+        SYS_LOGI("set hdr force mode from:%s to %s\n", cur_hdr_force_mode.c_str(), hdr_force_mode);
+        hdr_policy_change = true;
+    } else if ((output_info->dv_type != DOLBY_VISION_SET_DISABLE)
+        && (!strcmp(hdr_policy, HDR_POLICY_FORCE) && (strstr(cur_dv_mode.c_str(), hdr_force_mode) == NULL))) {
+        SYS_LOGI("set dv force mode from:%s to %s\n", cur_dv_mode.c_str(), hdr_force_mode);
+        hdr_policy_change = true;
     }
 
     // 4. update hdr priority
@@ -1053,14 +1063,43 @@ void DisplayMode::applyDisplaySetting(hdmi_output_info_t* output_info) {
 
     // 9. set hdmi final output mode
     if (isNeedChange) {
-        //need drive to do
-        if (strstr(final_displaymode, MODE_8K4K_PREFIX)) {
-            pSysWrite->writeSysfs(DISPLAY_HDMI_FRL_RATE, "4");
-        } else {
-            pSysWrite->writeSysfs(DISPLAY_HDMI_FRL_RATE, "0");
+        //apply hdr policy to driver sysfs
+        if (hdr_policy_change) {
+            if (strstr(hdr_policy, HDR_POLICY_SINK)) {
+                DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDR_POLICY, HDR_POLICY_SINK, ConnectorType::CONN_TYPE_HDMI);
+                if (isDolbyVisionEnable()) {
+                    DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_POLICY, HDR_POLICY_SINK, ConnectorType::CONN_TYPE_HDMI);
+                }
+            } else if (strstr(hdr_policy, HDR_POLICY_SOURCE)) {
+                DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDR_POLICY, HDR_POLICY_SOURCE, ConnectorType::CONN_TYPE_HDMI);
+                if (isDolbyVisionEnable()) {
+                    DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_POLICY, HDR_POLICY_SOURCE, ConnectorType::CONN_TYPE_HDMI);
+                }
+            } else if (strstr(hdr_policy, HDR_POLICY_FORCE)) {
+                char hdr_force_mode[MODE_LEN] = {0};
+                gethdrforcemode(hdr_force_mode);
+                DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_FORCE_HDR_MODE, hdr_force_mode, ConnectorType::CONN_TYPE_HDMI);
+                DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDR_POLICY, HDR_POLICY_FORCE, ConnectorType::CONN_TYPE_HDMI);
+                if (isDolbyVisionEnable()) {
+                    DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_POLICY, HDR_POLICY_FORCE, ConnectorType::CONN_TYPE_HDMI);
+                    if (strstr(hdr_force_mode, FORCE_DV)) {
+                        DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_MODE, FORCE_DV, ConnectorType::CONN_TYPE_HDMI);
+                    } else if (strstr(hdr_force_mode, FORCE_HDR10)) {
+                        DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_MODE, FORCE_HDR10, ConnectorType::CONN_TYPE_HDMI);
+                    } else if (strstr(hdr_force_mode, FORCE_SDR)) {
+                        // 8bit or not
+                        std::string cur_ColorAttribute;
+                        DisplayModeMgr::getInstance().getDisplayAttribute(DISPLAY_HDMI_COLOR_ATTR, cur_ColorAttribute);
+                        if (cur_ColorAttribute.find("8bit", 0) != std::string::npos) {
+                            DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_MODE, DV_ENABLE_FORCE_SDR_8BIT, ConnectorType::CONN_TYPE_HDMI);
+                        } else {
+                            DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_MODE, DV_ENABLE_FORCE_SDR_10BIT, ConnectorType::CONN_TYPE_HDMI);
+                        }
+                    }
+                }
+            }
         }
 
-        //apply hdr policy to driver sysfs
         if (hdr_policy_change) {
             //box not support dv or dv disable
             if (isDolbyVisionEnable() == false) {
@@ -2677,6 +2716,7 @@ void DisplayMode::enableDolbyVision(int DvMode) {
                 DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_POLICY, HDR_POLICY_SOURCE, ConnectorType::CONN_TYPE_HDMI);
             }
         } else if (strstr(hdr_policy, HDR_POLICY_FORCE)) {
+            DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDR_POLICY, HDR_POLICY_FORCE, ConnectorType::CONN_TYPE_HDMI);
             if (isDolbyVisionEnable()) {
                 DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_DOLBY_VISION_POLICY, HDR_POLICY_FORCE, ConnectorType::CONN_TYPE_HDMI);
             }
