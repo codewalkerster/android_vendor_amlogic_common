@@ -61,6 +61,15 @@ public:
     bool setPerferredMode(std::string mode);
     bool setPerferredMode(std::string mode, ConnectorType display);
 
+    bool setColorSpace(std::string colorspace);
+    bool setColorSpace(std::string colorspace, ConnectorType display);
+
+    bool clearUserDisplayConfig();
+    bool clearUserDisplayConfig(ConnectorType display);
+
+    bool setDvMode(std::string dv_mode);
+    bool setDvMode(std::string dv_mode, ConnectorType display);
+
 private:
     bool init();
     bool initConnectType();

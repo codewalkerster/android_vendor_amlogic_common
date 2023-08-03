@@ -175,6 +175,33 @@ bool DisplayModeMgr::setPerferredMode(std::string mode, ConnectorType display) {
     return mDisplayAdapter->setPerferredMode(mode, display);
 }
 
+bool DisplayModeMgr::setColorSpace(std::string colorspace) {
+    return setColorSpace(colorspace, mConnType);
+}
+
+bool DisplayModeMgr::setColorSpace(std::string colorspace, ConnectorType display) {
+    CHECK_DISPLAY_SERVICE();
+    return mDisplayAdapter->setColorSpace(colorspace, display);
+}
+
+bool DisplayModeMgr::clearUserDisplayConfig() {
+    return clearUserDisplayConfig(mConnType);
+}
+
+bool DisplayModeMgr::clearUserDisplayConfig(ConnectorType display) {
+    CHECK_DISPLAY_SERVICE();
+    return mDisplayAdapter->clearUserDisplayConfig(display);
+}
+
+bool DisplayModeMgr::setDvMode(std::string dv_mode) {
+    return setDvMode(dv_mode, mConnType);
+}
+
+bool DisplayModeMgr::setDvMode(std::string dv_mode, ConnectorType display) {
+    CHECK_DISPLAY_SERVICE();
+    return mDisplayAdapter->setDvMode(dv_mode, display);
+}
+
 bool DisplayModeMgr::setDisplayAttribute(std::string name, std::string value) {
     return setDisplayAttribute(name, value, mConnType);
 }

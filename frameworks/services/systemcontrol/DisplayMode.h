@@ -529,7 +529,6 @@ public:
     bool isExitDovi();
     bool isLoadDovi();
     void setDolbyVisionSupport();
-    void initDolbyVision(output_mode_state state);
     void setDolbyVisionEnable(int state, output_mode_state mode_state);
     void setTvDolbyVisionEnable(void);
     void setTvDolbyVisionDisable(void);
@@ -626,7 +625,6 @@ private:
     void setAutoSwitchFrameRate(int state);
     void updateDefaultUI();
     void startBootanimDetectThread();
-    void updateDeepColor(bool cvbsMode, output_mode_state state, const char* outputmode);
     void updateFreeScaleAxis();
     void updateWindowAxis(const char* outputmode);
     void initGraphicsPriority();
@@ -643,7 +641,6 @@ private:
     bool isBestColorSpace();
     bool modeSupport(char *mode, int sinkType);
     void setDvHdrPolicy(const char* policy);
-    void setSourceOutputMode(const char* outputmode, output_mode_state state);
     void setDefaultMode();
     int64_t resolveResolutionValue(const char *mode, int flag);
     void startHdmiPlugDetectThread();

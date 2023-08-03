@@ -58,7 +58,7 @@ public class DolbyVisionSettingManager {
      */
     public void setDolbyVisionEnable(int state) {
         mSystemControl.setDolbyVisionEnable(state);
-        mSystemControl.setMboxOutputMode(mSystemControl.getPrefHdmiDispMode());
+        //mSystemControl.setMboxOutputMode(mSystemControl.getPrefHdmiDispMode());
     }
 
     /* *
