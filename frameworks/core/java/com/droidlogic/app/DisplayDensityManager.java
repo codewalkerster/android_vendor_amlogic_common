@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.hardware.display.DisplayManager;
 import android.util.Size;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.SystemProperties;
@@ -119,6 +120,9 @@ public class DisplayDensityManager {
         adjustDisplayDensityByMode(displayId, mode.getPhysicalWidth(), mode.getPhysicalHeight());
     }
     public static boolean Enabled() {
+        if (Build.VERSION.SDK_INT > 31) {
+            return false;
+        }
         String currentProcName = "";
         try {
             Class activityThreadClass = Class.forName("android.app.ActivityThread");
