@@ -314,6 +314,7 @@ status_t ESConvertor::feedEncoderInputBuffers() {
         sp<ABuffer> buffer = *mInputBufferQueue.begin();
         mInputBufferQueue.erase(mInputBufferQueue.begin());
 
+
         size_t bufferIndex = *mAvailEncoderInputIndices.begin();
         mAvailEncoderInputIndices.erase(mAvailEncoderInputIndices.begin());
 
@@ -839,30 +840,38 @@ int ESConvertor::videoSwEncoderFeedInputBuffer() {
 
     int err;
     unsigned buff_info[3];
-    MediaBuffer *tBufferRec = NULL;
     int bufferSize = mWidth * mHeight * 3 >> 1;
     if (mStarted == false)
         return !OK;
 
     {
 RETRY:
-        int index;
+        int index = 0;
+        long *raw = NULL;
         sp<ABuffer> accessUnit = new ABuffer(bufferSize);
         err = mScreenManager->readBuffer(mClientId, mBufferGet, &index);
-
-        if (err == OK && mStarted != false && mBufferGet ->unsecurePointer() != NULL) {
+        mScreenManager->getBufferByID(index,&raw);
+        long buf_info[3] ={0};
+        sp<MemoryHeapBase> newMemoryHeap = new MemoryHeapBase(128*sizeof(long));
+        sp<MemoryBase> memory = new MemoryBase(newMemoryHeap, 0, 3*sizeof(long));
+        if (memory->unsecurePointer() == NULL)
+            return !OK;
+        buf_info[1] = (long) raw;
+        memcpy(memory->unsecurePointer(), buf_info, 3*sizeof(long));
+        if (err == OK && mStarted != false && raw != NULL) {
             mFrameCounter++;
             int inputSize = mInputBufferQueue.size();
             if (inputSize < 0) {
                 return !OK;
             }
+
             if (!isBeyondMaxBuffer(inputSize, bufferSize)) {
                 if (mMaxInFrameCnt < 0 || (mMaxInFrameCnt > 0 && mFrameCounter <= mMaxInFrameCnt)) {
                     // run this in follow situation:
                     // 1. do not set max frame count
                     // 2. set max frame count but not full
                     sp<ABuffer> accessUnit = new ABuffer(bufferSize);
-                    memcpy(accessUnit->data(), (uint8_t *)mBufferGet->unsecurePointer(), bufferSize);
+                    memcpy(accessUnit->data(), (uint8_t *)raw, bufferSize);
                     struct timeval timeNow;
                     gettimeofday(&timeNow, NULL);
                     int64_t nowUs = (int64_t)timeNow.tv_sec*1000*1000 + (int64_t)timeNow.tv_usec;
@@ -873,10 +882,10 @@ RETRY:
                 }
             } else {
                 // release buffer if needed
-                mScreenManager->freeBuffer(mClientId, mBufferGet);
                 mDropFrameCounter++;
             }
         }
+        mScreenManager->freeBuffer(mClientId, memory);
     }
     feedEncoderInputBuffers();
     return OK;
