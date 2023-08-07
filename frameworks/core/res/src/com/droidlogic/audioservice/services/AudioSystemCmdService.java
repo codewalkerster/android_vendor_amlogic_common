@@ -316,7 +316,10 @@ public class AudioSystemCmdService extends Service {
                                 }
                                 i++;
                             }
-                            mHandler.postDelayed(mHandleAudioSinkUpdatedRunnable, isA2dpOutput ? 2500 : 500);
+                            if (DroidLogicUtils.isTv())
+                                mHandler.postDelayed(mHandleAudioSinkUpdatedRunnable, isA2dpOutput ? 2500 : 500);
+                            else
+                                mHandler.postDelayed(mHandleAudioSinkUpdatedRunnable, 500);
                         }
                    }
                 }
