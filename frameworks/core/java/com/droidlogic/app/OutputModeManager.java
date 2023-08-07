@@ -546,11 +546,18 @@ public class OutputModeManager {
     }
 
     public String getHdmiColorSupportList() {
+        String colorlist = "";
         String list = readSupportList(HDMI_COLOR_SUPPORT_LIST);
+        String [] arr = list.split("#");
+        for (String attr: arr) {
+            if (isModeSupportColor(getCurrentOutputMode(), attr)) {
+                colorlist += attr;
+            }
+        }
 
         if (isLogPrint(3))
-            Log.d(TAG, "getHdmiColorSupportList: " + list);
-        return list;
+            Log.d(TAG, "getHdmiColorSupportList: " + colorlist);
+        return colorlist;
     }
 
     public boolean isModeSupportColor(final String curMode, final String curValue){
@@ -865,7 +872,7 @@ public class OutputModeManager {
     }
 
     private String readSupportList(String path) {
-        String fullStr = mSystemControl.readSysFsOri(path).replaceAll("\n", ",");
+        String fullStr = mSystemControl.readSysFsOri(path).replaceAll("\n", "#");
         Log.d(TAG, "TV support list is :" + fullStr);
         return fullStr;
     }
