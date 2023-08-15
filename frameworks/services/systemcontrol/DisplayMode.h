@@ -408,6 +408,24 @@ enum {
 #define FORCE_HDR10                     "3"
 #define FORCE_HLG                       "5"
 
+
+/* foce mode type in uboot env
+ * 0: invalid type
+ * 1: force sdr
+ * 2: force dv
+ * 3: force hdr10
+ * 4: force hdr10plus (need to do)
+ * 5: force hlg
+ * */
+static const char* FORCE_MODE_TYPE[] = {
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5"
+};
+
 typedef enum {
     OUTPUT_MODE_STATE_INIT               = 0,
     OUTPUT_MODE_STATE_POWER              = 1,//hot plug
@@ -607,7 +625,6 @@ public:
     int getHdrPriority(void);
     void setHdrPriority(const char* type);
     void gethdrforcemode(char* value);
-    int  updateDolbyVisionType(void);
     bool memcContrl(bool on);
 private:
 
@@ -645,7 +662,6 @@ private:
     int64_t resolveResolutionValue(const char *mode, int flag);
     void startHdmiPlugDetectThread();
     void startBootvideoDetectThread();
-    bool getCurDolbyVisionState(int state, output_mode_state mode_state);
     static void* HdmiUenventThreadLoop(void* data);
     void setSinkDisplay(bool initState);
     int getBootenvInt(const char* key, int defaultVal);
@@ -653,7 +669,10 @@ private:
     void dumpCaps(char *result=NULL);
     void saveHdmiParamToEnv();
     bool checkDolbyVisionStatusChanged(int state);
-    bool checkDolbyVisionDeepColorChanged(int state);
+    /*
+     * for parse dv mode type
+     */
+    const char *dvModeTypeToString(const char *dvmode);
     void resetMemc();
 
     bool getContentTypeSupport(const char* type);

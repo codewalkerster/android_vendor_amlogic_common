@@ -965,8 +965,8 @@ void DisplayMode::applyDisplaySetting(hdmi_output_info_t* output_info) {
         SYS_LOGI("set hdr force mode from:%s to %s\n", cur_hdr_force_mode.c_str(), hdr_force_mode);
         hdr_policy_change = true;
     } else if ((output_info->dv_type != DOLBY_VISION_SET_DISABLE)
-        && (!strcmp(hdr_policy, HDR_POLICY_FORCE) && (strstr(cur_dv_mode.c_str(), hdr_force_mode) == NULL))) {
-        SYS_LOGI("set dv force mode from:%s to %s\n", cur_dv_mode.c_str(), hdr_force_mode);
+        && (!strcmp(hdr_policy, HDR_POLICY_FORCE) && (strstr(dvModeTypeToString(cur_dv_mode.c_str()), hdr_force_mode) == NULL))) {
+        SYS_LOGI("set dv force mode from:%s to %s\n", dvModeTypeToString(cur_dv_mode.c_str()), hdr_force_mode);
         hdr_policy_change = true;
     }
 
@@ -2825,36 +2825,8 @@ void DisplayMode::setDolbyVisionSupport() {
     }
 }
 
-bool DisplayMode::getCurDolbyVisionState(int state, output_mode_state mode_state) {
-    if ((mode_state != OUTPUT_MODE_STATE_INIT)
-            || checkDolbyVisionStatusChanged(state)
-            || checkDolbyVisionDeepColorChanged(state)) {
-        return false;
-    }
-    return true;
-}
-
-bool DisplayMode::checkDolbyVisionDeepColorChanged(int state) {
-    std::string colorAttr;
-    char mode[MAX_STR_LEN] = {0};
-    DisplayModeMgr::getInstance().getDisplayAttribute(DISPLAY_HDMI_COLOR_ATTR, colorAttr);
-    if (isTvSupportDolbyVision(mode) && (state == DOLBY_VISION_SET_ENABLE)
-            && (strstr(colorAttr.c_str(), "444,8bit") == NULL)) {
-        SYS_LOGI("colorAttr %s is not match with DV STD\n", colorAttr.c_str());
-        return true;
-    } else if ((state == DOLBY_VISION_SET_ENABLE_LL_YUV) && (strstr(colorAttr.c_str(), "422,12bit") == NULL)) {
-        SYS_LOGI("colorAttr %s is not match with DV LL YUV\n", colorAttr.c_str());
-        return true;
-    } else if ((state == DOLBY_VISION_SET_ENABLE_LL_RGB) && (strstr(colorAttr.c_str(), "444,12bit") == NULL)
-                && (strstr(colorAttr.c_str(), "444,10bit") == NULL)) {
-        SYS_LOGI("colorAttr %s is not match with DV LL RGB\n", colorAttr.c_str());
-        return true;
-    }
-    return false;
-}
-
 /* *
- * @Description: get Current State DolbyVision State
+ * @Description: get Current DV mode
  *
  * @result: if disable Dolby Vision return DOLBY_VISION_SET_DISABLE.
  *          if Current TV support the state saved in Mbox. return that state. like value of saved is 2, and TV support LL_YUV
@@ -2862,98 +2834,26 @@ bool DisplayMode::checkDolbyVisionDeepColorChanged(int state) {
  *             return state in priority queue. like value of saved is 2, But TV only Support LL_RGB, so system will return LL_RGB
  */
 int DisplayMode::getDolbyVisionType() {
-    int dv_type;
-    char dv_mode[MAX_STR_LEN];
+    std::string curDvEnable = "";
+    std::string curDvLLPolicy = "";
+    int curDvMode = DOLBY_VISION_SET_DISABLE;
 
-    if (isTvSupportDolbyVision(dv_mode) && (mHdmidata.hdr_priority == DOLBY_VISION_PRIORITY)) {
-        //1. read dolby vision mode from prop(maybe need to env)
-        dv_type = mHdmidata.dv_info.dv_type;
-        SYS_LOGI("dv_type %d tv dolby vision mode:%s\n", dv_type, dv_mode);
+    DisplayModeMgr::getInstance().getDisplayAttribute(DISPLAY_DOLBY_VISION_ENABLE, curDvEnable, ConnectorType::CONN_TYPE_HDMI);
+    DisplayModeMgr::getInstance().getDisplayAttribute(DISPLAY_DOLBY_VISION_LL_POLICY, curDvLLPolicy, ConnectorType::CONN_TYPE_HDMI);
 
-        //2. check tv support or not
-        if ((dv_type == 1) && strstr(dv_mode, "DV_RGB_444_8BIT") != NULL) {
-            return DOLBY_VISION_SET_ENABLE;
-        } else if ((dv_type == 2) && strstr(dv_mode, "LL_YCbCr_422_12BIT") != NULL) {
-            return DOLBY_VISION_SET_ENABLE_LL_YUV;
-        } else if ((dv_type == 3)
-                && ((strstr(dv_mode, "LL_RGB_444_12BIT") != NULL) || (strstr(dv_mode, "LL_RGB_444_10BIT") != NULL))) {
-            return DOLBY_VISION_SET_ENABLE_LL_RGB;
-        } else if (dv_type == 0) {
-            return DOLBY_VISION_SET_DISABLE;
-        }
+    if (!strcmp(curDvEnable.c_str(), DV_DISABLE) ||
+        !strcmp(curDvEnable.c_str(), "0"))
+        curDvMode = DOLBY_VISION_SET_DISABLE;
+    else if (!strcmp(curDvLLPolicy.c_str(), "0"))
+        curDvMode = DOLBY_VISION_SET_ENABLE;
+    else if (!strcmp(curDvLLPolicy.c_str(), "1"))
+        curDvMode = DOLBY_VISION_SET_ENABLE_LL_YUV;
+    else if (!strcmp(curDvLLPolicy.c_str(), "2"))
+        curDvMode = DOLBY_VISION_SET_ENABLE_LL_RGB;
 
-        //3. dolby vision best policy:STD->LL_YUV->LL_RGB for netflix request
-        //   dolby vision best policy:LL_YUV->STD->LL_RGB for dolby vision request
-        if ((strstr(dv_mode, "DV_RGB_444_8BIT") != NULL) || (strstr(dv_mode, "LL_YCbCr_422_12BIT") != NULL)) {
-            if (pSysWrite->getPropertyBoolean(PROP_ALWAYS_DOLBY_VISION, false)) {
-                if (strstr(dv_mode, "DV_RGB_444_8BIT") != NULL) {
-                    return DOLBY_VISION_SET_ENABLE;
-                } else if (strstr(dv_mode, "LL_YCbCr_422_12BIT") != NULL) {
-                    return DOLBY_VISION_SET_ENABLE_LL_YUV;
-                }
-            } else {
-                if (strstr(dv_mode, "LL_YCbCr_422_12BIT") != NULL) {
-                    return DOLBY_VISION_SET_ENABLE_LL_YUV;
-                } else if (strstr(dv_mode, "DV_RGB_444_8BIT") != NULL) {
-                    return DOLBY_VISION_SET_ENABLE;
-                }
-            }
-        } else if ((strstr(dv_mode, "LL_RGB_444_12BIT") != NULL) || (strstr(dv_mode, "LL_RGB_444_10BIT") != NULL)) {
-            return DOLBY_VISION_SET_ENABLE_LL_RGB;
-        }
-    } else {
-        // enable dolby vision core
-        if (isDolbyVisionEnable()) {
-            return DOLBY_VISION_SET_ENABLE;
-        }
-    }
+    SYS_LOGI("%s curDvMode %d\n", __FUNCTION__, curDvMode);
 
-    return DOLBY_VISION_SET_DISABLE;
-}
-
-int DisplayMode::updateDolbyVisionType(void) {
-    char type[MODE_LEN];
-
-    //1. read dolby vision mode from prop(maybe need to env)
-    strcpy(type, mHdmidata.dv_info.ubootenv_dv_type);
-    SYS_LOGI("type %s tv dolby vision mode:%s\n", type, mHdmidata.dv_info.dv_deepcolor);
-
-    //2. check tv support or not
-    if ((strstr(type, "1") != NULL) && strstr(mHdmidata.dv_info.dv_deepcolor, "DV_RGB_444_8BIT") != NULL) {
-        return DOLBY_VISION_SET_ENABLE;
-    } else if ((strstr(type, "2") != NULL) && strstr(mHdmidata.dv_info.dv_deepcolor, "LL_YCbCr_422_12BIT") != NULL) {
-        return DOLBY_VISION_SET_ENABLE_LL_YUV;
-    } else if ((strstr(type, "3") != NULL)
-        && ((strstr(mHdmidata.dv_info.dv_deepcolor, "LL_RGB_444_12BIT") != NULL) ||
-        (strstr(mHdmidata.dv_info.dv_deepcolor, "LL_RGB_444_10BIT") != NULL))) {
-        return DOLBY_VISION_SET_ENABLE_LL_RGB;
-    } else if (strstr(type, "0") != NULL) {
-        return DOLBY_VISION_SET_DISABLE;
-    }
-
-    //3. dolby vision best policy:STD->LL_YUV->LL_RGB for netflix request
-    //   dolby vision best policy:LL_YUV->STD->LL_RGB for dolby vision request
-    if ((strstr(mHdmidata.dv_info.dv_deepcolor, "DV_RGB_444_8BIT") != NULL) ||
-        (strstr(mHdmidata.dv_info.dv_deepcolor, "LL_YCbCr_422_12BIT") != NULL)) {
-        if (pSysWrite->getPropertyBoolean(PROP_ALWAYS_DOLBY_VISION, false)) {
-            if (strstr(mHdmidata.dv_info.dv_deepcolor, "DV_RGB_444_8BIT") != NULL) {
-                return DOLBY_VISION_SET_ENABLE;
-            } else if (strstr(mHdmidata.dv_info.dv_deepcolor, "LL_YCbCr_422_12BIT") != NULL) {
-                return DOLBY_VISION_SET_ENABLE_LL_YUV;
-            }
-        } else {
-            if (strstr(mHdmidata.dv_info.dv_deepcolor, "LL_YCbCr_422_12BIT") != NULL) {
-                return DOLBY_VISION_SET_ENABLE_LL_YUV;
-            } else if (strstr(mHdmidata.dv_info.dv_deepcolor, "DV_RGB_444_8BIT") != NULL) {
-                return DOLBY_VISION_SET_ENABLE;
-            }
-        }
-    } else if ((strstr(mHdmidata.dv_info.dv_deepcolor, "LL_RGB_444_12BIT") != NULL) ||
-        (strstr(mHdmidata.dv_info.dv_deepcolor, "LL_RGB_444_10BIT") != NULL)) {
-        return DOLBY_VISION_SET_ENABLE_LL_RGB;
-    }
-
-    return DOLBY_VISION_SET_DISABLE;
+    return curDvMode;
 }
 
 bool DisplayMode::isTvSupportALLM() {
@@ -3346,6 +3246,21 @@ bool DisplayMode::checkDolbyVisionStatusChanged(int state) {
         return false;
     }
 }
+const char *DisplayMode::dvModeTypeToString(const char *dvMode) {
+    const char * typeStr;
+    if (strstr(dvMode, "current dv_mode = HDR10")) {
+        typeStr = FORCE_MODE_TYPE[MESON_HDR_FORCE_MODE_HDR10];
+    } else if (strstr(dvMode, "current dv_mode = IPT_TUNNEL")) {
+        typeStr = FORCE_MODE_TYPE[MESON_HDR_FORCE_MODE_DV];
+    } else if (strstr(dvMode, "current dv_mode = SDR8") ||
+                  strstr(dvMode, "current dv_mode = SDR10")) {
+        typeStr = FORCE_MODE_TYPE[MESON_HDR_FORCE_MODE_SDR];
+    } else {
+        typeStr = FORCE_MODE_TYPE[MESON_HDR_FORCE_MODE_INVALID];
+    }
+    return typeStr;
+}
+
 void DisplayMode::saveHdmiParamToEnv() {
     char outputMode[MODE_LEN] = {0};
 
