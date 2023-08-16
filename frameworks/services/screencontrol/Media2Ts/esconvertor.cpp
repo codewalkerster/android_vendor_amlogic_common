@@ -846,19 +846,21 @@ int ESConvertor::videoSwEncoderFeedInputBuffer() {
 
     {
 RETRY:
-        int index = 0;
+        int index = -1;
         long *raw = NULL;
         sp<ABuffer> accessUnit = new ABuffer(bufferSize);
         err = mScreenManager->readBuffer(mClientId, mBufferGet, &index);
-        mScreenManager->getBufferByID(index,&raw);
-        long buf_info[3] ={0};
-        sp<MemoryHeapBase> newMemoryHeap = new MemoryHeapBase(128*sizeof(long));
-        sp<MemoryBase> memory = new MemoryBase(newMemoryHeap, 0, 3*sizeof(long));
-        if (memory->unsecurePointer() == NULL)
-            return !OK;
-        buf_info[1] = (long) raw;
-        memcpy(memory->unsecurePointer(), buf_info, 3*sizeof(long));
-        if (err == OK && mStarted != false && raw != NULL) {
+        if (err == OK && mStarted != false && index >= 0) {
+            mScreenManager->getBufferByID(index,&raw);
+            if (raw == NULL)
+                return !OK;
+            long buf_info[3] ={0};
+            sp<MemoryHeapBase> newMemoryHeap = new MemoryHeapBase(128*sizeof(long));
+            sp<MemoryBase> memory = new MemoryBase(newMemoryHeap, 0, 3*sizeof(long));
+            if (memory->unsecurePointer() == NULL)
+                return !OK;
+            buf_info[1] = (long) raw;
+            memcpy(memory->unsecurePointer(), buf_info, 3*sizeof(long));
             mFrameCounter++;
             int inputSize = mInputBufferQueue.size();
             if (inputSize < 0) {
@@ -878,14 +880,16 @@ RETRY:
                     accessUnit->meta()->setInt64("timeUs", nowUs);
                     mInputBufferQueue.push_back(accessUnit);
                     mInFrameCounter ++;
+                    mScreenManager->freeBuffer(mClientId, memory);
                     goto RETRY;
                 }
             } else {
                 // release buffer if needed
                 mDropFrameCounter++;
             }
+            mScreenManager->freeBuffer(mClientId, memory);
         }
-        mScreenManager->freeBuffer(mClientId, memory);
+
     }
     feedEncoderInputBuffers();
     return OK;
