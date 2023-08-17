@@ -93,7 +93,15 @@ cc_defaults {
 cc_binary {
     name: "android.hardware.camera.provider-V1-amlogic-service",
     defaults: ["camera_amlogic_service_defaults"],
+    compile_multilib: "32",
     init_rc: ["android.hardware.camera.provider-V1-amlogic-service.rc"],
+}
+
+cc_binary {
+    name: "android.hardware.camera.provider-V1-amlogic-service_64",
+    defaults: ["camera_amlogic_service_defaults"],
+    compile_multilib: "64",
+    init_rc: ["android.hardware.camera.provider-V1-amlogic-service_64.rc"],
 }
 
 //cc_binary {
