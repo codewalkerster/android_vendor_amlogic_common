@@ -62,9 +62,6 @@ public class NetflixService extends Service {
 
     private static final String NETFLIX_PKG_NAME = "com.netflix.ninja";
     private static final String YOUTUBE_PKG_NAME = "com.google.android.youtube.tv";
-    private static final String GEEKBENCH_PKG_NAME = "com.primatelabs.geekbench5";
-    private static final String GFXBENCH_PKG_NAME = "net.kishonti.gfxbench";
-    private static final String PCMARK_PKG_NAME = "com.futuremark.pcmark.android.benchmark";
     private static final String SYS_AUDIO_CAP = "/sys/class/amhdmitx/amhdmitx0/aud_cap";
     private static final String WAKEUP_REASON_DEVICE = "/sys/class/meson_pm/suspend_reason";
     private static final String WAKEUP_REASON_DEVICE_OTHER = "/sys/devices/platform/aml_pm/suspend_reason";
@@ -661,16 +658,6 @@ public class NetflixService extends Service {
                     mAudioManager.setParameters("compensate_video_enable=" + (fgYoutube ? "1" : "0"));
                 }
 
-                boolean fgGeekbench = isVisibleApp(GEEKBENCH_PKG_NAME);
-                boolean gfxBench = isVisibleApp(GFXBENCH_PKG_NAME);
-                boolean pcMark = isVisibleApp(PCMARK_PKG_NAME);
-                Intent intent = new Intent(ACTION_LAUNCH_BENCH_APP);
-                if (fgGeekbench || gfxBench || pcMark) {
-                    intent.putExtra(ACTION_LAUNCH_BENCH_APP, "true");
-                } else {
-                    intent.putExtra(ACTION_LAUNCH_BENCH_APP, "false");
-                }
-                mContext.sendBroadcast(intent);
             }
         }
 

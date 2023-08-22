@@ -29,6 +29,10 @@ public class DroidLogicUtils {
         return getSystemControlManager().getPropertyBoolean("ro.vendor.platform.has.tvuimode", false);
     }
 
+    public static boolean isNeedBenchPromote() {
+        return getSystemControlManager().getPropertyBoolean("ro.vendor.platform.need.bench.promote", false);
+    }
+
     public static boolean getAudioDebugEnable() {
         return SystemProperties.getBoolean("sys.droidlogic.audio.debug", false);
     }
