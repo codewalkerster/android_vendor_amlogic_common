@@ -176,11 +176,6 @@ DroidAudioConfigSetting::DroidAudioConfigSetting(): mInitStatus(false),
         AM_LOGW("addAudioPortCallback failed");
     }
     mProcThread = thread(&DroidAudioConfigSetting::handleDispatchAudioRoutesChanged, this);
-
-    sp<DroidAudioVolumeGroupCallback> volumeCallback = new DroidAudioVolumeGroupCallback(this);
-    if (AudioSystem::addAudioVolumeGroupCallback(volumeCallback) != NO_ERROR) {
-        AM_LOGW("addAudioVolumeGroupCallback failed");
-    }
     reloadAudio();
 }
 
@@ -193,10 +188,6 @@ DroidAudioConfigSetting::~DroidAudioConfigSetting() {
 }
 
 void DroidAudioConfigSetting::reloadAudio() {
-    audio_attributes_t attr;
-    attr.usage = AUDIO_USAGE_MEDIA;
-    AudioSystem::getVolumeGroupFromAudioAttributes(attr, mMusicVolumeGroupId);
-    AM_LOGI("mMusicVolumeGroupId:%d", mMusicVolumeGroupId);
 }
 
 int32_t DroidAudioConfigSetting::init() {
@@ -217,7 +208,7 @@ int32_t DroidAudioConfigSetting::reset() {
 }
 
 int32_t DroidAudioConfigSetting::dump(int fd, const char **args __unused, uint32_t numArgs __unused) {
-    dprintf(fd, "tif: %d mMusicVolumeGroupId: %d\n", !mNotImptTvHardwareInputService, mMusicVolumeGroupId);
+    dprintf(fd, "tif: %d\n", !mNotImptTvHardwareInputService);
     dprintf(fd, "mForceManagePatch: %d opened: %d started: %d\n",
         mForceManagePatch, mHasOpenedDecoder, mHasReceivedStartDecoderCmd);
     for (auto &v : mDemuxs) {
@@ -227,19 +218,6 @@ int32_t DroidAudioConfigSetting::dump(int fd, const char **args __unused, uint32
             demux.mMuteStatus, demux.mVolume);
     }
     return STATUS_OK;
-}
-
-void DroidAudioConfigSetting::handleVolumeChange(volume_group_t group) {
-    if (mMusicVolumeGroupId != group) {
-        return;
-    }
-    if (getDebugEnable()) {
-        AM_LOGD("getMusicVolumeGroupId:%d, mNotImptTvHardwareInputService:%d", group, mNotImptTvHardwareInputService);
-    }
-    if (!mNotImptTvHardwareInputService) {
-        return;
-    }
-    setAudioPortSourceGain();
 }
 
 void DroidAudioConfigSetting::sinkChangedSignalNotify() {
@@ -375,21 +353,8 @@ int32_t DroidAudioConfigSetting::findAudioDevicePort(audio_devices_t type, audio
 }
 
 int32_t DroidAudioConfigSetting::setMusicStreamVolume(int32_t index __unused) {
-    unique_lock<mutex> l(mMutex);
-    DroidAudioConfigSetting::setAudioPortSourceGain();
-    return 0;
-}
-
-void DroidAudioConfigSetting::setAudioPortSourceGain() {
-    if (!mNotImptTvHardwareInputService) {
-        return;
-    }
-    if (mpAudioPatch == nullptr) {
-        if (getDebugEnable()) {
-            AM_LOGD("not find dtv audio patch");
-        }
-        return;
-    }
+    // TODO: For the audio middleware projects.
+#if 0
     int32_t currentIndex = 0;
     AudioSystem::getStreamVolumeIndex(AUDIO_STREAM_MUSIC, &currentIndex, AUDIO_DEVICE_OUT_DEFAULT);
     int gainValueMb = (int)(100 * AudioSystem::getStreamVolumeDB(AUDIO_STREAM_MUSIC, currentIndex, AUDIO_DEVICE_OUT_SPEAKER));
@@ -402,6 +367,9 @@ void DroidAudioConfigSetting::setAudioPortSourceGain() {
     if (status != NO_ERROR) {
         AM_LOGE("setAudioPortConfig fail. status:%d", status);
     }
+
+#endif
+    return 0;
 }
 
 int32_t DroidAudioConfigSetting::updateAudioPatch() {
@@ -517,7 +485,6 @@ int32_t DroidAudioConfigSetting::recreateAudioPatch() {
     AudioSystem::createAudioPatch(audioPatch, &audioPatch->id);
     mpAudioPatch = audioPatch;
     AM_LOGI("createAudioPatch end, id:%d", audioPatch->id);
-    setAudioPortSourceGain();
     return 0;
 }
 

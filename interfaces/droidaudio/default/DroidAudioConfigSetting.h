@@ -40,7 +40,6 @@ class DroidAudioConfigSetting {
 
 public:
     friend class DroidAudioAudioPortCallback;
-    friend class DroidAudioVolumeGroupCallback;
 
     static DroidAudioConfigSetting* instance();
     int32_t init();
@@ -58,21 +57,18 @@ private:
     int32_t findAudioDevicePort(audio_devices_t type, audio_port_v7& port);
     void sinkChangedSignalNotify();
     void handleAudioSinkUpdatedRunnable();
-    void setAudioPortSourceGain();
     int32_t updateAudioPatch();
     int32_t recreateAudioPatch();
     void reStartAdecDecoderIfPossible();
     void handleDispatchAudioRoutesChanged();
     void releaseTvTunerAudioPatch();
     void updateCoexistSpdifOther();
-    void handleVolumeChange(volume_group_t group);
 
     DroidAudioConfigSetting();
     virtual ~DroidAudioConfigSetting();
 
 
     bool                            mInitStatus;
-    volume_group_t                  mMusicVolumeGroupId;
     map<int, DroidAudioDemux>       mDemuxs;
 
     int32_t                         mCurrentFmt;
@@ -130,21 +126,6 @@ private:
             std::this_thread::sleep_for(std::chrono::milliseconds(200));
             this->mDroidAudioConfigSetting->reloadAudio();
          }).detach();
-    }
-    DroidAudioConfigSetting* mDroidAudioConfigSetting;
-};
-
-class DroidAudioVolumeGroupCallback: public AudioSystem::AudioVolumeGroupCallback {
-public:
-        DroidAudioVolumeGroupCallback(DroidAudioConfigSetting* proc) {
-            mDroidAudioConfigSetting = proc;
-        }
-private:
-    void onAudioVolumeGroupChanged(volume_group_t group, int flags __unused) override {
-        mDroidAudioConfigSetting->handleVolumeChange(group);
-    }
-    virtual void onServiceDied() override {
-        AM_LOGW("audioserver died...");
     }
     DroidAudioConfigSetting* mDroidAudioConfigSetting;
 };

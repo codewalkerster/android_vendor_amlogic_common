@@ -187,96 +187,92 @@ status_t AmlAudioPolicyManager::checkAndSetVolume(IVolumeCurves &curves,
         volumeDb = 0.0f;
     }
     /*[Amlogic start]+++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-    /* Change-Id: I47267f5372b9ea736f2bb902dd6baa0727e5ddce */
-    /* Need adjust audio hal volume when television/soundbar platform. */
+    const float BOOT_VIDEO_FIXED_VOLUME_DB = -18.37f;
     bool soundbarMode = property_get_int32("persist.vendor.media.audio.soundbar.mode", 0) == 1;
     bool tvProduct = property_get_bool("ro.vendor.platform.has.tvuimode", false /* default_value */);
-#if 0
-    bool needApplySinkGain = false;
+    bool bBootVideoRunning = property_get_int32("service.bootvideo.exit", 0) == 1;
+    auto setAudioPortConfig = [&](sp<DeviceDescriptor> device) {
+        auto &volCurves = getVolumeCurves(AUDIO_STREAM_MUSIC);
+        int volumeIndex = volCurves.getVolumeIndex(outputDesc->devices().types());
+        device_category devCategory = Volume::getDeviceCategory(outputDesc->devices().types());
+        float musicVolumeDb = volCurves.volIndexToDb(devCategory, volumeIndex);
+        if (bBootVideoRunning) {
+            musicVolumeDb = BOOT_VIDEO_FIXED_VOLUME_DB;
+        }
+        ALOGV("[checkAndSetVolume:%d] volume:%d volumeDb:%f outputDesc:%s profile:%s",
+            __LINE__, volumeIndex, volumeDb, outputDesc->devices().toString().c_str(), outputDesc->getAudioPort()->getName().c_str());
+        ALOGV("[checkAndSetVolume:%d] device:%s musicVolumeDb:%f bootVideoRunning:%d ", __LINE__,
+            audio_device_to_string(device->type()), musicVolumeDb, bBootVideoRunning);
+        struct audio_port_config newConfig;
+        device->toAudioPortConfig(&newConfig);
+        newConfig.config_mask = AUDIO_PORT_CONFIG_GAIN;
+        newConfig.type = AUDIO_PORT_TYPE_DEVICE;
+        newConfig.gain.values[0] = musicVolumeDb * 100;
+        newConfig.gain.index = 0;
+        newConfig.gain.mode = AUDIO_GAIN_MODE_JOINT;
+        newConfig.ext.device.type = device->type();
+        status_t status = mpClientInterface->setAudioPortConfig(&newConfig, 0 /*delayMs*/);
+        if (status != NO_ERROR) {
+            ALOGE("[checkAndSetVolume:%d] Error to setAudioPortConfig device:%s, status:%d", __LINE__,
+                outputDesc->devices().toString().c_str(), status);
+        }
+    };
+
     if (tvProduct || soundbarMode) {
-        needApplySinkGain = true;
+        bool found = false;
+        // set the sink gain only for active volumeSource
+        for (auto client : outputDesc->clientsList(true /*activeOnly*/)) {
+            if (client->volumeSource() == volumeSource) {
+                found = true;
+            }
+        }
+        if (found) {
+            for (const auto& device : outputDesc->devices()) {
+                switch (device->type()) {
+                    case AUDIO_DEVICE_OUT_SPEAKER:
+                    case AUDIO_DEVICE_OUT_SPDIF:
+                    case AUDIO_DEVICE_OUT_WIRED_HEADPHONE:
+                    case AUDIO_DEVICE_OUT_WIRED_HEADSET:
+                    case AUDIO_DEVICE_OUT_HEARING_AID:
+                    case AUDIO_DEVICE_OUT_BLUETOOTH_A2DP:
+                    case AUDIO_DEVICE_OUT_BLUETOOTH_A2DP_HEADPHONES:
+                    case AUDIO_DEVICE_OUT_BLUETOOTH_A2DP_SPEAKER:
+                    case AUDIO_DEVICE_OUT_USB_ACCESSORY:
+                    case AUDIO_DEVICE_OUT_USB_DEVICE:
+                    case AUDIO_DEVICE_OUT_USB_HEADSET:
+                        // set the sink gain to audio hal
+                        setAudioPortConfig(device);
+                        if (bBootVideoRunning || volumeDb > VOLUME_MIN_DB) {
+                            volumeDb = 0.0f;
+                        }
+                        break;
+                    case AUDIO_DEVICE_OUT_HDMI_ARC:
+                    case AUDIO_DEVICE_OUT_HDMI_EARC:
+                        volumeDb = 0.0f;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
     } else {
-        bool    bootVideoRunning = property_get_int32("service.bootvideo.exit", 0) == 1;
-        if (bootVideoRunning) {
-            VolumeSource musicVolSrc = toVolumeSource(AUDIO_STREAM_MUSIC, false);
-            ALOGV("[%s:%d] boot video Running, music type:%d", __func__, __LINE__, (musicVolSrc == volumeSource));
-            if (bootVideoRunning && musicVolSrc == volumeSource) {
+        if (bBootVideoRunning) {
+            ALOGV("[%s:%d] boot video Running, volume src:%d", __func__, __LINE__, volumeSource);
+            if (bBootVideoRunning) {
                 volumeDb = -18.37f;
             }
-        } else {
-            for (auto client : outputDesc->clientsList(true /*activeOnly*/)) {
-                ALOGV("[checkAndSetVolume:%d] isInternal:%d, profile:%s", __LINE__, client->isInternal(),
-                     outputDesc->getAudioPort()->getName().c_str());
-                if (client->isInternal()) {
-                    SourceClientDescriptor* sourceDesc = static_cast<SourceClientDescriptor*>(client.get());
-                    audio_devices_t sourceDevice = sourceDesc->srcDevice()->type();
-                    ALOGV("[%s:%d] sourceDevice:%s(%#x)", __func__, __LINE__, audio_device_to_string(sourceDevice), sourceDevice);
-                    if (sourceDevice == AUDIO_DEVICE_IN_HDMI || sourceDevice == AUDIO_DEVICE_IN_LINE ||
-                         sourceDevice == AUDIO_DEVICE_IN_HDMI_ARC || sourceDevice == AUDIO_DEVICE_IN_HDMI_EARC ||
-                         sourceDevice == AUDIO_DEVICE_IN_SPDIF || sourceDevice == AUDIO_DEVICE_IN_TV_TUNER) {
-                        needApplySinkGain = true;
-                        break;
-                    }
-                }
-            }
-
         }
-    }
-#endif
-    if (tvProduct || soundbarMode) {
-        DeviceTypeSet curSrcDevicesVector = mEngine->getOutputDevicesForStream(AUDIO_STREAM_MUSIC, false).types();
-        audio_devices_t curDevice = Volume::getDeviceForVolume(curSrcDevicesVector);
-        audio_devices_t outputDescDevices = deviceTypesToBitMask(outputDesc->devices().types());
-        if ((curDevice & outputDescDevices) != 0  && outputDesc->getPolicyAudioPort() != nullptr) {
-            auto setSinkGainToHal = [this](auto &volumeDb, auto curDevice, auto outputDesc, auto outputDescDevices) {
-                DeviceTypeSet   curDeviceVector {curDevice};
-                bool            bootVideoRunning = property_get_int32("service.bootvideo.exit", 0) == 1;
-                device_category devCategory = Volume::getDeviceCategory(curDeviceVector);
-                auto &volCurves = getVolumeCurves(AUDIO_STREAM_MUSIC);
-                int volumeIndex = volCurves.getVolumeIndex(curDeviceVector);
-                float musicVolumeDb = volCurves.volIndexToDb(devCategory, volumeIndex);
-                ALOGV("[checkAndSetVolume:%d] volumeDb:%f volume:%d, curDevice:%#x, devCategory:%d, outputDescDevices:%#x",
-                    __LINE__, volumeDb, volumeIndex, curDevice, devCategory, outputDescDevices);
-                ALOGV("[checkAndSetVolume:%d] musicVolumeDb:%f, bootVideoRunning:%d profile:%s", __LINE__, musicVolumeDb,
-                    bootVideoRunning, outputDesc->getAudioPort()->getName().c_str());
-                if (bootVideoRunning) {
-                    volumeDb = 0.0f;
-                    musicVolumeDb = -18.37f;
+        // set the source gain to audio hal
+        for (auto client : outputDesc->clientsList(true /*activeOnly*/)) {
+            // mix->dev. mix client: TrackClientDescriptor; dev->dev. dev client: InternalSourceClientDescriptor
+            if (client->isInternal() && client->volumeSource() == volumeSource) {
+                SourceClientDescriptor* sourceDesc = static_cast<SourceClientDescriptor*>(client.get());
+                audio_devices_t sourceDeviceType = sourceDesc->srcDevice()->type();
+                if (sourceDeviceType == AUDIO_DEVICE_IN_HDMI || sourceDeviceType == AUDIO_DEVICE_IN_LINE ||
+                     sourceDeviceType == AUDIO_DEVICE_IN_HDMI_ARC || sourceDeviceType == AUDIO_DEVICE_IN_HDMI_EARC ||
+                     sourceDeviceType == AUDIO_DEVICE_IN_SPDIF || sourceDeviceType == AUDIO_DEVICE_IN_TV_TUNER) {
+                    setAudioPortConfig(sourceDesc->srcDevice());
                 }
-                sp<DeviceDescriptor> outputDevice = nullptr;
-                for (const auto &device : outputDesc->devices()) {
-                    if (device->type() == curDevice) {
-                        struct audio_port_config newConfig;
-                        struct audio_port_config backupConfig;
-                        device->toAudioPortConfig(&newConfig);
-                        newConfig.config_mask = AUDIO_PORT_CONFIG_GAIN;
-                        newConfig.type = AUDIO_PORT_TYPE_DEVICE;
-                        newConfig.gain.values[0] = musicVolumeDb * 100;
-                        newConfig.gain.index = 0;
-                        newConfig.gain.mode = AUDIO_GAIN_MODE_JOINT;
-                        newConfig.ext.device.type = curDevice;
-                        status_t status = device->applyAudioPortConfig(&newConfig, &backupConfig);
-                        if (status != NO_ERROR) {
-                            ALOGE("checkAndSetVolume: Error to apply new config, status:%d", status);
-                        }
-                        status = mpClientInterface->setAudioPortConfig(&newConfig, 0);
-                        if (status != NO_ERROR) {
-                            device->applyAudioPortConfig(&backupConfig);
-                            ALOGE("[checkAndSetVolume:%d] Error to setAudioPortConfig, status:%d", __LINE__, status);
-                        }
-                    }
-                }
-                // for CTS case: testAudioTrackMuteFromStreamVolumeNotification, testMediaPlayerMuteFromStreamVolumeNotification
-                if (volumeDb > VOLUME_MIN_DB) {
-                    volumeDb = 0.0f;
-                }
-            };
-            if (curDevice == AUDIO_DEVICE_OUT_SPEAKER || curDevice == AUDIO_DEVICE_OUT_SPDIF ||
-                curDevice == AUDIO_DEVICE_OUT_WIRED_HEADPHONE || curDevice == AUDIO_DEVICE_OUT_WIRED_HEADSET  ||
-                (curDevice & AUDIO_DEVICE_OUT_ALL_A2DP) != 0 || (curDevice & AUDIO_DEVICE_OUT_ALL_USB) != 0) {
-                setSinkGainToHal(volumeDb, curDevice, outputDesc, outputDescDevices);
-            } else if (curDevice == AUDIO_DEVICE_OUT_HDMI_ARC || curDevice == AUDIO_DEVICE_OUT_HDMI_EARC) {
-                volumeDb = 0.0f;
             }
         }
     }
