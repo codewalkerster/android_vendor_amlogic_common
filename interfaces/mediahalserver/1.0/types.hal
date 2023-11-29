@@ -1,0 +1,53 @@
+/*
+ * Copyright (C) 2016 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package vendor.amlogic.hardware.mediahalserver@1.0;
+
+@export
+enum Result : uint32_t {
+    OK,                     // Success
+    INVALID_PARAMS,         // Invalid parameters
+    INVALID_OPERATION,      // Invalid operation
+    INVALID_OBJECT,         // Invalid object
+    INVALID_STATE,          // Invalid state
+    RETRY,                  // Retry
+    BUSY,                   // Device busy
+    END_OF_STREAM,          // End of stream
+    IO_ERROR,               // Io error
+    WOULD_BLOCK,            // Blocking error
+    NOT_SUPPORTED,          // Not supported
+    UNKNOWN_ERROR,          // Unknown error
+};
+
+/**
+ * AvSyncHwId
+ */
+typedef uint32_t AvSyncHwId;
+
+@export
+enum MediaTimeType : uint32_t {
+    MEDIA_TIME_TYPE_VIDEO,
+    MEDIA_TIME_TYPE_AUDIO,
+    MEDIA_TIME_TYPE_PCR,
+    MEDIA_TIME_TYPE_STC,
+};
+
+@export
+enum TimeUnit : uint32_t {
+    TIME_UNIT_MS,
+    TIME_UNIT_US,
+    TIME_UNIT_PTS,
+};
