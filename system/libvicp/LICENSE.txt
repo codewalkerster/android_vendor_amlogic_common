@@ -1,7 +1,5 @@
 // Copyright (C) 2015 Amlogic, Inc. All rights reserved.
 //
-// All information contained herein is Amlogic confidential.
-//
 // This software is provided to you pursuant to Software License
 // Agreement (SLA) with Amlogic Inc ("Amlogic"). This software may be
 // used only in accordance with the terms of this agreement.
