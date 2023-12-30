@@ -132,7 +132,10 @@ PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/multi_wifi/config/wpa_s
 
 PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/multi_wifi/config/p2p_supplicant.conf:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/p2p_supplicant.conf
 
-PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/w2/aml_comm_diag:$(TARGET_COPY_OUT_VENDOR)/xbin/aml_comm_diag
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/aml_tools/aml_comm_diag:$(TARGET_COPY_OUT_VENDOR)/xbin/aml_comm_diag
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/aml_tools/parse_trace_msg.sh:$(TARGET_COPY_OUT_VENDOR)/xbin/parse_trace_msg.sh
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/aml_tools/lspci:$(TARGET_COPY_OUT_VENDOR)/xbin/lspci2
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/aml_tools/iwpriv:$(TARGET_COPY_OUT_VENDOR)/xbin/iwpriv
 
 ifneq ($(filter ap6181,$(WIFI_MODULES)),)
 PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/bcm_ampak/config/AP6181/Wi-Fi/fw_bcm40181a2.bin:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/40181/fw_bcm40181a2.bin
@@ -326,6 +329,21 @@ PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.asm,common/driver_modules/
 PRODUCT_COPY_FILES += $(call find-copy-subdir-files,aml_comm_diag,common/driver_modules/wifi_bt/wifi/amlogic/w2/common,$(TARGET_COPY_OUT_VENDOR)/xbin/)
 endif
 PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/w2/lspci:$(TARGET_COPY_OUT_VENDOR)/xbin/lspci2
+endif
+
+ifneq ($(filter w2l,$(WIFI_MODULES)),)
+ifeq (,$(wildcard common/driver_modules/wifi_bt/wifi/amlogic/wifi_comm/w2l/common))
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.txt,vendor/amlogic/common/wifi_bt/wifi/w2l,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/w2l/)
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.bin,vendor/amlogic/common/wifi_bt/wifi/w2l,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/w2l/)
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.ini,vendor/amlogic/common/wifi_bt/wifi/w2l,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/w2l/)
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.asm,vendor/amlogic/common/wifi_bt/wifi/w2l,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/w2l/)
+else
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.txt,common/driver_modules/wifi_bt/wifi/amlogic/wifi_comm/w2l/common,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/w2l/)
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.bin,common/driver_modules/wifi_bt/wifi/amlogic/wifi_comm/w2l/common,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/w2l/)
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.ini,common/driver_modules/wifi_bt/wifi/amlogic/wifi_comm/w2l/common,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/w2l/)
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.asm,common/driver_modules/wifi_bt/wifi/amlogic/wifi_comm/w2l/common,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/w2l/)
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.pm,common/driver_modules/wifi_bt/wifi/amlogic/w2l/common,$(TARGET_COPY_OUT_VENDOR)/xbin/)
+endif
 endif
 
 ifneq ($(filter sd8987,$(WIFI_MODULES)),)
