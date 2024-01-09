@@ -235,6 +235,15 @@ PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/bcm_ampak/config/AP6275
 
 endif
 
+ifneq ($(filter ap6276s,$(WIFI_MODULES)),)
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/bcm_ampak/config/AP6276S/Wi-Fi/fw_syn43756b0_sdio.bin:$(TARGET_COPY_OUT_VENDOR)/lib/firmware/ap6276s/fw_syn43756b0_sdio.bin
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/bcm_ampak/config/AP6276S/Wi-Fi/clm_syn43756b0.blob:$(TARGET_COPY_OUT_VENDOR)/lib/firmware/ap6276s/clm_syn43756b0.blob
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/bcm_ampak/config/AP6276S/Wi-Fi/nvram_ap6276s.txt:$(TARGET_COPY_OUT_VENDOR)/lib/firmware/ap6276s/nvram_ap6276s.txt
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/bcm_ampak/config/AP6276S/Wi-Fi/fw_syn43756b0_sdio.bin:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/ap6276s/fw_syn43756b0_sdio.bin
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/bcm_ampak/config/AP6276S/Wi-Fi/clm_syn43756b0.blob:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/ap6276s/clm_syn43756b0.blob
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/bcm_ampak/config/AP6276S/Wi-Fi/nvram_ap6276s.txt:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/ap6276s/nvram_ap6276s.txt
+endif
+
 ifneq ($(filter bcm43458_s,$(WIFI_MODULES)),)
 PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/bcm_ampak/config/43458/fw_bcm43455c0_ag.bin:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/43458/fw_bcm43455c0_ag.bin
 PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/bcm_ampak/config/43458/fw_bcm43455c0_ag_apsta.bin:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/43458/fw_bcm43455c0_ag_apsta.bin

@@ -144,6 +144,7 @@ static const dongle_info dongle_registerd[]={\
     {"0000","449d","dhdpci","/vendor/lib/modules/dhdpci.ko","firmware_path=../../etc/wifi/43752a2/fw_bcm43752a2_pcie_ag.bin nvram_path=../../etc/wifi/43752a2/nvram_ap6275p.txt",no_base,"bcm43752a2p",0x0,"/vendor/etc/wifi/43752a2/fw_bcm43752a2_pcie_ag"},\
     {"0000","4475","dhdpci","/vendor/lib/modules/dhdpci.ko","firmware_path=../../etc/wifi/43752a2/fw_bcm4375b4_pcie_ag.bin nvram_path=../../etc/wifi/43752a2/nvram_ap6275hh3.txt",no_base,"bcm43752a2p",0x0,"/vendor/etc/wifi/43752a2/fw_bcm4375b4_pcie_ag"},\
     {"aae8","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=../../etc/wifi/43752a2/fw_bcm43752a2_ag.bin nvram_path=../../etc/wifi/43752a2/nvram_ap6275s.txt",no_base,"bcm43752a2s",0x0,"/vendor/etc/wifi/43752a2/fw_bcm43752a2_ag"},\
+    {"aaec","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=../..etc/wifi/ap6276s/fw_syn43756b0_sdio.bin nvram_path=../../etc/wifi/ap6276s/nvram_ap6276s.txt",no_base,"bcm43756b0",0x0,"/vendor/etc/wifi/ap6276s/fw_syn43756b0_sdio"},\
     {"0000","1101","wlan","/vendor/lib/modules/wlan_6391.ko","",qca6391_base,"qca6391",0x0,""},\
     {"0000","1103","wlan","/vendor/lib/modules/wlan_206x.ko","",qca206x_base,"qca206x",0x0,""},\
     {"0000","8852","8852ae","/vendor/lib/modules/8852ae.ko","ifname=wlan0 if2name=p2p0",rtl8852be_base,"rtl8852ae",0x0,""},\
