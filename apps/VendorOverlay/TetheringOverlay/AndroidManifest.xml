@@ -17,11 +17,13 @@
     package="com.android.networkstack.tethering.droidlogic"
     android:versionCode="1"
     android:versionName="1.0" >
+
     <application android:hasCode="false" />
 
     <overlay
         android:targetPackage="com.android.networkstack.tethering"
         android:targetName="TetheringConfig"
-        android:priority="1"
+        android:priority="0"
         android:isStatic="true"/>
+
 </manifest>
