@@ -2525,7 +2525,7 @@ void DisplayMode::enableDolbyVision(int DvMode) {
     getHdrStrategy(hdr_policy);
 
     if ((DISPLAY_TYPE_MBOX == mDisplayType) || (DISPLAY_TYPE_REPEATER == mDisplayType)) {
-        if (isTvSupportDolbyVision(tvmode) && (mHdmidata.hdr_priority == DOLBY_VISION_PRIORITY)) {
+        if (isTvSupportDolbyVision(tvmode)) {
             SYS_LOGI("Tv is Support DolbyVision, tvmode is [%s]", tvmode);
 
             switch (DvMode) {
