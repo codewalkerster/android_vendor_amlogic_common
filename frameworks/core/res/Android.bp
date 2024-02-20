@@ -29,7 +29,6 @@ android_library {
     name: "droidlogic-res-lib",
     srcs: [
         "**/*.java",
-        "src/com/droidlogic/audioservice/services/IAudioSystemCmdService.aidl",
         "src/com/droidlogic/audioservice/services/IAudioEffectsService.aidl",
     ],
 

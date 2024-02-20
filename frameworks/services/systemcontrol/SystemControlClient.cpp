@@ -26,6 +26,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <sys/types.h>
+#include <dlfcn.h>
 #include <android-base/logging.h>
 
 #include <SystemControlClient.h>
@@ -1758,18 +1759,32 @@ Return<void> SystemControlClient::SystemControlHidlCallback::notifyHdrInfoChange
     return Void();
 }
 
+static void *g_hLibamlhalcore = NULL;
 int SystemControlClient::setAudioParam(int param1, int param2, int param3, int param4) {
-    int32_t result = -1;
-    Return<void> ret= mSysCtrl->setAudioParam(param1, param2, param3, param4, [&result](const Result &ret, const int32_t& v) {
-        if (Result::OK == ret) {
-            result = v;
+    typedef int (*setAudioParamsFunc)(int, int, int, int);
+    ALOGV("[%s:%d] %d,  %d,  %d,  %d", __func__, __LINE__, param1, param2, param3, param4);
+    if (g_hLibamlhalcore == NULL) {
+        g_hLibamlhalcore = dlopen("/vendor/lib/libdroidaudioclient.so", /*RTLD_NOW | RTLD_GLOBAL | */RTLD_LAZY);
+        if (g_hLibamlhalcore == NULL) {
+            ALOGW("[%s:%d] dlopen vendor libdroidaudioclient fail:%s, errno:%s", __func__, __LINE__, dlerror(), strerror(errno));
+            g_hLibamlhalcore = dlopen("/system_ext/lib/libdroidaudioclient.so", RTLD_LAZY);
+            if (g_hLibamlhalcore == NULL) {
+                ALOGE("[%s:%d] dlopen system libdroidaudioclient fail:%s", __func__, __LINE__, dlerror());
+                return -1;
+            } else {
+                ALOGI("[%s:%d] dlopen /system_ext/lib/libdroidaudioclient.so success", __func__, __LINE__);
+            }
+        } else {
+            ALOGI("[%s:%d] dlopen /vendor/lib/libdroidaudioclient.so success", __func__, __LINE__);
         }
-    });
-    if (!ret.isOk()) {
-        ALOGI("%s: hidl calls fails", __FUNCTION__);
+    }
+    static setAudioParamsFunc pfnsetAudioParams = (int (*)(int, int, int, int))dlsym(g_hLibamlhalcore, "setAudioParams");
+    if (pfnsetAudioParams == NULL) {
+        ALOGE("[%s:%d] dlsym fail:%s", __func__, __LINE__, strerror(errno));
         return -1;
     }
-    return result;
+    pfnsetAudioParams(param1, param2, param3, param4);
+    return 0;
 }
 
 Return<void> SystemControlClient::SystemControlHidlCallback::notifyAudioCallback(int param1, int param2, int param3, int param4) {

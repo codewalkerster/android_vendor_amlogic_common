@@ -1,0 +1,150 @@
+/*
+ * Copyright (C) 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#pragma once
+
+#include <thread>
+
+#include <system/audio.h>
+#include <system/audio_policy.h>
+#include <media/AudioSystem.h>
+
+using namespace std;
+using namespace android;
+
+//it is used to save the any patch information<DemuxId/AudioFormat/AudioPid/OpenStatus/StartStatus/MuteStatus>
+struct DroidAudioDemux {
+    DroidAudioDemux() : mAudioFormat(0), mAudioPid(0), mOpenStatus(0), mStartStatus(0), mMuteStatus(0), mVolume(0) {}
+    int     mAudioFormat;
+    int     mAudioPid;
+    int     mOpenStatus;
+    int     mStartStatus;
+    int     mMuteStatus;
+    int     mVolume;
+};
+
+class DroidAudioConfigSetting {
+
+public:
+    friend class DroidAudioAudioPortCallback;
+    friend class DroidAudioVolumeGroupCallback;
+
+    static DroidAudioConfigSetting* instance();
+    int32_t init();
+    int32_t setAudioCmdParam(int32_t cmd, int32_t param1, int32_t param2, int32_t param3);
+    int32_t setOutputDevices(const vector<int32_t>& devices);
+    int32_t getOutputDevices(vector<int32_t>* devices);
+    int32_t setCoexistSpdifOther(bool enable);
+    int32_t setMusicStreamVolume(int32_t index);
+    int32_t dump(int fd, const char **args, uint32_t numArgs);
+
+private:
+    void findAudioSinkFromAudioPolicy(vector<audio_port_v7>& sinks);
+    int32_t findAudioDevicePort(audio_devices_t type, audio_port_v7& port);
+    void handleAudioSinkUpdatedRunnable();
+    void setAudioPortSourceGain();
+    int32_t updateAudioPatch();
+    int32_t recreateAudioPatch();
+    void reStartAdecDecoderIfPossible();
+    void handleDispatchAudioRoutesChanged();
+    void releaseTvTunerAudioPatch();
+    void updateCoexistSpdifOther();
+    void handleVolumeChange(volume_group_t group);
+
+    DroidAudioConfigSetting();
+    virtual ~DroidAudioConfigSetting();
+
+
+    bool                            mInitStatus;
+    volume_group_t                  mMusicVolumeGroupId;
+    map<int, DroidAudioDemux>       mDemuxs;
+
+    int32_t                         mCurrentFmt;
+    int32_t                         mCurrentHasDtvVideo;
+    int32_t                         mDtvDemuxIdCurrentWork;
+    bool                            mHasReceivedStartDecoderCmd;
+    bool                            mHasOpenedDecoder;
+    bool                            mMixAdSupported;
+    bool                            mNotImptTvHardwareInputService;
+    bool                            mForceManagePatch;
+
+    audio_patch*                    mpAudioPatch;
+    bool                            mExitProcThread;
+    std::thread                     mProcThread;
+    std::mutex                      mThreadMutex;
+    std::condition_variable         mThreadCnd;
+
+    std::mutex                      mMutex;
+    std::mutex                      mDemuxMutex;
+
+};
+
+inline DroidAudioConfigSetting* DroidAudioConfigSetting::instance() {
+    static DroidAudioConfigSetting instance;
+    return &instance;
+}
+
+class DroidAudioAudioPortCallback: public AudioSystem::AudioPortCallback {
+public:
+    DroidAudioAudioPortCallback(DroidAudioConfigSetting* proc) {
+        mDroidAudioConfigSetting = proc;
+    }
+private:
+    virtual void onAudioPortListUpdate() override {
+        ALOGV("...");
+        onProcessDtvAudio();
+    }
+    virtual void onAudioPatchListUpdate() override {
+        ALOGV("...");
+        onProcessDtvAudio();
+    }
+
+    void onProcessDtvAudio() {
+        if (mDroidAudioConfigSetting->mNotImptTvHardwareInputService) {
+            mDroidAudioConfigSetting->handleAudioSinkUpdatedRunnable();
+        } else {
+            // handleDispatchAudioRoutesChanged
+            mDroidAudioConfigSetting->mThreadCnd.notify_one();
+        }
+    }
+
+    virtual void onServiceDied() override {
+        AM_LOGW("audioserver died...");
+        if (AudioSystem::addAudioPortCallback(this) != NO_ERROR) {
+            AM_LOGW("addAudioPortCallback failed");
+        }
+    }
+    DroidAudioConfigSetting* mDroidAudioConfigSetting;
+};
+
+class DroidAudioVolumeGroupCallback: public AudioSystem::AudioVolumeGroupCallback {
+public:
+        DroidAudioVolumeGroupCallback(DroidAudioConfigSetting* proc) {
+            mDroidAudioConfigSetting = proc;
+        }
+private:
+    void onAudioVolumeGroupChanged(volume_group_t group, int flags __unused) override {
+        mDroidAudioConfigSetting->handleVolumeChange(group);
+    }
+    virtual void onServiceDied() override {
+        AM_LOGW("audioserver died...");
+        if (AudioSystem::addAudioVolumeGroupCallback(this) != NO_ERROR) {
+            AM_LOGW("addAudioVolumeGroupCallback failed");
+        }
+    }
+    DroidAudioConfigSetting* mDroidAudioConfigSetting;
+};
+

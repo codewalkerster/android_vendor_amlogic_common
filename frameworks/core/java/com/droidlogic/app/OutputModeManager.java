@@ -35,9 +35,7 @@ import android.content.Intent;
 import android.hardware.hdmi.HdmiControlManager;
 import android.os.SystemProperties;
 import android.os.UserHandle;
-import android.provider.Settings;
 import android.util.Log;
-import android.media.AudioManager;
 import android.media.AudioFormat;
 import android.media.AudioTrack;
 import android.media.audiofx.AudioEffect;
@@ -153,61 +151,6 @@ public class OutputModeManager {
     private static final int DV_ENABLE            = 1;
     private static final int DV_DISABLE           = 0;
 
-    private static final String PARA_AUDIO_DOLBY_MS12       = "dolby_ms12_enable";
-    private static final String PARA_AUDIO_DOLBY_MS12_ENABLE= "dolby_ms12_enable=1";
-
-    public static final String DIGITAL_AUDIO_FORMAT                     = "digital_audio_format";
-    public static final String DIGITAL_AUDIO_SUBFORMAT                  = "digital_audio_subformat";
-    public static final String PARAM_HAL_AUDIO_OUTPUT_FORMAT_PCM        = "hdmi_format=0";
-    public static final String PARAM_HAL_AUDIO_OUTPUT_FORMAT_AUTO       = "hdmi_format=5";
-    public static final String PARAM_HAL_AUDIO_OUTPUT_FORMAT_PASSTHROUGH= "hdmi_format=6";
-
-    public static final int DIGITAL_AUDIO_FORMAT_PCM                    = 0;
-    public static final int DIGITAL_AUDIO_FORMAT_AUTO                   = 1;
-    public static final int DIGITAL_AUDIO_FORMAT_MANUAL                 = 2;
-    public static final int DIGITAL_AUDIO_FORMAT_PASSTHROUGH            = 3;
-
-    // DD/DD+/DTS
-    public static final String DIGITAL_AUDIO_SUBFORMAT_SPDIF            = "5,6,7";
-
-    private static final String NRDP_EXTERNAL_SURROUND                  = "nrdp_external_surround_sound_enabled";
-    private static final int NRDP_ENABLE                                = 1;
-    private static final int NRDP_DISABLE                               = 0;
-
-    public static final String BOX_HDMI                                 = "box_hdmi";
-    public static final String PARA_BOX_HDMI_OFF                        = "Audio hdmi-out mute=1";
-    public static final String PARA_BOX_HDMI_ON                         = "Audio hdmi-out mute=0";
-    public static final int BOX_HDMI_OFF                                = 0;
-    public static final int BOX_HDMI_ON                                 = 1;
-
-    public static final String DB_ID_AUDIO_OUTPUT_DEVICE_ARC_ENABLE     = "db_id_audio_output_device_arc_enable";
-
-    public static final String TV_ARC_LATENCY                           = "tv_arc_latency";
-    public static final String PROPERTY_LOCAL_ARC_LATENCY               = "vendor.media.amnuplayer.audio.delayus";
-    public static final int TV_ARC_LATENCY_MIN                          = -200;
-    public static final int TV_ARC_LATENCY_MAX                          = 200;
-    public static final int TV_ARC_LATENCY_DEFAULT                      = -40;
-
-    public static final String VIRTUAL_SURROUND                         = "virtual_surround";
-    public static final String PARA_VIRTUAL_SURROUND_OFF                = "enable_virtual_surround=false";
-    public static final String PARA_VIRTUAL_SURROUND_ON                 = "enable_virtual_surround=true";
-    public static final int VIRTUAL_SURROUND_OFF                        = 0;
-    public static final int VIRTUAL_SURROUND_ON                         = 1;
-
-    public static final String DB_ID_SOUND_SPDIF_OUTPUT_ENABLE          = "db_id_sound_spdif_output_enable";
-    public static final String HAL_PARAM_SPDIF_OUTPUT_ENABLE            = "hal_param_spdif_output_enable=";
-
-    public static final String DB_ID_SOUND_AD_SWITCH                    = "ad_switch";
-    public static final String HAL_PARAM_AD_SWITCH                      = "ad_switch_enable=";
-
-    //surround sound formats, must sync with Settings.Global
-    public static final String ENCODED_SURROUND_OUTPUT                  = "encoded_surround_output";
-    public static final String ENCODED_SURROUND_OUTPUT_ENABLED_FORMATS  = "encoded_surround_output_enabled_formats";
-    public static final int ENCODED_SURROUND_OUTPUT_AUTO                = 0;
-    public static final int ENCODED_SURROUND_OUTPUT_NEVER               = 1;
-    public static final int ENCODED_SURROUND_OUTPUT_ALWAYS              = 2;
-    public static final int ENCODED_SURROUND_OUTPUT_MANUAL              = 3;
-
     public static final String DIGITAL_SOUND                = "digital_sound";
     public static final String PCM                          = "PCM";
     public static final String RAW                          = "RAW";
@@ -219,19 +162,9 @@ public class OutputModeManager {
     public static final int IS_SPDIF_RAW                    = 1;
     public static final int IS_HDMI_RAW                     = 2;
 
-    public static final String DRC_MODE                     = "drc_mode";
-    public static final String DTSDRC_MODE                  = "dtsdrc_mode";
-    public static final String CUSTOM_0_DRCMODE             = "0";
-    public static final String CUSTOM_1_DRCMODE             = "1";
-    public static final String LINE_DRCMODE                 = "2";
-    public static final String RF_DRCMODE                   = "3";
-    public static final String DEFAULT_DRCMODE              = LINE_DRCMODE;
     public static final String MIN_DRC_SCALE                = "0";
     public static final String MAX_DRC_SCALE                = "100";
     public static final String DEFAULT_DRC_SCALE            = MIN_DRC_SCALE;
-    public static final int IS_DRC_OFF                      = 0;
-    public static final int IS_DRC_LINE                     = 1;
-    public static final int IS_DRC_RF                       = 2;
 
     public static final String REAL_OUTPUT_SOC              = "meson8,meson8b,meson8m2,meson9b";
     public static final String UI_720P                      = "720p";
@@ -268,19 +201,6 @@ public class OutputModeManager {
     private static final String HDMI_OFFSET_DISABLE          = "0";
 
     private String DEFAULT_OUTPUT_MODE                      = "720p60hz";
-
-    //ac4 enhancer
-    public static final String AC4_DIALOGUE_ENHANCEMENT_VALUE   = "ac4_dialogue_enhancer_value";
-    public static final String DIALOGUE_ENHANCEMENT_SWITCH      = "dialogue_enhancement";
-
-    public static final int DIALOGUE_ENHANCEMENT_OFF       = 0;
-    public static final int DIALOGUE_ENHANCEMENT_LOW       = 4;
-    public static final int DIALOGUE_ENHANCEMENT_MEDIUM    = 8;
-    public static final int DIALOGUE_ENHANCEMENT_HIGH      = 12;
-
-    public static final String FORCE_DDP_SWITCH      = "force_ddp_enable";
-    public static final int FORCE_DDP_OFF   = 0;
-    public static final int FORCE_DDP_ON    = 1;
 
     //hdmi mode list
     public static final String[] HDMI_LIST = {
@@ -455,7 +375,6 @@ public class OutputModeManager {
     private SystemControlManager mSystemControl;
     private DolbyVisionSettingManager mDolbyVisionSettingManager;
     private static OutputModeManager mOutputModeManager = null;
-    private AudioManager mAudioManager;
     private HdmiTvClient mTvClient = null;
 
     public static OutputModeManager getInstance(Context context) {
@@ -474,7 +393,6 @@ public class OutputModeManager {
         mDolbyVisionSettingManager = new DolbyVisionSettingManager(mContext);
         mResolver = mContext.getContentResolver();
         currentOutputmode = getCurrentOutputMode();
-        mAudioManager = (AudioManager) context.getSystemService(context.AUDIO_SERVICE);
         HdmiControlManager mHdmiControlManager = (HdmiControlManager)mContext.getSystemService(Context.HDMI_CONTROL_SERVICE);
         if (mHdmiControlManager != null) {
             mTvClient = mHdmiControlManager.getTvClient();
@@ -852,11 +770,6 @@ public class OutputModeManager {
         return mSystemControl.getPrefHdmiDispMode();
     }
 
-
-    public boolean isAudioSupportMs12System() {
-        return mAudioManager.getParameters(PARA_AUDIO_DOLBY_MS12).contains(PARA_AUDIO_DOLBY_MS12_ENABLE);
-    }
-
     public String getSupportedResolution() {
         String curMode = getBootenv(ENV_HDMI_MODE, DEFAULT_OUTPUT_MODE);
 
@@ -1037,26 +950,6 @@ public class OutputModeManager {
         mSystemControl.setDigitalMode(mode);
     }
 
-    public void enableDobly_DRC (boolean enable) {
-        if (enable) {       //open DRC
-            writeSysfs(AUDIO_DSP_AC3_DRC, "drchighcutscale 0x64");
-            writeSysfs(AUDIO_DSP_AC3_DRC, "drclowboostscale 0x64");
-        } else {           //close DRC
-            writeSysfs(AUDIO_DSP_AC3_DRC, "drchighcutscale 0");
-            writeSysfs(AUDIO_DSP_AC3_DRC, "drclowboostscale 0");
-        }
-    }
-
-    public void setDoblyMode (String mode) {
-        //"CUSTOM_0","CUSTOM_1","LINE","RF"; default use "LINE"
-        int i = Integer.parseInt(mode);
-        if (i >= 0 && i <= 3) {
-            writeSysfs(AUDIO_DSP_AC3_DRC, "drcmode" + " " + mode);
-        } else {
-            writeSysfs(AUDIO_DSP_AC3_DRC, "drcmode" + " " + DEFAULT_DRCMODE);
-        }
-    }
-
     public void setDtsDrcScale (String drcscale) {
         //10 one step,100 highest; default use "0"
         int i = Integer.parseInt(drcscale);
@@ -1213,7 +1106,7 @@ public class OutputModeManager {
         */
     }
 
-    private boolean writeSysfs(String path, String value) {
+    public boolean writeSysfs(String path, String value) {
         if (isLogPrint(4))
             Log.i(TAG, "writeSysfs path:" + path + " value:" + value);
 
@@ -1240,191 +1133,4 @@ public class OutputModeManager {
         */
     }
 
-    public void saveDigitalAudioFormatToHal(int mode, String submode) {
-        boolean isTv = DroidLogicUtils.isTv();
-        int nrdpStatus = NRDP_DISABLE;
-        switch (mode) {
-            case DIGITAL_AUDIO_FORMAT_MANUAL:
-                if (isTv) {
-                    mode = DIGITAL_AUDIO_FORMAT_AUTO;
-                } else {
-                    Settings.Global.putString(mResolver, DIGITAL_AUDIO_SUBFORMAT, submode);
-                }
-                mAudioManager.setParameters(PARAM_HAL_AUDIO_OUTPUT_FORMAT_AUTO);
-                break;
-            case DIGITAL_AUDIO_FORMAT_AUTO:
-            case DIGITAL_AUDIO_FORMAT_PASSTHROUGH:
-                if (isTv && isAudioSupportMs12System()) {
-                    nrdpStatus = NRDP_ENABLE;
-                }
-                if (mode == DIGITAL_AUDIO_FORMAT_AUTO) {
-                    mAudioManager.setParameters(PARAM_HAL_AUDIO_OUTPUT_FORMAT_AUTO);
-                } else {
-                    mAudioManager.setParameters(PARAM_HAL_AUDIO_OUTPUT_FORMAT_PASSTHROUGH);
-                }
-                break;
-            case DIGITAL_AUDIO_FORMAT_PCM:
-            default:
-                mode = DIGITAL_AUDIO_FORMAT_PCM;
-                mAudioManager.setParameters(PARAM_HAL_AUDIO_OUTPUT_FORMAT_PCM);
-                break;
-        }
-        Settings.Global.putInt(mResolver, NRDP_EXTERNAL_SURROUND, nrdpStatus);
-        Settings.Global.putInt(mResolver, DIGITAL_AUDIO_FORMAT, mode);
-    }
-
-    public void saveDigitalAudioFormatToAndroid(int mode, String submode) {
-        String tmp;
-        // trigger AudioService retrieve support audio format value. Settings.Global.ENCODED_SURROUND_OUTPUT */
-        Settings.Global.putInt(mResolver, ENCODED_SURROUND_OUTPUT, -1);
-        int surround = -1;
-        switch (mode) {
-            case DIGITAL_AUDIO_FORMAT_MANUAL:
-                if (DroidLogicUtils.isTv()) {
-                    break;
-                }
-                /* Settings.Global.ENCODED_SURROUND_OUTPUT, Settings.Global.ENCODED_SURROUND_OUTPUT_MANUAL */
-                Settings.Global.putInt(mResolver, ENCODED_SURROUND_OUTPUT, ENCODED_SURROUND_OUTPUT_MANUAL);
-                tmp = Settings.Global.getString(mResolver, OutputModeManager.ENCODED_SURROUND_OUTPUT_ENABLED_FORMATS);
-                if (!submode.equals(tmp)) {
-                    Settings.Global.putString(mResolver, ENCODED_SURROUND_OUTPUT_ENABLED_FORMATS, submode);
-                }
-                break;
-            case DIGITAL_AUDIO_FORMAT_PASSTHROUGH:
-            case DIGITAL_AUDIO_FORMAT_AUTO:
-                /* Settings.Global.ENCODED_SURROUND_OUTPUT, Settings.Global.ENCODED_SURROUND_OUTPUT_AUTO */
-                Settings.Global.putInt(mResolver, ENCODED_SURROUND_OUTPUT, ENCODED_SURROUND_OUTPUT_AUTO);
-                break;
-            case DIGITAL_AUDIO_FORMAT_PCM:
-            default:
-                /* Settings.Global.ENCODED_SURROUND_OUTPUT, Settings.Global.ENCODED_SURROUND_OUTPUT_NEVER */
-                Settings.Global.putInt(mResolver, ENCODED_SURROUND_OUTPUT, ENCODED_SURROUND_OUTPUT_NEVER);
-                break;
-        }
-    }
-
-    public void setDigitalAudioFormatOut(int mode) {
-        setDigitalAudioFormatOut(mode, "");
-    }
-
-    public void setDigitalAudioFormatOut(int mode, String submode) {
-        Log.d(TAG, "setDigitalAudioFormatOut mode:" + mode + ", submode:" + submode);
-        if (DIGITAL_AUDIO_FORMAT_MANUAL == mode && submode == null) {
-            submode = "";
-            Log.i(TAG, "setDigitalAudioFormatOut manual mode, submode is null.");
-        }
-        saveDigitalAudioFormatToHal(mode, submode);
-        saveDigitalAudioFormatToAndroid(mode, submode);
-    }
-
-    public int getDigitalAudioFormatOut() {
-        return Settings.Global.getInt(mResolver, DIGITAL_AUDIO_FORMAT, DIGITAL_AUDIO_FORMAT_AUTO);
-    }
-
-    private final SelectCallback mSelectCallback = new SelectCallback() {
-        @Override
-        public void onComplete(int result) {
-            Log.d(TAG, "setSystemAudioMode onComplete result:" + result);
-        }
-    };
-
-    public void setARCLatency(int value) {
-        if (value > TV_ARC_LATENCY_MAX)
-            value = TV_ARC_LATENCY_MAX;
-        else if (value < TV_ARC_LATENCY_MIN)
-            value = TV_ARC_LATENCY_MIN;
-        mSystemControl.setProperty(PROPERTY_LOCAL_ARC_LATENCY, ""+(value*1000));
-    }
-
-    public void setVirtualSurround (int value) {
-        if (value == VIRTUAL_SURROUND_ON) {
-            mAudioManager.setParameters(PARA_VIRTUAL_SURROUND_ON);
-        } else {
-            mAudioManager.setParameters(PARA_VIRTUAL_SURROUND_OFF);
-        }
-    }
-
-    public void setAc4DialogEnhancer(int newVal) {
-        Log.d(TAG, "setAc4DialogEnhancer: " + newVal);
-        switch (newVal) {
-            case DIALOGUE_ENHANCEMENT_OFF:
-                Settings.Global.putInt(mResolver, DIALOGUE_ENHANCEMENT_SWITCH, 0);
-                mAudioManager.setParameters("dialogue_enhancement=0");
-                break;
-            case DIALOGUE_ENHANCEMENT_LOW:
-                Settings.Global.putInt(mResolver, DIALOGUE_ENHANCEMENT_SWITCH, 4);
-                mAudioManager.setParameters("dialogue_enhancement=4");
-                break;
-            case DIALOGUE_ENHANCEMENT_MEDIUM:
-                Settings.Global.putInt(mResolver, DIALOGUE_ENHANCEMENT_SWITCH, 8);
-                mAudioManager.setParameters("dialogue_enhancement=8");
-                break;
-            case DIALOGUE_ENHANCEMENT_HIGH:
-                Settings.Global.putInt(mResolver, DIALOGUE_ENHANCEMENT_SWITCH, 12);
-                mAudioManager.setParameters("dialogue_enhancement=12");
-                break;
-        }
-    }
-
-
-    public void setForceDDPEnable(boolean newVal) {
-        Log.d(TAG, "setForceDDPEnable: " + newVal);
-        if (newVal) {
-           Settings.Global.putInt(mResolver, FORCE_DDP_SWITCH, FORCE_DDP_ON);
-           mAudioManager.setParameters("hal_param_force_ddp=1");
-        } else {
-           Settings.Global.putInt(mResolver, FORCE_DDP_SWITCH, FORCE_DDP_OFF);
-           mAudioManager.setParameters("hal_param_force_ddp=0");
-        }
-    }
-
-    public int getAc4DialogEnhancer() {
-        return Settings.Global.getInt(mResolver, DIALOGUE_ENHANCEMENT_SWITCH, DIALOGUE_ENHANCEMENT_OFF);
-    }
-
-    public boolean getForceDDPEnable() {
-        return Settings.Global.getInt(mResolver, FORCE_DDP_SWITCH,
-                FORCE_DDP_OFF) == FORCE_DDP_ON;
-    }
-
-
-    public void setSoundSpdifEnable(boolean enable) {
-        Settings.Global.putInt(mResolver, DB_ID_SOUND_SPDIF_OUTPUT_ENABLE, enable ? 1 : 0);
-        mAudioManager.setParameters(HAL_PARAM_SPDIF_OUTPUT_ENABLE + (enable ? 1 : 0));
-    }
-
-    public boolean getSoundSpdifEnable() {
-        return Settings.Global.getInt(mResolver, DB_ID_SOUND_SPDIF_OUTPUT_ENABLE, 1) != 0;
-    }
-
-    public void setAdSupportEnable(boolean newVal) {
-        DataProviderManager.putIntValue(mContext, DB_ID_SOUND_AD_SWITCH, newVal ? 1 : 0);
-        mAudioManager.setParameters(HAL_PARAM_AD_SWITCH + (newVal ? 1 : 0));
-    }
-
-    public boolean getAdSupportEnable() {
-        DataProviderManager.getIntValue(mContext, DB_ID_SOUND_AD_SWITCH, 0) ;
-        return DataProviderManager.getIntValue(mContext, DB_ID_SOUND_AD_SWITCH, 0) != 0;
-    }
-
-    public void initSoundParametersAfterBoot() {
-        if (DroidLogicUtils.isTv()) {
-            Log.d(TAG, "initSoundParametersAfterBoot start");
-            //Settings.Global.putInt(mContext.getContentResolver(), DB_ID_AUDIO_OUTPUT_DEVICE_ARC_ENABLE, 0);
-            final int virtualsurround = Settings.Global.getInt(mResolver, VIRTUAL_SURROUND, VIRTUAL_SURROUND_OFF);
-            setVirtualSurround(virtualsurround);
-        }
-        setSoundSpdifEnable(getSoundSpdifEnable());
-        setAdSupportEnable(getAdSupportEnable());
-        setAc4DialogEnhancer(getAc4DialogEnhancer());
-        setForceDDPEnable(getForceDDPEnable());
-        AudioConfigManager.getInstance(mContext).initAudioConfigSettings();
-    }
-
-    public void resetSoundParameters() {
-        if (DroidLogicUtils.isTv()) {
-            setVirtualSurround(VIRTUAL_SURROUND_OFF);
-        }
-    }
 }
-

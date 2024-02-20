@@ -40,22 +40,4 @@ public class DroidLogicUtils {
     public static boolean isBuildLivetv() {
         return getSystemControlManager().getPropertyBoolean("ro.vendor.platform.build.livetv", false);
     }
-
-    public static String audioFormatOutputToString(int value) {
-        String temp = "["+value+"]";
-        switch (value) {
-            case OutputModeManager.DIGITAL_AUDIO_FORMAT_PCM:
-                return temp + "FORMAT_PCM";
-            case OutputModeManager.DIGITAL_AUDIO_FORMAT_AUTO:
-                return temp + "FORMAT_AUTO";
-            case OutputModeManager.DIGITAL_AUDIO_FORMAT_MANUAL:
-                return temp + "FORMAT_MANUAL";
-            case OutputModeManager.DIGITAL_AUDIO_FORMAT_PASSTHROUGH:
-                return temp + "FORMAT_PASSTHROUGH";
-            default:
-                return temp + "INVALID_VALUE";
-        }
-    }
-
-
 }

@@ -25,31 +25,32 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.provider.Settings;
 import android.text.TextUtils;
-
-import com.droidlogic.app.AudioSettingManager;
-import com.droidlogic.app.AudioSystemCmdManager;
+import com.droidlogic.app.DroidAudioCore;
 import com.droidlogic.app.DroidLogicUtils;
 import com.droidlogic.app.OutputModeManager;
 import com.droidlogic.app.SystemControlEvent;
 import com.droidlogic.app.SystemControlManager;
 import android.content.pm.PackageManager;
 import com.droidlogic.btpair.BluetoothAutoPairReceiver;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Looper;
+import android.os.RemoteException;
+import android.os.ServiceManager;
+
 
 public class DroidlogicApplication extends Application {
     private static final String TAG = "DroidlogicApplication";
-    private AudioSettingManager mAudioSettingManager;
     private SystemControlEvent mSystemControlEvent;
     private SystemControlManager mSystemControlManager;
     private PowerManager.WakeLock mWakeLock;
-    public static final String DRC_OFF = "off";
-    public static final String DRC_LINE = "line";
-    public static final String DRC_RF = "rf";
+    DroidAudioCore mDroidAudioCore;
 
     @Override
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate");
-        mAudioSettingManager = AudioSettingManager.getInstance(this);
+        mDroidAudioCore = DroidAudioCore.getInstance(this);
         mHandler.sendEmptyMessage(MSG_CHECK_BOOTVIDEO_FINISHED);
         // Should not do in java
         //register system control callback
@@ -85,8 +86,11 @@ public class DroidlogicApplication extends Application {
             switch (msg.what) {
                 case MSG_CHECK_BOOTVIDEO_FINISHED:
                     if (isBootvideoStopped()) {
-                        Log.d(TAG, "bootvideo stopped, start initializing audio");
-                        initAudio();
+                        Log.d(TAG, "bootvideo stopped, start initializing AudioEffect");
+                        Intent intent = new Intent();
+                        intent.setComponent(new ComponentName("com.droidlogic", "com.droidlogic.audioservice.services.AudioEffectsService"));
+                        intent.setAction("com.droidlogic.audioservice.services.AudioEffectsService.STARTUP");
+                        startService(intent);
                     } else {
                         if (DroidLogicUtils.getAudioDebugEnable()) {
                             Log.d(TAG, "handleMessage sendEmptyMessageDelayed MSG_CHECK_BOOTVIDEO_FINISHED");
@@ -99,83 +103,6 @@ public class DroidlogicApplication extends Application {
             }
         }
     };
-
-    private void initAudio () {
-        startDroidLogicServices(AudioSystemCmdManager.SERVICE_PACKEGE_NANME, AudioSystemCmdManager.SERVICE_NANME);
-        startDroidLogicServices("com.droidlogic", "com.droidlogic.audioservice.services.AudioEffectsService");
-        mAudioSettingManager.registerSurroundObserver();
-        mAudioSettingManager.initSystemAudioSetting();
-        //set sound effect in com.droidlogic.tv.soundeffectsettings
-        //set dolby DRC
-        SystemControlManager mSystemControlManager = SystemControlManager.getInstance();
-        final boolean isSupportDolby = mSystemControlManager.getPropertyBoolean("ro.vendor.platform.support.dolby", false);
-        if (isSupportDolby) {
-            setDoblyMode(this);
-        }
-    }
-    private void setDoblyMode(final Context context) {
-         new Thread(new Runnable() {
-             @Override
-             public void run() {
-                 OutputModeManager mOutputModeManager = new OutputModeManager(context);
-                 String selection  = getDrcModePassthroughSetting();
-                 Log.i(TAG, "setDoblyMode selection  " + selection);
-                 if (null != mOutputModeManager) {
-                     switch (selection) {
-                     case DRC_OFF:
-                         mOutputModeManager.enableDobly_DRC(false);
-                         mOutputModeManager.setDoblyMode(OutputModeManager.LINE_DRCMODE);
-                         setDrcModePassthroughSetting(OutputModeManager.IS_DRC_OFF);
-                         break;
-                     case DRC_LINE:
-                         mOutputModeManager.enableDobly_DRC(true);
-                         mOutputModeManager.setDoblyMode(OutputModeManager.LINE_DRCMODE);
-                         setDrcModePassthroughSetting(OutputModeManager.IS_DRC_LINE);
-                         break;
-                     case DRC_RF:
-                         mOutputModeManager.enableDobly_DRC(false);
-                         mOutputModeManager.setDoblyMode(OutputModeManager.RF_DRCMODE);
-                         setDrcModePassthroughSetting(OutputModeManager.IS_DRC_RF);
-                         break;
-                     default:
-                         throw new IllegalArgumentException("Unknown drc mode pref value");
-                     }
-                 } else {
-                     Log.e(TAG, "setDoblyMode mOutputModeManager is null");
-                 }
-
-             }
-         }).start();
-     }
-    public void setDrcModePassthroughSetting(int newVal) {
-        Settings.Global.putInt(this.getContentResolver(),
-                OutputModeManager.DRC_MODE, newVal);
-    }
-    public String getDrcModePassthroughSetting() {
-    String isSupportDTVKIT = SystemControlManager.getInstance().getPropertyString("ro.vendor.platform.is.tv", "");
-    boolean tvflag = isSupportDTVKIT.equals("1");
-
-        int value;
-        value = Settings.Global.getInt(this.getContentResolver(),
-            OutputModeManager.DRC_MODE, OutputModeManager.IS_DRC_RF);
-        switch (value) {
-        case OutputModeManager.IS_DRC_OFF:
-            return DRC_OFF;
-        case OutputModeManager.IS_DRC_LINE:
-        default:
-            return DRC_LINE;
-        case OutputModeManager.IS_DRC_RF:
-            return DRC_RF;
-        }
-    }
-
-    private void startDroidLogicServices (String packageName, String name) {
-        Intent intent = new Intent();
-        intent.setComponent(new ComponentName(packageName, name));
-        intent.setAction(name + ".STARTUP");
-        startService(intent);
-        Log.i(TAG, "startDroidLogicServices startup service:" + name);
-    }
 
     private void DisableBtPairInstrumentation(Context context) {
         if (SystemProperties.get("sys.vendor.remote.type", "IR_NONE").contains("BT"))

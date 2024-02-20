@@ -1,0 +1,41 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "vendor_amlogic_common_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["vendor_amlogic_common_license"],
+}
+
+cc_library_shared {
+    name: "libdroidaudioclient",
+    system_ext_specific: true,
+    vendor_available: true,
+
+    srcs: [
+       "DroidAudioManager.cpp",
+    ],
+
+    shared_libs: [
+        "libcutils",
+        "libutils",
+        "libbase",
+        "liblog",
+        "libbinder_ndk",
+        "vendor.amlogic.hardware.droidaudio-V1-ndk",
+    ],
+    header_libs: [
+        "libhardware_headers",
+        "libaudioclient_headers",
+        "libaudio_system_headers",
+        "libutils_headers",
+        "libbinder_headers",
+    ],
+
+    include_dirs: [
+        "hardware/amlogic/audio/utils/include",
+        "vendor/amlogic/common/interfaces/droidaudio/default",
+    ],
+
+    cflags: ["-Wno-unused-variable"],
+}

@@ -40,10 +40,9 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
-import com.droidlogic.app.AudioSettingManager;
-import com.droidlogic.app.DroidLogicUtils;
-import com.droidlogic.app.OutputModeManager;
 import com.droidlogic.app.AudioEffectManager;
+import com.droidlogic.app.DroidAudioManager;
+import com.droidlogic.app.DroidLogicUtils;
 
 public class SoundEffectManager {
 
@@ -98,6 +97,8 @@ public class SoundEffectManager {
     public static final String DB_ID_SOUND_EFFECT_DAP_GEQ_BAND3                 = "db_id_sound_effect_dap_geq_band3";
     public static final String DB_ID_SOUND_EFFECT_DAP_GEQ_BAND4                 = "db_id_sound_effect_dap_geq_band4";
     public static final String DB_ID_SOUND_EFFECT_DAP_GEQ_BAND5                 = "db_id_sound_effect_dap_geq_band5";
+
+    public static final String DB_ID_SOUND_EFFECT_VIRTUAL_SURROUND              = "db_id_sound_effect_virtual_surround";
 
     /* [DAP 2.4] */
     public static final String DB_ID_SOUND_EFFECT_DAP_2_4_PROFILE                       = "db_id_sound_effect_dap_2_4_profile";
@@ -293,7 +294,7 @@ public class SoundEffectManager {
     private SoundEffectManager (Context context) {
         Log.d(TAG, "SoundEffectManager construction");
         mContext = context;
-        mSupportMs12Dap = OutputModeManager.getInstance(mContext).isAudioSupportMs12System();
+        mSupportMs12Dap = DroidAudioManager.getInstance(mContext).isAudioSupportMs12System();
     }
 
     public void createAudioEffects() {
@@ -878,7 +879,7 @@ public class SoundEffectManager {
                 Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND9, value);
                 break;
             case SET_VIRTUAL_SURROUND:
-                Settings.Global.putInt(mContext.getContentResolver(), OutputModeManager.VIRTUAL_SURROUND, value);
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_VIRTUAL_SURROUND, value);
                 break;
             case SET_VIRTUALX_MODE:
                 Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_VIRTUALX_MODE, value);
@@ -947,7 +948,7 @@ public class SoundEffectManager {
                 result = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND9, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND9]);
                 break;
             case SET_VIRTUAL_SURROUND:
-                result = Settings.Global.getInt(mContext.getContentResolver(), OutputModeManager.VIRTUAL_SURROUND, OutputModeManager.VIRTUAL_SURROUND_OFF);
+                result = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_VIRTUAL_SURROUND, AudioEffectManager.SOUND_EFFECT_VIRTUAL_SURROUND_OFF);
                 break;
             case SET_VIRTUALX_MODE:
                 result = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_VIRTUALX_MODE, AudioEffectManager.SOUND_EFFECT_VIRTUALX_MODE_DEFAULT);
@@ -1039,7 +1040,7 @@ public class SoundEffectManager {
         Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND8, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND8]);
         Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND9, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND9]);
         Settings.Global.putInt(mContext.getContentResolver(), "set_eq_band", 0);
-        Settings.Global.putInt(mContext.getContentResolver(), OutputModeManager.VIRTUAL_SURROUND, OutputModeManager.VIRTUAL_SURROUND_OFF);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_VIRTUAL_SURROUND, AudioEffectManager.SOUND_EFFECT_VIRTUAL_SURROUND_OFF);
         Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_VIRTUALX_MODE, AudioEffectManager.SOUND_EFFECT_VIRTUALX_MODE_DEFAULT);
         Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_TREVOLUME_HD, AudioEffectManager.SOUND_EFFECT_TRUVOLUME_HD_ENABLE_DEFAULT);
         initSoundEffectSettings();
@@ -3194,8 +3195,8 @@ public class SoundEffectManager {
                 value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_VIRTUAL_X_DEBUG, AudioEffectManager.DEBUG_UI_OFF);
                 break;
             case AudioEffectManager.DEBUG_DAP_2_UI:
-                AudioSettingManager audioSettingManager = AudioSettingManager.getInstance(mContext);
-                int defaultValue = audioSettingManager.isSoundBarModeEnabled() ? AudioEffectManager.DEBUG_UI_ON : AudioEffectManager.DEBUG_UI_OFF;
+                DroidAudioManager droidAudioManager = DroidAudioManager.getInstance(mContext);
+                int defaultValue = droidAudioManager.isSoundBarModeEnabled() ? AudioEffectManager.DEBUG_UI_ON : AudioEffectManager.DEBUG_UI_OFF;
                 value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DAP_2_DEBUG, defaultValue);
                 break;
             default:

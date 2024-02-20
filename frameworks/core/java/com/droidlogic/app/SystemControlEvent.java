@@ -20,6 +20,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 
 import com.droidlogic.app.OutputModeManager;
+import com.droidlogic.app.DroidAudioManager;
 import vendor.amlogic.hardware.systemcontrol.V1_0.ISystemControlCallback;
 
 //this event from native system control service
@@ -168,17 +169,19 @@ public class SystemControlEvent extends ISystemControlCallback.Stub {
 
     private void setAudioStateWhenDisplayModeChanged() {
         // get output size, if 480/576 then set audio param
-        OutputModeManager outModeManager = OutputModeManager.getInstance(mContext);
-        String strMode = outModeManager.getCurrentOutputMode();
+        DroidAudioManager droidAudioManager = DroidAudioManager.getInstance(mContext);
+        OutputModeManager outputModeManager = OutputModeManager.getInstance(mContext);
+
+        String strMode = outputModeManager.getCurrentOutputMode();
         boolean ddpEnable = false;
         if (strMode.contains("480p") || strMode.contains("576p")) {
             ddpEnable = true;
         }
         Log.i(TAG, "Cur output mode=" + strMode +
-            ", Prev DDP enable=" + outModeManager.getForceDDPEnable() +
+            ", Prev DDP enable=" + droidAudioManager.getForceDDPEnable() +
             ", need set DDP enable=" + ddpEnable);
-        if (outModeManager.getForceDDPEnable() != ddpEnable) {
-            outModeManager.setForceDDPEnable(ddpEnable);
+        if (droidAudioManager.getForceDDPEnable() != ddpEnable) {
+            droidAudioManager.setForceDDPEnable(ddpEnable);
         }
     }
 

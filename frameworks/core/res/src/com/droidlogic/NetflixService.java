@@ -57,8 +57,7 @@ import java.util.Scanner;
 import android.os.SystemProperties;
 import android.os.HandlerExecutor;
 
-
-
+import com.droidlogic.app.DroidAudioManager;
 import com.droidlogic.app.DroidLogicUtils;
 import com.droidlogic.app.SystemControlManager;
 import com.droidlogic.app.OutputModeManager;
@@ -117,6 +116,7 @@ public class NetflixService extends Service {
     private CecStatusObserver mCecStatusObserver;
     private HdrStatusObserver mHdrStatusObserver;
     private OutputModeManager mOutputModeManager = null;
+    private DroidAudioManager mDroidAudioManager = null;
     private final Object mLock = new Object();
     private IActivityManager mIActivityManager;
     private ProcessObserver mProcessObserver;
@@ -133,11 +133,11 @@ public class NetflixService extends Service {
 
         @Override
         public void onChange(boolean selfChange, Uri uri) {
-            int surround = mOutputModeManager.getDigitalAudioFormatOut();
-            Log.i(TAG, "onChange surround: " + DroidLogicUtils.audioFormatOutputToString(surround));
+            int surround = mDroidAudioManager.getDigitalAudioFormatOut();
+            Log.i(TAG, "onChange surround: " + DroidAudioManager.audioFormatOutputToString(surround));
             switch (surround) {
-                case OutputModeManager.DIGITAL_AUDIO_FORMAT_AUTO:
-                case OutputModeManager.DIGITAL_AUDIO_FORMAT_PASSTHROUGH:
+                case DroidAudioManager.DIGITAL_AUDIO_FORMAT_AUTO:
+                case DroidAudioManager.DIGITAL_AUDIO_FORMAT_PASSTHROUGH:
                     Log.i(TAG, "onChange auto/passthrough ATMOS: " + atmosSupported);
                     setNrdpCapabilitiesIfNeed(NRDP_AUDIO_PLATFORM_CAP, true);
                     setAtmosEnabled(atmosSupported);
@@ -145,15 +145,15 @@ public class NetflixService extends Service {
                         setUiAudioBufferDelayOffset(dolbySupported);
                     }
                     break;
-                case OutputModeManager.DIGITAL_AUDIO_FORMAT_MANUAL:
-                    String subformat = Settings.Global.getString(mContext.getContentResolver(), OutputModeManager.DIGITAL_AUDIO_SUBFORMAT);
+                case DroidAudioManager.DIGITAL_AUDIO_FORMAT_MANUAL:
+                    String subformat = Settings.Global.getString(mContext.getContentResolver(), DroidAudioManager.DIGITAL_AUDIO_SUBFORMAT);
                     Log.i(TAG, "onChange manual subformat: " + subformat);
                     setAtmosEnabled(subformat.contains(AudioFormat.ENCODING_E_AC3_JOC + ""));
                     if (hasMS12) {
                         setUiAudioBufferDelayOffset(dolbySupported);
                     }
                     break;
-                case OutputModeManager.DIGITAL_AUDIO_FORMAT_PCM:
+                case DroidAudioManager.DIGITAL_AUDIO_FORMAT_PCM:
                     if (hasMS12) {
                         setUiAudioBufferDelayOffset(false);
                     }
@@ -268,10 +268,11 @@ public class NetflixService extends Service {
         mSCM = SystemControlManager.getInstance();
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         mOutputModeManager = OutputModeManager.getInstance(mContext);
+        mDroidAudioManager = DroidAudioManager.getInstance(mContext);
         mHdmiControlManager = (HdmiControlManager)mContext.getSystemService(Context.HDMI_CONTROL_SERVICE);
         mDisplayManager = (DisplayManager)getSystemService(DisplayManager.class);
 
-        hasMS12 = mOutputModeManager.isAudioSupportMs12System();
+        hasMS12 = mDroidAudioManager.isAudioSupportMs12System();
         initNrdpCapabilities();
         atmosSupportedByConfig = isAtmosConfiged();
         Log.d(TAG, "atmosSupportedByConfig = " + atmosSupportedByConfig);
@@ -281,9 +282,9 @@ public class NetflixService extends Service {
 
         updateHdrSettings();
         mSettingsObserver = new SettingsObserver(new Handler());
-        getContentResolver().registerContentObserver(Settings.Global.getUriFor(OutputModeManager.DIGITAL_AUDIO_FORMAT),
+        getContentResolver().registerContentObserver(Settings.Global.getUriFor(DroidAudioManager.DIGITAL_AUDIO_FORMAT),
                 false, mSettingsObserver);
-        getContentResolver().registerContentObserver(Settings.Global.getUriFor(OutputModeManager.DIGITAL_AUDIO_SUBFORMAT),
+        getContentResolver().registerContentObserver(Settings.Global.getUriFor(DroidAudioManager.DIGITAL_AUDIO_SUBFORMAT),
                 false, mSettingsObserver);
         mCecStatusObserver = new CecStatusObserver(new Handler());
         getContentResolver().registerContentObserver(Settings.Global.getUriFor(NDRP_CEC_STATUS),
@@ -492,7 +493,7 @@ public class NetflixService extends Service {
         }
 
         if (capName.startsWith(NRDP_AUDIO_PLATFORM_CAP) && hasMS12 &&
-                mOutputModeManager.getDigitalAudioFormatOut() == OutputModeManager.DIGITAL_AUDIO_FORMAT_AUTO) {
+            mDroidAudioManager.getDigitalAudioFormatOut() == DroidAudioManager.DIGITAL_AUDIO_FORMAT_AUTO) {
             capName_File = NRDP_AUDIO_PLATFORM_CAP_MS12;
         }
 
@@ -592,9 +593,9 @@ public class NetflixService extends Service {
     }
     private void refreshAudioCapabilities(boolean init, boolean state) {
         boolean isTv = DroidLogicUtils.isTv();
-        int surround = mOutputModeManager.getDigitalAudioFormatOut();
+        int surround = mDroidAudioManager.getDigitalAudioFormatOut();
         Log.i(TAG, "onReceived HDMI_PLUGGED: " + state + ", isTv:" + isTv + ", surround:" +
-                DroidLogicUtils.audioFormatOutputToString(surround));
+                DroidAudioManager.audioFormatOutputToString(surround));
 
         String hdmiEncodings = mAudioManager.getParameters("hdmi_encodings");
 
@@ -606,8 +607,8 @@ public class NetflixService extends Service {
             setAtmosEnabled(state? atmosSupported : atmosSupportedByConfig);
             setUiAudioBufferDelayOffsetTv();
         } else {
-            if ((init || state) && (OutputModeManager.DIGITAL_AUDIO_FORMAT_AUTO == surround
-                || OutputModeManager.DIGITAL_AUDIO_FORMAT_PASSTHROUGH == surround) ) {
+            if ((init || state) && (DroidAudioManager.DIGITAL_AUDIO_FORMAT_AUTO == surround
+                || DroidAudioManager.DIGITAL_AUDIO_FORMAT_PASSTHROUGH == surround) ) {
                 setAtmosEnabled(atmosSupported);
                 if (hasMS12) {
                     setUiAudioBufferDelayOffset(dolbySupported);
@@ -698,7 +699,7 @@ public class NetflixService extends Service {
 
     private boolean isAtmosConfiged() {
         String capName_File = NRDP_AUDIO_PLATFORM_CAP;
-        if (hasMS12 && mOutputModeManager.getDigitalAudioFormatOut() == OutputModeManager.DIGITAL_AUDIO_FORMAT_AUTO) {
+        if (hasMS12 && mDroidAudioManager.getDigitalAudioFormatOut() == DroidAudioManager.DIGITAL_AUDIO_FORMAT_AUTO) {
             capName_File = NRDP_AUDIO_PLATFORM_CAP_MS12;
         }
 

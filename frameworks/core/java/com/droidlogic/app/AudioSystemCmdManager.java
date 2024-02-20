@@ -23,15 +23,15 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
-import com.droidlogic.audioservice.services.IAudioSystemCmdService;
+import android.media.AudioManager;
+
 
 public class AudioSystemCmdManager {
     private static final String TAG = "AudioSystemCmdManager";
-    public static final String SERVICE_PACKEGE_NANME = "com.droidlogic";
-    public static final String SERVICE_NANME = "com.droidlogic.audioservice.services.AudioSystemCmdService";
-    private IAudioSystemCmdService mAudioSystemCmdService = null;
     private Context mContext;
+    private AudioManager mAudioManager;
 
+    // These codes for compatibility with older Android versions of TvInput.
     public static final int AUDIO_SERVICE_CMD_START_DECODE                          = 1;
     public static final int AUDIO_SERVICE_CMD_PAUSE_DECODE                          = 2;
     public static final int AUDIO_SERVICE_CMD_RESUME_DECODE                         = 3;
@@ -48,8 +48,6 @@ public class AudioSystemCmdManager {
     public static final int AUDIO_SERVICE_CMD_SET_SECURITY_MEM_LEVEL                = 15;
     public static final int AUDIO_SERVICE_CMD_SET_HAS_VIDEO                         = 16;
     public static final int AUDIO_SERVICE_CMD_SET_MEDIA_SYCN_ID                     = 17;
-
-    //audio ad
     public static final int AUDIO_SERVICE_CMD_AD_SWITCH_ENABLE                      = 18;
     public static final int AUDIO_SERVICE_CMD_AD_SET_VOLUME                         = 19;
     public static final int AUDIO_SERVICE_CMD_AD_DUAL_SUPPORT                       = 20;
@@ -57,24 +55,14 @@ public class AudioSystemCmdManager {
     public static final int AUDIO_SERVICE_CMD_AD_MIX_LEVEL                          = 22;
     public static final int AUDIO_SERVICE_CMD_AD_SET_MAIN                           = 23;
     public static final int AUDIO_SERVICE_CMD_AD_SET_ASSOCIATE                      = 24;
-
     public static final int AUDIO_SERVICE_CMD_SET_MEDIA_PRESENTATION_ID             = 25;
     public static final int AUDIO_SERVICE_CMD_SET_AUDIO_PATCH_MANAGE_MODE           = 26;
     public static final int AUDIO_SERVICE_CMD_SET_SPDIF_PROTECTION_MODE             = 27;
     public static final int AUDIO_SERVICE_CMD_SET_TSPLAYER_CLIENT_DIED              = 28;
-
     public static final int AUDIO_SERVICE_CMD_SET_MEDIA_FIRST_LANG                  = 29;
     public static final int AUDIO_SERVICE_CMD_SET_MEDIA_SECOND_LANG                 = 30;
-
-    public static final String PROP_AUDIO_OUTPUT_STRATEGY                           = "persist.vendor.media.audio.output.strategy";
-    public static final String PROP_AUDIO_OUTPUT_SPDIF_COEXIST                      = "persist.vendor.media.audio.spdif.coexist";
-
-    /* 0: Auto  1: Semi-Auto  2: Manual (refer to: audio_output_strategy enum in Engine.cpp) */
-    public static final int OUTPUT_STRATEGY_AUTO                                    = 0;
-    public static final int OUTPUT_STRATEGY_SEMI_AUTO                               = 1;
-    public static final int OUTPUT_STRATEGY_MANUAL                                  = 2;
+    public static final int AUDIO_SERVICE_CMD_SET_AUDIO_PICTURE_MODE                = 31;
     private static AudioSystemCmdManager mInstance;
-
     public static AudioSystemCmdManager getInstance(Context context) {
         if (mInstance == null) {
             synchronized (AudioSystemCmdManager.class) {
@@ -88,222 +76,63 @@ public class AudioSystemCmdManager {
 
     private AudioSystemCmdManager(Context context) {
         mContext = context;
+        mAudioManager = (AudioManager) mContext.getSystemService(mContext.AUDIO_SERVICE);
         Log.i(TAG, "construction AudioSystemCmdManager");
-        getService();
     }
 
-    private void getService() {
-        Log.i(TAG, "=====[getService]");
-        int retry = 10;
-        boolean mIsBind = false;
-        try {
-            synchronized (this) {
-                while (true) {
-                    Intent intent = new Intent();
-                    intent.setAction(SERVICE_NANME);
-                    intent.setPackage(SERVICE_PACKEGE_NANME);
-                    mIsBind = mContext.bindService(intent, serConn, mContext.BIND_AUTO_CREATE);
-                    Log.i(TAG, "=====[getService] mIsBind: " + mIsBind + ", retry:" + retry);
-                    if (mIsBind || retry <= 0) {
-                        break;
-                    }
-                    retry --;
-                    Thread.sleep(500);
-                }
-            }
-        } catch (InterruptedException e){}
-    }
-
-    private ServiceConnection serConn = new ServiceConnection() {
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            Log.i(TAG, "[onServiceDisconnected] mAudioSystemCmdService: " + mAudioSystemCmdService);
-            mAudioSystemCmdService = null;
-
-        }
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            mAudioSystemCmdService = IAudioSystemCmdService.Stub.asInterface(service);
-            Log.i(TAG, "[onServiceConnected] mAudioSystemCmdService: " + mAudioSystemCmdService);
-        }
-    };
-
-    public void unBindService() {
-        mContext.unbindService(serConn);
-    }
-
-    public static String strategyToString(int strategy) {
-        switch (strategy) {
-            case AudioSystemCmdManager.OUTPUT_STRATEGY_AUTO:
-                return "Auto";
-            case AudioSystemCmdManager.OUTPUT_STRATEGY_SEMI_AUTO:
-                return "Semi-Auto";
-            case AudioSystemCmdManager.OUTPUT_STRATEGY_MANUAL:
-                return "Manual";
-            default:
-                Log.w(TAG, "strategyToString invalid strategy:" + strategy);
-                return "None";
-        }
-    }
-
-    public static String AudioCmdToString(int cmd) {
-        String temp = "["+cmd+"]";
-        switch (cmd) {
-            case AUDIO_SERVICE_CMD_START_DECODE:
-                return temp + "START_DECODE";
-            case AUDIO_SERVICE_CMD_PAUSE_DECODE:
-                return temp + "PAUSE_DECODE";
-            case AUDIO_SERVICE_CMD_RESUME_DECODE:
-                return temp + "RESUME_DECODE";
-            case AUDIO_SERVICE_CMD_STOP_DECODE:
-                return temp + "STOP_DECODE";
-            case AUDIO_SERVICE_CMD_SET_DECODE_AD:
-                return temp + "SET_DECODE_AD";
-            case AUDIO_SERVICE_CMD_SET_VOLUME:
-                return temp + "SET_VOLUME";
-            case AUDIO_SERVICE_CMD_SET_MUTE:
-                return temp + "SET_MUTE";
-            case AUDIO_SERVICE_CMD_SET_OUTPUT_MODE:
-                return temp + "SET_OUTPUT_MODE";
-            case AUDIO_SERVICE_CMD_SET_PRE_GAIN:
-                return temp + "SET_PRE_GAIN";
-            case AUDIO_SERVICE_CMD_SET_PRE_MUTE:
-                return temp + "SET_PRE_MUTE";
-            case AUDIO_SERVICE_CMD_OPEN_DECODER:
-                return temp + "OPEN_DECODER";
-            case AUDIO_SERVICE_CMD_CLOSE_DECODER:
-                return temp + "CLOSE_DECODER";
-            case AUDIO_SERVICE_CMD_SET_DEMUX_INFO:
-                return temp + "SET_DEMUX_INFO";
-            case AUDIO_SERVICE_CMD_SET_SECURITY_MEM_LEVEL:
-                return temp + "SET_SECURITY_MEM_LEVEL";
-
-            case AUDIO_SERVICE_CMD_AD_SWITCH_ENABLE:
-                return temp + "AD_SWITCH_ENABLE";
-            case AUDIO_SERVICE_CMD_AD_SET_VOLUME:
-                return temp + "AD_SET_VOLUME";
-            case AUDIO_SERVICE_CMD_AD_DUAL_SUPPORT:
-                return temp + "AD_DUAL_SUPPORT";
-            case AUDIO_SERVICE_CMD_AD_MIX_SUPPORT:
-                return temp + "AD_MIX_SUPPORT";
-            case AUDIO_SERVICE_CMD_AD_MIX_LEVEL:
-                return temp + "AD_MIX_LEVEL";
-            case AUDIO_SERVICE_CMD_AD_SET_MAIN:
-                return temp + "AD_SET_MAIN";
-            case AUDIO_SERVICE_CMD_AD_SET_ASSOCIATE:
-                return temp + "AD_SET_ASSOCIATE";
-            case AUDIO_SERVICE_CMD_SET_HAS_VIDEO:
-                return temp + "SET_HAS_VIDEO";
-            case AUDIO_SERVICE_CMD_SET_MEDIA_PRESENTATION_ID:
-                return temp + "SET_MEDIA_PRESENTATION_ID";
-            case AUDIO_SERVICE_CMD_SET_AUDIO_PATCH_MANAGE_MODE:
-                return temp + "SET_AUDIO_PATCH_MANAGE_MODE";
-            case AUDIO_SERVICE_CMD_SET_SPDIF_PROTECTION_MODE:
-                return temp + "SET_SPDIF_PROTECTION_MODE";
-            case AUDIO_SERVICE_CMD_SET_TSPLAYER_CLIENT_DIED:
-                return temp + "SET_TSPLAYER_CLIENT_DIED";
-            case AUDIO_SERVICE_CMD_SET_MEDIA_FIRST_LANG:
-                return temp + "SET_MEDIA_FIRST_LANG";
-            case AUDIO_SERVICE_CMD_SET_MEDIA_SECOND_LANG:
-                return temp + "SET_MEDIA_SECOND_LANG";
-            default:
-                return temp + "invalid cmd";
-        }
-    }
-
-    private boolean audioCmdServiceIsNull() {
-        if (mAudioSystemCmdService == null) {
-            Log.w(TAG, "mAudioSystemCmdService is null, pls check stack:");
-            Log.w(TAG, Log.getStackTraceString(new Throwable()));
-            return true;
-        } else {
-            return false;
-        }
-    }
-
+    /**
+     * These codes for compatibility with older Android versions of TvInput.
+     */
+    @Deprecated
     public void setParameters(String arg) {
-        if (audioCmdServiceIsNull()) return;
-        try {
-            mAudioSystemCmdService.setParameters(arg);
-        } catch (RemoteException e) {
-            Log.e(TAG, "setParameters failed:" + e);
-        }
+        mAudioManager.setParameters(arg);
     }
 
+    /**
+     * These codes for compatibility with older Android versions of TvInput.
+     */
+    @Deprecated
     public String getParameters(String arg) {
-        if (audioCmdServiceIsNull()) return "";
-        try {
-            return mAudioSystemCmdService.getParameters(arg);
-        } catch (RemoteException e) {
-            Log.e(TAG, "getParameters failed:" + e);
-            return "";
-        }
+        return mAudioManager.getParameters(arg);
     }
 
+    /**
+     * These codes for compatibility with older Android versions of TvInput.
+     */
+    @Deprecated
     public void handleAdtvAudioEvent(int cmd, int param1, int param2) {
-        if (audioCmdServiceIsNull()) return;
-        try {
-            mAudioSystemCmdService.handleAdtvAudioEvent(cmd, param1, param2);
-        } catch (RemoteException e) {
-            Log.e(TAG, "handleAdtvAudioEvent failed:" + e);
-        }
+        Log.d(TAG, "[Deprecated API] handleAdtvAudioEvent cmd:" + cmd + ", param1:" + param1 + ", param2:" + param2);
     }
 
+    /**
+     * These codes for compatibility with older Android versions of TvInput.
+     */
+    @Deprecated
     public void updateAudioPortGain(int sourceType) {
-        if (audioCmdServiceIsNull()) return;
-        try {
-            mAudioSystemCmdService.updateAudioPortGain(sourceType);
-        } catch (RemoteException e) {
-            Log.e(TAG, "updateAudioPortGain failed:" + e);
-        }
+        Log.d(TAG, "[Deprecated API] updateAudioPortGain sourceType:" + sourceType);
     }
 
+    /**
+     * These codes for compatibility with older Android versions of TvInput.
+     */
+    @Deprecated
     public void openTvAudio(int sourceType) {
-        if (audioCmdServiceIsNull()) return;
-        try {
-            mAudioSystemCmdService.openTvAudio(sourceType);
-        } catch (RemoteException e) {
-            Log.e(TAG, "openTvAudio failed:" + e);
+        Log.i(TAG, "[Deprecated API] openTvAudio set source type:" + sourceType);
+        //  Same as the contents of the DroidLogicTvUtils.java
+        if (sourceType == 0 /* SOURCE_TYPE_ATV */) {
+            mAudioManager.setParameters("hal_param_tuner_in=atv");
+        } else if (sourceType == 1 /* SOURCE_TYPE_DTV */) {
+            mAudioManager.setParameters("hal_param_tuner_in=dtv");
+        } else {
+            Log.w(TAG, "openTvAudio unsupported source type:" + sourceType);
         }
     }
 
+    /**
+     * These codes for compatibility with older Android versions of TvInput.
+     */
+    @Deprecated
     public void closeTvAudio() {
-        if (audioCmdServiceIsNull()) return;
-        try {
-            mAudioSystemCmdService.closeTvAudio();
-        } catch (RemoteException e) {
-            Log.e(TAG, "closeTvAudio failed:" + e);
-        }
-    }
-
-    public int setOutputDevices(byte[] devices) {
-        if (audioCmdServiceIsNull()) return 0;
-        try {
-            return mAudioSystemCmdService.setOutputDevices(devices);
-        } catch (RemoteException e) {
-            Log.e(TAG, "setOutputDevices failed:" + e);
-        }
-        return 0;
-    }
-
-    public byte[] getOutputDevices() {
-        if (audioCmdServiceIsNull()) return null;
-        try {
-            return mAudioSystemCmdService.getOutputDevices();
-        } catch (RemoteException e) {
-            Log.e(TAG, "getOutputDevices failed:" + e);
-            return null;
-        }
-    }
-
-
-    public int setCoexistSpdifOther(boolean enable) {
-        if (audioCmdServiceIsNull()) return 0;
-        try {
-            return mAudioSystemCmdService.setCoexistSpdifOther(enable);
-        } catch (RemoteException e) {
-            Log.e(TAG, "setCoexistSpdifOther failed:" + e);
-        }
-        return 0;
+        Log.d(TAG, "[Deprecated API] closeTvAudio ");
     }
 }

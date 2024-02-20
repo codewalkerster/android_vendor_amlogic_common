@@ -166,13 +166,6 @@
                  android:name="com.droidlogic.btpair.DialogBluetoothService"
                  android:singleUser="true" />
         <service android:exported="true"
-                 android:name=".audioservice.services.AudioSystemCmdService">
-            <intent-filter>
-                <action android:name="com.droidlogic.audioservice.services.AudioSystemCmdService" />
-            </intent-filter>
-        </service>
-
-        <service android:exported="true"
                  android:name=".audioservice.services.AudioEffectsService">
             <intent-filter>
                 <action android:name="com.droidlogic.audioservice.services.AudioEffectsService" />

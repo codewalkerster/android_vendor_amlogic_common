@@ -30,7 +30,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.droidlogic.app.DroidLogicUtils;
-import com.droidlogic.app.OutputModeManager;
+import com.droidlogic.app.DroidAudioManager;
 import com.droidlogic.app.SystemControlManager;
 import com.droidlogic.app.AudioEffectManager;
 import com.droidlogic.audioservice.settings.SoundEffectManager;
@@ -216,7 +216,7 @@ public class AudioEffectsService extends Service {
     };
 
     private void handleActionStartUp() {
-        boolean isDapValid = OutputModeManager.getInstance(mContext).isAudioSupportMs12System();
+        boolean isDapValid = DroidAudioManager.getInstance(mContext).isAudioSupportMs12System();
         Log.i(TAG, "handleActionStartUp needAudioEffectFeture:" + DroidLogicUtils.isTv() + ", isDapValid:" + isDapValid);
         // This will apply the saved audio settings on boot
         mSoundEffectManager.createAudioEffectsByIndex();

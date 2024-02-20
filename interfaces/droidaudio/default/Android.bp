@@ -1,0 +1,67 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "vendor_amlogic_common_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["vendor_amlogic_common_license"],
+}
+
+cc_binary {
+    name: "droidaudio",
+    init_rc: ["droidaudio.rc"],
+    vintf_fragments: ["manifest_droidaudio.xml"],
+    system_ext_specific: true,
+    relative_install_path: "hw",
+    srcs: [
+        "service.cpp",
+        "DroidAudio.cpp",
+        "DroidAudioConfigSetting.cpp",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    shared_libs: [
+        "libbase",
+        "liblog",
+        "libutils",
+        "libcutils",
+        "libbinder_ndk",
+        "libbinder",
+        "libaudio_aidl_conversion_common_cpp",
+        "libaudiofoundation",
+        "libaudioclient",
+        "vendor.amlogic.hardware.droidaudio-V1-ndk",
+        "libsystemcontrolservice",
+        "vendor.amlogic.hardware.systemcontrol@1.1",
+    ],
+     defaults: [
+         "latest_android_media_audio_common_types_cpp_export_shared",
+     ],
+    static_libs: [
+        "android.hardware.common-V2-ndk",
+        "libaidlcommonsupport",
+    ],
+
+    header_libs: [
+        "libhardware_headers",
+        "libbinder_headers",
+        "libaudioclient_headers",
+        "libhardware_headers",
+        "libaudio_system_headers",
+    ],
+
+    include_dirs: [
+        ".",
+        "frameworks/av/media/libmediametrics/include",
+        "frameworks/av/media/libaudioclient/include/",
+        "frameworks/av/include",
+        "external/tinyalsa/include",
+        "system/core/libutils/include",
+        "system/media/audio/include",
+        "vendor/amlogic/common/interfaces/droidaudio/default/libdroidaudioclient",
+        "vendor/amlogic/common/frameworks/services/systemcontrol",
+    ],
+
+}

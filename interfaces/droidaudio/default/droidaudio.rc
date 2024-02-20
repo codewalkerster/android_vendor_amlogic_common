@@ -1,0 +1,6 @@
+on init
+    start droidaudio
+
+service droidaudio /system_ext/bin/hw/droidaudio
+    disabled
+    seclabel u:r:droidaudio:s0

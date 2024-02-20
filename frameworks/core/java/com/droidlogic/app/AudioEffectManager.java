@@ -59,6 +59,9 @@ public class AudioEffectManager {
     public static final int EFFECT_TREBLE_DEFAULT                       = 50;   // 0 - 100
     public static final int EFFECT_BALANCE_DEFAULT                      = 50;   // 0 - 100
 
+    public static final int SOUND_EFFECT_VIRTUAL_SURROUND_OFF           = 0;
+    public static final int SOUND_EFFECT_VIRTUAL_SURROUND_ON            = 1;        // ON
+
     public static final int SOUND_EFFECT_VIRTUALX_MODE_DEFAULT          = SOUND_EFFECT_VIRTUALX_MODE_OFF;
     public static final int SOUND_EFFECT_TRUVOLUME_HD_ENABLE_DEFAULT    = 0;        // OFF
 
