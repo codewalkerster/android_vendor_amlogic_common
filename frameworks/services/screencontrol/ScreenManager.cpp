@@ -99,6 +99,14 @@ static void nv21_to_rgb32(uint8_t *buf, uint8_t *rgb, int width, int height)
 
 
 
+static void VdinEventCallBack(void *user,int event_type) {
+    if (!user)
+        return;
+    ScreenManager *source = static_cast<ScreenManager *>(user);
+    source->onEvent(event_type);
+    return;
+}
+
 static int32_t getRotationDegree(){
     char prop[PROPERTY_VALUE_MAX];
     if (property_get(PERSIST_SYS_ROTATION_PROP, prop, "0") > 0) {
@@ -207,6 +215,7 @@ bool ScreenManager::start(std::unique_ptr<InputParmeter>& input, ScreenMangerCal
     ALOGD("[%s %d] set_format width=%d,height=%d", __FUNCTION__, __LINE__,mInputParmeter->size->width(),mInputParmeter->size->height());
     mScreenDev->ops.set_format(mScreenDev, mInputParmeter->size->width(), mInputParmeter->size->height(), mFormat);
     mScreenDev->ops.setDataCallBack(mScreenDev, VdinDataCallBack, (void*)this);
+    mScreenDev->ops.setEventCallBack(mScreenDev, VdinEventCallBack);
     mScreenDev->ops.set_amlvideo2_crop(mScreenDev,mInputParmeter->area->x(), mInputParmeter->area->y(),
                                     mInputParmeter->area->right(), mInputParmeter->area->bottom());
     mScreenDev->ops.start(mScreenDev);
@@ -370,6 +379,12 @@ bool ScreenManager::realseBuffer(int32_t client_id, int32_t index) {
     mOutputRecordQueue.erase(outinfo);
     return true;
 
+}
+
+void ScreenManager::onEvent(int32_t event) {
+    if (mScreenMangerCallback) {
+        mScreenMangerCallback->EventNotify(event);
+    }
 }
 
 int32_t ScreenManager::dataCallBack(aml_screen_buffer_info_t *buffer) {
