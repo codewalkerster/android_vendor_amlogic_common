@@ -84,7 +84,7 @@ WIFI_BUILT_MODULES += $(w2_modules)
 endif
 
 WIFI_SUPPORT_DRIVERS += w1u
-w1u_build ?= false
+w1u_build ?= true
 w1u_modules ?= w1u
 w1u_src_path ?= $(DRIVER_DIR)/amlogic/w1u
 w1u_copy_path ?=

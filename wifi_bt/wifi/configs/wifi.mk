@@ -299,6 +299,17 @@ endif
 WIFI_HIDL_FEATURE_DUAL_INTERFACE := true
 endif
 
+ifneq ($(filter w1u,$(WIFI_MODULES)),)
+ifeq (,$(wildcard common/driver_modules/wifi_bt/wifi/amlogic/w1u/project_w1u/vmac))
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.txt,vendor/amlogic/common/wifi_bt/wifi/w1u,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/w1u/)
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.bin,vendor/amlogic/common/wifi_bt/wifi/w1u,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/)
+else
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.txt,common/driver_modules/wifi_bt/wifi/amlogic/w1u/project_w1u/vmac,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/w1u/)
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.bin,common/driver_modules/wifi_bt/wifi/amlogic/w1u/project_w1u/vmac,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/)
+endif
+WIFI_HIDL_FEATURE_DUAL_INTERFACE := true
+endif
+
 PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/w1/iwpriv:$(TARGET_COPY_OUT_VENDOR)/xbin/iwpriv
 
 ifneq ($(filter w2,$(WIFI_MODULES)),)

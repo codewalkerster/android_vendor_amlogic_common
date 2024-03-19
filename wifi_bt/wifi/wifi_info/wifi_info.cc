@@ -30,8 +30,8 @@ char ssv6051_base[] = "/vendor/lib/modules/ssv6051.ko#stacfgpath=/vendor/etc/wif
 char qca6391_base[] = "/vendor/lib/modules/wlan_cnss_core_pcie_6391.ko# #/vendor/lib/modules/wlan_resident_6391.ko#";
 char rtl8852be_base[] = "/vendor/lib/modules/rtkm.ko#";
 char aml_w1_base[] = "/vendor/lib/modules/aml_sdio.ko#";
-char aml_w1u_base[] = "/vendor/lib/modules/aml_com.ko#hif_type=USB#";
-char aml_w1u_s_base[] = "/vendor/lib/modules/aml_com.ko#hif_type=SDIO#";
+char aml_w1u_base[] = "/vendor/lib/modules/w1u_comm.ko#bus_type=usb#";
+char aml_w1u_s_base[] = "/vendor/lib/modules/w1u_comm.ko#bus_type=sdio#";
 char qca206x_base[] ="/vendor/lib/modules/wlan_cnss_core_pcie_206x.ko# #/vendor/lib/modules/wlan_resident_206x.ko#";
 char nxp8987_base[] ="/vendor/lib/modules/mlan_sd8987.ko#";
 char nxp8997_base[] ="/vendor/lib/modules/mlan_sd8997.ko#";
@@ -79,8 +79,10 @@ static const dongle_info dongle_registerd[]={\
     {"0000","4415","dhdpci","/vendor/lib/modules/dhdpci.ko","firmware_path=../../etc/wifi/4359/fw_bcm4359c0_ag.bin nvram_path=../../etc/wifi/4359/nvram.txt",no_base,"bcm4359",0x0,"/vendor/etc/wifi/4359/fw_bcm4359c0_ag"},\
     {"aa31","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=../../etc/wifi/4358/fw_bcm4358_ag.bin nvram_path=../../etc/wifi/4358/nvram_4358.txt",no_base,"bcm4358",0x0,"/vendor/etc/wifi/4358/fw_bcm4358_ag"},\
     {"8888","0000","vlsicomm","/vendor/lib/modules/vlsicomm.ko","vmac0=wlan0 vmac1=ap0 conf_path=w1",aml_w1_base,"aml_w1",0x0,""},\
-    {"8888","0000","w1u","/vendor/lib/modules/w1u.ko","vmac0=wlan0 vmac1=ap0",aml_w1u_s_base,"aml_w1u_s",0x0,""},\
-    {"0000","0000","w1u","/vendor/lib/modules/w1u.ko","vmac0=wlan0 vmac1=ap0",aml_w1u_base,"aml_w1u",0x4c55,""},\
+    {"0500","0000","w1u","/vendor/lib/modules/w1u.ko","vmac0=wlan0 vmac1=ap0",aml_w1u_s_base,"aml_w1u_s",0x0,""},\
+    {"0540","0000","w1u","/vendor/lib/modules/w1u.ko","vmac0=wlan0 vmac1=ap0",aml_w1u_s_base,"aml_w1u_s",0x0,""},\
+    {"0000","0000","w1u","/vendor/lib/modules/w1u.ko","vmac0=wlan0 vmac1=ap0",aml_w1u_base,"aml_w1u",0x0541,""},\
+    {"0000","0000","w1u","/vendor/lib/modules/w1u.ko","vmac0=wlan0 vmac1=ap0",aml_w1u_base,"aml_w1u",0x0501,""},\
     {"8179","0000","8189es","/vendor/lib/modules/8189es.ko","ifname=wlan0 if2name=ap0",no_base,"rtl8189es",0x0,""},\
     {"b723","0000","8723bs","/vendor/lib/modules/8723bs.ko","ifname=wlan0 if2name=ap0",no_base,"rtl8723bs",0x0,""},\
     {"c723","0000","8723cs","/vendor/lib/modules/8723cs.ko","ifname=wlan0 if2name=ap0",no_base,"rtl8723cs",0x0,""},\
