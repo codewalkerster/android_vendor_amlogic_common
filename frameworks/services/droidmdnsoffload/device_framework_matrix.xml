@@ -1,0 +1,19 @@
+<!-- This program is protected under international and U.S. copyright laws as
+     an unpublished work. This program is confidential and proprietary to the
+     copyright owners. Reproduction or disclosure, in whole or in part, or the
+     production of derivative works therefrom without the express permission of
+     the copyright owners is prohibited.
+
+                   Copyright (C) 2022-2023 by Dolby International AB.
+                               All rights reserved.
+-->
+<compatibility-matrix version="1.0" type="framework">
+    <hal format="aidl" optional="true">
+        <name>vendor.amlogic.hardware.droidmdnsoffload</name>
+        <version>1</version>
+        <interface>
+            <name>IDroidMdnsOffload</name>
+            <instance>default</instance>
+        </interface>
+    </hal>
+</compatibility-matrix>

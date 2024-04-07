@@ -1,0 +1,35 @@
+package {
+   // See: http://go/android-license-faq
+   // A large-scale-change added 'default_applicable_licenses' to import
+   // all of the 'license_kinds' from "vendor_amlogic_common_license"
+   // to get the below license kinds:
+   //   SPDX-license-identifier-Apache-2.0
+   //   legacy_proprietary
+   default_applicable_licenses: ["vendor_amlogic_common_license"],
+}
+
+aidl_interface {
+    name: "vendor.amlogic.hardware.droidmdnsoffload",
+    vendor_available: true,
+    srcs: [
+        "vendor/amlogic/hardware/droidmdnsoffload/*.aidl",
+    ],
+    stability: "vintf",
+    owner: "amlogic",
+    backend: {
+        cpp: {
+            enabled: true,
+        },
+        java: {
+            platform_apis: true,
+        },
+    },
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [],
+        },
+    ],
+    frozen: true,
+
+}

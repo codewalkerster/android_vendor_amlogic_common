@@ -85,6 +85,11 @@ public class BootComplete extends BroadcastReceiver {
             context.startService(new Intent(context, DeviceControlService.class));
         }
 
+        Intent intent_t = new Intent();
+        //Log.d(TAG, "start MdnsOffloadCmdService!!!");
+        intent_t.setComponent(new ComponentName("com.android.tv.mdnsoffloadcmd", "com.android.tv.mdnsoffloadcmd.MdnsOffloadCmdService"));
+        context.startForegroundService(intent_t);
+
         context.startService(new Intent(context,NtpService.class));
         context.startService(new Intent(context,ShutdownService.class));
 

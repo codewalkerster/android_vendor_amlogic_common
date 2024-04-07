@@ -1,0 +1,7 @@
+<manifest version="1.0" type="device">
+    <hal format="aidl">
+        <name>vendor.amlogic.hardware.droidmdnsoffload</name>
+        <version>1</version>
+        <fqname>IDroidMdnsOffload/default</fqname>
+    </hal>
+</manifest>

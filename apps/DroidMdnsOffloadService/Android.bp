@@ -1,0 +1,71 @@
+// *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+//     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+//     DEPENDING ON IT IN YOUR PROJECT. ***
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "vendor_amlogic_common_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   SPDX-license-identifier-BSD
+    //   SPDX-license-identifier-LGPL
+    //   legacy_by_exception_only (by exception only)
+    //   legacy_proprietary
+    default_applicable_licenses: ["vendor_amlogic_common_license"],
+}
+
+soong_config_module_type {
+    name: "mdns_cc_defaults",
+    module_type:"cc_defaults",
+    config_namespace:"mdns",
+    variables:["board"],
+    properties:["enabled", "cflags"],
+}
+
+soong_config_string_variable {
+    name:"board",
+    values:["mdns_enable", "mdns_disable"],
+}
+mdns_cc_defaults {
+    name:"mdns_defaults",
+    soong_config_variables:{
+        board: {
+            mdns_enable: {
+                cflags:["-DMDNS_ENABLE"],
+                enabled: true,
+            },
+            mdns_disable: {
+                cflags:["-DMDNS_DISABLE"],
+                enabled: false,
+
+            },
+        },
+    },
+}
+
+android_app {
+    name: "DroidMdnsOffloadService",
+
+    privileged: true,
+    system_ext_specific: true,
+    platform_apis: true,
+
+    srcs: ["**/*.java"],
+    defaults:["mdns_defaults"],
+    certificate: "platform",
+
+    dex_preopt: {
+        enabled: false,
+    },
+
+    optimize: {
+        enabled: false,
+    },
+
+    static_libs: [
+        "androidx.annotation_annotation",
+        "device.google.atv.mdns_offload-aidl-V1-java",
+        "device.google.atv.mdns_offload_manager-aidl-V1-java",
+        "vendor.amlogic.hardware.droidmdnsoffload-V1-java",
+    ],
+}

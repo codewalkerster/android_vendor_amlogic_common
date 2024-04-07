@@ -1,0 +1,55 @@
+package {
+   // See: http://go/android-license-faq
+   // A large-scale-change added 'default_applicable_licenses' to import
+   // all of the 'license_kinds' from "vendor_amlogic_common_license"
+   // to get the below license kinds:
+   //   SPDX-license-identifier-Apache-2.0
+   //   legacy_proprietary
+   default_applicable_licenses: ["vendor_amlogic_common_license"],
+}
+
+cc_binary {
+    name: "droidmdnsoffload-service",
+    relative_install_path: "hw",
+    init_rc: [":vendor.amlogic.hardware.droidmdnsoffload.rc"],
+    vintf_fragments: [":vendor.amlogic.hardware.droidmdnsoffload.xml"],
+
+    //system_ext_specific: true,
+    vendor: true,
+
+    shared_libs: [
+        "libbase",
+        "libbinder_ndk",
+        "libutils",
+        "liblog",
+        "vendor.amlogic.hardware.droidmdnsoffload-V1-ndk",
+        "libwifi-hal-mdnsoffload",
+    ],
+    srcs: [
+        "service.cpp",
+        "DroidMdnsOffloadHal.cpp",
+    ],
+
+    cflags: [
+             "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-Wthread-safety",
+            "-Wno-unused-parameter",
+    ],
+
+    header_libs: [
+        "libwifi-hal-mdnsoffload_headers",
+    ],
+}
+
+
+filegroup {
+    name: "vendor.amlogic.hardware.droidmdnsoffload.xml",
+    srcs: ["droid_mdns_offload.xml"],
+}
+
+filegroup {
+    name: "vendor.amlogic.hardware.droidmdnsoffload.rc",
+    srcs: ["droid_mdns_offload.rc"],
+}
