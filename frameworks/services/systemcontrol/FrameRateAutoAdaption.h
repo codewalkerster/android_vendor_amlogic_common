@@ -125,6 +125,8 @@ public:
     int getLastFrame();
 #ifdef FRAMERATE_MODE
     void setPQHandle(CPQControl* handle);
+    void onAMDolbyUevent(uevent_data_t* ueventData);
+
 #endif
     int mFracDefaultValue;
 private:
