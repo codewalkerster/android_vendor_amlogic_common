@@ -316,6 +316,7 @@ public class SoundEffectManager {
 
         creatDpeAudioEffect();
         mEffectInit = true;
+        applyAudioEffectByPlayEmptyTrack();
     }
 
     public void cleanupAudioEffects() {
@@ -1048,11 +1049,14 @@ public class SoundEffectManager {
 
     private void applyAudioEffectByPlayEmptyTrack() {
         int bufsize = AudioTrack.getMinBufferSize(8000, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT);
-        if (bufsize <= 0)
+        if (bufsize <= 0) {
+            Log.w(TAG, "applyAudioEffectByPlayEmptyTrack buffersize:" + bufsize + " invalid.");
             return;
+        }
         byte data[] = new byte[bufsize];
         AudioTrack trackplayer = new AudioTrack(AudioManager.STREAM_MUSIC, 8000, AudioFormat.CHANNEL_OUT_STEREO,
                 AudioFormat.ENCODING_PCM_16BIT, bufsize, AudioTrack.MODE_STREAM);
+        Log.i(TAG, "applyAudioEffectByPlayEmptyTrack create empty AudioTrack to applay AudioEffect");
         trackplayer.play();
         for (int i = 0; i <= 5; i++) {
             trackplayer.write(data, 0, data.length);
@@ -1197,7 +1201,6 @@ public class SoundEffectManager {
            Log.e(TAG, "init DAP2.4 ok");
            initDap_2_4();
        }
-       applyAudioEffectByPlayEmptyTrack();
    }
 
 
@@ -1791,8 +1794,6 @@ public class SoundEffectManager {
                 setDpeParam(id, getDpeParam(id));
             }
         }
-
-        applyAudioEffectByPlayEmptyTrack();
     }
 
 
@@ -3059,6 +3060,7 @@ public class SoundEffectManager {
             creatDapAudioEffect();
             initDapAudioEffect();
         }
+        applyAudioEffectByPlayEmptyTrack();
     }
     public void setAudioEffectOnByIndex (int id, boolean dbSwitch) {
         if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "setAudioEffectOnByIndex id:" + id + ", dbSwitch:" + dbSwitch);
@@ -3125,6 +3127,7 @@ public class SoundEffectManager {
                 Log.e(TAG, "setAudioEffectOnByIndex id:" + id + " is invalid!");
                 break;
         }
+        applyAudioEffectByPlayEmptyTrack();
     }
 
     public void setAudioEffectOn (int id, boolean dbSwitch) {
