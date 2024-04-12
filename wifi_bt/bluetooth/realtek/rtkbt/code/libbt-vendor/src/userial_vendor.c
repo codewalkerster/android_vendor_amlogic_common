@@ -241,6 +241,8 @@ pthread_mutex_t write_mutex;
 uint16_t iso_min_conn_handle = 0x1b;
 int filter_index = -1;
 bool is_cts_presence_test = FALSE;
+bool restart_scan = FALSE;
+uint8_t uuid_cts[] = {0x63, 0xbd, 0x2d, 0x50, 0x90, 0xc0, 0x47, 0x8e, 0x4d, 0x4d, 0xf1, 0x73, 0x0d, 0x95, 0xb7, 0xcd};
 
 /******************************************************************************
 **  Special function definitions
@@ -3129,7 +3131,7 @@ static int userial_handle_event(unsigned char *recv_buffer, int total_length)
     case HCI_BLE_EVENT:
         {
             uint8_t r_cn, i, rl, uuid[128] = {0}, tmp[10];
-            int ret;
+            int ret, cts_ret;
             memcpy(uuid, "33", 2);
             unsigned char subcode = p_data[2];
 
@@ -3173,14 +3175,19 @@ static int userial_handle_event(unsigned char *recv_buffer, int total_length)
                     memcpy(tmp, p_data + 3, 6);
                     rl = *(p_data + 23);//length_data
                     ret = rtk_find_uuid_in_adv(p_data + 24, rl, uuid);
-                    if (ret)
-                    {
-                        p_data = p_data + rl + 24;
-                    }
-                    else
+                    cts_ret = memcmp(p_data + 26, uuid_cts, 16);
+                    if (!ret)
                     {
                         memcpy(rtkbt_cts_info.addr, tmp, 6);
                         break;
+                    }
+                    else if(!cts_ret && !is_cts_presence_test)
+                    {
+                        restart_scan = true;
+                    }
+                    else
+                    {
+                        p_data = p_data + rl + 24;
                     }
                 }
 #ifdef VENDOR_MESH_RTK
@@ -3765,6 +3772,22 @@ static void *userial_recv_uart_thread(void *arg)
     prctl(PR_SET_NAME, (unsigned long)"userial_recv_uart_thread", 0, 0, 0);
     while (vnd_userial.thread_running)
     {
+        if (restart_scan)
+        {
+            restart_scan = FALSE;
+            is_cts_presence_test = TRUE;
+            ALOGI("stop scan");
+            uint8_t disable_scan[10] = {0x01, 0x42, 0x20, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            userial_vendor_send_cmd_to_controller(disable_scan,10,NULL);
+            ALOGI("modify scan_wind and scan_int");
+            usleep(40000);
+            uint8_t set_scan_param[12] = {0x01, 0x41, 0x20, 0x08, 0x01, 0x00, 0x01, 0x01, 0x40, 0x06, 0x10, 0x06};
+            userial_vendor_send_cmd_to_controller(set_scan_param, 12,NULL);
+            usleep(40000);
+            uint8_t enable_scan[10] = {0x01, 0x42, 0x20, 0x06, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00};
+            userial_vendor_send_cmd_to_controller(enable_scan,10,NULL);
+        }
+
         do
         {
             ret = poll(pfd, 2, -1);
