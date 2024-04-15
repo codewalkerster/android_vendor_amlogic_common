@@ -23,7 +23,7 @@ GammaOperation::~GammaOperation()
 }
 
 //============================gamma Power Convert Start=======================================
-int GammaOperation::GammaOperation_BaseGammaConvert(unsigned short *gamma_value, double basePower , double targetPower)
+int GammaOperation::GammaOperation_BaseGammaConvert(unsigned short *gamma_value, double basePower , double targetPower, int NodeNum)
 {
     int ret = -1;
     std::vector<double> xData, yData;
@@ -36,9 +36,9 @@ int GammaOperation::GammaOperation_BaseGammaConvert(unsigned short *gamma_value,
         return -1;
     }
 
-    for (int j = 0; j < 256; ++j)
+    for (int j = 0; j < NodeNum; ++j)
     {
-        xData.push_back(((double)j)/255.0);
+        xData.push_back(((double)j)/(double)(NodeNum - 1));
         yData.push_back((double)gamma_value[j]);
     }
 
@@ -46,9 +46,9 @@ int GammaOperation::GammaOperation_BaseGammaConvert(unsigned short *gamma_value,
     continuousLine.set_points(xData, yData);
     std::vector<int> returnCurve;
 
-    for (int j = 0; j < 256; ++j)
+    for (int j = 0; j < NodeNum; ++j)
     {
-        returnCurve.push_back(continuousLine(pow(((double)j) / 255.0 , targetPower / basePower  )));
+        returnCurve.push_back(continuousLine(pow(((double)j) / (double)(NodeNum - 1) , targetPower / basePower  )));
         gamma_value[j] = returnCurve[j];
     }
 
@@ -85,8 +85,8 @@ interpolation_info_t* GammaOperation::nat_cubic_spline(int num_points, interpola
 
     /* Build x diff and y diff */
     for (i = 1; i < num_points; i++) {
-        x_delta[i-1] = output_fun->x[i] - output_fun->x[i-1];
-        y_delta[i-1] = output_fun->y[i] - output_fun->y[i-1];
+        x_delta[i - 1] = output_fun->x[i] - output_fun->x[i - 1];
+        y_delta[i - 1] = output_fun->y[i] - output_fun->y[i - 1];
     }
 
     /* Build "a" vector (just y) */
@@ -108,39 +108,40 @@ interpolation_info_t* GammaOperation::nat_cubic_spline(int num_points, interpola
     return output_fun;
 }
 
-void GammaOperation::build_A_matrix(float *x_delta, int num_points,
-        float A[][NUMBER_POINTS]) {
+void GammaOperation::build_A_matrix(float *x_delta, int num_points, float A[][NUMBER_POINTS])
+{
     int i;
 
     /* Set top and bottom corners */
     A[0][0] = 1;
-    A[num_points-1][num_points-1] = 1;
+    A[num_points - 1][num_points - 1] = 1;
 
     /* Fill in the matrix by natural cubic spline algorithm */
-    for (i = 1; i < num_points-1; i++) {
-        A[i][i-1] = x_delta[i-1];
-        A[i][i]   = 2*(x_delta[i-1]+x_delta[i]);
-        A[i][i+1] = x_delta[i];
+    for (i = 1; i < num_points - 1; i++) {
+        A[i][i - 1] = x_delta[i - 1];
+        A[i][i] = 2 * (x_delta[i - 1] + x_delta[i]);
+        A[i][i + 1] = x_delta[i];
     }
 }
 
-float* GammaOperation::build_h_vector(float *h, float *x_delta, float *a, int num_points) {
+float* GammaOperation::build_h_vector(float *h, float *x_delta, float *a, int num_points)
+{
     int i;
 
     /* Set top and bottom */
     h[0] = 0.;
-    h[num_points-1] = 0.;
+    h[num_points - 1] = 0.;
 
     /* Fill in the vector by natural cubic spline algorithm */
-    for (i = 1; i < num_points-1; i++) {
-        h[i] = 3.*((a[i+1]-a[i]) / x_delta[i] - (a[i]-a[i-1]) / x_delta[i-1]);
+    for (i = 1; i < num_points - 1; i++) {
+        h[i] = 3.*((a[i + 1] - a[i]) / x_delta[i] - (a[i] - a[i - 1]) / x_delta[i - 1]);
     }
 
     return h;
 }
 
-float* GammaOperation::solve_matrix(float *x, float *h, int num_points,
-        float A[][NUMBER_POINTS]) {
+float* GammaOperation::solve_matrix(float *x, float *h, int num_points, float A[][NUMBER_POINTS])
+{
     /* Solves tridiagonal matrix equation Ax = h
        for tridiagonal matrix A using Thomas' algorithm.
        This requires the matrix to be diagonally dominant or symmetric
@@ -161,55 +162,55 @@ float* GammaOperation::solve_matrix(float *x, float *h, int num_points,
     b[num_points-1] = 1.;
 
     /* Build a, b, c */
-    for (i = 1; i < num_points-1; i++) {
-        a[i] = A[i][i-1];
+    for (i = 1; i < num_points - 1; i++) {
+        a[i] = A[i][i - 1];
         b[i] = A[i][i];
-        c[i] = A[i][i+1];
+        c[i] = A[i][i + 1];
     }
 
    /* Apply Thomas' algorithm */
    for (i = 1; i < num_points; i++) {
-       w[i] = a[i] / b[i-1];
-       b[i] = b[i] - w[i]*c[i-1];
-       h[i] = h[i] - w[i]*h[i-1];
-
+       w[i] = a[i] / b[i - 1];
+       b[i] = b[i] - w[i] * c[i - 1];
+       h[i] = h[i] - w[i] * h[i - 1];
    }
 
    /* Back substitute x */
-   x[num_points-1] = h[num_points-1] / b[num_points-1];
+   x[num_points - 1] = h[num_points - 1] / b[num_points - 1];
 
-   for (i = num_points-2; i >= 0; i--) {
-       x[i] = (h[i] - c[i] * x[i+1]) / b[i];
+   for (i = num_points - 2; i >= 0; i--) {
+       x[i] = (h[i] - c[i] * x[i + 1]) / b[i];
    }
 
    return x;
 }
 
-float* GammaOperation::build_b_vector(float *b, float *x_delta, float *y_delta, float *c,
-                                        int num_points) {
+float* GammaOperation::build_b_vector(float *b, float *x_delta, float *y_delta, float *c, int num_points)
+{
     int i; /* loop index */
 
     /* Build b by natural cubic spline */
-    for (i = 0; i < num_points-1; i++) {
-        b[i] = y_delta[i] / x_delta[i] - x_delta[i] / 3 * (2 * c[i] + c[i+1]);
+    for (i = 0; i < num_points - 1; i++) {
+        b[i] = y_delta[i] / x_delta[i] - x_delta[i] / 3 * (2 * c[i] + c[i + 1]);
     }
 
     return b;
 }
 
-float* GammaOperation::build_d_vector(float *d, float *x_delta, float *c, int num_points) {
-
+float* GammaOperation::build_d_vector(float *d, float *x_delta, float *c, int num_points)
+{
     int i; /* loop index */
 
     /* Build d by natural cubic spline */
-    for (i = 0; i < num_points-1; i++) {
-        d[i] = (c[i+1] - c[i]) / (3 * x_delta[i]);
+    for (i = 0; i < num_points - 1; i++) {
+        d[i] = (c[i + 1] - c[i]) / (3 * x_delta[i]);
     }
 
     return d;
 }
 
-int GammaOperation::evaluate(interpolation_info_t *function, float val, float *result) {
+int GammaOperation::evaluate(interpolation_info_t *function, float val, float *result)
+{
     /* Use the interpolation to evaluate a val, answer stored in
        result
     */
@@ -229,12 +230,12 @@ int GammaOperation::evaluate(interpolation_info_t *function, float val, float *r
     /* If the val is greater than the largest value, outside of range,
        bail.
     */
-    else if (val > function->x[function->num_points-1]) {
+    else if (val > function->x[function->num_points - 1]) {
         /* Set error val */
         return -2;
     }
 
-    for (i = 0; i < function->num_points-1; i++) {
+    for (i = 0; i < function->num_points - 1; i++) {
         /* If val equals an element in my x array, just return the
            corresponding y val
         */
@@ -245,11 +246,11 @@ int GammaOperation::evaluate(interpolation_info_t *function, float val, float *r
         }
 
         /* Check the next element also, since I use the range next */
-        else if (almost_equals(val, function->x[i+1])) {
-            *result = function->y[i+1];
+        else if (almost_equals(val, function->x[i + 1])) {
+            *result = function->y[i + 1];
             return 0;
         }
-        else if (val > function->x[i] && val < function->x[i+1]) {
+        else if (val > function->x[i] && val < function->x[i + 1]) {
             /* If the val falls between 2 initial x values, find the value the
                interpolation gives.
             */
@@ -262,7 +263,8 @@ int GammaOperation::evaluate(interpolation_info_t *function, float val, float *r
     return -3;
 }
 
-float GammaOperation::spline_func(interpolation_info_t *function, float val, int i) {
+float GammaOperation::spline_func(interpolation_info_t *function, float val, int i)
+{
     /* This function selects the appropriate spline function and evaluates
        that function at val.
     */
@@ -288,13 +290,13 @@ float GammaOperation::spline_func(interpolation_info_t *function, float val, int
 
     p0 = function->a[i];
     p1 = function->b[i] * (val - function->x[i]);
-    p2 = function->c[i] * (val - function->x[i])*(val - function->x[i]);
-    p3 = function->d[i] * (val -
-            function->x[i]) * (val - function->x[i]) * (val - function->x[i]);
+    p2 = function->c[i] * (val - function->x[i]) * (val - function->x[i]);
+    p3 = function->d[i] * (val - function->x[i]) * (val - function->x[i]) * (val - function->x[i]);
     return p0 + p1 + p2 + p3;
 }
 
-bool GammaOperation::almost_equals(float a, float b) {
+bool GammaOperation::almost_equals(float a, float b)
+{
     /* Comparing floats for exact equality is shady, they won't ever be
        exactly the same, so use this function to test if they're close enough.
     */
@@ -303,7 +305,7 @@ bool GammaOperation::almost_equals(float a, float b) {
 
     /* Make sure c is positive */
     if (c < 0) {
-        c = -1*c;
+        c = -1 * c;
     }
 
     /* If the difference is sufficiently small, return true */

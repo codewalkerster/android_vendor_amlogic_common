@@ -32,6 +32,7 @@
 #define PARAM_PQ_DB_PATH                    "/mnt/vendor/param/pq/pq.db"
 #define PARAM_OVERSCAN_DB_PATH              "/mnt/vendor/param/pq/overscan.db"
 #define PARAM_LDIM_BIN_PATH                 "/mnt/vendor/param/pq/ldim.bin"
+#define PQ_OSD_BIN_PATH                     "/mnt/vendor/param/pq/UI_PQSetting.bin"
 
 #define PARAM_SSM_DATA_PATH                 "/mnt/vendor/param/pq/ssm_data"
 #define PARAM_SSM_HANDLER_PATH              "/mnt/vendor/param/pq/SSMHandler"
@@ -47,6 +48,7 @@
 #define CFG_PQ_DV_BIN_PATH                      "pq_dv_bin_path"
 #define CFG_PQ_DV_CFG_PATH                      "pq_dv_cfg_path"
 #define CFG_PQ_LDIM_BIN_PATH                    "pq_ldim_bin_path"
+#define CFG_PQ_UI_SETTING_CFG_PATH              "pq_ui_setting_cfg_path"
 
 #define CFG_BIG_SMALL_DB_ENABLE                 "pq.BigSmallDb.en"
 #define CFG_ALL_PQ_MODULE_ENABLE                "pq.AllPQModule.en"

@@ -14,19 +14,22 @@
 #include "SSMAction.h"
 #include "CDevicePollCheckThread.h"
 #include "CPQdb.h"
+#include "CPQDataBase.h"
+#include "WhitebalanceDataBase.h"
+
 #include "PQType.h"
 #include "CPQColorData.h"
 #include "CPQLog.h"
 #include "CDynamicBackLight.h"
 #include "CConfigFile.h"
 #include "COverScandb.h"
-
-#include "PqNotify.h"
-#include "CHlgToneMapping.h"
-#include "CDolbyVision.h"
-#include "SysWrite.h"
 #include "video_tunnel.h"
 
+#include "PqNotify.h"
+#include "SysWrite.h"
+
+#include "CHlgToneMapping.h"
+#include "CDolbyVision.h"
 #include "GammaOperation.h"
 
 #define LDIM_PATH                 "/dev/aml_ldim"
@@ -118,6 +121,18 @@
 #define SHARPNESS_HD_BP_DIAG_CORE        (0x3290)
 #define SHARPNESS_HD_PKGAIN_VSLUMA       (0x32fe)
 
+#define BRIGHTNESS_MIN     (-512)
+#define BRIGHTNESS_MAX     (512)
+
+#define CONTRAST_MIN       (-1024)
+#define CONTRAST_MAX       (1023)
+
+#define SATURATION_MIN     (-128)
+#define SATURATION_MAX     (127)
+
+#define HUE_MIN            (-25)
+#define HUE_MAX            (25)
+
 //memc
 #define PROP_CPQ_MEMC               "persist.vendor.sys.memc"
 #define CPQ_MEMC_SYSFS              "/dev/frc"
@@ -125,6 +140,7 @@
 #define MEMDEV_CONTRL               _IOW('F', 0x06, unsigned int)
 #define FRC_IOC_SET_MEMC_LEVEL      _IOW('F', 0x07, unsigned int)
 #define FRC_IOC_SET_MEMC_DEMO       _IOW('F', 0x08, unsigned int)
+#define FRC_IOC_SET_FPP_MEMC_LEVEL  _IOW('F', 0x09, enum frc_fpp_state_e)
 
 //lcd
 #define MAX_TABLE_SIZE                            0x300000
@@ -210,8 +226,7 @@ public:
     int SetPQModuleDemoState(pq_module_demo_t modules, pq_module_demo_state_t state);
     int GetPQModuleDemoState(int modules);
     virtual void resetAllUserSettingParam();
-    virtual void resetPQUiSetting(void);
-    virtual void resetPQTableSetting(void);
+    virtual void resetSSMData();
     virtual void Set_Backlight(int value);
     virtual void GetDynamicBacklighConfig(int *thtf, int *lut_mode, int *height_param, int *low_param);
     virtual void GetDynamicBacklighParam(dynamic_backlight_Param_t *DynamicBacklightParam);
@@ -224,7 +239,6 @@ public:
     int Cpq_LoadRegs(am_regs_t regs);
     int Cpq_LoadDisplayModeRegs(ve_pq_load_t regs);
     int DI_LoadRegs(am_pq_param_t di_regs );
-    int Cpq_LoadBasicRegs(source_input_param_t source_input_param, vpp_picture_mode_t pqMode);
     int Cpq_SetDIModuleParam(source_input_param_t source_input_param);
     int ResetLastPQSettingsSourceType(void);
     int BacklightInit(void);
@@ -235,42 +249,22 @@ public:
     int SavePQMode(int pq_mode);
     int SaveLastPQMode(int pq_mode);
     int setPQModeByTvService(pq_status_update_e gameStatus, pq_status_update_e pcStatus, int autoSwitchMonitorModeFlag);
-    int Cpq_SetPQMode(vpp_picture_mode_t pq_mode, source_input_param_t source_input_param, pq_mode_switch_type_t switch_type);
-    int SetPQParams(source_input_param_t source_input_param, vpp_picture_mode_t pq_mode, vpp_pq_para_t pq_para);
-    int GetPQParams(source_input_param_t source_input_param, vpp_picture_mode_t pq_mode, vpp_pq_para_t *pq_para);
-    int SetPictureModeData(pq_src_param_t source_input, vpp_picture_mode_t picmode, vpp_pictur_mode_para_t *params);
-    int GetPictureModeData(pq_src_param_t source_input, vpp_picture_mode_t picmode, vpp_pictur_mode_para_t *params);
-    int RsetPictureModeData(pq_src_param_t source_input, vpp_picture_mode_t picmode);
     void SetPcGameMode(vpp_picture_mode_t pq_mode, pq_mode_switch_type_t switch_type);
-    int Set_PictureMode(vpp_picture_mode_t pq_mode, pq_src_param_t source_input_param, pq_mode_switch_type_t switch_type);
-    int SetFacColorParams(source_input_param_t source_input_param, vpp_picture_mode_t pqMode);
-
-    // for DV IQ APO
-    int SetDvApoPictureParams(AMDV_APO_TYPE type, AMDV_IQ_APO_STRUCT *params);
-    int GetDvApoPictureParams(AMDV_APO_TYPE type, AMDV_IQ_APO_STRUCT *params);
+    int Set_PictureMode(PICTURE_MODE pq_mode, pq_mode_switch_type_t switch_type);
+    int SetPQPictureMode(PICTURE_MODE pq_mode);
+    int SetFacColorParams(source_input_param_t source_input_param);
 
     //color Temperature
     int SetColorTemperature(int temp_mode, int is_save);
     int GetColorTemperature(void);
     int SaveColorTemperature(int temp_mode);
-	int SetColorTemperatureUserParam(int temp_mode, int is_save, rgb_ogo_type_t rgb_ogo_type = TYPE_INVALID, int value = -1);
-	tcon_rgb_ogo_t GetColorTemperatureUserParam(void);
-    int Cpq_SetColorTemperatureWithoutSave(vpp_color_temperature_mode_t Tempmode, tv_source_input_t tv_source_input __unused);
-    int Cpq_CheckColorTemperatureParamAlldata(source_input_param_t source_input_param);
-    unsigned short Cpq_CalColorTemperatureParamsChecksum(void);
-    int Cpq_SetColorTemperatureParamsChecksum(void);
-    unsigned short Cpq_GetColorTemperatureParamsChecksum(void);
-    int Cpq_SetColorTemperatureUser(tv_source_input_t source_input, tcon_rgb_ogo_t *pData);
-    int Cpq_GetColorTemperatureUser(vpp_color_temperature_mode_t mode, RGB_UI_OFFSET* pData);
-    int Cpq_SaveColorTemperatureUser(vpp_color_temperature_mode_t mode, rgb_ogo_type_t rgb_ogo_type, int value);
-    int CPQ_SetColorTemperatureUserParam(vpp_color_temperature_mode_t temp_mode, rgb_ogo_type_t rgb_ogo_type, int value);
-    int Cpq_RestoreColorTemperatureParamsFromDB(source_input_param_t source_input_param);
-    int Cpq_CheckTemperatureDataLabel(void);
-    int Cpq_SetTemperatureDataLabel(void);
+    int Cpq_SetColorTemperature(int level);
+
+    int SetColorTemperatureUserParam(int temp_mode, int is_save, rgb_ogo_type_t rgb_ogo_type = TYPE_INVALID, int value = -1);
+    tcon_rgb_ogo_t GetColorTemperatureUserParam(void);
+
     int SetColorTemperatureParams(vpp_color_temperature_mode_t Tempmode, tcon_rgb_ogo_t params);
     int GetColorTemperatureParams(vpp_color_temperature_mode_t Tempmode, tcon_rgb_ogo_t *params);
-    int SaveColorTemperatureParams(vpp_color_temperature_mode_t Tempmode, tcon_rgb_ogo_t params);
-    int Cpq_CheckColorTemperatureParams(void);
     //Brightness
     int SetBrightness(int value, int is_save);
     int GetBrightness(void);
@@ -305,14 +299,17 @@ public:
     int GetSharpness(void);
     int SaveSharpness(int value);
     int Cpq_SetSharpness(int value, source_input_param_t source_input_param);
-    int Cpq_SetSuperResolution(int value, source_input_param_t source_input_param);
     int Cpq_SetSharpness0Level(int value, source_input_param_t source_input_param);
     int Cpq_SetSharpness1Level(int value, source_input_param_t source_input_param);
     int Cpq_SetSharpnessPiLevel(int value, source_input_param_t source_input_param);
 
-    int Cpq_SetSharpness0FixedParam(source_input_param_t source_input_param);
-    int Cpq_SetSharpness1FixedParam(source_input_param_t source_input_param);
-    int Cpq_SetSharpnessPiFixedParam(source_input_param_t source_input_param);
+    int SetSuperResolution(int value, int is_save);
+    int GetSuperResolution(void);
+    int SaveSuperResolution(int value);
+    int Cpq_SetSuperResolution(int value, source_input_param_t source_input_param);
+    int Cpq_SetSharpness0FixedParam(int value, source_input_param_t source_input_param);
+    int Cpq_SetSharpness1FixedParam(int value, source_input_param_t source_input_param);
+    int Cpq_SetSharpnessPiFixedParam(int value, source_input_param_t source_input_param);
 
     int Cpq_SetSharpness0VariableParam(source_input_param_t source_input_param);
     int Cpq_SetSharpness1VariableParam(source_input_param_t source_input_param);
@@ -323,20 +320,32 @@ public:
     int GetNoiseReductionMode(void);
     int SaveNoiseReductionMode(int nr_mode);
     int Cpq_SetNoiseReductionMode(vpp_noise_reduction_mode_t nr_mode, source_input_param_t source_input_param);
+
+    //MultipointGamma mode
+    int SetMultipointGamma(int channel, int point, int offset);
+    int GetMultipointGamma(int channel, int point);
+    int Cpq_SetMultipointGamma(vpp_gamma_mode_t gamma_curve, TEMP_MODE colortemp_mode);
+
+    int FactorySetMultipointGamma(int colortemp, int channel, int point, int offset);
+    int FactoryGetMultipointGamma(int colortemp, int channel, int point);
+
+    int SetMultipointGammaEnable(int enable);
+    int GetMultipointGammaEnable(void);
+
+    int SetMultipointGammaMode(int mode);
+    int GetMultipointGammaMode(void);
+
     //GammaValue
     int SetGammaValue(vpp_gamma_curve_t gamma_curve, int is_save);
     int GetGammaValue();
-    int SaveGammaValue(int gamma_curve);
-    //WhiteBalance
-    int SetWhitebalanceGamma(int channel, int point, int offset);
-    int GetWhitebalanceGamma(int channel, int point);
-    int FactorySetWhitebalanceGamma(int colortemp, int channel, int point, int offset);
-    int FactoryGetWhitebalanceGamma(int colortemp, int channel, int point);
-    bool SetWhitebalanceGammaData(WB_GAMMA_TABLE *params, int level);
-    bool GetWhitebalanceGammaData(WB_GAMMA_TABLE *params, int level);
-    bool FactoryGetWhitebalanceGammaData(WB_GAMMA_TABLE *pData, int level);
-    bool FactorySetWhitebalanceGammaData(WB_GAMMA_TABLE *pData, int level);
-    bool CheckCriDataWhitebalanceGammaData(void);
+    int SaveGammaValue(int gamma);
+    int Cpq_LoadGamma(vpp_gamma_mode_t gamma_curve, vpp_color_temperature_mode_t colortemp_mode);
+    int Cpq_SetGammaTbl_R(unsigned short red[GAMMA_NUMBER]);
+    int Cpq_SetGammaTbl_G(unsigned short green[GAMMA_NUMBER]);
+    int Cpq_SetGammaTbl_B(unsigned short blue[GAMMA_NUMBER]);
+    int SetGammaPattern(int enable, int R, int G, int B);
+    int Cpq_SetGammaOnOff(int onoff);
+
     //Memc
     bool hasMemcFunc();
     int Memc_enable(int enable);
@@ -382,24 +391,22 @@ public:
     int DynamicBackLightInit(void);
     int GetVideoPlayStatus(void);
     //smooth plus
+    bool hasSmoothPlusFunc(void);
     int SetSmoothPlusMode(int smoothplus_mode, int is_save);
     int GetSmoothPlusMode(void);
     int SaveSmoothPlusMode(int smoothplus_mode);
     int Cpq_SetSmoothPlusMode(vpp_smooth_plus_mode_t smoothplus_mode, source_input_param_t source_input_param);
-    bool hasSmoothPlusFunc(void);
     //DLG
     int SetDLGEnable(int enable, int is_save);
     int GetDLGEnable(void);
     int SaveDLGEnable(int enable);
+
     //local contrast
     int SetLocalContrastMode(local_contrast_mode_t mode, int is_save);
     int GetLocalContrastMode(void);
     int SaveLocalContrastMode(local_contrast_mode_t mode);
-    //BlackExtension
-    int SetBlackExtensionMode(black_extension_mode_t mode, int is_save);
-    int GetBlackExtensionMode(void);
-    int SaveBlackExtensionMode(black_extension_mode_t mode);
-    int SetBlackExtensionParam(source_input_param_t source_input_param);
+    int Cpq_SetLocalContrastMode(local_contrast_mode_t mode);
+
     //MpegNr
     int SetMpegNr(vpp_pq_level_t mode, int is_save);
     int GetMpegNr(void);
@@ -430,6 +437,7 @@ public:
     int setVideoScreenColorByVT(int Color, int frequency, int window);//for new path
     //get overscan
     tvin_cutwin_t GetOverscanParams(vpp_display_mode_t display_mode);
+
     //Factory
     int FactoryResetPQMode(void);
     int FactoryResetColorTemp(void);
@@ -479,17 +487,7 @@ public:
     int Cpq_SetColorBaseMode(vpp_color_basemode_t basemode, source_input_param_t source_input_param);
     int Cpq_SetRGBOGO(const struct tcon_rgb_ogo_s *rgbogo);
     int Cpq_GetRGBOGO(const struct tcon_rgb_ogo_s *rgbogo);
-    int Cpq_LoadGamma(vpp_gamma_curve_t gamma_curve, vpp_color_temperature_mode_t colortemp_mode);
-    int GetBaseGammaData(int level, GAMMA_TABLE *pData);
-    int GetGammaPowerData(int level, GAMMA_TABLE *pData);
-    int GetWBGammaData(int level, GAMMA_TABLE *pData);
-    int CubeInterpolationProcess(interpolation_info_t output, unsigned short *gamma, int num_points);
-    int DBGammaBlend(tcon_gamma_table_t *wb_gamma, unsigned int *index_gamma);
-    double GetGammaPower(vpp_gamma_curve_t mode);
-    int Cpq_SetGammaTbl_R(unsigned short red[GAMMA_NUMBER]);
-    int Cpq_SetGammaTbl_G(unsigned short green[GAMMA_NUMBER]);
-    int Cpq_SetGammaTbl_B(unsigned short blue[GAMMA_NUMBER]);
-    int Cpq_SetGammaOnOff(int onoff);
+
     int Cpq_SetCABC(const db_cabc_param_t *pCABC);
     int SetCabc(void);
     int Cpq_SetAAD(const db_aad_param_t *pAAD);
@@ -607,7 +605,7 @@ public:
     int SetHDRTMOMode(hdr_tmo_t mode, int is_save);
     int GetHDRTMOMode(void);
     int SaveHDRTMOMode(hdr_tmo_t mode);
-    int Cpq_SetHDRTMOMode(hdr_tmo_t mode);
+    int Cpq_SetHDRTMOMode(int mode);
     //PQ Diff
     char* CalculateFileSha1(const char* filePath);
     int GenerateTargetPQ();
@@ -618,37 +616,46 @@ public:
     int SetBlackStretch(int level, int is_save);
     int GetBlackStretch(void);
     int SaveBlackStretch(int level);
-    int Cpq_BlackStretch(int level, source_input_param_t source_input_param);
+    int Cpq_SetBlackStretch(int level, source_input_param_t source_input_param);
 
     int SetBlueStretch(int level, int is_save);
     int GetBlueStretch(void);
     int SaveBlueStretch(int level);
-    int Cpq_BlueStretch(int level, source_input_param_t source_input_param);
+    int Cpq_SetBlueStretch(int level, source_input_param_t source_input_param);
 
     int SetChromaCoring(int level, int is_save);
     int GetChromaCoring(void);
     int SaveChromaCoring(int level);
-    int Cpq_ChromaCoring(int level, source_input_param_t source_input_param);
+    int Cpq_SetChromaCoring(int level, source_input_param_t source_input_param);
 
     int SetLocalDimming(int level, int is_save);
     int GetLocalDimming(void);
     int SaveLocalDimming(int level);
     int Cpq_SetLocalDimming(vpp_pq_level_t level);
 
-    int RefreshDvApoPictureMode(int Type);
     int SetDolbyDarkDetail(int mode, int is_save);
     int GetDolbyDarkDetail(void);
     int SaveDolbyDarkDetail(int value);
     int Cpq_SetDolbyDarkDetail(int mode);
+
     int Cpq_SetAmDolbyPQMode(int mode);
+
     int SetAMDolbyLightSensor(int mode, int is_save);
     int GetAMDolbyLightSensor(void);
     int SaveAMDolbyLightSensor(int value);
     int Cpq_SetAMDolbyLightSensor(int mode);
 
+    int SetFilmMakerMode(int onoff);
+    int GetFilmMakerMode(void);
+    int Cpq_SetFilmMakerMode(int onoff);
+
+    int SetFilmMakerFlag(int enable);
+
     void InitTconGamma(void);
     void InitTconlessBin(void);
     int LoadTconlessBin(unsigned int index);
+
+    int FactorySetGammaTable(unsigned short *pData, int type, int level, int len);
 
 private:
     int VPPOpenModule(void);
@@ -676,9 +683,9 @@ private:
     int pqReadSys(ConstCharforSysNodeIndex index, char *buf, int count);
     void pqTransformStringToInt(const char *buf, int *val);
     unsigned int GetSharpnessRegVal(int addr);
-    int Cpq_SetLocalContrastMode(local_contrast_mode_t mode);
     output_type_t MapDbTvoutWithIOResolution(int inputFrameHeight, int outputFrameHeight);
     output_type_t CheckOutPutMode(tv_source_input_t source_input);
+    pq_source_input_t CheckPQSource(tv_source_input_t source);
     pq_sig_fmt_t CheckPQTimming(hdr_type_t hdr_type);
     hdr_type_t Cpq_GetSourceHDRType(source_input_param_t source_input_param);
     bool isCVBSParamValid(void);
@@ -699,7 +706,72 @@ private:
     int GetVideoVdProcState(void);
     int GetCurrentFrameRate(tv_source_input_t src_input);
     int SetSrTable_WorkArroundByEvent(void);
+
     bool IsDisableAllPQ(void);
+    int GetNonlinearOsdRemapVal(nonline_params_type_t type, int Value);
+    int RefreshDvApoPictureMode(int Type);
+
+    int GetBaseGammaData(int level, GAMMA_TABLE *pData);
+    int GetGammaPowerData(int level, GAMMA_TABLE *pData);
+    int GetMultipointGammaData(int level, GAMMA_TABLE *pData);
+    int GetMultipointWBGammaData(int level, GAMMA_TABLE *pData);
+    int CubeInterpolationProcess(interpolation_info_t output, unsigned short *gamma, int num_points);
+    int DBGammaBlend(tcon_gamma_table_t *wb_gamma, unsigned int *index_gamma);
+    double GetGammaPower(vpp_gamma_curve_t mode);
+
+    //DATABASE
+    bool SetPictureMode(PICTURE_MODE_DEFAULT *params);
+    bool GetPictureMode(PICTURE_MODE_DEFAULT *params);
+    bool SetLastPictureMode(PICTURE_MODE_DEFAULT *params);
+    bool GetLastPictureMode(PICTURE_MODE_DEFAULT *params);
+    bool ResetPictureMode(void);
+    bool ResetPictureModeAll(void);
+
+    bool SetPictureModeData(PICTURE_MODE_DATA *params, PICTURE_MODE PictureMode);
+    bool GetPictureModeData(PICTURE_MODE_DATA *params, PICTURE_MODE PictureMode);
+    bool SetPictureModeCustomData(PICTURE_MODE_DATA *params, PICTURE_MODE PictureMode, pq_source_input_t src, pq_sig_fmt_t timing);
+    bool GetPictureModeCustomData(PICTURE_MODE_DATA *params, PICTURE_MODE PictureMode, pq_source_input_t src, pq_sig_fmt_t timing);
+    bool ResetPictureModeData(void);
+    bool ResetPictureModeDataAll(void);
+
+    bool SetNonlinearData(NonlinearModeType *params);
+    bool GetNonlinearData(NonlinearModeType *params);
+    bool SetNonlinearCustomData(NonlinearModeType *params, pq_source_input_t src, pq_sig_fmt_t timing);
+    bool GetNonlinearCustomData(NonlinearModeType *params, pq_source_input_t src, pq_sig_fmt_t timing);
+    bool ResetNonlinearData(void);
+    bool ResetNonlinearDataAll(void);
+
+    bool SetColorTemperatureData(COLORTEMP_DATA *params, int level);
+    bool GetColorTemperatureData(COLORTEMP_DATA *params, int level);
+    bool ResetColorTemperatureData(void);
+    bool ResetColorTemperatureDataAll(void);
+
+    bool ResetMultipointGammaData(void);
+    bool ResetMultipointGammaDataAll(void);
+
+    bool SetColorCustomizeData(TABLE_CMS *params);
+    bool GetColorCustomizeData(TABLE_CMS *params);
+    bool ResetColorCustomizeData(void);
+    bool ResetColorCustomizeDataAll(void);
+
+    bool SetPictureStructDataBySrc(PICTURE_SETTING_BY_SRC *params);
+    bool GetPictureStructDataBySrc(PICTURE_SETTING_BY_SRC *params);
+    bool ResetPictureStructDataBySrc(void);
+    bool ResetPictureStructDataBySrcAll(void);
+
+    bool SetPictureStructDataGlobal(PICTURE_SETTING_GLOBAL *params);
+    bool GetPictureStructDataGlobal(PICTURE_SETTING_GLOBAL *params);
+    bool ResetPictureStructDataGlobal(void);
+
+
+    //CRI_DATA
+    bool FactoryGetWhitebalanceRGBGainOffsetData(RGB_GAIN_OFFSET *pData, int level);
+    bool FactorySetWhitebalanceRGBGainOffsetData(RGB_GAIN_OFFSET *pData, int level);
+    bool CheckCriDataWhitebalanceRGBGainOffsetData(void);
+
+    bool FactoryGetMultipointGammaData(Multipoint_GAMMA_DATA *pData, int level);
+    bool FactorySetMultipointGammaData(Multipoint_GAMMA_DATA *pData, int level);
+    bool CheckCriDataMultipointGammaData(void);
 
     //cfg
     bool mbCpqCfg_separate_db_enable                    = false;
@@ -737,7 +809,6 @@ private:
     bool mbCpqCfg_bluestretch_enable                    = false;
     bool mbCpqCfg_chroma_coring_enable                  = false;
     bool mbCpqCfg_LocalDimming_enable                   = false;
-    bool mbCpqCfg_new_picture_mode_enable               = false;
 
     bool mInitialized                                   = false;
 
@@ -749,6 +820,8 @@ private:
 
     bool mDisplayMode4k120                              = false;
     bool mDisplayMode4k100                              = false;
+
+    bool mbFilmmakerModeFlag                            = false;
 
     int mAmvideoFd                                      = -1;
     int mDiFd                                           = -1;
@@ -770,6 +843,8 @@ private:
     CHlgToneMapping *mHlgToneMapping                    = NULL;
     CDolbyVision *mDolbyVision                          = NULL;
     SysWrite *pqSysWrite                                = NULL;
+    WhitebalanceDataBase *mWBDataBase                   = NULL;
+    CPQDataBase *mDataBase                              = NULL;
 
     static CPQControl *mInstance;
     sp<CDevicePollCheckThread> mCDevicePollCheckThread;
@@ -778,16 +853,15 @@ private:
 
     tcon_rgb_ogo_t rgbfrompq[3];
     source_input_param_t mCurrentSourceInputInfo;
-    pq_src_param_t mCurrentPqSource;
 
     tv_source_input_t mSourceInputForSaveParam         = SOURCE_MPEG;
     output_type_t mCurrentOutputType                   = OUTPUT_TYPE_LVDS;
     tvin_aspect_ratio_e mCurrentAfdInfo                = TVIN_ASPECT_NULL;
     hdr_type_t mCurrentHdrType                         = HDR_TYPE_NONE;
-    vpp_picture_mode_t mLastPictureMode                = VPP_PICTURE_MODE_STANDARD;
-    vpp_picture_mode_t mCurrentPictureMode             = VPP_PICTURE_MODE_STANDARD;
+    PICTURE_MODE mLastPictureMode                      = PICTURE_MODE_STANDARD;
+    PICTURE_MODE mCurrentPictureMode                   = PICTURE_MODE_STANDARD;
     pq_source_input_t CurSource                        = PQ_SRC_MPEG;
-    pq_sig_fmt_t CurTimming                            = PQ_FMT_SDR;
+    pq_sig_fmt_t CurTimming                            = PQ_SIGFMT_SDR;
 
     mutable Mutex mLock;
     int IsDvApoTypeGame = 0;

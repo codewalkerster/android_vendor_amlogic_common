@@ -220,6 +220,8 @@ class SystemControlHal : public ISystemControl, public SystemControlNotify, publ
     Return<int32_t> getSourceHdrType(void) override;
     Return<int32_t> checkLdimExist(void) override;
     Return<void> getOverscanParams(int32_t mode, getOverscanParams_cb _hidl_cb) override;
+    Return<int32_t> setGammaPattern(int32_t enable, int32_t R, int32_t G, int32_t B) override;
+
     Return<int32_t> factorySetPQMode_Brightness(int32_t inputSrc, int32_t sigFmt, int32_t transFmt, int32_t pq_mode, int32_t value) override;
     Return<int32_t> factoryGetPQMode_Brightness(int32_t inputSrc, int32_t sigFmt, int32_t transFmt, int32_t pq_mode) override;
     Return<int32_t> factorySetPQMode_Contrast(int32_t inputSrc, int32_t sigFmt, int32_t transFmt, int32_t pq_mode, int32_t value) override;
@@ -297,6 +299,7 @@ class SystemControlHal : public ISystemControl, public SystemControlNotify, publ
     Return<int32_t> factoryGetDecodeLumaParams(int32_t inputSrc, int32_t sig_fmt, int32_t trans_fmt, int32_t param_type) override;
     Return<int32_t> factorySetSharpnessParams(int32_t inputSrc, int32_t sig_fmt, int32_t trans_fmt, int32_t isHD, int32_t param_type, int32_t val) override;
     Return<int32_t> factoryGetSharpnessParams(int32_t inputSrc, int32_t sig_fmt, int32_t trans_fmt, int32_t isHD, int32_t param_type) override;
+    Return<Result> factorySetGammaTable(const hidl_array<int32_t, 4096>& pData, int32_t type, int32_t level, int32_t size) override;
     Return<void> getChipVersionInfo(getChipVersionInfo_cb _hidl_cb) override;
     Return<void> getPQDatabaseInfo(int32_t dataBaseName, getPQDatabaseInfo_cb _hidl_cb) override;
     Return<int32_t> setDtvKitSourceEnable(int32_t isEnable) override;
@@ -314,6 +317,14 @@ class SystemControlHal : public ISystemControl, public SystemControlNotify, publ
     Return<int32_t> setDolbyDarkDetail(int32_t mode, int32_t is_save) override;
     Return<int32_t> SetPQModuleDemoState(int32_t modules, int32_t state) override;
     Return<int32_t> GetPQModuleDemoState(int32_t modules) override;
+    Return<int32_t> setFilmMakerMode(int32_t onoff) override;
+    Return<int32_t> getFilmMakerMode(void) override;
+    Return<int32_t> setFilmMakerFlag(int32_t enable) override;
+    Return<int32_t> setMultipointGammaEnable(int32_t enable) override;
+    Return<int32_t> getMultipointGammaEnable(void) override;
+    Return<int32_t> setMultipointGammaMode(int32_t mode) override;
+    Return<int32_t> getMultipointGammaMode(void) override;
+
     //aisr
     Return<Result> aisrContrl(bool on) override;
     Return<Result> hasAisrFunc() override;

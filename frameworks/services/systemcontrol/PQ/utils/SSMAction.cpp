@@ -88,7 +88,7 @@ void SSMAction::init(const char *SsmDataPath, const char *SsmDataHandlerPath, co
         SYS_LOGD ("%s, Verify SSMHeader, status= %d\n", __FUNCTION__, SSM_status);
         if (DeviceMarkCheck() < 0 || SSM_status == SSM_HEADER_INVALID) {
             if (mpObserver != NULL) {
-                mpObserver->resetAllUserSettingParam();
+                mpObserver->resetSSMData();
                 if (mSSMHandler->SSMRecreateHeader())
                     SYS_LOGD ("%s, SSMRecreateHeader success\n", __FUNCTION__);
                 RestoreDeviceMarkValues();
@@ -97,7 +97,7 @@ void SSMAction::init(const char *SsmDataPath, const char *SsmDataHandlerPath, co
             }
         } else if (SSM_status == SSM_HEADER_STRUCT_CHANGE) {
             if (mpObserver != NULL) {
-                mpObserver->resetAllUserSettingParam();
+                mpObserver->resetSSMData();
                 RestoreDeviceMarkValues();
             } else {
                 SYS_LOGE ("%s: SSMActionObserver is NULL!\n", __FUNCTION__);
@@ -341,7 +341,7 @@ bool SSMAction::SSMRecovery()
     EraseAllData();
 
     if (mpObserver != NULL) {
-        mpObserver->resetAllUserSettingParam();
+        mpObserver->resetSSMData();
         RestoreDeviceMarkValues();
     } else {
         SYS_LOGE ("%s: SSMActionObserver is NULL!\n", __FUNCTION__);
@@ -400,98 +400,6 @@ int SSMAction::SSMReadColorTemperature(int offset, int *rw_val)
     *rw_val = tmp_val;
 
     return ret;
-}
-
-bool SSMAction::SetWhitebalanceGammaData(WB_GAMMA_TABLE *pData, int src, int timming, int level)
-{
-    if (MAX_WB_GAMMA_PARAM_SIZE < (sizeof(WB_GAMMA_TABLE) + sizeof(int))) {
-        return false;
-    }
-
-    int offset = (src * MAX_PQ_TIMMING_INDEX * MAX_COLORTEMP_INDEX + timming * MAX_COLORTEMP_INDEX + level) * MAX_WB_GAMMA_PARAM_SIZE;
-    int flag_offset = offset + sizeof(WB_GAMMA_TABLE);
-
-    if (SSMWriteNTypes(VPP_DATA_POS_WB_GAMMA_PARAM_START, sizeof(WB_GAMMA_TABLE), (int *)pData, offset) < 0) {
-        return false;
-    }
-
-    int Flag = 1;
-    if (SSMWriteNTypes(VPP_DATA_POS_WB_GAMMA_PARAM_START, sizeof(int), (int *)&Flag, flag_offset) < 0) {
-        return false;
-    }
-
-    return true;
-}
-
-bool SSMAction::GetWhitebalanceGammaData(WB_GAMMA_TABLE *pData, int src, int timming, int level)
-{
-    if (MAX_WB_GAMMA_PARAM_SIZE < (sizeof(WB_GAMMA_TABLE) + sizeof(int))) {
-        return false;
-    }
-
-    int offset = (src * MAX_PQ_TIMMING_INDEX * MAX_COLORTEMP_INDEX + timming * MAX_COLORTEMP_INDEX + level) * MAX_WB_GAMMA_PARAM_SIZE;
-    int flag_offset = offset + sizeof(WB_GAMMA_TABLE);
-
-    int Flag = 0;
-    if (SSMReadNTypes(VPP_DATA_POS_WB_GAMMA_PARAM_START, sizeof(int), (int *)&Flag, flag_offset) < 0) {
-        return false;
-    }
-
-    if (Flag != 1) {
-        return false;
-    }
-
-    if (SSMReadNTypes(VPP_DATA_POS_WB_GAMMA_PARAM_START, sizeof(WB_GAMMA_TABLE), (int *)pData, offset) < 0) {
-        return false;
-    }
-
-    return true;
-}
-
-bool SSMAction::CriDataGetWhitebalanceGammaData(WB_GAMMA_TABLE *pData, int level)
-{
-    USUC usuc;
-    USUC ret;
-
-    usuc.c[0] = 0x55;
-    usuc.c[1] = 0xAA;
-
-    int tmp_off =  (CRI_DATA_WB_GAMMA_OFFSET + (CRI_DATE_WB_GAMMA_LEN * level));
-    int Label_offset = tmp_off + CRI_DATE_WB_GAMMA_LEN - 2;
-
-    if (ReadDataFromFile(mWhiteBalanceFilePath, Label_offset, 2, ret.c) < 0) {
-        return false;
-    }
-
-    if ((usuc.c[0] != ret.c[0]) || (usuc.c[1] != ret.c[1])) {
-        return false;
-    }
-
-    if (ReadDataFromFile(mWhiteBalanceFilePath, tmp_off, sizeof(WB_GAMMA_TABLE), (unsigned char *)pData) < 0) {
-        return false;
-    }
-
-    return true;
-}
-
-bool SSMAction::CriDataSetWhitebalanceGammaData(WB_GAMMA_TABLE *pData, int level)
-{
-    USUC ret;
-    ret.c[0] = 0x55;
-    ret.c[1] = 0xAA;
-
-    int tmp_off =  (CRI_DATA_WB_GAMMA_OFFSET + (CRI_DATE_WB_GAMMA_LEN * level));
-    int Label_offset = tmp_off + CRI_DATE_WB_GAMMA_LEN - 2;
-
-    if (SaveDataToFile(mWhiteBalanceFilePath, tmp_off, sizeof(WB_GAMMA_TABLE), (unsigned char *)pData) < 0) {
-        return false;
-    }
-
-    if (SaveDataToFile(mWhiteBalanceFilePath, Label_offset, 2, ret.c) < 0) {
-        return false;
-    }
-
-    return true;
 }
 
 int SSMAction::SSMSaveColorDemoMode(unsigned char rw_val)
@@ -918,8 +826,6 @@ int SSMAction::SSMSaveEdgeEnhanceStatus(int offset, int rw_val)
 {
     return SSMWriteNTypes(CUSTOMER_DATA_POS_EDGE_ENHANCER, 1, &rw_val, offset);
 }
-
-
 
 int SSMAction::SSMReadEdgeEnhanceStatus(int offset, int *rw_val)
 {
@@ -1411,33 +1317,3 @@ int SSMAction::SSMReadLocalDimming(int *rw_val) {
 
     return ret;
 }
-
-int SSMAction::SSMSavePictureModeParamsFlag(int offset, int rw_val) {
-    return SSMWriteNTypes(VPP_DATA_POS_PICTURE_MODE_PARAM_CRC_START, 1, &rw_val, offset);
-}
-
-int SSMAction::SSMReadPictureModeParamsFlag(int offset, int *rw_val) {
-    int tmp_val = 0;
-    int ret = 0;
-    ret = SSMReadNTypes(VPP_DATA_POS_PICTURE_MODE_PARAM_CRC_START, 1, &tmp_val, offset);
-    *rw_val = tmp_val;
-
-    return ret;
-}
-
-int SSMAction::SSMSavePictureModeParams(int offset, int size, int *rw_val) {
-    return SSMWriteNTypes(VPP_DATA_POS_PICTURE_MODE_PARAM_START, size, rw_val, offset);
-}
-
-int SSMAction::SSMReadPictureModeParams(int offset, int size, int *rw_val) {
-    return SSMReadNTypes(VPP_DATA_POS_PICTURE_MODE_PARAM_START, size, rw_val, offset);
-}
-
-int SSMAction::SSMSaveDvApoPictureParams(int offset, int size, int *rw_val) {
-    return SSMWriteNTypes(VPP_DATA_POS_AMDVAPO_PICTURE_PARAM_START, size, rw_val, offset);
-}
-
-int SSMAction::SSMReadDvApoPictureParams(int offset, int size, int *rw_val) {
-    return SSMReadNTypes(VPP_DATA_POS_AMDVAPO_PICTURE_PARAM_START, size, rw_val, offset);
-}
-

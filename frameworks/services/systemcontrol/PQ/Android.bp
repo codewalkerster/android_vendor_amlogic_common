@@ -87,11 +87,18 @@ cc_library_shared {
         "CHlgToneMapping.cpp",
         "CDolbyVision.cpp",
 		"GammaOperation.cpp",
+        "CPQDataBase/CPQDataBase.cpp",
+        "CPQDataBase/WhitebalanceDataBase.cpp",
+        "CPQDataBase/LibTableOSD/PQTableOSD.cpp",
+        "CPQDataBase/LibTableOSD/PQTableLoaderOSD.cpp",
+        "CPQDataBase/LibTableOSD/AML_PQ_OSD_Table_Public.cpp",
     ],
 
     export_include_dirs: [
         "utils/include",
         "include",
+        "CPQDataBase",
+        "CPQDataBase/LibTableOSD",
     ],
 
     include_dirs: [

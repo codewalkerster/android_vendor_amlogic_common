@@ -41,8 +41,8 @@ PICTURE_MODE_DATA mDefaultPictureMode[] = {
     {PICTURE_MODE_SONY,     50, 50, 50, 50, 50, 100, 2, DNLP_MID,  0,    COLOR_TMP_MODE_STANDARD, 2, 0,     0,  1,  0, 0,   0,     0},
     {PICTURE_MODE_SAMSUNG,  50, 50, 50, 50, 50, 100, 2, DNLP_MID,  0,    COLOR_TMP_MODE_STANDARD, 2, 0,     0,  1,  0, 0,   0,     0},
     {PICTURE_MODE_SHARP,    50, 50, 50, 50, 50, 100, 2, DNLP_MID,  0,    COLOR_TMP_MODE_STANDARD, 2, 0,     0,  1,  0, 0,   0,     0},
-    {PICTURE_MODE_DV_BRIGHT,50, 50, 50, 50, 50, 100, 0, DNLP_OFF,  0,    COLOR_TMP_MODE_STANDARD, 0, 0,     0,  0,  0, 0,   0,     0},
-    {PICTURE_MODE_DV_DARK,  50, 50, 50, 50, 50, 100, 0, DNLP_OFF,  0,    COLOR_TMP_MODE_STANDARD, 0, 0,     0,  0,  0, 0,   1,     0},
+    {PICTURE_MODE_AMDOLBY_BRIGHT,50, 50, 50, 50, 50, 100, 0, DNLP_OFF,  0,    COLOR_TMP_MODE_STANDARD, 0, 0,     0,  0,  0, 0,   0,     0},
+    {PICTURE_MODE_AMDOLBY_DARK,  50, 50, 50, 50, 50, 100, 0, DNLP_OFF,  0,    COLOR_TMP_MODE_STANDARD, 0, 0,     0,  0,  0, 0,   1,     0},
 };
 
 

@@ -1231,7 +1231,7 @@ int SystemControlService::getGammaValue()
 int SystemControlService::SetWhitebalanceGamma(int channel, int point, int offset)
 {
     if (pCPQControl != NULL) {
-        return pCPQControl->SetWhitebalanceGamma(channel, point, offset);
+        return pCPQControl->SetMultipointGamma(channel, point, offset);
     } else {
         return -1;
     }
@@ -1240,7 +1240,7 @@ int SystemControlService::SetWhitebalanceGamma(int channel, int point, int offse
 int SystemControlService::GetWhitebalanceGamma(int channel, int point)
 {
     if (pCPQControl != NULL) {
-        return pCPQControl->GetWhitebalanceGamma(channel, point);
+        return pCPQControl->GetMultipointGamma(channel, point);
     } else {
         return -1;
     }
@@ -1249,7 +1249,7 @@ int SystemControlService::GetWhitebalanceGamma(int channel, int point)
 int SystemControlService::FactorySetWhitebalanceGamma(int colortemp, int channel, int point, int offset)
 {
     if (pCPQControl != NULL) {
-        return pCPQControl->FactorySetWhitebalanceGamma(colortemp, channel, point, offset);
+        return pCPQControl->FactorySetMultipointGamma(colortemp, channel, point, offset);
     } else {
         return -1;
     }
@@ -1258,7 +1258,7 @@ int SystemControlService::FactorySetWhitebalanceGamma(int colortemp, int channel
 int SystemControlService::FactoryGetWhitebalanceGamma(int colortemp, int channel, int point)
 {
     if (pCPQControl != NULL) {
-        return pCPQControl->FactoryGetWhitebalanceGamma(colortemp, channel, point);
+        return pCPQControl->FactoryGetMultipointGamma(colortemp, channel, point);
     } else {
         return -1;
     }
@@ -1467,7 +1467,7 @@ int SystemControlService::getLocalContrastMode()
 int SystemControlService::setBlackExtensionMode(int mode, int isSave)
 {
     if (pCPQControl != NULL) {
-        return pCPQControl->SetBlackExtensionMode((black_extension_mode_t)mode, isSave);
+        return pCPQControl->SetBlackStretch(mode, isSave);
     } else {
         return -1;
     }
@@ -1476,7 +1476,7 @@ int SystemControlService::setBlackExtensionMode(int mode, int isSave)
 int SystemControlService::getBlackExtensionMode()
 {
     if (pCPQControl != NULL) {
-        return pCPQControl->GetBlackExtensionMode();
+        return pCPQControl->GetBlackStretch();
     } else {
         return -1;
     }
@@ -1567,6 +1567,15 @@ tvin_cutwin_t SystemControlService::getOverscanParams(int display_mode)
         cutwin_t.ve = 0;
         cutwin_t.vs = 0;
         return cutwin_t;
+    }
+}
+
+int SystemControlService::setGammaPattern(int enable, int R, int G, int B)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->SetGammaPattern(enable, R, G, B);
+    } else {
+        return -1;
     }
 }
 
@@ -2650,6 +2659,18 @@ int SystemControlService::factoryGetSharpnessParams(int inputSrc, int sig_fmt, i
     }
 }
 
+bool SystemControlService::factorySetGammaTable(unsigned short *pData, int type, int level, int len)
+{
+    if (pCPQControl != NULL) {
+        if (pCPQControl->FactorySetGammaTable(pData, type, level, len) < 0) {
+            return false;
+        }
+        return true;
+    }
+
+    return false;
+}
+
 void SystemControlService::getChipVersionInfo(std::string& chiversion) {
     char value[MODE_LEN] = {0};
     if (pCPQControl != NULL) {
@@ -2739,6 +2760,70 @@ int SystemControlService::getDolbyDarkDetail(void)
         return -1;
     }
 }
+
+int SystemControlService::setFilmMakerMode(int onoff)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->SetFilmMakerMode(onoff);
+    } else {
+        return -1;
+    }
+}
+
+int SystemControlService::getFilmMakerMode(void)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->GetFilmMakerMode();
+    } else {
+        return -1;
+    }
+}
+
+int SystemControlService::setFilmMakerFlag(int enable)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->SetFilmMakerFlag(enable);
+    } else {
+        return -1;
+    }
+}
+
+int SystemControlService::setMultipointGammaEnable(int enable)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->SetMultipointGammaEnable(enable);
+    } else {
+        return -1;
+    }
+}
+
+int SystemControlService::getMultipointGammaEnable(void)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->GetMultipointGammaEnable();
+    } else {
+        return -1;
+    }
+}
+
+int SystemControlService::setMultipointGammaMode(int mode)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->SetMultipointGammaMode(mode);
+    } else {
+        return -1;
+    }
+}
+
+int SystemControlService::getMultipointGammaMode(void)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->GetMultipointGammaMode();
+    } else {
+        return -1;
+    }
+}
+
 //PQ end
 
 //static frame

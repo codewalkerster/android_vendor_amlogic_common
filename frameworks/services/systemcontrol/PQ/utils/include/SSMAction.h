@@ -21,9 +21,6 @@
 #define SSM_CR_RGBOGO_CHKSUM_LEN                    (2)
 #define DEFAULT_BACKLIGHT_BRIGHTNESS                (10)
 
-#define CRI_DATA_WB_GAMMA_OFFSET                    (SSM_RGBOGO_FILE_OFFSET + (CRI_DATE_RGBOGO_LEN * CRI_DATE_RGBOGO_INDEX_MAX))
-#define CRI_DATE_WB_GAMMA_LEN                       ((MAX_WB_GAMMA_POINT * 3 * 4) + 2) //sizeof(WB_GAMMA_TABLE) + 2
-
 //#define CRI_DATE_GAMMA_OFFSET                       (512)
 //#define CRI_DATE_GAMMA_RGB_SIZE                     (257)
 #define CRI_DATE_GAMMA_R_index                      (1)
@@ -114,11 +111,7 @@ public:
     //Gamma
     int SSMSaveGammaValue(int offset, int rw_val);
     int SSMReadGammaValue(int offset, int *rw_val);
-    //WhiteBalance
-    bool SetWhitebalanceGammaData(WB_GAMMA_TABLE *pData, int src, int timming, int level);
-    bool GetWhitebalanceGammaData(WB_GAMMA_TABLE *pData, int src, int timming, int level);
-    bool CriDataGetWhitebalanceGammaData(WB_GAMMA_TABLE *pData, int level);
-    bool CriDataSetWhitebalanceGammaData(WB_GAMMA_TABLE *pData, int level);
+
     //PQModuleDemoState
     int SSMSavePQModuleDemoState(int offset, int rw_val);
     int SSMReadPQModuleDemoState(int offset, int *rw_val);
@@ -196,12 +189,6 @@ public:
     int SSMReadChromaCoring(int offset, int *rw_val);
     int SSMSaveLocalDimming(int rw_val);
     int SSMReadLocalDimming(int *rw_val);
-    int SSMSavePictureModeParamsFlag(int offset, int rw_val);
-    int SSMReadPictureModeParamsFlag(int offset, int *rw_val);
-    int SSMSavePictureModeParams(int offset, int size, int *rw_val);
-    int SSMReadPictureModeParams(int offset, int size, int *rw_val);
-    int SSMSaveDvApoPictureParams(int offset, int size, int *rw_val);
-    int SSMReadDvApoPictureParams(int offset, int size, int *rw_val);
 
     int m_dev_fd;
     static SSMAction *mInstance;
@@ -211,6 +198,7 @@ public:
             ISSMActionObserver() {};
             virtual ~ISSMActionObserver() {};
             virtual void resetAllUserSettingParam() {};
+            virtual void resetSSMData() {};
     };
 
     void setObserver (ISSMActionObserver *pOb)

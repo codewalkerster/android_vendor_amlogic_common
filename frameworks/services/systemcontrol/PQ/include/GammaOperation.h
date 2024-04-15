@@ -463,7 +463,7 @@ public:
     static GammaOperation *GetInstance();
 
     //gamma power Convert
-    int GammaOperation_BaseGammaConvert(unsigned short *gamma_value, double basePower , double targetPower);
+    int GammaOperation_BaseGammaConvert(unsigned short *gamma_value, double basePower , double targetPower, int NodeNum);
 
     //whiteBalanceGamma
     interpolation_info_t* nat_cubic_spline(int num_points, interpolation_info_t* output);

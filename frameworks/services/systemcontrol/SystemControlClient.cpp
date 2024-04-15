@@ -985,6 +985,12 @@ bool SystemControlClient::checkLdimExist(void)
         return true;
     }
 }
+
+int SystemControlClient::setGammaPattern(int enable, int R, int G, int B)
+{
+    return mSysCtrl->setGammaPattern(enable, R, G, B);
+}
+
 int SystemControlClient::setLocalContrastMode(int mode, int isSave)
 {
     return mSysCtrl->setLocalContrastMode(mode, isSave);
@@ -1401,6 +1407,24 @@ int SystemControlClient::factoryGetSharpnessParams(int inputSrc, int sig_fmt, in
     return mSysCtrl->factoryGetSharpnessParams(inputSrc, sig_fmt, trans_fmt, isHD, param_type);
 }
 
+int SystemControlClient::factorySetGammaTable(unsigned short *value, int type, int level, int PointNum)
+{
+    int i;
+    hidl_array<int32_t, 4096> result;
+    for (i = 0; i < PointNum; ++i) {
+        result[i] = value[i];
+    }
+    for (; i < 4096; ++i) {
+        result[i] = 0;
+    }
+
+    if (mSysCtrl->factorySetGammaTable(result, type, level, PointNum) == Result::OK) {
+        return true;
+    }
+
+    return false;
+}
+
 void SystemControlClient::getChipVersionInfo(std::string& chipversion) {
     mSysCtrl->getChipVersionInfo([&chipversion](const Result &ret, const hidl_string& tempmode) {
         if (Result::OK == ret)
@@ -1532,6 +1556,34 @@ int SystemControlClient::getDolbyDarkDetail(void) {
 
 int SystemControlClient::setDolbyDarkDetail(int32_t mode, int is_save) {
     return mSysCtrl->setDolbyDarkDetail(mode, is_save);
+}
+
+int SystemControlClient::setFilmMakerMode(int onoff) {
+    return mSysCtrl->setFilmMakerMode(onoff);
+}
+
+int SystemControlClient::getFilmMakerMode(void) {
+    return mSysCtrl->getFilmMakerMode();
+}
+
+int SystemControlClient::setFilmMakerFlag(int enable) {
+    return mSysCtrl->setFilmMakerFlag(enable);
+}
+
+int SystemControlClient::setMultipointGammaEnable(int enable) {
+    return mSysCtrl->setMultipointGammaEnable(enable);
+}
+
+int SystemControlClient::getMultipointGammaEnable(void) {
+    return mSysCtrl->getMultipointGammaEnable();
+}
+
+int SystemControlClient::setMultipointGammaMode(int mode) {
+    return mSysCtrl->setMultipointGammaMode(mode);
+}
+
+int SystemControlClient::getMultipointGammaMode(void) {
+    return mSysCtrl->getMultipointGammaMode();
 }
 
 //PQ end

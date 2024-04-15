@@ -663,8 +663,7 @@ int CPQdb::PQ_GetColorTemperatureParams(vpp_color_temperature_mode_t Tempmode, s
     return rval;
 }
 
-int CPQdb::PQ_SetColorTemperatureParams(vpp_color_temperature_mode_t Tempmode,source_input_param_t source_input_param,
-                                                   tcon_rgb_ogo_t params)
+int CPQdb::PQ_SetColorTemperatureParams(vpp_color_temperature_mode_t Tempmode,source_input_param_t source_input_param, tcon_rgb_ogo_t params)
 {
     CSqlite::Cursor c;
     char sqlmaster[256] = {0};
@@ -693,6 +692,57 @@ int CPQdb::PQ_SetColorTemperatureParams(vpp_color_temperature_mode_t Tempmode,so
     } else {
         SYS_LOGE("%s, GeneralWhiteBalanceTable don't have this table!\n", __FUNCTION__);
         rval = -1;
+    }
+
+    return rval;
+}
+
+int CPQdb::PQ_GetColorTemperatureData(vpp_color_temperature_mode_t Tempmode, pq_source_input_t src, pq_sig_fmt_t timming, tcon_rgb_ogo_t *params)
+{
+    CSqlite::Cursor c;
+    char sqlmaster[256];
+
+    int rval = -1;
+    //default
+    params->en = 1;
+    params->r_pre_offset = 0;
+    params->g_pre_offset = 0;
+    params->b_pre_offset = 0;
+    params->r_gain = 1024;
+    params->g_gain = 1024;
+    params->b_gain = 1024;
+    params->r_post_offset = 0;
+    params->g_post_offset = 0;
+    params->b_post_offset = 0;
+
+    pq_src_param_t source_input_param;
+    source_input_param.pq_source_input = src;
+    source_input_param.pq_sig_fmt = timming;
+
+    String8 TableName = GetPqOsdTableName("GeneralWhiteBalanceTable", source_input_param);
+    if ((TableName.c_str() != NULL) && (TableName.length() != 0) ) {
+        getSqlParams(
+            __FUNCTION__,
+            sqlmaster,
+            "select Enable, R_Pre_Offset, G_Pre_Offset, B_Pre_Offset, R_Gain, G_Gain, B_Gain, R_Post_Offset, G_Post_Offset, B_Post_Offset  from %s where "
+            "Level = %d and def = 0;", TableName.c_str(), (int) Tempmode);
+
+        rval = this->select(sqlmaster, c);
+
+        if (c.moveToFirst()) {
+            params->en            = c.getInt(0);
+            params->r_pre_offset  = c.getInt(1);
+            params->g_pre_offset  = c.getInt(2);
+            params->b_pre_offset  = c.getInt(3);
+            params->r_gain        = c.getInt(4);
+            params->g_gain        = c.getInt(5);
+            params->b_gain        = c.getInt(6);
+            params->r_post_offset = c.getInt(7);
+            params->g_post_offset = c.getInt(8);
+            params->b_post_offset = c.getInt(9);
+        }
+    } else {
+        SYS_LOGE("GeneralWhiteBalanceTable select error\n");
     }
 
     return rval;
@@ -2122,7 +2172,7 @@ int CPQdb::PQ_GetSharpness0Params(source_input_param_t source_input_param, int l
 {
     int val = 0;
 
-    GetNonlinearMapping(TVPQ_DATA_SHARPNESS, source_input_param.source_input, level, &val);
+    //GetNonlinearMapping(TVPQ_DATA_SHARPNESS, source_input_param.source_input, level, &val);
     *regs = CalculateLevelRegsParam(pq_sharpness0_reg_data, val, 0);
     return 0;
 }
@@ -2131,7 +2181,7 @@ int CPQdb::PQ_GetSharpness1Params(source_input_param_t source_input_param, int l
 {
     int val = 0;
 
-    GetNonlinearMapping(TVPQ_DATA_SHARPNESS, source_input_param.source_input, level, &val);
+    //GetNonlinearMapping(TVPQ_DATA_SHARPNESS, source_input_param.source_input, level, &val);
     *regs = CalculateLevelRegsParam(pq_sharpness1_reg_data, val, 1);
     return 0;
 }
@@ -2140,7 +2190,7 @@ int CPQdb::PQ_GetSharpnessPiParams(source_input_param_t source_input_param, int 
 {
     int val = 0;
 
-    GetNonlinearMapping(TVPQ_DATA_SHARPNESS, source_input_param.source_input, level, &val);
+    //GetNonlinearMapping(TVPQ_DATA_SHARPNESS, source_input_param.source_input, level, &val);
     *regs = CalculateLevelRegsParam(pq_sharpnesspi_reg_data, val, 2);
     return 0;
 }
@@ -2961,13 +3011,15 @@ int CPQdb::PQ_ResetAllPQModeParams(void)
     return rval;
 }
 
-int CPQdb::PQ_GetPictureModeParams(pq_src_param_t source_input, vpp_picture_mode_t pq_mode,
-                                vpp_pictur_mode_para_t *params)
+int CPQdb::PQ_GetPictureModeParams(pq_source_input_t src, pq_sig_fmt_t timming, vpp_picture_mode_t pq_mode, vpp_pictur_mode_para_t *params)
 {
     CSqlite::Cursor c;
     char sqlmaster[256] = {0};
 
     int rval = -1;
+    pq_src_param_t source_input;
+    source_input.pq_source_input=  src;
+    source_input.pq_sig_fmt = timming;
 
     //for picture mode 5
     String8 TableName = GetPqOsdTableName("GeneralPictureMode5Table", source_input);
@@ -3086,7 +3138,7 @@ int CPQdb::PQ_GetGammaSpecialTable(vpp_gamma_curve_t gamma_curve, const char *f_
             gamma_value->data[index] = c.getInt(0);
             index++;
         } while (c.moveToNext());
-        Gamma_nodes = (index < 256) ? 256 : index;
+        Gamma_nodes = (index <= 256) ? 256 : 257;
     } else {
         SYS_LOGE("%s, select %s error!\n", __FUNCTION__, f_name);
         rval = -1;
@@ -3101,17 +3153,23 @@ int CPQdb::PQ_GetWhiteBalanceGammaSpecialTable(vpp_color_temperature_mode_t mode
     int rval = -1;
 
     switch (mode) {
-    case VPP_COLOR_TEMPERATURE_MODE_COLD:
+    case COLOR_TMP_MODE_COLD:
         getSqlParams(__FUNCTION__, sqlmaster, "select %s from GAMMA_cool", f_name);
         break;
-    case VPP_COLOR_TEMPERATURE_MODE_WARM:
+    case COLOR_TMP_MODE_WARM:
         getSqlParams(__FUNCTION__, sqlmaster, "select %s from GAMMA_warm", f_name);
         break;
-    case VPP_COLOR_TEMPERATURE_MODE_USER:
+    case COLOR_TMP_MODE_USER:
         getSqlParams(__FUNCTION__, sqlmaster, "select %s from GAMMA_user", f_name);
         break;
-    case VPP_COLOR_TEMPERATURE_MODE_STANDARD:
+    case COLOR_TMP_MODE_STANDARD:
         getSqlParams(__FUNCTION__, sqlmaster, "select %s from GAMMA_normal", f_name);
+        break;
+    case COLOR_TMP_MODE_WARMER:
+        getSqlParams(__FUNCTION__, sqlmaster, "select %s from GAMMA_warmer", f_name);
+        break;
+    case COLOR_TMP_MODE_COLDER:
+        getSqlParams(__FUNCTION__, sqlmaster, "select %s from GAMMA_cooler", f_name);
         break;
     default:
         SYS_LOGE("%s: invalid color temperature mode!\n", __FUNCTION__);
@@ -3125,7 +3183,7 @@ int CPQdb::PQ_GetWhiteBalanceGammaSpecialTable(vpp_color_temperature_mode_t mode
             gamma_value->data[index] = c.getInt(0);
             index++;
         } while (c.moveToNext());
-        Gamma_nodes = (index < 256) ? 256 : index;
+        Gamma_nodes = (index <= 256) ? 256 : 257;
     } else {
         SYS_LOGE("%s, select %s error!\n", __FUNCTION__, f_name);
         rval = -1;

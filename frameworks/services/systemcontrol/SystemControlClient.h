@@ -209,6 +209,7 @@ public:
     int saveBacklights(int value, int index);
     int setDynamicBacklight(int mode, int isSave);
     int getDynamicBacklight(void);
+    int setGammaPattern(int enable, int R, int G, int B);
     int setLocalContrastMode(int mode, int isSave);
     int getLocalContrastMode();
     int setBlackExtensionMode(int mode, int isSave);
@@ -301,6 +302,8 @@ public:
     int factoryGetDecodeLumaParams(int inputSrc, int sig_fmt, int trans_fmt, int param_type);
     int factorySetSharpnessParams(int inputSrc, int sig_fmt, int trans_fmt, int isHD, int param_type, int val);
     int factoryGetSharpnessParams(int inputSrc, int sig_fmt, int trans_fmt, int isHD,int param_type);
+    int factorySetGammaTable(unsigned short *value, int type, int level, int PointNum);
+
     void getChipVersionInfo(std::string& chipversion);
     PQDatabaseInfo getPQDatabaseInfo(int32_t dataBaseName);
     int setDtvKitSourceEnable(int isEnable);
@@ -330,6 +333,13 @@ public:
     int setDolbyDarkDetail(int32_t mode, int is_save);
     int SetPQModuleDemoState(int32_t modules, int32_t state);
     int GetPQModuleDemoState(int32_t modules);
+    int setFilmMakerMode(int onoff);
+    int getFilmMakerMode(void);
+    int setFilmMakerFlag(int enable);
+    int setMultipointGammaEnable(int enable);
+    int getMultipointGammaEnable(void);
+    int setMultipointGammaMode(int mode);
+    int getMultipointGammaMode(void);
     //PQ end
 
     //memc

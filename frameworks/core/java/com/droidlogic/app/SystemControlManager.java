@@ -4348,6 +4348,34 @@ public class SystemControlManager {
          return -1;
      }
 
+     public boolean FactorySetGammaTable(int[] val, int type, int level, int PointNum) {
+         synchronized (mLock) {
+             try {
+                 int[] data;
+                 if (PointNum > KEY_TYPE_LEN_FIRST) {
+                     return false;
+                 }
+                 data = paddingBuffer(val, PointNum, KEY_TYPE_LEN_FIRST);
+                 int res = mProxy.factorySetGammaTable(data, type, level, PointNum);
+                 return 0 == res;
+             } catch (Exception e) {
+                 Log.e(TAG, "factorySetGammaTable:" + e);
+             }
+         }
+         return true;
+     }
+
+     public int SetGammaPattern(int enable, int R, int G, int B) {
+         synchronized (mLock) {
+             try {
+                 return mProxy.setGammaPattern(enable, R, G, B);
+             } catch (RemoteException e) {
+                 Log.e(TAG, "setGammaPattern:" + e);
+             }
+         }
+         return -1;
+     }
+
      public int SetDtvKitSourceEnable(int isEnable) {
          synchronized (mLock) {
              try {
@@ -4696,6 +4724,72 @@ public class SystemControlManager {
          }
          return -1;
 
+     }
+
+     public int SetFilmMakerMode(int onoff) {
+           synchronized (mLock) {
+             try {
+                 return mProxy.setFilmMakerMode(onoff);
+             } catch (RemoteException e) {
+                 Log.e(TAG, "SetFilmMakerMode:" + e);
+             }
+         }
+         return -1;
+     }
+
+     public int GetFilmMakerMode() {
+           synchronized (mLock) {
+             try {
+                 return mProxy.getFilmMakerMode();
+             } catch (RemoteException e) {
+                 Log.e(TAG, "GetFilmMakerMode:" + e);
+             }
+         }
+         return -1;
+     }
+
+     public int SetMultipointGammaEnable(int enable) {
+           synchronized (mLock) {
+             try {
+                 return mProxy.setMultipointGammaEnable(enable);
+             } catch (RemoteException e) {
+                 Log.e(TAG, "SetMultipointGammaEnable:" + e);
+             }
+         }
+         return -1;
+     }
+
+     public int GetMultipointGammaEnable() {
+           synchronized (mLock) {
+             try {
+                 return mProxy.getMultipointGammaEnable();
+             } catch (RemoteException e) {
+                 Log.e(TAG, "GetMultipointGammaEnable:" + e);
+             }
+         }
+         return -1;
+     }
+
+     public int SetMultipointGammaMode(int mode) {
+           synchronized (mLock) {
+             try {
+                 return mProxy.setMultipointGammaMode(mode);
+             } catch (RemoteException e) {
+                 Log.e(TAG, "SetMultipointGammaEnable:" + e);
+             }
+         }
+         return -1;
+     }
+
+     public int GetMultipointGammaMode() {
+           synchronized (mLock) {
+             try {
+                 return mProxy.getMultipointGammaMode();
+             } catch (RemoteException e) {
+                 Log.e(TAG, "GetMultipointGammaMode:" + e);
+             }
+         }
+         return -1;
      }
 
      /**

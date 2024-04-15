@@ -219,6 +219,8 @@ public:
     int getSourceHdrType(void);
     tvin_cutwin_t getOverscanParams(int display_mode);
     bool checkLdimExist(void);
+    int setGammaPattern(int enable, int R, int G, int B);
+
     int factorySetPQMode_Brightness(int inputSrc, int sigFmt, int transFmt, int pq_mode, int value);
     int factoryGetPQMode_Brightness(int inputSrc, int sigFmt, int transFmt, int pq_mode);
     int factorySetPQMode_Contrast(int inputSrc, int sigFmt, int transFmt, int pq_mode, int value);
@@ -296,6 +298,8 @@ public:
     int factoryGetDecodeLumaParams(int inputSrc, int sig_fmt, int trans_fmt, int param_type);
     int factorySetSharpnessParams(int inputSrc, int sig_fmt, int trans_fmt, int isHD, int param_type, int val);
     int factoryGetSharpnessParams(int inputSrc, int sig_fmt, int trans_fmt, int isHD,int param_type);
+    bool factorySetGammaTable(unsigned short *pData, int type, int level, int len);
+
     void getChipVersionInfo(std::string& chiversion);
     tvpq_databaseinfo_t getPQDatabaseInfo(int dataBaseName);
     int setDtvKitSourceEnable(int isEnable);
@@ -336,6 +340,14 @@ public:
     bool syncDensity(int displayid, int width, int height);
     int setDolbyDarkDetail(int mode, int is_save);
     int getDolbyDarkDetail(void);
+    int setFilmMakerMode(int onoff);
+    int getFilmMakerMode(void);
+    int setFilmMakerFlag(int enable);
+    int setMultipointGammaEnable(int enable);
+    int getMultipointGammaEnable(void);
+    int setMultipointGammaMode(int mode);
+    int getMultipointGammaMode(void);
+
     //PQ end
     //static frame
     int setStaticFrameEnable(int enable, int isSave);

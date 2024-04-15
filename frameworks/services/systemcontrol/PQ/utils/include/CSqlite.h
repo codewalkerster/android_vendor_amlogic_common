@@ -154,6 +154,17 @@ public:
     bool beginTransaction();
     bool commitTransaction();
     bool rollbackTransaction();
+    bool Sync(void);
+    bool PrepareSqlSelect(const char *msql);
+    bool PrepareSqlUpdate(const char *msql);
+    bool SetIntegerValueToTable(const char *Key, int Data);
+    bool GetIntegerValueFromTable(const char *Key, int *pData);
+    bool SetRealValueToTable(const char *Key, double Data);
+    bool GetRealValueFromTable(const char *Key, double *pData);
+    bool SetTextValueToTable(const char *Key, char *pData);
+    bool GetTextValueFromTable(const char *Key, char *pData);
+    bool SetBlobValueToTable(const char *Key, void *pData, int iSize);
+    bool GetBlobValueFromTable(const char *Key, void *pData, int iSize);
     void dbsync()
     {
         sync();
@@ -161,6 +172,10 @@ public:
 private:
     static int  sqlite3_exec_callback(void *data, int nColumn, char **colValues, char **colNames);
     sqlite3 *mHandle;
+    sqlite3_stmt* m_pStmtSelect;
+    sqlite3_stmt* m_pStmtUpdate;
     mutable Mutex mLock;
+    mutable Mutex mSyncLock;
+
 };
 #endif //CSQLITE

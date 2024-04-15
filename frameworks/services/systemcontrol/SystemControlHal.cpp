@@ -1253,6 +1253,10 @@ Return<void> SystemControlHal::getOverscanParams(int32_t mode, getOverscanParams
     return Void();
 }
 
+Return<int32_t> SystemControlHal::setGammaPattern(int32_t enable, int32_t R, int32_t G, int32_t B) {
+    return mSysControl->setGammaPattern(enable, R, G, B);
+}
+
 Return<int32_t> SystemControlHal::factoryResetPQMode(void) {
     return mSysControl->factoryResetPQMode();
 }
@@ -1583,6 +1587,25 @@ Return<int32_t> SystemControlHal::factoryGetSharpnessParams(int32_t inputSrc, in
     return mSysControl->factoryGetSharpnessParams(inputSrc, sig_fmt, trans_fmt, isHD, param_type);
 }
 
+Return<Result> SystemControlHal::factorySetGammaTable(const hidl_array<int32_t, 4096>& pData, int32_t type, int32_t level, int32_t size)
+{
+    unsigned short *value = (unsigned short *)malloc(size * sizeof(unsigned short));
+    memset(value, 0, size * sizeof(unsigned short));
+
+    for (int i = 0; i < size; ++i) {
+        value[i] = pData[i];
+    }
+
+    bool result = mSysControl->factorySetGammaTable(value, type, level, size);
+    free(value);
+
+    if (result) {
+        return Result::OK;
+    }
+
+    return Result::FAIL;
+}
+
 Return<void> SystemControlHal::getChipVersionInfo(getChipVersionInfo_cb _hidl_cb) {
     std::string chipversion;
     mSysControl->getChipVersionInfo(chipversion);
@@ -1714,6 +1737,33 @@ Return<int32_t> SystemControlHal::setDolbyDarkDetail(int32_t mode, int32_t is_sa
     return mSysControl->setDolbyDarkDetail(mode, is_save);
 }
 
+Return<int32_t> SystemControlHal::setFilmMakerMode(int32_t onoff) {
+    return mSysControl->setFilmMakerMode(onoff);
+}
+
+Return<int32_t> SystemControlHal::getFilmMakerMode(void) {
+    return mSysControl->getFilmMakerMode();
+}
+
+Return<int32_t> SystemControlHal::setFilmMakerFlag(int32_t enable) {
+    return mSysControl->setFilmMakerFlag(enable);
+}
+
+Return<int32_t> SystemControlHal::setMultipointGammaEnable(int32_t enable) {
+    return mSysControl->setMultipointGammaEnable(enable);
+}
+
+Return<int32_t> SystemControlHal::getMultipointGammaEnable(void) {
+    return mSysControl->getMultipointGammaEnable();
+}
+
+Return<int32_t> SystemControlHal::setMultipointGammaMode(int32_t mode) {
+    return mSysControl->setMultipointGammaMode(mode);
+}
+
+Return<int32_t> SystemControlHal::getMultipointGammaMode(void) {
+    return mSysControl->getMultipointGammaMode();
+}
 //PQ end
 
 //static frame

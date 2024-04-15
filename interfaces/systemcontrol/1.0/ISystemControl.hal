@@ -519,6 +519,9 @@ interface ISystemControl {
   getOverscanParams(int32_t mode)
       generates (OverScanParam param);
 
+  setGammaPattern(int32_t enable, int32_t R, int32_t G, int32_t B)
+      generates (int32_t ret);
+
   //factory mode
   factorySetPQMode_Brightness(int32_t inputSrc, int32_t sigFmt, int32_t transFmt, int32_t pq_mode, int32_t value)
       generates (int32_t ret);
@@ -743,6 +746,9 @@ interface ISystemControl {
   factoryGetSharpnessParams(int32_t inputSrc, int32_t sig_fmt, int32_t trans_fmt, int32_t isHD,int32_t param_type)
       generates (int32_t ret);
 
+  factorySetGammaTable(int32_t[4096] pData, int32_t type, int32_t level, int32_t size)
+      generates (Result result);
+
   getChipVersionInfo()
       generates (Result result, string chipversion);
 
@@ -829,6 +835,27 @@ interface ISystemControl {
       generates (int32_t ret);
 
   getDolbyDarkDetail()
+      generates (int32_t ret);
+
+  setFilmMakerMode(int32_t onoff)
+      generates (int32_t ret);
+
+  getFilmMakerMode()
+      generates (int32_t ret);
+
+  setFilmMakerFlag(int32_t enable)
+      generates (int32_t ret);
+
+  setMultipointGammaEnable(int32_t enable)
+      generates (int32_t ret);
+
+  getMultipointGammaEnable()
+      generates (int32_t ret);
+
+  setMultipointGammaMode(int32_t mode)
+      generates (int32_t ret);
+
+  getMultipointGammaMode()
       generates (int32_t ret);
 //PD END
   //static frame
