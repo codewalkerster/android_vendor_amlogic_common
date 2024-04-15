@@ -34,14 +34,48 @@ android_hardware_audio_config_default {
         },
     },
 }
+soong_config_module_type_import {
+    from: "device/amlogic/common/soong_config/Android.bp",
+    module_types: ["amlogic_vendorconfig_cc_defaults"],
+}
+
+amlogic_vendorconfig_cc_defaults {
+    name: "lowpower_hotword_defaults",
+
+    soong_config_variables: {
+        enable_lowpower_hotword: {
+            cflags: ["-DPRODUCT_ENABLE_LOWPOWER_HOTWORD"],
+        },
+    },
+}
+///////////////////////////////////////
+bootstrap_go_package {
+    name: "soong-soundtrigger",
+    pkgPath: "android/soong/vendor/amlogic/common/frameworks/services/audiohalserver",
+    deps: [
+        "blueprint",
+        "blueprint-pathtools",
+        "soong",
+        "soong-android",
+        "soong-cc",
+        "soong-genrule",
+    ],
+    srcs: [
+        "soundtrigger.go",
+    ],
+    pluginFor: ["soong_build"],
+}
+soundtrigger_go_defaults {
+    name: "soundtrigger_go_defaults",
+}
 
 cc_binary {
     name: "android.hardware.audio.service-droidlogic",
 
-    init_rc: ["android.hardware.audio.service-droidlogic.rc"],
+    //init_rc: ["android.hardware.audio.service-droidlogic.rc"],
     relative_install_path: "hw",
     vendor: true,
-
+    //vintf_fragments: ["soundtrigger/android.hardware.soundtringger@2.3-service.droidlogic.xml"],
     srcs: ["service.cpp"],
 
     cflags: [
@@ -62,6 +96,8 @@ cc_binary {
 
     defaults: [
         "android_hardware_audio_config_defaults",
+        "lowpower_hotword_defaults",
+        "soundtrigger_go_defaults",
     ],
 }
 

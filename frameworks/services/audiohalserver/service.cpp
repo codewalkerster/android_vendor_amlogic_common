@@ -28,10 +28,17 @@
 #include <hidl/LegacySupport.h>
 #include <hwbinder/ProcessState.h>
 
+#ifdef PRODUCT_ENABLE_LOWPOWER_HOTWORD
+#include "soundtrigger/SoundTriggerHw.h"
+using android::hardware::soundtrigger::V2_3::ISoundTriggerHw;
+using android::hardware::soundtrigger::V2_3::implementation::SoundTriggerHw;
+#endif
+
 using namespace android::hardware;
 using android::OK;
 
 using InterfacesList = std::vector<std::string>;
+
 
 /** Try to register the provided factories in the provided order.
  *  If any registers successfully, do not register any other and return true.
@@ -174,5 +181,11 @@ int main(int /* argc */, char* /* argv */ []) {
         }
     }
 
+#ifdef PRODUCT_ENABLE_LOWPOWER_HOTWORD
+    ALOGD("start ISoundTriggerHw service");
+    android::sp<ISoundTriggerHw> service = new SoundTriggerHw();
+    android::status_t status = service->registerAsService();
+    ALOGD("%s() MS12Server registerAsService returns %d", __FUNCTION__, status);
+#endif
     joinRpcThreadpool();
 }

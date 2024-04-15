@@ -1,0 +1,13 @@
+service vendor.audio-hal /vendor/bin/hw/android.hardware.audio.service-droidlogic
+    class hal
+    user audioserver
+    interface android.hardware.soundtrigger@2.0::ISoundTriggerHw default
+    interface android.hardware.soundtrigger@2.1::ISoundTriggerHw default
+    interface android.hardware.soundtrigger@2.2::ISoundTriggerHw default
+    interface android.hardware.soundtrigger@2.3::ISoundTriggerHw default
+    # media gid needed for /dev/fm (radio) and for /data/misc/media (tee)
+    group audio camera drmrpc inet media mediadrm net_bt net_bt_admin net_bw_acct wakelock context_hub
+    capabilities BLOCK_SUSPEND SYS_NICE IPC_LOCK
+    ioprio rt 4
+    task_profiles ProcessCapacityHigh HighPerformance
+    onrestart restart audioserver
