@@ -2083,6 +2083,11 @@ static int userial_handle_cmd(unsigned char *recv_buffer, int *total_length)
     uint16_t scan_int, scan_win;
     static uint16_t voice_settings;
     char prop_value[100] = {0};
+    uint16_t voice_setting;
+    uint8_t set_pcm_param_cmd[13] = {0x01, 0x93, 0xfc, 0x09, 0x00};
+    uint8_t command_msbc[HCI_SET_PCM_PARAM_SIZE] = {0x81,0x10,0x00,0x00,0x11,0x04,0x00,0x00,0x41};
+    uint8_t command_cvsd[HCI_SET_PCM_PARAM_SIZE] = {0x81,0x10,0x00,0x00,0x11,0x80,0x00,0x00,0x01};
+
     switch (opcode)
     {
     case HCI_BLE_WRITE_SCAN_PARAMS:  /*stack command*/
@@ -2310,15 +2315,39 @@ static int userial_handle_cmd(unsigned char *recv_buffer, int *total_length)
         }
         break;
 
-#ifdef CONFIG_SCO_OVER_HCI
-    case HCI_SETUP_ESCO_CONNECTION:
+     case HCI_SETUP_ESCO_CONNECTION:
+        STREAM_TO_UINT16_S(voice_setting, (recv_buffer + 15));
+        if ((voice_setting & HCI_AIR_CODING_FORMAT_MASK) == HCI_AIR_CODING_FORMAT_TRANSPNT)
         {
-            STREAM_TO_UINT16_S(sco_cb.voice_settings, (recv_buffer + 15));
-            sco_cb.ctrl_fd = -1;
-            sco_cb.data_fd = -1;
+            memcpy(set_pcm_param_cmd+4, command_msbc, 9);
+            userial_vendor_send_cmd_to_controller(set_pcm_param_cmd, 13, NULL);
+        }
+        else if ((voice_setting & HCI_AIR_CODING_FORMAT_MASK) == HCI_AIR_CODING_FORMAT_CVSD)
+        {
+            memcpy(set_pcm_param_cmd+4, command_cvsd, 9);
+            userial_vendor_send_cmd_to_controller(set_pcm_param_cmd, 13, NULL);
+        }
+
+#ifdef CONFIG_SCO_OVER_HCI
+        sco_cb.voice_settings = voice_setting;
+        sco_cb.ctrl_fd = -1;
+        sco_cb.data_fd = -1;
+#endif
+        break;
+
+    case HCI_ACCEPT_ESCO_CONNECTION:
+        STREAM_TO_UINT16_S(voice_setting, (recv_buffer + 19));
+        if ((voice_setting & HCI_AIR_CODING_FORMAT_MASK) == HCI_AIR_CODING_FORMAT_TRANSPNT)
+        {
+            memcpy(set_pcm_param_cmd+4, command_msbc, 9);
+            userial_vendor_send_cmd_to_controller(set_pcm_param_cmd, 13, NULL);
+        }
+        else if ((voice_setting & HCI_AIR_CODING_FORMAT_MASK) == HCI_AIR_CODING_FORMAT_CVSD)
+        {
+            memcpy(set_pcm_param_cmd+4, command_cvsd, 9);
+            userial_vendor_send_cmd_to_controller(set_pcm_param_cmd, 13, NULL);
         }
         break;
-#endif
 
     case HCI_SET_EVENT_MASK:
         {

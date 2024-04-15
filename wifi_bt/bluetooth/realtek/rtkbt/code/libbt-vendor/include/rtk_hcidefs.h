@@ -2659,6 +2659,9 @@
 #define HCI_CMD_VNDR_HEARTBEAT      0xfc94
 #define HCI_CMD_VNDR_AUTOPAIR       0xfc77
 
+/* Parameter information for HCI_SET_PCM_PARAM */
+#define HCI_SET_PCM_PARAM_SIZE 9
+#define HCI_SET_PCM_PARAM (0x0093 | HCI_GRP_VENDOR_SPECIFIC)
 
 typedef struct
 {
