@@ -25,6 +25,8 @@ import android.content.Context;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioDeviceCallback;
+import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.media.AudioFormat;
 import android.net.Uri;
@@ -48,12 +50,8 @@ import android.view.Display;
 import android.os.Handler;
 
 import java.io.File;
-import java.lang.NumberFormatException;
-import java.lang.StringBuffer;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Arrays;
+
 import java.util.List;
 import java.util.Scanner;
 import android.os.SystemProperties;
@@ -64,8 +62,6 @@ import android.os.HandlerExecutor;
 import com.droidlogic.app.DroidLogicUtils;
 import com.droidlogic.app.SystemControlManager;
 import com.droidlogic.app.OutputModeManager;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class NetflixService extends Service {
     private static final String TAG = "NetflixService";
@@ -107,7 +103,7 @@ public class NetflixService extends Service {
     private static final int UI_AUDIO_DELAY_OFFSET_OTT_PCM = 75;
     private static boolean atmosSupported = false;
     private static boolean atmosSupportedByConfig = false;
-    private static boolean doblySupported = false;
+    private static boolean dolbySupported = false;
     private boolean mIsNetflixFg = false;
     private boolean mIsYoutubeFg = false;
     private boolean hasMS12 = false;
@@ -128,7 +124,7 @@ public class NetflixService extends Service {
     private  Handler mMsgHandler;
     private String mOriginalPowerStateChangeValue;
     private HdrConversionMode mHdrConversionMode;
-
+    private AudioManagerAudioDeviceCallback mAudioManagerAudioDeviceCallback;
 
     private class SettingsObserver extends ContentObserver {
         public SettingsObserver(Handler handler) {
@@ -146,7 +142,7 @@ public class NetflixService extends Service {
                     setNrdpCapabilitiesIfNeed(NRDP_AUDIO_PLATFORM_CAP, true);
                     setAtmosEnabled(atmosSupported);
                     if (hasMS12) {
-                        setUiAudioBufferDelayOffset(doblySupported);
+                        setUiAudioBufferDelayOffset(dolbySupported);
                     }
                     break;
                 case OutputModeManager.DIGITAL_AUDIO_FORMAT_MANUAL:
@@ -154,7 +150,7 @@ public class NetflixService extends Service {
                     Log.i(TAG, "onChange manual subformat: " + subformat);
                     setAtmosEnabled(subformat.contains(AudioFormat.ENCODING_E_AC3_JOC + ""));
                     if (hasMS12) {
-                        setUiAudioBufferDelayOffset(doblySupported);
+                        setUiAudioBufferDelayOffset(dolbySupported);
                     }
                     break;
                 case OutputModeManager.DIGITAL_AUDIO_FORMAT_PCM:
@@ -238,16 +234,33 @@ public class NetflixService extends Service {
         }
     }
 
-    private BroadcastReceiver mHPReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            boolean isConnected = intent.getBooleanExtra("state", false);
-            refreshAudioCapabilities(isConnected);
-            if (isConnected) {
-                mMsgHandler.sendEmptyMessageDelayed(MSG_UPDATA_DISPLAY,2000);
+    /** Notifications of audio device connection and disconnection events. */
+    private class AudioManagerAudioDeviceCallback extends AudioDeviceCallback {
+        private void updateNrdpProfile(AudioDeviceInfo[] devices, boolean state) {
+            for (AudioDeviceInfo deviceInfo : devices) {
+                if (deviceInfo.isSink() &&
+                        (deviceInfo.getType() == AudioDeviceInfo.TYPE_HDMI ||
+                                deviceInfo.getType() == AudioDeviceInfo.TYPE_HDMI_ARC ||
+                                deviceInfo.getType() == AudioDeviceInfo.TYPE_HDMI_EARC)) {
+                    Log.d(TAG, (state ? "connect" : "disconnect") + " Audio device: " + deviceInfo.getType());
+                    refreshAudioCapabilities(false, state);
+                    if (state) {
+                        mMsgHandler.sendEmptyMessageDelayed(MSG_UPDATA_DISPLAY,2000);
+                    }
+                    return;
+                }
             }
         }
-    };
+        @Override
+        public void onAudioDevicesAdded(AudioDeviceInfo[] addedDevices) {
+            updateNrdpProfile(addedDevices, true);
+        }
+
+        @Override
+        public void onAudioDevicesRemoved(AudioDeviceInfo[] removedDevices) {
+            updateNrdpProfile(removedDevices, false);
+        }
+    }
 
     @Override
     public void onCreate() {
@@ -263,11 +276,9 @@ public class NetflixService extends Service {
         initNrdpCapabilities();
         atmosSupportedByConfig = isAtmosConfiged();
         Log.d(TAG, "atmosSupportedByConfig = " + atmosSupportedByConfig);
-
-        IntentFilter filter = new IntentFilter("android.intent.action.HDMI_PLUGGED");
-        filter.addAction(ACTION_LAUNCH_BENCH_APP);
-        registerReceiver(mHPReceiver, filter, mContext.RECEIVER_EXPORTED);
-        refreshAudioCapabilities(true);
+        mAudioManagerAudioDeviceCallback = new AudioManagerAudioDeviceCallback();
+        mAudioManager.registerAudioDeviceCallback(mAudioManagerAudioDeviceCallback, null);
+        refreshAudioCapabilities();
 
         updateHdrSettings();
         mSettingsObserver = new SettingsObserver(new Handler());
@@ -331,7 +342,7 @@ public class NetflixService extends Service {
         } catch (RemoteException e) {
             Log.e(TAG, "Failed to unregister listeners", e);
         }
-
+        mAudioManager.unregisterAudioDeviceCallback(mAudioManagerAudioDeviceCallback);
         mDeviceConfigListener = null;
 
         super.onDestroy();
@@ -583,23 +594,31 @@ public class NetflixService extends Service {
         return false;
     }
 
-    private void refreshAudioCapabilities(boolean isHdmiPlugged) {
+
+    private void refreshAudioCapabilities() {
+        refreshAudioCapabilities(true, false);
+    }
+    private void refreshAudioCapabilities(boolean init, boolean state) {
         boolean isTv = DroidLogicUtils.isTv();
         int surround = mOutputModeManager.getDigitalAudioFormatOut();
-        Log.i(TAG, "onReceived HDMI_PLUGGED: " + isHdmiPlugged + ", isTv:" + isTv + ", surround:" +
+        Log.i(TAG, "onReceived HDMI_PLUGGED: " + state + ", isTv:" + isTv + ", surround:" +
                 DroidLogicUtils.audioFormatOutputToString(surround));
+
+        String hdmiEncodings = mAudioManager.getParameters("hdmi_encodings");
+
+        atmosSupported = hdmiEncodings.contains("atmos");
+        dolbySupported = hdmiEncodings.contains("ac3");
+
         if (isTv) {
-            tvNrdpAudioPlatformCapabilitiesConfig();
+            // For arc/earc, After disconnecting arc, it need to be configured as the default value in the json file.
+            setAtmosEnabled(state? atmosSupported : atmosSupportedByConfig);
+            setUiAudioBufferDelayOffset(hasMS12 ? UI_AUDIO_DELAY_OFFSET_TV_MS12 : UI_AUDIO_DELAY_OFFSET_TV_NON_DOLBY);
         } else {
-            String audioSinkCap = mSCM.readSysFs(SYS_AUDIO_CAP);
-            atmosSupported = audioSinkCap.contains("Dolby_Digital+/ATMOS");
-            doblySupported = audioSinkCap.contains("Dolby_Digital");
-            if (isHdmiPlugged && (OutputModeManager.DIGITAL_AUDIO_FORMAT_AUTO == surround
+            if ((init || state) && (OutputModeManager.DIGITAL_AUDIO_FORMAT_AUTO == surround
                 || OutputModeManager.DIGITAL_AUDIO_FORMAT_PASSTHROUGH == surround) ) {
-                Log.i(TAG, "ATMOS: " + atmosSupported + ", audioSinkCap: " + audioSinkCap);
                 setAtmosEnabled(atmosSupported);
                 if (hasMS12) {
-                    setUiAudioBufferDelayOffset(doblySupported);
+                    setUiAudioBufferDelayOffset(dolbySupported);
                 }
             }
         }
@@ -702,60 +721,6 @@ public class NetflixService extends Service {
 
             return false;
         }
-
-    boolean isArcPluged(String hdmiArcStr)
-    {
-        if (TextUtils.isEmpty(hdmiArcStr)) {
-            Log.e(TAG, "hdmiArcStr is empty!");
-            return false;
-        }
-
-        if (hdmiArcStr != null && hdmiArcStr.contains("7, 0, 0, 0, 0") && hdmiArcStr.contains("10, 0, 0, 0, 0"))
-            return false;
-
-        return true;
-    }
-
-    boolean isArcSupportAtmos(String hdmiArcStr)
-    {
-        String regex = "\\[(10,\\s+\\d+,\\s+\\d+,\\s+\\d+,\\s+\\d+)]\\|set_";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(hdmiArcStr);
-        String formatStr = null;
-
-        if (matcher.find()) {
-            formatStr = matcher.group(1);
-            if (!TextUtils.isEmpty(formatStr)) {
-                Log.d(TAG, "formatStr:" + formatStr);
-                String[] formatArray = formatStr.split(",");
-                if (formatArray.length  > 0) {
-                    atmosSupported = (Integer.parseInt(formatArray[formatArray.length - 1].trim()) & 0x1)	> 0;
-                    Log.d(TAG,  "atmosSupported:" + atmosSupported  + " ,value:" + formatArray[formatArray.length - 1]);
-                    return atmosSupported;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    private void tvNrdpAudioPlatformCapabilitiesConfig()
-    {
-        boolean isAtmos = atmosSupportedByConfig;
-
-        String hdmiArcStr = Settings.System.getString(getContentResolver(), "settings_audio_descriptor");
-
-        if (!TextUtils.isEmpty(hdmiArcStr)) {
-            Log.d(TAG, "hdmiArcStr = " + hdmiArcStr);
-            if (isArcPluged(hdmiArcStr)) {
-                isAtmos = isArcSupportAtmos(hdmiArcStr);
-            }
-        }
-
-        setAtmosEnabled(isAtmos);
-
-        setUiAudioBufferDelayOffset(hasMS12 ? UI_AUDIO_DELAY_OFFSET_TV_MS12 : UI_AUDIO_DELAY_OFFSET_TV_NON_DOLBY);
-    }
 
     private void setAlwaysHDR(boolean NetflixIsForeground) {
         //when netflix is fg, enable always HDR whatever.
