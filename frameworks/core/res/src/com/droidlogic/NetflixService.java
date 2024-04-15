@@ -342,10 +342,12 @@ public class NetflixService extends Service {
         return null;
     }
     private void updateHdrSettings() {
-        if (mDisplayManager.getHdrConversionMode().getConversionMode() == HdrConversionMode.HDR_CONVERSION_PASSTHROUGH) {
-            setHDRSettingspolicy("playback");
-        } else {
-            setHDRSettingspolicy("always");
+        if (!DroidLogicUtils.isTv()) {
+            if (mDisplayManager.getHdrConversionMode().getConversionMode() == HdrConversionMode.HDR_CONVERSION_PASSTHROUGH) {
+                setHDRSettingspolicy("playback");
+            } else {
+                setHDRSettingspolicy("always");
+            }
         }
     }
 
