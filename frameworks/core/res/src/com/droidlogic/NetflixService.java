@@ -98,7 +98,7 @@ public class NetflixService extends Service {
     private static final int MSG_UPDATA = 1;
     private static final int MSG_UPDATA_DISPLAY = 2;
     private static final int UI_AUDIO_DELAY_OFFSET_TV_NON_DOLBY = 60;
-    private static final int UI_AUDIO_DELAY_OFFSET_TV_MS12 = 110;
+    private static final int UI_AUDIO_DELAY_OFFSET_TV_MS12 = 120;
     private static final int UI_AUDIO_DELAY_OFFSET_OTT_DOLBY = 70;
     private static final int UI_AUDIO_DELAY_OFFSET_OTT_PCM = 75;
     private static boolean atmosSupported = false;
@@ -238,10 +238,12 @@ public class NetflixService extends Service {
     private class AudioManagerAudioDeviceCallback extends AudioDeviceCallback {
         private void updateNrdpProfile(AudioDeviceInfo[] devices, boolean state) {
             for (AudioDeviceInfo deviceInfo : devices) {
+                Log.d(TAG, "isSink = " + deviceInfo.isSink() + ", " + (state ? "connect" : "disconnect") + " Audio device: " + deviceInfo.getType());
                 if (deviceInfo.isSink() &&
                         (deviceInfo.getType() == AudioDeviceInfo.TYPE_HDMI ||
                                 deviceInfo.getType() == AudioDeviceInfo.TYPE_HDMI_ARC ||
-                                deviceInfo.getType() == AudioDeviceInfo.TYPE_HDMI_EARC)) {
+                                deviceInfo.getType() == AudioDeviceInfo.TYPE_HDMI_EARC ||
+                                deviceInfo.getType() == AudioDeviceInfo.TYPE_WIRED_HEADPHONES)) {
                     Log.d(TAG, (state ? "connect" : "disconnect") + " Audio device: " + deviceInfo.getType());
                     refreshAudioCapabilities(false, state);
                     if (state) {
@@ -567,6 +569,20 @@ public class NetflixService extends Service {
         return false;
     }
 
+    private boolean isAudioDeviceConnected(int type) {
+        AudioDeviceInfo[] outputDevices = mAudioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
+        for (AudioDeviceInfo info : outputDevices) {
+            if (info.isSink() && info.getType() == type) {
+                Log.i(TAG, "AudioDeviceConnected: " + type + " true");
+                return true;
+            }
+        }
+
+        Log.i(TAG, "AudioDeviceConnected: " + type + " false");
+        return false;
+	}
+
+
     private boolean isTopTask(String pkgName){
         try {
              // return if the activity monitor is no longer used
@@ -594,7 +610,6 @@ public class NetflixService extends Service {
         return false;
     }
 
-
     private void refreshAudioCapabilities() {
         refreshAudioCapabilities(true, false);
     }
@@ -612,7 +627,7 @@ public class NetflixService extends Service {
         if (isTv) {
             // For arc/earc, After disconnecting arc, it need to be configured as the default value in the json file.
             setAtmosEnabled(state? atmosSupported : atmosSupportedByConfig);
-            setUiAudioBufferDelayOffset(hasMS12 ? UI_AUDIO_DELAY_OFFSET_TV_MS12 : UI_AUDIO_DELAY_OFFSET_TV_NON_DOLBY);
+            setUiAudioBufferDelayOffsetTv();
         } else {
             if ((init || state) && (OutputModeManager.DIGITAL_AUDIO_FORMAT_AUTO == surround
                 || OutputModeManager.DIGITAL_AUDIO_FORMAT_PASSTHROUGH == surround) ) {
@@ -669,8 +684,13 @@ public class NetflixService extends Service {
     }
 
     private void setUiAudioBufferDelayOffset(boolean isDolbySupported) {
-        setUiAudioBufferDelayOffset(isDolbySupported ? UI_AUDIO_DELAY_OFFSET_OTT_DOLBY : UI_AUDIO_DELAY_OFFSET_OTT_PCM);
+        if (DroidLogicUtils.isTv()) {
+            setUiAudioBufferDelayOffsetTv();
+        }else{
+            setUiAudioBufferDelayOffset(isDolbySupported ? UI_AUDIO_DELAY_OFFSET_OTT_DOLBY : UI_AUDIO_DELAY_OFFSET_OTT_PCM);
+        }
     }
+
 
     private void setUiAudioBufferDelayOffset(int setOffset) {
         // Refer to /vendor/etc/nrdp_audio_platform_capabilities.json
@@ -691,6 +711,13 @@ public class NetflixService extends Service {
             e.printStackTrace();
         }
     }
+
+    private void setUiAudioBufferDelayOffsetTv() {
+        setUiAudioBufferDelayOffset(hasMS12
+		    && (isAudioDeviceConnected(AudioDeviceInfo.TYPE_HDMI_EARC) || isAudioDeviceConnected(AudioDeviceInfo.TYPE_HDMI_ARC))
+			&& !isAudioDeviceConnected(AudioDeviceInfo.TYPE_WIRED_HEADPHONES) ?
+            UI_AUDIO_DELAY_OFFSET_TV_MS12 : UI_AUDIO_DELAY_OFFSET_TV_NON_DOLBY);
+	}
 
     private boolean isAtmosConfiged() {
         String capName_File = NRDP_AUDIO_PLATFORM_CAP;
