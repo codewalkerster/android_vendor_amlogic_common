@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2020 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- General configuration values for voice model enrollment -->
+<config xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Google voice model vendor UUID key. This key is shared with SoundTrigger HAL to associate
+         voice models with the Google DSP Hotword Engine -->
+    <vendor-uuid>73d8a066-29f9-3744-b206-a444ce4b45a6</vendor-uuid>
+    <!-- Map of system locale stings to voice model file names. Locale strings which do not exactly
+         match a voice model file name will use this map to find the proper model file associated
+         with the locale. -->
+    <locale-map>
+        <locale-map-entry locale="ar-001" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="ar-AE" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="ar-BH" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="ar-DZ" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="ar-EG" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="ar-IQ" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="ar-JO" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="ar-KW" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="ar-LB" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="ar-LY" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="ar-MA" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="ar-MR" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="ar-OM" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="ar-PS" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="ar-QA" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="ar-SA" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="ar-TN" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="ar-YE" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="bn-IN" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="cmn-Hans-CN" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="cmn-Hant-TW" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="cs-CZ" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="da-DK" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="de-AT" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="de-BE" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="de-CH" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="de-DE" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="de-LI" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="en-001" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-AE" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-AU" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-BE" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-BW" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-CA" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-CH" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-DE" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-EG" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-GB" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-GH" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-HK" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-ID" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-IE" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-IL" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-IN" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-KE" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-MM" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-MT" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-MU" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-MY" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-NA" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-NG" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-NL" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-NZ" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-PG" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-PH" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-PK" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-SA" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-SE" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-SG" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-TH" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-TZ" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-UG" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-US" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-ZA" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-ZM" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="en-ZW" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="es-419" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="es-AR" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="es-BO" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="es-CL" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="es-CO" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="es-CR" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="es-DO" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="es-EC" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="es-ES" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="es-GT" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="es-HN" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="es-MX" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="es-NI" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="es-PA" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="es-PE" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="es-PH" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="es-PR" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="es-PY" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="es-SV" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="es-US" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="es-UY" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="es-VE" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="fa-IR" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="fi-FI" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="fil-PH" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="fr-BE" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="fr-CA" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="fr-CD" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="fr-CH" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="fr-CI" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="fr-CM" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="fr-DZ" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="fr-ES" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="fr-FR" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="fr-GB" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="fr-GP" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="fr-MA" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="fr-MC" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="fr-MU" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="fr-RE" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="fr-SN" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="fr-TN" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="fr-US" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="gu-IN" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="hi-IN" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="hr-HR" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="id-ID" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="it-CH" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="it-IT" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="ja-JP" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="kn-IN" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="ko-KR" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="ml-IN" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="mr-IN" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="ms-MY" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="nb-NO" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="nl-BE" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="nl-NL" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="pa-IN" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="pl-PL" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="pt-BR" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="pt-PT" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="ro-RO" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="ru-RU" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="sv-SE" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="ta-IN" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="te-IN" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="th-TH" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="tr-TR" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="ur-IN" modelFileName="wb_small_en_all" />
+        <locale-map-entry locale="vi-VN" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="yue-HK" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="yue-Hant-HK" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="zh-CN" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="zh-Hans-CN" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="zh-Hant-HK" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="zh-Hant-TW" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="zh-HK" modelFileName="wb_small_universal" />
+        <locale-map-entry locale="zh-TW" modelFileName="wb_small_universal" />
+    </locale-map>
+</config>

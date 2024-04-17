@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2014 Google Inc.
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<voice-enrollment-application xmlns:android="http://schemas.android.com/apk/res/android"
+    android:searchKeyphraseId="101"
+    android:searchKeyphrase="X Google"
+    android:searchKeyphraseSupportedLocales="ar-001,ar-AE,ar-BH,ar-DZ,ar-EG,ar-IQ,ar-JO,ar-KW,ar-LB,ar-LY,ar-MA,ar-MR,ar-OM,ar-PS,ar-QA,ar-SA,ar-TN,ar-YE,bn-IN,cmn-Hans-CN,cmn-Hant-TW,cs-CZ,da-DK,de-AT,de-BE,de-CH,de-DE,de-LI,en-001,en-AE,en-AU,en-BE,en-BW,en-CA,en-CH,en-DE,en-EG,en-GB,en-GH,en-HK,en-ID,en-IE,en-IL,en-IN,en-KE,en-MM,en-MT,en-MU,en-MY,en-NA,en-NG,en-NL,en-NZ,en-PG,en-PH,en-PK,en-SA,en-SE,en-SG,en-TH,en-TZ,en-UG,en-US,en-ZA,en-ZM,en-ZW,es-419,es-AR,es-BO,es-CL,es-CO,es-CR,es-DO,es-EC,es-ES,es-GT,es-HN,es-MX,es-NI,es-PA,es-PE,es-PH,es-PR,es-PY,es-SV,es-US,es-UY,es-VE,fa-IR,fi-FI,fil-PH,fr-BE,fr-CA,fr-CD,fr-CH,fr-CI,fr-CM,fr-DZ,fr-ES,fr-FR,fr-GB,fr-GP,fr-MA,fr-MC,fr-MU,fr-RE,fr-SN,fr-TN,fr-US,gu-IN,hi-IN,hr-HR,id-ID,it-CH,it-IT,ja-JP,kn-IN,ko-KR,ml-IN,mr-IN,ms-MY,nb-NO,nl-BE,nl-NL,pa-IN,pl-PL,pt-BR,pt-PT,ro-RO,ru-RU,sv-SE,ta-IN,te-IN,th-TH,tr-TR,ur-IN,vi-VN,yue-HK,yue-Hant-HK,zh-CN,zh-HK,zh-Hans-CN,zh-Hant-HK,zh-Hant-TW,zh-TW"
+    android:searchKeyphraseRecognitionFlags="voiceTrigger" />

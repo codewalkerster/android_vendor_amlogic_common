@@ -1,0 +1,99 @@
+//
+// Copyright (C) 2019, Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+package {
+    default_applicable_licenses: [
+        "Android-Apache-2.0",
+        "vendor_google_misc_hotwordenrollment_license",
+    ],
+}
+
+// See: http://go/android-license-faq
+license {
+    name: "vendor_google_misc_hotwordenrollment_license",
+    visibility: [":__subpackages__"],
+    license_kinds: ["legacy_proprietary"],
+}
+
+java_defaults {
+    name: "hotword_enrollment_defaults",
+    privileged: true,
+    product_specific: true,
+    libs: ["com.android.hotwordenrollment.common.util"],
+    sdk_version: "system_current",
+}
+
+android_library {
+    name: "HotwordEnrollmentCommonSrcLib",
+    defaults: ["hotword_enrollment_defaults"],
+    static_libs: ["androidx.core_core"],
+    srcs: ["src/**/*.java"],
+    resource_dirs: ["res"],
+}
+
+android_library {
+    name: "CommonConfigSupportedLocaleResources",
+    defaults: ["hotword_enrollment_defaults"],
+    resource_dirs: ["common_config/res"],
+}
+
+android_library {
+    name: "NarrowbandModelResources",
+    defaults: ["hotword_enrollment_defaults"],
+    static_libs: ["CommonConfigSupportedLocaleResources"],
+    resource_dirs: ["common_config/voice_models/narrowband/res"],
+}
+
+android_library {
+    name: "WidebandLargeModelResources",
+    defaults: ["hotword_enrollment_defaults"],
+    static_libs: ["CommonConfigSupportedLocaleResources"],
+    resource_dirs: ["common_config/voice_models/wideband_large/res"],
+}
+
+android_library {
+    name: "WidebandSmallModelResources",
+    defaults: ["hotword_enrollment_defaults"],
+    static_libs: ["CommonConfigSupportedLocaleResources"],
+    resource_dirs: ["common_config/voice_models/wideband_small/res"],
+}
+
+
+java_defaults {
+    name: "hotword_enrollment_keyphrase_app_defaults",
+    defaults: ["hotword_enrollment_defaults"],
+    static_libs: ["HotwordEnrollmentCommonSrcLib"],
+    srcs: ["src/**/*.java"],
+    resource_dirs: ["res"],
+}
+
+java_defaults {
+    name: "hotword_enrollment_narrowband_keyphrase_app_defaults",
+    defaults: ["hotword_enrollment_keyphrase_app_defaults"],
+    static_libs: ["NarrowbandModelResources"],
+}
+
+java_defaults {
+    name: "hotword_enrollment_wideband_large_keyphrase_app_defaults",
+    defaults: ["hotword_enrollment_keyphrase_app_defaults"],
+    static_libs: ["WidebandLargeModelResources"],
+}
+
+java_defaults {
+    name: "hotword_enrollment_wideband_small_keyphrase_app_defaults",
+    defaults: ["hotword_enrollment_keyphrase_app_defaults"],
+    static_libs: ["WidebandSmallModelResources"],
+}
