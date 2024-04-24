@@ -3128,6 +3128,51 @@ static int userial_handle_event(unsigned char *recv_buffer, int total_length)
         }
         break;
 
+    case HCI_LOOPBACK_COMMAND_EVT:
+        {
+            uint16_t opcode = *((uint16_t *)&recv_buffer[2]);
+            if (RtbQueueIsEmpty(vnd_userial.cmd_data))
+            {
+                ALOGE("%s cmd queue is empty, exception!!!", __func__);
+                assert(false);
+            }
+            else
+            {
+                skb_cmd = RtbDequeueHead(vnd_userial.cmd_data);
+                if (skb_cmd)
+                {
+                    STREAM_TO_UINT16_S(skb_cmd_opcode, (skb_cmd->Data) + 1);
+                    if (skb_cmd_opcode == opcode)
+                    {
+                        sem_post(&queue_cmd_cb.cmd_event_sem);
+                        if (skb_cmd->BtVendorCmdFlag)//libbt-vendor cmd status evt
+                        {
+                            if (skb_cmd->Pcback)
+                            {
+                                skb_cmd->Pcback(p_data);
+                            }
+                            return 1;
+                        }
+                        else//bt stack cmd status evt
+                        {
+                            return 0;
+                        }
+                    }
+                    else
+                    {
+                        ALOGE("%s opcode not match, exception!!!", __func__);
+                        assert(false);
+                    }
+                }
+                else
+                {
+                    ALOGE("%s dequeue cmd is null, exception!!!", __func__);
+                    assert(false);
+                }
+            }
+        }
+        break;
+
     case HCI_BLE_EVENT:
         {
             uint8_t r_cn, i, rl, uuid[128] = {0}, tmp[10];
