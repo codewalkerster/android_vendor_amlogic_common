@@ -29,7 +29,6 @@
 #define BT_LIBBT_INCLUDE_USERIAL_VENDOR_H_
 
 #include "bt_vendor_sprd.h"
-#include "userial.h"
 
 /******************************************************************************
 **  Constants & Macros

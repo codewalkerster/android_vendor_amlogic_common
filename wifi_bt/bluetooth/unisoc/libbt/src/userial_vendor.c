@@ -34,7 +34,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "bt_vendor_sprd.h"
-#include "userial.h"
 #include "userial_vendor.h"
 #include <cutils/properties.h>
 

@@ -48,7 +48,6 @@
 #else
 #include "hci_audio.h"
 #endif
-#include "userial.h"
 #include "userial_vendor.h"
 #include "upio.h"
 #define BTM_SCO_CODEC_CVSD 0x0001

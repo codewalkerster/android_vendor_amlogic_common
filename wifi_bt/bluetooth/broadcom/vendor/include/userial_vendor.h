@@ -29,7 +29,6 @@
 #define USERIAL_VENDOR_H
 
 #include "bt_vendor_brcm.h"
-#include "userial.h"
 
 /******************************************************************************
 **  Constants & Macros
