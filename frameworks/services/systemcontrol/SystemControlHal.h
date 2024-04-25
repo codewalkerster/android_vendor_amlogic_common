@@ -217,6 +217,11 @@ class SystemControlHal : public ISystemControl, public SystemControlNotify, publ
     Return<int32_t> getDemoSquitoMode(void) override;
     Return<int32_t> setColorBaseMode(int32_t mode, int32_t isSave) override;
     Return<int32_t> getColorBaseMode(void) override;
+    Return<int32_t> setColorCustomize(int32_t Color, int32_t Type, int32_t value, int32_t isSave) override;
+    Return<int32_t> getColorCustomize(int32_t Color, int32_t Type) override;
+    Return<int32_t> setColorCustomizeEnable(int32_t enable) override;
+    Return<int32_t> getColorCustomizeEnable(void) override;
+
     Return<int32_t> getSourceHdrType(void) override;
     Return<int32_t> checkLdimExist(void) override;
     Return<void> getOverscanParams(int32_t mode, getOverscanParams_cb _hidl_cb) override;
@@ -315,6 +320,8 @@ class SystemControlHal : public ISystemControl, public SystemControlNotify, publ
     Return<int32_t> setLocalDimming(int32_t level, int32_t is_save) override;
     Return<int32_t> getDolbyDarkDetail(void) override;
     Return<int32_t> setDolbyDarkDetail(int32_t mode, int32_t is_save) override;
+    Return<int32_t> getAmDolbyPecisionDetail(void) override;
+    Return<int32_t> setAmDolbyPecisionDetail(int32_t mode, int32_t is_save) override;
     Return<int32_t> SetPQModuleDemoState(int32_t modules, int32_t state) override;
     Return<int32_t> GetPQModuleDemoState(int32_t modules) override;
     Return<int32_t> setFilmMakerMode(int32_t onoff) override;

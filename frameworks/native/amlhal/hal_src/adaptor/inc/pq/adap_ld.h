@@ -118,5 +118,6 @@ ADAP_STATUS_T ADAP_LD_GetLdBLProfilePath(aml_path_t *Path);
 ADAP_STATUS_T ADAP_LD_SetLdBLProfile(am_pq_bin_param_t *pData);
 ADAP_STATUS_T ADAP_LD_GetLdStructTable(am_pq_bin_param_t *pData);
 ADAP_STATUS_T ADAP_LD_SetLdStructTable(am_pq_bin_param_t *pData);
+ADAP_STATUS_T ADAP_LD_IsExist(void);
 
 #endif

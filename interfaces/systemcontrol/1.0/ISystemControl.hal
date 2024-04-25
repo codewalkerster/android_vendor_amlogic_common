@@ -504,6 +504,18 @@ interface ISystemControl {
   getColorBaseMode()
       generates (int32_t ret);
 
+  setColorCustomize(int32_t Color, int32_t Type, int32_t value, int32_t isSave)
+      generates (int32_t ret);
+
+  getColorCustomize(int32_t Color, int32_t Type)
+      generates (int32_t ret);
+
+  setColorCustomizeEnable(int32_t enable)
+      generates (int32_t ret);
+
+  getColorCustomizeEnable()
+      generates (int32_t ret);
+
   setDLGEnable(int32_t enable, int32_t isSave)
       generates (int32_t ret);
 
@@ -835,6 +847,12 @@ interface ISystemControl {
       generates (int32_t ret);
 
   getDolbyDarkDetail()
+      generates (int32_t ret);
+
+  setAmDolbyPecisionDetail(int32_t mode,int32_t isSave)
+      generates (int32_t ret);
+
+  getAmDolbyPecisionDetail()
       generates (int32_t ret);
 
   setFilmMakerMode(int32_t onoff)

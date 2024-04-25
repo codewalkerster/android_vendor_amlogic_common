@@ -370,3 +370,11 @@ ADAP_STATUS_T ADAP_LD_SetLdStructTable(am_pq_bin_param_t *pData)
     return ADAP_OK;
 }
 
+ADAP_STATUS_T ADAP_LD_IsExist(void)
+{
+    if (mLdFd < 0) {
+        return ADAP_NOT_OK;
+    }
+
+    return ADAP_OK;
+}

@@ -317,7 +317,7 @@ bool CPQDataBase::LoadDefaultTable(void)
     for (unsigned int i = 0; i < GetColorTempTableSize(); i++) {
         TABLE_DATA_STRUCT* pTable = &mColorTempTable[i];
         COLORTEMP_DATA *pData = (COLORTEMP_DATA *)pTable->tableData;
-        for (int j = 0; j < COLOR_TMP_MODE_MAX; j++) {
+        for (int j = 0; j < pTable->tableDataLen; j++) {
             SetColorTemperatureData(&pData[j], pTable->source, pTable->timing, j);
             SetDefaultColorTemperatureData(&pData[j], pTable->source, pTable->timing, j);
         }

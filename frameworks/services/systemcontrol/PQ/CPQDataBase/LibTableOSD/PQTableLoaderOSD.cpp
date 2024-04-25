@@ -235,7 +235,7 @@ bool GetColorTempBuffer(void** ppBuffer, int* piBufferLen)
             tableMapping[iCnt1] = iTableArrayIdx;
             iTableArrayIdx ++;
             if (iTableArrayIdx == MAX_TABLE_SIZE) {
-            break;
+                break;
             }
         }
     }
@@ -463,7 +463,6 @@ bool PQTableGenerate_Osd(char* pPanelFile)
         fwrite(ColorTempBuf, ColorTempBufLen, 1, pFile);
         fwrite(ColorCustomizeBuf, ColorCustomizeBufLen, 1, pFile);
         fwrite(PictureSettingExtBuf, PictureSettingExtLen, 1, pFile);
-
     }
 
     if (PqOsdVerBuf != NULL)

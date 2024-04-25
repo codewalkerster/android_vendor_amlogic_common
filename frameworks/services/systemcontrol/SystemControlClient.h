@@ -220,6 +220,11 @@ public:
     int getDemoSquitoMode();
     int setColorBaseMode(int mode, int isSave);
     int getColorBaseMode();
+    int setColorCustomize(int Color, int Type, int value, int isSave);
+    int getColorCustomize(int Color, int Type);
+    int setColorCustomizeEnable(int enable);
+    int getColorCustomizeEnable(void);
+
     int setDLGEnable(int enable, int isSave);
     int getDLGEnable();
     int getSourceHdrType();
@@ -331,6 +336,8 @@ public:
     int setLocalDimming(int32_t level, int is_save);
     int getDolbyDarkDetail(void);
     int setDolbyDarkDetail(int32_t mode, int is_save);
+    int getAmDolbyPecisionDetail(void);
+    int setAmDolbyPecisionDetail(int32_t mode, int is_save);
     int SetPQModuleDemoState(int32_t modules, int32_t state);
     int GetPQModuleDemoState(int32_t modules);
     int setFilmMakerMode(int onoff);

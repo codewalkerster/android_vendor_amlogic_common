@@ -1536,6 +1536,42 @@ int SystemControlService::getColorBaseMode()
     }
 }
 
+int SystemControlService::setColorCustomize(int Color, int Type, int value, int isSave)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->SetColorCustomize(Color, Type, value, isSave);
+    } else {
+        return -1;
+    }
+}
+
+int SystemControlService::getColorCustomize(int Color, int Type)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->GetColorCustomize(Color, Type);
+    } else {
+        return -1;
+    }
+}
+
+int SystemControlService::setColorCustomizeEnable(int enable)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->SetColorCustomizeEnable(enable);
+    } else {
+        return -1;
+    }
+}
+
+int SystemControlService::getColorCustomizeEnable(void)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->GetColorCustomizeEnable();
+    } else {
+        return -1;
+    }
+}
+
 int SystemControlService::getSourceHdrType(void)
 {
     if (pCPQControl != NULL) {
@@ -2756,6 +2792,24 @@ int SystemControlService::getDolbyDarkDetail(void)
 {
     if (pCPQControl != NULL) {
         return pCPQControl->GetDolbyDarkDetail();
+    } else {
+        return -1;
+    }
+}
+
+int SystemControlService::setAmDolbyPecisionDetail(int mode, int is_save)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->SetAmDolbyPecisionDetail(mode, is_save);
+    } else {
+        return -1;
+    }
+}
+
+int SystemControlService::getAmDolbyPecisionDetail(void)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->GetAmDolbyPecisionDetail();
     } else {
         return -1;
     }

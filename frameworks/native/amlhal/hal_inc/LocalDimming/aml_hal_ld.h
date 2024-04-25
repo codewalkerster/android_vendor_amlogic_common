@@ -229,6 +229,7 @@ HAL_STATUS_T AML_HAL_LD_SetDbIdx(int idx);
 HAL_STATUS_T AML_HAL_LD_GetDbIdx(int *pIdx);
 HAL_STATUS_T AML_HAL_LD_SetControlSpi(aml_hal_led_spi_ctrl_info_t *pLedControlSpi);
 HAL_STATUS_T AML_HAL_LD_GetControlSpi(aml_hal_led_spi_ctrl_info_t *pLedControlSpi);
+HAL_STATUS_T AML_HAL_LD_IsExist(void);
 
 #ifdef  __cplusplus
 }

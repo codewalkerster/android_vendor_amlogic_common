@@ -28,85 +28,49 @@ TABLE_DATA_STRUCT mNonlinearMappingTable[] = {
 
 /* Picture Mode start*/
 PICTURE_MODE_DATA mDefaultPictureMode[] = {
-    /*pqmode                         bri con sat hue shp bl     nr    dnlp   gd     gamut colortem                lc     black blue  mnr   Cor    memc   Deco  sr    gamma tmo    dv_mod  dv_dd  dv_ls*/
-    {PICTURE_MODE_STANDARD,          50, 50, 50, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _MID,  _OFF, _OFF, _LOW, _LOW, _HIGH, _LOW, _OFF, 6,    _NULL, _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_BRIGHT,            50, 50, 60, 50, 60, _NULL, _MID, _HIGH, _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    _NULL, _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_SOFT,              50, 45, 60, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_WARM,     _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    _NULL, _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_USER,              45, 40, 40, 50, 25, _NULL, _MID, _LOW,  _OFF,  _OFF, COLOR_TMP_MODE_USER,     _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    _NULL, _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_MOVIE,             50, 40, 50, 50, 50, _NULL, _MID, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARM,     _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    _NULL, _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_COLORFUL,          50, 40, 50, 50, 50, _NULL, _MID, _HIGH, _OFF,  _OFF, COLOR_TMP_MODE_COLD,     _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    _NULL, _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_MONITOR,           50, 40, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _HIGH, _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    _NULL, _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_GAME,              50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _HIGH, _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    _NULL, _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_SPORTS,            48, 50, 45, 50, 50, _NULL, _MID, _HIGH, _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    _NULL, _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_SONY,              50, 50, 50, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _MID,  _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    _NULL, _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_SAMSUNG,           50, 50, 50, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _MID,  _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    _NULL, _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_SHARP,             50, 50, 50, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _MID,  _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    _NULL, _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_AMDOLBY_BRIGHT,    50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    _NULL, 1,      1,     0,    0, 0},
-    {PICTURE_MODE_AMDOLBY_DARK,      50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    _NULL, 0,      0,     0,    0, 0},
-    {PICTURE_MODE_AMDOLBY_IQ,        50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    _NULL, 3,      0,     1,    0, 0},
-    {PICTURE_MODE_AMDOLBY_PRECISION, 50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    _NULL, 3,      0,     1,    0, 0},
-    {PICTURE_MODE_FILMMAKER,         50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    _NULL, _NULL,  _NULL, 0,    0, 0},
+    /*pqmode                         bri con sat hue shp bl     nr    dnlp   gd     gamut colortem                 lc     black blue  mnr   Cor   memc   Deco  sr    gamma tmo    dv_mod  dv_dd  dv_ls  Prcision*/
+    {PICTURE_MODE_STANDARD,          50, 50, 50, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _MID,  _OFF, _OFF, _LOW, _LOW, _HIGH, _LOW, _OFF, 6,    _NULL, _NULL,  _NULL, _NULL, _NULL, 0},
+    {PICTURE_MODE_BRIGHT,            50, 50, 60, 50, 60, _NULL, _MID, _HIGH, _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    _NULL, _NULL,  _NULL, _NULL, _NULL, 0},
+    {PICTURE_MODE_SOFT,              50, 45, 60, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_WARM,     _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    _NULL, _NULL,  _NULL, _NULL, _NULL, 0},
+    {PICTURE_MODE_USER,              45, 40, 40, 50, 25, _NULL, _MID, _LOW,  _OFF,  _OFF, COLOR_TMP_MODE_USER,     _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    _NULL, _NULL,  _NULL, _NULL, _NULL, 0},
+    {PICTURE_MODE_MOVIE,             50, 40, 50, 50, 50, _NULL, _MID, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARM,     _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    _NULL, _NULL,  _NULL, _NULL, _NULL, 0},
+    {PICTURE_MODE_COLORFUL,          50, 40, 50, 50, 50, _NULL, _MID, _HIGH, _OFF,  _OFF, COLOR_TMP_MODE_COLD,     _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    _NULL, _NULL,  _NULL, _NULL, _NULL, 0},
+    {PICTURE_MODE_MONITOR,           50, 40, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _HIGH, _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    _NULL, _NULL,  _NULL, _NULL, _NULL, 0},
+    {PICTURE_MODE_GAME,              50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _HIGH, _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    _NULL, _NULL,  _NULL, _NULL, _NULL, 0},
+    {PICTURE_MODE_SPORTS,            48, 50, 45, 50, 50, _NULL, _MID, _HIGH, _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    _NULL, _NULL,  _NULL, _NULL, _NULL, 0},
+    {PICTURE_MODE_SONY,              50, 50, 50, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _MID,  _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    _NULL, _NULL,  _NULL, _NULL, _NULL, 0},
+    {PICTURE_MODE_SAMSUNG,           50, 50, 50, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _MID,  _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    _NULL, _NULL,  _NULL, _NULL, _NULL, 0},
+    {PICTURE_MODE_SHARP,             50, 50, 50, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _MID,  _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    _NULL, _NULL,  _NULL, _NULL, _NULL, 0},
+    {PICTURE_MODE_AMDOLBY_BRIGHT,    50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    _NULL, 1,      1,     0,     1,     0},
+    {PICTURE_MODE_AMDOLBY_DARK,      50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    _NULL, 0,      0,     0,     0,     0},
+    {PICTURE_MODE_AMDOLBY_IQ,        50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    _NULL, 3,      0,     1,     1,     0},
+    {PICTURE_MODE_FILMMAKER,         50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    _NULL, _NULL,  _NULL, 0,     _NULL, 0},
 };
 
 PICTURE_MODE_DATA mDVPictureMode[] = {
-    /*pqmode                         bri con sat hue shp bl     nr    dnlp   gd     gamut colortem                lc     black blue  mnr   Cor    memc   Deco  sr    gamma tmo    dv_mod  dv_dd  dv_ls*/
-    {PICTURE_MODE_AMDOLBY_BRIGHT,    50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    _NULL, 1,     1,      0,    0, 0},
-    {PICTURE_MODE_AMDOLBY_DARK,      50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    _NULL, 0,     0,      0,    0, 0},
-    {PICTURE_MODE_GAME,              50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    _NULL, 2,     0,      0,    0, 0},
-    {PICTURE_MODE_AMDOLBY_IQ,        50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    _NULL, 3,     0,      1,    0, 0},
-    {PICTURE_MODE_AMDOLBY_PRECISION, 50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    _NULL, 3,     0,      1,    0, 0},
-    {PICTURE_MODE_FILMMAKER,         50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    _NULL, 0,     0,      0,    0, 0},
+    /*pqmode                         bri con sat hue shp bl     nr    dnlp   gd     gamut colortem                 lc     black blue  mnr   Cor   memc   Deco  sr    gamma tmo    dv_mod  dv_dd  dv_ls  Prcision*/
+    {PICTURE_MODE_AMDOLBY_BRIGHT,    50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _OFF, _OFF,  _OFF, _OFF, 6,    _NULL, 1,      1,     0,     1,     0},
+    {PICTURE_MODE_AMDOLBY_DARK,      50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _OFF, _OFF,  _OFF, _OFF, 6,    _NULL, 0,      0,     0,     0,     0},
+    {PICTURE_MODE_GAME,              50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _OFF, _OFF,  _OFF, _OFF, 6,    _NULL, 2,      0,     0,     0,     0},
+    {PICTURE_MODE_AMDOLBY_IQ,        50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _OFF, _OFF,  _OFF, _OFF, 6,    _NULL, 3,      0,     1,     1,     0},
+    {PICTURE_MODE_FILMMAKER,         50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _OFF, _OFF,  _OFF, _OFF, 6,    _NULL, _NULL,  _NULL, _NULL, _NULL, 0},
 };
 
 PICTURE_MODE_DATA mHDR10PictureMode[] = {
-    /*pqmode                         bri con sat hue shp bl     nr    dnlp   gd     gamut colortem                 lc     black blue  mnr   Cor   memc   Deco  sr    gamma tmo    dv_mod  dv_dd  dv_ls*/
-    {PICTURE_MODE_STANDARD,          50, 50, 50, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _MID,  _OFF, _OFF, _LOW, _LOW, _HIGH, _LOW, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_BRIGHT,            50, 50, 60, 50, 60, _NULL, _MID, _HIGH, _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_SOFT,              50, 45, 60, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_WARM,     _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_USER,              45, 40, 40, 50, 25, _NULL, _MID, _LOW,  _OFF,  _OFF, COLOR_TMP_MODE_USER,     _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_MOVIE,             50, 40, 50, 50, 50, _NULL, _MID, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARM,     _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_COLORFUL,          50, 40, 50, 50, 50, _NULL, _MID, _HIGH, _OFF,  _OFF, COLOR_TMP_MODE_COLD,     _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_MONITOR,           50, 40, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _HIGH, _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_GAME,              50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _HIGH, _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_SPORTS,            48, 50, 45, 50, 50, _NULL, _MID, _HIGH, _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_SONY,              50, 50, 50, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _MID,  _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_SAMSUNG,           50, 50, 50, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _MID,  _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_SHARP,             50, 50, 50, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _MID,  _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_FILMMAKER,         50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-};
-
-PICTURE_MODE_DATA mHLGPictureMode[] = {
-    /*pqmode                         bri con sat hue shp bl     nr    dnlp   gd     gamut colortem                 lc     black blue  mnr   Cor   memc   Deco  sr    gamma tmo    dv_mod  dv_dd  dv_ls*/
-    {PICTURE_MODE_STANDARD,          50, 50, 50, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _MID,  _OFF, _OFF, _LOW, _LOW, _HIGH, _LOW, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_BRIGHT,            50, 50, 60, 50, 60, _NULL, _MID, _HIGH, _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_SOFT,              50, 45, 60, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_WARM,     _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_USER,              45, 40, 40, 50, 25, _NULL, _MID, _LOW,  _OFF,  _OFF, COLOR_TMP_MODE_USER,     _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_MOVIE,             50, 40, 50, 50, 50, _NULL, _MID, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARM,     _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_COLORFUL,          50, 40, 50, 50, 50, _NULL, _MID, _HIGH, _OFF,  _OFF, COLOR_TMP_MODE_COLD,     _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_MONITOR,           50, 40, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _HIGH, _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_GAME,              50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _HIGH, _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_SPORTS,            48, 50, 45, 50, 50, _NULL, _MID, _HIGH, _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_SONY,              50, 50, 50, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _MID,  _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_SAMSUNG,           50, 50, 50, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _MID,  _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_SHARP,             50, 50, 50, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _MID,  _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_FILMMAKER,         50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-};
-
-PICTURE_MODE_DATA mHDRPLUSPictureMode[] = {
-    /*pqmode                         bri con sat hue shp bl     nr    dnlp   gd     gamut colortem                 lc     black blue  mnr   Cor   memc   Deco  sr    gamma tmo    dv_mod  dv_dd  dv_ls*/
-    {PICTURE_MODE_STANDARD,          50, 50, 50, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _MID,  _OFF, _OFF, _LOW, _LOW, _HIGH, _LOW, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_BRIGHT,            50, 50, 60, 50, 60, _NULL, _MID, _HIGH, _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_SOFT,              50, 45, 60, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_WARM,     _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_USER,              45, 40, 40, 50, 25, _NULL, _MID, _LOW,  _OFF,  _OFF, COLOR_TMP_MODE_USER,     _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_MOVIE,             50, 40, 50, 50, 50, _NULL, _MID, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARM,     _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_COLORFUL,          50, 40, 50, 50, 50, _NULL, _MID, _HIGH, _OFF,  _OFF, COLOR_TMP_MODE_COLD,     _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_MONITOR,           50, 40, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _HIGH, _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_GAME,              50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _HIGH, _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_SPORTS,            48, 50, 45, 50, 50, _NULL, _MID, _HIGH, _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_SONY,              50, 50, 50, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _MID,  _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_SAMSUNG,           50, 50, 50, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _MID,  _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_SHARP,             50, 50, 50, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _MID,  _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
-    {PICTURE_MODE_FILMMAKER,         50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    1,     _NULL,  _NULL, 0,    0, 0},
+    /*pqmode                         bri con sat hue shp bl     nr    dnlp   gd     gamut colortem                 lc     black blue  mnr   Cor   memc   Deco  sr    gamma tmo    dv_mod  dv_dd  dv_ls  Prcision*/
+    {PICTURE_MODE_STANDARD,          50, 50, 50, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _MID,  _OFF, _OFF, _LOW, _LOW, _HIGH, _LOW, _OFF, 6,    1,     _NULL,  _NULL, _NULL, _NULL, 0},
+    {PICTURE_MODE_BRIGHT,            50, 50, 60, 50, 60, _NULL, _MID, _HIGH, _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, _NULL, _NULL, 0},
+    {PICTURE_MODE_SOFT,              50, 45, 60, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_WARM,     _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, _NULL, _NULL, 0},
+    {PICTURE_MODE_USER,              45, 40, 40, 50, 25, _NULL, _MID, _LOW,  _OFF,  _OFF, COLOR_TMP_MODE_USER,     _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, _NULL, _NULL, 0},
+    {PICTURE_MODE_MOVIE,             50, 40, 50, 50, 50, _NULL, _MID, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARM,     _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, _NULL, _NULL, 0},
+    {PICTURE_MODE_COLORFUL,          50, 40, 50, 50, 50, _NULL, _MID, _HIGH, _OFF,  _OFF, COLOR_TMP_MODE_COLD,     _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, _NULL, _NULL, 0},
+    {PICTURE_MODE_MONITOR,           50, 40, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _HIGH, _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    1,     _NULL,  _NULL, _NULL, _NULL, 0},
+    {PICTURE_MODE_GAME,              50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _HIGH, _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    1,     _NULL,  _NULL, _NULL, _NULL, 0},
+    {PICTURE_MODE_SPORTS,            48, 50, 45, 50, 50, _NULL, _MID, _HIGH, _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _HIGH, _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, _NULL, _NULL, 0},
+    {PICTURE_MODE_SONY,              50, 50, 50, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _MID,  _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, _NULL, _NULL, 0},
+    {PICTURE_MODE_SAMSUNG,           50, 50, 50, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _MID,  _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, _NULL, _NULL, 0},
+    {PICTURE_MODE_SHARP,             50, 50, 50, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _MID,  _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    1,     _NULL,  _NULL, _NULL, _NULL, 0},
+    {PICTURE_MODE_FILMMAKER,         50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    1,     _NULL,  _NULL, _NULL, _NULL, 0},
 };
 
 TABLE_DATA_STRUCT mPictureModeTable[] = {
@@ -123,18 +87,6 @@ TABLE_DATA_STRUCT mPictureModeTable[] = {
     {PQ_SRC_HDMI4,   PQ_SIGFMT_HDR,     (void *)&mHDR10PictureMode[0],   sizeof(mHDR10PictureMode) / sizeof(PICTURE_MODE_DATA)},
     {PQ_SRC_MPEG,    PQ_SIGFMT_HDR,     (void *)&mHDR10PictureMode[0],   sizeof(mHDR10PictureMode) / sizeof(PICTURE_MODE_DATA)},
     {PQ_SRC_DTV,     PQ_SIGFMT_HDR,     (void *)&mHDR10PictureMode[0],   sizeof(mHDR10PictureMode) / sizeof(PICTURE_MODE_DATA)},
-    {PQ_SRC_HDMI1,   PQ_SIGFMT_HLG,     (void *)&mHLGPictureMode[0],     sizeof(mHLGPictureMode) / sizeof(PICTURE_MODE_DATA)},
-    {PQ_SRC_HDMI2,   PQ_SIGFMT_HLG,     (void *)&mHLGPictureMode[0],     sizeof(mHLGPictureMode) / sizeof(PICTURE_MODE_DATA)},
-    {PQ_SRC_HDMI3,   PQ_SIGFMT_HLG,     (void *)&mHLGPictureMode[0],     sizeof(mHLGPictureMode) / sizeof(PICTURE_MODE_DATA)},
-    {PQ_SRC_HDMI4,   PQ_SIGFMT_HLG,     (void *)&mHLGPictureMode[0],     sizeof(mHLGPictureMode) / sizeof(PICTURE_MODE_DATA)},
-    {PQ_SRC_MPEG,    PQ_SIGFMT_HLG,     (void *)&mHLGPictureMode[0],     sizeof(mHLGPictureMode) / sizeof(PICTURE_MODE_DATA)},
-    {PQ_SRC_DTV,     PQ_SIGFMT_HLG,     (void *)&mHLGPictureMode[0],     sizeof(mHLGPictureMode) / sizeof(PICTURE_MODE_DATA)},
-    {PQ_SRC_HDMI1,   PQ_SIGFMT_HDRP,    (void *)&mHDRPLUSPictureMode[0], sizeof(mHDRPLUSPictureMode) / sizeof(PICTURE_MODE_DATA)},
-    {PQ_SRC_HDMI2,   PQ_SIGFMT_HDRP,    (void *)&mHDRPLUSPictureMode[0], sizeof(mHDRPLUSPictureMode) / sizeof(PICTURE_MODE_DATA)},
-    {PQ_SRC_HDMI3,   PQ_SIGFMT_HDRP,    (void *)&mHDRPLUSPictureMode[0], sizeof(mHDRPLUSPictureMode) / sizeof(PICTURE_MODE_DATA)},
-    {PQ_SRC_HDMI4,   PQ_SIGFMT_HDRP,    (void *)&mHDRPLUSPictureMode[0], sizeof(mHDRPLUSPictureMode) / sizeof(PICTURE_MODE_DATA)},
-    {PQ_SRC_MPEG,    PQ_SIGFMT_HDRP,    (void *)&mHDRPLUSPictureMode[0], sizeof(mHDRPLUSPictureMode) / sizeof(PICTURE_MODE_DATA)},
-    {PQ_SRC_DTV,     PQ_SIGFMT_HDRP,    (void *)&mHDRPLUSPictureMode[0], sizeof(mHDRPLUSPictureMode) / sizeof(PICTURE_MODE_DATA)},
 };
 /* Picture Mode end*/
 
@@ -153,8 +105,8 @@ TABLE_DATA_STRUCT mPictureModeTable[] = {
 //                        RGO GGO BGO ROO GOO BOO
 #define MANUAL_COLORTEMP {0,  0,  0,  0,  0,  0}
 
-COLORTEMP_DATA mDefaultColorTemp[] = {
-//             RG    GG    BG    RO GO BO   MANUAL_GA     CT                Gammaindex
+COLORTEMP_DATA mDefaultColorTemp[COLOR_TMP_MODE_MAX] = {
+//             RG    GG    BG    RO GO BO   GAMMA_OFFSET  COLORTEMP_OFFSET  Gammaindex
 /* NORMAL */ {{1040, 980,  1030, 0, 0, 0,}, MANUAL_GAMMA, MANUAL_COLORTEMP, 0,},
 /* WARM   */ {{1040, 900,  900,  0, 0, 0,}, MANUAL_GAMMA, MANUAL_COLORTEMP, 0,},
 /* COOL   */ {{1060, 980,  1080, 0, 0, 0,}, MANUAL_GAMMA, MANUAL_COLORTEMP, 0,},
@@ -252,4 +204,3 @@ int GetColorCustomizeTableSize(void)
 {
     return sizeof(mColorCustomizeTable)/sizeof(TABLE_DATA_STRUCT);
 }
-

@@ -133,6 +133,13 @@
 #define HUE_MIN            (-25)
 #define HUE_MAX            (25)
 
+#define CMS_SAT_MIN        (-100)
+#define CMS_SAT_MAX        (127)
+#define CMS_HUE_MIN        (-127)
+#define CMS_HUE_MAX        (127)
+#define CMS_LUMA_MIN       (-15)
+#define CMS_LUMA_MAX       (15)
+
 //memc
 #define PROP_CPQ_MEMC               "persist.vendor.sys.memc"
 #define CPQ_MEMC_SYSFS              "/dev/frc"
@@ -485,16 +492,25 @@ public:
     vpp_color_basemode_t GetColorBaseMode(void);
     int SaveColorBaseMode(vpp_color_basemode_t basemode);
     int Cpq_SetColorBaseMode(vpp_color_basemode_t basemode, source_input_param_t source_input_param);
+
+    int SetColorCustomize(int Color, int Type, int value, int isSave);
+    int GetColorCustomize(int Color, int Type);
+    int SaveColorCustomize(int Color, int Type, int value);
+    int Cpq_SetColorCustomize(int Color, int Type, int value);
+
+    int SetColorCustomizeEnable(int enable);
+    int GetColorCustomizeEnable(void);
+    int SaveColorCustomizeEnable(int enable);
+    int Cpq_SetColorCustomizeEnable(int enable);
+
     int Cpq_SetRGBOGO(const struct tcon_rgb_ogo_s *rgbogo);
     int Cpq_GetRGBOGO(const struct tcon_rgb_ogo_s *rgbogo);
 
-    int Cpq_SetCABC(const db_cabc_param_t *pCABC);
     int SetCabc(void);
-    int Cpq_SetAAD(const db_aad_param_t *pAAD);
     int SetAad(void);
+
     int SetDnlpMode(int level);
     int GetDnlpMode();
-    int Cpq_SetVENewDNLP(const ve_dnlp_curve_param_t *pDNLP);
     int SaveDnlpMode(Dynamic_contrast_status_t level);
     int Cpq_SetDnlpMode(Dynamic_contrast_status_t level, source_input_param_t source_input_param);
     int Cpq_SetDNLPStatus(ve_dnlp_state_t status);
@@ -628,6 +644,7 @@ public:
     int SaveChromaCoring(int level);
     int Cpq_SetChromaCoring(int level, source_input_param_t source_input_param);
 
+    bool HasLocalDimming(void);
     int SetLocalDimming(int level, int is_save);
     int GetLocalDimming(void);
     int SaveLocalDimming(int level);
@@ -644,6 +661,11 @@ public:
     int GetAMDolbyLightSensor(void);
     int SaveAMDolbyLightSensor(int value);
     int Cpq_SetAMDolbyLightSensor(int mode);
+
+    int SetAmDolbyPecisionDetail(int mode, int is_save);
+    int GetAmDolbyPecisionDetail(void);
+    int SaveAmDolbyPecisionDetail(int mode);
+    int Cpq_SetAmDolbyPecisionDetail(int mode);
 
     int SetFilmMakerMode(int onoff);
     int GetFilmMakerMode(void);
@@ -718,6 +740,7 @@ private:
     int CubeInterpolationProcess(interpolation_info_t output, unsigned short *gamma, int num_points);
     int DBGammaBlend(tcon_gamma_table_t *wb_gamma, unsigned int *index_gamma);
     double GetGammaPower(vpp_gamma_curve_t mode);
+    int GetDriverValueMap(CMS_TYPE type, int value);
 
     //DATABASE
     bool SetPictureMode(PICTURE_MODE_DEFAULT *params);
@@ -805,10 +828,8 @@ private:
     bool mbCpqCfg_smoothplus_enable                     = false;
     bool mbCpqCfg_hdrtmo_enable                         = false;
     bool mbCpqCfg_memc_enable                           = false;
-    bool mbCpqCfg_separate_black_blue_chorma_db_enable  = false;
     bool mbCpqCfg_bluestretch_enable                    = false;
     bool mbCpqCfg_chroma_coring_enable                  = false;
-    bool mbCpqCfg_LocalDimming_enable                   = false;
 
     bool mInitialized                                   = false;
 
@@ -835,6 +856,7 @@ private:
     int mFrameRate                                      = 60;
 
     unsigned int mHdmiHdrInfo                           = 0;
+    int IsDvApoTypeGame                                 = 0;
 
     CPQdb *mPQdb                                        = NULL;
     COverScandb *mpOverScandb                           = NULL;
@@ -851,7 +873,6 @@ private:
     sp<CDynamicBackLight> mDynamicBackLight;
     sp<PqNotify> mNotifyListener;
 
-    tcon_rgb_ogo_t rgbfrompq[3];
     source_input_param_t mCurrentSourceInputInfo;
 
     tv_source_input_t mSourceInputForSaveParam         = SOURCE_MPEG;
@@ -864,6 +885,5 @@ private:
     pq_sig_fmt_t CurTimming                            = PQ_SIGFMT_SDR;
 
     mutable Mutex mLock;
-    int IsDvApoTypeGame = 0;
 };
 #endif

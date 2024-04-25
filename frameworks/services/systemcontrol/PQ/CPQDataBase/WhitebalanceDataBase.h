@@ -43,8 +43,8 @@ public:
     bool SetWhitebalanceGammaData(Multipoint_GAMMA_DATA *pData, int level, pq_source_input_t src = PQ_SRC_DEFAULT, pq_sig_fmt_t timing = PQ_SIGFMT_MAX);
     bool GetWhitebalanceGammaData(Multipoint_GAMMA_DATA *pData, int level, pq_source_input_t src = PQ_SRC_DEFAULT, pq_sig_fmt_t timing = PQ_SIGFMT_MAX);
 
-    bool SetGammaTableData(unsigned short *pData, int level, int type);
-    bool GetGammaTableData(unsigned short *pData, int level, int type);
+    bool SetGammaTableData(tcon_gamma_table_t *pData, int level, int type);
+    bool GetGammaTableData(tcon_gamma_table_t *pData, int level, int type);
 
 private:
     bool ReadDataFromFile(const char *file_name, int offset, int nsize, void *data_buf);

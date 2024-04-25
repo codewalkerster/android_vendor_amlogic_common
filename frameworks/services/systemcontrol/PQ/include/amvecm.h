@@ -119,10 +119,10 @@
 #define AMDI_IOC_SET_PQ_PARM       _IOW(_DI_, 0x51, struct am_pq_param_s)
 
 /*Skin_tone_control command list*/
-#define AMVECM_IOC_S_CMS_LUMA      _IOW(AMVECM_IOC_MAGIC, 0x65, struct cms_data_s)
-#define AMVECM_IOC_S_CMS_SAT       _IOW(AMVECM_IOC_MAGIC, 0x66, struct cms_data_s)
-#define AMVECM_IOC_S_CMS_HUE       _IOW(AMVECM_IOC_MAGIC, 0x67, struct cms_data_s)
-#define AMVECM_IOC_S_CMS_HUE_HS    _IOW(AMVECM_IOC_MAGIC, 0x68, struct cms_data_s)
+#define AMVECM_IOC_S_CMS_LUMA      _IOW(AMVECM_IOC_MAGIC, 0x65, struct cms_color_md_s)
+#define AMVECM_IOC_S_CMS_SAT       _IOW(AMVECM_IOC_MAGIC, 0x66, struct cms_color_md_s)
+#define AMVECM_IOC_S_CMS_HUE       _IOW(AMVECM_IOC_MAGIC, 0x67, struct cms_color_md_s)
+#define AMVECM_IOC_S_CMS_HUE_HS    _IOW(AMVECM_IOC_MAGIC, 0x68, struct cms_color_md_s)
 
 //module control for amvecm
 #define AMVECM_IOC_S_PQ_CTRL       _IOW(AMVECM_IOC_MAGIC, 0x69, struct vpp_pq_ctrl_s)

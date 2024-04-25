@@ -1041,6 +1041,26 @@ int SystemControlClient::getColorBaseMode()
     return mSysCtrl->getColorBaseMode();
 }
 
+int SystemControlClient::setColorCustomize(int Color, int Type, int value, int isSave)
+{
+    return mSysCtrl->setColorCustomize(Color, Type, value, isSave);
+}
+
+int SystemControlClient::getColorCustomize(int Color, int Type)
+{
+    return mSysCtrl->getColorCustomize(Color, Type);
+}
+
+int SystemControlClient::setColorCustomizeEnable(int enable)
+{
+    return mSysCtrl->setColorCustomizeEnable(enable);
+}
+
+int SystemControlClient::getColorCustomizeEnable(void)
+{
+    return mSysCtrl->getColorCustomizeEnable();
+}
+
 //DLG
 int SystemControlClient::setDLGEnable(int enable, int isSave)
 {
@@ -1556,6 +1576,14 @@ int SystemControlClient::getDolbyDarkDetail(void) {
 
 int SystemControlClient::setDolbyDarkDetail(int32_t mode, int is_save) {
     return mSysCtrl->setDolbyDarkDetail(mode, is_save);
+}
+
+int SystemControlClient::getAmDolbyPecisionDetail(void) {
+    return mSysCtrl->getAmDolbyPecisionDetail();
+}
+
+int SystemControlClient::setAmDolbyPecisionDetail(int32_t mode, int is_save) {
+    return mSysCtrl->setAmDolbyPecisionDetail(mode, is_save);
 }
 
 int SystemControlClient::setFilmMakerMode(int onoff) {

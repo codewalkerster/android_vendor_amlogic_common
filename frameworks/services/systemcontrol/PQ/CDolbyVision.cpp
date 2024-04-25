@@ -186,3 +186,26 @@ int CDolbyVision::SetDolbyPQLightSensor(light_sensor_s *pData) {
     return ret;
 }
 
+int CDolbyVision::GetAmDolbyPecisionDetailSupport(void)
+{
+    int isSupportPecisionDetail = 0;
+    if (DeviceIOCtl(DV_IOC_GET_DV_PRECISION_DETAIL_SUPPORT, &isSupportPecisionDetail) < 0) {
+        SYS_LOGE("%s failed!\n", __FUNCTION__);
+    }
+
+    return isSupportPecisionDetail;
+}
+
+int CDolbyVision::SetAmDolbyPecisionDetail(int mode) {
+    int ByPass = (mode == 0) ? 1 : 0;
+    int ret = DeviceIOCtl(DV_IOC_SET_DV_PRECISION_DETAIL_BYPASS, &ByPass);
+
+    if (ret < 0) {
+        SYS_LOGD("%s failed!\n", __FUNCTION__);
+    } else {
+        SYS_LOGD("%s success!\n", __FUNCTION__);
+    }
+
+    return ret;
+}
+

@@ -214,6 +214,11 @@ public:
     int getDemoSquitoMode();
     int setColorBaseMode(int mode, int isSave);
     int getColorBaseMode();
+    int setColorCustomize(int Color, int Type, int value, int isSave);
+    int getColorCustomize(int Color, int Type);
+    int setColorCustomizeEnable(int enable);
+    int getColorCustomizeEnable(void);
+
     int setDLGEnable(int enable, int is_save);
     int getDLGEnable();
     int getSourceHdrType(void);
@@ -340,6 +345,8 @@ public:
     bool syncDensity(int displayid, int width, int height);
     int setDolbyDarkDetail(int mode, int is_save);
     int getDolbyDarkDetail(void);
+    int setAmDolbyPecisionDetail(int mode, int is_save);
+    int getAmDolbyPecisionDetail(void);
     int setFilmMakerMode(int onoff);
     int getFilmMakerMode(void);
     int setFilmMakerFlag(int enable);

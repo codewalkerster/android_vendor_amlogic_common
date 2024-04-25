@@ -229,6 +229,15 @@ HAL_STATUS_T AML_HAL_LD_GetControlSpi(aml_hal_led_spi_ctrl_info_t *pLedControlSp
     return API_OK;
 }
 
+HAL_STATUS_T AML_HAL_LD_IsExist(void)
+{
+    if (ADAP_LD_IsExist() != ADAP_OK) {
+        return API_NOT_OK;
+    }
+
+    return API_OK;
+}
+
 #ifdef __cplusplus
 }
 #endif

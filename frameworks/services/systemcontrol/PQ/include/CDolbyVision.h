@@ -135,6 +135,10 @@ typedef struct light_sensor_s{
 #define DOLBY_IOC_SET_DV_DARK_DETAIL          _IOW((DOLBY_IOC_MAGIC), 0xc, int)
 /* set light sense flag(1:enable 0:disable), t_frontLux */
 #define DOLBY_IOC_SET_AMDV_LIGHT_SENSE        _IOW((DOLBY_IOC_MAGIC), 0xf, struct light_sensor_s)
+/* get precision detail cap for current mode(1:support 0:not support) */
+#define DV_IOC_GET_DV_PRECISION_DETAIL_SUPPORT _IOWR((DOLBY_IOC_MAGIC), 0x10, int)
+/* set precision detail for current mode (1: bypass, 0: not bypass */
+#define DV_IOC_SET_DV_PRECISION_DETAIL_BYPASS _IOW((DOLBY_IOC_MAGIC), 0x11, int)
 
 class CDolbyVision {
 public:
@@ -149,6 +153,8 @@ public:
     int GetDolbyPQFullParam(dolby_full_pq_info_t *fullInfo);
     int SetDolbyPQDarkDetail(int mode);
     int SetDolbyPQLightSensor(light_sensor_s *pData);
+    int GetAmDolbyPecisionDetailSupport(void);
+    int SetAmDolbyPecisionDetail(int mode);
 
 private:
     int DeviceIOCtl(int request, ...);

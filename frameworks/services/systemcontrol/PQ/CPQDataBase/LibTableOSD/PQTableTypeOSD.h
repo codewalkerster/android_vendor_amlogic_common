@@ -134,7 +134,7 @@ typedef struct _PICTURE_MODE_DATA {
     int DvMode;
     int DvDarkDetail;
     int DvLightSensor;
-    int RESERVED0;
+    int AmDolbyPrcision;
     int RESERVED1;
 }PICTURE_MODE_DATA;
 
@@ -382,9 +382,9 @@ typedef enum _TEMP_MODE {
     COLOR_TMP_MODE_STANDARD,
     COLOR_TMP_MODE_WARM,
     COLOR_TMP_MODE_COLD,
-    COLOR_TMP_MODE_USER,
     COLOR_TMP_MODE_WARMER,
     COLOR_TMP_MODE_COLDER,
+    COLOR_TMP_MODE_USER,
     COLOR_TMP_MODE_MAX,
 } TEMP_MODE;
 

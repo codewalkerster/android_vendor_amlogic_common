@@ -139,7 +139,7 @@ bool WhitebalanceDataBase::GetWhitebalanceGammaData(Multipoint_GAMMA_DATA *pData
     return true;
 }
 
-bool WhitebalanceDataBase::SetGammaTableData(unsigned short *pData, int level, int type)
+bool WhitebalanceDataBase::SetGammaTableData(tcon_gamma_table_t *pData, int level, int type)
 {
     if (pData == NULL) {
         return false;
@@ -160,7 +160,7 @@ bool WhitebalanceDataBase::SetGammaTableData(unsigned short *pData, int level, i
     return true;
 }
 
-bool WhitebalanceDataBase::GetGammaTableData(unsigned short *pData, int level, int type)
+bool WhitebalanceDataBase::GetGammaTableData(tcon_gamma_table_t *pData, int level, int type)
 {
     if (pData == NULL) {
         return false;

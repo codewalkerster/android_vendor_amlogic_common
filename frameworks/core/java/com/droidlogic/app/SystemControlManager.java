@@ -1457,7 +1457,12 @@ public class SystemControlManager {
         PQ_MODE_SPORTS(8),
         PQ_MODE_SONY(9),
         PQ_MODE_SAMSUNG(10),
-        PQ_MODE_SHARP(11);
+        PQ_MODE_SHARP(11),
+        PQ_MODE_AMDOLBY_DARK(12),
+        PQ_MODE_AMDOLBY_BRIGHT(13),
+        PQ_MODE_AMDOLBY_IQ(14),
+        PQ_MODE_AMDOLBY_PRECISION(15),
+        PQ_MODE_FILMMAKER(16);
 
         private int val;
 
@@ -2825,6 +2830,50 @@ public class SystemControlManager {
                  return mProxy.getColorBaseMode();
              } catch (Exception e) {
                  Log.e(TAG, "GetColorBaseMode:" + e);
+             }
+         }
+         return -1;
+     }
+
+     public int SetColorCustomize(int Color, int Type, int value, int is_save) {
+         synchronized (mLock) {
+             try {
+                 return mProxy.setColorCustomize(Color, Type, value, is_save);
+             } catch (Exception e) {
+                 Log.e(TAG, "SetColorCustomize:" + e);
+             }
+         }
+         return -1;
+     }
+
+     public int GetColorCustomize(int Color, int Type) {
+         synchronized (mLock) {
+             try {
+                 return mProxy.getColorCustomize(Color, Type);
+             } catch (Exception e) {
+                 Log.e(TAG, "GetColorCustomize:" + e);
+             }
+         }
+         return -1;
+     }
+
+     public int SetColorCustomizeEnable(int enable) {
+         synchronized (mLock) {
+             try {
+                 return mProxy.setColorCustomizeEnable(enable);
+             } catch (Exception e) {
+                 Log.e(TAG, "SetColorCustomizeEnable:" + e);
+             }
+         }
+         return -1;
+     }
+
+     public int GetColorCustomizeEnable() {
+         synchronized (mLock) {
+             try {
+                 return mProxy.getColorCustomizeEnable();
+             } catch (Exception e) {
+                 Log.e(TAG, "GetColorCustomizeEnable:" + e);
              }
          }
          return -1;
@@ -4666,6 +4715,28 @@ public class SystemControlManager {
                  return mProxy.getDolbyDarkDetail();
              } catch (RemoteException e) {
                  Log.e(TAG, "GetDolbyDarkDetail:" + e);
+             }
+         }
+         return -1;
+     }
+
+     public int SetAmDolbyPecisionDetail(int mode, int isSave) {
+           synchronized (mLock) {
+             try {
+                 return mProxy.setAmDolbyPecisionDetail(mode, isSave);
+             } catch (RemoteException e) {
+                 Log.e(TAG, "SetAmDolbyPecisionDetail:" + e);
+             }
+         }
+         return -1;
+     }
+
+     public int GetAmDolbyPecisionDetail() {
+           synchronized (mLock) {
+             try {
+                 return mProxy.getAmDolbyPecisionDetail();
+             } catch (RemoteException e) {
+                 Log.e(TAG, "GetAmDolbyPecisionDetail:" + e);
              }
          }
          return -1;

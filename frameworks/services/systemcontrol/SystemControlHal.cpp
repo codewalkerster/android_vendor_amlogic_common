@@ -1228,6 +1228,22 @@ Return<int32_t> SystemControlHal::getColorBaseMode() {
     return mSysControl->getColorBaseMode();
 }
 
+Return<int32_t> SystemControlHal::setColorCustomize(int32_t Color, int32_t Type, int32_t value, int32_t isSave) {
+    return mSysControl->setColorCustomize(Color, Type, value, isSave);
+}
+
+Return<int32_t> SystemControlHal::getColorCustomize(int32_t Color, int32_t Type) {
+    return mSysControl->getColorCustomize(Color, Type);
+}
+
+Return<int32_t> SystemControlHal::setColorCustomizeEnable(int32_t enable) {
+    return mSysControl->setColorCustomizeEnable(enable);
+}
+
+Return<int32_t> SystemControlHal::getColorCustomizeEnable(void) {
+    return mSysControl->getColorCustomizeEnable();
+}
+
 Return<int32_t> SystemControlHal::getSourceHdrType() {
     return mSysControl->getSourceHdrType();
 }
@@ -1735,6 +1751,14 @@ Return<int32_t> SystemControlHal::getDolbyDarkDetail(void) {
 
 Return<int32_t> SystemControlHal::setDolbyDarkDetail(int32_t mode, int32_t is_save) {
     return mSysControl->setDolbyDarkDetail(mode, is_save);
+}
+
+Return<int32_t> SystemControlHal::getAmDolbyPecisionDetail(void) {
+    return mSysControl->getAmDolbyPecisionDetail();
+}
+
+Return<int32_t> SystemControlHal::setAmDolbyPecisionDetail(int32_t mode, int32_t is_save) {
+    return mSysControl->setAmDolbyPecisionDetail(mode, is_save);
 }
 
 Return<int32_t> SystemControlHal::setFilmMakerMode(int32_t onoff) {
