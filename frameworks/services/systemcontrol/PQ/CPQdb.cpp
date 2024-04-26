@@ -105,7 +105,8 @@ int CPQdb::getRegValues(const char *table_name, am_regs_t *regs)
     }
 
     if (mDbMatchType == MATCH_TYPE_MBOX_S5 ||
-        mDbMatchType == MATCH_TYPE_MBOX_T3X) {
+        mDbMatchType == MATCH_TYPE_MBOX_T3X ||
+        mDbMatchType == MATCH_TYPE_MBOX_S7D) {
         char table_name_copy[40] = {0};
         char *table_name_split = NULL;
         const char *delim = "_";
@@ -2829,6 +2830,7 @@ void CPQdb::PQ_GetPqDbMatchType(database_attribute_t *DbAttribute) {
     **    //old project  xxx      20191113                                                          yyy
     **    //new project1 xxx      20221018           s928x     20221020                             yyy
     **    //new project2 xxx      20230822           T968D4    20230822                             yyy
+    **    //new project3 xxx      20240424           s905x5m   20240424                             yyy
     ** }
     */
 
@@ -2857,6 +2859,9 @@ void CPQdb::PQ_GetPqDbMatchType(database_attribute_t *DbAttribute) {
     } else if (chipVer == "T968D4") {
         SYS_LOGD("%s this project is tv t3x(%s)\n", __FUNCTION__, chipVer.c_str());
         mDbMatchType = MATCH_TYPE_MBOX_T3X;
+    } else if (chipVer == "s905x5m") {
+        SYS_LOGD("%s this project is tv s7d(%s)\n", __FUNCTION__, chipVer.c_str());
+        mDbMatchType = MATCH_TYPE_MBOX_S7D;
     } else {
         SYS_LOGD("%s this project is others\n", __FUNCTION__);
     }
@@ -3309,6 +3314,7 @@ String8 CPQdb::GetTableName(const char *GeneralTableName, source_input_param_t s
         ret = 0;
         break;
     case MATCH_TYPE_MBOX_S5:
+    case MATCH_TYPE_MBOX_S7D:
         if ((strcmp(GeneralTableName, "GeneralSharpness0FixedTable") == 0)
             || (strcmp(GeneralTableName, "GeneralSharpness0VariableTable") == 0)
             || (strcmp(GeneralTableName, "GeneralSharpness1FixedTable") == 0)
