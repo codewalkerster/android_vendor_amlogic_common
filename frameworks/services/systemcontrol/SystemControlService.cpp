@@ -2170,6 +2170,16 @@ int SystemControlService::getAisrMode()
     }
 }
 
+bool SystemControlService::hasAiColorFunc() {
+    int ret = -1;
+    if (pCPQControl != NULL) {
+        SYS_LOGI("%s:run hasAiColor\n", __FUNCTION__);
+        ret = pCPQControl->hasAiColorFunc();
+    }
+
+    return ret;
+}
+
 int SystemControlService::setAiColor(int value, int is_save)
 {
     if (pCPQControl != NULL) {

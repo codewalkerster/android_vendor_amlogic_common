@@ -342,6 +342,7 @@ class SystemControlHal : public ISystemControl, public SystemControlNotify, publ
     Return<int32_t> setAisrMode(int32_t mode, int32_t isSave) override;
     Return<int32_t> getAisrMode(void) override;
     //aicolor
+    Return<Result> hasAiColorFunc() override;
     Return<int32_t> setAiColor(int32_t value, int32_t isSave) override;
     Return<int32_t> getAiColor(void) override;
 

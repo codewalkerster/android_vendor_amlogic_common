@@ -8814,6 +8814,20 @@ int CPQControl::Cpq_SetAiSrMode(aisr_mode_e mode, source_input_param_t source_in
     return 0;
 }
 
+bool CPQControl::hasAiColorFunc()
+{
+    int ret = -1;
+    SYS_LOGI("%s, hasAiColorFunc\n", __FUNCTION__);
+    if (mbCpqCfg_aicolor_enable && isFileExist(pqSysWrite->getSysNode(AICOLOR_PARAMETERS_UVM_OPEN))) {
+        ret = true;
+    } else {
+        ret = false;
+    }
+
+    SYS_LOGI("%s, has aicolor or not:%d\n", __FUNCTION__, ret);
+    return ret;
+}
+
 int CPQControl::SetAiColor(int value, int is_save)
 {
     SYS_LOGI("%s value = %d\n", __FUNCTION__, value);
@@ -9598,7 +9612,7 @@ int CPQControl::SetPQModuleDemoState(pq_module_demo_t modules, pq_module_demo_st
     switch (modules) {
         case PQ_DEMO_MEMC://left memc on, right memc off
             if (hasMemcFunc()) {
-                ret = pqWriteSys(PQ_MODULE_MEMC_DEMO_WIN, (state > 0) ? "demo_win 1" : "demo_win 0");
+                ret = pqWriteSys(PQ_MODULE_MEMC_DEMO_WIN, (state == 1) ? "demo_win 1" : "demo_win 0");
             } else {
                 SYS_LOGE("%s MEMC Module disabled\n",__FUNCTION__);
                 ret = -1;
@@ -9606,18 +9620,22 @@ int CPQControl::SetPQModuleDemoState(pq_module_demo_t modules, pq_module_demo_st
             break;
         case PQ_DEMO_AISR:
             if (mbCpqCfg_aisr_enable) {
-                ret = pqWriteSys(PQ_MODULE_AISR_DEMO_EN, (state > 0) ? "1" : "0");
-                    if (state == PQ_DEMO_STATE_4K) {
-                        ret = pqWriteSys(PQ_MODULE_AISR_DEMO_AXIS, "0 0 1919 2159");
-                    } else if(state == PQ_DEMO_STATE_8K){
-                        ret = pqWriteSys(PQ_MODULE_AISR_DEMO_AXIS, "0 0 3839 4319");
-                    } else if(state == PQ_DEMO_STATE_1080P){
-                        ret = pqWriteSys(PQ_MODULE_AISR_DEMO_AXIS, "0 0 960 1079");
-                    } else if(state < PQ_DEMO_STATE_OFF || state >= PQ_DEMO_STATE_MAX){
-                        SYS_LOGE("%s state:%d out of range\n", __FUNCTION__, state);
-                        state = PQ_DEMO_STATE_4K;
-                        ret = pqWriteSys(PQ_MODULE_AISR_DEMO_AXIS, "0 0 1919 2159");
+                ret = pqWriteSys(PQ_MODULE_AISR_DEMO_EN, (state == 1) ? "1" : "0");
+
+                    if (state == PQ_DEMO_STATE_ON && mCurrentOutputType == OUTPUT_TYPE_LVDS) {//tv
+                        ret = pqWriteSys(PQ_MODULE_AISR_DEMO_AXIS, "0 0 1919 2159");//default 4k
+                    } else if (state == PQ_DEMO_STATE_ON && mCurrentOutputType != OUTPUT_TYPE_LVDS) {//ott
+                        if (mOutPutFrameHeightType == UHD_HEIGHT_4320) {
+                            ret = pqWriteSys(PQ_MODULE_AISR_DEMO_AXIS, "0 0 3839 4319");//8k output
+                        } else if (mOutPutFrameHeightType == UHD_HEIGHT_2160) {
+                            ret = pqWriteSys(PQ_MODULE_AISR_DEMO_AXIS, "0 0 1919 2159");//4k output
+                        } else if (mOutPutFrameHeightType <= FHD_HEIGHT_1080) {
+                            ret = pqWriteSys(PQ_MODULE_AISR_DEMO_AXIS, "0 0 960 1079");//1080 output
+                        }
+                    } else {
+                        SYS_LOGD("%s AISR Module Demo disabled\n",__FUNCTION__);
                     }
+
             } else {
                 SYS_LOGE("%s AISR Module disabled\n",__FUNCTION__);
                 ret = -1;
@@ -9655,8 +9673,8 @@ int CPQControl::GetPQModuleDemoState(int modules)
     }
 
     if (state < PQ_DEMO_STATE_OFF || state >= PQ_DEMO_STATE_MAX) {
-        SYS_LOGE("%s state:%d out of range\n", __FUNCTION__, state);
-        state = PQ_DEMO_STATE_4K;
+        SYS_LOGE("%s state: %d out of range\n", __FUNCTION__, state);
+        state = PQ_DEMO_STATE_OFF;
     }
 
     return state;
@@ -9862,7 +9880,9 @@ output_type_t CPQControl::MapDbTvoutWithIOResolution(int inputFrameHeight, int o
             }
         }
 
-        SYS_LOGD("%s table_type %d index_in %d index_out %d\n", __FUNCTION__, table_type, index_in, index_out);
+        mOutPutFrameHeightType = (resolution_height_type_t)index_out;
+
+        SYS_LOGD("%s table_type %d index_in %d index_out %d mOutPutFrameHeightType %d\n", __FUNCTION__, table_type, index_in, index_out, mOutPutFrameHeightType);
         OutPutType = (output_type_t)Table_TvoutWithIOResolution[table_type][index_in][index_out];
     } else { //old project logic
         if (inputFrameHeight > 1088) {//inputsource is 4k

@@ -1710,6 +1710,13 @@ Return<int32_t> SystemControlHal::getAisrMode(void) {
     return mSysControl->getAisrMode();
 }
 
+Return<Result> SystemControlHal::hasAiColorFunc() {
+    if (mSysControl->hasAiColorFunc()) {
+        return Result::OK;
+    }
+    return Result::FAIL;
+}
+
 Return<int32_t> SystemControlHal::setAiColor(int32_t value, int32_t isSave) {
     return mSysControl->setAiColor(value, isSave);
 }

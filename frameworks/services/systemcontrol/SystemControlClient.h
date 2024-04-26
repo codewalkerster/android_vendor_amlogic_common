@@ -326,6 +326,7 @@ public:
     int setAisrMode(int mode, int isSave);
     int getAisrMode(void);
     //aicolor
+    bool hasAiColorFunc();
     int setAiColor(int value, int isSave);
     int getAiColor(void);
 

@@ -4615,6 +4615,18 @@ public class SystemControlManager {
         return -1;
     }
 
+    public boolean hasAiColorFunc() {
+          synchronized (mLock) {
+            try {
+                Log.i(TAG, "run hasAiColorFunc");
+                return (mProxy.hasAiColorFunc() == Result.OK);
+            } catch (Exception e) {
+                Log.e(TAG, "hasAiColorFunc:" + e);
+            }
+        }
+        return false;
+    }
+
     /**
      * @Function: SetAiColor
      * @Description: Set aicolor status

@@ -604,6 +604,7 @@ public:
     int Cpq_SetAiSrMode(aisr_mode_e mode, source_input_param_t source_input_param);
 
     //aicolor
+    bool hasAiColorFunc();
     int SetAiColor(int value, int is_save);
     int GetAiColor(void);
     int SaveAiColor(int value);
@@ -863,6 +864,8 @@ private:
 
     unsigned int mHdmiHdrInfo                           = 0;
     int IsDvApoTypeGame                                 = 0;
+
+    resolution_height_type_t mOutPutFrameHeightType     = UHD_HEIGHT_2160;//for aisr demo patch
 
     CPQdb *mPQdb                                        = NULL;
     COverScandb *mpOverScandb                           = NULL;

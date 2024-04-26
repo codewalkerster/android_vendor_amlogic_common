@@ -1029,9 +1029,7 @@ typedef enum pq_module_demo_e
 typedef enum pq_module_demo_state_e
 {
     PQ_DEMO_STATE_OFF = 0,
-    PQ_DEMO_STATE_4K,
-    PQ_DEMO_STATE_8K,
-    PQ_DEMO_STATE_1080P,
+    PQ_DEMO_STATE_ON,
     PQ_DEMO_STATE_MAX,
 } pq_module_demo_state_t;
 

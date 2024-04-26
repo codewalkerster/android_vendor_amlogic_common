@@ -1539,6 +1539,10 @@ int SystemControlClient::getAisrMode(void) {
     return mSysCtrl->getAisrMode();
 }
 
+bool SystemControlClient::hasAiColorFunc() {
+   return (mSysCtrl->hasAiColorFunc() == Result::OK);
+}
+
 int SystemControlClient::setAiColor(int value, int isSave) {
     return mSysCtrl->setAiColor(value, isSave);
 }
