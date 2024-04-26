@@ -232,6 +232,7 @@ static const dev_info bt_dev_usb[] = {
     {{0x0bda, 0x8771}, "rtl8771u",     RTK_VND_LIB,   "rtk_btusb",       POWER_EVENT_RESET},
     // mediatek usb modules
     {{0x0e8d, 0x7668}, "mtk7668u",     MTK_VND_LIB,   "btmtk_usb",       POWER_EVENT_EN},
+    {{0x0e8d, 0x7663}, "mtk7663u",     MTK_VND_LIB,   "btmtk_usb",       POWER_EVENT_EN},
     {{0x0e8d, 0x7961}, "mtk7920u",     MT792_VND_LIB, "btmtk_usb_unify", POWER_EVENT_RESET},
     // amlogic usb modules
     {{0x1B8E, 0x4C55}, "aml_w1u",      AML_VND_LIB,   "",                POWER_EVENT_EN},

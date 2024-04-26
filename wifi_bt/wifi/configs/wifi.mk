@@ -369,3 +369,21 @@ PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/mediatek/dhcpcd.conf:$(
 PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/multi_wifi/config/mediatek/MT7601USTA.dat:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/MT7601USTA.dat
 endif
 
+ifneq ($(filter mt7663u,$(WIFI_MODULES)),)
+# for kernel 5.15
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/mediatek/7663_firmware/Wi-Fi/wifi.cfg:$(TARGET_COPY_OUT_VENDOR)/lib/firmware/wifi_mt7663.cfg
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/mediatek/7663_firmware/Wi-Fi/mt7663_patch_e2_hdr.bin:$(TARGET_COPY_OUT_VENDOR)/lib/firmware/mt7663_patch_e2_hdr.bin
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/mediatek/7663_firmware/Wi-Fi/WIFI_RAM_CODE_MT7663.bin:$(TARGET_COPY_OUT_VENDOR)/lib/firmware/WIFI_RAM_CODE_MT7663.bin
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/mediatek/7663_firmware/Wi-Fi/EEPROM_MT7663.bin:$(TARGET_COPY_OUT_VENDOR)/lib/firmware/EEPROM_MT7663.bin
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/mediatek/7663_firmware/Wi-Fi/TxPwrLimit_MT76x8.dat:$(TARGET_COPY_OUT_VENDOR)/lib/firmware/TxPwrLimit_MT76x3.dat
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/mediatek/7663_firmware/BT/bt.cfg:$(TARGET_COPY_OUT_VENDOR)/lib/firmware/bt_7663.cfg
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/mediatek/7663_firmware/BT/woble_setting_7663.bin:$(TARGET_COPY_OUT_VENDOR)/lib/firmware/woble_setting_7663.bin
+# for kernel 5.4
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/mediatek/7663_firmware/Wi-Fi/wifi.cfg:$(TARGET_COPY_OUT_VENDOR)/firmware/wifi_mt7663.cfg
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/mediatek/7663_firmware/Wi-Fi/mt7663_patch_e2_hdr.bin:$(TARGET_COPY_OUT_VENDOR)/firmware/mt7663_patch_e2_hdr.bin
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/mediatek/7663_firmware/Wi-Fi/WIFI_RAM_CODE_MT7663.bin:$(TARGET_COPY_OUT_VENDOR)/firmware/WIFI_RAM_CODE_MT7663.bin
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/mediatek/7663_firmware/Wi-Fi/EEPROM_MT7663.bin:$(TARGET_COPY_OUT_VENDOR)/firmware/EEPROM_MT7663.bin
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/mediatek/7663_firmware/Wi-Fi/TxPwrLimit_MT76x8.dat:$(TARGET_COPY_OUT_VENDOR)/firmware/TxPwrLimit_MT76x3.dat
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/mediatek/7663_firmware/BT/bt.cfg:$(TARGET_COPY_OUT_VENDOR)/firmware/bt_7663.cfg
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/mediatek/7663_firmware/BT/woble_setting_7663.bin:$(TARGET_COPY_OUT_VENDOR)/firmware/woble_setting_7663.bin
+endif
