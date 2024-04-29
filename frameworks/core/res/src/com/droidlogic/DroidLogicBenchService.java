@@ -33,6 +33,10 @@ public class DroidLogicBenchService extends Service {
     private ProcessObserver mProcessObserver;
     private final Object mLock = new Object();
     private ArrayList<String> benchApps;
+    private String mThermal;
+    private String mCpufreq;
+    private String mDevfreq;
+    private String mMpgpu;
 
     private void initPoorApp() {
         benchApps = new ArrayList();
@@ -57,11 +61,23 @@ public class DroidLogicBenchService extends Service {
             Log.e(TAG, "could not get IActivityManager");
         }
         initPoorApp();
+        initCpusets();
     }
 
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    private void initCpusets() {
+        mThermal = mSCM.readSysFsOri("/sys/class/thermal/thermal_zone0/mode");
+        Log.d(TAG, "mThermal cpus is  " + mThermal);
+        mCpufreq = mSCM.readSysFsOri("/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor");
+        Log.d(TAG, "mCpufreq is  " + mCpufreq);
+        mDevfreq = mSCM.readSysFsOri("/sys/class/devfreq/fe400000.valhall/governor");
+        Log.d(TAG, "mDevfreq is  " + mDevfreq);
+        mMpgpu = mSCM.readSysFsOri("/sys/class/mpgpu/scale_mode");
+        Log.d(TAG, "mMpgpu is  " + mMpgpu);
     }
 
     private void hidePoorApp() {
@@ -138,6 +154,7 @@ public class DroidLogicBenchService extends Service {
                 boolean geekbench = isVisibleApp(GEEKBENCH_PKG_NAME);
                 boolean gfx = isVisibleApp(GFXBENCH_PKG_NAME);
                 boolean baseMark = isVisibleApp(BASEMARK_PKG_NAME);
+                initCpusets();
                 if (antutu || antutu3D || pcMark || geekbench || gfx || baseMark) {
                     Log.d(TAG, "bench app is onForeground");
                     hidePoorApp();
@@ -168,10 +185,10 @@ public class DroidLogicBenchService extends Service {
                 mSCM.writeSysFs("/sys/class/devfreq/fe400000.valhall/governor", "performance");
                 mSCM.writeSysFs("/sys/class/mpgpu/scale_mode", "3");
             } else {
-                mSCM.writeSysFs("/sys/class/thermal/thermal_zone0/mode", "enable");
-                mSCM.writeSysFs("/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor", "schedutil");
-                mSCM.writeSysFs("/sys/class/devfreq/fe400000.valhall/governor", "simple_ondemand");
-                mSCM.writeSysFs("/sys/class/mpgpu/scale_mode", "1");
+                mSCM.writeSysFs("/sys/class/thermal/thermal_zone0/mode", mThermal);
+                mSCM.writeSysFs("/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor", mCpufreq);
+                mSCM.writeSysFs("/sys/class/devfreq/fe400000.valhall/governor", mDevfreq);
+                mSCM.writeSysFs("/sys/class/mpgpu/scale_mode", mMpgpu);
             }
         }
     }
