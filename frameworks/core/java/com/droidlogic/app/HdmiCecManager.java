@@ -13,6 +13,7 @@ package com.droidlogic.app;
 import android.content.Context;
 import android.content.ContentResolver;
 import android.hardware.hdmi.HdmiControlManager;
+import android.hardware.hdmi.HdmiClient;
 import android.hardware.hdmi.HdmiTvClient;
 import android.provider.Settings;
 import android.util.Log;
@@ -52,6 +53,13 @@ public class HdmiCecManager {
             return;
         }
         mTvClient = mHdmiControlManager.getTvClient();
+    }
+
+    public HdmiClient getClient(int type) {
+        if (mHdmiControlManager == null) {
+            return null;
+        }
+        return mHdmiControlManager.getClient(type);
     }
 
     public boolean isTv() {
