@@ -60,6 +60,8 @@ public class MediaPlayerExt extends MediaPlayer {
     private OnSeekCompleteListener mOnSeekCompleteListener = null;
     private OnErrorListener mOnErrorListener = null;
     private OnBlurayListener mOnBlurayInfoListener = null;
+    private OnExtendInfoListener mOnExtendInfoListener = null;
+    private OnFingerPrintListener mOnFingerPrintInfoListener = null;
 
     private EventHandler mEventHandler;
 
@@ -405,6 +407,8 @@ public class MediaPlayerExt extends MediaPlayer {
     public void release() {
         mStopFast = true;
         mOnBlurayInfoListener = null;
+        mOnExtendInfoListener = null;
+        mOnFingerPrintInfoListener = null;
         super.release();
     }
 
@@ -811,9 +815,55 @@ public class MediaPlayerExt extends MediaPlayer {
     public void setOnBlurayInfoListener(OnBlurayListener listener) {
         mOnBlurayInfoListener = listener;
     }
+    /**
+     * Interface definition of a callback to be report a extend information
+     */
+    public interface OnExtendInfoListener {
+        /**
+         * Called to indicate an available extended info
+         *
+         * @param mp             the MediaPlayer associated with this callback
+         * @param ext1           the extended info message type
+         * @param ext2           the extended info message obj length
+         * @param obj            the extended info message obj
+         */
+        public void OnExtendInfo(MediaPlayer mp, int ext1, int ext2, Object obj);
+    }
+
+    /**
+     * Register a callback to be report a extend info.
+     * @param listener the callback that will be run
+     */
+    public void setOnExtendInfoListener(OnExtendInfoListener listener) {
+        mOnExtendInfoListener = listener;
+    }
+    /**
+     * Interface definition of a callback to be report a FingerPrint information
+     */
+    public interface OnFingerPrintListener {
+        /**
+         * Called to indicate an available FingerPrint info
+         *
+         * @param mp             the MediaPlayer associated with this callback
+         * @param ext1           the FingerPrint info message arg1
+         * @param ext2           the FingerPrint info message arg2
+         * @param obj            the FingerPrint info message obj
+         */
+        public void onFingerPrintInfo(MediaPlayer mp, int ext1, int ext2, Object obj);
+    }
+
+    /**
+     * Register a callback to be report a FingerPrint info.
+     * @param listener the callback that will be run
+     */
+    public void setOnFingerPrintInfoListener(OnFingerPrintListener listener) {
+        mOnFingerPrintInfoListener = listener;
+    }
 
     //must different with message value defined in MediaPlayer.java
     private static final int MEDIA_BLURAY_INFO = 203;
+    private static final int MEDIA_EXTEND_INFO = 208;
+    private static final int MEDIA_FINGERPRINT_INFO = 207;
     private class EventHandler extends Handler {
         private MediaPlayer mMediaPlayer;
 
@@ -831,6 +881,16 @@ public class MediaPlayerExt extends MediaPlayer {
                         return;
                     mOnBlurayInfoListener.onBlurayInfo(mMediaPlayer, msg.arg1, msg.arg2, msg.obj);
                     return;
+                case MEDIA_EXTEND_INFO:
+                    if (mOnExtendInfoListener == null)
+                        return;
+                    mOnExtendInfoListener.OnExtendInfo(mMediaPlayer, msg.arg1, msg.arg2, msg.obj);
+                    return;
+                case MEDIA_FINGERPRINT_INFO:
+                    if (mOnFingerPrintInfoListener == null)
+                        break;
+                    mOnFingerPrintInfoListener.onFingerPrintInfo(mMediaPlayer, msg.arg1, msg.arg2, msg.obj);
+                    break;
                 default:
                     Log.e(TAG, "Unknown message: " + msg.what);
                     break;
@@ -839,11 +899,11 @@ public class MediaPlayerExt extends MediaPlayer {
     }
 
     public void postEvent(int msg, int ext1, int ext2, Object obj) {
-        /*if (DEBUG) Log.i(TAG, "[postEvent]msg: " + msg);
+        if (DEBUG) Log.i(TAG, "[postEvent]msg: " + msg);
         if (mEventHandler != null) {
             Message m = mEventHandler.obtainMessage(msg, ext1, ext2, obj);
             mEventHandler.sendMessage(m);
-        }*/
+        }
     }
 
     private void OnFFCompletion() {
