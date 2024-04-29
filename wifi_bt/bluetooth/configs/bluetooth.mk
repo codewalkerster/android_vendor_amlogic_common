@@ -54,9 +54,8 @@ PRODUCT_PACKAGES += Bluetooth \
     libbt-client-api \
     com.broadcom.bt \
     com.broadcom.bt.xml \
-    audio.bluetooth.default \
-    android.hardware.bluetooth@1.1-impl-droidlogic \
-    android.hardware.bluetooth@1.1-service-droidlogic
+    android.hardware.bluetooth@1.0-impl-droidlogic \
+    android.hardware.bluetooth@1.0-service-droidlogic
 
 PRODUCT_COPY_FILES += \
     vendor/amlogic/common/wifi_bt/bluetooth/broadcom/vendor/data/auto_pairing.conf:$(TARGET_COPY_OUT_VENDOR)/etc/bluetooth/auto_pairing.conf \
