@@ -2114,9 +2114,10 @@ wifi_error wifi_trigger_subsystem_restart(wifi_handle handle)
 
     info = (hal_info *)handle;
     if (handle == NULL || info == NULL) {
-        ALOGE("Could not find hal info\n");
+        ALOGE("libo: Could not find hal info, return:%d\n", WIFI_ERROR_UNKNOWN);
         result = WIFI_ERROR_UNKNOWN;
-        goto exit;
+        //goto exit;
+        return result;
     }
 
     ALOGI("Trigger subsystem restart\n");
@@ -2130,13 +2131,14 @@ wifi_error wifi_trigger_subsystem_restart(wifi_handle handle)
     if (result != WIFI_SUCCESS) {
         cmd->releaseRef();
         strncpy(error_str, "WIFI_ERROR_UNKNOWN", sizeof(error_str));
-        ALOGE("Failed to create SSR");
-        goto exit;
+        ALOGE("libo: Failed to create SSR, return:%d", result);
+        //goto exit;
+        return result;
     }
 
     strncpy(error_str, "WIFI_SUCCESS", sizeof(error_str));
 
-exit:
+//exit:
     if (info->restart_handler.on_subsystem_restart) {
         ALOGI("Trigger ssr handler registered handler:%p",
             info->restart_handler.on_subsystem_restart);
