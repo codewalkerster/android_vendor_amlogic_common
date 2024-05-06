@@ -15,6 +15,10 @@ import android.content.ContentResolver;
 import android.hardware.hdmi.HdmiControlManager;
 import android.hardware.hdmi.HdmiClient;
 import android.hardware.hdmi.HdmiTvClient;
+import android.hardware.hdmi.HdmiClient;
+import android.media.AudioDeviceAttributes;
+import android.media.AudioDeviceInfo;
+import android.media.AudioManager;
 import android.provider.Settings;
 import android.util.Log;
 
@@ -38,12 +42,19 @@ public class HdmiCecManager {
     public static final String PERSIST_HDMI_CEC_AUTO_WAKEUP = "persist.vendor.sys.cec.autowakeup";
     public static final String PERSIST_HDMI_CEC_ONE_TOUCH_PLAY = "persist.vendor.sys.cec.onetouchplay";
 
+    private static final AudioDeviceAttributes DEVICE_HDMI_OUT = new AudioDeviceAttributes(
+            AudioDeviceAttributes.ROLE_OUTPUT, AudioDeviceInfo.TYPE_HDMI, "");
+
+
     public static final int ON = 1;
     public static final int OFF = 0;
+
+    private static final int DEVICE_TYPE_AUDIOSYSTEM = 5;
 
     private Context mContext;
     private HdmiControlManager mHdmiControlManager;
     private HdmiTvClient mTvClient;
+    private HdmiClient mAudioSystemClient;
 
     public HdmiCecManager(Context context) {
         mContext = context;
@@ -53,6 +64,7 @@ public class HdmiCecManager {
             return;
         }
         mTvClient = mHdmiControlManager.getTvClient();
+        mAudioSystemClient = mHdmiControlManager.getClient(DEVICE_TYPE_AUDIOSYSTEM);
     }
 
     public HdmiClient getClient(int type) {
@@ -64,6 +76,10 @@ public class HdmiCecManager {
 
     public boolean isTv() {
         return mTvClient != null;
+    }
+
+    public boolean isAudioSystem() {
+        return mAudioSystemClient != null;
     }
 
     public boolean isHdmiControlEnabled() {
@@ -173,6 +189,24 @@ public class HdmiCecManager {
          Log.d(TAG, "enable eARC Audio : " + value);
          Settings.Global.putInt(mContext.getContentResolver(), SETTINGS_EARC_ENABLE, (value ? ON : OFF));
      }
+
+    public void setHdmiVolumeBehavior(int deviceVolumeBehavior /*0:variable 1:full */) {
+        AudioManager audioManager = (AudioManager)mContext.getSystemService(Context.AUDIO_SERVICE);
+        if (audioManager == null) {
+            Log.e(TAG, "setHdmiVolumeBehavior audio manager null");
+            return;
+        }
+        audioManager.setDeviceVolumeBehavior(DEVICE_HDMI_OUT, deviceVolumeBehavior);
+    }
+
+    public int getHdmiVolumeBehavior() {
+        AudioManager audioManager = (AudioManager)mContext.getSystemService(Context.AUDIO_SERVICE);
+        if (audioManager == null) {
+            Log.e(TAG, "getHdmiVolumeBehavior audio manager null");
+            return OFF;
+        }
+        return audioManager.getDeviceVolumeBehavior(DEVICE_HDMI_OUT);
+    }
 
     private boolean readValue(String key) {
         return readValue(key, ON);
