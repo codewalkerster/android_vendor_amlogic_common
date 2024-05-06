@@ -41,16 +41,16 @@ PICTURE_MODE_DATA mDefaultPictureMode[] = {
     {PICTURE_MODE_SONY,              50, 50, 50, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _MID,  _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    _NULL, _NULL,  _NULL, _NULL, _NULL, 0},
     {PICTURE_MODE_SAMSUNG,           50, 50, 50, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _MID,  _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    _NULL, _NULL,  _NULL, _NULL, _NULL, 0},
     {PICTURE_MODE_SHARP,             50, 50, 50, 50, 50, _NULL, _MID, _MID,  _OFF,  _OFF, COLOR_TMP_MODE_STANDARD, _MID,  _OFF, _OFF, _LOW, _LOW, _HIGH, _OFF, _OFF, 6,    _NULL, _NULL,  _NULL, _NULL, _NULL, 0},
-    {PICTURE_MODE_AMDOLBY_BRIGHT,    50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    _NULL, 1,      1,     0,     1,     0},
     {PICTURE_MODE_AMDOLBY_DARK,      50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    _NULL, 0,      0,     0,     0,     0},
+    {PICTURE_MODE_AMDOLBY_BRIGHT,    50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    _NULL, 1,      1,     0,     1,     0},
     {PICTURE_MODE_AMDOLBY_IQ,        50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    _NULL, 3,      0,     1,     1,     0},
     {PICTURE_MODE_FILMMAKER,         50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _LOW, _OFF,  _OFF, _OFF, 6,    _NULL, _NULL,  _NULL, 0,     _NULL, 0},
 };
 
 PICTURE_MODE_DATA mDVPictureMode[] = {
     /*pqmode                         bri con sat hue shp bl     nr    dnlp   gd     gamut colortem                 lc     black blue  mnr   Cor   memc   Deco  sr    gamma tmo    dv_mod  dv_dd  dv_ls  Prcision*/
-    {PICTURE_MODE_AMDOLBY_BRIGHT,    50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _OFF, _OFF,  _OFF, _OFF, 6,    _NULL, 1,      1,     0,     1,     0},
     {PICTURE_MODE_AMDOLBY_DARK,      50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _OFF, _OFF,  _OFF, _OFF, 6,    _NULL, 0,      0,     0,     0,     0},
+    {PICTURE_MODE_AMDOLBY_BRIGHT,    50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _OFF, _OFF,  _OFF, _OFF, 6,    _NULL, 1,      1,     0,     1,     0},
     {PICTURE_MODE_GAME,              50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _OFF, _OFF,  _OFF, _OFF, 6,    _NULL, 2,      0,     0,     0,     0},
     {PICTURE_MODE_AMDOLBY_IQ,        50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _OFF, _OFF,  _OFF, _OFF, 6,    _NULL, 3,      0,     1,     1,     0},
     {PICTURE_MODE_FILMMAKER,         50, 50, 50, 50, 50, _NULL, _OFF, _OFF,  _OFF,  _OFF, COLOR_TMP_MODE_WARMER,   _OFF,  _OFF, _OFF, _OFF, _OFF, _OFF,  _OFF, _OFF, 6,    _NULL, _NULL,  _NULL, _NULL, _NULL, 0},

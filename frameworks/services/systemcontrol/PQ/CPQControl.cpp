@@ -10103,16 +10103,19 @@ int CPQControl::SetPQPictureMode(PICTURE_MODE pq_mode)
         "Sharpness:        %3d, Backlight:        %3d, Nr:               %3d, DynamicContrast: %3d,\n"
         "DynamicBacklight  %3d, ColorGamut:       %3d, ColorTemperature: %3d, LocalContrast:   %3d,\n"
         "BlackStretch:     %3d, BlueStretch:      %3d, MpegNr:           %3d, ChromaCoring:    %3d,\n"
-        "Memc              %3d, SmoothPlus:       %3d, SuperResolution   %3d, hdr_tone_mapping:%3d,\n"
-        "DvMode:           %3d, DvDarkDetail:     %3d, DvLightSensor:    %3d, AmDolbyPrcision: %3d,\n",
+        "Memc              %3d, SmoothPlus:       %3d, SuperResolution   %3d, Gamma            %3d,\n"
+        "hdr_tone_mapping: %3d, DvMode:           %3d, DvDarkDetail:     %3d, DvLightSensor:   %3d,\n",
+        "AmDolbyPrcision:  %3d,\n",
+
         __FUNCTION__,
         PictureMode.mode,
         PictureMode.Brightness, PictureMode.Contrast, PictureMode.Saturation, PictureMode.Hue,
         PictureMode.Sharpness, PictureMode.Backlight, PictureMode.Nr, PictureMode.DynamicContrast,
         PictureMode.DynamicBacklight, PictureMode.ColorGamut, PictureMode.ColorTemperature, PictureMode.LocalContrast,
         PictureMode.BlackStretch, PictureMode.BlueStretch, PictureMode.MpegNr, PictureMode.ChromaCoring,
-        PictureMode.Memc, PictureMode.Decontour, PictureMode.SuperResolution, PictureMode.HdrTmo,
-        PictureMode.DvMode, PictureMode.DvDarkDetail, PictureMode.DvLightSensor, PictureMode.AmDolbyPrcision);
+        PictureMode.Memc, PictureMode.Decontour, PictureMode.SuperResolution, PictureMode.GammaMidLuminance,
+        PictureMode.HdrTmo, PictureMode.DvMode, PictureMode.DvDarkDetail, PictureMode.DvLightSensor,
+        PictureMode.AmDolbyPrcision);
 
     if (ret == 0) {
         ret |= Cpq_SetBrightness(PictureMode.Brightness, mCurrentSourceInputInfo);
@@ -10135,7 +10138,7 @@ int CPQControl::SetPQPictureMode(PICTURE_MODE pq_mode)
 
         // colortemp
         ret |= Cpq_SetColorTemperature(PictureMode.ColorTemperature);
-        ret |= Cpq_LoadGamma((vpp_gamma_mode_t)GetGammaValue(), (vpp_color_temperature_mode_t)PictureMode.ColorTemperature);
+        ret |= Cpq_LoadGamma((vpp_gamma_mode_t)PictureMode.GammaMidLuminance, (vpp_color_temperature_mode_t)PictureMode.ColorTemperature);
 
         // for hdr
         ret |= Cpq_SetHDRTMOMode(PictureMode.HdrTmo);
