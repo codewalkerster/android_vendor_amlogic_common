@@ -88,6 +88,7 @@ void SSMAction::init(const char *SsmDataPath, const char *SsmDataHandlerPath, co
         SYS_LOGD ("%s, Verify SSMHeader, status= %d\n", __FUNCTION__, SSM_status);
         if (DeviceMarkCheck() < 0 || SSM_status == SSM_HEADER_INVALID) {
             if (mpObserver != NULL) {
+                mpObserver->resetAllUserSettingParam();
                 mpObserver->resetSSMData();
                 if (mSSMHandler->SSMRecreateHeader())
                     SYS_LOGD ("%s, SSMRecreateHeader success\n", __FUNCTION__);
@@ -97,6 +98,7 @@ void SSMAction::init(const char *SsmDataPath, const char *SsmDataHandlerPath, co
             }
         } else if (SSM_status == SSM_HEADER_STRUCT_CHANGE) {
             if (mpObserver != NULL) {
+                mpObserver->resetAllUserSettingParam();
                 mpObserver->resetSSMData();
                 RestoreDeviceMarkValues();
             } else {
@@ -341,6 +343,7 @@ bool SSMAction::SSMRecovery(void)
     EraseAllData();
 
     if (mpObserver != NULL) {
+        mpObserver->resetAllUserSettingParam();
         mpObserver->resetSSMData();
         RestoreDeviceMarkValues();
     } else {

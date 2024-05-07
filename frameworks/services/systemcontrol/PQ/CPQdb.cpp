@@ -2153,28 +2153,28 @@ int CPQdb::PQ_GetNoLineAllSharpnessParams(tv_source_input_t source_input, int *o
 }
 int CPQdb::PQ_GetSharpness0Params(source_input_param_t source_input_param, int level, am_regs_t *regs)
 {
-    int val = 0;
+    //int val = 0;
 
     //GetNonlinearMapping(TVPQ_DATA_SHARPNESS, source_input_param.source_input, level, &val);
-    *regs = CalculateLevelRegsParam(pq_sharpness0_reg_data, val, 0);
+    *regs = CalculateLevelRegsParam(pq_sharpness0_reg_data, level, 0);
     return 0;
 }
 
 int CPQdb::PQ_GetSharpness1Params(source_input_param_t source_input_param, int level, am_regs_t *regs)
 {
-    int val = 0;
+    //int val = 0;
 
     //GetNonlinearMapping(TVPQ_DATA_SHARPNESS, source_input_param.source_input, level, &val);
-    *regs = CalculateLevelRegsParam(pq_sharpness1_reg_data, val, 1);
+    *regs = CalculateLevelRegsParam(pq_sharpness1_reg_data, level, 1);
     return 0;
 }
 
 int CPQdb::PQ_GetSharpnessPiParams(source_input_param_t source_input_param, int level, am_regs_t *regs)
 {
-    int val = 0;
+    //int val = 0;
 
     //GetNonlinearMapping(TVPQ_DATA_SHARPNESS, source_input_param.source_input, level, &val);
-    *regs = CalculateLevelRegsParam(pq_sharpnesspi_reg_data, val, 2);
+    *regs = CalculateLevelRegsParam(pq_sharpnesspi_reg_data, level, 2);
     return 0;
 }
 

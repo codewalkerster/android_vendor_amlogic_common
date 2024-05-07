@@ -9667,6 +9667,7 @@ void CPQControl::resetAllUserSettingParam()
     ResetPictureStructDataBySrcAll();
     ResetPictureStructDataGlobal();
     ResetPictureModeAll();
+    ResetPictureModeDataAll();
 
     return;
 }
@@ -10104,9 +10105,8 @@ int CPQControl::SetPQPictureMode(PICTURE_MODE pq_mode)
         "DynamicBacklight  %3d, ColorGamut:       %3d, ColorTemperature: %3d, LocalContrast:   %3d,\n"
         "BlackStretch:     %3d, BlueStretch:      %3d, MpegNr:           %3d, ChromaCoring:    %3d,\n"
         "Memc              %3d, SmoothPlus:       %3d, SuperResolution   %3d, Gamma            %3d,\n"
-        "hdr_tone_mapping: %3d, DvMode:           %3d, DvDarkDetail:     %3d, DvLightSensor:   %3d,\n",
+        "hdr_tone_mapping: %3d, DvMode:           %3d, DvDarkDetail:     %3d, DvLightSensor:   %3d,\n"
         "AmDolbyPrcision:  %3d,\n",
-
         __FUNCTION__,
         PictureMode.mode,
         PictureMode.Brightness, PictureMode.Contrast, PictureMode.Saturation, PictureMode.Hue,
@@ -11262,8 +11262,8 @@ bool CPQControl::ResetPictureMode(void)
 bool CPQControl::ResetPictureModeAll(void)
 {
     SYS_LOGD("%s: start\n", __FUNCTION__);
-
     if (mDataBase == NULL ) {
+        SYS_LOGE("[%s] mDataBase is NULL", __FUNCTION__);
         return false;
     }
 
@@ -11347,9 +11347,8 @@ bool CPQControl::GetPictureModeCustomData(PICTURE_MODE_DATA *params, PICTURE_MOD
 
 bool CPQControl::ResetPictureModeData(void)
 {
-    SYS_LOGD("[%s] start", __FUNCTION__);
-
     if (mDataBase == NULL ) {
+        SYS_LOGE("[%s] mDataBase is NULL", __FUNCTION__);
         return false;
     }
 
@@ -11367,11 +11366,12 @@ bool CPQControl::ResetPictureModeData(void)
 
 bool CPQControl::ResetPictureModeDataAll(void)
 {
+    SYS_LOGD("%s: start\n", __FUNCTION__);
     if (mDataBase == NULL ) {
+        SYS_LOGE("[%s] mDataBase is NULL", __FUNCTION__);
         return false;
     }
 
-    SYS_LOGD("%s: start\n", __FUNCTION__);
     int ret = -1;
     PICTURE_MODE_DATA params;
     for (int i = PQ_SRC_DEFAULT; i < PQ_SRC_MAX; i++) {
@@ -11472,6 +11472,7 @@ bool CPQControl::ResetNonlinearData(void)
 bool CPQControl::ResetNonlinearDataAll(void)
 {
     if (mDataBase == NULL ) {
+        SYS_LOGE("[%s] mDataBase is NULL", __FUNCTION__);
         return false;
     }
 
@@ -11552,6 +11553,7 @@ bool CPQControl::ResetColorTemperatureData(void)
 bool CPQControl::ResetColorTemperatureDataAll(void)
 {
     if (mDataBase == NULL ) {
+        SYS_LOGE("[%s] mDataBase is NULL", __FUNCTION__);
         return false;
     }
 
@@ -11690,6 +11692,7 @@ bool CPQControl::ResetColorCustomizeData(void)
 bool CPQControl::ResetColorCustomizeDataAll(void)
 {
     if (mDataBase == NULL ) {
+        SYS_LOGE("[%s] mDataBase is NULL", __FUNCTION__);
         return false;
     }
 
