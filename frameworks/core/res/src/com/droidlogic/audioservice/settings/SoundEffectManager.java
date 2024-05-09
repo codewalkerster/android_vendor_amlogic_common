@@ -1048,13 +1048,13 @@ public class SoundEffectManager {
     }
 
     private void applyAudioEffectByPlayEmptyTrack() {
-        int bufsize = AudioTrack.getMinBufferSize(8000, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT);
+        int bufsize = AudioTrack.getMinBufferSize(48000, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT);
         if (bufsize <= 0) {
             Log.w(TAG, "applyAudioEffectByPlayEmptyTrack buffersize:" + bufsize + " invalid.");
             return;
         }
         byte data[] = new byte[bufsize];
-        AudioTrack trackplayer = new AudioTrack(AudioManager.STREAM_MUSIC, 8000, AudioFormat.CHANNEL_OUT_STEREO,
+        AudioTrack trackplayer = new AudioTrack(AudioManager.STREAM_MUSIC, 48000, AudioFormat.CHANNEL_OUT_STEREO,
                 AudioFormat.ENCODING_PCM_16BIT, bufsize, AudioTrack.MODE_STREAM);
         Log.i(TAG, "applyAudioEffectByPlayEmptyTrack create empty AudioTrack to applay AudioEffect");
         trackplayer.play();
