@@ -77,13 +77,11 @@ public class DroidMdnsOffloadService extends Service {
             Log.d(TAG, "setOffloadState:" + enabled);
             boolean ret = false;
             try {
-                if (enabled) {
-                    if (mService_mdnsoffload != null) {
-                        Log.d(TAG, "mService_mdnsoffload is not null");
-                        ret = mService_mdnsoffload.get().setOffloadState(enabled);
-                    } else
-                        Log.d(TAG, "mService_mdnsoffload is null");
-                }
+                 if (mService_mdnsoffload != null) {
+                    Log.d(TAG, "mService_mdnsoffload is not null");
+                    ret = mService_mdnsoffload.get().setOffloadState(enabled);
+                 } else
+                    Log.d(TAG, "mService_mdnsoffload is null");
             } catch (RemoteException ex) {
                  Log.e(TAG, "Failed setOffloadState", ex);
             }
