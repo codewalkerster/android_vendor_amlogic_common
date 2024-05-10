@@ -610,8 +610,7 @@ public class NetflixService extends Service {
             return;
 
         if (!SystemProperties.get("sys.vendor.atmos.passthrough").equals("enable")) {
-            if (!hasMS12 ||
-                (mOutputModeManager.getDigitalAudioFormatOut() == OutputModeManager.DIGITAL_AUDIO_FORMAT_PASSTHROUGH))
+            if (!hasMS12)
                 return;
         }
 
