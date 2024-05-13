@@ -20,6 +20,7 @@
 #include "CPQDataBase.h"
 #include "CPQLog.h"
 
+extern TABLE_VER_OSD                mVerInfoOSD;
 extern TABLE_DATA_STRUCT            mNonlinearMappingTable[];
 extern TABLE_DATA_STRUCT            mPictureModeTable[];
 extern TABLE_DATA_STRUCT            mColorTempTable[];
@@ -220,6 +221,12 @@ bool CPQDataBase::LoadOSDBin(void)
     unsigned char *pTableIndex = NULL;
     PQ_OSD_TABLE_DATA_STRUCT_SAVE *pIndex = NULL;
 
+    //Ver Information
+    GetTable(pData, pHeader->PqOsdVerOffset, &pTableHeader, &pTableData, &pTableIndex);
+    TABLE_VER_OSD *pVerOsdData = (TABLE_VER_OSD *)pTableData;
+    SYS_LOGD("%s ProjectVersion %s\n",__FUNCTION__, pVerOsdData->ProjectVersion);
+    SYS_LOGD("%s ChipVersion %s\n",__FUNCTION__, pVerOsdData->ChipVersion);
+
     //Nonlinear Table
     GetTable(pData, pHeader->NonlinearMappingOffset, &pTableHeader, &pTableData, &pTableIndex);
     NonlinearModeType *pNonlinearData = (NonlinearModeType *)pTableData;
@@ -295,6 +302,9 @@ bool CPQDataBase::LoadOSDBin(void)
 bool CPQDataBase::LoadDefaultTable(void)
 {
     SYS_LOGD("%s Star to load default Table\n",__FUNCTION__);
+
+    SYS_LOGD("%s ProjectVersion %s\n",__FUNCTION__, mVerInfoOSD.ProjectVersion);
+    SYS_LOGD("%s ChipVersion %s\n",__FUNCTION__, mVerInfoOSD.ChipVersion);
 
     for (unsigned int i = 0; i < GetNonlinearMappingTableSize(); i++) {
         TABLE_DATA_STRUCT* pTable = &mNonlinearMappingTable[i];

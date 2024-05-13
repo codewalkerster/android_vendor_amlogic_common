@@ -14,7 +14,7 @@ int __pq_log_print(int prio, const char *tag, const char *pq_tag, const char *fm
 {
     char log_level[PROPERTY_VALUE_MAX] = {0};
 
-    int len = property_get("persist.vendor.pq.log.level", log_level, "4");
+    int len = property_get("persist.vendor.pq.log.level", log_level, "3");
     if (prio < atoi(log_level)) {
         return 0;
     } else {

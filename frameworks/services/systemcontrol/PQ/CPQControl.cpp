@@ -4639,13 +4639,14 @@ int CPQControl::SetDeblockMode(di_deblock_mode_t mode, int is_save)
 int CPQControl::GetDeblockMode(void)
 {
     int mode = DI_DEBLOCK_MODE_OFF;
-    PICTURE_SETTING_BY_SRC pData;
-    if (!GetPictureStructDataBySrc(&pData)) {
-        SYS_LOGE("%s GetPictureStructDataBySrc failed\n", __FUNCTION__);
+    PICTURE_MODE pq_mode = (PICTURE_MODE)GetPQMode();
+    PICTURE_MODE_DATA para;
+    if (!GetPictureModeData(&para, pq_mode)) {
+        SYS_LOGE("%s: GetPictureModeData source: %d, timming: %d mode: %d fail\n",__FUNCTION__, CurSource, CurTimming, mode);
         return mode;
     }
 
-    mode = pData.DeblockMode;
+    mode = para.Deblock;
 
     if (mode < DI_DEBLOCK_MODE_OFF || mode > DI_DEBLOCK_MODE_AUTO)
         mode = DI_DEBLOCK_MODE_OFF;
@@ -4655,16 +4656,17 @@ int CPQControl::GetDeblockMode(void)
 
 int CPQControl::SaveDeblockMode(di_deblock_mode_t mode)
 {
-    PICTURE_SETTING_BY_SRC pData;
-    if (!GetPictureStructDataBySrc(&pData)) {
-        SYS_LOGE("%s GetPictureStructDataBySrc failed\n", __FUNCTION__);
+    PICTURE_MODE_DATA para;
+    PICTURE_MODE pq_mode = (PICTURE_MODE)GetPQMode();
+    if (!GetPictureModeData(&para, pq_mode)) {
+        SYS_LOGE("%s: GetPictureModeData source: %d, timming: %d mode: %d fail\n",__FUNCTION__, CurSource, CurTimming, mode);
         return -1;
     }
 
-    pData.DeblockMode = (int)mode;
+    para.Deblock = (int)mode;
 
-    if (!SetPictureStructDataBySrc(&pData)) {
-        SYS_LOGE("%s SetPictureStructDataBySrc failed\n", __FUNCTION__);
+    if (!SetPictureModeData(&para, pq_mode)) {
+        SYS_LOGE("%s: SetPictureModeData source: %d, timming: %d mode: %d fail\n",__FUNCTION__, CurSource, CurTimming, mode);
         return -1;
     }
 
@@ -4730,13 +4732,14 @@ int CPQControl::SetDemoSquitoMode(di_demosquito_mode_t mode, int is_save)
 int CPQControl::GetDemoSquitoMode(void)
 {
     int mode = DI_DEMOSQUITO_MODE_OFF;
-    PICTURE_SETTING_BY_SRC pData;
-    if (!GetPictureStructDataBySrc(&pData)) {
-        SYS_LOGE("%s GetPictureStructDataBySrc failed\n", __FUNCTION__);
+    PICTURE_MODE pq_mode = (PICTURE_MODE)GetPQMode();
+    PICTURE_MODE_DATA para;
+    if (!GetPictureModeData(&para, pq_mode)) {
+        SYS_LOGE("%s: GetPictureModeData source: %d, timming: %d mode: %d fail\n",__FUNCTION__, CurSource, CurTimming, mode);
         return mode;
     }
 
-    mode = pData.DeMoSquitoMode;
+    mode = para.DeMoSquito;
 
     if (mode < DI_DEMOSQUITO_MODE_OFF || mode > DI_DEMOSQUITO_MODE_AUTO)
         mode = DI_DEMOSQUITO_MODE_OFF;
@@ -4746,16 +4749,17 @@ int CPQControl::GetDemoSquitoMode(void)
 
 int CPQControl::SaveDemoSquitoMode(di_demosquito_mode_t mode)
 {
-    PICTURE_SETTING_BY_SRC pData;
-    if (!GetPictureStructDataBySrc(&pData)) {
-        SYS_LOGE("%s GetPictureStructDataBySrc failed\n", __FUNCTION__);
+    PICTURE_MODE_DATA para;
+    PICTURE_MODE pq_mode = (PICTURE_MODE)GetPQMode();
+    if (!GetPictureModeData(&para, pq_mode)) {
+        SYS_LOGE("%s: GetPictureModeData source: %d, timming: %d mode: %d fail\n",__FUNCTION__, CurSource, CurTimming, mode);
         return -1;
     }
 
-    pData.DeMoSquitoMode = (int)mode;
+    para.DeMoSquito = (int)mode;
 
-    if (!SetPictureStructDataBySrc(&pData)) {
-        SYS_LOGE("%s GetPictureStructDataBySrc failed\n", __FUNCTION__);
+    if (!SetPictureModeData(&para, pq_mode)) {
+        SYS_LOGE("%s: SetPictureModeData source: %d, timming: %d mode: %d fail\n",__FUNCTION__, CurSource, CurTimming, mode);
         return -1;
     }
 
@@ -10130,8 +10134,8 @@ int CPQControl::SetPQPictureMode(PICTURE_MODE pq_mode)
         ret |= Cpq_SetBlackStretch(PictureMode.BlackStretch, mCurrentSourceInputInfo);
         ret |= Cpq_SetBlueStretch(PictureMode.BlueStretch, mCurrentSourceInputInfo);
         ret |= Cpq_SetChromaCoring(PictureMode.ChromaCoring, mCurrentSourceInputInfo);
-        ret |= Cpq_SetDeblockMode((di_deblock_mode_t)PictureMode.MpegNr, mCurrentSourceInputInfo);
-        ret |= Cpq_SetDemoSquitoMode((di_demosquito_mode_t)PictureMode.MpegNr, mCurrentSourceInputInfo);
+        ret |= Cpq_SetDeblockMode((di_deblock_mode_t)PictureMode.Deblock, mCurrentSourceInputInfo);
+        ret |= Cpq_SetDemoSquitoMode((di_demosquito_mode_t)PictureMode.DeMoSquito, mCurrentSourceInputInfo);
         ret |= Cpq_SetSmoothPlusMode((vpp_smooth_plus_mode_t)PictureMode.Decontour, mCurrentSourceInputInfo);
         ret |= Cpq_SetMemcMode((vpp_memc_mode_t)PictureMode.Memc, mCurrentSourceInputInfo);
         ret |= Cpq_SetSuperResolution(PictureMode.SuperResolution, mCurrentSourceInputInfo);

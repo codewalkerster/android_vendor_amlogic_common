@@ -125,6 +125,8 @@ typedef struct _PICTURE_MODE_DATA {
     int BlackStretch;
     int BlueStretch;
     int MpegNr;
+    int Deblock;
+    int DeMoSquito;
     int ChromaCoring;
     int Memc;
     int Decontour;
@@ -161,8 +163,6 @@ typedef struct _PICTURE_MODE_DEFAULT {
 
 typedef struct _PICTURE_SETTING_BY_SRC {
     MEMC_LEVEL_STRUCT memc[MEMC_MODE_MAX];
-    int DeblockMode;
-    int DeMoSquitoMode;
     int McDiMode;
     int DisplayMode;
 }PICTURE_SETTING_BY_SRC;
