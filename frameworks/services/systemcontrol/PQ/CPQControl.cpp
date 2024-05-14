@@ -9763,6 +9763,9 @@ int CPQControl::Cpq_GetInputVideoFrameHeight(tv_source_input_t source_input)
     if (inputFrameHeight <= 0) {
         SYS_LOGE("%s: inputFrameHeight is invalid, return default value!\n", __FUNCTION__);
         inputFrameHeight = 1080;
+    } else if (inputFrameHeight > 0 && inputFrameHeight < 480) {
+        SYS_LOGD("%s: such as Youtube/etc 360/240/... video!\n", __FUNCTION__);
+        inputFrameHeight = 480;
     }
 
     SYS_LOGI("%s: inputFrameHeight is %d!\n", __FUNCTION__, inputFrameHeight);
@@ -10110,7 +10113,7 @@ int CPQControl::SetPQPictureMode(PICTURE_MODE pq_mode)
         "BlackStretch:     %3d, BlueStretch:      %3d, MpegNr:           %3d, ChromaCoring:    %3d,\n"
         "Memc              %3d, SmoothPlus:       %3d, SuperResolution   %3d, Gamma            %3d,\n"
         "hdr_tone_mapping: %3d, DvMode:           %3d, DvDarkDetail:     %3d, DvLightSensor:   %3d,\n"
-        "AmDolbyPrcision:  %3d,\n",
+        "AmDolbyPrcision:  %3d, Deblock:          %3d, DeMoSquito:       %3d\n",
         __FUNCTION__,
         PictureMode.mode,
         PictureMode.Brightness, PictureMode.Contrast, PictureMode.Saturation, PictureMode.Hue,
@@ -10119,7 +10122,7 @@ int CPQControl::SetPQPictureMode(PICTURE_MODE pq_mode)
         PictureMode.BlackStretch, PictureMode.BlueStretch, PictureMode.MpegNr, PictureMode.ChromaCoring,
         PictureMode.Memc, PictureMode.Decontour, PictureMode.SuperResolution, PictureMode.GammaMidLuminance,
         PictureMode.HdrTmo, PictureMode.DvMode, PictureMode.DvDarkDetail, PictureMode.DvLightSensor,
-        PictureMode.AmDolbyPrcision);
+        PictureMode.AmDolbyPrcision, PictureMode.Deblock, PictureMode.DeMoSquito);
 
     if (ret == 0) {
         ret |= Cpq_SetBrightness(PictureMode.Brightness, mCurrentSourceInputInfo);
