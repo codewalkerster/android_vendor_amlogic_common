@@ -149,6 +149,9 @@ public class BootComplete extends BroadcastReceiver {
         updateDeveloperOptionsWatcher(context);
         mContext = context;
         showUsbPowerDialog();
+
+        // start FrameRateService
+        context.startService(new Intent(context, FrameRateService.class));
     }
 
     private boolean getBooleanProperty(String property, boolean defVal) {

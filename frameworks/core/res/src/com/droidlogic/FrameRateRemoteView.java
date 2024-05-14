@@ -24,44 +24,39 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
-import com.droidlogic.app.SystemControlManager;
-
-public class AIRemoteView {
-
+public class FrameRateRemoteView {
     private View mFloatView;
     private WindowManager wm;
     private WindowManager.LayoutParams mParams;
     private boolean isShowing;
-    private TextView mShowOTTInfo;
-    private TextView mShowTVInfo;
-    private static AIRemoteView mInstance;
+    private static FrameRateRemoteView mInstance;
+    private TextView mShowInfo;
 
-    public synchronized static AIRemoteView getInstance() {
+    public synchronized static FrameRateRemoteView getInstance() {
         if (mInstance == null) {
-            mInstance = new AIRemoteView();
+            mInstance = new FrameRateRemoteView();
         }
         return mInstance;
     }
 
-    private AIRemoteView() {
-    }
-
     public void createView(Context context) {
         LayoutInflater inflater = LayoutInflater.from(context);
-        mFloatView = inflater.inflate(R.layout.scene_layout, null, false);
+        mFloatView = inflater.inflate(R.layout.framerate_layout, null, false);
+        mShowInfo = (TextView) mFloatView.findViewById(R.id.show_framerate);
         wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         mParams = new WindowManager.LayoutParams();
+        mParams.setTitle("FrameRateRemoteView");
         mParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY;
-        mParams.gravity = Gravity.LEFT | Gravity.TOP;
+        mParams.gravity = Gravity.RIGHT | Gravity.TOP;
         mParams.format = PixelFormat.TRANSLUCENT;
         mParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
                 | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
                 | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
 
-        mShowOTTInfo = (TextView) mFloatView.findViewById(R.id.show_info_ott);
-        mShowTVInfo = (TextView) mFloatView.findViewById(R.id.show_info_tv);
-        updateUI("AI PQ invalid value...");
-
+        mParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
+        mParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        mParams.x = 200;
+        mParams.y = 100;
         isShowing = false;
 
     }
@@ -81,19 +76,8 @@ public class AIRemoteView {
     }
 
     public void updateUI(String value) {
-        if (isTvFeature()) {
-            updateUI(value, mShowTVInfo);
-        } else {
-            updateUI(value, mShowOTTInfo);
-        }
-    }
-
-    private void updateUI(String value, TextView textView) {
         if (mFloatView == null) return;
-        if (value.equals(textView.getText().toString())) {
-            return;
-        }
-        textView.setText(value);
+        mShowInfo.setText(value);
     }
 
     public boolean isShow() {
@@ -103,10 +87,5 @@ public class AIRemoteView {
     public boolean isCreated() {
         return !(mFloatView == null);
     }
-
-    public static boolean isTvFeature() {
-        SystemControlManager sm = SystemControlManager.getInstance();
-        return ("1".equals(sm.getPropertyString("ro.vendor.platform.is.tv", "")));
-    }
-
 }
+

@@ -162,6 +162,10 @@
             </intent-filter>
         </receiver>
 
+        <service android:name=".FrameRateService"
+                 android:enabled="true"
+                 android:exported="true"/>
+
         <service android:exported="true"
                  android:name="com.droidlogic.btpair.DialogBluetoothService"
                  android:singleUser="true" />

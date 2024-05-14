@@ -15,4 +15,5 @@
     <color name="bg_dialog_bg">#00000000</color>
     <color name="btn_bg">#FFFFFFFF</color>
     <color name="btn_dialog">#FF0F0F0F</color>
+    <color name="yellow">#FFFFE0</color>
 </resources>
