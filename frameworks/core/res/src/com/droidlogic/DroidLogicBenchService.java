@@ -37,6 +37,9 @@ public class DroidLogicBenchService extends Service {
     private String mCpufreq;
     private String mDevfreq;
     private String mMpgpu;
+    private String mBackground;
+    private String mSystem;
+    private String mRestricted;
 
     private void initPoorApp() {
         benchApps = new ArrayList();
@@ -78,6 +81,12 @@ public class DroidLogicBenchService extends Service {
         Log.d(TAG, "mDevfreq is  " + mDevfreq);
         mMpgpu = mSCM.readSysFsOri("/sys/class/mpgpu/scale_mode");
         Log.d(TAG, "mMpgpu is  " + mMpgpu);
+        mBackground = mSCM.readSysFsOri("/dev/cpuset/background/cpus");
+        Log.d(TAG, "mBackground is  " + mBackground);
+        mSystem = mSCM.readSysFsOri("/dev/cpuset/system-background/cpus");
+        Log.d(TAG, "mSystem is  " + mSystem);
+        mRestricted = mSCM.readSysFsOri("/dev/cpuset/restricted/cpus");
+        Log.d(TAG, "mRestricted is  " + mRestricted);
     }
 
     private void hidePoorApp() {
@@ -184,11 +193,17 @@ public class DroidLogicBenchService extends Service {
                 mSCM.writeSysFs("/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor", "performance");
                 mSCM.writeSysFs("/sys/class/devfreq/fe400000.valhall/governor", "performance");
                 mSCM.writeSysFs("/sys/class/mpgpu/scale_mode", "3");
+                mSCM.writeSysFs("/dev/cpuset/background/cpus", "1");
+                mSCM.writeSysFs("/dev/cpuset/system-background/cpus", "1");
+                mSCM.writeSysFs("/dev/cpuset/restricted/cpus", "1");
             } else {
                 mSCM.writeSysFs("/sys/class/thermal/thermal_zone0/mode", mThermal);
                 mSCM.writeSysFs("/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor", mCpufreq);
                 mSCM.writeSysFs("/sys/class/devfreq/fe400000.valhall/governor", mDevfreq);
                 mSCM.writeSysFs("/sys/class/mpgpu/scale_mode", mMpgpu);
+                mSCM.writeSysFs("/dev/cpuset/background/cpus", mBackground);
+                mSCM.writeSysFs("/dev/cpuset/system-background/cpus", mSystem);
+                mSCM.writeSysFs("/dev/cpuset/restricted/cpus", mRestricted);
             }
         }
     }
