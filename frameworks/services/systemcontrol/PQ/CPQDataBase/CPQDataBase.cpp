@@ -19,6 +19,8 @@
 
 #include "CPQDataBase.h"
 #include "CPQLog.h"
+#include "CFile.h"
+#include "CConfigFile.h"
 
 extern TABLE_VER_OSD                mVerInfoOSD;
 extern TABLE_DATA_STRUCT            mNonlinearMappingTable[];
@@ -76,6 +78,7 @@ int CPQDataBase::Init(const char *path)
 
     closeDb();
     if (!(access(db_path, F_OK) == 0)) {
+        SYS_LOGD("%s no TV_PICTURE process\n");
         if (CreateNewDB(db_path) != true) {
             SYS_LOGE("%s CreateNewDB fail!\n", db_path);
             return -1;
@@ -89,6 +92,7 @@ int CPQDataBase::Init(const char *path)
 
         InitialValue();
     } else { // db is access
+        SYS_LOGD("%s has TV_PICTURE process\n");
         if (openDb(db_path) < 0) {
             SYS_LOGE("%s openDb fail!\n", db_path);
             closeDb();
@@ -167,10 +171,25 @@ bool CPQDataBase::LoadOSDBin(void)
         SYS_LOGE("%s sql path is NULL\n",__FUNCTION__);
         return false;
     }
-
     SYS_LOGD("%s Load OSD Bin: %s\n",__FUNCTION__, OSD_bin_path);
 
-    FILE *pFile = fopen(OSD_bin_path, "r");
+    if (CConfigFile::GetInstance()->isFileExist(OSD_bin_path)) {
+        CFile FilePq(OSD_bin_path);
+        if (FilePq.copyTo(PQ_OSD_BIN_PATH) != 0) {
+            SYS_LOGE("copy file to %s error!\n", PQ_OSD_BIN_PATH);
+        }
+    } else if (CConfigFile::GetInstance()->isFileExist(PQ_OSD_BIN_DEFAULT_PATH_0)) {
+        CFile FilePq(PQ_OSD_BIN_DEFAULT_PATH_0);
+        if (FilePq.copyTo(PQ_OSD_BIN_PATH) != 0) {
+            SYS_LOGE("copy file to %s error!\n", PQ_OSD_BIN_PATH);
+        }
+    } else if (CConfigFile::GetInstance()->isFileExist(PQ_OSD_BIN_PATH)) {
+        SYS_LOGD("has %s\n", PQ_OSD_BIN_PATH);
+    } else {
+        SYS_LOGE("no %s and no %s\n", OSD_bin_path, PQ_OSD_BIN_DEFAULT_PATH_0);
+    }
+
+    FILE *pFile = fopen(PQ_OSD_BIN_PATH, "r");
     if (pFile == NULL) {
         SYS_LOGE("%s pFile is NULL, no OSD bin: %s access! retun to load default Table\n", __FUNCTION__, OSD_bin_path);
         return false;

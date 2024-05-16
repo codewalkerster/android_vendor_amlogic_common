@@ -27,6 +27,9 @@ int main(int argc, char** argv)
     }
 
     char *pTok = NULL;
+    char *file_name = NULL;
+    char *temp = NULL;
+    char chip[10] = {'\0'};
     pTok = strtok(sTmp, "=");
     if (pTok != NULL) {
         pTok = strtok(NULL, "=");
@@ -36,10 +39,36 @@ int main(int argc, char** argv)
             if (*pTok == '/')
                 pTok ++;
 
+            printf("pTok:%s\n", pTok);
+            file_name = strstr(pTok, "AML_PQ_OSD");
+            printf("file_name:%s\n", file_name);
+
+            temp = strstr(pTok, "/");
+            if (temp != NULL) {
+                printf("temp:%s\n", temp);
+                strncpy(chip, temp, file_name - temp);
+
+                char cmd[50];
+                sprintf(cmd, "mkdir OutPut/%s", chip);
+                int res = system(cmd);
+                if (res != 0) {
+                    printf("mkdir failed\n");
+                } else {
+                    printf("mkdir success\n");
+                }
+            }
+            printf("chip:%s\n", chip);
+
             unsigned int iCnt = 0;
             for (iCnt = 0; iCnt < sizeof(BIN) / sizeof(OUTPUT_BIN); iCnt ++) {
-                if (!strcmp(BIN[iCnt].PQOsdFileName, pTok)) {
-                    sprintf(sPanelFilePath, "OutPut/%s", BIN[iCnt].PQOsdBinName);
+                if (!strcmp(BIN[iCnt].PQOsdFileName, file_name)) {
+                    if (chip[0] == '\0') {
+                        sprintf(sPanelFilePath, "OutPut/%s", BIN[iCnt].PQOsdBinName);
+                    } else {
+                        sprintf(sPanelFilePath, "OutPut%s%s", chip, BIN[iCnt].PQOsdBinName);
+                    }
+                    printf("sPanelFilePath:%s\n", sPanelFilePath);
+
                     PQTableGenerate_Osd(sPanelFilePath);
                     return 1;
                 }

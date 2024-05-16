@@ -17,6 +17,7 @@
 #define LDIM_BIN_DEFAULT_PATH_0             "/mnt/vendor/odm_ext/etc/tvconfig/pq/ldim.bin"
 #define DOLBY_BIN_FILE_DEFAULT_PATH_0       "/mnt/vendor/odm_ext/etc/tvconfig/panel/dv_config.bin"
 #define DOLBY_CFG_FILE_DEFAULT_PATH_0       "/mnt/vendor/odm_ext/etc/tvconfig/panel/Amlogic_dv.cfg"
+#define PQ_OSD_BIN_DEFAULT_PATH_0           "/mnt/vendor/odm_ext/etc/tvconfig/pq/UI_PQSetting.bin"
 
 #define PQ_DB_DEFAULT_PATH_1                "/odm/etc/tvconfig/pq/pq.db"
 #define OVERSCAN_DB_DEFAULT_PATH_1          "/odm/etc/tvconfig/pq/overscan.db"

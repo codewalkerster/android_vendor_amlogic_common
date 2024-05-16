@@ -1,4 +1,4 @@
-#include "PQTableTypeOSD.h"
+#include "../../PQTableTypeOSD.h"
 
 TABLE_VER_OSD mVerInfoOSD =
 {

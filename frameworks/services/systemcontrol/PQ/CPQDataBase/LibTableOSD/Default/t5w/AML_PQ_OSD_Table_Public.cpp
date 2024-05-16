@@ -1,4 +1,4 @@
-#include "PQTableTypeOSD.h"
+#include "../../PQTableTypeOSD.h"
 
 TABLE_VER_OSD mVerInfoOSD =
 {
@@ -173,7 +173,7 @@ TABLE_PICTURE_SETTING_EXT mPictureSettingTable = {
 /*AIPQ_ENABLE   */        _OFF,
 /*AIPQ_MODE     */        0,
 /*AISR_ENABLE   */        _OFF,
-/*AISR_MODE     */        3,
+/*AISR_MODE     */        0,
 /*EyeProtection */        _OFF,
 /*LocalDimming  */        _OFF,
 /*ai_color      */        0,
