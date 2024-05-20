@@ -25,6 +25,7 @@
 **/
 char uwe5621_base[] = "/vendor/lib/modules/uwe5621_bsp_sdio.ko#";
 char mtk7663u_base[] = "/vendor/lib/modules/wlan_mt7663_usb_prealloc.ko#";
+char mtk7661s_base[] = "/vendor/lib/modules/wlan_mt7663_sdio_prealloc.ko#";
 char mtk760_base[] = "/vendor/lib/modules/mtprealloc.ko#";
 char ssv6051_base[] = "/vendor/lib/modules/ssv6051.ko#stacfgpath=/vendor/etc/wifi/ssv6051/ssv6051-wifi.cfg#/vendor/lib/modules/ssv6x5x.ko#tu_stacfgpath=/vendor/etc/wifi/ssv6x5x/ssv6x5x-wifi.cfg#";
 char qca6391_base[] = "/vendor/lib/modules/wlan_cnss_core_pcie_6391.ko# #/vendor/lib/modules/wlan_resident_6391.ko#";
@@ -128,8 +129,8 @@ static const dongle_info dongle_registerd[]={\
     {"0000","0000","wlan","/vendor/lib/modules/wlan_9379.ko","",no_base,"qca9379",0x9378,""},\
     {"0000","0000","wlan","/vendor/lib/modules/wlan_9379.ko","",no_base,"qca9379",0x7a85,""},\
     {"7608","0000","wlan_mt76x8_sdio","/vendor/lib/modules/wlan_mt76x8_sdio.ko","sta=wlan ap=ap p2p=p2p",no_base,"mtk7668s",0x0,""},\
-    {"7603","0000","wlan_mt7663_sdio","/vendor/lib/modules/wlan_mt7663_sdio.ko","",no_base,"mtk7661s",0x0,""},\
-    {"037a","0000","wlan_mt7663_sdio","/vendor/lib/modules/wlan_mt7663_sdio.ko","",no_base,"mtk7661s",0x0,""},\
+    {"7603","0000","wlan_mt7663_sdio","/vendor/lib/modules/wlan_mt7663_sdio.ko","",mtk7661s_base,"mtk7661s",0x0,""},\
+    {"037a","0000","wlan_mt7663_sdio","/vendor/lib/modules/wlan_mt7663_sdio.ko","",mtk7661s_base,"mtk7661s",0x0,""},\
     {"0000","0000","wlan_mt7663_usb","/vendor/lib/modules/wlan_mt7663_usb.ko","",mtk7663u_base,"mtk7663u",0x7663,""},\
     {"0000","0000","bcmdhd","/vendor/lib/modules/bcmdhd.ko","firmware_path=../../etc/wifi/43569/fw_bcm4358u_ag.bin nvram_path=../../etc/wifi/43569/nvram_ap62x8.txt dhd_pwr_ctrl=0",no_base,"bcm43569",0xbd27,"/vendor/etc/wifi/43569/fw_bcm4358u_ag"}, \
     {"0000","0000","bcmdhd","/vendor/lib/modules/bcmdhd.ko","firmware_path=../../etc/wifi/43569/fw_bcm4358u_ag.bin nvram_path=../../etc/wifi/43569/nvram_ap62x8.txt dhd_pwr_ctrl=0",no_base,"bcm43569",0x0bdc,"/vendor/etc/wifi/43569/fw_bcm4358u_ag"}, \

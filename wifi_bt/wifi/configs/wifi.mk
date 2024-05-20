@@ -352,7 +352,7 @@ PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/nxp/firmware/sd8987/Wla
 PRODUCT_PACKAGES += mfgbridge mlanutl
 endif
 
-ifneq ($(filter mt7668u mt7661,$(WIFI_MODULES)),)
+ifneq ($(filter mt7668u,$(WIFI_MODULES)),)
 PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/multi_wifi/config/mediatek/7668_firmware/EEPROM_MT7668.bin:$(TARGET_COPY_OUT_VENDOR)/firmware/EEPROM_MT7668.bin
 PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/multi_wifi/config/mediatek/7668_firmware/mt7668_patch_e1_hdr.bin:$(TARGET_COPY_OUT_VENDOR)/firmware/mt7668_patch_e1_hdr.bin
 PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/multi_wifi/config/mediatek/7668_firmware/TxPwrLimit_MT76x8.dat:$(TARGET_COPY_OUT_VENDOR)/firmware/TxPwrLimit_MT76x8.dat
@@ -369,7 +369,7 @@ PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/mediatek/dhcpcd.conf:$(
 PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/multi_wifi/config/mediatek/MT7601USTA.dat:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/MT7601USTA.dat
 endif
 
-ifneq ($(filter mt7663u,$(WIFI_MODULES)),)
+ifneq ($(filter mt7661 mt7663u,$(WIFI_MODULES)),)
 # for kernel 5.15
 PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/mediatek/7663_firmware/Wi-Fi/wifi.cfg:$(TARGET_COPY_OUT_VENDOR)/lib/firmware/wifi_mt7663.cfg
 PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/mediatek/7663_firmware/Wi-Fi/mt7663_patch_e2_hdr.bin:$(TARGET_COPY_OUT_VENDOR)/lib/firmware/mt7663_patch_e2_hdr.bin
