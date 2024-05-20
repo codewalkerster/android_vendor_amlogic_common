@@ -182,6 +182,7 @@ ndk::ScopedAStatus AmlogicCameraDevice::isStreamCombinationSupported(
 
         if (it.useCase != aidl::android::hardware::camera::metadata::ScalerAvailableStreamUseCases::ANDROID_SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT) {
             *_aidl_return = false;
+            delete [] streamBuffer;
             return fromStatus(Status::OK);
         }
 
