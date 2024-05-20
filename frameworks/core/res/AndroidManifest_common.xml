@@ -193,6 +193,13 @@
                  android:enabled="true"
                  android:exported="true">
         </service>
+
+        <activity android:name = "com.droidlogic.USBPowerActivity"
+                  android:launchMode="singleInstance"
+                  android:theme="@style/Theme.CustomDialog"
+                  android:exported="true">
+        </activity>
+
     </application>
 
 </manifest>

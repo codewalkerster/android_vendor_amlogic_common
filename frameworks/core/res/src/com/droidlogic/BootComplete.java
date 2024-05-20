@@ -38,7 +38,10 @@ import com.droidlogic.app.PlayBackManager;
 import com.droidlogic.app.SystemControlManager;
 import com.droidlogic.app.UsbCameraManager;
 import com.droidlogic.hdmi.HdmiCecService;
-
+import com.droidlogic.app.SystemControlManager;
+import android.content.DialogInterface;
+import android.os.Handler;
+import android.os.Message;
 
 public class BootComplete extends BroadcastReceiver {
     private static final String TAG             = "BootComplete";
@@ -48,6 +51,9 @@ public class BootComplete extends BroadcastReceiver {
     private static final String DROID_SETTINGS_ENCRYPTKEEPERFBE = "com.droidlogic.tv.settings.CryptKeeperFBE";
 
     private boolean mHasTvUiMode;
+
+    private static final int MSG_SHOW_USB_POWER_STATUS = 0;
+    private Context mContext;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -132,6 +138,8 @@ public class BootComplete extends BroadcastReceiver {
             SettingsPref.setSavedBootCompletedStatus(context, false);
         }
         updateDeveloperOptionsWatcher(context);
+        mContext = context;
+        showUsbPowerDialog();
     }
 
     private boolean getBooleanProperty(String property, boolean defVal) {
@@ -164,6 +172,45 @@ public class BootComplete extends BroadcastReceiver {
         }
     }
 */
+    private Handler mHandler = new Handler() {
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+            case MSG_SHOW_USB_POWER_STATUS:
+                Log.i(TAG, "handleMessage:MSG_SHOW_USB_POWER_STATUS, POWER_LEVEL: " + msg.arg1);
+                Intent intent1 = new Intent();
+                        intent1.setComponent(new ComponentName("com.droidlogic","com.droidlogic.USBPowerActivity"));
+                        intent1.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent1.putExtra("POWER_LEVEL", msg.arg1);
+                        mContext.startActivity(intent1);
+
+                        break;
+                    default :
+                        Log.d(TAG, "Not impossible!");
+                        break;
+                }
+            }
+    };
+
+    private void showUsbPowerDialog() {
+            SystemControlManager mSystemControlManager = SystemControlManager.getInstance();
+            String usb_status_cc = mSystemControlManager.getPropertyString("ro.boot.cc.status", "1.5a@5v");
+            String usb_cc_enable = mSystemControlManager.getBootenv("ubootenv.var.cc_enable", "0");
+            Log.i(TAG,  "usb_status_cc:" + usb_status_cc + ", usb_cc_enable:" + usb_cc_enable);
+            int power_level = -1;
+            if (usb_status_cc.contains("0.5a")) {
+                power_level = 0;
+            }
+            else if (usb_status_cc.contains("1.5a")) {
+                power_level = 1;}
+            else if (usb_status_cc.contains("3a")) {
+                power_level = 2;}
+            if (power_level >= 0 && "1".equals(usb_cc_enable)) {
+                Log.i(TAG, "sendmsg:MSG_SHOW_USB_POWER_STATUS");
+                Log.i(TAG,  "power_level:" + power_level);
+                 //mHandler.sendEmptyMessageDelayed(MSG_SHOW_USB_POWER_STATUS,10000);
+                 mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_SHOW_USB_POWER_STATUS, power_level, 0), 10000);
+            }
+    }
 
     private boolean needCecExtend(SystemControlManager sm, Context context) {
         //return sm.getPropertyInt("ro.hdmi.device_type", -1) == HdmiDeviceInfo.DEVICE_PLAYBACK;
