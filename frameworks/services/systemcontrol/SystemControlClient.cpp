@@ -1614,6 +1614,14 @@ int SystemControlClient::getMultipointGammaMode(void) {
     return mSysCtrl->getMultipointGammaMode();
 }
 
+int SystemControlClient::setSDR2HDR(int onoff) {
+    return mSysCtrl->setSDR2HDR(onoff);
+}
+
+int SystemControlClient::getSDR2HDR(void) {
+    return mSysCtrl->getSDR2HDR();
+}
+
 //PQ end
 
 //static frame

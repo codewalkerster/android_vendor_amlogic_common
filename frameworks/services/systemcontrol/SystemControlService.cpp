@@ -2878,6 +2878,24 @@ int SystemControlService::getMultipointGammaMode(void)
     }
 }
 
+int SystemControlService::setSDR2HDR(int onoff)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->SetSDR2HDR(onoff);
+    } else {
+        return -1;
+    }
+}
+
+int SystemControlService::getSDR2HDR(void)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->GetSDR2HDR();
+    } else {
+        return -1;
+    }
+}
+
 //PQ end
 
 //static frame

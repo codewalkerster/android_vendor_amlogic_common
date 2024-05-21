@@ -4863,6 +4863,28 @@ public class SystemControlManager {
          return -1;
      }
 
+     public int SetSDR2HDR(int onoff) {
+           synchronized (mLock) {
+             try {
+                 return mProxy.setSDR2HDR(onoff);
+             } catch (RemoteException e) {
+                 Log.e(TAG, "SetSDR2HDR:" + e);
+             }
+         }
+         return -1;
+     }
+
+     public int GetSDR2HDR() {
+           synchronized (mLock) {
+             try {
+                 return mProxy.getSDR2HDR();
+             } catch (RemoteException e) {
+                 Log.e(TAG, "GetSDR2HDR:" + e);
+             }
+         }
+         return -1;
+     }
+
      /**
       * @Function: getChipVersionInfo
       * @Description: Get chip version info

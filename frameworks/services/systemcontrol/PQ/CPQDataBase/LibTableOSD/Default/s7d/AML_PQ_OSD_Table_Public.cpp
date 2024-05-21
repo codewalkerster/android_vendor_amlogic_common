@@ -178,6 +178,7 @@ TABLE_PICTURE_SETTING_EXT mPictureSettingTable = {
 /*LocalDimming  */        _OFF,
 /*ai_color      */        0,
 /*FilmMakerEnable*/       _OFF,
+/*Sdr2Hdr        */       _OFF,
 /*BackLight               dis  dis1 dis2*/
                          {100, 100, 100,},
 },

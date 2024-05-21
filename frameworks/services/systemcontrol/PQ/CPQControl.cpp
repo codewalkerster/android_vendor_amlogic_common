@@ -158,6 +158,7 @@ void CPQControl::CPQControlInit()
     mSSMAction = SSMAction::getInstance();
     mSSMAction->setObserver(this);
     mSSMAction->init(SsmDataPath, SsmDataHandlerPath, WBPath);
+
     //init source
     mCurrentSourceInputInfo.source_input = SOURCE_MPEG;
     mCurrentSourceInputInfo.sig_fmt      = TVIN_SIG_FMT_HDMI_1920X1080P_60HZ;
@@ -551,12 +552,12 @@ void CPQControl::onVframeSizeChange()
     if (ret > 0) {
         int eventFlagValue = strtol(temp, NULL, 16);
         SYS_LOGD("%s: event value = %d(0x%x)\n", __FUNCTION__, eventFlagValue, eventFlagValue);
-        int framesizeEventFlag      = (eventFlagValue & 0x1) >> 0;
-        int hdrTypeEventFlag        = (eventFlagValue & 0x2) >> 1;
-        int videoPlayStartEventFlag = (eventFlagValue & 0x4) >> 2;
-        int videoPlayStopEventFlag  = (eventFlagValue & 0x8) >> 3;
+        int framesizeEventFlag       = (eventFlagValue & 0x1) >> 0;
+        int hdrTypeEventFlag         = (eventFlagValue & 0x2) >> 1;
+        int videoPlayStartEventFlag  = (eventFlagValue & 0x4) >> 2;
+        int videoPlayStopEventFlag   = (eventFlagValue & 0x8) >> 3;
       //int videoPlayAxisEventFlag  = (eventFlagValue & 0x10) >> 4;
-        int sliceNumFlag            = (eventFlagValue & 0x60) >> 5;
+        int sliceNumFlag             = (eventFlagValue & 0x60) >> 5;
         int FilmmakerModeFlag        = (eventFlagValue & 0x20) >> 5;
         int FilmmakerModeDisableFlag = (eventFlagValue & 0x40) >> 6;
 
@@ -689,17 +690,6 @@ int CPQControl::LoadPQSettings()
      return ret;
 }
 
-int CPQControl::LoadPQUISettings()
-{
-    int ret = 0;
-
-    //picture mode
-    PICTURE_MODE pqmode = (PICTURE_MODE)GetPQMode();
-    ret = Set_PictureMode (pqmode, PQ_MODE_SWITCH_TYPE_INIT);
-
-    return ret;
-}
-
 int CPQControl::LoadPQTableSettings()
 {
     int ret = 0;
@@ -728,6 +718,8 @@ int CPQControl::LoadPQTableSettings()
         ret |= Cpq_SetAipqMode((aipq_mode_e)GLOBAL.aipq_mode, mCurrentSourceInputInfo);
 
         ret |= Cpq_SetAiColor(GLOBAL.ai_color);
+
+        ret |= Cpq_SetSDR2HDR(GLOBAL.Sdr2Hdr);
     } else {
         SYS_LOGE("GetPictureStructDataGlobal fail\n");
     }
@@ -10822,6 +10814,70 @@ int CPQControl::SetFilmMakerFlag(int enable)
         } else {
             SYS_LOGI("%s, same status: %d\n", __FUNCTION__, enable);
         }
+    }
+
+    return 0;
+}
+
+int CPQControl::SetSDR2HDR(int onoff)
+{
+    SYS_LOGD("%s, onoff = %d\n", __FUNCTION__, onoff);
+
+    SaveSDR2HDR(onoff);
+
+    if (Cpq_SetSDR2HDR(onoff) < 0) {
+        SYS_LOGD("%s fail!\n", __FUNCTION__);
+        return -1;
+    }
+
+    return 0;
+}
+
+int CPQControl::GetSDR2HDR(void)
+{
+    int onoff = 0;
+    PICTURE_SETTING_GLOBAL pData;
+    if (!GetPictureStructDataGlobal(&pData)) {
+        SYS_LOGE("%s GetPictureStructDataGlobal failed!\n",__FUNCTION__);
+        return onoff;
+    }
+
+    onoff = pData.Sdr2Hdr;
+
+    if (onoff < 0 || onoff > 1) {
+        onoff = 0;
+    }
+
+    SYS_LOGD("%s, mode = %d\n", __FUNCTION__, onoff);
+    return onoff;
+}
+
+int CPQControl::SaveSDR2HDR(int onoff)
+{
+    PICTURE_SETTING_GLOBAL pData;
+    if (!GetPictureStructDataGlobal(&pData)) {
+        SYS_LOGE("%s GetPictureStructDataGlobal failed!\n",__FUNCTION__);
+        return -1;
+    }
+
+    pData.Sdr2Hdr = onoff;
+
+    if (!SetPictureStructDataGlobal(&pData)) {
+        SYS_LOGE("%s SetPictureStructDataGlobal failed!\n",__FUNCTION__);
+        return -1;
+    }
+
+    return 0;
+}
+
+int CPQControl::Cpq_SetSDR2HDR(int onoff)
+{
+    if (CurTimming != PQ_SIGFMT_SDR)
+        onoff = 0;
+
+    if (VPPDeviceIOCtl(AMVECM_IOC_S_SDR2HDR_CTRL, &onoff) < 0) {
+        SYS_LOGE("%s AMVECM_IOC_S_SDR2HDR_CTRL failed!\n",__FUNCTION__);
+        return -1;
     }
 
     return 0;

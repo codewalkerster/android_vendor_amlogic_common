@@ -1788,6 +1788,19 @@ Return<int32_t> SystemControlHal::setMultipointGammaMode(int32_t mode) {
 Return<int32_t> SystemControlHal::getMultipointGammaMode(void) {
     return mSysControl->getMultipointGammaMode();
 }
+
+Return<int32_t> SystemControlHal::setSDR2HDR(int32_t onoff) {
+    SYS_LOGD("%s mode:%d", __FUNCTION__, onoff);
+
+    return mSysControl->setSDR2HDR(onoff);
+}
+
+Return<int32_t> SystemControlHal::getSDR2HDR(void) {
+    SYS_LOGD("%s", __FUNCTION__);
+
+    return mSysControl->getSDR2HDR();
+}
+
 //PQ end
 
 //static frame

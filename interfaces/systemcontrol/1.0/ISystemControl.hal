@@ -875,6 +875,12 @@ interface ISystemControl {
 
   getMultipointGammaMode()
       generates (int32_t ret);
+
+  setSDR2HDR(int32_t onoff)
+      generates (int32_t ret);
+
+  getSDR2HDR()
+      generates (int32_t ret);
 //PD END
   //static frame
   setStaticFrameEnable(int32_t enable, int32_t isSave)

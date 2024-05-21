@@ -239,7 +239,6 @@ public:
     virtual void GetDynamicBacklighParam(dynamic_backlight_Param_t *DynamicBacklightParam);
     int isGameMode();
     int LoadPQSettings();
-    int LoadPQUISettings();
     int LoadPQTableSettings(void);
     int PQModuleDemoInit();
     int LoadCpqLdimRegs(void);
@@ -672,6 +671,11 @@ public:
     int Cpq_SetFilmMakerMode(int onoff);
 
     int SetFilmMakerFlag(int enable);
+
+    int SetSDR2HDR(int onoff);
+    int GetSDR2HDR(void);
+    int SaveSDR2HDR(int onoff);
+    int Cpq_SetSDR2HDR(int onoff);
 
     void InitTconGamma(void);
     void InitTconlessBin(void);

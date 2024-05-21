@@ -354,6 +354,8 @@ public:
     int getMultipointGammaEnable(void);
     int setMultipointGammaMode(int mode);
     int getMultipointGammaMode(void);
+    int setSDR2HDR(int onoff);
+    int getSDR2HDR(void);
 
     //PQ end
     //static frame

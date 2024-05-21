@@ -331,6 +331,8 @@ class SystemControlHal : public ISystemControl, public SystemControlNotify, publ
     Return<int32_t> getMultipointGammaEnable(void) override;
     Return<int32_t> setMultipointGammaMode(int32_t mode) override;
     Return<int32_t> getMultipointGammaMode(void) override;
+    Return<int32_t> setSDR2HDR(int32_t onoff) override;
+    Return<int32_t> getSDR2HDR(void) override;
 
     //aisr
     Return<Result> aisrContrl(bool on) override;

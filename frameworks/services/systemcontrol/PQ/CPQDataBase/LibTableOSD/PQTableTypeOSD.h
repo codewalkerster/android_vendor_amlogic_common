@@ -199,6 +199,7 @@ typedef struct _PICTURE_SETTING_GLOBAL {
     int LocalDimming;
     int ai_color;
     int FilmMakerEnable;
+    int Sdr2Hdr;
     BACKLIGHT_STRUCT Backlight;
 }PICTURE_SETTING_GLOBAL;
 

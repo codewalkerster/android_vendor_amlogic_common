@@ -146,7 +146,10 @@
 #define AMVECM_IOC_S_AAD_PARAM     _IOW(AMVECM_IOC_MAGIC, 0x77, struct db_aad_param_s)
 
 /*aicolor command list*/
-#define AMVECM_IOC_AI_COLOR_EN	   _IO(AMVECM_IOC_MAGIC, 0x8b)
+#define AMVECM_IOC_AI_COLOR_EN     _IO(AMVECM_IOC_MAGIC, 0x8b)
+
+/*sdr to hdr ioc*/
+#define AMVECM_IOC_S_SDR2HDR_CTRL  _IO(AMVECM_IOC_MAGIC, 0x8c)
 
 #endif /* __AMVECM_H */
 
