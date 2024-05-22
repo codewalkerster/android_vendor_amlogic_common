@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2014 Amlogic, Inc. All rights reserved.
  *
@@ -27,6 +28,7 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.util.Log;
+import android.net.Network;
 
 public class NtpService extends Service {
     private static final String TAG = "NtpService";
@@ -108,10 +110,16 @@ public class NtpService extends Service {
             Class<?> sntpClass = Class.forName("android.net.SntpClient");
             Object sntpObject = sntpClass.newInstance();
             Method getnptMethod = sntpClass.getMethod("getNtpTime", (Class<?>[]) null);
-            Method reqtimeMethod = sntpClass.getMethod("requestTime", String.class, int.class);
+            Method reqtimeMethod = sntpClass.getMethod("requestTime", String.class, int.class, Network.class);
             Method getreference = sntpClass.getMethod("getNtpTimeReference", (Class<?>[]) null);
+            ConnectivityManager cm = getSystemService(ConnectivityManager.class);
+            Network network = cm.getActiveNetwork();
+            if (network == null) {
+                return ;
+            }
+
             for ( int i=0; (NtpServers != null) && i<NtpServers.length; i++ ) {
-                boolean ret = (boolean) reqtimeMethod.invoke(sntpObject, NtpServers[i], NTP_TIMEOUT);
+                boolean ret = (boolean) reqtimeMethod.invoke(sntpObject, NtpServers[i], NTP_TIMEOUT, network);
                 if (ret) {
                     long now = (long) getnptMethod.invoke(sntpObject) + SystemClock.elapsedRealtime() - (long) getreference.invoke(sntpObject);
                     Log.d(TAG,"TIME Set to"+now);
