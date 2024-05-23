@@ -52,7 +52,7 @@ struct amVmxWebClientDecryptParam
     uint64_t mOffset;
 };
 
-void *amVmxWebClientAllocContext(void);
+void *amVmxWebClientAllocContext(uint32_t *errorCode);
 
 int amVmxWebClientDecrypt(const void *context, struct amVmxWebClientDecryptParam *para);
 

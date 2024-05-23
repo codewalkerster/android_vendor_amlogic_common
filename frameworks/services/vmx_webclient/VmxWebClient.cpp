@@ -12,7 +12,7 @@
 #include "VmxWebClient.h"
 #include "AmVmxWebClientAdaptor.h"
 
-typedef void *(*WebClientAllocContextFunc)(void);
+typedef void *(*WebClientAllocContextFunc)(uint32_t *);
 
 typedef int (*WebClientDecryptFunc)(const void *, struct amVmxWebClientDecryptParam *);
 
@@ -40,9 +40,9 @@ VmxWebClient::VmxWebClient()
         (WebClientFreeContextFunc)dlsym(mLibHandle, "amVmxWebClientFreeContext");
 
     if (webclient_alloc)
-        mWebClientObj = webclient_alloc();
+        mWebClientObj = webclient_alloc(NULL);
 
-    ALOGI("Create mWebClientObj is %p L%d", mWebClientObj, __LINE__);
+    ALOGI("Create mWebClientObj is %p", mWebClientObj);
 }
 
 VmxWebClient::~VmxWebClient() {
@@ -65,10 +65,13 @@ VmxWebClient::~VmxWebClient() {
     (void)_aidl_return;
     ::android::Mutex::Autolock autoLock(mLock);
 
+    uint32_t errorCode = 0;
     if (webclient_alloc && !mWebClientObj)
-        mWebClientObj = webclient_alloc();
+        mWebClientObj = webclient_alloc(&errorCode);
 
-    ALOGI("Create mWebClientObj is %p L%d", mWebClientObj, __LINE__);
+    ALOGI("Create mWebClientObj is %p errorCode %d ", mWebClientObj, errorCode);
+    if (!mWebClientObj)
+        return toNdkScopedAStatus(static_cast<Status>(errorCode));
     return ::ndk::ScopedAStatus::ok();
 }
 
@@ -101,7 +104,6 @@ VmxWebClient::~VmxWebClient() {
 
     struct amVmxWebClientDecryptParam amPara;
     int ret = 0;
-    const char *detailedError = "";
 
     memset(&amPara, 0, sizeof(amPara));
 
@@ -118,8 +120,7 @@ VmxWebClient::~VmxWebClient() {
             amPara.mMode = kMode_AES_CBC;
         } else {
             ALOGE("Can't support decrypt mode");
-            detailedError = "Can't support decrypt mode";
-            return toNdkScopedAStatus(Status::ERROR_DRM_DECRYPT, detailedError);
+            return toNdkScopedAStatus(Status::ERROR_DRM_CANNOT_HANDLE);
         }
 
         amPara.mPattern.mEncryptBlocks = para.pattern.encryptBlocks;
@@ -148,16 +149,14 @@ VmxWebClient::~VmxWebClient() {
         ret = webclient_decrypt(mWebClientObj, &amPara);
         if (ret) {
             ALOGE("decrypt failed 0x%x", ret);
-            detailedError = "decrypt failed";
-            return toNdkScopedAStatus(Status::ERROR_DRM_DECRYPT, detailedError);
+            return toNdkScopedAStatus(static_cast<Status>(ret));
         }
     } else {
         ALOGE("Invalid obj or decrypt interface %p %p", mWebClientObj, webclient_decrypt);
-        detailedError = "Invalid obj or decrypt interface";
-        return toNdkScopedAStatus(Status::ERROR_DRM_UNKNOWN, detailedError);
+        return toNdkScopedAStatus(Status::ERROR_DRM_SESSION_LOST_STATE);
     }
 
-    return toNdkScopedAStatus(Status::OK);
+    return ::ndk::ScopedAStatus::ok();
 }
 
 }  // namespace vendor::amlogic::hardware::vmx_webclient::implementation
