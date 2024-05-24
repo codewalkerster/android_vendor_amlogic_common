@@ -351,7 +351,7 @@ PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.txt,common/driver_modules/
 PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.bin,common/driver_modules/wifi_bt/wifi/amlogic/wifi_comm/w2l/common,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/w2l/)
 PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.ini,common/driver_modules/wifi_bt/wifi/amlogic/wifi_comm/w2l/common,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/w2l/)
 PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.asm,common/driver_modules/wifi_bt/wifi/amlogic/wifi_comm/w2l/common,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/w2l/)
-PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.pm,common/driver_modules/wifi_bt/wifi/amlogic/w2l/common,$(TARGET_COPY_OUT_VENDOR)/xbin/)
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.pm,common/driver_modules/wifi_bt/wifi/amlogic/wifi_comm/w2l/common,$(TARGET_COPY_OUT_VENDOR)/xbin/)
 endif
 endif
 
