@@ -1059,9 +1059,11 @@ void DisplayMode::applyDisplaySetting(hdmi_output_info_t* output_info) {
     }
 
     //7. check any change
+    //   resume and hdmi plug in force set mode
     bool isNeedChange = false;
 
-    if (modeChange || attr_change || frac_rate_policy_change || hdr_policy_change || hdr_priority_change || dvmode_change) {
+    if (modeChange || attr_change || frac_rate_policy_change || hdr_policy_change || hdr_priority_change || dvmode_change
+        || (output_info->reason == OUTPUT_MODE_STATE_POWER)) {
         isNeedChange = true;
     } else {
         SYS_LOGI("nothing need to be changed\n");

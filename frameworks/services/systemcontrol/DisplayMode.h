@@ -426,7 +426,7 @@ static const char* FORCE_MODE_TYPE[] = {
 
 typedef enum {
     OUTPUT_MODE_STATE_INIT               = 0,
-    OUTPUT_MODE_STATE_POWER              = 1,//hot plug
+    OUTPUT_MODE_STATE_POWER              = 1,//hdmi plug and suspend/resume
     OUTPUT_MODE_STATE_SWITCH             = 2,//user switch the mode
     OUTPUT_MODE_STATE_SWITCH_ADAPTER     = 3,//video auto switch the mode
     OUTPUT_MODE_STATE_RESERVE            = 4,
