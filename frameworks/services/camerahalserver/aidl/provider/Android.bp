@@ -89,32 +89,51 @@ cc_defaults {
     static_libs: [
         "android.hardware.camera.common@1.0-helper",
     ],
-    vintf_fragments:[":android.hardware.camera.provider-V1-amlogic-service.xml"],
+}
+
+
+filegroup {
+    name: "android.hardware.camera.provider-V1-amlogic-service.xml",
+    srcs: ["android.hardware.camera.provider-V1-amlogic-service.xml"],
+}
+
+filegroup {
+    name: "android.hardware.camera.provider-V1-amlogic-service-lazy.xml",
+    srcs: ["android.hardware.camera.provider-V1-amlogic-service-lazy.xml"],
 }
 
 cc_binary {
     name: "android.hardware.camera.provider-V1-amlogic-service",
+    vintf_fragments:[":android.hardware.camera.provider-V1-amlogic-service.xml"],
     defaults: ["camera_amlogic_service_defaults"],
     compile_multilib: "32",
     init_rc: ["android.hardware.camera.provider-V1-amlogic-service.rc"],
 }
 
 cc_binary {
+    name: "android.hardware.camera.provider-V1-amlogic-service-lazy",
+    vintf_fragments:[":android.hardware.camera.provider-V1-amlogic-service-lazy.xml"],
+    overrides: ["android.hardware.camera.provider-V1-amlogic-service"],
+    defaults: ["camera_amlogic_service_defaults"],
+    compile_multilib: "32",
+    init_rc: ["android.hardware.camera.provider-V1-amlogic-service-lazy.rc"],
+    cflags: ["-DLAZY_SERVICE"],
+}
+
+cc_binary {
     name: "android.hardware.camera.provider-V1-amlogic-service_64",
+    vintf_fragments:[":android.hardware.camera.provider-V1-amlogic-service.xml"],
     defaults: ["camera_amlogic_service_defaults"],
     compile_multilib: "64",
     init_rc: ["android.hardware.camera.provider-V1-amlogic-service_64.rc"],
 }
 
-//cc_binary {
-   // name: "android.hardware.camera.provider-V1-amlogic-service-lazy",
-    //overrides: ["android.hardware.camera.provider-V1-amlogic-service"],
-    //defaults: ["camera_amlogic_service_defaults"],
-    //init_rc: ["android.hardware.camera.provider-V1-amlogic-service-lazy.rc"],
-   // cflags: ["-DLAZY_SERVICE"],
-//}
-
-filegroup {
-    name: "android.hardware.camera.provider-V1-amlogic-service.xml",
-    srcs: ["android.hardware.camera.provider-V1-amlogic-service.xml"],
+cc_binary {
+    name: "android.hardware.camera.provider-V1-amlogic-service_64-lazy",
+    vintf_fragments:[":android.hardware.camera.provider-V1-amlogic-service-lazy.xml"],
+    overrides: ["android.hardware.camera.provider-V1-amlogic-service"],
+    defaults: ["camera_amlogic_service_defaults"],
+    compile_multilib: "64",
+    init_rc: ["android.hardware.camera.provider-V1-amlogic-service_64-lazy.rc"],
+    cflags: ["-DLAZY_SERVICE"],
 }
