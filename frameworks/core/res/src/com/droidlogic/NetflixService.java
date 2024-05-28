@@ -246,9 +246,6 @@ public class NetflixService extends Service {
                                 deviceInfo.getType() == AudioDeviceInfo.TYPE_WIRED_HEADPHONES)) {
                     Log.d(TAG, (state ? "connect" : "disconnect") + " Audio device: " + deviceInfo.getType());
                     refreshAudioCapabilities(false, state);
-                    if (state) {
-                        mMsgHandler.sendEmptyMessageDelayed(MSG_UPDATA_DISPLAY,2000);
-                    }
                     return;
                 }
             }
@@ -319,10 +316,6 @@ public class NetflixService extends Service {
                     case MSG_UPDATA:
                         Log.d(TAG, "handleMessage");
                         netflixFGStateUpdate();
-                        break;
-                    case MSG_UPDATA_DISPLAY:
-                        Log.d(TAG, "handleMessage display");
-                        resetDisplayConversionMode();
                         break;
                     default:
                         Log.d(TAG, "No handler case available for message: " + msg.what);
