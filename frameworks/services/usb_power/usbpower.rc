@@ -1,0 +1,10 @@
+on early-init
+    start current_service
+
+service current_service /vendor/bin/current_service
+    console
+    class late_start
+    user system
+    group root
+    oneshot
+    #disabled

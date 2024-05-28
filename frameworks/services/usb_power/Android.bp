@@ -1,0 +1,33 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "vendor_amlogic_common_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    default_applicable_licenses: ["vendor_amlogic_common_license"],
+}
+//for usb_power service
+cc_binary {
+    name: "current_service",
+    vendor: true,
+    srcs: [
+        "UsbPowerService.cpp",
+    ],
+
+    shared_libs: [
+        "libbase",
+        "libhidlbase",
+        "libcutils",
+        "libutils",
+        "liblog",
+    ],
+
+    init_rc: ["usbpower.rc"],
+
+    static_libs: [
+        "libz",
+        "libbase",
+        "libcutils",
+        "libjsoncpp",
+    ],
+}
