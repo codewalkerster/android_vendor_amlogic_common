@@ -41,6 +41,7 @@
 #define BOOTVIDEO_EXIT_PROP       "service.bootvideo.exit"
 #define STATIC_FRAME_ENABLE_PROP  "vendor.media.video.setvideoblackout"
 #define PROP_MEDIA_AISR           "persist.vendor.sys.aisr"
+#define PROP_DONGLE_LOW_POWER_PQ_OFF "vendor.media.video.donglelowpower.pqoff"
 
 #define UBOOTENV_HDR_POLICY       "ubootenv.var.hdr_policy"
 #define FINAL_GAIN_REG_NUM        46
@@ -745,6 +746,7 @@ private:
     int DBGammaBlend(tcon_gamma_table_t *wb_gamma, unsigned int *index_gamma);
     double GetGammaPower(vpp_gamma_curve_t mode);
     int GetDriverValueMap(CMS_TYPE type, int value);
+    bool IsDongleLowPowerPqOff(void);
 
     //DATABASE
     bool SetPictureMode(PICTURE_MODE_DEFAULT *params);
@@ -790,7 +792,6 @@ private:
     bool GetPictureStructDataGlobal(PICTURE_SETTING_GLOBAL *params);
     bool ResetPictureStructDataGlobal(void);
 
-
     //CRI_DATA
     bool FactoryGetWhitebalanceRGBGainOffsetData(RGB_GAIN_OFFSET *pData, int level);
     bool FactorySetWhitebalanceRGBGainOffsetData(RGB_GAIN_OFFSET *pData, int level);
@@ -834,6 +835,7 @@ private:
     bool mbCpqCfg_memc_enable                           = false;
     bool mbCpqCfg_bluestretch_enable                    = false;
     bool mbCpqCfg_chroma_coring_enable                  = false;
+    bool mbCpqCfg_dongle_low_power_enable               = false;
 
     bool mInitialized                                   = false;
 

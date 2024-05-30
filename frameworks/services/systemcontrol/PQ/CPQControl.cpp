@@ -749,7 +749,7 @@ bool CPQControl::IsDisableAllPQ(void)
     int ret = 0;
     const char *config_value;
     config_value = mPQConfigFile->GetString(CFG_SECTION_PQ, CFG_ALL_PQ_MODULE_ENABLE, "enable");
-    if (strcmp(config_value, "enable") == 0) {
+    if ((strcmp(config_value, "enable") == 0) && (IsDongleLowPowerPqOff() == false)) {
         return false;
     }
 
@@ -7938,6 +7938,13 @@ int CPQControl::SetFlagByCfg(void)
         mbCpqCfg_aicolor_enable = false;
     }
 
+    config_value = mPQConfigFile->GetString(CFG_SECTION_PQ, CFG_DONGLE_LOW_POWER, "disable");
+    if (strcmp(config_value, "enable") == 0) {
+        mbCpqCfg_dongle_low_power_enable = true;
+    } else {
+        mbCpqCfg_dongle_low_power_enable = false;
+    }
+
     vpp_pq_ctrl_t amvecmConfigVal;
     amvecmConfigVal.length = 14;//this is the count of pq_ctrl_s option
     amvecmConfigVal.ptr = (long long)&pqControlVal;
@@ -11246,6 +11253,25 @@ int CPQControl::GetNonlinearOsdRemapVal(nonline_params_type_t type, int Value)
     }
 
     return temp;
+}
+
+bool CPQControl::IsDongleLowPowerPqOff(void)
+{
+    char propbuf[PROPERTY_VALUE_MAX] = {0};
+    bool pq_off = false;
+
+    if (!mbCpqCfg_dongle_low_power_enable)
+        return false;
+
+    if (property_get(PROP_DONGLE_LOW_POWER_PQ_OFF, propbuf, "on") > 0) {
+        SYS_LOGD("Prop [%s]=%s\n", PROP_DONGLE_LOW_POWER_PQ_OFF, propbuf);
+        if (strcasecmp(propbuf, "off") == 0)
+            pq_off = true;
+    } else {
+        SYS_LOGE("getprop [%s] fail\n", PROP_DONGLE_LOW_POWER_PQ_OFF);
+    }
+
+    return pq_off;
 }
 
 //DATABASE

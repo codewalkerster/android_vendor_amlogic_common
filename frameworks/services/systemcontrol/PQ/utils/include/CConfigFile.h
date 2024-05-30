@@ -91,6 +91,9 @@
 #define CFG_LOCALDIMMING_ENABLE                 "pq.LocalDimming.en"
 #define CFG_NEW_PICTURE_MODE_ENABLE             "pq.new_picture_mode.en"
 
+//dongle low power config
+#define CFG_DONGLE_LOW_POWER                    "pq.DongleLowPower.en"
+
 //overscan module config
 #define CFG_DISPLAY_OVERSCAN_ENABLE             "pq.DisplayOverscan.en"
 
