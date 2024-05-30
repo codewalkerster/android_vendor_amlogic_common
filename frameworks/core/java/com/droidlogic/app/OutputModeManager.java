@@ -507,14 +507,20 @@ public class OutputModeManager {
 
     public boolean isDolbyVisionPreference() {
         int hdr_priority = getHdrPriority();
+        currentOutputmode = getCurrentOutputMode();
 
         return mDolbyVisionSettingManager.isDolbyVisionEnable()
                && isTvSupportDolbyVision()
+               && isSupportHDRResolution(DV_PRIORITY, currentOutputmode)
                && (hdr_priority == DV_PRIORITY
                || hdr_priority == MESON_G_DV_HDR10_HLG
                || hdr_priority == MESON_G_DV_HDR10
                || hdr_priority == MESON_G_DV_HLG
                || hdr_priority == MESON_G_DV);
+    }
+
+    public boolean isSupportHDRResolution(int type, String mode) {
+        return mSystemControl.isSupportHDRResolution(type, mode);
     }
 
     public String getCVBSModeExtern() {
@@ -696,18 +702,9 @@ public class OutputModeManager {
             //get current dolby vision mode
             int type = mDolbyVisionSettingManager.getDolbyVisionType();
             for (int i = 0; i < listHdmiMode.size(); i++) {
-                if (resolveResolutionValue(listHdmiMode.get(i))
-                        > resolveResolutionValue(tvSupportDolbyVisionMode)) {
+                if (!isSupportHDRResolution(DV_PRIORITY, listHdmiMode.get(i))) {
                     Log.w(TAG, "This TV not Support Dolby Vision: " + listHdmiMode.get(i));
                 } else {
-                    if (listHdmiMode.get(i).contains("smpte")
-                        || listHdmiMode.get(i).contains("i")
-                        || listHdmiMode.get(i).contains("576p")
-                        || listHdmiMode.get(i).contains("480p"))  {
-                        Log.w(TAG, "This hdmi mode is not support Dolby Vision: " + listHdmiMode.get(i));
-                        continue;
-                    }
-
                     switch (type) {
                         case DV_ENABLE:
                             if (isModeSupportColor(listHdmiMode.get(i), "444,8bit")) {
@@ -723,12 +720,6 @@ public class OutputModeManager {
                             }
                             break;
                         case DV_LL_RGB:
-                            if (resolveResolutionValue(listHdmiMode.get(i))
-                                    > resolveResolutionValue("1080p60hz")) {
-                                Log.e(TAG, "This mode is not support dv LL RGB: " + listHdmiMode.get(i));
-                                continue;
-                            }
-
                             if (isModeSupportColor(listHdmiMode.get(i), "444,12bit")
                                 || isModeSupportColor(listHdmiMode.get(i), "444,10bit")) {
                                 listHdmiDVMode.add(listHdmiMode.get(i));

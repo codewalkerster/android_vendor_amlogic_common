@@ -417,6 +417,15 @@ bool SystemControlClient::getModeSupportDeepColorAttr(const std::string& mode, c
     return false;
 }
 
+bool SystemControlClient::isSupportHDRResolution(int32_t type, const std::string& mode) {
+    Result rtn;
+    rtn = mSysCtrl->isSupportHDRResolution(type, mode);
+    if (rtn == Result::OK) {
+        return true;
+    }
+    return false;
+}
+
 void SystemControlClient::getDroidDisplayInfo(int &type __unused, std::string& socType __unused, std::string& defaultUI __unused,
     int &fb0w __unused, int &fb0h __unused, int &fb0bits __unused, int &fb0trip __unused,
     int &fb1w __unused, int &fb1h __unused, int &fb1bits __unused, int &fb1trip __unused) {

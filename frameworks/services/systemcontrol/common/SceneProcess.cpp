@@ -561,20 +561,76 @@ scene_state SceneProcess::getSceneState() {
     return mScene_Input_Info.state;
 }
 
-bool SceneProcess::isDVSupportMode(char *mode) {
+bool SceneProcess::isDVSupportMode(const char *mode) {
     bool validMode = false;
-    if (strlen(mode) != 0) {
-        if (strstr(mode, "hz") != NULL
-        && ((strstr(mode, "480p") == NULL) && (strstr(mode, "576p") == NULL))) {
-            validMode = true;
+
+    if (strlen(mode) != 0 && strstr(mode, "hz") != NULL) {
+        //1. tv support dolby vision max resolution
+        char dv_displaymode[MODE_LEN] = {0};
+        for (int i = 0; i < ARRAY_SIZE(DISPLAY_MODE_LIST); i++) {
+            if (strstr(mScene_Input_Info.dv_input_info.dv_displaymode, DISPLAY_MODE_LIST[i]) != NULL) {
+                strcpy(dv_displaymode, DISPLAY_MODE_LIST[i]);
+            }
+        }
+
+        if (!strcmp(mode, MODE_1080P100HZ)) {
+            if (strstr(mScene_Input_Info.dv_input_info.dv_cap, DV_VSVDB_PARITY) != NULL
+                && strstr(mScene_Input_Info.hdmi_input_info.disp_cap, MODE_1080P100HZ) != NULL) {
+                validMode = true;
+            }
+        } else if (!strcmp(mode, MODE_1080P120HZ)) {
+            if (strstr(mScene_Input_Info.dv_input_info.dv_cap, DV_VSVDB_PARITY) != NULL
+                && strstr(mScene_Input_Info.hdmi_input_info.disp_cap, MODE_1080P120HZ) != NULL) {
+                validMode = true;
+            }
+        } else {
+            if (resolveResolutionValue(mode, RESOLUTION_PRIORITY) > resolveResolutionValue(dv_displaymode, RESOLUTION_PRIORITY)
+                || (strstr(mode, "480p") != NULL) || (strstr(mode, "576p") != NULL)
+                || (strstr(mode, "smpte") != NULL) || (strstr(mode, "4096") != NULL)
+                || (strstr(mode, "i") != NULL)) {
+                validMode = false;
+            } else {
+                validMode = true;
+            }
         }
     }
 
     return validMode;
 }
 
-void SceneProcess::updateDolbyVisionDisplayMode(char * cur_outputmode, int dv_type, char * final_displaymode) {
+/*
+ * @param type: dv,hdr,sdr
+ */
+bool SceneProcess::isSupportHDRResolution(int32_t type, const char *mode) {
+    bool ret = false;
+
+    if (type != SDR_PRIORITY && type != HDR10_PRIORITY && type !=  DOLBY_VISION_PRIORITY) {
+        SYS_LOGE("type: %d is invalid\n", type);
+        return ret;
+    }
+
+    if (isSupportHdmiMode(mode)) {
+        if (type == HDR10_PRIORITY) {
+            if (isHDRSupportMode(mode)) {
+                ret = true;
+            }
+        } else if (type == DOLBY_VISION_PRIORITY) {
+            if (isDVSupportMode(mode)) {
+                ret = true;
+            }
+        } else {
+            ret = true;
+        }
+    } else {
+        SYS_LOGI("mode: %s not support\n", mode);
+    }
+
+    return ret;
+}
+
+int32_t SceneProcess::updateDolbyVisionDisplayMode(char * cur_outputmode, int dv_type, char * final_displaymode) {
     char dv_displaymode[MODE_LEN] = {0};
+    int32_t ret = 0;
 
     //1. update tv support dolby vision resolution
     for (int i = DV_MODE_LIST_SIZE - 1; i >= 0; i--) {
@@ -616,25 +672,20 @@ void SceneProcess::updateDolbyVisionDisplayMode(char * cur_outputmode, int dv_ty
         //smpte(3840x2160@XXhz) and i timing not support dolby vision
         //hdmi output resolution need small than dolby vision resolution
         //ex:dolby vision support 1080p60hz,only can output small 1080p60hz resolution
-        if ((resolveResolutionValue(cur_outputmode, RESOLUTION_PRIORITY) > resolveResolutionValue(dv_displaymode, RESOLUTION_PRIORITY))
-            || !isDVSupportMode(cur_outputmode)) {
-            //TV support dolby vision non 2160p60hz case
-            if (!strcmp(dv_displaymode, DV_MODE_4K2K30HZ)
-                || !strcmp(dv_displaymode, DV_MODE_4K2K25HZ) || !strcmp(dv_displaymode, DV_MODE_4K2K24HZ)) {
-                //TV support dolby vision support 2160p30hz or 2160p25hz or 2160p24hz
-                //1080p60hz prefer to 2160p30hz 2160p25hz 2160p24hz
-                strcpy(final_displaymode, DV_MODE_1080P);
-            } else {
-                //TV support dolby vision non 2160p30hz 2160p25hz 2160p24hz
-                //use tv support dolby vision resolution
-                strcpy(final_displaymode, dv_displaymode);
-            }
+        //2.1 best policy disable case
+        //smpte(3840x2160@XXhz) and i timing not support dolby vision
+        //hdmi output resolution need small than dolby vision resolution
+        //ex:dolby vision support 1080p60hz,only can output small 1080p60hz resolution
+        if (!isDVSupportMode(cur_outputmode)) {
+            ret = -1;
+            SYS_LOGI("cur_outputmode:%s doesn't support dv", cur_outputmode);
         } else {
             strcpy(final_displaymode, cur_outputmode);
         }
     }
 
     SYS_LOGI("final_displaymode:%s, cur_outputmode:%s, dv_displaymode:%s", final_displaymode, cur_outputmode, dv_displaymode);
+    return ret;
 }
 
 //find the index of mode base the hdmi resolution priority table
@@ -720,7 +771,7 @@ void SceneProcess::getHighestHdmiMode(char* mode) {
 }
 
 //check if the edid support current hdmi mode
-bool SceneProcess::isSupportHdmiMode(char* mode) {
+bool SceneProcess::isSupportHdmiMode(const char* mode) {
     if (!mode) {
         SYS_LOGE("mode is NULL\n");
         return false;
@@ -738,7 +789,6 @@ bool SceneProcess::isSupportHdmiMode(char* mode) {
                 step += 1;
             }
             if (!strncmp(pCmp, mode, pos - pCmp)) {
-                strncpy(mode, pCmp, pos - pCmp);
                 SYS_LOGI("mode: %s\n", mode);
                 return true;
             }
@@ -1044,7 +1094,9 @@ void SceneProcess::UpdateSceneInputInfo(scene_input_info_t* input_info) {
         mScene_Input_Info.hdmi_input_info.ubootenv_colorattribute);
 }
 
-void SceneProcess::DolbyVisionSceneProcess(scene_output_info_t* output_info) {
+int32_t SceneProcess::DolbyVisionSceneProcess(scene_output_info_t* output_info) {
+    int32_t ret = 0;
+
     //1. update dolby vision output type
     int dv_type = DOLBY_VISION_DISABLE;
     dv_type = updateDolbyVisionType();
@@ -1063,7 +1115,7 @@ void SceneProcess::DolbyVisionSceneProcess(scene_output_info_t* output_info) {
     char cur_displaymode[MODE_LEN] = {0};
     strcpy(cur_displaymode, mScene_Input_Info.cur_displaymode);
 
-    updateDolbyVisionDisplayMode(cur_displaymode, dv_type, final_displaymode);
+    ret = updateDolbyVisionDisplayMode(cur_displaymode, dv_type, final_displaymode);
     strcpy(mScene_output_info.final_displaymode, final_displaymode);
     SYS_LOGI("dv final_displaymode:%s", mScene_output_info.final_displaymode);
 
@@ -1071,6 +1123,7 @@ void SceneProcess::DolbyVisionSceneProcess(scene_output_info_t* output_info) {
     strcpy(output_info->final_displaymode, mScene_output_info.final_displaymode);
     strcpy(output_info->final_deepcolor, mScene_output_info.final_deepcolor);
     output_info->dv_type = mScene_output_info.dv_type;
+    return ret;
 }
 
 //check 4k50/4k60 hdr support or not base driver edid
@@ -1373,11 +1426,12 @@ void SceneProcess::Process(scene_output_info_t* output_info) {
 
     scene_output_info_t   Scene_output_info;
     memset(&Scene_output_info, 0, sizeof(scene_output_info_t));
+    int32_t dv_support = 0;
 
     //1. dolby vision scene process
     //   only for tv support dv and box enable dv
     if (isDolbyVisionPreference()) {
-        DolbyVisionSceneProcess(&Scene_output_info);
+        dv_support = DolbyVisionSceneProcess(&Scene_output_info);
     } else if (mScene_Input_Info.isDvEnable) {
         //for enable dolby vision core when first boot connecting non dv tv
         output_info->dv_type = DOLBY_VISION_STD_ENABLE;
@@ -1388,18 +1442,22 @@ void SceneProcess::Process(scene_output_info_t* output_info) {
 
     //2. hdr/sdr scene process
     //   and decide final display mode and deepcolor
-    if (isDolbyVisionPreference()) {
+    if (isDolbyVisionPreference() && dv_support == 0) {
         strcpy(output_info->final_displaymode, Scene_output_info.final_displaymode);
         strcpy(output_info->final_deepcolor, Scene_output_info.final_deepcolor);
         output_info->dv_type = Scene_output_info.dv_type;
-    } else if (isHDRPreference()) {
+    } else if (isHDRPreference() || dv_support != 0) {
         HDRSceneProcess(&Scene_output_info);
         strcpy(output_info->final_displaymode, Scene_output_info.final_displaymode);
         strcpy(output_info->final_deepcolor, Scene_output_info.final_deepcolor);
+        if (mScene_Input_Info.isDvEnable)
+            output_info->dv_type = DOLBY_VISION_STD_ENABLE;
     } else {
         SDRSceneProcess(&Scene_output_info);
         strcpy(output_info->final_displaymode, Scene_output_info.final_displaymode);
         strcpy(output_info->final_deepcolor, Scene_output_info.final_deepcolor);
+        if (mScene_Input_Info.isDvEnable)
+            output_info->dv_type = DOLBY_VISION_STD_ENABLE;
     }
 
     //3. not find outputmode and use default mode

@@ -555,6 +555,33 @@ void DisplayMode::setTvRecoveryDisplay() {
     //pSysWrite->writeSysfs(DISPLAY_FB0_BLANK, "0");
 }
 
+bool DisplayMode::isSupportHDRResolution(int32_t type, const char* mode) {
+    bool ret;
+    if (mode == NULL) {
+        SYS_LOGI("mode is NULL");
+        return false;
+    }
+
+    SYS_LOGI("type:%d mode:%s\n", type, mode);
+
+    //1. update scene info
+    scene_input_info_t scene_input_info;
+    memset(&scene_input_info, 0, sizeof(scene_input_info_t));
+
+    strcpy(scene_input_info.dv_input_info.dv_cap, mHdmidata.dv_info.dv_cap);
+    strcpy(scene_input_info.dv_input_info.dv_deepcolor, mHdmidata.dv_info.dv_deepcolor);
+    strcpy(scene_input_info.dv_input_info.dv_displaymode, mHdmidata.dv_info.dv_displaymode);
+    strcpy(scene_input_info.hdmi_input_info.disp_cap, mHdmidata.disp_cap);
+    strcpy(scene_input_info.hdmi_input_info.dc_cap, mHdmidata.dc_cap);
+
+    mpSceneProcess->UpdateSceneInputInfo(&scene_input_info);
+
+    //2. check mode support or not
+    ret = mpSceneProcess->isSupportHDRResolution(type, mode);
+
+    return ret;
+}
+
 bool DisplayMode::getModeSupportDeepColorAttr(const char* outputmode,const char * color){
     bool ret;
     if (outputmode == NULL || color == NULL) {

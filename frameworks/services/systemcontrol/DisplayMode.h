@@ -585,6 +585,7 @@ public:
     void getHdmiData(hdmi_data_t* data);
     void getSupportDispModeList(char * modelist);
     void setActiveDispMode(const char*value);
+    bool isSupportHDRResolution(int32_t type, const char* mode) ;
     void notifyPlugin();
     int readHdcpRX22Key(char *value, int size);
     bool writeHdcpRX22Key(const char *value, const int size);

@@ -776,7 +776,24 @@ public class SystemControlManager {
             try {
                 return (mProxy.getModeSupportDeepColorAttr(mode, value) == Result.OK)?true:false;
             } catch (RemoteException e) {
-                Log.e(TAG, "setBootenv:" + e);
+                Log.e(TAG, "GetModeSupportDeepColorAttr:" + e);
+            }
+        }
+        return false;
+    }
+
+    /*
+     * @param type:
+     *            0: dv
+     *            1: hdr
+     *            2: sdr
+     */
+    public boolean isSupportHDRResolution(int type, String mode) {
+        synchronized (mLock) {
+            try {
+                return (mProxy.isSupportHDRResolution(type, mode) == Result.OK) ? true : false;
+            } catch (RemoteException e) {
+                Log.e(TAG, "isSupportHDRResolution:" + e);
             }
         }
         return false;

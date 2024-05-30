@@ -139,6 +139,7 @@ public:
 
     void isHDCPTxAuthSuccess(int &status);
     bool getModeSupportDeepColorAttr(const std::string& mode, const std::string& color);
+    bool isSupportHDRResolution(int32_t type, const std::string& mode);
     void setHdrStrategy(const std::string& value);
     bool getHdrStrategy(std::string& hdr_strategy);
     void setHdrPriority(const std::string& value);

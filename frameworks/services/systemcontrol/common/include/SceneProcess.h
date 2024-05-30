@@ -81,6 +81,9 @@
 
 #define DEFAULT_HDMI_MODE               "720p60hz"
 
+/*for check high frame rate support dv or not*/
+#define DV_VSVDB_PARITY                 "Parity: 1"
+
 /*
  * bit0-bit3 for hdr strategy1
  * 0 → original cap
@@ -325,13 +328,14 @@ public:
     void setdvdisplaymode(const char* value);
     void setdvdeepcolor(const char* value);
     bool isHDRSupportMode(const char *mode);
+    bool isSupportHDRResolution(int32_t type, const char *mode);
     void UpdateSceneInputInfo(scene_input_info_t * input_info);
     int64_t resolveResolutionValue(const char *mode, int flag = FRAMERATE_PRIORITY);
 
     void Process(scene_output_info_t* output_info);
 
 private:
-    void DolbyVisionSceneProcess(scene_output_info_t* output_info);
+    int32_t DolbyVisionSceneProcess(scene_output_info_t* output_info);
     void HDRSceneProcess(scene_output_info_t* output_info);
     void SDRSceneProcess(scene_output_info_t* output_info);
     bool isSupport4KHDR(scene_output_info_t *output_info);
@@ -339,7 +343,7 @@ private:
     bool findHDRpreferMode(scene_output_info_t *output_info);
     int updateDolbyVisionType(void);
     void updateDolbyVisionAttr(int dolbyvision_type, char * dv_attr);
-    void updateDolbyVisionDisplayMode(char * cur_outputmode, int dv_type, char * final_displaymode);
+    int32_t updateDolbyVisionDisplayMode(char * cur_outputmode, int dv_type, char * final_displaymode);
     bool isHDRPreference();
     bool isDolbyVisionPreference();
     bool isBestPolicy();
@@ -349,7 +353,7 @@ private:
     bool isSupport4K30Hz();
     bool isSupportDeepColor();
     bool isLowPowerMode();
-    bool isDVSupportMode(char *mode);
+    bool isDVSupportMode(const char *mode);
     scene_state getSceneState();
     bool isModeSupportDeepColorAttr(const char *mode, const char * color);
     void getBestHdmiDeepColorAttr(const char *outputmode, char* colorAttribute);
@@ -357,7 +361,7 @@ private:
     void updateHdmiDeepColor(scene_state state, const char* outputmode, char* colorAttribute);
     void getHighestHdmiMode(char* mode);
     void filterHdmiMode(char* mode);
-    bool isSupportHdmiMode(char* mode);
+    bool isSupportHdmiMode(const char* mode);
     void getHdmiOutputMode(char* mode);
 
     scene_input_info_t    mScene_Input_Info;

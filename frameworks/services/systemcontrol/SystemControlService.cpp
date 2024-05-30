@@ -564,6 +564,15 @@ bool SystemControlService::getModeSupportDeepColorAttr(const std::string& mode,c
     return ret;
 }
 
+bool SystemControlService::isSupportHDRResolution(int32_t type, const std::string& mode) {
+    bool ret = false;
+
+    ALOGI("mode :%s type :%d", mode.c_str(), type);
+
+    ret = pDisplayMode->isSupportHDRResolution(type, mode.c_str());
+    return ret;
+}
+
 void SystemControlService::setSourceOutputMode(const std::string& mode) {
     if (mLogLevel > LOG_LEVEL_1) {
         ALOGI("set output mode :%s", mode.c_str());

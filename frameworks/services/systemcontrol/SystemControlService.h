@@ -95,6 +95,7 @@ public:
 
     bool updataLogoBmp(const std::string& path);
     bool getModeSupportDeepColorAttr(const std::string& mode,const std::string& color);
+    bool isSupportHDRResolution(int32_t type, const std::string& mode);
     //set or get uboot env
     bool getBootEnv(const std::string& key, std::string& value);
     void setBootEnv(const std::string& key, const std::string& value);

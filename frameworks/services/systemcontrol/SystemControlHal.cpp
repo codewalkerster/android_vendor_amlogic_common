@@ -637,6 +637,11 @@ Return<Result> SystemControlHal::getModeSupportDeepColorAttr(const hidl_string &
     return mSysControl->getModeSupportDeepColorAttr(mode, color)?Result::OK:Result::FAIL;
 }
 
+Return<Result> SystemControlHal::isSupportHDRResolution(int32_t type, const hidl_string &mode) {
+    SYS_LOGD("isSupportHDRResolution mode = %s type = %d", mode.c_str(), type);
+    return mSysControl->isSupportHDRResolution(type, mode) ? Result::OK : Result::FAIL;
+}
+
 
 Return<void> SystemControlHal::getDroidDisplayInfo(getDroidDisplayInfo_cb _hidl_cb) {
     DroidDisplayInfo info;

@@ -115,6 +115,7 @@ class SystemControlHal : public ISystemControl, public SystemControlNotify, publ
     Return<void> getSupportALLMContentTypeList(getSupportALLMContentTypeList_cb _hidl_cb) override;
     Return<void> sinkSupportDolbyVision(sinkSupportDolbyVision_cb _hidl_cb) override;
     Return<Result> getModeSupportDeepColorAttr(const hidl_string& mode, const hidl_string& color) override;
+    Return<Result> isSupportHDRResolution(int32_t type, const hidl_string& mode) override;
     Return<void> setHdrStrategy(const hidl_string &value) override;
     Return<void> getHdrStrategy(getHdrStrategy_cb _hidl_cb) override;
     Return<void> setHdrPriority(const hidl_string &value) override;

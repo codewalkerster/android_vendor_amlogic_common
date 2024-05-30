@@ -825,6 +825,9 @@ interface ISystemControl {
   getModeSupportDeepColorAttr(string mode, string color)
       generates (Result result);
 
+  isSupportHDRResolution(int32_t type, string mode)
+      generates (Result result);
+
   SetPQModuleDemoState(int32_t modules, int32_t state)
       generates (int32_t ret);
 
