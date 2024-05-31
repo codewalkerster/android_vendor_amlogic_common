@@ -16,8 +16,7 @@ import vendor.amlogic.hardware.vmx_webclient.SubSample;
 /**
  * VmxWebClientDecryptParam describes a decrypt
  */
-parcelable VmxWebClientDecryptParam
-{
+parcelable VmxWebClientDecryptParam {
     int secure;
     int sampleAES;
     int keySeq;

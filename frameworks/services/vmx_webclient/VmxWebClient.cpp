@@ -18,9 +18,15 @@ typedef int (*WebClientDecryptFunc)(const void *, struct amVmxWebClientDecryptPa
 
 typedef int (*WebClientFreeContextFunc)(void *);
 
+typedef void (*WebClientSetCallbackFunc)(const void *,amVmxWebClientCallback callback, void *);
+
+typedef void (*WebClientGetPropertyFunc)(const void *, std::string);
+
 static WebClientAllocContextFunc webclient_alloc = NULL;
 static WebClientDecryptFunc webclient_decrypt = NULL;
 static WebClientFreeContextFunc webclient_free = NULL;
+static WebClientSetCallbackFunc webclient_setCallback = NULL;
+static WebClientGetPropertyFunc webclient_getProperty = NULL;
 
 namespace aidl::vendor::amlogic::hardware::vmx_webclient::implementation {
 
@@ -38,6 +44,10 @@ VmxWebClient::VmxWebClient()
         (WebClientDecryptFunc)dlsym(mLibHandle, "amVmxWebClientDecrypt");
     webclient_free =
         (WebClientFreeContextFunc)dlsym(mLibHandle, "amVmxWebClientFreeContext");
+    webclient_setCallback =
+        (WebClientSetCallbackFunc)dlsym(mLibHandle, "amVmxWebClientSetCallback");
+    webclient_getProperty =
+        (WebClientGetPropertyFunc)dlsym(mLibHandle, "amVmxWebClientGetProperty");
 
     if (webclient_alloc)
         mWebClientObj = webclient_alloc(NULL);
@@ -157,6 +167,44 @@ VmxWebClient::~VmxWebClient() {
     }
 
     return ::ndk::ScopedAStatus::ok();
+}
+
+void OnCallback(uint8_t type, uint8_t *data, uint32_t dataLen, void *pUserData) {
+    ALOGI("OnCallback type %d len %d", type, dataLen);
+
+    if (pUserData != NULL) {
+        std::vector<uint8_t> event;
+        VmxWebClient *p = (VmxWebClient *)pUserData;
+        event.assign(data, data + dataLen);
+        if (p->mCallback != NULL) {
+            p->mCallback->sendEvent(static_cast<VmxWebClientEventType>(type), p->mSessionId, event);
+        }
+    }
+}
+
+::ndk::ScopedAStatus VmxWebClient::setCallback(const std::vector<uint8_t>& sessionId,
+        const std::shared_ptr<IVmxWebClientCallback>& callback) {
+    ::android::Mutex::Autolock autoLock(mLock);
+    ALOGI("setCallback");
+
+    if (mWebClientObj && webclient_setCallback && callback) {
+        mCallback = callback;
+        mSessionId.assign(sessionId.data(), sessionId.data() + sessionId.size());
+        webclient_setCallback(mWebClientObj, OnCallback, this);
+        ALOGI("setCallback done");
+    }
+    return toNdkScopedAStatus(Status::OK);
+}
+
+::ndk::ScopedAStatus VmxWebClient::getProperty(const std::string& value) {
+    ::android::Mutex::Autolock autoLock(mLock);
+    ALOGI("getProperty");
+    if (mWebClientObj && webclient_getProperty && !value.empty()) {
+        std::string prop = value;
+        webclient_getProperty(mWebClientObj, prop);
+        ALOGI("getProperty done");
+    }
+    return toNdkScopedAStatus(Status::OK);
 }
 
 }  // namespace vendor::amlogic::hardware::vmx_webclient::implementation

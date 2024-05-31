@@ -52,11 +52,17 @@ struct amVmxWebClientDecryptParam
     uint64_t mOffset;
 };
 
+typedef void (*amVmxWebClientCallback)(uint8_t type, uint8_t *data, uint32_t dataLen, void *pUserData);
+
 void *amVmxWebClientAllocContext(uint32_t *errorCode);
 
 int amVmxWebClientDecrypt(const void *context, struct amVmxWebClientDecryptParam *para);
 
 int amVmxWebClientFreeContext(void *context);
+
+void amVmxWebClientSetCallback(const void *context, amVmxWebClientCallback callBack, void *pUserData);
+
+void amVmxWebClientGetProperty(const void *context, std::string value);
 
 #ifdef __cplusplus
 }

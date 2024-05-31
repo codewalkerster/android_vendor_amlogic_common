@@ -11,6 +11,7 @@ package vendor.amlogic.hardware.vmx_webclient;
 
 import vendor.amlogic.hardware.vmx_webclient.VmxWebClientDecryptParam;
 import vendor.amlogic.hardware.vmx_webclient.Status;
+import vendor.amlogic.hardware.vmx_webclient.IVmxWebClientCallback;
 
 interface IVmxWebClient {
     int createInstance();
@@ -20,4 +21,8 @@ interface IVmxWebClient {
     int decryptSecure(in VmxWebClientDecryptParam para);
 
     int destroyInstance();
+
+    void setCallback(in byte[] sessionId, in IVmxWebClientCallback callback);
+
+    void getProperty(in String value);
 }
