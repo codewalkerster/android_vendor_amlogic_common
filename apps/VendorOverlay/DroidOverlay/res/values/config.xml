@@ -180,12 +180,12 @@
 
    <!-- pin some little and always need files -->
    <!-- /system/framework/framework-res.apk -->
-   <string-array translatable="false" name="config_defaultPinnerServiceFiles">
+   <!--<string-array translatable="false" name="config_defaultPinnerServiceFiles">
       <item>"/system/lib/libandroid_servers.so"</item>
       <item>"/system/bin/logd"</item>
       <item>"/system/lib/libjavacrypto.so"</item>
       <item>"/system/lib/libhidltransport.so"</item>
-   </string-array>
+   </string-array> -->
 
     <!-- add these for wake up from tcp -->
     <string-array name="config_forceQueryablePackages" translatable="false">
