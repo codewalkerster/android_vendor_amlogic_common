@@ -203,14 +203,6 @@
       <item>"/system/lib/libhidltransport.so"</item>
    </string-array> -->
 
-    <!-- add these for wake up from tcp -->
-    <string-array name="config_forceQueryablePackages" translatable="false">
-        <item>com.android.settings</item>
-        <item>com.google.android.gms</item>
-        <item>com.android.vending</item>
-        <item>com.google.android.apps.mediashell</item>
-        <item>com.google.android.tv.remote.service</item>
-    </string-array>
 
     <!-- Default for DeviceIdleController.Constants.INACTIVE_TIMEOUT -->
     <integer name="device_idle_inactive_to_ms">7200000</integer>

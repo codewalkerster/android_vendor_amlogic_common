@@ -10,6 +10,7 @@ PRODUCT_PACKAGES += \
     MdnsOffloadCmdService \
     MdnsOffloadManagerService \
     MdnsOffloadManagerServiceOverlay \
+    MdnsoffloadAndroidOverlay \
     DroidMdnsOffloadService \
     droidmdnsoffload-service
 
