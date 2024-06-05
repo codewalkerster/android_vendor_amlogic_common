@@ -47,27 +47,27 @@ public class USBPowerActivity extends Activity {
 
         Intent intent = getIntent();
         int power_level = intent.getIntExtra("POWER_LEVEL", 0);
-		Log.i(TAG,  "usb power power_level:" + power_level);
+        Log.i(TAG,  "usb power power_level:" + power_level);
         TextView text = findViewById(R.id.textview1);
-		TextView text2 = findViewById(R.id.textView2);
-		TextView text3 = findViewById(R.id.textview3);
-	if (power_level == 0) {
-        text.setText("The power adaptor which you are using has insufficient capacity, power level is \"0.5a\"");
-		text2.setText("Some functions will be turned off, such as wif, bt, etc.");
-		text3.setText("If you want to enable these features, please replace the power adapter.");
-    } else if (power_level == 1) {
-	    text.setText("The power adaptor which you are using has insufficient capacity, power level is \"1.5a\"");
-		text2.setText("Some functions will be turned off, such as wif, bt, etc.");
-		text3.setText("If you want to enable these features, please replace the power adapter.");
-    } else if (power_level == 2) {
-	    text.setText("The power adapter you are using has sufficient capacity, power level is \"3a\"");
-		text2.setText("You can use all functions.");
-		//text3.setText("The power supply current is sufficient and there is no need to replace the power adapter.");
-		text3.setText("");
+        TextView text2 = findViewById(R.id.textView2);
+        TextView text3 = findViewById(R.id.textview3);
+        if (power_level == 0) {
+            text.setText("The power adaptor which you are using has insufficient capacity, power level is \"0.5a\"");
+            text2.setText("Some functions cannot be used, such as wifi, video cannot be played, CPU frequency reduction, GPU frequency reduction, etc.");
+            text3.setText("If you want to enable these features, please replace the power adapter.");
+        } else if (power_level == 1) {
+            text.setText("The power adaptor which you are using has insufficient capacity, power level is \"1.5a\"");
+            text2.setText("Some functions cannot be used, such as turning off PQ, CPU frequency reduction, etc.");
+            text3.setText("If you want to enable these features, please replace the power adapter.");
+        } else if (power_level == 2) {
+            text.setText("The power adapter you are using has sufficient capacity, power level is \"3a\"");
+            text2.setText("You can use all functions.");
+            //text3.setText("The power supply current is sufficient and there is no need to replace the power adapter.");
+            text3.setText("");
     }
 
 
-	Button btn = (Button) findViewById(R.id.button);
+        Button btn = (Button) findViewById(R.id.button);
         btn.setOnClickListener(new OnClickListener() {
                   public void onClick(View v) {
                       finish();
