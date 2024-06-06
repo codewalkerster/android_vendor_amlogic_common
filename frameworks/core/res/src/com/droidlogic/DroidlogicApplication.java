@@ -49,7 +49,7 @@ public class DroidlogicApplication extends Application {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate");
-        mAudioSettingManager = new AudioSettingManager(this);
+        mAudioSettingManager = AudioSettingManager.getInstance(this);
         mHandler.sendEmptyMessage(MSG_CHECK_BOOTVIDEO_FINISHED);
         // Should not do in java
         //register system control callback

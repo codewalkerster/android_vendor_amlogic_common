@@ -40,6 +40,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import com.droidlogic.app.AudioSettingManager;
 import com.droidlogic.app.DroidLogicUtils;
 import com.droidlogic.app.OutputModeManager;
 import com.droidlogic.app.AudioEffectManager;
@@ -3193,7 +3194,9 @@ public class SoundEffectManager {
                 value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_VIRTUAL_X_DEBUG, AudioEffectManager.DEBUG_UI_OFF);
                 break;
             case AudioEffectManager.DEBUG_DAP_2_UI:
-                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DAP_2_DEBUG, AudioEffectManager.DEBUG_UI_OFF);
+                AudioSettingManager audioSettingManager = AudioSettingManager.getInstance(mContext);
+                int defaultValue = audioSettingManager.isSoundBarModeEnabled() ? AudioEffectManager.DEBUG_UI_ON : AudioEffectManager.DEBUG_UI_OFF;
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DAP_2_DEBUG, defaultValue);
                 break;
             default:
                 Log.e(TAG, "isAudioEffectOn id:" + id + " is invalid!");

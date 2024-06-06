@@ -33,6 +33,8 @@ import android.util.Log;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import com.droidlogic.app.DroidLogicUtils;
+
 public class AudioSettingManager {
     private static final String TAG                 = "AudioSettingManager";
 
@@ -41,6 +43,7 @@ public class AudioSettingManager {
     private SettingsObserver mSettingsObserver;
     private SystemControlManager mSystemControlManager;
     private AudioManager mAudioManager;
+    private static AudioSettingManager mAudioSettingManager = null;
     public static final String AUDIO_VAD_POWER_MEM_SLEEP_NODE               = "/sys/power/mem_sleep";
     public static final String AUDIO_VAD_POWER_STATE_NODE                   = "/sys/power/state";
     public static final String AUDIO_VAD_POWER_MEM_SLEEP_DEEP               = "deep";
@@ -51,8 +54,18 @@ public class AudioSettingManager {
     public static final String AUDIO_VAD_PROPERTY_VADWAKE                   = "persist.vendor.vadwake";
 
     public static final String PROP_TUNER_AUDIO = "ro.vendor.platform.is.tv";
+    private static final String DB_ID_AUDIO_SOUNDBAR_MODE_ENABLE            = "db_id_audio_soundbar_mode_enable";
 
-    public AudioSettingManager(Context context){
+    public static AudioSettingManager getInstance(Context context) {
+        synchronized (AudioSettingManager.class) {
+            if (mAudioSettingManager == null) {
+                mAudioSettingManager = new AudioSettingManager(context);
+            }
+        }
+        return mAudioSettingManager;
+    }
+
+    private AudioSettingManager(Context context){
         mResolver = context.getContentResolver();
         mSettingsObserver = new SettingsObserver(new Handler());
         mOutputModeManager = OutputModeManager.getInstance(context);
@@ -150,9 +163,26 @@ public class AudioSettingManager {
         }
     }
 
+    public static final String SYS_HDMITX_AUDIO_SOUNDBAR_EN                 = "/sys/class/amhdmitx/amhdmitx0/soundbar_en";
+    public void setSoundBarModeEnabled(boolean enable) {
+        Log.i(TAG, "setSoundBarModeEnabled soundbar:" + enable);
+        Settings.Global.putInt(mResolver, DB_ID_AUDIO_SOUNDBAR_MODE_ENABLE, enable ? 1 : 0);
+        mSystemControlManager.setProperty("persist.vendor.media.audio.soundbar.mode", enable ? "1" : "0");
+        mAudioManager.setParameters("hal_param_soundbar_mode=" + (enable ? "1" : "0"));
+        mSystemControlManager.writeSysFs(SYS_HDMITX_AUDIO_SOUNDBAR_EN, enable ? "1" : "0");
+    }
+
+    public boolean isSoundBarModeEnabled() {
+        boolean flag = mSystemControlManager.getPropertyBoolean("ro.vendor.platform.support.soundbar", false);
+        int soundBarEnable = Settings.Global.getInt(mResolver, DB_ID_AUDIO_SOUNDBAR_MODE_ENABLE, flag ? 1 : 0);
+        return (soundBarEnable == 1);
+    }
 
     public void initSystemAudioSetting() {
         Log.d(TAG, "initParameterAfterBoot");
+        if (!DroidLogicUtils.isTv()) {
+            setSoundBarModeEnabled(isSoundBarModeEnabled());
+        }
         /*setThisValue for dts scale*/
         mOutputModeManager.setDtsDrcScaleSysfs();
 
