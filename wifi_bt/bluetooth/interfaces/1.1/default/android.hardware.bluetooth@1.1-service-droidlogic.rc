@@ -4,6 +4,6 @@ service vendor.bluetooth-1-1-droidlogic /vendor/bin/hw/android.hardware.bluetoot
     class hal
     capabilities BLOCK_SUSPEND NET_ADMIN SYS_NICE SYS_MODULE
     user bluetooth
-    group bluetooth
+    group system bluetooth root
     task_profiles HighPerformance
 

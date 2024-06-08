@@ -68,6 +68,7 @@ cc_binary {
         "bluetooth_address.cc",
         "vendor_interface.cc",
         "multibt_hal.cc",
+	"amlbt_fwlog.cc"
     ],
 
     shared_libs: [
