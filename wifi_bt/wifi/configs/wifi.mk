@@ -337,6 +337,9 @@ PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.ini,common/driver_modules/
 PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.asm,common/driver_modules/wifi_bt/wifi/amlogic/w2/common,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/)
 PRODUCT_COPY_FILES += $(call find-copy-subdir-files,aml_comm_diag,common/driver_modules/wifi_bt/wifi/amlogic/w2/common,$(TARGET_COPY_OUT_VENDOR)/xbin/)
 endif
+# w2 rf txt
+$(warning w2_rf.txt config project is : $(PRODUCT_DIR))
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.txt,vendor/amlogic/common/wifi_bt/wifi/w2/$(PRODUCT_DIR),$(TARGET_COPY_OUT_VENDOR)/lib/firmware/)
 PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/w2/lspci:$(TARGET_COPY_OUT_VENDOR)/xbin/lspci2
 endif
 
