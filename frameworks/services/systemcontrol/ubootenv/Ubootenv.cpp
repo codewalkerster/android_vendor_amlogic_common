@@ -365,6 +365,7 @@ int Ubootenv::set(const char * key,  const char * value, bool createNew) {
 
     if (strlen(key)>= 128 || strlen(value) >= 4096) {
         SYS_LOGE("[ubootenv] Invalid env data key:%s, value:%s size is larger\n", key, value);
+        free(mEnvData_Backup);
         return -1;
     }
 

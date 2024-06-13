@@ -272,6 +272,16 @@ void CPQControl::CPQControlUnInit()
         delete mPQConfigFile;
         mPQConfigFile = NULL;
     }
+
+    if (mWBDataBase != NULL) {
+        delete mWBDataBase;
+        mWBDataBase = NULL;
+    }
+
+    if (mDataBase != NULL) {
+        delete mDataBase;
+        mDataBase = NULL;
+    }
 }
 
 int CPQControl::pqWriteSys(ConstCharforSysNodeIndex index, const char *val)
@@ -10134,7 +10144,7 @@ int CPQControl::SetPQPictureMode(PICTURE_MODE pq_mode)
         "hdr_tone_mapping: %3d, DvMode:           %3d, DvDarkDetail:     %3d, DvLightSensor:   %3d,\n"
         "AmDolbyPrcision:  %3d, Deblock:          %3d, DeMoSquito:       %3d\n",
         __FUNCTION__,
-        PictureMode.mode,
+        (int)PictureMode.mode,
         PictureMode.Brightness, PictureMode.Contrast, PictureMode.Saturation, PictureMode.Hue,
         PictureMode.Sharpness, PictureMode.Backlight, PictureMode.Nr, PictureMode.DynamicContrast,
         PictureMode.DynamicBacklight, PictureMode.ColorGamut, PictureMode.ColorTemperature, PictureMode.LocalContrast,
