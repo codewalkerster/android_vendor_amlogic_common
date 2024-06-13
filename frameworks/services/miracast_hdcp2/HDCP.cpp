@@ -1,21 +1,16 @@
 /*
- * Copyright (C) 2012 The Android Open Source Project
+ * Copyright (c) 2024 Amlogic, Inc. All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This source code is subject to the terms and conditions defined in the
+ * file 'LICENSE' which is part of this source code package.
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Description:
  */
 
 #define LOG_NDEBUG 0
-#define LOG_TAG "HDCP"
+#define LOG_TAG "miracast_hdcp_aidl"
+
+
 #include "HDCP.h"
 #include <dlfcn.h>
 
@@ -23,191 +18,167 @@ namespace vendor {
 namespace amlogic {
 namespace hardware {
 namespace miracast_hdcp2 {
-namespace V1_0 {
-namespace implementation {
 
 HDCP::HDCP(bool createEncryptionModule)
-    : mIsEncryptionModule(createEncryptionModule),
-      mLibHandle(NULL),
-      mHDCPModule(NULL),
-      mObserver(NULL) {
+  : mIsEncryptionModule(createEncryptionModule),
+    mLibHandle(NULL),
+    mHDCPModule(NULL),
+    mObserver(NULL) {
 
-    mLibHandle = dlopen("libstagefright_hdcp.so", RTLD_NOW);
-    if (mLibHandle == NULL) {
-        ALOGE("Unable to locate libstagefright_hdcp.so");
-        return;
-    }
+  mLibHandle = dlopen("libstagefright_hdcp.so", RTLD_NOW);
+  if (mLibHandle == NULL) {
+    ALOGE("Unable to locate libstagefright_hdcp.so");
+    return;
+  }
 
-    typedef HDCPModule *(*CreateHDCPModuleFunc)(
-            void *, HDCPModule::ObserverFunc);
+  typedef HDCPModule *(*CreateHDCPModuleFunc)(void *, HDCPModule::ObserverFunc);
 
-    CreateHDCPModuleFunc createHDCPModule =
-        mIsEncryptionModule
-            ? (CreateHDCPModuleFunc)dlsym(mLibHandle, "createHDCPModule")
-            : (CreateHDCPModuleFunc)dlsym(
-                    mLibHandle, "createHDCPModuleForDecryption");
+  CreateHDCPModuleFunc createHDCPModule =
+    mIsEncryptionModule
+      ? (CreateHDCPModuleFunc)dlsym(mLibHandle, "createHDCPModule")
+      : (CreateHDCPModuleFunc)dlsym(mLibHandle, "createHDCPModuleForDecryption");
 
-    if (createHDCPModule == NULL) {
-        ALOGE("Unable to find symbol 'createHDCPModule'.");
-    } else if ((mHDCPModule = createHDCPModule(
-                    this, &HDCP::ObserveWrapper)) == NULL) {
-        ALOGE("createHDCPModule failed.");
-    }
+  if (createHDCPModule == NULL) {
+    ALOGE("Unable to find symbol 'createHDCPModule'.");
+  } else if ((mHDCPModule = createHDCPModule(this, &HDCP::ObserveWrapper)) == NULL) {
+    ALOGE("CreateHDCPModule failed.");
+  }
 }
 
 HDCP::~HDCP() {
-    Mutex::Autolock autoLock(mLock);
+  Mutex::Autolock autoLock(mLock);
+  if (mHDCPModule != NULL) {
+      delete mHDCPModule;
+      mHDCPModule = NULL;
+  }
 
-    if (mHDCPModule != NULL) {
-        delete mHDCPModule;
-        mHDCPModule = NULL;
-    }
-
-    if (mLibHandle != NULL) {
-        dlclose(mLibHandle);
-        mLibHandle = NULL;
-    }
+  if (mLibHandle != NULL) {
+      dlclose(mLibHandle);
+      mLibHandle = NULL;
+  }
 }
 
-Return<Status> HDCP::setObserver(const sp<IHDCPObserver> &observer) {
-    Mutex::Autolock autoLock(mLock);
+::ndk::ScopedAStatus HDCP::setObserver(const std::shared_ptr<IHDCPObserver>& observer) {
+  Mutex::Autolock autoLock(mLock);
 
-    if (mHDCPModule == NULL) {
-        return Status::NO_INIT;
-    }
+  if (mHDCPModule == NULL)
+    return ndk::ScopedAStatus(AStatus_fromStatus(STATUS_NO_INIT));
 
-    if (mObserver != NULL) {
-        mObserver->unlinkToDeath(this);
-    }
-
-    if (observer.get())
-        observer->linkToDeath(this, OBSERVER_COOKIE);
-
-    mObserver = observer;
-    return Status::OK;
+  mObserver = observer;
+  return ndk::ScopedAStatus(AStatus_fromStatus(STATUS_OK));
 }
 
-Return<Status> HDCP::initAsync(const hidl_string& host, unsigned port) {
-    const char *hostname = NULL;
+::ndk::ScopedAStatus HDCP::initAsync(const std::string& host, int32_t port) {
+  Mutex::Autolock autoLock(mLock);
+  const char *hostname = NULL;
 
-    Mutex::Autolock autoLock(mLock);
-    if (mHDCPModule == NULL) {
-        return Status::NO_INIT;
-    }
+  if (mHDCPModule == NULL)
+    return ndk::ScopedAStatus(AStatus_fromStatus(STATUS_NO_INIT));
 
-    if (host.size())
-        hostname = host.c_str();
-    return (Status)mHDCPModule->initAsync(hostname, port);
+  if (host.size())
+    hostname = host.c_str();
+
+  if (mHDCPModule->initAsync(hostname, port))
+    return ndk::ScopedAStatus(AStatus_fromStatus(STATUS_UNKNOWN_ERROR));
+
+  return ndk::ScopedAStatus(AStatus_fromStatus(STATUS_OK));
 }
 
-Return<Status> HDCP::shutdownAsync() {
-    Mutex::Autolock autoLock(mLock);
-    if (mHDCPModule == NULL) {
-        return Status::NO_INIT;
-    }
-    return (Status)mHDCPModule->shutdownAsync();
+::ndk::ScopedAStatus HDCP::shutdownAsync() {
+  Mutex::Autolock autoLock(mLock);
+
+  if (mHDCPModule == NULL)
+    return ndk::ScopedAStatus(AStatus_fromStatus(STATUS_NO_INIT));
+
+  if (mHDCPModule->shutdownAsync())
+    return ndk::ScopedAStatus(AStatus_fromStatus(STATUS_UNKNOWN_ERROR));
+
+  return ndk::ScopedAStatus(AStatus_fromStatus(STATUS_OK));
 }
 
-Return<uint32_t> HDCP::getCaps() {
-    Mutex::Autolock autoLock(mLock);
+::ndk::ScopedAStatus HDCP::getCaps(int32_t* _aidl_return) {
+  Mutex::Autolock autoLock(mLock);
 
-    if (mHDCPModule == NULL) {
-        return 0;
-    }
+  if (mHDCPModule == NULL)
+    *_aidl_return = 0;
 
-    return mHDCPModule->getCaps();
+  *_aidl_return = mHDCPModule->getCaps();
+  return ndk::ScopedAStatus(AStatus_fromStatus(STATUS_OK));
 }
 
-Return<void> HDCP::encrypt(
-        const hidl_vec<uint8_t>& inData, uint32_t streamCTR,
-        encrypt_cb _hidl_cb) {
-    Status s = Status::OK;
-    uint64_t outInputCTR = 0;
-    hidl_vec<uint8_t> outData;
-    uint32_t size = inData.size();
+::ndk::ScopedAStatus HDCP::encrypt(const std::vector<uint8_t>& in_inData, int32_t in_streamCTR,
+    EncryptResult* _aidl_return) {
+  (void)in_inData;
+  (void)in_streamCTR;
+  (void)_aidl_return;
 
-    Mutex::Autolock autoLock(mLock);
-
-    assert(mIsEncryptionModule);
-
-    if (mHDCPModule == NULL) {
-        outInputCTR = 0;
-        s = Status::NO_INIT;
-    } else {
-        outData.resize(size);
-        s = (Status)mHDCPModule->encrypt(inData.data(), size, streamCTR, &outInputCTR, outData.data());
-    }
-    _hidl_cb(s, outInputCTR, outData);
-
-    return Void();
+  return ndk::ScopedAStatus(AStatus_fromStatus(STATUS_INVALID_OPERATION));
 }
 
-Return<void> HDCP::decrypt(
-        const hidl_vec<uint8_t>& inData,
-        uint32_t streamCTR, uint64_t outInputCTR, uint32_t outAddr, decrypt_cb _hidl_cb) {
-    Status s = Status::OK;
-    uint32_t size = inData.size();
-    uint32_t streamCtrInfo = 0;
-    hidl_vec<uint8_t> outData;
+::ndk::ScopedAStatus HDCP::decrypt(const std::vector<uint8_t>& inData,
+  int32_t streamCTR, int64_t outInputCTR, int32_t outAddr, std::vector<uint8_t>* _aidl_return) {
+  Mutex::Autolock autoLock(mLock);
+  std::vector<uint8_t> outData;
+  uint32_t size = inData.size();
+  uint32_t streamCtrInfo = 0;
+  android::status_t ret = 0;
 
-    Mutex::Autolock autoLock(mLock);
+  assert(!mIsEncryptionModule);
 
-    assert(!mIsEncryptionModule);
+  if (mHDCPModule == NULL)
+    return ndk::ScopedAStatus(AStatus_fromStatus(STATUS_NO_INIT));
 
-    if (mHDCPModule == NULL) {
-        s = Status::NO_INIT;
-    } else {
-        if (outAddr == 0) {
-            streamCtrInfo = streamCTR << 4 | 0;
-            outData.resize(size);
-            s = (Status)mHDCPModule->decrypt(inData.data(), size, streamCtrInfo, outInputCTR, outData.data());
-        } else {
-            streamCtrInfo = streamCTR << 4 | 1;
-            s = (Status)mHDCPModule->decrypt(inData.data(), size, streamCtrInfo, outInputCTR, (void *)(long)outAddr);
-        }
-    }
-    _hidl_cb(s, outData);
+  if (outAddr == 0) {
+    streamCtrInfo = streamCTR << 4 | 0;
+    outData.resize(size);
+    ret = (android::status_t)mHDCPModule->decrypt(inData.data(), size, streamCtrInfo,
+         outInputCTR, outData.data());
+  } else {
+    streamCtrInfo = streamCTR << 4 | 1;
+    ret = (android::status_t)mHDCPModule->decrypt(inData.data(), size, streamCtrInfo,
+        outInputCTR, (void *)(long)outAddr);
+  }
 
-    return Void();
+  if (ret)
+    return ndk::ScopedAStatus(AStatus_fromStatus(STATUS_UNKNOWN_ERROR));
+
+  if (outAddr == 0)
+    *_aidl_return = outData;
+  return ndk::ScopedAStatus(AStatus_fromStatus(STATUS_OK));
 }
 
-Return<void> HDCP::decryptSecure(
-    const hidl_vec<uint8_t>& decryptInfo,
-    const hidl_vec<uint8_t>& inData, decrypt_cb _hidl_cb)
-{
-    Status s = Status::OK;
-    hidl_vec<uint8_t> outData = decryptInfo;
-    uint32_t streamCtrInfo = 2;
+::ndk::ScopedAStatus HDCP::decryptSecure(const std::vector<uint8_t>& decryptInfo,
+  const std::vector<uint8_t>& inData, std::vector<uint8_t>* _aidl_return) {
+  Mutex::Autolock autoLock(mLock);
+  std::vector<uint8_t> outData = decryptInfo;
 
-    Mutex::Autolock autoLock(mLock);
-    assert(!mIsEncryptionModule);
-    if (mHDCPModule == NULL) {
-        s = Status::NO_INIT;
-    } else {
-        s = (Status)mHDCPModule->decrypt(inData.data(), inData.size(), streamCtrInfo, 0, outData.data());
-    }
-    _hidl_cb(s, outData);
-    return Void();
+  uint32_t streamCtrInfo = 2;
+  android::status_t ret = 0;
+
+  assert(!mIsEncryptionModule);
+
+ if (mHDCPModule == NULL)
+    return ndk::ScopedAStatus(AStatus_fromStatus(STATUS_NO_INIT));
+
+  ret = (android::status_t)mHDCPModule->decrypt(inData.data(), inData.size(), streamCtrInfo,
+     0, outData.data());
+  if (ret)
+    return ndk::ScopedAStatus(AStatus_fromStatus(STATUS_UNKNOWN_ERROR));
+
+  *_aidl_return = outData;
+  return ndk::ScopedAStatus(AStatus_fromStatus(STATUS_OK));
 }
 
-// static
 void HDCP::ObserveWrapper(void *me, int msg, int ext1, int ext2) {
-    static_cast<HDCP *>(me)->observe(msg, ext1, ext2);
+  static_cast<HDCP *>(me)->observe(msg, ext1, ext2);
 }
 
 void HDCP::observe(int msg, int ext1, int ext2) {
-    Mutex::Autolock autoLock(mLock);
-
-    if (mObserver != NULL) {
-        if (!mObserver->notify(msg, ext1, ext2).isOk())
-            ALOGE("Failed to send data to remote observer\n");
-    }
+  Mutex::Autolock autoLock(mLock);
+  mObserver->notify(msg, ext1, ext2);
 }
 
-}  // namespace implementation
-}  // namespace V1_0
 }  // namespace miracast_hdcp2
 }  // namespace hardware
 }  // namespace amlogic
 }  // namespace vendor
-

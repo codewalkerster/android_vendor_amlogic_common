@@ -20,11 +20,12 @@ cc_binary {
         "-Werror",
     ],
     shared_libs: [
-        "libhidlbase",
+        "libbase",
         "liblog",
         "libutils",
         "libcutils",
-        "vendor.amlogic.hardware.miracast_hdcp2@1.0",
+        "vendor.amlogic.hardware.miracast_hdcp2-V1-ndk",
+        "libbinder_ndk",
     ],
     include_dirs: [
         "frameworks/native/headers/media_plugin",
