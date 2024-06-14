@@ -15,40 +15,48 @@ import com.droidlogic.app.SystemControlManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Arrays;
 
 public class DroidLogicBenchService extends Service {
     private static final String TAG = "DroidLogicBenchService";
     private static final int BENCH_TEST_APP_FLAG = 0;
     private static final int BENCH_TEST_APP_ENABLE = 1;
     private static final int BENCH_TEST_APP_DISABLE = 2;
-    private static final String GEEKBENCH_PKG_NAME = "com.primatelabs.geekbench";
-    private static final String GFXBENCH_PKG_NAME = "net.kishonti.gfxbench";
-    private static final String PCMARK_PKG_NAME = "com.futuremark.pcmark.android.benchmark";
-    private static final String ANTUTU_PKG_NAME = "com.antutu.ABenchMark";
-    private static final String ANTUTU_3D_PKG_NAME = "com.antutu.benchmark.full";
-    private static final String BASEMARK_PKG_NAME = "com.rightware.BasemarkOSIICN";
     private Context mContext;
     private SystemControlManager mSCM;
     private IActivityManager mIActivityManager;
     private ProcessObserver mProcessObserver;
+    private boolean bHasChangeToPerformance = false;
     private final Object mLock = new Object();
-    private ArrayList<String> benchApps;
-    private String mThermal;
-    private String mCpufreq;
-    private String mDevfreq;
-    private String mMpgpu;
-    private String mBackground;
-    private String mSystem;
-    private String mRestricted;
+    private Map<String, String> CpusetmapDefault = new HashMap<>();
+    private ArrayList<String> benchApps = new ArrayList<>(Arrays.asList(
+        "com.google.android.inputmethod.latin",
+        "com.google.android.katniss",
+        "com.android.vending",
+        "com.google.android.tvrecommendations",
+        "com.google.android.tts"
+        ));
+    private ArrayList<String> benchmarkApps = new ArrayList<>(Arrays.asList(
+        "com.primatelabs.geekbench",
+        "net.kishonti.gfxbench",
+        "com.futuremark.pcmark.android.benchmark",
+        "com.antutu.ABenchMark",
+        "com.antutu.benchmark.full",
+        "com.rightware.BasemarkOSIICN",
+        "com.glbenchmark.glbenchmark27"
+        ));
 
-    private void initPoorApp() {
-        benchApps = new ArrayList();
-        benchApps.add("com.google.android.inputmethod.latin");
-        benchApps.add("com.google.android.katniss");
-        benchApps.add("com.android.vending");
-        benchApps.add("com.google.android.tvrecommendations");
-        benchApps.add("com.google.android.tts");
-    }
+    private Map<String, String> CpusetmapPerformance = new HashMap<String, String>() {{
+        put("/sys/class/thermal/thermal_zone0/mode", "disabled");
+        put("/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor", "performance");
+        put("/sys/class/devfreq/fe400000.valhall/governor", "performance");
+        put("/sys/class/mpgpu/scale_mode", "3");
+        put("/dev/cpuset/background/cpus", "1");
+        put("/dev/cpuset/system-background/cpus", "1");
+        put("/dev/cpuset/restricted/cpus", "1");
+        }};
 
     @Override
     public void onCreate() {
@@ -63,8 +71,6 @@ public class DroidLogicBenchService extends Service {
         } catch (RemoteException e) {
             Log.e(TAG, "could not get IActivityManager");
         }
-        initPoorApp();
-        initCpusets();
     }
 
     @Override
@@ -72,45 +78,23 @@ public class DroidLogicBenchService extends Service {
         return null;
     }
 
-    private void initCpusets() {
-        mThermal = mSCM.readSysFsOri("/sys/class/thermal/thermal_zone0/mode");
-        Log.d(TAG, "mThermal cpus is  " + mThermal);
-        mCpufreq = mSCM.readSysFsOri("/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor");
-        Log.d(TAG, "mCpufreq is  " + mCpufreq);
-        mDevfreq = mSCM.readSysFsOri("/sys/class/devfreq/fe400000.valhall/governor");
-        Log.d(TAG, "mDevfreq is  " + mDevfreq);
-        mMpgpu = mSCM.readSysFsOri("/sys/class/mpgpu/scale_mode");
-        Log.d(TAG, "mMpgpu is  " + mMpgpu);
-        mBackground = mSCM.readSysFsOri("/dev/cpuset/background/cpus");
-        Log.d(TAG, "mBackground is  " + mBackground);
-        mSystem = mSCM.readSysFsOri("/dev/cpuset/system-background/cpus");
-        Log.d(TAG, "mSystem is  " + mSystem);
-        mRestricted = mSCM.readSysFsOri("/dev/cpuset/restricted/cpus");
-        Log.d(TAG, "mRestricted is  " + mRestricted);
-    }
-
-    private void hidePoorApp() {
-        PackageManager packageManager = mContext.getPackageManager();
-        for (String app : benchApps) {
-            try {
-                packageManager.getPackageInfo(app, PackageManager.GET_ACTIVITIES);
-                packageManager.setApplicationEnabledSetting(app, BENCH_TEST_APP_DISABLE, BENCH_TEST_APP_FLAG);
-            } catch (Exception e) {
-                Log.w(TAG, app + " is not found");
-            }
-
+    private void getCpusets() {
+        for (String key : CpusetmapPerformance.keySet()) {
+            CpusetmapDefault.put(key, mSCM.readSysFsOri(key));
+            Log.d(TAG, "Get " + key + " is " + CpusetmapDefault.get(key));
         }
     }
 
-    private void unHidePoorApp() {
+    private void enablePoorApp(int enableValue) {
         PackageManager packageManager = mContext.getPackageManager();
         for (String app : benchApps) {
             try {
                 packageManager.getPackageInfo(app, PackageManager.GET_ACTIVITIES);
-                packageManager.setApplicationEnabledSetting(app, BENCH_TEST_APP_ENABLE, BENCH_TEST_APP_FLAG);
+                packageManager.setApplicationEnabledSetting(app, enableValue, BENCH_TEST_APP_FLAG);
             } catch (Exception e) {
                 Log.w(TAG, app + " is not found");
             }
+
         }
     }
 
@@ -124,19 +108,19 @@ public class DroidLogicBenchService extends Service {
         super.onDestroy();
     }
 
-    public boolean isVisibleApp(String pkgName) {
-        ActivityManager am = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningAppProcessInfo> infos = am.getRunningAppProcesses();
-
-        for (int i = 0; i < infos.size(); i++) {
-            ActivityManager.RunningAppProcessInfo info = infos.get(i);
-            if (info.processName.contains(pkgName)) {
-                Log.d(TAG, "processName:" + info.processName + ",importance:" + info.importance);
-                return info.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND;
-            }
-        }
-
-        return false;
+    public boolean isBenchApp(int nPid) {
+      ActivityManager activityManager = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
+      List<ActivityManager.RunningAppProcessInfo> runningProcesses = activityManager.getRunningAppProcesses();
+      for (ActivityManager.RunningAppProcessInfo processInfo : runningProcesses) {
+          for (String app : benchmarkApps) {
+              if (processInfo.processName.equals(app)) {
+                  if (nPid == processInfo.pid) {
+                      return true;
+                  }
+              }
+          }
+      }
+      return false;
     }
 
     private class ProcessObserver extends IProcessObserver.Stub {
@@ -150,28 +134,32 @@ public class DroidLogicBenchService extends Service {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                fGStateUpdate();
+                fGStateUpdate(pid,foregroundActivities);
             }).start();
         }
 
-        private void fGStateUpdate() {
+        private void fGStateUpdate(int pid, boolean foreground) {
             synchronized (mLock) {
+                if (!isBenchApp(pid)) {
+                    Log.d(TAG, "not bench app, ignore it");
+                    return;
+                }
 
-                boolean antutu = isVisibleApp(ANTUTU_PKG_NAME);
-                boolean antutu3D = isVisibleApp(ANTUTU_3D_PKG_NAME);
-                boolean pcMark = isVisibleApp(PCMARK_PKG_NAME);
-                boolean geekbench = isVisibleApp(GEEKBENCH_PKG_NAME);
-                boolean gfx = isVisibleApp(GFXBENCH_PKG_NAME);
-                boolean baseMark = isVisibleApp(BASEMARK_PKG_NAME);
-                initCpusets();
-                if (antutu || antutu3D || pcMark || geekbench || gfx || baseMark) {
+                if (foreground) {
                     Log.d(TAG, "bench app is onForeground");
-                    hidePoorApp();
+                    if (!bHasChangeToPerformance) {
+                        getCpusets();
+                    }
+                    enablePoorApp(BENCH_TEST_APP_DISABLE);
                     performanceOptimization(true);
+                    bHasChangeToPerformance = true;
                 } else {
-                    Log.d(TAG, "bench app is not onForeground and set default param");
-                    unHidePoorApp();
-                    performanceOptimization(false);
+                    Log.d(TAG, "bench app is onBackground");
+                    enablePoorApp(BENCH_TEST_APP_ENABLE);
+                    if (bHasChangeToPerformance) {
+                        performanceOptimization(false);
+                        bHasChangeToPerformance = false;
+                    }
                 }
             }
         }
@@ -189,21 +177,15 @@ public class DroidLogicBenchService extends Service {
     private void performanceOptimization(boolean status) {
         if (mSCM != null) {
             if (status) {
-                mSCM.writeSysFs("/sys/class/thermal/thermal_zone0/mode", "disabled");
-                mSCM.writeSysFs("/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor", "performance");
-                mSCM.writeSysFs("/sys/class/devfreq/fe400000.valhall/governor", "performance");
-                mSCM.writeSysFs("/sys/class/mpgpu/scale_mode", "3");
-                mSCM.writeSysFs("/dev/cpuset/background/cpus", "1");
-                mSCM.writeSysFs("/dev/cpuset/system-background/cpus", "1");
-                mSCM.writeSysFs("/dev/cpuset/restricted/cpus", "1");
+                for (String key : CpusetmapPerformance.keySet()) {
+                    mSCM.writeSysFs(key,  CpusetmapPerformance.get(key));
+                    Log.d(TAG, "Set " + key + " is " + CpusetmapPerformance.get(key));
+                }
             } else {
-                mSCM.writeSysFs("/sys/class/thermal/thermal_zone0/mode", mThermal);
-                mSCM.writeSysFs("/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor", mCpufreq);
-                mSCM.writeSysFs("/sys/class/devfreq/fe400000.valhall/governor", mDevfreq);
-                mSCM.writeSysFs("/sys/class/mpgpu/scale_mode", mMpgpu);
-                mSCM.writeSysFs("/dev/cpuset/background/cpus", mBackground);
-                mSCM.writeSysFs("/dev/cpuset/system-background/cpus", mSystem);
-                mSCM.writeSysFs("/dev/cpuset/restricted/cpus", mRestricted);
+                for (String key : CpusetmapDefault.keySet()) {
+                    mSCM.writeSysFs(key,  CpusetmapDefault.get(key));
+                    Log.d(TAG, "Set " + key + " is " + CpusetmapDefault.get(key));
+                }
             }
         }
     }
