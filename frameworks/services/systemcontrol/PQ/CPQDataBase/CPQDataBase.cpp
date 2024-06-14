@@ -165,31 +165,28 @@ bool CPQDataBase::PrepareTable(void)
 bool CPQDataBase::LoadOSDBin(void)
 {
     static const char *OSD_bin_path = NULL;
-    OSD_bin_path = CConfigFile::GetInstance()->GetString(CFG_SECTION_PQ, CFG_PQ_UI_SETTING_CFG_PATH, PQ_OSD_BIN_PATH);
 
+    OSD_bin_path = CConfigFile::GetInstance()->GetString(CFG_SECTION_PQ, CFG_PQ_UI_SETTING_PATH, PARAM_OSD_BIN_PATH);
     if (OSD_bin_path == NULL) {
         SYS_LOGE("%s sql path is NULL\n",__FUNCTION__);
         return false;
     }
     SYS_LOGD("%s Load OSD Bin: %s\n",__FUNCTION__, OSD_bin_path);
 
-    if (CConfigFile::GetInstance()->isFileExist(OSD_bin_path)) {
-        CFile FilePq(OSD_bin_path);
-        if (FilePq.copyTo(PQ_OSD_BIN_PATH) != 0) {
-            SYS_LOGE("copy file to %s error!\n", PQ_OSD_BIN_PATH);
+    if (!CConfigFile::GetInstance()->isFileExist(OSD_bin_path)) {
+        if (CConfigFile::GetInstance()->isFileExist(PQ_OSD_BIN_DEFAULT_PATH_0)) {
+            CFile FilePq(PQ_OSD_BIN_DEFAULT_PATH_0);
+            if (FilePq.copyTo(OSD_bin_path) != 0) {
+                SYS_LOGE("copy %s to %s error!\n", PQ_OSD_BIN_DEFAULT_PATH_0, OSD_bin_path);
+                return false;
+            }
+        } else {
+            SYS_LOGE("no %s\n", PQ_OSD_BIN_DEFAULT_PATH_0);
+            return false;
         }
-    } else if (CConfigFile::GetInstance()->isFileExist(PQ_OSD_BIN_DEFAULT_PATH_0)) {
-        CFile FilePq(PQ_OSD_BIN_DEFAULT_PATH_0);
-        if (FilePq.copyTo(PQ_OSD_BIN_PATH) != 0) {
-            SYS_LOGE("copy file to %s error!\n", PQ_OSD_BIN_PATH);
-        }
-    } else if (CConfigFile::GetInstance()->isFileExist(PQ_OSD_BIN_PATH)) {
-        SYS_LOGD("has %s\n", PQ_OSD_BIN_PATH);
-    } else {
-        SYS_LOGE("no %s and no %s\n", OSD_bin_path, PQ_OSD_BIN_DEFAULT_PATH_0);
     }
 
-    FILE *pFile = fopen(PQ_OSD_BIN_PATH, "r");
+    FILE *pFile = fopen(OSD_bin_path, "r");
     if (pFile == NULL) {
         SYS_LOGE("%s pFile is NULL, no OSD bin: %s access! retun to load default Table\n", __FUNCTION__, OSD_bin_path);
         return false;
