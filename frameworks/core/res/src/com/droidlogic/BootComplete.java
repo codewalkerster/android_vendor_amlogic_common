@@ -50,6 +50,9 @@ public class BootComplete extends BroadcastReceiver {
     private static final String DROID_SETTINGS_PACKAGE = "com.droidlogic.tv.settings";
     private static final String DROID_SETTINGS_ENCRYPTKEEPERFBE = "com.droidlogic.tv.settings.CryptKeeperFBE";
 
+    private static final String SOUNDBAR_MODE = "soundbar_mode";
+    private static final String PROPERTY_SOUNDBAR_MODE_SUPPORTED = "ro.vendor.platform.support.soundbar";
+
     private boolean mHasTvUiMode;
 
     private static final int MSG_SHOW_USB_POWER_STATUS = 0;
@@ -71,6 +74,12 @@ public class BootComplete extends BroadcastReceiver {
         if (SettingsPref.getFirstRun(context)) {
             Log.i(TAG, "first running: " + context.getPackageName());
             SettingsPref.setFirstRun(context, false);
+        }
+
+        boolean soundbarSupported = getBooleanProperty(PROPERTY_SOUNDBAR_MODE_SUPPORTED, false);
+        Log.i(TAG, "soundbar supported:" + soundbarSupported);
+        if (Settings.Global.getInt(resolver, SOUNDBAR_MODE, -1) == -1) {
+            Settings.Global.putInt(resolver, SOUNDBAR_MODE, soundbarSupported ? 1 : 0);
         }
 
         //use to check whether disable camera or not
