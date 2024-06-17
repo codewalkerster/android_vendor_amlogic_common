@@ -351,6 +351,7 @@ public:
     int getMultipointGammaMode(void);
     int setSDR2HDR(int onoff);
     int getSDR2HDR(void);
+    bool hasPqCaseFunc(int type);
     //PQ end
 
     //memc

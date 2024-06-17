@@ -5100,4 +5100,49 @@ public class SystemControlManager {
         public int fb1FbBits;
         public boolean fb1TripleEnable;//Triple Buffer enable or not*/
     }
+
+    public enum PqFuncCase {
+        PQ_CASE_FUNC_UNKNOWN(-1),
+        PQ_CASE_FUNC_GLOBAL_DIMMING(0),
+        PQ_CASE_FUNC_LOCAL_DIMMING(1),
+        PQ_CASE_FUNC_DEBLOCK(2),
+        PQ_CASE_FUNC_DEMOSQUITO(3);
+
+        private int val;
+
+        PqFuncCase(int val) {
+            this.val = val;
+        }
+
+        public static PqFuncCase valueOf(int value) {
+            for (PqFuncCase it : PqFuncCase.values()) {
+                if (it.toInt() == value) {
+                    return it;
+                }
+            }
+            return PqFuncCase.PQ_CASE_FUNC_UNKNOWN;
+        }
+
+            public int toInt() {
+            return this.val;
+        }
+    }
+
+    /**
+    * @Function: hasPqCaseFunc()
+    * @Description: get pq case function enable/disable to judge picture ui hatch or not
+    * @Parameters: type--case that need get function enable/disable
+    * @Parameters: return 0 is disable, 1 is enable
+    */
+    public boolean hasPqCaseFunc(PqFuncCase type) {
+        synchronized (mLock) {
+        try {
+                Log.i(TAG, "run hasPqCaseFunc");
+                return (mProxy.hasPqCaseFunc(type.toInt()) == Result.OK);
+            } catch (Exception e) {
+                Log.e(TAG, "hasPqCaseFunc:" + e);
+            }
+        }
+        return false;
+    }
 }

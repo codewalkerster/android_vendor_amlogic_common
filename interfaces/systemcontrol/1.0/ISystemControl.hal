@@ -887,6 +887,9 @@ interface ISystemControl {
 
   getSDR2HDR()
       generates (int32_t ret);
+
+  hasPqCaseFunc (int32_t type)
+      generates (Result result);
 //PD END
   //static frame
   setStaticFrameEnable(int32_t enable, int32_t isSave)

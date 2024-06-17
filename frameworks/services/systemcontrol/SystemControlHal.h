@@ -356,6 +356,8 @@ class SystemControlHal : public ISystemControl, public SystemControlNotify, publ
 
     Return<int32_t> setColorGamutMode(int32_t isEnable, int32_t is_save) override;
     Return<int32_t> getColorGamutMode(void) override;
+
+    Return<Result> hasPqCaseFunc(int32_t type) override;
     //PQ end
 
     //memc

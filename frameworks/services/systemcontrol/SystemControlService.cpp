@@ -2970,6 +2970,17 @@ int SystemControlService::setVideoScreenColorByVT(int window, int Color, int fre
     return -1;
 }
 
+bool SystemControlService::hasPqCaseFunc(int type)
+{
+    int ret = -1;
+    if (pCPQControl != NULL) {
+        SYS_LOGI("%s:run hasPqCaseFunc\n", __FUNCTION__);
+        ret = pCPQControl->HasPqCaseFunc((pq_case_func_e)type);
+    }
+
+    return ret;
+}
+
 bool SystemControlService::getIsMultiDemux()
 {
     if (access("/sys/class/stb/demux0_source", F_OK) == 0) {

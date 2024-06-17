@@ -1133,4 +1133,12 @@ typedef enum _CHANNEL_TYPE {
     BLUE_CH,
     MAX_CH,
 } CHANNEL_TYPE;
+
+typedef enum _pq_case_func_e {
+    PQ_CASE_FUNC_GLOBAL_DIMMING = 0,
+    PQ_CASE_FUNC_LOCAL_DIMMING,
+    PQ_CASE_FUNC_DEBLOCK,
+    PQ_CASE_FUNC_DEMOSQUITO,
+    PQ_CASE_FUNC_MAX,
+} pq_case_func_e;
 #endif

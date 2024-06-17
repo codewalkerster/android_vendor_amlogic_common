@@ -1636,6 +1636,10 @@ int SystemControlClient::getSDR2HDR(void) {
     return mSysCtrl->getSDR2HDR();
 }
 
+bool SystemControlClient::hasPqCaseFunc(int type) {
+    return (mSysCtrl->hasPqCaseFunc(type) == Result::OK);
+}
+
 //PQ end
 
 //static frame

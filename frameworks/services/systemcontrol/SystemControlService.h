@@ -368,6 +368,7 @@ public:
     int getScreenColorForSignalChange();
     int setVideoScreenColor(int color);
     int setVideoScreenColorByVT(int window, int Color, int frequency);
+    bool hasPqCaseFunc(int type);
 
     bool getIsMultiDemux();
     //FBC

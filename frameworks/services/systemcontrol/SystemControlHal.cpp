@@ -1816,6 +1816,15 @@ Return<int32_t> SystemControlHal::getSDR2HDR(void) {
     return mSysControl->getSDR2HDR();
 }
 
+Return<Result> SystemControlHal::hasPqCaseFunc(int32_t type) {
+    SYS_LOGD("%s", __FUNCTION__);
+
+    if (mSysControl->hasPqCaseFunc(type)) {
+        return Result::OK;
+    }
+    return Result::FAIL;
+}
+
 //PQ end
 
 //static frame

@@ -7968,6 +7968,23 @@ int CPQControl::SetFlagByCfg(void)
     return 0;
 }
 
+int CPQControl::HasPqCaseFunc(pq_case_func_e type)
+{
+    bool func_en = true;
+
+    switch (type) {
+        default:                             func_en = true;                          break;
+        case PQ_CASE_FUNC_GLOBAL_DIMMING:    func_en = false;                         break;
+        case PQ_CASE_FUNC_LOCAL_DIMMING:     func_en = HasLocalDimming();             break;
+        case PQ_CASE_FUNC_DEBLOCK:           func_en = mbCpqCfg_deblock_enable;       break;
+        case PQ_CASE_FUNC_DEMOSQUITO:        func_en = mbCpqCfg_demoSquito_enable;    break;
+    }
+
+    SYS_LOGD("%s type:%d, func_en:%d\n", __FUNCTION__, type, func_en);
+
+    return func_en;
+}
+
 int CPQControl::SetPLLValues(source_input_param_t source_input_param)
 {
     am_regs_t regs;
