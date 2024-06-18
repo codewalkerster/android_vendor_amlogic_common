@@ -31,8 +31,10 @@
 #include <iostream>
 #include <string>
 
+typedef long time64_t;
+
 std::string getTimestamp(void) {
-    time_t rawTime;
+    time64_t rawTime;
     struct tm* timeInfo;
     char buffer[80];
 
@@ -63,7 +65,7 @@ void writeHexData(int fd, const std::vector<uint8_t>& data, size_t startIdx = 0)
     std::ostringstream time;
 
     auto now = std::chrono::system_clock::now();
-    auto timestamp = std::chrono::system_clock::to_time_t(now);
+    auto timestamp = (time64_t)std::chrono::system_clock::to_time_t(now);
     std::tm* localTime = std::localtime(&timestamp);
     char buffer[128];
 
