@@ -45,7 +45,6 @@ public class HdmiCecManager {
     private static final AudioDeviceAttributes DEVICE_HDMI_OUT = new AudioDeviceAttributes(
             AudioDeviceAttributes.ROLE_OUTPUT, AudioDeviceInfo.TYPE_HDMI, "");
 
-
     public static final int ON = 1;
     public static final int OFF = 0;
 
@@ -56,8 +55,11 @@ public class HdmiCecManager {
     private HdmiTvClient mTvClient;
     private HdmiClient mAudioSystemClient;
 
+    private SystemControlManager mSystemControlManager;
+
     public HdmiCecManager(Context context) {
         mContext = context;
+        mSystemControlManager = SystemControlManager.getInstance();
         mHdmiControlManager = context.getSystemService(HdmiControlManager.class);
         if (mHdmiControlManager == null) {
             Log.e(TAG, "cec service does not exist, no cec settings is needed!");
@@ -146,10 +148,11 @@ public class HdmiCecManager {
 
     public void enableOneTouchPlay(boolean value) {
         writeValue(SETTINGS_ONE_TOUCH_PLAY, value);
+        mSystemControlManager.setProperty(PERSIST_HDMI_CEC_ONE_TOUCH_PLAY, String.valueOf(value ? ON : OFF));
     }
 
     public void enableAutoPowerOff(boolean value) {
-        //writeValue(SETTINGS_AUTO_POWER_OFF, value);
+        mSystemControlManager.setProperty(PERSIST_HDMI_CEC_DEVICE_AUTO_POWEROFF, String.valueOf(value ? ON : OFF));
         if (mHdmiControlManager == null) {
             return;
         }
@@ -163,7 +166,7 @@ public class HdmiCecManager {
     }
 
     public void enableAutoWakeUp(boolean value) {
-        //writeValue(SETTINGS_AUTO_WAKE_UP, value);
+        mSystemControlManager.setProperty(PERSIST_HDMI_CEC_AUTO_WAKEUP, String.valueOf(value ? ON : OFF));
         if (mHdmiControlManager == null) {
             return;
         }
@@ -171,6 +174,7 @@ public class HdmiCecManager {
     }
 
     public void enableAutoChangeLanguage(boolean value) {
+        mSystemControlManager.setProperty(PERSIST_HDMI_CEC_SET_MENU_LANGUAGE, String.valueOf(value ? ON : OFF));
         writeValue(SETTINGS_AUTO_LANGUAGE_CHANGE, value);
     }
 
