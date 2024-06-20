@@ -196,4 +196,6 @@
         <item>com.google.android.tv.remote.service</item>
     </string-array>
 
+    <!-- Default for DeviceIdleController.Constants.INACTIVE_TIMEOUT -->
+    <integer name="device_idle_inactive_to_ms">7200000</integer>
 </resources>
