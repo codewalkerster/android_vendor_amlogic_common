@@ -269,6 +269,19 @@ class SubtitleViewAdaptor {
         }
         mTextView.setTextSize(mTextSize);
         mTextView.setTextColor(mTextColor);
+        if (text != null) {
+            if (text.contains("<i>") && text.contains("</i>")) {
+                 mTextView.setTypeface(null, Typeface.ITALIC);
+                text = text.replaceAll("<.*?>","");
+                Log.d(TAG, "find italic style, text:" + text);
+            } else if (text.contains("<b>") && text.contains("</b>")) {
+                mTextView.setTypeface(null, Typeface.BOLD);
+                text = text.replaceAll("<.*?>","");
+                Log.d(TAG, "find bold style,text:" + text);
+            } else {
+                 mTextView.setTypeface(null, Typeface.NORMAL);
+            }
+        }
 
        RelativeLayout.LayoutParams tt = new RelativeLayout.LayoutParams(mTextView.getLayoutParams());
        tt.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);

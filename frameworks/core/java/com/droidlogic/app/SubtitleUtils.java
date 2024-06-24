@@ -22,6 +22,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.*;
 import java.nio.charset.Charset;
+import com.ibm.icu.text.CharsetDetector;
+import com.ibm.icu.text.CharsetMatch;
 
 
 import android.util.Log;
@@ -53,7 +55,7 @@ public class SubtitleUtils {
         private String mSuffixInSubtitleType = "";
 
         private String mCharset = null;
-        private CharsetDetector mCharDetector = new CharsetDetector();
+
         private Charset mDetectCharset = null;
         private static String systemCharset = "GBK";
 
@@ -542,12 +544,8 @@ public class SubtitleUtils {
 
                     //detect non-utf charset
                     if (!isUtfCharset(mCharset)) {
-                        mDetectCharset = mCharDetector.detectCharset(new File (subName));
-                        //Log.i (TAG,"[getExtSubCharset]mDetectCharset:" + mDetectCharset);
-                        if (mDetectCharset != null) {
-                            mCharset = mDetectCharset.toString();
-                            //Log.i (TAG,"[getExtSubCharset]charset:" + mCharset);
-                        }
+                        mCharset = detectCharset(new File (subName));
+
                     }
 
                 }
@@ -649,6 +647,60 @@ public class SubtitleUtils {
         }
 
         return contents.toString();
+    }
+    public String detectCharset(File f) {
+
+        Charset charset = null;
+        int len = 0;
+        String fileDetect = null;
+
+        len = getFileSize(f);
+        //Log.i(TAG,"file size:" + len);
+        if (len <= 0) {
+            Log.e(TAG,"file is not valid!");
+            return null;
+        }
+        //use icu4j for detect the encodding of file
+         try {
+
+            BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(f));
+            return getEncode(inputStream);
+
+        } catch (FileNotFoundException e) {
+            Log.e(TAG,"FileNotFoundException!");
+            e.printStackTrace();
+            return null;
+        } catch (IOException e2) {
+           Log.e(TAG,"IOException!");
+           e2.printStackTrace();
+        }
+        return null;
+
+
+    }
+   private  String getEncode(InputStream data) throws IOException{
+          CharsetDetector detector = new CharsetDetector();
+          detector.setText(data);
+          CharsetMatch match = detector.detect();
+          String encoding = match.getName();
+          Log.d(TAG, "The Content in " + match.getName());
+          /*CharsetMatch[] matches = detector.detectAll();
+          Log.d(TAG, "All possibilities");
+          for (CharsetMatch m : matches) {
+             Log.d(TAG, "CharsetName:" + m.getName() + " Confidence:"
+             + m.getConfidence());
+          }*/
+          return encoding;
+   }
+
+
+    public  int getFileSize(File file) {
+        if (!file.exists() || !file.isFile()) {
+            Log.e(TAG,"file is not exist!!");
+            return 0;
+        }
+        return (int)file.length();
+
     }
 
 }
