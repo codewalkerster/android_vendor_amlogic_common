@@ -838,6 +838,14 @@ private:
     bool mbCpqCfg_bluestretch_enable                    = false;
     bool mbCpqCfg_chroma_coring_enable                  = false;
     bool mbCpqCfg_dongle_low_power_enable               = false;
+    bool mbCpqCfg_color_range_mode_enable               = false;
+    bool mbCpqCfg_color_space_enable                    = false;
+    bool mbCpqCfg_global_dimming_enable                 = false;
+    bool mbCpqCfg_super_resolution_enable               = false;
+    bool mbCpqCfg_film_mode_enable                      = false;
+    bool mbCpqCfg_ui_picture_mode_enable                = false;
+    bool mbCpqCfg_ui_backlight_enable                   = false;
+    bool mbCpqCfg_ui_sharpness_enable                   = false;
 
     bool mInitialized                                   = false;
 

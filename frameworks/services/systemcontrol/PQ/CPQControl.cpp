@@ -7955,6 +7955,64 @@ int CPQControl::SetFlagByCfg(void)
         mbCpqCfg_dongle_low_power_enable = false;
     }
 
+    config_value = mPQConfigFile->GetString(CFG_SECTION_PQ, CFG_HDMI_COLOR_RANGE_MODE, "disable");
+    if (strcmp(config_value, "enable") == 0) {
+        mbCpqCfg_color_range_mode_enable = true;
+    } else {
+        mbCpqCfg_color_range_mode_enable = false;
+    }
+
+    config_value = mPQConfigFile->GetString(CFG_SECTION_PQ, CFG_COLOR_SPACE, "disable");
+    if (strcmp(config_value, "enable") == 0) {
+        mbCpqCfg_color_space_enable = true;
+    } else {
+        mbCpqCfg_color_space_enable = false;
+    }
+
+    config_value = mPQConfigFile->GetString(CFG_SECTION_PQ, CFG_GLOBAL_DIMMING, "disable");
+    if (strcmp(config_value, "enable") == 0) {
+        mbCpqCfg_global_dimming_enable = true;
+    } else {
+        mbCpqCfg_global_dimming_enable = false;
+    }
+
+    config_value = mPQConfigFile->GetString(CFG_SECTION_PQ, CFG_SUPER_RESOLUTION, "disable");
+    if (strcmp(config_value, "enable") == 0) {
+        mbCpqCfg_super_resolution_enable = true;
+    } else {
+        mbCpqCfg_super_resolution_enable = false;
+    }
+
+    config_value = mPQConfigFile->GetString(CFG_SECTION_PQ, CFG_FILM_MODE, "disable");
+    if (strcmp(config_value, "enable") == 0) {
+        mbCpqCfg_film_mode_enable = true;
+    } else {
+        mbCpqCfg_film_mode_enable = false;
+    }
+
+    //special ui display/hatch cfg start
+    config_value = mPQConfigFile->GetString(CFG_SECTION_PQ, CFG_UI_PICTURE_MODE, "disable");
+    if (strcmp(config_value, "enable") == 0) {
+        mbCpqCfg_ui_picture_mode_enable = true;
+    } else {
+        mbCpqCfg_ui_picture_mode_enable = false;
+    }
+
+    config_value = mPQConfigFile->GetString(CFG_SECTION_PQ, CFG_UI_BACKLIGHT, "disable");
+    if (strcmp(config_value, "enable") == 0) {
+        mbCpqCfg_ui_backlight_enable = true;
+    } else {
+        mbCpqCfg_ui_backlight_enable = false;
+    }
+
+    config_value = mPQConfigFile->GetString(CFG_SECTION_PQ, CFG_UI_SHARPNESS, "disable");
+    if (strcmp(config_value, "enable") == 0) {
+        mbCpqCfg_ui_sharpness_enable = true;
+    } else {
+        mbCpqCfg_ui_sharpness_enable = false;
+    }
+    //special ui display/hatch cfg end
+
     vpp_pq_ctrl_t amvecmConfigVal;
     amvecmConfigVal.length = 14;//this is the count of pq_ctrl_s option
     amvecmConfigVal.ptr = (long long)&pqControlVal;
@@ -7970,14 +8028,41 @@ int CPQControl::SetFlagByCfg(void)
 
 int CPQControl::HasPqCaseFunc(pq_case_func_e type)
 {
-    bool func_en = true;
+    bool func_en = false;
 
     switch (type) {
-        default:                             func_en = true;                          break;
-        case PQ_CASE_FUNC_GLOBAL_DIMMING:    func_en = false;                         break;
-        case PQ_CASE_FUNC_LOCAL_DIMMING:     func_en = HasLocalDimming();             break;
-        case PQ_CASE_FUNC_DEBLOCK:           func_en = mbCpqCfg_deblock_enable;       break;
-        case PQ_CASE_FUNC_DEMOSQUITO:        func_en = mbCpqCfg_demoSquito_enable;    break;
+        default:                             func_en = false;                             break;
+        case PQ_CASE_FUNC_PICTURE_MODE:      func_en = mbCpqCfg_ui_picture_mode_enable;   break;
+        case PQ_CASE_FUNC_BACKLIGHT:         func_en = mbCpqCfg_ui_backlight_enable;      break;
+        case PQ_CASE_FUNC_CONTRAST:          func_en = mbCpqCfg_amvecm_basic_enable;      break;
+        case PQ_CASE_FUNC_BRIGHTNESS:        func_en = mbCpqCfg_amvecm_basic_enable;      break;
+        case PQ_CASE_FUNC_SATURATION:        func_en = mbCpqCfg_amvecm_basic_enable;      break;
+        case PQ_CASE_FUNC_HUE:               func_en = mbCpqCfg_amvecm_basic_enable;      break;
+        case PQ_CASE_FUNC_SHARPNESS:         func_en = mbCpqCfg_ui_sharpness_enable;      break;
+        case PQ_CASE_FUNC_ASPECT_RATIO:      func_en = mbCpqCfg_display_overscan_enable;  break;
+        case PQ_CASE_FUNC_AI_PQ:             func_en = hasAipqFunc();                     break;
+        case PQ_CASE_FUNC_AI_COLOR:          func_en = hasAiColorFunc();                  break;
+        case PQ_CASE_FUNC_AI_SR:             func_en = hasAisrFunc();                     break;
+        case PQ_CASE_FUNC_GAMMA:             func_en = mbCpqCfg_gamma_enable;             break;
+        case PQ_CASE_FUNC_MANUAL_GAMMA:      func_en = mbCpqCfg_gamma_enable;             break;
+        case PQ_CASE_FUNC_COLOR_TEMP:        func_en = mbCpqCfg_whitebalance_enable;      break;
+        case PQ_CASE_FUNC_COLOR_MANAGEMENT:  func_en = mbCpqCfg_cm2_enable;               break;
+        case PQ_CASE_FUNC_COLOR_CUSTOMIZE:   func_en = mbCpqCfg_cm2_enable;               break;
+        case PQ_CASE_FUNC_COLOR_RANGE_MODE:  func_en = mbCpqCfg_color_range_mode_enable;  break;
+        case PQ_CASE_FUNC_COLOR_SPACE:       func_en = mbCpqCfg_color_space_enable;       break;
+        case PQ_CASE_FUNC_GLOBAL_DIMMING:    func_en = mbCpqCfg_global_dimming_enable;    break;
+        case PQ_CASE_FUNC_LOCAL_DIMMING:     func_en = HasLocalDimming();                 break;
+        case PQ_CASE_FUNC_BLACK_STRETCH:     func_en = mbCpqCfg_blackextension_enable;    break;
+        case PQ_CASE_FUNC_DNLP:              func_en = mbCpqCfg_dnlp_enable;              break;
+        case PQ_CASE_FUNC_LOCAL_CONTRAST:    func_en = mbCpqCfg_local_contrast_enable;    break;
+        case PQ_CASE_FUNC_SR:                func_en = mbCpqCfg_super_resolution_enable;  break;
+        case PQ_CASE_FUNC_DNR:               func_en = mbCpqCfg_nr_enable;                break;
+        case PQ_CASE_FUNC_DEBLOCK:           func_en = mbCpqCfg_deblock_enable;           break;
+        case PQ_CASE_FUNC_DEMOSQUITO:        func_en = mbCpqCfg_demoSquito_enable;        break;
+        case PQ_CASE_FUNC_DECONTOUR:         func_en = mbCpqCfg_smoothplus_enable;        break;
+        case PQ_CASE_FUNC_MEMC:              func_en = mbCpqCfg_memc_enable;              break;
+        case PQ_CASE_FUNC_FILM_MODE:         func_en = mbCpqCfg_film_mode_enable;         break;
+        case PQ_CASE_FUNC_RESET:             func_en = true;                              break;
     }
 
     SYS_LOGD("%s type:%d, func_en:%d\n", __FUNCTION__, type, func_en);
