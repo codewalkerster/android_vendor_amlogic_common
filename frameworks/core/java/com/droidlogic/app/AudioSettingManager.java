@@ -54,7 +54,7 @@ public class AudioSettingManager {
     public static final String AUDIO_VAD_PROPERTY_VADWAKE                   = "persist.vendor.vadwake";
 
     public static final String PROP_TUNER_AUDIO = "ro.vendor.platform.is.tv";
-    private static final String DB_ID_AUDIO_SOUNDBAR_MODE_ENABLE            = "db_id_audio_soundbar_mode_enable";
+    private static final String DB_ID_AUDIO_SOUNDBAR_MODE_ENABLE            = "soundbar_mode";
 
     public static AudioSettingManager getInstance(Context context) {
         synchronized (AudioSettingManager.class) {
