@@ -127,8 +127,6 @@
         <item>"wlan0"</item>
     </string-array>
     <bool name="config_dreamsActivatedOnSleepByDefault">true</bool>
-    <!--  Maximum number of supported users -->
-    <integer name="config_multiuserMaximumUsers">1</integer>
     <!-- Enable overlay for all location components. -->
     <bool name="config_enableNetworkLocationOverlay" translatable="false">true</bool>
     <bool name="config_enableFusedLocationOverlay" translatable="false">true</bool>
