@@ -27,6 +27,7 @@ import android.hardware.hdmi.HdmiDeviceInfo;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
 
@@ -67,7 +68,7 @@ public class AudioSettingManager {
 
     private AudioSettingManager(Context context){
         mResolver = context.getContentResolver();
-        mSettingsObserver = new SettingsObserver(new Handler());
+        mSettingsObserver = new SettingsObserver(new Handler(Looper.getMainLooper()));
         mOutputModeManager = OutputModeManager.getInstance(context);
         mSystemControlManager = SystemControlManager.getInstance();
         mAudioManager = (AudioManager) context.getSystemService(context.AUDIO_SERVICE);
