@@ -66,18 +66,18 @@ static const dongle_info dongle_registerd[]={\
     {"0640","0000","w2s","/vendor/lib/modules/w2.ko","",aml_w2s_base,"aml_w2_s",0x0,""},\
     {"0000","0000","w2u","/vendor/lib/modules/w2.ko","",aml_w2u_base,"aml_w2_u",0x0601,""},\
     {"0000","0000","w2u","/vendor/lib/modules/w2.ko","",aml_w2u_base,"aml_w2_u",0x0641,""},\
-    {"0800","0000","w2l_s","/vendor/lib/modules/w2l.ko","",aml_w2ls_base,"aml_w2l_sA",0x0,""},\
-    {"0808","0000","w2l_s","/vendor/lib/modules/w2l.ko","",aml_w2ls_base,"aml_w2l_sA",0x0,""},\
-    {"0810","0000","w2l_s","/vendor/lib/modules/w2l.ko","",aml_w2ls_base,"aml_w2l_sA",0x0,""},\
-    {"0840","0000","w2l_s","/vendor/lib/modules/w2l.ko","",aml_w2ls_base,"aml_w2l_sB",0x0,""},\
-    {"0848","0000","w2l_s","/vendor/lib/modules/w2l.ko","",aml_w2ls_base,"aml_w2l_sB",0x0,""},\
-    {"0850","0000","w2l_s","/vendor/lib/modules/w2l.ko","",aml_w2ls_base,"aml_w2l_sB",0x0,""},\
-    {"0000","0000","w2l_u","/vendor/lib/modules/w2l.ko","",aml_w2lu_base,"aml_w2l_uA",0x0801,""},\
-    {"0000","0000","w2l_u","/vendor/lib/modules/w2l.ko","",aml_w2lu_base,"aml_w2l_uA",0x0809,""},\
-    {"0000","0000","w2l_u","/vendor/lib/modules/w2l.ko","",aml_w2lu_base,"aml_w2l_uA",0x0811,""},\
-    {"0000","0000","w2l_u","/vendor/lib/modules/w2l.ko","",aml_w2lu_base,"aml_w2l_uB",0x0841,""},\
-    {"0000","0000","w2l_u","/vendor/lib/modules/w2l.ko","",aml_w2lu_base,"aml_w2l_uB",0x0849,""},\
-    {"0000","0000","w2l_u","/vendor/lib/modules/w2l.ko","",aml_w2lu_base,"aml_w2l_uB",0x0851,""},\
+    {"0800","0000","w2l_s","/vendor/lib/modules/w2l.ko","",aml_w2ls_base,"aml_w2l_s",0x0,""},\
+    {"0808","0000","w2l_s","/vendor/lib/modules/w2l.ko","",aml_w2ls_base,"aml_w2l_s",0x0,""},\
+    {"0810","0000","w2l_s","/vendor/lib/modules/w2l.ko","",aml_w2ls_base,"aml_w2l_s",0x0,""},\
+    {"0840","0000","w2l_s","/vendor/lib/modules/w2l.ko","",aml_w2ls_base,"aml_w2l_s",0x0,""},\
+    {"0848","0000","w2l_s","/vendor/lib/modules/w2l.ko","",aml_w2ls_base,"aml_w2l_s",0x0,""},\
+    {"0850","0000","w2l_s","/vendor/lib/modules/w2l.ko","",aml_w2ls_base,"aml_w2l_s",0x0,""},\
+    {"0000","0000","w2l_u","/vendor/lib/modules/w2l.ko","",aml_w2lu_base,"aml_w2l_u",0x0801,""},\
+    {"0000","0000","w2l_u","/vendor/lib/modules/w2l.ko","",aml_w2lu_base,"aml_w2l_u",0x0809,""},\
+    {"0000","0000","w2l_u","/vendor/lib/modules/w2l.ko","",aml_w2lu_base,"aml_w2l_u",0x0811,""},\
+    {"0000","0000","w2l_u","/vendor/lib/modules/w2l.ko","",aml_w2lu_base,"aml_w2l_u",0x0841,""},\
+    {"0000","0000","w2l_u","/vendor/lib/modules/w2l.ko","",aml_w2lu_base,"aml_w2l_u",0x0849,""},\
+    {"0000","0000","w2l_u","/vendor/lib/modules/w2l.ko","",aml_w2lu_base,"aml_w2l_u",0x0851,""},\
     {"a962","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=../../etc/wifi/40181/fw_bcm40181a2.bin nvram_path=../../etc/wifi/40181/nvram.txt",no_base,"bcm6210",0x0,"/vendor/etc/wifi/40181/fw_bcm40181a2"},\
     {"0000","0000","wlan_mt76x8_usb","/vendor/lib/modules/wlan_mt76x8_usb.ko","sta=wlan ap=ap p2p=p2p",no_base,"mtk7668u",0x7668,""},\
     {"4335","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=../../etc/wifi/6335/fw_bcm4339a0_ag.bin nvram_path=../../etc/wifi/6335/nvram.txt",no_base,"bcm6335",0x0,"/vendor/etc/wifi/6335/fw_bcm4339a0_ag"},\
