@@ -2895,6 +2895,9 @@ void CPQdb::PQ_GetPqDbMatchType(database_attribute_t *DbAttribute) {
     } else if (chipVer == "s905x5m") {
         SYS_LOGD("%s this project is tv s7d(%s)\n", __FUNCTION__, chipVer.c_str());
         mDbMatchType = MATCH_TYPE_MBOX_S7D;
+    } else if (chipVer == "s905x5") {
+        SYS_LOGD("%s this project is tv s6(%s)\n", __FUNCTION__, chipVer.c_str());
+        mDbMatchType = MATCH_TYPE_MBOX_S6;
     } else {
         SYS_LOGD("%s this project is others\n", __FUNCTION__);
     }
@@ -3358,6 +3361,7 @@ String8 CPQdb::GetTableName(const char *GeneralTableName, source_input_param_t s
         break;
     case MATCH_TYPE_MBOX_S5:
     case MATCH_TYPE_MBOX_S7D:
+    case MATCH_TYPE_MBOX_S6:
         if ((strcmp(GeneralTableName, "GeneralSharpness0FixedTable") == 0)
             || (strcmp(GeneralTableName, "GeneralSharpness0VariableTable") == 0)
             || (strcmp(GeneralTableName, "GeneralSharpness1FixedTable") == 0)

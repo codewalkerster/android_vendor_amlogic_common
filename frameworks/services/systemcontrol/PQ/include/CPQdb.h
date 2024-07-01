@@ -108,6 +108,7 @@ typedef enum code_db_match_type_e {
     MATCH_TYPE_MBOX_S5,  //s928x
     MATCH_TYPE_MBOX_T3X, //t968d4
     MATCH_TYPE_MBOX_S7D, //s905x5m
+    MATCH_TYPE_MBOX_S6,  //s905x5
     MATCH_TYPE_MAX,
 } code_db_match_type_t;
 

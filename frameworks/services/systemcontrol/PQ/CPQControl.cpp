@@ -9853,7 +9853,8 @@ output_type_t CPQControl::MapDbTvoutWithIOResolution(int inputFrameHeight, int o
     SYS_LOGD("%s inputFrameHeight %d outputFrameHeight %d\n", __FUNCTION__, inputFrameHeight, outputFrameHeight);
 
     if (mPQdb->mDbMatchType == MATCH_TYPE_MBOX_S5 ||
-        mPQdb->mDbMatchType == MATCH_TYPE_MBOX_S7D) {
+        mPQdb->mDbMatchType == MATCH_TYPE_MBOX_S7D ||
+        mPQdb->mDbMatchType == MATCH_TYPE_MBOX_S6) {
         int index_in = 0, index_out = 0, table_type = 0;
 
         for (int i = 0; i < RESOLUTION_MAX; i++) { //pick up input index
