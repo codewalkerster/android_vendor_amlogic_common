@@ -816,6 +816,8 @@ Return<void> SystemControlHal::resolveResolutionValue(const hidl_string& mode, r
 }
 
 Return<void> SystemControlHal::setCallback(const sp<ISystemControlCallback>& callback) {
+    AutoMutex _l(mLock);
+
     if (callback != nullptr) {
         int cookie = -1;
         int clientSize = mClients.size();
