@@ -159,6 +159,11 @@ public class BluetoothAutoPairReceiver extends BroadcastReceiver {
             return false;
         else
             return true;*/
+        boolean isAutoPairCustomization = SystemProperties.getBoolean("sys.vendor.remote.autopair.customization", false);
+        if (isAutoPairCustomization) {
+            Log.d(TAG, "used oem autoPair solution instead of AML");
+            return false;
+        }
 
         String remote_type = SystemProperties.get("sys.vendor.remote.type", DEFAULT_REMOTE_TYPE);
         if (!remote_type.contains("BT")) {

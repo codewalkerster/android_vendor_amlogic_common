@@ -360,6 +360,13 @@ public class DialogBluetoothService extends Service {
     @Override
     public void onCreate() {
         Log.d(TAG, "Service onCreate");
+
+        boolean isAutoPairCustomization = SystemProperties.getBoolean("sys.vendor.remote.autopair.customization", false);
+        if (isAutoPairCustomization) {
+            Log.d(TAG, "used oem autoPair solution instead of AML");
+            return;
+        }
+
         mContext = this;
         mHandler = new Handler();
         initializeBTManager();
