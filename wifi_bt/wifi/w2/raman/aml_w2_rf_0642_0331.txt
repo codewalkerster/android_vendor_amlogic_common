@@ -174,22 +174,22 @@ second_offset_power_wf1_5780=0x00
 
 #txt_shift_value for board gap
 txt_shift_value_wf0_2g_l=0x1f
-txt_shift_value_wf0_2g_m=0x1f
+txt_shift_value_wf0_2g_m=0x00
 txt_shift_value_wf0_2g_h=0x1f
 txt_shift_value_wf0_5200=0x00
-txt_shift_value_wf0_5300=0x01
-txt_shift_value_wf0_5530=0x1f
-txt_shift_value_wf0_5660=0x1e
-txt_shift_value_wf0_5780=0x1e
+txt_shift_value_wf0_5300=0x00
+txt_shift_value_wf0_5530=0x00
+txt_shift_value_wf0_5660=0x1f
+txt_shift_value_wf0_5780=0x1f
 
-txt_shift_value_wf1_2g_l=0x1e
-txt_shift_value_wf1_2g_m=0x1e
+txt_shift_value_wf1_2g_l=0x1f
+txt_shift_value_wf1_2g_m=0x1f
 txt_shift_value_wf1_2g_h=0x1f
-txt_shift_value_wf1_5200=0x00
-txt_shift_value_wf1_5300=0x1f
+txt_shift_value_wf1_5200=0x02
+txt_shift_value_wf1_5300=0x00
 txt_shift_value_wf1_5530=0x1e
-txt_shift_value_wf1_5660=0x1e
-txt_shift_value_wf1_5780=0x1f
+txt_shift_value_wf1_5660=0x01
+txt_shift_value_wf1_5780=0x01
 
 #use pmu in txt:0, use pmu in efuse:1
 pmu_efuse_en=1
