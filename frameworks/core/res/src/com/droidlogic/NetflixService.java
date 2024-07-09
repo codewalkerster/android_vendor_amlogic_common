@@ -29,6 +29,7 @@ import android.media.AudioDeviceCallback;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.media.AudioFormat;
+import android.media.AudioSystem;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -105,9 +106,7 @@ public class NetflixService extends Service {
     private static final int UI_AUDIO_DELAY_OFFSET_OTT_DOLBY = 70;
     private static final int UI_AUDIO_DELAY_OFFSET_OTT_PCM = 75;
     private static final int DEVICE_CLEANUP_TIMEOUT=5000;
-    private static boolean atmosSupported = false;
     private static boolean atmosSupportedByConfig = false;
-    private static boolean dolbySupported = false;
     private boolean mIsNetflixFg = false;
     private boolean mIsYoutubeFg = false;
     private boolean hasMS12 = false;
@@ -145,25 +144,11 @@ public class NetflixService extends Service {
             switch (surround) {
                 case DroidAudioManager.DIGITAL_AUDIO_FORMAT_AUTO:
                 case DroidAudioManager.DIGITAL_AUDIO_FORMAT_PASSTHROUGH:
-                    Log.i(TAG, "onChange auto/passthrough ATMOS: " + atmosSupported);
+                    Log.i(TAG, "onChange auto/passthrough");
                     setNrdpCapabilitiesIfNeed(NRDP_AUDIO_PLATFORM_CAP, true);
-                    setAtmosEnabled(atmosSupported);
-                    if (hasMS12) {
-                        setUiAudioBufferDelayOffset(dolbySupported);
-                    }
-                    break;
                 case DroidAudioManager.DIGITAL_AUDIO_FORMAT_MANUAL:
-                    String subformat = Settings.Global.getString(mContext.getContentResolver(), DroidAudioManager.DIGITAL_AUDIO_SUBFORMAT);
-                    Log.i(TAG, "onChange manual subformat: " + subformat);
-                    setAtmosEnabled(subformat.contains(AudioFormat.ENCODING_E_AC3_JOC + ""));
-                    if (hasMS12) {
-                        setUiAudioBufferDelayOffset(dolbySupported);
-                    }
-                    break;
                 case DroidAudioManager.DIGITAL_AUDIO_FORMAT_PCM:
-                    if (hasMS12) {
-                        setUiAudioBufferDelayOffset(false);
-                    }
+                    refreshAudioCapabilities(false);
                     break;
                 default:
                     Log.d(TAG, "error surround format");
@@ -252,7 +237,7 @@ public class NetflixService extends Service {
                                 deviceInfo.getType() == AudioDeviceInfo.TYPE_HDMI_EARC ||
                                 deviceInfo.getType() == AudioDeviceInfo.TYPE_WIRED_HEADPHONES)) {
                     Log.d(TAG, (state ? "connect" : "disconnect") + " Audio device: " + deviceInfo.getType());
-                    refreshAudioCapabilities(false, state);
+                    refreshAudioCapabilities(false);
                     return;
                 }
             }
@@ -299,7 +284,7 @@ public class NetflixService extends Service {
         Log.d(TAG, "atmosSupportedByConfig = " + atmosSupportedByConfig);
         mAudioManagerAudioDeviceCallback = new AudioManagerAudioDeviceCallback();
         mAudioManager.registerAudioDeviceCallback(mAudioManagerAudioDeviceCallback, null);
-        refreshAudioCapabilities();
+        refreshAudioCapabilities(true);
 
         updateHdrSettings();
         mSettingsObserver = new SettingsObserver(new Handler());
@@ -635,24 +620,32 @@ public class NetflixService extends Service {
         return false;
     }
 
-    private void refreshAudioCapabilities() {
-        refreshAudioCapabilities(true, false);
-    }
-    private void refreshAudioCapabilities(boolean init, boolean state) {
+    private void refreshAudioCapabilities(boolean init) {
         boolean isTv = DroidLogicUtils.isTv();
+        boolean state;
+        String hdmiEncodings;
         int surround = mDroidAudioManager.getDigitalAudioFormatOut();
         Log.i(TAG, "refreshAudioCapabilities: " + ", isTv:" + isTv + ", surround:" +
                 DroidAudioManager.audioFormatOutputToString(surround) +
                 "isSoundbar: " + DroidLogicUtils.isSoundbar());
 
-        String hdmiEncodings = mAudioManager.getParameters("hdmi_encodings");
-
-        atmosSupported = hdmiEncodings.contains("atmos");
-        dolbySupported = hdmiEncodings.contains("ac3");
-
         if (isTv) {
-            // For arc/earc, After disconnecting arc, it need to be configured as the default value in the json file.
-            setAtmosEnabled(state? atmosSupported : atmosSupportedByConfig);
+            if (DroidAudioManager.DIGITAL_AUDIO_FORMAT_MANUAL == surround) {
+                String subformat = Settings.Global.getString(mContext.getContentResolver(), DroidAudioManager.DIGITAL_AUDIO_SUBFORMAT);
+                Log.i(TAG, "onChange manual subformat: " + subformat);
+                setAtmosEnabled(subformat.contains(AudioFormat.ENCODING_E_AC3_JOC + ""));
+            } else {
+                state = (AudioSystem.DEVICE_STATE_AVAILABLE == AudioSystem.getDeviceConnectionState(AudioSystem.DEVICE_OUT_HDMI_ARC, ""))
+                    || (AudioSystem.DEVICE_STATE_AVAILABLE == AudioSystem.getDeviceConnectionState(AudioSystem.DEVICE_OUT_HDMI_EARC, ""));
+
+                Log.i(TAG, "Arc/eArc state: " + state);
+
+                hdmiEncodings = mAudioManager.getParameters("hdmi_encodings");
+
+                // For arc/earc, After disconnecting arc, it need to be configured as the default value in the json file.
+                setAtmosEnabled(state? hdmiEncodings.contains("atmos") : atmosSupportedByConfig);
+            }
+
             setUiAudioBufferDelayOffsetTv();
         } else if (DroidLogicUtils.isSoundbar()) {
             if (init) {
@@ -660,11 +653,26 @@ public class NetflixService extends Service {
                 Log.i(TAG,"Soundbar mode, set amtos enable");
             }
         } else {
+            state = AudioSystem.DEVICE_STATE_AVAILABLE == AudioSystem.getDeviceConnectionState(AudioSystem.DEVICE_OUT_HDMI, "");
+
+            Log.i(TAG, "DEVICE_OUT_HDMI state: " + state);
+
+            hdmiEncodings = mAudioManager.getParameters("hdmi_encodings");
+
             if ((init || state) && (DroidAudioManager.DIGITAL_AUDIO_FORMAT_AUTO == surround
-                || DroidAudioManager.DIGITAL_AUDIO_FORMAT_PASSTHROUGH == surround) ) {
-                setAtmosEnabled(atmosSupported);
+                || DroidAudioManager.DIGITAL_AUDIO_FORMAT_PASSTHROUGH == surround
+                || DroidAudioManager.DIGITAL_AUDIO_FORMAT_MANUAL == surround)) {
+
+                if (DroidAudioManager.DIGITAL_AUDIO_FORMAT_MANUAL == surround) {
+                    String subformat = Settings.Global.getString(mContext.getContentResolver(), DroidAudioManager.DIGITAL_AUDIO_SUBFORMAT);
+                    Log.i(TAG, "onChange manual subformat: " + subformat);
+                    setAtmosEnabled(subformat.contains(AudioFormat.ENCODING_E_AC3_JOC + ""));
+                } else if (hasMS12 || SystemProperties.get("sys.vendor.atmos.passthrough").equals("enable")) {
+                    setAtmosEnabled(hdmiEncodings.contains("atmos"));
+                }
+
                 if (hasMS12) {
-                    setUiAudioBufferDelayOffset(dolbySupported);
+                    setUiAudioBufferDelayOffset(hdmiEncodings.contains("ac3"));
                 }
             }
         }
@@ -676,10 +684,7 @@ public class NetflixService extends Service {
         if (audioCap == null)
             return;
 
-        if (!SystemProperties.get("sys.vendor.atmos.passthrough").equals("enable")) {
-            if (!hasMS12)
-                return;
-        }
+        Log.i(TAG, "set ATMOS support " + enabled);
 
         try {
             JSONObject rootObject = new JSONObject(audioCap);
