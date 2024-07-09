@@ -85,6 +85,7 @@ public class OutputModeManager {
     public static final String COLOR_ATTRIBUTE              = "/sys/class/amhdmitx/amhdmitx0/attr";
     public static final String DISPLAY_HDMI_VALID_MODE      = "/sys/class/amhdmitx/amhdmitx0/valid_mode";//test if tv support this mode
     public static final String DOLBY_VISION_IS_SUPPORT2     = "/sys/class/amhdmitx/amhdmitx0/dv_cap2";
+    public static final String DISPLAY_HDMI_HDR_CAP2        = "/sys/class/amhdmitx/amhdmitx0/hdr_cap2";
 
     public static final String DISPLAY_AXIS                 = "/sys/class/display/axis";
 
@@ -397,6 +398,16 @@ public class OutputModeManager {
         "rgb,8bit"
     };
 
+    public static final String[] HDMI_DEEP_COLOR_LIST = {
+        "420,10bit",
+        "420,12bit",
+        "422,12bit",
+        "444,10bit",
+        "444,12bit",
+        "rgb,10bit",
+        "rgb,12bit"
+    };
+
     public static final String[] HDMI_COLOR_LIST_8BIT = {
         "444,8bit",
         "422,8bit",
@@ -517,6 +528,29 @@ public class OutputModeManager {
                || hdr_priority == MESON_G_DV_HDR10
                || hdr_priority == MESON_G_DV_HLG
                || hdr_priority == MESON_G_DV);
+    }
+
+    public boolean isHdrPreference() {
+        int hdr_priority = getHdrPriority();
+
+        return isTvSupportHDR()
+               && (hdr_priority != SDR_PRIORITY
+               && hdr_priority != MESON_G_SDR);
+    }
+
+    public boolean isTvSupportHDR() {
+        String hdr_cap = readSysfs(DISPLAY_HDMI_HDR_CAP2);
+
+        //check hdr_cap
+        if (hdr_cap.contains("HDR10Plus Supported: 1")
+        || hdr_cap.contains("SMPTE ST 2084: 1")
+        || hdr_cap.contains("Hybrid Log-Gamma: 1")) {
+            if (isLogPrint(3))
+                Log.d(TAG, "Current Tv Support HDR: " + hdr_cap);
+            return true;
+        }
+
+        return false;
     }
 
     public boolean isSupportHDRResolution(int type, String mode) {
