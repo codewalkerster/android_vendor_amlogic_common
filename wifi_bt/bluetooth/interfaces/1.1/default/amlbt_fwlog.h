@@ -8,9 +8,6 @@
 
 #define fwlog_PATH_PROPERTY "persist.bluetooth.btfwlogpath"
 #define DEFAULT_fwlog_PATH "/data/vendor/fw_log.txt"
-static const int INVALID_FD = -1;
-static int fwlogfile_fd = INVALID_FD;
-static int32_t dataCount;
 
 void fwlog_init (void);
 void fwlog_close (void);

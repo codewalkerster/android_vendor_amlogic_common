@@ -23,11 +23,14 @@
 #include <dlfcn.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <hardware_legacy/power.h>
+
 #include "bluetooth_address.h"
 #include "h4_protocol.h"
 #include "mct_protocol.h"
 #include "multibt_hal.h"
 #include "amlbt_fwlog.h"
+
 #define HCI_VSC_WAKE_ON_BLE 0xFE54
 
 static uint16_t PreOpcode=0x0;
@@ -41,7 +44,7 @@ static const char* VENDOR_LIBRARY_NAME = "libbt-vendor.so";
 static const char* VENDOR_LIBRARY_SYMBOL_NAME =
     "BLUETOOTH_VENDOR_LIB_INTERFACE";
 
-//static const int INVALID_FD = -1;  def in fwlog.h
+static const int INVALID_FD = -1;
 
 bool wake_lock_acquired;
 const char *wake_lock_name = "amlogic_bt_hal_wake";
@@ -240,7 +243,6 @@ void VendorInterface::Shutdown() {
   g_vendor_interface = nullptr;
 
   bt_vendor_release_wake_lock();
-
 }
 
 VendorInterface* VendorInterface::get() { return g_vendor_interface; }
@@ -412,7 +414,6 @@ size_t VendorInterface::Send(uint8_t type, const uint8_t* data, size_t length) {
 
   char shutdown_val[PROPERTY_VALUE_MAX] = {'\0'};
 
-
   if (lpm_wake_deasserted == true) {
     // Restart the timer.
     fd_watcher_.ConfigureTimeout(std::chrono::milliseconds(lpm_timeout_ms),
@@ -423,7 +424,6 @@ size_t VendorInterface::Send(uint8_t type, const uint8_t* data, size_t length) {
     lib_interface_->op(BT_VND_OP_LPM_WAKE_SET_STATE, &wakeState);
     ALOGV("%s: Sent wake before (%02x)", __func__, data[0] | (data[1] << 8));
   }
-
 
   if (opcode == HCI_VSC_WAKE_ON_BLE) {
       gVscWakeEnabled = 1;

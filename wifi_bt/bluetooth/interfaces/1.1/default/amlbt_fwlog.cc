@@ -24,8 +24,11 @@
 #include <stdint.h>
 #include <time.h>
 
-
 #include "amlbt_fwlog.h"
+
+static const int INVALID_FD = -1;
+static int fwlogfile_fd = INVALID_FD;
+static int32_t dataCount;
 
 //c++
 #include <iostream>
