@@ -1792,46 +1792,27 @@ Return<void> SystemControlClient::SystemControlHidlCallback::notifyHdrInfoChange
     return Void();
 }
 
-static void *g_hLibamlhalcore = NULL;
 int SystemControlClient::setAudioParam(int param1, int param2, int param3, int param4) {
     typedef int (*setAudioParamsFunc)(int, int, int, int);
+    static setAudioParamsFunc g_setAudioParam = NULL;
     ALOGV("[%s:%d] %d,  %d,  %d,  %d", __func__, __LINE__, param1, param2, param3, param4);
-    if (g_hLibamlhalcore == NULL) {
-        g_hLibamlhalcore = dlopen("/vendor/lib/libdroidaudioclient.so", /*RTLD_NOW | RTLD_GLOBAL | */RTLD_LAZY);
-        if (g_hLibamlhalcore == NULL) {
-            ALOGW("[%s:%d] dlopen vendor libdroidaudioclient fail:%s, errno:%s", __func__, __LINE__, dlerror(), strerror(errno));
-            g_hLibamlhalcore = dlopen("/system_ext/lib/libdroidaudioclient.so", RTLD_LAZY);
-            if (g_hLibamlhalcore == NULL) {
-                ALOGE("[%s:%d] dlopen system libdroidaudioclient fail:%s", __func__, __LINE__, dlerror());
-                return -1;
-            } else {
-                ALOGI("[%s:%d] dlopen /system_ext/lib/libdroidaudioclient.so success", __func__, __LINE__);
-            }
+    if (g_setAudioParam == nullptr) {
+        static void *libHandle = dlopen("libdroidaudioclient.so", /*RTLD_NOW | RTLD_GLOBAL | */RTLD_LAZY);
+        if (libHandle == nullptr) {
+            ALOGW("[%s:%d] dlopen libdroidaudioclient.so fail:%s, errno:%s", __func__, __LINE__,
+                dlerror(), strerror(errno));
+            return -1;
         } else {
-            ALOGI("[%s:%d] dlopen /vendor/lib/libdroidaudioclient.so success", __func__, __LINE__);
+            g_setAudioParam = (int (*)(int, int, int, int))dlsym(libHandle, "setAudioParams");
+            if (g_setAudioParam == NULL) {
+                ALOGE("[%s:%d] dlsym droidaudio setAudioParam fail:%s, errno:%s",
+                    __func__, __LINE__, dlerror(), strerror(errno));
+                return -1;
+            }
+            ALOGI("[%s:%d] dlopen libdroidaudioclient.so success", __func__, __LINE__);
         }
     }
-    static setAudioParamsFunc pfnsetAudioParams = (int (*)(int, int, int, int))dlsym(g_hLibamlhalcore, "setAudioParams");
-    if (pfnsetAudioParams == NULL) {
-        ALOGE("[%s:%d] dlsym fail:%s", __func__, __LINE__, strerror(errno));
-        return -1;
-    }
-    pfnsetAudioParams(param1, param2, param3, param4);
-    return 0;
-}
-
-Return<void> SystemControlClient::SystemControlHidlCallback::notifyAudioCallback(int param1, int param2, int param3, int param4) {
-    sp<SysCtrlListener> listener;
-
-    listener = SysCtrlClient->mListener;
-
-    if (listener != NULL) {
-        listener->onAudioEvent(param1, param2, param3, param4);
-    } else {
-        ALOGI("%s: listener is NULL.", __FUNCTION__);
-    }
-
-    return Void();
+    return g_setAudioParam(param1, param2, param3, param4);
 }
 Return<void> SystemControlClient::SystemControlHidlCallback::notifyDensityChange(int param1, int param2, int param3) {
     sp<SysCtrlListener> listener;

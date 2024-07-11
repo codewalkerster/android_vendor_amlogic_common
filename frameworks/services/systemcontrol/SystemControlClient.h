@@ -51,7 +51,6 @@ public:
     virtual void notifyFBCUpgrade(int state, int param) = 0;
     virtual void onSetDisplayMode(int mode) = 0;
     virtual void onHdrInfoChange(int newHdrInfo) = 0;
-    virtual void onAudioEvent(int param1, int param2, int param3, int param4) = 0;
     virtual void onDensityChange(int param1,int param2, int param3) = 0;
     virtual void onScreenColorChange(int newColor) = 0;
 };
@@ -391,7 +390,6 @@ public:
          Return<void> notifySetDisplayModeCallback(int mode) override;
          Return<void> notifyHdrInfoChangedCallback(int newHdrInfo) override;
          Return<void> notifyDensityChange(int param1, int param2, int param3) override;
-         Return<void> notifyAudioCallback(int param1, int param2, int param3, int param4) override;
          Return<void> notifyScreenColorChange(int newColor) override;
      private:
          SystemControlClient *SysCtrlClient;

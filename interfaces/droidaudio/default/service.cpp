@@ -57,13 +57,12 @@ int main() {
     waitAudioService("media.audio_flinger");
     waitAudioService("media.audio_policy");
     ABinderProcess_setThreadPoolMaxThreadCount(8);
-    std::shared_ptr<DroidAudio> droidAudioService = ::ndk::SharedRefBase::make<DroidAudio>();
-//    AIBinder_setRequestingSid(droidAudioClient->asBinder().get(), true);
-    const std::string Instance = std::string() + DroidAudio::descriptor + "/default";
+    ABinderProcess_startThreadPool();
 
+    std::shared_ptr<DroidAudio> droidAudioService = ::ndk::SharedRefBase::make<DroidAudio>();
+    const std::string Instance = std::string() + DroidAudio::descriptor + "/default";
     binder_status_t status = AServiceManager_addService(droidAudioService->asBinder().get(), Instance.c_str());
-    CHECK(status == STATUS_OK)
-        << "Failed to add DroidAudio Factory, status=" << status;
+    CHECK(status == STATUS_OK) << "Failed to add DroidAudio Factory, status=" << status;
 
     ABinderProcess_joinThreadPool();
 }

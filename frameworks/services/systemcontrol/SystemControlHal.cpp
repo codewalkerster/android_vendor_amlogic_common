@@ -155,23 +155,6 @@ void SystemControlHal::onHdrInfoChange(int newHdrInfo) {
     }
 }
 
-void SystemControlHal::onAudioEvent(int32_t param1, int32_t param2, int32_t param3, int32_t param4) {
-    AutoMutex _l(mLock);
-    if (ENABLE_LOG_PRINT) ALOGI("onAudioEvent param1:%d. param2:%d, param3:%d, param4:%d", param1, param2, param3, param4);
-    for (auto it = mClients.begin(); it != mClients.end();) {
-        if (it->second == nullptr) {
-            it = mClients.erase(it);
-            continue;
-        }
-        auto ret = (it->second)->notifyAudioCallback(param1, param2, param3, param4);
-        if (!ret.isOk() && ret.isDeadObject()) {
-            it = mClients.erase(it);
-        } else {
-            ++it;
-        }
-    }
-}
-
 void SystemControlHal::onScreenColorChange(int32_t newColor) {
     AutoMutex _l(mLock);
     ALOGD("onScreenColorChange newColor:%d.", newColor);
@@ -1927,12 +1910,6 @@ Return<int32_t> SystemControlHal::StartUpgradeFBC(const hidl_string& fileName, i
 Return<int32_t> SystemControlHal::UpdateFBCUpgradeStatus(int32_t state, int32_t param)
 {
     return mSysControl->UpdateFBCUpgradeStatus(state, param);
-}
-
-Return<void> SystemControlHal::setAudioParam(int32_t param1, int32_t param2, int32_t param3, int32_t param4, setAudioParam_cb _hidl_cb) {
-    int32_t value = mSysControl->setAudioParam(param1, param2, param3, param4);
-    _hidl_cb(Result::OK, value);
-    return Void();
 }
 
 void SystemControlHal::handleServiceDeath(uint32_t cookie) {

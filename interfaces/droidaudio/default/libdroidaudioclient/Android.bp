@@ -11,6 +11,7 @@ cc_library_shared {
     name: "libdroidaudioclient",
     system_ext_specific: true,
     vendor_available: true,
+    compile_multilib: "both",
 
     srcs: [
        "DroidAudioManager.cpp",

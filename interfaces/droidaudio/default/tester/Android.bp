@@ -10,6 +10,7 @@ package {
 cc_binary {
     name: "droidaudio_tester",
     vendor: true,
+    compile_multilib: "32",
     srcs: [
         "main.cpp",
     ],

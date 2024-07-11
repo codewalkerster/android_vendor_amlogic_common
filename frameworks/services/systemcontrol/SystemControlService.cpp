@@ -747,12 +747,6 @@ void SystemControlService::SendDisplayMode(int mode) {
     }
 }
 
-int SystemControlService::setAudioParam(int param1, int param2, int param3, int param4) {
-    ALOGI("setAudioParam param1 = %d, param2 = %d, param3 = %d, param4 = %d\n", param1, param2, param3, param4);
-    mNotifyListener->onAudioEvent(param1, param2, param3, param4);
-    return 0;
-}
-
 void SystemControlService::setAppInfo(const std::string& pkg, const std::string& cls, const std::vector<std::string>& procList) {
     //ALOGI("setAppInfo pkg :%s, cls:%s", pkg.c_str(), cls.c_str());
     if (func_optimization != NULL) {

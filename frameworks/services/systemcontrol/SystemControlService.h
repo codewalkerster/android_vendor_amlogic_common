@@ -381,8 +381,6 @@ public:
     int UpdateFBCUpgradeStatus(int status, int param);
 
     void SendDisplayMode(int mode);
-
-    int setAudioParam(int param1, int param2, int param3, int param4);
     int setDensityUpdate(int displayId, int width, int height);
     static SystemControlService* instantiate(const char *cfgpath);
 

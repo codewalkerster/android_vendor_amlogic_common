@@ -29,22 +29,39 @@
 #include "DroidAudioCommonType.h"
 #include "DroidAudioManager.h"
 #include <aidl/vendor/amlogic/hardware/droidaudio/BnDroidAudio.h>
+#include <aidl/vendor/amlogic/hardware/droidaudio/BnDroidAudioClient.h>
 #include <aidl/vendor/amlogic/hardware/droidaudio/IDroidAudio.h>
 
 using aidl::vendor::amlogic::hardware::droidaudio::IDroidAudio;
 using aidl::vendor::amlogic::hardware::droidaudio::IDroidAudioClient;
+using aidl::vendor::amlogic::hardware::droidaudio::BnDroidAudioClient;
 
 
 using namespace std;
 //using namespace android;
 
+class DroidAudioServiceClient: public BnDroidAudioClient
+{
+public:
+    DroidAudioServiceClient();
 
-mutex DroidAudioManager::gLock;
-shared_ptr<IDroidAudio> DroidAudioManager::mDroidAudioService = nullptr;
-shared_ptr<DroidAudioManager::DroidAudioServiceClient> DroidAudioManager::mDroidAudioServiceClient = nullptr;
-ndk::ScopedAIBinder_DeathRecipient DroidAudioManager::mDroidAudioDeathRecipient;
+    virtual ::ndk::ScopedAStatus onDroidAudioEvent(int32_t event, const vector<int32_t>& data, int32_t* _aidl_return) override;
 
-const shared_ptr<IDroidAudio> DroidAudioManager::get_droid_audio_service() {
+    ::ndk::ScopedAIBinder_DeathRecipient mDeathRecipient;
+};
+
+static mutex gLock;
+static shared_ptr<IDroidAudio> mDroidAudioService = nullptr;
+static shared_ptr<DroidAudioServiceClient> mDroidAudioServiceClient = nullptr;
+static ndk::ScopedAIBinder_DeathRecipient mDroidAudioDeathRecipient;
+
+static void serviceDied(void* cookie) {
+    unique_lock<mutex> l(gLock);
+    AM_LOGW("IDroidAudio service dead !!! cookie:%p", cookie);
+    mDroidAudioService = nullptr;
+}
+
+const shared_ptr<IDroidAudio> get_droid_audio_service() {
     unique_lock<mutex> l(gLock);
 
     if (mDroidAudioService != nullptr) {
@@ -60,7 +77,7 @@ const shared_ptr<IDroidAudio> DroidAudioManager::get_droid_audio_service() {
     AM_LOGI("get IDroidAudio service success. ^_^ (%s)", mDroidAudioService->isRemote() ? "remote" : "local");
     if (mDroidAudioServiceClient == nullptr) {
         mDroidAudioServiceClient = ::ndk::SharedRefBase::make<DroidAudioServiceClient>();
-        mDroidAudioDeathRecipient = ndk::ScopedAIBinder_DeathRecipient(AIBinder_DeathRecipient_new(DroidAudioManager::serviceDied));
+        mDroidAudioDeathRecipient = ndk::ScopedAIBinder_DeathRecipient(AIBinder_DeathRecipient_new(serviceDied));
     }
     binder_status_t binder_status = AIBinder_linkToDeath(mDroidAudioService->asBinder().get(),
                                                     mDroidAudioDeathRecipient.get(), 0);
@@ -73,26 +90,15 @@ const shared_ptr<IDroidAudio> DroidAudioManager::get_droid_audio_service() {
     return mDroidAudioService;
 }
 
-DroidAudioManager::DroidAudioServiceClient::DroidAudioServiceClient() {
+DroidAudioServiceClient::DroidAudioServiceClient() {
     AM_LOGI("");
 }
 
-void DroidAudioManager::serviceDied(void* cookie) {
-    unique_lock<mutex> l(gLock);
-    AM_LOGW("IDroidAudio service dead !!! cookie:%p", cookie);
-    mDroidAudioService = nullptr;
-}
-
-::ndk::ScopedAStatus DroidAudioManager::DroidAudioServiceClient::onDroidAudioEvent(
+::ndk::ScopedAStatus DroidAudioServiceClient::onDroidAudioEvent(
                 int32_t event, const vector<int32_t>& /*data*/, int32_t* /*_aidl_return*/) {
     // TODO:
     AM_LOGI("event:%d", event);
     return ::ndk::ScopedAStatus::ok();
-}
-
-int32_t DroidAudioManager::init() {
-    AM_LOGI("");
-    return 0;
 }
 
 extern "C" {
@@ -102,7 +108,7 @@ int setAudioParams(int cmd, int param1, int param2, int param3) {
 }}
 
 int32_t DroidAudioManager::setAudioCmdParam(int32_t cmd, int32_t param1, int32_t param2, int32_t param3) {
-    const shared_ptr<IDroidAudio>& droidaudio = DroidAudioManager::get_droid_audio_service();
+    const shared_ptr<IDroidAudio>& droidaudio = get_droid_audio_service();
     AM_LOGD("cmd:%s(%d) param1 = %d, param2 = %d, param3 = %d",  audioCmd2Str(cmd), cmd, param1, param2, param3);
     R_CHECK_POINTER_LEGAL(-1, droidaudio,)
     int32_t ret = 0;
@@ -112,7 +118,7 @@ int32_t DroidAudioManager::setAudioCmdParam(int32_t cmd, int32_t param1, int32_t
 }
 
 int32_t DroidAudioManager::setOutputDevices(const vector<int32_t>& devices) {
-    const shared_ptr<IDroidAudio>& droidaudio = DroidAudioManager::get_droid_audio_service();
+    const shared_ptr<IDroidAudio>& droidaudio = get_droid_audio_service();
     R_CHECK_POINTER_LEGAL(-1, droidaudio,)
     int32_t ret = 0;
     droidaudio->setOutputDevices(devices, &ret);
@@ -121,7 +127,7 @@ int32_t DroidAudioManager::setOutputDevices(const vector<int32_t>& devices) {
 }
 
 int32_t DroidAudioManager::getOutputDevices(vector<int32_t>* devices) {
-    const shared_ptr<IDroidAudio>& droidaudio = DroidAudioManager::get_droid_audio_service();
+    const shared_ptr<IDroidAudio>& droidaudio = get_droid_audio_service();
     R_CHECK_POINTER_LEGAL(-1, droidaudio,)
     int32_t ret = 0;
     droidaudio->getOutputDevices(devices);
@@ -130,7 +136,7 @@ int32_t DroidAudioManager::getOutputDevices(vector<int32_t>* devices) {
 }
 
 int32_t DroidAudioManager::setCoexistSpdifOther(bool enable) {
-    const shared_ptr<IDroidAudio>& droidaudio = DroidAudioManager::get_droid_audio_service();
+    const shared_ptr<IDroidAudio>& droidaudio = get_droid_audio_service();
     R_CHECK_POINTER_LEGAL(-1, droidaudio,)
     int32_t ret = 0;
     droidaudio->setCoexistSpdifOther(enable, &ret);
@@ -139,7 +145,7 @@ int32_t DroidAudioManager::setCoexistSpdifOther(bool enable) {
 }
 
 int32_t DroidAudioManager::setMusicStreamVolume(int32_t index) {
-    const shared_ptr<IDroidAudio>& droidaudio = DroidAudioManager::get_droid_audio_service();
+    const shared_ptr<IDroidAudio>& droidaudio = get_droid_audio_service();
     R_CHECK_POINTER_LEGAL(-1, droidaudio,)
     int32_t ret = 0;
     droidaudio->setMusicStreamVolume(index, &ret);
