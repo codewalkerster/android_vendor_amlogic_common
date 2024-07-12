@@ -197,6 +197,9 @@ static const dev_info bt_dev_sdio[] = {
     {{0x1B8E, 0x0800}, "aml_w2l_s",    AML_VND_LIB,   "",                POWER_EVENT_DEF},
     {{0x1B8E, 0x0810}, "aml_w2l_s",    AML_VND_LIB,   "",                POWER_EVENT_DEF},
     {{0x1B8E, 0x0808}, "aml_w2l_s",    AML_VND_LIB,   "",                POWER_EVENT_DEF},
+    {{0x1B8E, 0x0840}, "aml_w2l_s",    AML_VND_LIB,   "",                POWER_EVENT_DEF},
+    {{0x1B8E, 0x0848}, "aml_w2l_s",    AML_VND_LIB,   "",                POWER_EVENT_DEF},
+    {{0x1B8E, 0x0850}, "aml_w2l_s",    AML_VND_LIB,   "",                POWER_EVENT_DEF},
     // nxp sdio modules
     {{0x02DF, 0x9149}, "nxp8987",      NXP_VND_LIB,   "",                POWER_EVENT_RESET},
     {{0x02DF, 0x9141}, "nxp8997",      NXP_VND_LIB,   "",                POWER_EVENT_RESET},
@@ -242,6 +245,9 @@ static const dev_info bt_dev_usb[] = {
     {{0x1B8E, 0x0801}, "aml_w2l_u",    AML_VND_LIB,   "",                POWER_EVENT_EN},
     {{0x1B8E, 0x0809}, "aml_w2l_u",    AML_VND_LIB,   "",                POWER_EVENT_EN},
     {{0x1B8E, 0x0811}, "aml_w2l_u",    AML_VND_LIB,   "",                POWER_EVENT_EN},
+    {{0x1B8E, 0x0841}, "aml_w2l_u",    AML_VND_LIB,   "",                POWER_EVENT_EN},
+    {{0x1B8E, 0x0849}, "aml_w2l_u",    AML_VND_LIB,   "",                POWER_EVENT_EN},
+    {{0x1B8E, 0x0851}, "aml_w2l_u",    AML_VND_LIB,   "",                POWER_EVENT_EN},
 };
 
 /******************************************************************************
