@@ -147,6 +147,21 @@
          device is data-only. -->
     <bool name="config_voice_capable">false</bool>
 
+    <!-- for CtsMediaBetterTogetherTestCases MediaActivityTest#testVolumeKey_whileSessionAlive
+        The maximum volume of all streams must be greater than or equal to the volume of music,
+        otherwise the accuracy of the conversion volume in AudioService will cause other stream mute -->
+    <!-- The number of volume steps for the notification stream -->
+    <integer name="config_audio_notif_vol_steps">100</integer>
+
+    <!-- The default volume for the notification stream -->
+    <integer name="config_audio_notif_vol_default">70</integer>
+
+    <!-- The number of volume steps for the ring stream -->
+    <integer name="config_audio_ring_vol_steps">100</integer>
+
+    <!-- The default volume for the ring stream -->
+    <integer name="config_audio_ring_vol_default">70</integer>
+
     <!-- Flag indicating whether all audio streams should be mapped to
          one single stream. If true, all audio streams are mapped to
          STREAM_MUSIC as if it's on TV platform. -->

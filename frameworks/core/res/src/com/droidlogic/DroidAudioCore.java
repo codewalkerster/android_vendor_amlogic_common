@@ -82,7 +82,6 @@ public class DroidAudioCore {
             mDroidAudioManager.setSoundBarModeEnabled(mDroidAudioManager.isSoundBarModeEnabled());
         }
 
-        checkDefaultMuteStreams();
         mDroidAudioManager.init();
         mArcVolumeController = new ArcVolumeController(mContext);
         mObserver.startObserving(PATH_AUDIOFORMAT_UEVENT);
@@ -123,29 +122,6 @@ public class DroidAudioCore {
         Log.i(TAG, "initVadStatus uboot status:" + vadUbootEnable + ", prop:" + property);
         if (vadUbootEnable.equals(DroidAudioManager.AUDIO_VAD_STRING_VAD_ON)) {
             mSystemControlManager.setProperty(DroidAudioManager.AUDIO_VAD_PROPERTY_VADWAKE, vadUbootEnable);
-        }
-    }
-
-    private static final int DEFAULT_MUTE_STREAMS_AFFECTED =
-                    (1 << AudioSystem.STREAM_VOICE_CALL) |
-                    (1 << AudioSystem.STREAM_SYSTEM) |
-                    (1 << AudioSystem.STREAM_RING) |
-                    (1 << AudioSystem.STREAM_MUSIC) |
-                    (1 << AudioSystem.STREAM_ALARM) |
-                    (1 << AudioSystem.STREAM_NOTIFICATION) |
-                    (1 << AudioSystem.STREAM_BLUETOOTH_SCO) |
-                    (1 << AudioSystem.STREAM_DTMF) |
-                    (1 << AudioSystem.STREAM_TTS) |
-                    (1 << AudioSystem.STREAM_ACCESSIBILITY) |
-                    (1 << AudioSystem.STREAM_ASSISTANT);
-    // need mute all stream volume
-    private void checkDefaultMuteStreams() {
-        int muteStreamsMask = Settings.System.getInt(mResolver,
-                android.provider.Settings.System.MUTE_STREAMS_AFFECTED, AudioSystem.DEFAULT_MUTE_STREAMS_AFFECTED);
-        if (muteStreamsMask != DEFAULT_MUTE_STREAMS_AFFECTED) {
-            Settings.System.putInt(mContext.getContentResolver(),
-                    android.provider.Settings.System.MUTE_STREAMS_AFFECTED, DEFAULT_MUTE_STREAMS_AFFECTED);
-            mAudioManager.reloadAudioSettings();
         }
     }
 
