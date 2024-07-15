@@ -368,7 +368,7 @@ static bool matching_dev_id(const dev_info *dev, unsigned int dev_size, const de
 
     for (cnt = 0; cnt < dev_size; cnt++) {
         if ((dev[cnt].mod_id.vid == mod_id->vid) && (dev[cnt].mod_id.pid == mod_id->pid)) {
-            PR_INFO("matched vid:%4x, pid:%04x, dev_name:%s, cnt:%u, set property", dev[cnt].mod_id.vid,
+            PR_INFO("matched vid:%04x, pid:%04x, dev_name:%s, cnt:%u, set property", dev[cnt].mod_id.vid,
                 dev[cnt].mod_id.pid, dev[cnt].dev_name, cnt);
             set_bt_prop(dev[cnt].dev_name, dev[cnt].mod_name, dev[cnt].vnd_lib_name);
             ret = true;
@@ -386,7 +386,7 @@ static bool matching_dev_id_uart(unsigned int vid)
 
     for (cnt = 0; cnt < (sizeof(bt_dev_uart) / sizeof(dev_info_uart)); cnt++) {
         if (bt_dev_uart[cnt].vid == vid) {
-            PR_INFO("matched vid:%4x, dev_name:%s, cnt:%u, set property",bt_dev_uart[cnt].vid,
+            PR_INFO("matched vid:%04x, dev_name:%s, cnt:%u, set property",bt_dev_uart[cnt].vid,
                 bt_dev_uart[cnt].dev_name, cnt);
             memcpy(bt_prop_val.dev_name, bt_dev_uart[cnt].dev_name, (sizeof(bt_prop_val.dev_name) - 1));
             property_set(PROP_BT_NAME, bt_prop_val.dev_name);
