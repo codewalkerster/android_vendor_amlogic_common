@@ -52,6 +52,8 @@ public:
                                        DeviceTypeSet deviceTypes,
                                        int delayMs = 0, bool force = false);
 
+    status_t dump(int fd) override;
+
 private:
     bool isScoRequestedForComm() const;
     bool isHearingAidUsedForComm() const;

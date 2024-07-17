@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#define LOG_TAG "AmlAPM_AudioPolicyManager"
+#define LOG_TAG "APM_AudioPolicyManager"
 
 // Need to keep the log statements even in production builds
 // to enable VERBOSE logging dynamically.
@@ -62,7 +62,7 @@ AudioPolicyInterface* createAudioPolicyManager(AudioPolicyClientInterface *clien
     media::AudioPolicyConfig apmConfig;
     status_t status = NO_ERROR;
 
-#if AML_BOARD_COMPILE_ATV_TYPE == 0
+#ifdef AML_BOARD_COMPILE_AOSP_TYPE
     if (status = clientInterface->getAudioPolicyConfig(&apmConfig); status == OK) {
 
         auto config = AudioPolicyConfig::loadFromApmAidlConfigWithFallback(apmConfig);
@@ -79,7 +79,7 @@ AudioPolicyInterface* createAudioPolicyManager(AudioPolicyClientInterface *clien
         apm = new AmlAudioPolicyManager(config,
                 loadApmEngineLibraryAndCreateEngine(config->getEngineLibraryNameSuffix()),
                 clientInterface);
-#if AML_BOARD_COMPILE_ATV_TYPE == 0
+#ifdef AML_BOARD_COMPILE_AOSP_TYPE
     }
 #endif
     status = apm->initialize();
@@ -173,6 +173,8 @@ status_t AmlAudioPolicyManager::checkAndSetVolume(IVolumeCurves &curves,
             }
         } else {
             for (auto client : outputDesc->clientsList(true /*activeOnly*/)) {
+                ALOGV("[checkAndSetVolume:%d] isInternal:%d, profile:%s", __LINE__, client->isInternal(),
+                     outputDesc->getAudioPort()->getName().c_str());
                 if (client->isInternal()) {
                     SourceClientDescriptor* sourceDesc = static_cast<SourceClientDescriptor*>(client.get());
                     audio_devices_t sourceDevice = sourceDesc->srcDevice()->type();
@@ -228,7 +230,7 @@ status_t AmlAudioPolicyManager::checkAndSetVolume(IVolumeCurves &curves,
                         status = mpClientInterface->setAudioPortConfig(&newConfig, 0);
                         if (status != NO_ERROR) {
                             device->applyAudioPortConfig(&backupConfig);
-                            ALOGE("checkAndSetVolume: Error to setAudioPortConfig, status:%d", status);
+                            ALOGE("[checkAndSetVolume:%d] Error to setAudioPortConfig, status:%d", __LINE__, status);
                         }
                     }
                 }
@@ -249,7 +251,7 @@ status_t AmlAudioPolicyManager::checkAndSetVolume(IVolumeCurves &curves,
     /*[Amlogic end]-----------------------------------------------------------*/
 
     const bool muted = (index == 0) && (volumeDb != 0.0f);
-#if AML_BOARD_COMPILE_ATV_TYPE == 0
+#ifdef AML_BOARD_COMPILE_AOSP_TYPE
     outputDesc->setVolume(volumeDb, muted, volumeSource, curves.getStreamTypes(),
             deviceTypes, delayMs, force, isVoiceVolSrc);
 #else
@@ -293,6 +295,14 @@ bool AmlAudioPolicyManager::isHearingAidUsedForComm() const {
         }
     }
     return false;
+}
+
+status_t AmlAudioPolicyManager::dump(int fd)
+{
+    auto engineSuffix = AudioPolicyConfig::loadFromApmXmlConfigWithFallback()->getEngineLibraryNameSuffix();
+    dprintf(fd, "------ Amlogic_AudioPolicyManager (APM xml Engine: %s) -------", engineSuffix.c_str());
+    AudioPolicyManager::dump(fd);
+    return NO_ERROR;
 }
 
 } // namespace android

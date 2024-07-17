@@ -1,4 +1,4 @@
-package aml_audio_policy_manager
+package aml_audio_policy_manager_engine
 
 import (
     "android/soong/android"
@@ -6,10 +6,10 @@ import (
 )
 
 func init() {
-    android.RegisterModuleType("aml_audio_policy_manager_defaults", aml_audio_policy_manager_DefaultsFactory)
+    android.RegisterModuleType("aml_audio_policy_manager_engine_defaults", aml_audio_policy_manager_engine_DefaultsFactory)
 }
 
-func aml_audio_policy_manager_Defaults(ctx android.LoadHookContext) {
+func aml_audio_policy_manager_engine_Defaults(ctx android.LoadHookContext) {
     type propsE struct {
         Shared_libs  []string
         Static_libs  []string
@@ -29,8 +29,8 @@ func aml_audio_policy_manager_Defaults(ctx android.LoadHookContext) {
     ctx.AppendProperties(p)
 }
 
-func aml_audio_policy_manager_DefaultsFactory() android.Module {
+func aml_audio_policy_manager_engine_DefaultsFactory() android.Module {
     module := cc.DefaultsFactory()
-    android.AddLoadHook(module, aml_audio_policy_manager_Defaults)
+    android.AddLoadHook(module, aml_audio_policy_manager_engine_Defaults)
     return module
 }
