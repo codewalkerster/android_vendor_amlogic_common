@@ -22,11 +22,14 @@ typedef void (*WebClientSetCallbackFunc)(const void *,amVmxWebClientCallback cal
 
 typedef void (*WebClientGetPropertyFunc)(const void *, std::string);
 
+typedef int (*WebClientGetCdmErrFunc)(void);
+
 static WebClientAllocContextFunc webclient_alloc = NULL;
 static WebClientDecryptFunc webclient_decrypt = NULL;
 static WebClientFreeContextFunc webclient_free = NULL;
 static WebClientSetCallbackFunc webclient_setCallback = NULL;
 static WebClientGetPropertyFunc webclient_getProperty = NULL;
+static WebClientGetCdmErrFunc webclient_getCdmErr = NULL;
 
 namespace aidl::vendor::amlogic::hardware::vmx_webclient::implementation {
 
@@ -48,6 +51,8 @@ VmxWebClient::VmxWebClient()
         (WebClientSetCallbackFunc)dlsym(mLibHandle, "amVmxWebClientSetCallback");
     webclient_getProperty =
         (WebClientGetPropertyFunc)dlsym(mLibHandle, "amVmxWebClientGetProperty");
+    webclient_getCdmErr =
+        (WebClientGetCdmErrFunc)dlsym(mLibHandle, "amVmxWebClientGetCdmErr");
 
     if (webclient_alloc)
         mWebClientObj = webclient_alloc(NULL);
@@ -170,7 +175,6 @@ VmxWebClient::~VmxWebClient() {
 }
 
 void OnCallback(uint8_t type, uint8_t *data, uint32_t dataLen, void *pUserData) {
-    ALOGI("OnCallback type %d len %d", type, dataLen);
 
     if (pUserData != NULL) {
         std::vector<uint8_t> event;
@@ -198,11 +202,19 @@ void OnCallback(uint8_t type, uint8_t *data, uint32_t dataLen, void *pUserData) 
 
 ::ndk::ScopedAStatus VmxWebClient::getProperty(const std::string& value) {
     ::android::Mutex::Autolock autoLock(mLock);
-    ALOGI("getProperty");
+
     if (mWebClientObj && webclient_getProperty && !value.empty()) {
         std::string prop = value;
         webclient_getProperty(mWebClientObj, prop);
-        ALOGI("getProperty done");
+    }
+    return toNdkScopedAStatus(Status::OK);
+}
+
+::ndk::ScopedAStatus VmxWebClient::getCdmErr(int32_t* _aidl_return) {
+    ::android::Mutex::Autolock autoLock(mLock);
+
+    if (webclient_getCdmErr && _aidl_return) {
+        *_aidl_return = webclient_getCdmErr();
     }
     return toNdkScopedAStatus(Status::OK);
 }
