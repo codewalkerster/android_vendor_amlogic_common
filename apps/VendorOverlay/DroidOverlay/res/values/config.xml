@@ -55,6 +55,9 @@
     <bool name="config_cecRoutingControlEnabled_default">true</bool>
     <bool name="config_cecRoutingControlDisabled_default">false</bool>
 
+    <bool name="config_cecSetMenuLanguageEnabled_default">false</bool>
+    <bool name="config_cecSetMenuLanguageDisabled_default">true</bool>
+
     <!-- Comatibility Cec Configuration -->
     <bool name="config_cecUseAndroidVolumeBar">false</bool>
     <bool name="config_cecSendStandbyNoneActive">false</bool>
