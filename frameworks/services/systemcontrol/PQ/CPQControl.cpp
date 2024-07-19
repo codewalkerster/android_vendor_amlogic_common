@@ -215,6 +215,8 @@ void CPQControl::CPQControlInit()
 
     InitTconlessBin();
 
+    SetOsdSharpness();
+
     mInitialized = true;
 }
 
@@ -11467,14 +11469,55 @@ bool CPQControl::IsDongleLowPowerPqOff(void)
         return false;
 
     if (property_get(PROP_DONGLE_LOW_POWER_PQ_OFF, propbuf, "on") > 0) {
-        SYS_LOGD("Prop [%s]=%s\n", PROP_DONGLE_LOW_POWER_PQ_OFF, propbuf);
+        SYS_LOGD("%s: Prop [%s]=%s\n", __FUNCTION__, PROP_DONGLE_LOW_POWER_PQ_OFF, propbuf);
         if (strcasecmp(propbuf, "off") == 0)
             pq_off = true;
     } else {
-        SYS_LOGE("getprop [%s] fail\n", PROP_DONGLE_LOW_POWER_PQ_OFF);
+        SYS_LOGE("%s: getprop [%s] fail\n", __FUNCTION__, PROP_DONGLE_LOW_POWER_PQ_OFF);
     }
 
     return pq_off;
+}
+
+int CPQControl::SetOsdSharpness(void)
+{
+    if (GetChipType() == 0x48) { //MESON_CPU_MAJOR_ID_S6 = 0x48,
+        int ret = -1;
+        char pq_ext_db_path[128] = {0};
+
+        mPQConfigFile->GetPqExtdbPath(pq_ext_db_path);
+
+        mPQExtdb = new CPQExtdb();
+        ret = mPQExtdb->openPqExtDB(pq_ext_db_path);
+        if (ret != 0) {
+            SYS_LOGE("%s: open pq_ext.db failed!\n", __FUNCTION__);
+            return -1;
+        }
+
+        am_regs_t regs;
+        memset(&regs, 0x0, sizeof(am_regs_t));
+        if (mPQExtdb->PQ_GetOsdSharpnessParams(0, mCurrentSourceInputInfo, &regs) < 0) {
+            SYS_LOGE("%s PQ_GetOsdSharpnessParams failed!\n", __FUNCTION__);
+            return -1;
+        }
+
+        for (int i = 0; i < regs.length; i++) {
+            SYS_LOGD("%s: am_reg[%d]: %d, %d, %x, %x\n", __FUNCTION__,
+                i,
+                regs.am_reg[i].type, regs.am_reg[i].addr, regs.am_reg[i].mask, regs.am_reg[i].val);
+        }
+
+        if (Cpq_LoadRegs(regs) < 0) {
+            SYS_LOGE("%s: Cpq_LoadRegs failed!\n", __FUNCTION__);
+            return -1;
+        }
+
+        mPQExtdb->closePqExtDB();
+        SYS_LOGI("%s: success!\n", __FUNCTION__);
+        return 0;
+    }
+
+    return 0;
 }
 
 //DATABASE

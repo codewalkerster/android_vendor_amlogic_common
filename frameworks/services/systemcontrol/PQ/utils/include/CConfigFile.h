@@ -12,6 +12,7 @@
 
 //pq file code dir path
 #define PQ_DB_DEFAULT_PATH_0                "/mnt/vendor/odm_ext/etc/tvconfig/pq/pq.db"
+#define PQ_EXT_DB_DEFAULT_PATH_0            "/mnt/vendor/odm_ext/etc/tvconfig/pq/pq_ext.db"
 #define OVERSCAN_DB_DEFAULT_PATH_0          "/mnt/vendor/odm_ext/etc/tvconfig/pq/overscan.db"
 #define PQ_CONFIG_DEFAULT_PATH_0            "/mnt/vendor/odm_ext/etc/tvconfig/pq/pq_default.ini"
 #define LDIM_BIN_DEFAULT_PATH_0             "/mnt/vendor/odm_ext/etc/tvconfig/pq/ldim.bin"
@@ -20,6 +21,7 @@
 #define PQ_OSD_BIN_DEFAULT_PATH_0           "/mnt/vendor/odm_ext/etc/tvconfig/pq/UI_PQSetting.bin"
 
 #define PQ_DB_DEFAULT_PATH_1                "/odm/etc/tvconfig/pq/pq.db"
+#define PQ_EXT_DB_DEFAULT_PATH_1            "/odm/etc/tvconfig/pq/pq_ext.db"
 #define OVERSCAN_DB_DEFAULT_PATH_1          "/odm/etc/tvconfig/pq/overscan.db"
 #define PQ_CONFIG_DEFAULT_PATH_1            "/odm/etc/tvconfig/pq/pq_default.ini"
 #define LDIM_BIN_DEFAULT_PATH_1             "/odm/etc/tvconfig/pq/ldim.bin"
@@ -31,6 +33,7 @@
 
 //pq file running dir path
 #define PARAM_PQ_DB_PATH                    "/mnt/vendor/param/pq/pq.db"
+#define PARAM_PQ_EXT_DB_PATH                "/mnt/vendor/param/pq/pq_ext.db"
 #define PARAM_OVERSCAN_DB_PATH              "/mnt/vendor/param/pq/overscan.db"
 #define PARAM_LDIM_BIN_PATH                 "/mnt/vendor/param/pq/ldim.bin"
 #define PARAM_OSD_BIN_PATH                  "/mnt/vendor/param/pq/UI_PQSetting.bin"
@@ -42,6 +45,7 @@
 //for pq config
 #define CFG_SECTION_PQ                          "PQ"
 #define CFG_PQ_DB_PATH                          "pq_db_path"
+#define CFG_PQ_EXT_DB_PATH                      "pq_ext_db_path"
 #define CFG_PQ_OVERSCAN_DB_PATH                 "pq_overscan_db_path"
 #define CFG_PQ_SSM_DATAT_PATH                   "pq_ssm_data_path"
 #define CFG_PQ_SSM_DATA_HANDLER_PATH            "pq_ssm_data_handler_path"
@@ -207,6 +211,7 @@ public:
     static CConfigFile *GetInstance();
     bool isFileExist(const char *file_name);
     void GetPqdbPath(char *file_path);
+    void GetPqExtdbPath(char *file_path);
     void GetOverscandbPath(char *file_path);
     void GetSSMDataPath(char *file_path);
     void GetSSMDataHandlerPath(char *file_path);

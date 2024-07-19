@@ -14,6 +14,7 @@
 #include "SSMAction.h"
 #include "CDevicePollCheckThread.h"
 #include "CPQdb.h"
+#include "CPQExtdb.h"
 #include "CPQDataBase.h"
 #include "WhitebalanceDataBase.h"
 
@@ -753,6 +754,7 @@ private:
     double GetGammaPower(vpp_gamma_curve_t mode);
     int GetDriverValueMap(CMS_TYPE type, int value);
     bool IsDongleLowPowerPqOff(void);
+    int SetOsdSharpness(void);
 
     //DATABASE
     bool SetPictureMode(PICTURE_MODE_DEFAULT *params);
@@ -881,6 +883,7 @@ private:
     resolution_height_type_t mOutPutFrameHeightType     = UHD_HEIGHT_2160;//for aisr demo patch
 
     CPQdb *mPQdb                                        = NULL;
+    CPQExtdb *mPQExtdb                                  = NULL;
     COverScandb *mpOverScandb                           = NULL;
     SSMAction *mSSMAction                               = NULL;
     CConfigFile *mPQConfigFile                          = NULL;

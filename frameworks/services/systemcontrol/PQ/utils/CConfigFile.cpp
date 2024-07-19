@@ -480,6 +480,37 @@ void CConfigFile::GetPqdbPath(char *file_path)
     strcpy(file_path, PARAM_PQ_DB_PATH);
 }
 
+void CConfigFile::GetPqExtdbPath(char *file_path)
+{
+    if (!isFileExist(PARAM_PQ_EXT_DB_PATH)) {
+        //read pq ext db path from pq_default.ini
+        const char *pqDBConfigPath = NULL;
+        pqDBConfigPath = GetString(CFG_SECTION_PQ, CFG_PQ_EXT_DB_PATH, PQ_EXT_DB_DEFAULT_PATH_0);
+
+        if (isFileExist(pqDBConfigPath)) {
+            CFile FilePq(pqDBConfigPath);
+            if (FilePq.copyTo(PARAM_PQ_EXT_DB_PATH) != 0) {
+                SYS_LOGE("copy file to %s error!\n", PARAM_PQ_EXT_DB_PATH);
+            }
+        } else if (isFileExist(PQ_EXT_DB_DEFAULT_PATH_0)) {
+            CFile FilePq(PQ_EXT_DB_DEFAULT_PATH_0);
+            if (FilePq.copyTo(PARAM_PQ_EXT_DB_PATH) != 0) {
+                SYS_LOGE("copy file to %s error!\n", PARAM_PQ_EXT_DB_PATH);
+            }
+        } else if (isFileExist(PQ_EXT_DB_DEFAULT_PATH_1)) {
+            CFile FilePq(PQ_EXT_DB_DEFAULT_PATH_1);
+            if (FilePq.copyTo(PARAM_PQ_EXT_DB_PATH) != 0) {
+                SYS_LOGE("copy file to %s error!\n", PARAM_PQ_EXT_DB_PATH);
+            }
+        } else {
+            SYS_LOGE("no pq.db in %s and %s\n", PQ_EXT_DB_DEFAULT_PATH_0, PQ_EXT_DB_DEFAULT_PATH_1);
+        }
+
+    }
+
+    strcpy(file_path, PARAM_PQ_EXT_DB_PATH);
+}
+
 void CConfigFile::GetOverscandbPath(char *file_path)
 {
     if (!isFileExist(PARAM_OVERSCAN_DB_PATH)) {

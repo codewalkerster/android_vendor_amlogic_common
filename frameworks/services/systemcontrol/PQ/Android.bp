@@ -78,6 +78,7 @@ cc_library_shared {
     defaults: ["pqcontrol_defaults", "pqcontrol_go_defaults"],
     srcs: [
         "CPQdb.cpp",
+        "CPQExtdb.cpp",
         "COverScandb.cpp",
         "CPQControl.cpp",
         "CDevicePollCheckThread.cpp",
