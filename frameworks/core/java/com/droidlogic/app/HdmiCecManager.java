@@ -209,6 +209,13 @@ public class HdmiCecManager {
         return audioManager.getDeviceVolumeBehavior(DEVICE_HDMI_OUT);
     }
 
+    public boolean isSoundbarModeEnabled() {
+        if (mHdmiControlManager == null) {
+            return false;
+        }
+        return mHdmiControlManager.getSoundbarMode() == ON;
+    }
+
     private boolean readValue(String key) {
         return readValue(key, ON);
     }
