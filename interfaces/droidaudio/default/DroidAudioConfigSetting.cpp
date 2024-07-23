@@ -489,11 +489,18 @@ int32_t DroidAudioConfigSetting::recreateAudioPatch() {
         mpAudioPatch = nullptr;
     }
     audio_patch *audioPatch = new audio_patch;
-    for (auto audioSink : audioSinks) {
-        audioPatch->sinks[audioPatch->num_sinks++] = audioSink.active_config;
-    }
-    audioPatch->sources[0] = audioSource.active_config;
+    audioPatch->num_sinks = 0;
     audioPatch->num_sources = 1;
+    audioPatch->sources[0] = audioSource.active_config;
+    for (auto audioSink : audioSinks) {
+        audioPatch->sinks[audioPatch->num_sinks] = audioSink.active_config;
+        audioPatch->num_sinks++;
+        if (audioPatch->num_sinks >= AUDIO_PATCH_PORTS_MAX) {
+            AM_LOGW("num_sinks:%d > max:%d", audioPatch->num_sinks, AUDIO_PATCH_PORTS_MAX);
+            audioPatch->num_sinks = AUDIO_PATCH_PORTS_MAX - 1;
+            break;
+        }
+    }
     AudioSystem::createAudioPatch(audioPatch, &audioPatch->id);
     mpAudioPatch = audioPatch;
     AM_LOGI("createAudioPatch end, id:%d", audioPatch->id);
