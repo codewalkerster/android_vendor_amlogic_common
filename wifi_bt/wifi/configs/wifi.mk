@@ -344,17 +344,17 @@ PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/w2/lspci:$(TARGET_COPY_
 endif
 
 ifneq ($(filter w2l,$(WIFI_MODULES)),)
-ifeq (,$(wildcard common/driver_modules/wifi_bt/wifi/amlogic/wifi_comm/w2l/common))
+ifeq (,$(wildcard common/driver_modules/wifi_bt/wifi/amlogic/w2l/common))
 PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.txt,vendor/amlogic/common/wifi_bt/wifi/w2l,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/w2l/)
 PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.bin,vendor/amlogic/common/wifi_bt/wifi/w2l,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/w2l/)
 PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.ini,vendor/amlogic/common/wifi_bt/wifi/w2l,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/w2l/)
 PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.asm,vendor/amlogic/common/wifi_bt/wifi/w2l,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/w2l/)
 else
-PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.txt,common/driver_modules/wifi_bt/wifi/amlogic/wifi_comm/w2l/common,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/w2l/)
-PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.bin,common/driver_modules/wifi_bt/wifi/amlogic/wifi_comm/w2l/common,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/w2l/)
-PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.ini,common/driver_modules/wifi_bt/wifi/amlogic/wifi_comm/w2l/common,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/w2l/)
-PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.asm,common/driver_modules/wifi_bt/wifi/amlogic/wifi_comm/w2l/common,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/w2l/)
-PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.pm,common/driver_modules/wifi_bt/wifi/amlogic/wifi_comm/w2l/common,$(TARGET_COPY_OUT_VENDOR)/xbin/)
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.txt,common/driver_modules/wifi_bt/wifi/amlogic/w2l/common,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/w2l/)
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.bin,common/driver_modules/wifi_bt/wifi/amlogic/w2l/common,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/w2l/)
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.ini,common/driver_modules/wifi_bt/wifi/amlogic/w2l/common,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/w2l/)
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.asm,common/driver_modules/wifi_bt/wifi/amlogic/w2l/common,$(TARGET_COPY_OUT_VENDOR)/lib/firmware/w2l/)
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.pm,common/driver_modules/wifi_bt/wifi/amlogic/w2l/common,$(TARGET_COPY_OUT_VENDOR)/xbin/)
 endif
 endif
 
