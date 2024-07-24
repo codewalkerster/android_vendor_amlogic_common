@@ -399,12 +399,13 @@ int32_t DroidAudioConfigSetting::updateAudioPatch() {
             patch.sources[0].ext.device.type == AUDIO_DEVICE_IN_TV_TUNER &&
             patch.sinks[0].type == AUDIO_PORT_TYPE_DEVICE) {
             if (mpAudioPatch != nullptr) {
-                if (mpAudioPatch->sinks[0].ext.device.type != patch.sinks[0].ext.device.type) {
-                    AM_LOGI("update audio patch, sink dev:%#x", patch.sinks[0].ext.device.type);
+                if (mpAudioPatch->sinks[0].ext.device.type != patch.sinks[0].ext.device.type ||
+                    mpAudioPatch->sinks[0].id != patch.sinks[0].id) {
+                    AM_LOGI("update audio patch, sink dev:%#x id %d", patch.sinks[0].ext.device.type,patch.sinks[0].id);
                     delete mpAudioPatch;
                     mpAudioPatch = new audio_patch(patch);
                 } else {
-                    AM_LOGI("no sink changed, sink:%#x", mpAudioPatch->sinks[0].ext.device.type);
+                    AM_LOGI("no sink changed, sink:type %#x id %d", mpAudioPatch->sinks[0].ext.device.type, mpAudioPatch->sinks[0].id);
                     return -1;
                 }
             } else {
