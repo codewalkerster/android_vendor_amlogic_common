@@ -52,6 +52,7 @@ public:
     int32_t dump(int fd, const char **args, uint32_t numArgs);
 
 private:
+    void reloadAudio();
     void findAudioSinkFromAudioPolicy(vector<audio_port_v7>& sinks);
     int32_t findAudioDevicePort(audio_devices_t type, audio_port_v7& port);
     void handleAudioSinkUpdatedRunnable();
@@ -104,11 +105,11 @@ public:
     }
 private:
     virtual void onAudioPortListUpdate() override {
-        ALOGV("...");
+        AM_LOGV("...");
         onProcessDtvAudio();
     }
     virtual void onAudioPatchListUpdate() override {
-        ALOGV("...");
+        AM_LOGV("...");
         onProcessDtvAudio();
     }
 
@@ -123,9 +124,11 @@ private:
 
     virtual void onServiceDied() override {
         AM_LOGW("audioserver died...");
-        if (AudioSystem::addAudioPortCallback(this) != NO_ERROR) {
-            AM_LOGW("addAudioPortCallback failed");
-        }
+        std::thread([this] {
+            // wait for the onServiceDied function call to finish.
+            std::this_thread::sleep_for(std::chrono::milliseconds(200));
+            this->mDroidAudioConfigSetting->reloadAudio();
+         }).detach();
     }
     DroidAudioConfigSetting* mDroidAudioConfigSetting;
 };
@@ -141,9 +144,6 @@ private:
     }
     virtual void onServiceDied() override {
         AM_LOGW("audioserver died...");
-        if (AudioSystem::addAudioVolumeGroupCallback(this) != NO_ERROR) {
-            AM_LOGW("addAudioVolumeGroupCallback failed");
-        }
     }
     DroidAudioConfigSetting* mDroidAudioConfigSetting;
 };

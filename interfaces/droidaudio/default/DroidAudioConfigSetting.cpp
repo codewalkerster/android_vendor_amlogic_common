@@ -180,11 +180,7 @@ DroidAudioConfigSetting::DroidAudioConfigSetting(): mInitStatus(false),
     if (AudioSystem::addAudioVolumeGroupCallback(volumeCallback) != NO_ERROR) {
         AM_LOGW("addAudioVolumeGroupCallback failed");
     }
-
-    audio_attributes_t attr;
-    attr.usage = AUDIO_USAGE_MEDIA;
-    AudioSystem::getVolumeGroupFromAudioAttributes(attr, mMusicVolumeGroupId);
-    AM_LOGI("mMusicVolumeGroupId:%d", mMusicVolumeGroupId);
+    reloadAudio();
 }
 
 DroidAudioConfigSetting::~DroidAudioConfigSetting() {
@@ -193,6 +189,13 @@ DroidAudioConfigSetting::~DroidAudioConfigSetting() {
     if (mProcThread.joinable()) {
         mProcThread.join();
     }
+}
+
+void DroidAudioConfigSetting::reloadAudio() {
+    audio_attributes_t attr;
+    attr.usage = AUDIO_USAGE_MEDIA;
+    AudioSystem::getVolumeGroupFromAudioAttributes(attr, mMusicVolumeGroupId);
+    AM_LOGI("mMusicVolumeGroupId:%d", mMusicVolumeGroupId);
 }
 
 int32_t DroidAudioConfigSetting::init() {
