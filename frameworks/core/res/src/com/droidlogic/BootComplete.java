@@ -42,6 +42,7 @@ import com.droidlogic.app.SystemControlManager;
 import android.content.DialogInterface;
 import android.os.Handler;
 import android.os.Message;
+import android.os.PowerManager;
 
 public class BootComplete extends BroadcastReceiver {
     private static final String TAG             = "BootComplete";
@@ -170,6 +171,13 @@ public class BootComplete extends BroadcastReceiver {
 
         // start FrameRateService
         context.startService(new Intent(context, FrameRateService.class));
+
+        PowerManager powerManager = context.getSystemService(PowerManager.class);
+        if (powerManager.isLowPowerStandbySupported()) {
+            context.startService(new Intent(context, LowPowerPolicyService.class));
+        } else {
+            Log.i(TAG, "No need to listen low power policy change");
+        }
     }
 
     private boolean getBooleanProperty(String property, boolean defVal) {
