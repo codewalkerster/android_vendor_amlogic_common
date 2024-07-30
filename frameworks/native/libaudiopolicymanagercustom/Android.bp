@@ -30,7 +30,7 @@ aml_audio_policy_manager_defaults {
 
 cc_library_shared {
     name: "libaudiopolicymanagercustom",
-
+    system_ext_specific: true,
     defaults: [
         "latest_android_media_audio_common_types_cpp_shared",
         "aml_audio_policy_manager_defaults",

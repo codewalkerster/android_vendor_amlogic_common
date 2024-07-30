@@ -927,14 +927,15 @@ public class DroidAudioManager {
         Log.d(TAG, "closeTvAudio ");
     }
 
-    public static final int DROID_AUDIO_FORCE_USE_NONE                              = 0;
-    public static final int DROID_AUDIO_FORCE_USE_SPEAKER                           = 1;
-    public static final int DROID_AUDIO_FORCE_USE_SPDIF                             = 17;
-    public static final int DROID_AUDIO_FORCE_USE_HDMI_ARC                          = 16;
-    public static final int DROID_AUDIO_FORCE_USE_HDMI_OUT                          = 18;
-    public static final int DROID_AUDIO_FORCE_USE_HEADPHONES                        = 2;
-    public static final int DROID_AUDIO_FORCE_USE_WIRED_ACCESSORY                   = 5;
-    public static final int DROID_AUDIO_FORCE_USE_BT_A2DP                           = 4;
+    // audio_policy_forced_cfg_t (system\media\audio\include\system\audio_policy.h)
+    public static final int DROID_AUDIO_FORCE_USE_NONE                              = 0; // AUDIO_POLICY_FORCE_NONE
+    public static final int DROID_AUDIO_FORCE_USE_SPEAKER                           = 1; // AUDIO_POLICY_FORCE_SPEAKER
+    public static final int DROID_AUDIO_FORCE_USE_SPDIF                             = 8; // AUDIO_POLICY_FORCE_ANALOG_DOCK
+    public static final int DROID_AUDIO_FORCE_USE_HDMI_ARC                          = 9; // AUDIO_POLICY_FORCE_DIGITAL_DOCK
+    public static final int DROID_AUDIO_FORCE_USE_HDMI_OUT                          = 6; // AUDIO_POLICY_FORCE_BT_CAR_DOCK
+    public static final int DROID_AUDIO_FORCE_USE_HEADPHONES                        = 2; // AUDIO_POLICY_FORCE_HEADPHONES
+    public static final int DROID_AUDIO_FORCE_USE_WIRED_ACCESSORY                   = 5; // AUDIO_POLICY_FORCE_WIRED_ACCESSORY
+    public static final int DROID_AUDIO_FORCE_USE_BT_A2DP                           = 4; // AUDIO_POLICY_FORCE_BT_A2DP
     public int setOutputDevices(int[] devices) {
         if (droidAudioServiceIsNull()) return 0;
         try {

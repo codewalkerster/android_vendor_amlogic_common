@@ -30,6 +30,7 @@ aml_audio_policy_manager_engine_defaults {
 
 cc_library_shared {
     name: "libaudiopolicyengine_amlogic",
+    system_ext_specific: true,
     defaults: [
         "aml_audio_policy_manager_engine_defaults",
     ],

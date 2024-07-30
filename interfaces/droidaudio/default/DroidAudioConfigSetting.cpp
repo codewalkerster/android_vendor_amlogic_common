@@ -939,45 +939,28 @@ int32_t DroidAudioConfigSetting::setAudioCmdParam(int32_t cmd, int32_t param1, i
 }
 
 int32_t DroidAudioConfigSetting::setOutputDevices(const vector<int32_t>& devices) {
-    if (devices.size() == 0 || devices.size() > 2) {
+    if (devices.size() == 0 || devices.size() > 1) {
         AM_LOGW("devices size is:%zu", devices.size());
         return -1;
     }
 
-    if (devices.size() == 1 && devices[0] == DROID_AUDIO_FORCE_USE_NONE) {
-        g_SystemControlClient->setProperty(PROP_AUDIO_OUTPUT_STRATEGY, to_string(DROID_AUDIO_OUTPUT_STRATEGY_AUTO).c_str());
-        AudioSystem::setForceUse(AUDIO_POLICY_FORCE_FOR_MEDIA, (audio_policy_forced_cfg_t)DROID_AUDIO_FORCE_USE_NONE);
-        AM_LOGI("Auto Mode, setForceUse NONE.");
-        return 0;
-    }
-    g_SystemControlClient->setProperty(PROP_AUDIO_OUTPUT_STRATEGY, to_string(DROID_AUDIO_OUTPUT_STRATEGY_MANUAL).c_str());
-    int32_t forceUse = devices[0];
-    if (devices.size() == 2) {
-        if ((devices[0] == DROID_AUDIO_FORCE_USE_SPEAKER && devices[1] == DROID_AUDIO_FORCE_USE_SPDIF) ||
-            (devices[0] == DROID_AUDIO_FORCE_USE_SPDIF && devices[1] == DROID_AUDIO_FORCE_USE_SPEAKER)) {
-            forceUse = DROID_AUDIO_FORCE_USE_SPEAKER_SPDIF;
-        } else {
-            AM_LOGW("not support devices size is:%zu", devices.size());
+    switch (devices[0]) {
+        case DROID_AUDIO_FORCE_USE_NONE:
+        case DROID_AUDIO_FORCE_USE_SPEAKER:
+        case DROID_AUDIO_FORCE_USE_SPDIF:
+        case DROID_AUDIO_FORCE_USE_HDMI_OUT:
+        case DROID_AUDIO_FORCE_USE_HEADPHONES:
+        case DROID_AUDIO_FORCE_USE_HDMI_ARC:
+        case DROID_AUDIO_FORCE_USE_WIRED_ACCESSORY:
+        case DROID_AUDIO_FORCE_USE_BT_A2DP:
+            break;
+        default:
+            AM_LOGW("unsupported forceUse:%d", devices[0]);
             return -1;
-        }
-    } else {
-        switch (devices[0]) {
-            case DROID_AUDIO_FORCE_USE_SPEAKER:
-            case DROID_AUDIO_FORCE_USE_SPDIF:
-            case DROID_AUDIO_FORCE_USE_HDMI_OUT:
-            case DROID_AUDIO_FORCE_USE_HEADPHONES:
-            case DROID_AUDIO_FORCE_USE_HDMI_ARC:
-            case DROID_AUDIO_FORCE_USE_WIRED_ACCESSORY:
-            case DROID_AUDIO_FORCE_USE_BT_A2DP:
-                break;
-            default:
-                AM_LOGW("unsupported forceUse:%d", forceUse);
-                return -1;
-        }
     }
-    AM_LOGI("setForceUse:%d", forceUse);
-    AudioSystem::setForceUse(AUDIO_POLICY_FORCE_FOR_MEDIA, (audio_policy_forced_cfg_t)forceUse);
-    g_SystemControlClient->setProperty("persist.vendor.media.audio.forceuse", to_string(forceUse).c_str());
+    AM_LOGI("setForceUse:%d", devices[0]);
+    AudioSystem::setForceUse(AUDIO_POLICY_FORCE_FOR_MEDIA, (audio_policy_forced_cfg_t)devices[0]);
+    g_SystemControlClient->setProperty("persist.vendor.media.audio.forceuse", to_string(devices[0]).c_str());
     return 0;
 }
 
@@ -1060,7 +1043,7 @@ void DroidAudioConfigSetting::updateCoexistSpdifOther() {
     audioPort.ext.device.type = AUDIO_DEVICE_OUT_SPDIF;
     android::media::audio::common::AudioPort aidlAudioPort = legacy2aidl_audio_port_v7_AudioPort(audioPort, false).value();
     if (coexist == curState) {
-        audio_policy_dev_state_t state = enable ? AUDIO_POLICY_DEVICE_STATE_AVAILABLE : AUDIO_POLICY_DEVICE_STATE_UNAVAILABLE;
+        audio_policy_dev_state_t state = enable ? AUDIO_POLICY_DEVICE_STATE_UNAVAILABLE : AUDIO_POLICY_DEVICE_STATE_AVAILABLE;
         AudioSystem::setDeviceConnectionState(state, aidlAudioPort, AUDIO_FORMAT_DEFAULT);
     }
 }
