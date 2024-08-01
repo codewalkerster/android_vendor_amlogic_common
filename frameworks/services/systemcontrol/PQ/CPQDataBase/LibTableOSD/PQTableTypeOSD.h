@@ -150,6 +150,7 @@ typedef enum _MEMC_MODE {
     MEMC_MODE_LOW,
     MEMC_MODE_MID,
     MEMC_MODE_HIGH,
+    MEMC_MODE_USER,
     MEMC_MODE_MAX,
 } MEMC_MODE;
 

@@ -161,6 +161,7 @@ TABLE_PICTURE_SETTING_EXT mPictureSettingTable = {
 /*LOW           */        {3,        3},
 /*MID           */        {6,        6},
 /*HIGH          */        {10,       10},
+/*USER          */        {10,       10},
 },
 
 /*McDiMode      */        1,

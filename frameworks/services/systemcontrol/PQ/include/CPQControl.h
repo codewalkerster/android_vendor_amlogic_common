@@ -358,8 +358,9 @@ public:
     int Memc_enable(int enable);
     int SetMemcMode(int memc_mode, int is_save);
     int GetMemcMode(void);
-    int SaveMemcMode(vpp_memc_mode_t memc_mode);
-    int Cpq_SetMemcMode(vpp_memc_mode_t memc_mode, source_input_param_t source_input_param);
+    int SaveMemcMode(MEMC_MODE memc_mode);
+    int Cpq_SetMemcMode(MEMC_MODE memc_mode, source_input_param_t source_input_param);
+    bool Cpq_GetMemcTrueFalseOff(MEMC_MODE memc_mode);
     int SetMemcDeBlurLevel(int level, int is_save);
     int GetMemcDeBlurLevel(void);
     int SaveMemcDeBlurLevel(int level);
