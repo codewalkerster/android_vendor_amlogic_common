@@ -34,7 +34,6 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.droidlogic.ArcVolumeController;
 import com.droidlogic.app.DroidLogicUtils;
 import com.droidlogic.app.OutputModeManager;
 import com.droidlogic.app.SystemControlManager;
@@ -52,7 +51,6 @@ public class DroidAudioCore {
     private AudioManager mAudioManager;
     private SystemControlManager mSystemControlManager;
     private OutputModeManager mOutputModeManager;
-    private ArcVolumeController mArcVolumeController;
     private SettingsObserver mSettingsObserver;
 
     private Context mContext;
@@ -77,20 +75,8 @@ public class DroidAudioCore {
         mAudioManager = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
         mOutputModeManager = OutputModeManager.getInstance(mContext);
         mDroidAudioManager = DroidAudioManager.getInstance(mContext);
-
-        if (!DroidLogicUtils.isTv()) {
-            mDroidAudioManager.setSoundBarModeEnabled(mDroidAudioManager.isSoundBarModeEnabled());
-        }
-
-        mDroidAudioManager.init();
-        mArcVolumeController = new ArcVolumeController(mContext);
         mObserver.startObserving(PATH_AUDIOFORMAT_UEVENT);
         mObserver.startObserving(PATH_TXLX_AUDIOFORMAT_UEVENT);
-        SystemControlManager mSystemControlManager = SystemControlManager.getInstance();
-        final boolean isSupportDolby = mSystemControlManager.getPropertyBoolean("ro.vendor.platform.support.dolby", false);
-        if (isSupportDolby) {
-            mDroidAudioManager.setDrcMode(mDroidAudioManager.getDrcMode());
-        }
 
         String[] settings = new String[] {
                 DroidAudioManager.ENCODED_SURROUND_OUTPUT,
@@ -100,23 +86,12 @@ public class DroidAudioCore {
         for (String s : settings) {
             mResolver.registerContentObserver(Settings.Global.getUriFor(s), false, mSettingsObserver);
         }
+        mDroidAudioManager.init(false);
         /*setThisValue for dts scale*/
         mOutputModeManager.setDtsDrcScaleSysfs();
-        initDigitalAudioFormat();
-        mDroidAudioManager.setARCLatency(mDroidAudioManager.getARCLatency());
-        mDroidAudioManager.setSoundSpdifEnable(mDroidAudioManager.getSoundSpdifEnable());
-        mDroidAudioManager.setAdSupportEnable(mDroidAudioManager.getAdSupportEnable());
-        mDroidAudioManager.setAc4DialogEnhancer(mDroidAudioManager.getAc4DialogEnhancer());
-        mDroidAudioManager.setForceDDPEnable(mDroidAudioManager.getForceDDPEnable());
-
-        // refresh db delay of media to hal
-        mDroidAudioManager.refreshAudioCfgBySrc(DroidAudioManager.AUDIO_OUTPUT_DELAY_SOURCE_MEDIA, true);
-        mDroidAudioManager.setAudioOutputAllDelay(mDroidAudioManager.getAudioOutputAllDelay());
-        // refresh db prescale of all source to hal (set one prescale, at the same time the others will be set)
-        mDroidAudioManager.setAudioPrescale(DroidAudioManager.AUDIO_OUTPUT_DELAY_SOURCE_ATV,
-                                        mDroidAudioManager.getAudioPrescale(DroidAudioManager.AUDIO_OUTPUT_DELAY_SOURCE_ATV));
 
         // init VAD
+        mSystemControlManager = SystemControlManager.getInstance();
         String vadUbootEnable = mSystemControlManager.getBootenv(DroidAudioManager.AUDIO_VAD_UBOOTENV_FFV_WAKE, DroidAudioManager.AUDIO_VAD_STRING_VAD_OFF);
         String property = mSystemControlManager.getPropertyString(DroidAudioManager.AUDIO_VAD_PROPERTY_VADWAKE, DroidAudioManager.AUDIO_VAD_STRING_VAD_OFF);
         Log.i(TAG, "initVadStatus uboot status:" + vadUbootEnable + ", prop:" + property);
@@ -198,21 +173,6 @@ public class DroidAudioCore {
                 mDroidAudioManager.saveDigitalAudioFormatToHal(
                     DroidAudioManager.DIGITAL_AUDIO_FORMAT_MANUAL, getSurroundManualFormats());
             }
-        }
-    }
-
-    private void initDigitalAudioFormat () {
-        int audioFormat = mDroidAudioManager.getDigitalAudioFormatOut();
-        switch (audioFormat) {
-            case DroidAudioManager.DIGITAL_AUDIO_FORMAT_MANUAL:
-                String format = mDroidAudioManager.getAudioManualFormats();
-                mDroidAudioManager.setDigitalAudioFormatOut(DroidAudioManager.DIGITAL_AUDIO_FORMAT_MANUAL, format);
-                break;
-            case DroidAudioManager.DIGITAL_AUDIO_FORMAT_PCM:
-            case DroidAudioManager.DIGITAL_AUDIO_FORMAT_AUTO:
-            default:
-                mDroidAudioManager.setDigitalAudioFormatOut(audioFormat);
-                break;
         }
     }
 

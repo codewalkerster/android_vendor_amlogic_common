@@ -15,6 +15,7 @@ import vendor.amlogic.hardware.droidaudio.IDroidAudioClient;
 @VintfStability
 interface IDroidAudio {
     int init();
+    int reset();
     int registerClient(in IDroidAudioClient client);
     int setAudioCmdParam(int cmd, int param1, int param2, int param3);
     int setOutputDevices(in int[] devices);

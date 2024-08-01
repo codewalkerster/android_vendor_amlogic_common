@@ -44,6 +44,7 @@ public:
 
     static DroidAudioConfigSetting* instance();
     int32_t init();
+    int32_t reset();
     int32_t setAudioCmdParam(int32_t cmd, int32_t param1, int32_t param2, int32_t param3);
     int32_t setOutputDevices(const vector<int32_t>& devices);
     int32_t getOutputDevices(vector<int32_t>* devices);

@@ -65,11 +65,6 @@ public class SoundEffectManager {
     public static final String DB_ID_SOUND_EFFECT_BASS                          = "db_id_sound_effect_bass";
     public static final String DB_ID_SOUND_EFFECT_TREBLE                        = "db_id_sound_effect_treble";
     public static final String DB_ID_SOUND_EFFECT_BALANCE                       = "db_id_sound_effect_balance";
-    public static final String DB_ID_SOUND_EFFECT_SOUND_MODE                    = "db_id_sound_effect_sound_mode";
-    public static final String DB_ID_SOUND_EFFECT_SOUND_MODE_TYPE               = "db_id_sound_effect_sound_mode_type";
-    public static final String DB_ID_SOUND_EFFECT_SOUND_MODE_TYPE_DAP           = "db_id_sound_effect_sound_mode_type_dap";
-    public static final String DB_ID_SOUND_EFFECT_SOUND_MODE_TYPE_EQ            = "db_id_sound_effect_sound_mode_type_eq";
-    public static final String DB_ID_SOUND_EFFECT_SOUND_MODE_DAP_VALUE          = "db_id_sound_effect_sound_mode_dap";
     public static final String DB_ID_SOUND_EFFECT_SOUND_MODE_EQ_VALUE           = "db_id_sound_effect_sound_mode_eq";
     public static final String DB_ID_SOUND_EFFECT_BAND1                         = "db_id_sound_effect_band1";
     public static final String DB_ID_SOUND_EFFECT_BAND2                         = "db_id_sound_effect_band2";
@@ -254,8 +249,8 @@ public class SoundEffectManager {
 
     private static final int PARAMETERS_DAP_ENABLE                      = 1;
     private static final int PARAMETERS_DAP_DISABLE                     = 0;
-    //band 1, band 2, band 3, band 4, band 5  need transfer 0~100 to -10~10
-    private static final int[] EFFECT_SOUND_MODE_USER_BAND              = {50, 50, 50, 50, 50, 50, 50, 50, 50};
+    //band 1, band 2, band 3, band 4, band 5  -10~10
+    private static final int[] EFFECT_SOUND_MODE_USER_BAND              = {0, 0, 0, 0, 0, 0, 0, 0, 0};
     private static final int EFFECT_SOUND_TYPE_NUM = 6;
 
     // Virtual X effect param type
@@ -297,41 +292,331 @@ public class SoundEffectManager {
         mSupportMs12Dap = DroidAudioManager.getInstance(mContext).isAudioSupportMs12System();
     }
 
-    public void createAudioEffects() {
-        if (mEffectInit) {
-            Log.w(TAG, "createAudioEffects Already init effect, return");
+    private void initDatabase() {
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_SOUND_MODE_EQ_VALUE, AudioEffectManager.EQ_SOUND_MODE_STANDARD);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BALANCE, AudioEffectManager.EFFECT_BALANCE_DEFAULT);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_TREBLE, AudioEffectManager.EFFECT_TREBLE_DEFAULT);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BASS, AudioEffectManager.EFFECT_BASS_DEFAULT);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND1, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND1]);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND2, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND2]);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND3, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND3]);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND4, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND4]);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND5, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND5]);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND6, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND6]);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND7, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND7]);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND8, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND8]);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND9, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND9]);
+        Settings.Global.putInt(mContext.getContentResolver(), "set_eq_band", 0);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_VIRTUAL_SURROUND, AudioEffectManager.SOUND_EFFECT_VIRTUAL_SURROUND_OFF);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_VIRTUALX_MODE, AudioEffectManager.SOUND_EFFECT_VIRTUALX_MODE_DEFAULT);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_TREVOLUME_HD, AudioEffectManager.SOUND_EFFECT_TRUVOLUME_HD_ENABLE_DEFAULT);
+
+        // DAP
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DAP_SAVED, 0);
+
+        // DPE
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_ENABLED, AudioEffectManager.DEFAULT_DPE_ENABLE);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_INPUTGAIN, AudioEffectManager.DEFAULT_DPE_INPUTGAIN);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_PRE_EQ, AudioEffectManager.DPE_PRE_EQ_OFF);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC, AudioEffectManager.DPE_MBC_OFF);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_POST_EQ, AudioEffectManager.DPE_POST_EQ_OFF);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_LIMITER, AudioEffectManager.DPE_LIMITER_OFF);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND0, 0);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND0_CUTOFFFREQUENCY, AudioEffectManager.DEFAULT_DPE_BAND0_CUTOFFFREQUENCY);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND0_GAIN, AudioEffectManager.DEFAULT_DPE_EQ_GAIN);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND1, 0);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND1_CUTOFFFREQUENCY, AudioEffectManager.DEFAULT_DPE_BAND1_CUTOFFFREQUENCY);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND1_GAIN, AudioEffectManager.DEFAULT_DPE_EQ_GAIN);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND2, 0);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND2_CUTOFFFREQUENCY, AudioEffectManager.DEFAULT_DPE_BAND2_CUTOFFFREQUENCY);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_PRE_EQ_BAND2_GAIN, AudioEffectManager.DAP_GEQ_DEFAULT);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND0, 0);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND0_CUTOFFFREQUENCY, AudioEffectManager.DEFAULT_DPE_BAND0_CUTOFFFREQUENCY);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND0_GAIN, AudioEffectManager.DEFAULT_DPE_EQ_GAIN);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND1, 0);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND1_CUTOFFFREQUENCY, AudioEffectManager.DEFAULT_DPE_BAND1_CUTOFFFREQUENCY);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND1_GAIN, AudioEffectManager.DEFAULT_DPE_EQ_GAIN);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND2, 0);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND2_CUTOFFFREQUENCY, AudioEffectManager.DEFAULT_DPE_BAND2_CUTOFFFREQUENCY);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_POST_EQ_BAND2_GAIN, AudioEffectManager.DEFAULT_DPE_EQ_GAIN);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0, 0);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_CUTOFFFREQUENCY, AudioEffectManager.DEFAULT_DPE_BAND0_CUTOFFFREQUENCY);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_ATTACKTIME, AudioEffectManager.DEFAULT_DPE_ATTACKTIME);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_RELEASETIME, AudioEffectManager.DEFAULT_DPE_RELEASETIME);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_RATIO, AudioEffectManager.DEFAULT_DPE_MBC_RATIO);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_THRESHOLD, AudioEffectManager.DEFAULT_DPE_MBC_THRESHOLD);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_KNEEWIDTH, AudioEffectManager.DEFAULT_DPE_MBC_KNEEWIDTH);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_NOISEGATE_THRESHOLD, AudioEffectManager.DEFAULT_DPE_MBC_NOISEGATETHRESHOLD);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_EXPANDER_RATIO, AudioEffectManager.DEFAULT_DPE_MBC_EXPANDERRATIO);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_PRE_GAIN, AudioEffectManager.DEFAULT_DPE_MBC_PREGAIN);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND0_POST_GAIN, AudioEffectManager.DEFAULT_DPE_MBC_POSTGAIN);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1, 0);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_CUTOFFFREQUENCY, AudioEffectManager.DEFAULT_DPE_BAND1_CUTOFFFREQUENCY);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_ATTACKTIME, AudioEffectManager.DEFAULT_DPE_ATTACKTIME);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_RELEASETIME, AudioEffectManager.DEFAULT_DPE_RELEASETIME);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_RATIO, AudioEffectManager.DEFAULT_DPE_MBC_RATIO);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_THRESHOLD, AudioEffectManager.DEFAULT_DPE_MBC_THRESHOLD);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_KNEEWIDTH, AudioEffectManager.DEFAULT_DPE_MBC_KNEEWIDTH);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_NOISEGATE_THRESHOLD, AudioEffectManager.DEFAULT_DPE_MBC_NOISEGATETHRESHOLD);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_EXPANDER_RATIO, AudioEffectManager.DEFAULT_DPE_MBC_EXPANDERRATIO);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_PRE_GAIN, AudioEffectManager.DEFAULT_DPE_MBC_PREGAIN);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND1_POST_GAIN, AudioEffectManager.DEFAULT_DPE_MBC_POSTGAIN);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2, 0);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_CUTOFFFREQUENCY, AudioEffectManager.DEFAULT_DPE_BAND2_CUTOFFFREQUENCY);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_ATTACKTIME, AudioEffectManager.DEFAULT_DPE_ATTACKTIME);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_RELEASETIME, AudioEffectManager.DEFAULT_DPE_RELEASETIME);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_RATIO, AudioEffectManager.DEFAULT_DPE_MBC_RATIO);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_THRESHOLD, AudioEffectManager.DEFAULT_DPE_MBC_THRESHOLD);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_KNEEWIDTH, AudioEffectManager.DEFAULT_DPE_MBC_KNEEWIDTH);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_NOISEGATE_THRESHOLD, AudioEffectManager.DEFAULT_DPE_MBC_NOISEGATETHRESHOLD);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_EXPANDER_RATIO, AudioEffectManager.DEFAULT_DPE_MBC_EXPANDERRATIO);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_PRE_GAIN, AudioEffectManager.DEFAULT_DPE_MBC_PREGAIN);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_MBC_BAND2_POST_GAIN, AudioEffectManager.DEFAULT_DPE_MBC_POSTGAIN);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_LIMITER_ATTACKTIME, AudioEffectManager.DEFAULT_DPE_ATTACKTIME);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_LIMITER_RELEASETIMR, AudioEffectManager.DEFAULT_DPE_RELEASETIME);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_LIMITER_RATIO, AudioEffectManager.DEFAULT_DPE_LIMITER_RATIO);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_LIMITER_THRESHOLD, AudioEffectManager.DEFAULT_DPE_LIMITER_THRESHOLD);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_LIMITER_POST_GAIN, AudioEffectManager.DEFAULT_DPE_LIMITER_POSTGAIN);
+
+        // debug ui
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_HPEQ_DEBUG,
+            DroidLogicUtils.isTv() ? AudioEffectManager.DEBUG_UI_ON : AudioEffectManager.DEBUG_UI_OFF);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BALANCE_DEBUG,
+            DroidLogicUtils.isTv() ? AudioEffectManager.DEBUG_UI_ON : AudioEffectManager.DEBUG_UI_OFF);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_TREBLEBASS_DEBUG, AudioEffectManager.DEBUG_UI_OFF);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_VIRTUAL_SURROUND_DEBUG, AudioEffectManager.DEBUG_UI_OFF);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_DEBUG, AudioEffectManager.DEBUG_UI_OFF);
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_VIRTUAL_X_DEBUG, AudioEffectManager.DEBUG_UI_OFF);
+        DroidAudioManager droidAudioManager = DroidAudioManager.getInstance(mContext);
+        int defaultValue = droidAudioManager.isSoundBarModeEnabled() ? AudioEffectManager.DEBUG_UI_ON : AudioEffectManager.DEBUG_UI_OFF;
+        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DAP_2_DEBUG, defaultValue);
+
+        Log.i(TAG, "initDatabase success");
+    }
+
+    private void applyAudioEffectByPlayEmptyTrack() {
+        int bufsize = AudioTrack.getMinBufferSize(48000, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT);
+        if (bufsize <= 0) {
+            Log.w(TAG, "applyAudioEffectByPlayEmptyTrack buffersize:" + bufsize + " invalid.");
             return;
         }
-        Log.d(TAG, "createAudioEffects Start to create audio effects...");
-        mSupportVirtualX = false;
-        if (isDtsVXValid()) {
-            mSupportVirtualX = creatVirtualXAudioEffects();
+        byte data[] = new byte[bufsize];
+        AudioTrack trackplayer = new AudioTrack(AudioManager.STREAM_MUSIC, 48000, AudioFormat.CHANNEL_OUT_STEREO,
+                AudioFormat.ENCODING_PCM_16BIT, bufsize, AudioTrack.MODE_STREAM);
+        Log.i(TAG, "applyAudioEffectByPlayEmptyTrack create empty AudioTrack to applay AudioEffect");
+        trackplayer.play();
+        for (int i = 0; i <= 5; i++) {
+            trackplayer.write(data, 0, data.length);
         }
-        creatVirtualSurroundAudioEffects();
-        creatTrebleBassAudioEffects();
-        if (!mSupportMs12Dap) {
-            creatEqAudioEffects();
-        }
-        creatBalanceAudioEffects();
+        trackplayer.stop();
+        trackplayer.release();
+    }
 
-        creatDpeAudioEffect();
+    public static final String DB_ID_AUDIO_DATABASE_FIRST_BOOT                      = "db_id_audio_database_first_boot";
+    public void init() {
+        if (mEffectInit) {
+            Log.w(TAG, "init: Already init effect, return");
+            return;
+        }
+        Log.d(TAG, "init");
+        int firstBoot = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_AUDIO_DATABASE_FIRST_BOOT, 1);
+        if (firstBoot == 1) {
+            Settings.Global.putInt(mContext.getContentResolver(), DB_ID_AUDIO_DATABASE_FIRST_BOOT, 0);
+            initDatabase();
+        }
+        mSupportVirtualX = false;
+
+        setAudioEffectOnByIndex(AudioEffectManager.DEBUG_HPEQ_UI, isAudioEffectOn(AudioEffectManager.DEBUG_HPEQ_UI), false);
+        setAudioEffectOnByIndex(AudioEffectManager.DEBUG_BALANCE_UI, isAudioEffectOn(AudioEffectManager.DEBUG_BALANCE_UI), false);
+        setAudioEffectOnByIndex(AudioEffectManager.DEBUG_TREBLEBASS_UI, isAudioEffectOn(AudioEffectManager.DEBUG_TREBLEBASS_UI), false);
+        setAudioEffectOnByIndex(AudioEffectManager.DEBUG_VIRTUAL_SURROUND_UI, isAudioEffectOn(AudioEffectManager.DEBUG_VIRTUAL_SURROUND_UI), false);
+        setAudioEffectOnByIndex(AudioEffectManager.DEBUG_DPE_UI, isAudioEffectOn(AudioEffectManager.DEBUG_DPE_UI), false);
+        setAudioEffectOnByIndex(AudioEffectManager.DEBUG_VIRTUAL_X_UI, isAudioEffectOn(AudioEffectManager.DEBUG_VIRTUAL_X_UI), false);
+        setAudioEffectOnByIndex(AudioEffectManager.DEBUG_DAP_2_UI, isAudioEffectOn(AudioEffectManager.DEBUG_DAP_2_UI), false);
+        applyAudioEffectByPlayEmptyTrack();
         mEffectInit = true;
+    }
+
+    public void deinit() {
+        if (!mEffectInit) {
+            Log.w(TAG, "deinit effect not create, return.");
+            return;
+        }
+        Log.d(TAG, "deinit");
+        setAudioEffectOnByIndex(AudioEffectManager.DEBUG_HPEQ_UI, false, false);
+        setAudioEffectOnByIndex(AudioEffectManager.DEBUG_BALANCE_UI, false, false);
+        setAudioEffectOnByIndex(AudioEffectManager.DEBUG_TREBLEBASS_UI, false, false);
+        setAudioEffectOnByIndex(AudioEffectManager.DEBUG_VIRTUAL_SURROUND_UI, false, false);
+        setAudioEffectOnByIndex(AudioEffectManager.DEBUG_DPE_UI, false, false);
+        setAudioEffectOnByIndex(AudioEffectManager.DEBUG_VIRTUAL_X_UI, false, false);
+        setAudioEffectOnByIndex(AudioEffectManager.DEBUG_DAP_2_UI, false, false);
+        mEffectInit = false;
+    }
+
+    public void reset() {
+        Log.d(TAG, "reset");
+        initDatabase();
+        setAudioEffectOnByIndex(AudioEffectManager.DEBUG_HPEQ_UI, isAudioEffectOn(AudioEffectManager.DEBUG_HPEQ_UI), true);
+        setAudioEffectOnByIndex(AudioEffectManager.DEBUG_BALANCE_UI, isAudioEffectOn(AudioEffectManager.DEBUG_BALANCE_UI), true);
+        setAudioEffectOnByIndex(AudioEffectManager.DEBUG_TREBLEBASS_UI, isAudioEffectOn(AudioEffectManager.DEBUG_TREBLEBASS_UI), true);
+        setAudioEffectOnByIndex(AudioEffectManager.DEBUG_VIRTUAL_SURROUND_UI, isAudioEffectOn(AudioEffectManager.DEBUG_VIRTUAL_SURROUND_UI), true);
+        setAudioEffectOnByIndex(AudioEffectManager.DEBUG_DPE_UI, isAudioEffectOn(AudioEffectManager.DEBUG_DPE_UI), true);
+        setAudioEffectOnByIndex(AudioEffectManager.DEBUG_VIRTUAL_X_UI, isAudioEffectOn(AudioEffectManager.DEBUG_VIRTUAL_X_UI), true);
+        setAudioEffectOnByIndex(AudioEffectManager.DEBUG_DAP_2_UI, isAudioEffectOn(AudioEffectManager.DEBUG_DAP_2_UI), true);
         applyAudioEffectByPlayEmptyTrack();
     }
 
-    public void cleanupAudioEffects() {
-        if (mEffectInit) {
-            Log.w(TAG, "cleanupAudioEffects effect not create, return.");
-            return;
+    public void setAudioEffectOnByIndex (int id, boolean enable, boolean onlyInit) {
+        Log.i(TAG, "setAudioEffectOnByIndex id:" + AudioEffectManager.debugUiIndexToString(id) +
+            ", enable:" + enable + ", onlyInit:" + onlyInit);
+        int value = enable ? AudioEffectManager.DEBUG_UI_ON : AudioEffectManager.DEBUG_UI_OFF;
+        switch (id) {
+            case AudioEffectManager.DEBUG_HPEQ_UI:
+                if (value == AudioEffectManager.DEBUG_UI_ON) {
+                    if (!onlyInit) {
+                        creatEqAudioEffects();
+                    }
+                    initEqAudioEffects();
+                } else {
+                    cleanupEqAudioEffects();
+                }
+                break;
+            case AudioEffectManager.DEBUG_BALANCE_UI:
+                if (value == AudioEffectManager.DEBUG_UI_ON) {
+                    if (!onlyInit) {
+                        creatBalanceAudioEffects();
+                    }
+                    initBalanceAudioEffects();
+                } else {
+                    cleanupBalanceAudioEffects();
+                }
+                break;
+            case AudioEffectManager.DEBUG_TREBLEBASS_UI:
+                if (value == AudioEffectManager.DEBUG_UI_ON) {
+                    if (!onlyInit) {
+                        creatTrebleBassAudioEffects();
+                    }
+                    initTrebleBassAudioEffects();
+                } else {
+                    cleanupTrebleBassAudioEffects();
+                }
+                break;
+            case AudioEffectManager.DEBUG_VIRTUAL_SURROUND_UI:
+                if (value == AudioEffectManager.DEBUG_UI_ON) {
+                    if (!onlyInit) {
+                        creatVirtualSurroundAudioEffects();
+                    }
+                    initVirtualSurroundAudioEffects();
+                } else {
+                    cleanupVirtualSurroundAudioEffects();
+                }
+                break;
+            case AudioEffectManager.DEBUG_DPE_UI:
+                if (value == AudioEffectManager.DEBUG_UI_ON) {
+                    if (!onlyInit) {
+                        creatDpeAudioEffect();
+                    }
+                    initDpeAudioEffect();
+                } else {
+                    cleanupDpeAudioEffects();
+                }
+                break;
+            case AudioEffectManager.DEBUG_VIRTUAL_X_UI:
+                if (value == AudioEffectManager.DEBUG_UI_ON) {
+                    if (isDtsVXValid()) {
+                        if (!onlyInit) {
+                            mSupportVirtualX = creatVirtualXAudioEffects();
+                        }
+                        initVirtualXAudioEffects();
+                    } else {
+                        Log.i(TAG, "createAndInitAudioEffectsByIndex isDtsVXValid false");
+                    }
+                } else {
+                    cleanupVirtualXAudioEffects();
+                }
+                break;
+            case AudioEffectManager.DEBUG_DAP_2_UI:
+                if (value == AudioEffectManager.DEBUG_UI_ON) {
+                    if (!onlyInit) {
+                        creatDapAudioEffect();
+                    }
+                    initDapAudioEffect();
+                } else {
+                    cleanupDapAudioEffects();
+                }
+                break;
+            default:
+                Log.e(TAG, "setAudioEffectOnByIndex id:" + id + " is invalid!");
+                break;
         }
-        cleanupBalanceAudioEffects();
-        cleanupDapAudioEffects();
-        cleanupDpeAudioEffects();
-        cleanupEqAudioEffects();
-        cleanupTrebleBassAudioEffects();
-        cleanupVirtualSurroundAudioEffects();
-        cleanupVirtualXAudioEffects();
-        mEffectInit = false;
+    }
+
+    public void setAudioEffectOn (int id, boolean dbSwitch) {
+        setAudioEffectOnByIndex(id, dbSwitch, false);
+        switch (id) {
+            case AudioEffectManager.DEBUG_HPEQ_UI:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_HPEQ_DEBUG, dbSwitch ? 1 : 0);
+                break;
+            case AudioEffectManager.DEBUG_BALANCE_UI:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BALANCE_DEBUG, dbSwitch ? 1 : 0);
+                break;
+            case AudioEffectManager.DEBUG_TREBLEBASS_UI:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_TREBLEBASS_DEBUG, dbSwitch ? 1 : 0);
+                break;
+            case AudioEffectManager.DEBUG_VIRTUAL_SURROUND_UI:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_VIRTUAL_SURROUND_DEBUG, dbSwitch ? 1 : 0);
+                break;
+            case AudioEffectManager.DEBUG_DPE_UI:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_DEBUG, dbSwitch ? 1 : 0);
+                break;
+            case AudioEffectManager.DEBUG_VIRTUAL_X_UI:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_VIRTUAL_X_DEBUG, dbSwitch ? 1 : 0);
+                break;
+            case AudioEffectManager.DEBUG_DAP_2_UI:
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DAP_2_DEBUG, dbSwitch ? 1 : 0);
+                break;
+            default:
+                Log.e(TAG, "setAudioEffectOn id:" + id + " is invalid!");
+                break;
+        }
+        applyAudioEffectByPlayEmptyTrack();
+    }
+
+    public boolean isAudioEffectOn(int id) {
+        int value = -1;
+        switch (id) {
+            case AudioEffectManager.DEBUG_HPEQ_UI:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_HPEQ_DEBUG, AudioEffectManager.DEBUG_UI_OFF);
+                break;
+            case AudioEffectManager.DEBUG_BALANCE_UI:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BALANCE_DEBUG, AudioEffectManager.DEBUG_UI_OFF);
+                break;
+            case AudioEffectManager.DEBUG_TREBLEBASS_UI:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_TREBLEBASS_DEBUG, AudioEffectManager.DEBUG_UI_OFF);
+                break;
+            case AudioEffectManager.DEBUG_VIRTUAL_SURROUND_UI:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_VIRTUAL_SURROUND_DEBUG, AudioEffectManager.DEBUG_UI_OFF);
+                break;
+            case AudioEffectManager.DEBUG_DPE_UI:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_DEBUG, AudioEffectManager.DEBUG_UI_OFF);
+                break;
+            case AudioEffectManager.DEBUG_VIRTUAL_X_UI:
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_VIRTUAL_X_DEBUG, AudioEffectManager.DEBUG_UI_OFF);
+                break;
+            case AudioEffectManager.DEBUG_DAP_2_UI:
+                DroidAudioManager droidAudioManager = DroidAudioManager.getInstance(mContext);
+                int defaultValue = droidAudioManager.isSoundBarModeEnabled() ? AudioEffectManager.DEBUG_UI_ON : AudioEffectManager.DEBUG_UI_OFF;
+                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DAP_2_DEBUG, defaultValue);
+                break;
+            default:
+                Log.e(TAG, "isAudioEffectOn id:" + id + " is invalid!");
+                break;
+        }
+        if (DroidLogicUtils.getAudioDebugEnable()) {
+            Log.d(TAG, "isAudioEffectOn id:" + AudioEffectManager.debugUiIndexToString(id) + ", value:" + value);
+        }
+
+        return value == AudioEffectManager.DEBUG_UI_ON;
     }
 
     public boolean cleanupVirtualXAudioEffects() {
@@ -340,6 +625,7 @@ public class SoundEffectManager {
                 mVirtualX.setEnabled(false);
                 mVirtualX.release();
                 mVirtualX = null;
+                Log.i(TAG, "cleanupVirtualXAudioEffects success");
             }
             return true;
         } catch (RuntimeException e) {
@@ -354,7 +640,7 @@ public class SoundEffectManager {
                 mBalance.setEnabled(false);
                 mBalance.release();
                 mBalance = null;
-                Log.e(TAG, "cleanup Balance effect successful");
+                Log.i(TAG, "cleanupBalanceAudioEffects success");
             }
             return true;
         } catch (RuntimeException e) {
@@ -369,6 +655,7 @@ public class SoundEffectManager {
                 mTrebleBass.setEnabled(false);
                 mTrebleBass.release();
                 mTrebleBass = null;
+                Log.i(TAG, "cleanupTrebleBassAudioEffects success");
             }
             return true;
         } catch (RuntimeException e) {
@@ -384,6 +671,7 @@ public class SoundEffectManager {
                 mSoundMode.setEnabled(false);
                 mSoundMode.release();
                 mSoundMode = null;
+                Log.i(TAG, "cleanupEqAudioEffects success");
             }
             return true;
         } catch (RuntimeException e) {
@@ -398,6 +686,7 @@ public class SoundEffectManager {
                 mVirtualSurround.setEnabled(false);
                 mVirtualSurround.release();
                 mVirtualSurround = null;
+                Log.i(TAG, "cleanupVirtualSurroundAudioEffects success");
             }
             return true;
         } catch (RuntimeException e) {
@@ -412,6 +701,7 @@ public class SoundEffectManager {
                 mDpe.setEnabled(false);
                 mDpe.release();
                 mDpe = null;
+                Log.i(TAG, "cleanupDpeAudioEffects success");
             }
             return true;
         } catch (RuntimeException e) {
@@ -425,6 +715,7 @@ public class SoundEffectManager {
                 mDap.setEnabled(false);
                 mDap.release();
                 mDap = null;
+                Log.i(TAG, "cleanupDapAudioEffects success");
             }
             return true;
         } catch (RuntimeException e) {
@@ -436,8 +727,8 @@ public class SoundEffectManager {
     public boolean creatVirtualXAudioEffects() {
         try {
             if (mVirtualX == null) {
-                if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "begin to create VirtualX effect");
                 mVirtualX = new AudioEffect(EFFECT_TYPE_VIRTUAL_X, EFFECT_UUID_VIRTUAL_X, 0, 0);
+                Log.i(TAG, "creatVirtualXAudioEffects: create_effect success");
             }
             int result = mVirtualX.setEnabled(true);
             if (result != AudioEffect.SUCCESS) {
@@ -453,8 +744,9 @@ public class SoundEffectManager {
     public boolean creatBalanceAudioEffects() {
         try {
             if (mBalance == null) {
-                if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "creatBalanceAudioEffects");
                 mBalance = new AudioEffect(EFFECT_TYPE_BALANCE, AudioEffect.EFFECT_TYPE_NULL, 0, 0);
+                Log.i(TAG, "creatBalanceAudioEffects: create_effect success");
+                mBalance.setEnabled(true);
             }
             return true;
         } catch (RuntimeException e) {
@@ -466,8 +758,9 @@ public class SoundEffectManager {
     public boolean creatTrebleBassAudioEffects() {
         try {
             if (mTrebleBass == null) {
-                if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "creatTrebleBassAudioEffects");
                 mTrebleBass = new AudioEffect(EFFECT_TYPE_TREBLE_BASS, AudioEffect.EFFECT_TYPE_NULL, 0, 0);
+                Log.i(TAG, "creatTrebleBassAudioEffects: create_effect success");
+                mTrebleBass.setEnabled(true);
             }
             return true;
         } catch (RuntimeException e) {
@@ -479,14 +772,11 @@ public class SoundEffectManager {
     public boolean creatEqAudioEffects() {
         try {
             if (mSoundMode == null) {
-                if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "creatEqAudioEffects");
                 mSoundMode = new AudioEffect(EFFECT_TYPE_EQ, AudioEffect.EFFECT_TYPE_NULL, 0, 0);
+                Log.i(TAG, "creatEqAudioEffects: create_effect success");
                 int result = mSoundMode.setEnabled(true);
                 if (result == AudioEffect.SUCCESS) {
-                    if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "creatEqAudioEffects enable eq");
                     mSoundMode.setParameter(PARAM_EQ_ENABLE, 1); //TODO:define 1
-                    Settings.Global.putString(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_SOUND_MODE_TYPE,
-                            DB_ID_SOUND_EFFECT_SOUND_MODE_TYPE_EQ);
                 }
             }
             return true;
@@ -499,8 +789,9 @@ public class SoundEffectManager {
     public boolean creatVirtualSurroundAudioEffects() {
         try {
             if (mVirtualSurround == null) {
-                if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "creatVirtualSurroundAudioEffects");
                 mVirtualSurround = new AudioEffect(EFFECT_TYPE_VIRTUAL_SURROUND, AudioEffect.EFFECT_TYPE_NULL, 0, 0);
+                Log.i(TAG, "creatVirtualSurroundAudioEffects: create_effect success");
+                mVirtualSurround.setEnabled(true);
             }
             return true;
         } catch (RuntimeException e) {
@@ -593,11 +884,6 @@ public class SoundEffectManager {
         return saveresult;
     }
 
-    // The interface will be deprecated.
-    public int getSoundModule() {
-        return 1;
-    }
-
     public int getTrebleStatus () {
         int saveresult = -1;
         if (mTrebleBass == null) {
@@ -668,27 +954,19 @@ public class SoundEffectManager {
     }
 
     //set sound mode except customed one
-    public void setSoundMode (int mode) {
-        //need to set sound mode by observer listener
-        saveAudioParameters(SET_SOUND_MODE, mode);
-    }
-
-    public void setSoundModeByObserver (int mode, int bandSum) {
+    public void setSoundMode(int mode) {
         if (mSoundMode == null) {
-            Log.e(TAG, "setSoundModeByObserver eq sound is not created");
+            Log.e(TAG, "setSoundMode eq sound is not created");
             return;
         }
-        int result = mSoundMode.setEnabled(true);
-        if (result == AudioEffect.SUCCESS) {
-            if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "setSoundMode = " + mode);
-            mSoundMode.setParameter(PARAM_EQ_EFFECT, mode);
-            if (mode == AudioEffectManager.EQ_SOUND_MODE_CUSTOM) {
-                //set one band, at the same time the others will be set
-                setDifferentBandEffects(AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND1, getSavedAudioParameters(SET_EFFECT_BAND1), false, bandSum);
-            }
-            //need to set sound mode by observer listener
-            //saveAudioParameters(SET_SOUND_MODE, mode);
+        if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "setSoundMode = " + mode);
+        mSoundMode.setParameter(PARAM_EQ_EFFECT, mode);
+        if (mode == AudioEffectManager.EQ_SOUND_MODE_CUSTOM) {
+            int bandSum = getHpeqBandNum(AudioEffectManager.DEBUG_HPEQ_BAND_NUM_UI);
+            //set one band, at the same time the others will be set
+            setDifferentBandEffects(AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND1, getSavedAudioParameters(SET_EFFECT_BAND1), false, bandSum);
         }
+        saveAudioParameters(SET_SOUND_MODE, mode);
     }
 
     public void setUserSoundModeParam(int bandNumber, int value, int bandSum) {
@@ -711,13 +989,15 @@ public class SoundEffectManager {
     }
 
     public int getUserSoundModeParam(int bandNumber) {
-        if (bandNumber > AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND9 || bandNumber < AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND1) {
+        if (bandNumber > AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND9 ||
+            bandNumber < AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND1) {
             Log.e(TAG, "the EQ band number:" + bandNumber + " invalid, get failed");
             return 0;
         }
-        int value = 0;
-        value = getSavedAudioParameters(bandNumber + SET_EFFECT_BAND1);
-        if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "getUserSoundModeParam band number:" + bandNumber+ ", value:" + value);
+        int value = getSavedAudioParameters(bandNumber + SET_EFFECT_BAND1);
+        if (DroidLogicUtils.getAudioDebugEnable()) {
+            Log.d(TAG, "getUserSoundModeParam band number:" + bandNumber+ ", value:" + value);
+        }
         return value;
     }
 
@@ -726,55 +1006,19 @@ public class SoundEffectManager {
             Log.e(TAG, "setDifferentBandEffects eq sound is not created");
             return;
         }
-        int result = mSoundMode.setEnabled(true);
-        if (result == AudioEffect.SUCCESS) {
-            if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "setDifferentBandEffects: NO." + bandnum + " = " + value);
-            byte[] needband = new byte[9];
-            for (int i = AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND1; i <= AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND9; i++) {
-                if (bandnum == i) {
-                    needband[i] = (byte)MappingLine(value, true);
-                } else {
-                    needband[i] = (byte) MappingLine(getSavedAudioParameters(i + SET_EFFECT_BAND1), true);
-                }
-            }
-            Log.i(TAG, "set eq custom effect band value: " + Arrays.toString(needband));
-            mSoundMode.setParameter(PARAM_EQ_CUSTOM, needband);
-            if (needsave) {
-                saveAudioParameters(bandnum + SET_EFFECT_BAND1, value);
+        if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "setDifferentBandEffects: NO." + bandnum + " = " + value);
+        byte[] needband = new byte[9];
+        for (int i = AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND1; i <= AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND9; i++) {
+            if (bandnum == i) {
+                needband[i] = (byte)value;
+            } else {
+                needband[i] = (byte)getSavedAudioParameters(i + SET_EFFECT_BAND1);
             }
         }
-    }
-    //convert -10~10 to 0~100 controlled by need or not
-    private int unMappingLine(int mapval, boolean need) {
-        if (!need) {
-            return mapval;
-        }
-
-        final int MIN_UI_VAL = -10;
-        final int MAX_UI_VAL = 10;
-        final int MIN_VAL = 0;
-        final int MAX_VAL = 100;
-        if (mapval > MAX_UI_VAL || mapval < MIN_UI_VAL) {
-            Log.e(TAG, "unMappingLine: map value:" + mapval + " invalid. set default value:" + (MAX_VAL - MIN_VAL) / 2);
-            return (MAX_VAL - MIN_VAL) / 2;
-        }
-        return (mapval - MIN_UI_VAL) * (MAX_VAL - MIN_VAL) / (MAX_UI_VAL - MIN_UI_VAL);
-    }
-
-    //convert 0~100 to -10~10 controlled by need or not
-    private int MappingLine(int mapval, boolean need) {
-        if (!need) {
-            return mapval;
-        }
-        final int MIN_UI_VAL = 0;
-        final int MAX_UI_VAL = 100;
-        final int MIN_VAL = -10;
-        final int MAX_VAL = 10;
-        if (MIN_VAL < 0) {
-            return (mapval - (MAX_UI_VAL + MIN_UI_VAL) / 2) * (MAX_VAL - MIN_VAL)
-                   / (MAX_UI_VAL - MIN_UI_VAL);
-        } else {
-            return (mapval - MIN_UI_VAL) * (MAX_VAL - MIN_VAL) / (MAX_UI_VAL - MIN_UI_VAL);
+        Log.i(TAG, "set eq custom effect band value: " + Arrays.toString(needband));
+        mSoundMode.setParameter(PARAM_EQ_CUSTOM, needband);
+        if (needsave) {
+            saveAudioParameters(bandnum + SET_EFFECT_BAND1, value);
         }
     }
 
@@ -783,12 +1027,9 @@ public class SoundEffectManager {
             Log.e(TAG, "setTreble mTrebleBass creat fail");
             return;
         }
-        int result = mTrebleBass.setEnabled(true);
-        if (result == AudioEffect.SUCCESS) {
-            if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "setTreble = " + step);
-            mTrebleBass.setParameter(PARAM_TREBLE_LEVEL, step);
-            saveAudioParameters(SET_TREBLE, step);
-        }
+        if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "setTreble = " + step);
+        mTrebleBass.setParameter(PARAM_TREBLE_LEVEL, step);
+        saveAudioParameters(SET_TREBLE, step);
     }
 
     public void setBass (int step) {
@@ -796,12 +1037,9 @@ public class SoundEffectManager {
             Log.e(TAG, "setBass mTrebleBass creat fail");
             return;
         }
-        int result = mTrebleBass.setEnabled(true);
-        if (result == AudioEffect.SUCCESS) {
-            if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "setBass = " + step);
-            mTrebleBass.setParameter(PARAM_BASS_LEVEL, step);
-            saveAudioParameters(SET_BASS, step);
-        }
+        if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "setBass = " + step);
+        mTrebleBass.setParameter(PARAM_BASS_LEVEL, step);
+        saveAudioParameters(SET_BASS, step);
     }
 
     public void setBalance (int step) {
@@ -809,12 +1047,9 @@ public class SoundEffectManager {
             Log.e(TAG, "setBalance mBalance creat fail");
             return;
         }
-        int result = mBalance.setEnabled(true);
-        if (result == AudioEffect.SUCCESS) {
-            if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "setBalance = " + step);
-            mBalance.setParameter(PARAM_BALANCE_LEVEL, step);
-            saveAudioParameters(SET_BALANCE, step);
-        }
+        if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "setBalance = " + step);
+        mBalance.setParameter(PARAM_BALANCE_LEVEL, step);
+        saveAudioParameters(SET_BALANCE, step);
     }
 
     public void setVirtualSurround (int mode) {
@@ -822,12 +1057,9 @@ public class SoundEffectManager {
             Log.e(TAG, "setVirtualSurround mVirtualSurround creat fail");
             return;
         }
-        int result = mVirtualSurround.setEnabled(true);
-        if (result == AudioEffect.SUCCESS) {
-            if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "setVirtualSurround = " + mode);
-            mVirtualSurround.setParameter(PARAM_VIRTUALSURROUND, mode);
-            saveAudioParameters(SET_VIRTUAL_SURROUND, mode);
-        }
+        if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "setVirtualSurround = " + mode);
+        mVirtualSurround.setParameter(PARAM_VIRTUALSURROUND, mode);
+        saveAudioParameters(SET_VIRTUAL_SURROUND, mode);
     }
 
     private void saveAudioParameters(int id, int value) {
@@ -843,14 +1075,7 @@ public class SoundEffectManager {
                 Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BALANCE, value);
                 break;
             case SET_SOUND_MODE:
-                String soundmodetype = Settings.Global.getString(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_SOUND_MODE_TYPE);
-                if (soundmodetype == null || DB_ID_SOUND_EFFECT_SOUND_MODE_TYPE_EQ.equals(soundmodetype)) {
-                    Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_SOUND_MODE_EQ_VALUE, value);
-                } else if ((DB_ID_SOUND_EFFECT_SOUND_MODE_TYPE_DAP.equals(soundmodetype))) {
-                    Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_SOUND_MODE_DAP_VALUE, value);
-                } else {
-                    Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_SOUND_MODE, value);
-                }
+                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_SOUND_MODE_EQ_VALUE, value);
                 break;
             case SET_EFFECT_BAND1:
                 Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND1, value);
@@ -893,19 +1118,7 @@ public class SoundEffectManager {
         }
     }
 
-    private int getSoundModeFromDb() {
-        String soundmodetype = Settings.Global.getString(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_SOUND_MODE_TYPE);
-        if (soundmodetype == null || DB_ID_SOUND_EFFECT_SOUND_MODE_TYPE_EQ.equals(soundmodetype)) {
-            return Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_SOUND_MODE_EQ_VALUE, AudioEffectManager.EQ_SOUND_MODE_STANDARD);
-        } else if ((DB_ID_SOUND_EFFECT_SOUND_MODE_TYPE_DAP.equals(soundmodetype))) {
-            return Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_SOUND_MODE_DAP_VALUE, AudioEffectManager.EQ_SOUND_MODE_STANDARD);
-        } else {
-            return Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_SOUND_MODE, AudioEffectManager.EQ_SOUND_MODE_STANDARD);
-        }
-    }
-
     private int getSavedAudioParameters(int id) {
-        if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "getSavedAudioParameters id:" + id);
         int result = -1;
         switch (id) {
             case SET_BASS:
@@ -918,8 +1131,7 @@ public class SoundEffectManager {
                 result = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BALANCE, AudioEffectManager.EFFECT_BALANCE_DEFAULT);
                 break;
             case SET_SOUND_MODE:
-                result = getSoundModeFromDb();
-                Log.d(TAG, "getSavedAudioParameters SET_SOUND_MODE = " + result);
+                result = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_SOUND_MODE_EQ_VALUE, AudioEffectManager.EQ_SOUND_MODE_STANDARD);
                 break;
             case SET_EFFECT_BAND1:
                 result = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND1, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND1]);
@@ -960,19 +1172,21 @@ public class SoundEffectManager {
             default:
                 break;
         }
+        if (DroidLogicUtils.getAudioDebugEnable()) {
+            Log.d(TAG, "getSavedAudioParameters id:" + id + ", value:" + result);
+        }
         return result;
     }
 
     public void initEqAudioEffects() {
         int bandSum = getHpeqBandNum(AudioEffectManager.DEBUG_HPEQ_BAND_NUM_UI);
         setHpeqBandNum(AudioEffectManager.DEBUG_HPEQ_BAND_NUM_UI, bandSum);
-        Log.d(TAG, " initEqAudioEffects bandSum :" + bandSum);
         if (Settings.Global.getInt(mContext.getContentResolver(), "set_eq_band", 0) == 0) {
             if (mSoundMode != null) {
                 byte[] eqBandNum = new byte[9];
                 mSoundMode.getParameter(PARAM_EQ_CUSTOM, eqBandNum);
                 for (int i = SET_EFFECT_BAND1; i <= SET_EFFECT_BAND9; i++) {
-                    saveAudioParameters(i, unMappingLine(eqBandNum[i - SET_EFFECT_BAND1], true));
+                    saveAudioParameters(i, eqBandNum[i - SET_EFFECT_BAND1]);
                 }
             } else {
                 for (int i = SET_EFFECT_BAND1; i <= SET_EFFECT_BAND9; i++) {
@@ -982,105 +1196,52 @@ public class SoundEffectManager {
             }
             Settings.Global.putInt(mContext.getContentResolver(), "set_eq_band", 1);
         }
-
-        int soundMode = getSavedAudioParameters(SET_SOUND_MODE);
-        setSoundModeByObserver(soundMode, bandSum);
+        setSoundMode(getSavedAudioParameters(SET_SOUND_MODE));
+        Log.i(TAG, "initEqAudioEffects: init_effect success. bandSum: " + bandSum);
     }
 
     public void initTrebleBassAudioEffects() {
-        Log.d(TAG, "initTrebleBassAudioEffects...");
         setBass(getSavedAudioParameters(SET_BASS));
         setTreble(getSavedAudioParameters(SET_TREBLE));
+        Log.i(TAG, "initTrebleBassAudioEffects: init_effect success");
     }
 
     public void initVirtualSurroundAudioEffects() {
-        Log.d(TAG, "initVirtualSurroundAudioEffects...");
         setVirtualSurround(getSavedAudioParameters(SET_VIRTUAL_SURROUND));
+        Log.i(TAG, "initVirtualSurroundAudioEffects: init_effect success");
     }
 
     public void initBalanceAudioEffects() {
-        Log.d(TAG, "initBalanceAudioEffects...");
         setBalance(getSavedAudioParameters(SET_BALANCE));
+        Log.i(TAG, "initBalanceAudioEffects: init_effect success");
     }
 
     public void initVirtualXAudioEffects() {
-        Log.d(TAG, "initVirtualXAudioEffects...");
         setDtsVirtualXMode(getDtsVirtualXMode());
         setDtsTruVolumeHdEnable(getDtsTruVolumeHdEnable());
-    }
-
-    public void initSoundEffectSettings() {
-        Log.d(TAG, "initSoundEffectSettings...");
-        initEqAudioEffects();
-        initTrebleBassAudioEffects();
-        initVirtualSurroundAudioEffects();
-        initBalanceAudioEffects();
-        applyAudioEffectByPlayEmptyTrack();
-        if (isSupportVirtualX()) {
-            initVirtualXAudioEffects();
-        }
-    }
-
-    public void resetSoundEffectSettings() {
-        Log.d(TAG, "resetSoundEffectSettings");
-        cleanupAudioEffects();
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BASS, AudioEffectManager.EFFECT_BASS_DEFAULT);
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_TREBLE, AudioEffectManager.EFFECT_TREBLE_DEFAULT);
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BALANCE, AudioEffectManager.EFFECT_BALANCE_DEFAULT);
-        Settings.Global.putString(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_SOUND_MODE_TYPE, DB_ID_SOUND_EFFECT_SOUND_MODE_TYPE_EQ);
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_SOUND_MODE, AudioEffectManager.EQ_SOUND_MODE_STANDARD);
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_SOUND_MODE_DAP_VALUE, AudioEffectManager.EQ_SOUND_MODE_STANDARD);
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_SOUND_MODE_EQ_VALUE, AudioEffectManager.EQ_SOUND_MODE_STANDARD);
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND1, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND1]);
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND2, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND2]);
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND3, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND3]);
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND4, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND4]);
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND5, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND5]);
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND6, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND6]);
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND7, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND7]);
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND8, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND8]);
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BAND9, EFFECT_SOUND_MODE_USER_BAND[AudioEffectManager.EQ_SOUND_MODE_EFFECT_BAND9]);
-        Settings.Global.putInt(mContext.getContentResolver(), "set_eq_band", 0);
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_VIRTUAL_SURROUND, AudioEffectManager.SOUND_EFFECT_VIRTUAL_SURROUND_OFF);
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_VIRTUALX_MODE, AudioEffectManager.SOUND_EFFECT_VIRTUALX_MODE_DEFAULT);
-        Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_TREVOLUME_HD, AudioEffectManager.SOUND_EFFECT_TRUVOLUME_HD_ENABLE_DEFAULT);
-        initSoundEffectSettings();
-    }
-
-    private void applyAudioEffectByPlayEmptyTrack() {
-        int bufsize = AudioTrack.getMinBufferSize(48000, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT);
-        if (bufsize <= 0) {
-            Log.w(TAG, "applyAudioEffectByPlayEmptyTrack buffersize:" + bufsize + " invalid.");
-            return;
-        }
-        byte data[] = new byte[bufsize];
-        AudioTrack trackplayer = new AudioTrack(AudioManager.STREAM_MUSIC, 48000, AudioFormat.CHANNEL_OUT_STEREO,
-                AudioFormat.ENCODING_PCM_16BIT, bufsize, AudioTrack.MODE_STREAM);
-        Log.i(TAG, "applyAudioEffectByPlayEmptyTrack create empty AudioTrack to applay AudioEffect");
-        trackplayer.play();
-        for (int i = 0; i <= 5; i++) {
-            trackplayer.write(data, 0, data.length);
-        }
-        trackplayer.stop();
-        trackplayer.release();
+        Log.i(TAG, "initVirtualXAudioEffects: init_effect success");
     }
 
     public boolean creatDapAudioEffect() {
         try {
-            if (mDap == null) {
-                if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "creatDapAudioEffect");
-                if (AudioEffectManager.SOUND_EFFECT_DAP_VERSION == AudioEffectManager.SOUND_EFFECT_DAP_VERSION_1_3_2) {
-                    mDap = new AudioEffect(EFFECT_TYPE_DAP_1_3_2, AudioEffect.EFFECT_TYPE_NULL, 0, 0);
-                } else if (AudioEffectManager.SOUND_EFFECT_DAP_VERSION == AudioEffectManager.SOUND_EFFECT_DAP_VERSION_2_4){
-                    mDap = new AudioEffect(EFFECT_TYPE_DAP_2_4, AudioEffect.EFFECT_TYPE_NULL, 0, 0);
-                }
-                int result = mDap.setEnabled(true);
-                if (result == AudioEffect.SUCCESS) {
-                    Log.d(TAG, "creatDapAudioEffect setEnabled success");
-                } else {
-                    Log.w(TAG, "creatDapAudioEffect setEnabled error: "+result);
-                    return false;
-                }
+            if (mDap != null) {
+                Log.w(TAG, "creatDapAudioEffect: DAP effect has created.");
+                return true;
+            }
+            if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "creatDapAudioEffect");
+            if (AudioEffectManager.SOUND_EFFECT_DAP_VERSION == AudioEffectManager.SOUND_EFFECT_DAP_VERSION_1_3_2) {
+                mDap = new AudioEffect(EFFECT_TYPE_DAP_1_3_2, AudioEffect.EFFECT_TYPE_NULL, 0, 0);
+                Log.i(TAG, "creatDapAudioEffect: create_effect DAP_1_3_2 success");
+            } else if (AudioEffectManager.SOUND_EFFECT_DAP_VERSION == AudioEffectManager.SOUND_EFFECT_DAP_VERSION_2_4){
+                mDap = new AudioEffect(EFFECT_TYPE_DAP_2_4, AudioEffect.EFFECT_TYPE_NULL, 0, 0);
+                Log.i(TAG, "creatDapAudioEffect: create_effect DAP_2_4 success");
+            }
+            int result = mDap.setEnabled(true);
+            if (result == AudioEffect.SUCCESS) {
+                Log.d(TAG, "creatDapAudioEffect setEnabled success");
+            } else {
+                Log.w(TAG, "creatDapAudioEffect setEnabled error: " + result);
+                return false;
             }
             return true;
         } catch (RuntimeException e) {
@@ -1090,102 +1251,107 @@ public class SoundEffectManager {
     }
 
     private void initDap_1_3_2() {
-       int mode = getDapParam(AudioEffectManager.CMD_DAP_EFFECT_MODE);
-       if (Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DAP_SAVED, 0) == 0) {
-           Log.i(TAG, "initDap_1_3_2 first boot.");
-           int id = 0;
-           //the first time, use the param from so load from ini file
-           setDapParam(AudioEffectManager.CMD_DAP_EFFECT_MODE, AudioEffectManager.DAP_MODE_USER);
-           for (id = AudioEffectManager.CMD_DAP_GEQ_ENABLE; id <= AudioEffectManager.CMD_DAP_VIRTUALIZER_ENABLE; id++)
-               saveDapParam(id, getDapParamInternal(id));
-           for (id = AudioEffectManager.SUBCMD_DAP_GEQ_BAND1; id <= AudioEffectManager.SUBCMD_DAP_GEQ_BAND5; id++)
-               saveDapParam(id, getDapParamInternal(id));
-           Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DAP_SAVED, 1);
-       } else {
-           saveDapParam(AudioEffectManager.CMD_DAP_EFFECT_MODE, AudioEffectManager.DAP_MODE_USER);
-           setDapParam(AudioEffectManager.CMD_DAP_VL_ENABLE, getDapParam(AudioEffectManager.CMD_DAP_VL_ENABLE));
-           setDapParam(AudioEffectManager.CMD_DAP_VL_AMOUNT, getDapParam(AudioEffectManager.CMD_DAP_VL_AMOUNT));
-           setDapParam(AudioEffectManager.CMD_DAP_DE_ENABLE, getDapParam(AudioEffectManager.CMD_DAP_DE_ENABLE));
-           setDapParam(AudioEffectManager.CMD_DAP_DE_AMOUNT, getDapParam(AudioEffectManager.CMD_DAP_DE_AMOUNT));
-           setDapParam(AudioEffectManager.CMD_DAP_SURROUND_BOOST, getDapParam(AudioEffectManager.CMD_DAP_SURROUND_BOOST));
-           setDapParam(AudioEffectManager.CMD_DAP_GEQ_ENABLE, getDapParam(AudioEffectManager.CMD_DAP_GEQ_ENABLE));
-           setDapParam(AudioEffectManager.SUBCMD_DAP_GEQ_BAND1, getDapParam(AudioEffectManager.SUBCMD_DAP_GEQ_BAND1));
-           saveDapParam(AudioEffectManager.CMD_DAP_EFFECT_MODE, mode);
-       }
-       setDapParam(AudioEffectManager.CMD_DAP_EFFECT_MODE, mode);
-   }
+        int mode = getDapParam(AudioEffectManager.CMD_DAP_EFFECT_MODE);
+        if (Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DAP_SAVED, 0) == 0) {
+            Log.i(TAG, "initDap_1_3_2 first boot.");
+            int id = 0;
+            //the first time, use the param from so load from ini file
+            setDapParam(AudioEffectManager.CMD_DAP_EFFECT_MODE, AudioEffectManager.DAP_MODE_USER);
+            for (id = AudioEffectManager.CMD_DAP_GEQ_ENABLE; id <= AudioEffectManager.CMD_DAP_VIRTUALIZER_ENABLE; id++)
+                saveDapParam(id, getDapParamInternal(id));
+            for (id = AudioEffectManager.SUBCMD_DAP_GEQ_BAND1; id <= AudioEffectManager.SUBCMD_DAP_GEQ_BAND5; id++)
+                saveDapParam(id, getDapParamInternal(id));
+            Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DAP_SAVED, 1);
+        } else {
+            saveDapParam(AudioEffectManager.CMD_DAP_EFFECT_MODE, AudioEffectManager.DAP_MODE_USER);
+            setDapParam(AudioEffectManager.CMD_DAP_VL_ENABLE, getDapParam(AudioEffectManager.CMD_DAP_VL_ENABLE));
+            setDapParam(AudioEffectManager.CMD_DAP_VL_AMOUNT, getDapParam(AudioEffectManager.CMD_DAP_VL_AMOUNT));
+            setDapParam(AudioEffectManager.CMD_DAP_DE_ENABLE, getDapParam(AudioEffectManager.CMD_DAP_DE_ENABLE));
+            setDapParam(AudioEffectManager.CMD_DAP_DE_AMOUNT, getDapParam(AudioEffectManager.CMD_DAP_DE_AMOUNT));
+            setDapParam(AudioEffectManager.CMD_DAP_SURROUND_BOOST, getDapParam(AudioEffectManager.CMD_DAP_SURROUND_BOOST));
+            setDapParam(AudioEffectManager.CMD_DAP_GEQ_ENABLE, getDapParam(AudioEffectManager.CMD_DAP_GEQ_ENABLE));
+            setDapParam(AudioEffectManager.SUBCMD_DAP_GEQ_BAND1, getDapParam(AudioEffectManager.SUBCMD_DAP_GEQ_BAND1));
+            saveDapParam(AudioEffectManager.CMD_DAP_EFFECT_MODE, mode);
+        }
+        setDapParam(AudioEffectManager.CMD_DAP_EFFECT_MODE, mode);
+        Log.i(TAG, "initDap_1_3_2: init_effect success");
+    }
 
-   private void initDap_2_4() {
-       int value = 0;
-       byte[] tempValue = new byte[2];
-       byte[] tempValue2 = new byte[6];
-       if (Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DAP_SAVED, 0) == 0) {
-           Log.i(TAG, "initDap_2_4 first boot.");
-           int mode = getDapParamInternal(AudioEffectManager.CMD_DAP_2_4_PROFILE);
-           Log.i(TAG, "PROFILE first boot init mode: " + mode);
-           saveDbDap24Param(AudioEffectManager.CMD_DAP_2_4_PROFILE, mode);
-           for (int i = AudioEffectManager.SOUND_EFFECT_DAP_2_4_PROFILE_MIN; i < AudioEffectManager.SOUND_EFFECT_DAP_2_4_PROFILE_MAX; i++) {
-               mDap.setParameter(AudioEffectManager.CMD_DAP_2_4_PROFILE - AudioEffectManager.CMD_DAP_2_4_BASE_VALUE, i);
-           }
-           mDap.setParameter(AudioEffectManager.CMD_DAP_2_4_PROFILE - AudioEffectManager.CMD_DAP_2_4_BASE_VALUE, mode);
-           Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DAP_SAVED, 1);
-       } else {
-           value = getDbDap24Param(AudioEffectManager.CMD_DAP_2_4_PROFILE);
-           if (value < 0) {
+    private void initDap_2_4() {
+        if (null == mDap) {
+            Log.e(TAG, "initDap_2_4: the DAP effect was not created.");
+            return;
+        }
+        int value = 0;
+        byte[] tempValue = new byte[2];
+        byte[] tempValue2 = new byte[6];
+        if (Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DAP_SAVED, 0) == 0) {
+            Log.i(TAG, "initDap_2_4 first boot.");
+            int mode = getDapParamInternal(AudioEffectManager.CMD_DAP_2_4_PROFILE);
+            Log.i(TAG, "PROFILE first boot init mode: " + mode);
+            saveDbDap24Param(AudioEffectManager.CMD_DAP_2_4_PROFILE, mode);
+            for (int i = AudioEffectManager.SOUND_EFFECT_DAP_2_4_PROFILE_MIN; i < AudioEffectManager.SOUND_EFFECT_DAP_2_4_PROFILE_MAX; i++) {
+                mDap.setParameter(AudioEffectManager.CMD_DAP_2_4_PROFILE - AudioEffectManager.CMD_DAP_2_4_BASE_VALUE, i);
+            }
+            mDap.setParameter(AudioEffectManager.CMD_DAP_2_4_PROFILE - AudioEffectManager.CMD_DAP_2_4_BASE_VALUE, mode);
+            Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DAP_SAVED, 1);
+        } else {
+            value = getDbDap24Param(AudioEffectManager.CMD_DAP_2_4_PROFILE);
+            if (value < 0) {
                 value = getDapParamInternal(AudioEffectManager.CMD_DAP_2_4_PROFILE);
                 saveDbDap24Param(AudioEffectManager.CMD_DAP_2_4_PROFILE, value);
-           }
-           Log.i(TAG, "PROFILE init value: " + value);
-           mDap.setParameter(AudioEffectManager.CMD_DAP_2_4_PROFILE - AudioEffectManager.CMD_DAP_2_4_BASE_VALUE, value);
+            }
+            Log.i(TAG, "PROFILE init value: " + value);
+            mDap.setParameter(AudioEffectManager.CMD_DAP_2_4_PROFILE - AudioEffectManager.CMD_DAP_2_4_BASE_VALUE, value);
 
-           if (value == AudioEffectManager.SOUND_EFFECT_DAP_2_4_PROFILE_USER_SELECTABLE) {
-               tempValue[0] = (byte)getDbDap24Param(AudioEffectManager.CMD_DAP_2_4_SURROUND_VIRTUALIZER);
-               //Log.i(TAG, "SURROUND_VIRTUALIZER init value: " + tempValue[0]);
-               tempValue[1] = (byte)getDbDap24Param(AudioEffectManager.SUBCMD_DAP_2_4_SURROUND_VIRTUALIZER_BOOST);
-               //Log.i(TAG, "SURROUND_VIRTUALIZER_BOOST init value: " + tempValue[1]);
-               mDap.setParameter(AudioEffectManager.CMD_DAP_2_4_SURROUND_VIRTUALIZER - AudioEffectManager.CMD_DAP_2_4_BASE_VALUE, tempValue);
+            if (value == AudioEffectManager.SOUND_EFFECT_DAP_2_4_PROFILE_USER_SELECTABLE) {
+                tempValue[0] = (byte)getDbDap24Param(AudioEffectManager.CMD_DAP_2_4_SURROUND_VIRTUALIZER);
+                //Log.i(TAG, "SURROUND_VIRTUALIZER init value: " + tempValue[0]);
+                tempValue[1] = (byte)getDbDap24Param(AudioEffectManager.SUBCMD_DAP_2_4_SURROUND_VIRTUALIZER_BOOST);
+                //Log.i(TAG, "SURROUND_VIRTUALIZER_BOOST init value: " + tempValue[1]);
+                mDap.setParameter(AudioEffectManager.CMD_DAP_2_4_SURROUND_VIRTUALIZER - AudioEffectManager.CMD_DAP_2_4_BASE_VALUE, tempValue);
 
-               tempValue[0] = (byte)getDbDap24Param(AudioEffectManager.CMD_DAP_2_4_DIALOGUE_ENHANCER);
-               //Log.i(TAG, "DIALOGUE_ENHANCER init value: " + tempValue[0]);
-               tempValue[1] = (byte)getDbDap24Param(AudioEffectManager.SUBCMD_DAP_2_4_DIALOGUE_ENHANCER_AMOUNT);
-               //Log.i(TAG, "DIALOGUE_ENHANCER_AMOUNT init value: " + tempValue[1]);
-               mDap.setParameter(AudioEffectManager.CMD_DAP_2_4_DIALOGUE_ENHANCER - AudioEffectManager.CMD_DAP_2_4_BASE_VALUE, tempValue);
+                tempValue[0] = (byte)getDbDap24Param(AudioEffectManager.CMD_DAP_2_4_DIALOGUE_ENHANCER);
+                //Log.i(TAG, "DIALOGUE_ENHANCER init value: " + tempValue[0]);
+                tempValue[1] = (byte)getDbDap24Param(AudioEffectManager.SUBCMD_DAP_2_4_DIALOGUE_ENHANCER_AMOUNT);
+                //Log.i(TAG, "DIALOGUE_ENHANCER_AMOUNT init value: " + tempValue[1]);
+                mDap.setParameter(AudioEffectManager.CMD_DAP_2_4_DIALOGUE_ENHANCER - AudioEffectManager.CMD_DAP_2_4_BASE_VALUE, tempValue);
 
-               tempValue2[0] = (byte)getDbDap24Param(AudioEffectManager.CMD_DAP_2_4_BASS_ENHANCER);
-               //Log.i(TAG, "BASS_ENHANCER init value: " + tempValue2[0]);
-               int tempInt = getDbDap24Param(AudioEffectManager.SUBCMD_DAP_2_4_BASS_ENHANCER_BOOST);
-               byte[] enbo = mDap.intToByteArray(tempInt);
-               tempValue2[1] = enbo[0];
-               tempValue2[2] = enbo[1];
-               int enboInt = mDap.byteArrayToInt(enbo);
-               //Log.i(TAG, "BASS_ENHANCER_BOOST init value: " + enboInt);
-               int tempInt2 = (getDbDap24Param(AudioEffectManager.SUBCMD_DAP_2_4_BASS_ENHANCER_CUTOFF_100)
+                tempValue2[0] = (byte)getDbDap24Param(AudioEffectManager.CMD_DAP_2_4_BASS_ENHANCER);
+                //Log.i(TAG, "BASS_ENHANCER init value: " + tempValue2[0]);
+                int tempInt = getDbDap24Param(AudioEffectManager.SUBCMD_DAP_2_4_BASS_ENHANCER_BOOST);
+                byte[] enbo = mDap.intToByteArray(tempInt);
+                tempValue2[1] = enbo[0];
+                tempValue2[2] = enbo[1];
+                int enboInt = mDap.byteArrayToInt(enbo);
+                //Log.i(TAG, "BASS_ENHANCER_BOOST init value: " + enboInt);
+                int tempInt2 = (getDbDap24Param(AudioEffectManager.SUBCMD_DAP_2_4_BASS_ENHANCER_CUTOFF_100)
                 + getDbDap24Param(AudioEffectManager.SUBCMD_DAP_2_4_BASS_ENHANCER_CUTOFF_1));
-               byte[] encu = mDap.intToByteArray(tempInt2);
-               tempValue2[3] = encu[0];
-               tempValue2[4] = encu[1];
-               int encuInt = mDap.byteArrayToInt(encu);
-               //Log.i(TAG, "BASS_ENHANCER_CUTOFF init value: " + encuInt);
-               tempValue2[5] = (byte)getDbDap24Param(AudioEffectManager.SUBCMD_DAP_2_4_BASS_ENHANCER_WIDTH);
-               //Log.i(TAG, "BASS_ENHANCER_WIDTH init value: " + tempValue2[5]);
-               mDap.setParameter(AudioEffectManager.CMD_DAP_2_4_BASS_ENHANCER - AudioEffectManager.CMD_DAP_2_4_BASE_VALUE, tempValue2);
+                byte[] encu = mDap.intToByteArray(tempInt2);
+                tempValue2[3] = encu[0];
+                tempValue2[4] = encu[1];
+                int encuInt = mDap.byteArrayToInt(encu);
+                //Log.i(TAG, "BASS_ENHANCER_CUTOFF init value: " + encuInt);
+                tempValue2[5] = (byte)getDbDap24Param(AudioEffectManager.SUBCMD_DAP_2_4_BASS_ENHANCER_WIDTH);
+                //Log.i(TAG, "BASS_ENHANCER_WIDTH init value: " + tempValue2[5]);
+                mDap.setParameter(AudioEffectManager.CMD_DAP_2_4_BASS_ENHANCER - AudioEffectManager.CMD_DAP_2_4_BASE_VALUE, tempValue2);
 
-               value = getDbDap24Param(AudioEffectManager.CMD_DAP_2_4_MI_STEERING);
-               //Log.i(TAG, "MI_STEERING init value: " + value);
-               mDap.setParameter(AudioEffectManager.CMD_DAP_2_4_MI_STEERING - AudioEffectManager.CMD_DAP_2_4_BASE_VALUE, value);
+                value = getDbDap24Param(AudioEffectManager.CMD_DAP_2_4_MI_STEERING);
+                //Log.i(TAG, "MI_STEERING init value: " + value);
+                mDap.setParameter(AudioEffectManager.CMD_DAP_2_4_MI_STEERING - AudioEffectManager.CMD_DAP_2_4_BASE_VALUE, value);
 
-               value = getDbDap24Param(AudioEffectManager.CMD_DAP_2_4_SURROUND_DECODER_ENABLE);
-               //Log.i(TAG, "SURROUND_DECODER_ENABLE init value: " + value);
-               mDap.setParameter(AudioEffectManager.CMD_DAP_2_4_SURROUND_DECODER_ENABLE - AudioEffectManager.CMD_DAP_2_4_BASE_VALUE, value);
+                value = getDbDap24Param(AudioEffectManager.CMD_DAP_2_4_SURROUND_DECODER_ENABLE);
+                //Log.i(TAG, "SURROUND_DECODER_ENABLE init value: " + value);
+                mDap.setParameter(AudioEffectManager.CMD_DAP_2_4_SURROUND_DECODER_ENABLE - AudioEffectManager.CMD_DAP_2_4_BASE_VALUE, value);
 
-               tempValue[0] = (byte)getDbDap24Param(AudioEffectManager.CMD_DAP_2_4_LEVELER);
-               //Log.i(TAG, "LEVELER init value: " + tempValue[0]);
-               tempValue[1] = (byte)getDbDap24Param(AudioEffectManager.SUBCMD_DAP_2_4_LEVELER_AMOUNT);
-               //Log.i(TAG, "LEVELER_AMOUNT init value: " + tempValue[1]);
-               mDap.setParameter(AudioEffectManager.CMD_DAP_2_4_LEVELER - AudioEffectManager.CMD_DAP_2_4_BASE_VALUE, tempValue);
-           }
-       }
-   }
+                tempValue[0] = (byte)getDbDap24Param(AudioEffectManager.CMD_DAP_2_4_LEVELER);
+                //Log.i(TAG, "LEVELER init value: " + tempValue[0]);
+                tempValue[1] = (byte)getDbDap24Param(AudioEffectManager.SUBCMD_DAP_2_4_LEVELER_AMOUNT);
+                //Log.i(TAG, "LEVELER_AMOUNT init value: " + tempValue[1]);
+                mDap.setParameter(AudioEffectManager.CMD_DAP_2_4_LEVELER - AudioEffectManager.CMD_DAP_2_4_BASE_VALUE, tempValue);
+            }
+        }
+    }
 
    public void initDapAudioEffect() {
        Log.i(TAG, "initDapAudioEffect dap version:" + AudioEffectManager.SOUND_EFFECT_DAP_VERSION);
@@ -1196,15 +1362,18 @@ public class SoundEffectManager {
 
        if (AudioEffectManager.SOUND_EFFECT_DAP_VERSION == AudioEffectManager.SOUND_EFFECT_DAP_VERSION_1_3_2) {
            initDap_1_3_2();
-           Log.e(TAG, "init DAP1.3.2 ok");
+           Log.i(TAG, "initDapAudioEffect: init_effect DAP1.3.2 success");
        } else if (AudioEffectManager.SOUND_EFFECT_DAP_VERSION == AudioEffectManager.SOUND_EFFECT_DAP_VERSION_2_4){
-           Log.e(TAG, "init DAP2.4 ok");
            initDap_2_4();
+           Log.i(TAG, "initDapAudioEffect: init_effect DAP2.4 success");
        }
    }
 
-
     private int getDapParamInternal(int id) {
+        if (null == mDap) {
+            Log.e(TAG, "getDapParamInternal: the DAP effect was not created.");
+            return 0;
+        }
         int result = 0;
         int[] value = new int[1];
         switch (id) {
@@ -1242,6 +1411,11 @@ public class SoundEffectManager {
 
     public void setDapParam(int id, int value) {
         if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "setDapParam id:" + id + ", value:" + value);
+
+        if (null == mDap) {
+            Log.e(TAG, "setDapParam: the DAP effect was not created.");
+            return;
+        }
         byte[] fiveband = new byte[5];
         switch (id) {
             case AudioEffectManager.CMD_DAP_ENABLE:
@@ -1602,7 +1776,6 @@ public class SoundEffectManager {
     }
 
     private int getDbDap24Param(int id) {
-        if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "getDbDap24Param id:" + id);
         int result = -1;
         switch (id) {
             case AudioEffectManager.CMD_DAP_2_4_PROFILE:
@@ -1647,6 +1820,9 @@ public class SoundEffectManager {
             case AudioEffectManager.SUBCMD_DAP_2_4_LEVELER_AMOUNT:
                 result = getDbIntValue(DB_ID_SOUND_EFFECT_DAP_2_4_LEVELER_AMOUNT, AudioEffectManager.DAP_2_4_LEVELER_AMOUNT_DEFAULT);
                 break;
+        }
+        if (DroidLogicUtils.getAudioDebugEnable()) {
+            Log.d(TAG, "getDbDap24Param id:" + id + ", value:" + result);
         }
         return result;
     }
@@ -1701,19 +1877,12 @@ public class SoundEffectManager {
         }
     }
 
-
     public boolean creatDpeAudioEffect() {
         try {
             if (mDpe == null) {
                 if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "creatDpeAudioEffect");
                 mDpe = new AudioEffect(EFFECT_TYPE_DPE, AudioEffect.EFFECT_TYPE_NULL, 0, 0);
-                int result = mDpe.setEnabled(true);
-                if (result == AudioEffect.SUCCESS) {
-                    Log.d(TAG, "creatDpeAudioEffect setEnabled success");
-                } else {
-                    Log.w(TAG, "creatDpeAudioEffect setEnabled error: " + result);
-                    return false;
-                }
+                Log.i(TAG, "creatDpeAudioEffect: create_effect success");
             }
             return true;
         } catch (RuntimeException e) {
@@ -1722,80 +1891,79 @@ public class SoundEffectManager {
         }
     }
 
-
     //dpe init
     public void initDpeAudioEffect() {
-        Log.i(TAG, "initDpeAudioEffect");
         if (!creatDpeAudioEffect()) {
             Log.e(TAG, "initDpeAudioEffect dpe create fail");
             return;
         }
 
         int value = 0;
-
         value = getDpeParam(AudioEffectManager.CMD_DPE_ENABLED);
         setDpeParam(AudioEffectManager.CMD_DPE_ENABLED, getDpeParam(AudioEffectManager.CMD_DPE_ENABLED));
         //Log.d(TAG, "setDpeParam,CMD_DPE_ENABLED:" + value);
 
-        if (value == AudioEffectManager.DPE_ON) {
-            value = getDpeParam(AudioEffectManager.CMD_DPE_INPUTGAIN);
-            setDpeParam(AudioEffectManager.CMD_DPE_INPUTGAIN, getDpeParam(AudioEffectManager.CMD_DPE_INPUTGAIN));
-            //Log.d(TAG, "setDpeParam,CMD_DPE_INPUTGAIN:" + value);
-
-            value = getDpeParam(AudioEffectManager.CMD_DPE_PRE_EQ);
-            setDpeParam(AudioEffectManager.CMD_DPE_PRE_EQ, getDpeParam(AudioEffectManager.CMD_DPE_PRE_EQ));
-            //Log.d(TAG, "setDpeParam,CMD_DPE_PRE_EQ:" + value);
-
-            value = getDpeParam(AudioEffectManager.CMD_DPE_MBC);
-            setDpeParam(AudioEffectManager.CMD_DPE_MBC, getDpeParam(AudioEffectManager.CMD_DPE_MBC));
-            //Log.d(TAG, "setDpeParam,CMD_DPE_MBC:" + value);
-
-            value = getDpeParam(AudioEffectManager.CMD_DPE_POST_EQ);
-            setDpeParam(AudioEffectManager.CMD_DPE_POST_EQ, getDpeParam(AudioEffectManager.CMD_DPE_POST_EQ));
-            //Log.d(TAG, "setDpeParam,CMD_DPE_POST_EQ:" + value);
-
-            value = getDpeParam(AudioEffectManager.CMD_DPE_LIMITER);
-            setDpeParam(AudioEffectManager.CMD_DPE_LIMITER, getDpeParam(AudioEffectManager.CMD_DPE_LIMITER));
-            //Log.d(TAG, "setDpeParam,CMD_DPE_LIMITER:" + value);
-
-            //pre eq band
-            value = getDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0_CUTOFFFREQUENCY);
-            setDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0_CUTOFFFREQUENCY, getDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0_CUTOFFFREQUENCY));
-            //Log.d(TAG, "setDpeParam,SUBCMD_DPE_PRE_EQ_BAND0_CUTOFFFREQUENCY:" + value);
-
-            setDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0_GAIN, getDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0_GAIN));
-            setDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND1_CUTOFFFREQUENCY, getDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND1_CUTOFFFREQUENCY));
-            setDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND1_GAIN, getDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND1_GAIN));
-            setDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND2_CUTOFFFREQUENCY, getDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND2_CUTOFFFREQUENCY));
-            setDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND2_GAIN, getDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND2_GAIN));
-
-            //post eq band
-            setDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND0_CUTOFFFREQUENCY, getDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND0_CUTOFFFREQUENCY));
-            setDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND0_GAIN, getDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND0_GAIN));
-            setDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND1_CUTOFFFREQUENCY, getDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND1_CUTOFFFREQUENCY));
-            setDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND1_GAIN, getDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND1_GAIN));
-            setDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND2_CUTOFFFREQUENCY, getDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND2_CUTOFFFREQUENCY));
-            setDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND2_GAIN, getDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND2_GAIN));
-
-            int id = 0;
-            //mbc band
-            for (id = AudioEffectManager.SUBCMD_DPE_MBC_BAND0_CUTOFFFREQUENCY; id <= AudioEffectManager.SUBCMD_DPE_MBC_BAND0_POSTGAIN; id++) {
-                setDpeParam(id, getDpeParam(id));
-            }
-            for (id = AudioEffectManager.SUBCMD_DPE_MBC_BAND1_CUTOFFFREQUENCY; id <= AudioEffectManager.SUBCMD_DPE_MBC_BAND1_POSTGAIN; id++) {
-                setDpeParam(id, getDpeParam(id));
-            }
-            for (id = AudioEffectManager.SUBCMD_DPE_MBC_BAND2_CUTOFFFREQUENCY; id <= AudioEffectManager.SUBCMD_DPE_MBC_BAND2_POSTGAIN; id++) {
-                setDpeParam(id, getDpeParam(id));
-            }
-
-            //limiter
-            for (id = AudioEffectManager.SUBCMD_DPE_LIMITER_ATTACKTIME; id <= AudioEffectManager.SUBCMD_DPE_LIMITER_POSTGAIN; id++) {
-                setDpeParam(id, getDpeParam(id));
-            }
+        if (value == AudioEffectManager.DPE_OFF) {
+            Log.i(TAG, "initDpeAudioEffect: DPE is off.");
+            return;
         }
-    }
+        value = getDpeParam(AudioEffectManager.CMD_DPE_INPUTGAIN);
+        setDpeParam(AudioEffectManager.CMD_DPE_INPUTGAIN, getDpeParam(AudioEffectManager.CMD_DPE_INPUTGAIN));
+        //Log.d(TAG, "setDpeParam,CMD_DPE_INPUTGAIN:" + value);
 
+        value = getDpeParam(AudioEffectManager.CMD_DPE_PRE_EQ);
+        setDpeParam(AudioEffectManager.CMD_DPE_PRE_EQ, getDpeParam(AudioEffectManager.CMD_DPE_PRE_EQ));
+        //Log.d(TAG, "setDpeParam,CMD_DPE_PRE_EQ:" + value);
+
+        value = getDpeParam(AudioEffectManager.CMD_DPE_MBC);
+        setDpeParam(AudioEffectManager.CMD_DPE_MBC, getDpeParam(AudioEffectManager.CMD_DPE_MBC));
+        //Log.d(TAG, "setDpeParam,CMD_DPE_MBC:" + value);
+
+        value = getDpeParam(AudioEffectManager.CMD_DPE_POST_EQ);
+        setDpeParam(AudioEffectManager.CMD_DPE_POST_EQ, getDpeParam(AudioEffectManager.CMD_DPE_POST_EQ));
+        //Log.d(TAG, "setDpeParam,CMD_DPE_POST_EQ:" + value);
+
+        value = getDpeParam(AudioEffectManager.CMD_DPE_LIMITER);
+        setDpeParam(AudioEffectManager.CMD_DPE_LIMITER, getDpeParam(AudioEffectManager.CMD_DPE_LIMITER));
+        //Log.d(TAG, "setDpeParam,CMD_DPE_LIMITER:" + value);
+
+        //pre eq band
+        value = getDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0_CUTOFFFREQUENCY);
+        setDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0_CUTOFFFREQUENCY, getDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0_CUTOFFFREQUENCY));
+        //Log.d(TAG, "setDpeParam,SUBCMD_DPE_PRE_EQ_BAND0_CUTOFFFREQUENCY:" + value);
+
+        setDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0_GAIN, getDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND0_GAIN));
+        setDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND1_CUTOFFFREQUENCY, getDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND1_CUTOFFFREQUENCY));
+        setDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND1_GAIN, getDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND1_GAIN));
+        setDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND2_CUTOFFFREQUENCY, getDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND2_CUTOFFFREQUENCY));
+        setDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND2_GAIN, getDpeParam(AudioEffectManager.SUBCMD_DPE_PRE_EQ_BAND2_GAIN));
+
+        //post eq band
+        setDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND0_CUTOFFFREQUENCY, getDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND0_CUTOFFFREQUENCY));
+        setDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND0_GAIN, getDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND0_GAIN));
+        setDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND1_CUTOFFFREQUENCY, getDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND1_CUTOFFFREQUENCY));
+        setDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND1_GAIN, getDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND1_GAIN));
+        setDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND2_CUTOFFFREQUENCY, getDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND2_CUTOFFFREQUENCY));
+        setDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND2_GAIN, getDpeParam(AudioEffectManager.SUBCMD_DPE_POST_EQ_BAND2_GAIN));
+
+        int id = 0;
+        //mbc band
+        for (id = AudioEffectManager.SUBCMD_DPE_MBC_BAND0_CUTOFFFREQUENCY; id <= AudioEffectManager.SUBCMD_DPE_MBC_BAND0_POSTGAIN; id++) {
+            setDpeParam(id, getDpeParam(id));
+        }
+        for (id = AudioEffectManager.SUBCMD_DPE_MBC_BAND1_CUTOFFFREQUENCY; id <= AudioEffectManager.SUBCMD_DPE_MBC_BAND1_POSTGAIN; id++) {
+            setDpeParam(id, getDpeParam(id));
+        }
+        for (id = AudioEffectManager.SUBCMD_DPE_MBC_BAND2_CUTOFFFREQUENCY; id <= AudioEffectManager.SUBCMD_DPE_MBC_BAND2_POSTGAIN; id++) {
+            setDpeParam(id, getDpeParam(id));
+        }
+
+        //limiter
+        for (id = AudioEffectManager.SUBCMD_DPE_LIMITER_ATTACKTIME; id <= AudioEffectManager.SUBCMD_DPE_LIMITER_POSTGAIN; id++) {
+            setDpeParam(id, getDpeParam(id));
+        }
+        Log.i(TAG, "initDpeAudioEffect: init_effect success");
+    }
 
     //dpe get param internal
     private int getDpeParamInternal (int id) {
@@ -1888,7 +2056,6 @@ public class SoundEffectManager {
         return allBytes;
     }
 
-
     //dpe set param
     public void setDpeParam (int id, int value) {
         if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "setDpeParam id:" + id + ", value:" + value);
@@ -1899,6 +2066,7 @@ public class SoundEffectManager {
         switch (id) {
             //set dpe enabled
             case AudioEffectManager.CMD_DPE_ENABLED:
+                mDpe.setEnabled(value == 1);
                 byte[] tempEngineVa = new byte[4];
                 byte[] tempEnginePref = new byte[4];
                 byte[] tempEnginePreEqIu = new byte[4];
@@ -2589,7 +2757,6 @@ public class SoundEffectManager {
     // dpe get param
     public int getDpeParam(int id) {
         int value = -1;
-        if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "getDpeParam id:" + id + ", value:" + value);
         switch (id) {
             case AudioEffectManager.CMD_DPE_ENABLED:
                 value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_ENABLED, -1);
@@ -2805,9 +2972,11 @@ public class SoundEffectManager {
                 value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_LIMITER_POST_GAIN, AudioEffectManager.DEFAULT_DPE_LIMITER_POSTGAIN);
                 break;
         }
+        if (DroidLogicUtils.getAudioDebugEnable()) {
+            Log.d(TAG, "getDpeParam id:" + id + ", value:" + value);
+        }
         return value;
     }
-
 
     // dpe save param
     public void saveDpeParam (int id, int value) {
@@ -3023,197 +3192,13 @@ public class SoundEffectManager {
         }
     }
 
-    public void createAudioEffectsByIndex () {
-        Log.d(TAG, "createAudioEffects Start to create audio effects...");
-        mSupportVirtualX = false;
-
-        if (isAudioEffectOn(AudioEffectManager.DEBUG_HPEQ_UI)) {
-            creatEqAudioEffects();
-            initEqAudioEffects();
-        }
-
-        if (isAudioEffectOn(AudioEffectManager.DEBUG_BALANCE_UI)) {
-            creatBalanceAudioEffects();
-            initBalanceAudioEffects();
-        }
-
-        if (isAudioEffectOn(AudioEffectManager.DEBUG_TREBLEBASS_UI)) {
-            creatTrebleBassAudioEffects();
-            initTrebleBassAudioEffects();
-        }
-
-        if (isAudioEffectOn(AudioEffectManager.DEBUG_VIRTUAL_SURROUND_UI)) {
-            creatVirtualSurroundAudioEffects();
-            initVirtualSurroundAudioEffects();
-        }
-
-        if (isAudioEffectOn(AudioEffectManager.DEBUG_DPE_UI)) {
-            creatDpeAudioEffect();
-            initDpeAudioEffect();
-        }
-        if (isAudioEffectOn(AudioEffectManager.DEBUG_VIRTUAL_X_UI)) {
-            mSupportVirtualX = creatVirtualXAudioEffects();
-            initVirtualXAudioEffects();
-        }
-
-        if (isAudioEffectOn(AudioEffectManager.DEBUG_DAP_2_UI)) {
-            creatDapAudioEffect();
-            initDapAudioEffect();
-        }
-        applyAudioEffectByPlayEmptyTrack();
-    }
-    public void setAudioEffectOnByIndex (int id, boolean dbSwitch) {
-        if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "setAudioEffectOnByIndex id:" + id + ", dbSwitch:" + dbSwitch);
-
-        int value = dbSwitch ? 1 : 0;
-        switch (id) {
-            case AudioEffectManager.DEBUG_HPEQ_UI:
-                if (value == AudioEffectManager.DEBUG_UI_ON) {
-                    creatEqAudioEffects();
-                    initEqAudioEffects();
-                } else {
-                    cleanupEqAudioEffects();
-                }
-                break;
-            case AudioEffectManager.DEBUG_BALANCE_UI:
-                if (value == AudioEffectManager.DEBUG_UI_ON) {
-                    creatBalanceAudioEffects();
-                    initBalanceAudioEffects();
-                } else {
-                    cleanupBalanceAudioEffects();
-                }
-                break;
-            case AudioEffectManager.DEBUG_TREBLEBASS_UI:
-                if (value == AudioEffectManager.DEBUG_UI_ON) {
-                    creatTrebleBassAudioEffects();
-                    initTrebleBassAudioEffects();
-                } else {
-                    cleanupTrebleBassAudioEffects();
-                }
-                break;
-            case AudioEffectManager.DEBUG_VIRTUAL_SURROUND_UI:
-                if (value == AudioEffectManager.DEBUG_UI_ON) {
-                    creatVirtualSurroundAudioEffects();
-                    initVirtualSurroundAudioEffects();
-                } else {
-                    cleanupVirtualSurroundAudioEffects();
-                }
-                break;
-            case AudioEffectManager.DEBUG_DPE_UI:
-                if (value == AudioEffectManager.DEBUG_UI_ON) {
-                    creatDpeAudioEffect();
-                    initDpeAudioEffect();
-                } else {
-                    cleanupDpeAudioEffects();
-                }
-                break;
-            case AudioEffectManager.DEBUG_VIRTUAL_X_UI:
-                if (value == AudioEffectManager.DEBUG_UI_ON) {
-                    creatVirtualXAudioEffects();
-                    initVirtualXAudioEffects();
-                } else {
-                    cleanupVirtualXAudioEffects();
-                }
-                break;
-            case AudioEffectManager.DEBUG_DAP_2_UI:
-                if (value == AudioEffectManager.DEBUG_UI_ON) {
-                    creatDapAudioEffect();
-                    initDapAudioEffect();
-                } else {
-                    cleanupDapAudioEffects();
-                }
-                break;
-            default:
-                Log.e(TAG, "setAudioEffectOnByIndex id:" + id + " is invalid!");
-                break;
-        }
-        applyAudioEffectByPlayEmptyTrack();
-    }
-
-    public void setAudioEffectOn (int id, boolean dbSwitch) {
-        if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "setAudioEffectOn id:" + id + ", dbSwitch:" + dbSwitch);
-
-        switch (id) {
-            case AudioEffectManager.DEBUG_HPEQ_UI:
-                setAudioEffectOnByIndex(AudioEffectManager.DEBUG_HPEQ_UI, dbSwitch);
-                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_HPEQ_DEBUG, dbSwitch ? 1 : 0);
-                break;
-            case AudioEffectManager.DEBUG_BALANCE_UI:
-                setAudioEffectOnByIndex(AudioEffectManager.DEBUG_BALANCE_UI, dbSwitch);
-                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BALANCE_DEBUG, dbSwitch ? 1 : 0);
-                break;
-            case AudioEffectManager.DEBUG_TREBLEBASS_UI:
-                setAudioEffectOnByIndex(AudioEffectManager.DEBUG_TREBLEBASS_UI, dbSwitch);
-                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_TREBLEBASS_DEBUG, dbSwitch ? 1 : 0);
-                break;
-            case AudioEffectManager.DEBUG_VIRTUAL_SURROUND_UI:
-                setAudioEffectOnByIndex(AudioEffectManager.DEBUG_VIRTUAL_SURROUND_UI, dbSwitch);
-                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_VIRTUAL_SURROUND_DEBUG, dbSwitch ? 1 : 0);
-                break;
-            case AudioEffectManager.DEBUG_DPE_UI:
-                setAudioEffectOnByIndex(AudioEffectManager.DEBUG_DPE_UI, dbSwitch);
-                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_DEBUG, dbSwitch ? 1 : 0);
-                break;
-            case AudioEffectManager.DEBUG_VIRTUAL_X_UI:
-                setAudioEffectOnByIndex(AudioEffectManager.DEBUG_VIRTUAL_X_UI, dbSwitch);
-                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_VIRTUAL_X_DEBUG, dbSwitch ? 1 : 0);
-                break;
-            case AudioEffectManager.DEBUG_DAP_2_UI:
-                setAudioEffectOnByIndex(AudioEffectManager.DEBUG_DAP_2_UI, dbSwitch);
-                Settings.Global.putInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DAP_2_DEBUG, dbSwitch ? 1 : 0);
-                break;
-            default:
-                Log.e(TAG, "setAudioEffectOn id:" + id + " is invalid!");
-                break;
-        }
-    }
-
-    public boolean isAudioEffectOn(int id) {
-        int value = -1;
-        switch (id) {
-            case AudioEffectManager.DEBUG_HPEQ_UI:
-                if (DroidLogicUtils.isTv()) {
-                    value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_HPEQ_DEBUG, AudioEffectManager.DEBUG_UI_ON);
-                } else {
-                    value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_HPEQ_DEBUG, AudioEffectManager.DEBUG_UI_OFF);
-                }
-                break;
-            case AudioEffectManager.DEBUG_BALANCE_UI:
-                if (DroidLogicUtils.isTv()) {
-                    value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BALANCE_DEBUG, AudioEffectManager.DEBUG_UI_ON);
-                } else {
-                    value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_BALANCE_DEBUG, AudioEffectManager.DEBUG_UI_OFF);
-                }
-                break;
-            case AudioEffectManager.DEBUG_TREBLEBASS_UI:
-                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_TREBLEBASS_DEBUG, AudioEffectManager.DEBUG_UI_OFF);
-                break;
-            case AudioEffectManager.DEBUG_VIRTUAL_SURROUND_UI:
-                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_VIRTUAL_SURROUND_DEBUG, AudioEffectManager.DEBUG_UI_OFF);
-                break;
-            case AudioEffectManager.DEBUG_DPE_UI:
-                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DPE_DEBUG, AudioEffectManager.DEBUG_UI_OFF);
-                break;
-            case AudioEffectManager.DEBUG_VIRTUAL_X_UI:
-                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_VIRTUAL_X_DEBUG, AudioEffectManager.DEBUG_UI_OFF);
-                break;
-            case AudioEffectManager.DEBUG_DAP_2_UI:
-                DroidAudioManager droidAudioManager = DroidAudioManager.getInstance(mContext);
-                int defaultValue = droidAudioManager.isSoundBarModeEnabled() ? AudioEffectManager.DEBUG_UI_ON : AudioEffectManager.DEBUG_UI_OFF;
-                value = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_SOUND_EFFECT_DAP_2_DEBUG, defaultValue);
-                break;
-            default:
-                Log.e(TAG, "isAudioEffectOn id:" + id + " is invalid!");
-                break;
-        }
-        if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "isAudioEffectOn id:" + id + ", value:" + value);
-
-        return value == AudioEffectManager.DEBUG_UI_ON;
-    }
-
     public void setHpeqBandNum (int id, int value) {
         if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "setHpeqBandNum id:" + id + ", value:" + value);
 
+        if (null == mSoundMode) {
+            Log.e(TAG, "setHpeqBandNum: the EQ effect was not created.");
+            return;
+        }
         switch (id) {
             case AudioEffectManager.DEBUG_HPEQ_BAND_NUM_UI:
                 mSoundMode.setParameter(PARAM_EQ_BAND_NUM, value);

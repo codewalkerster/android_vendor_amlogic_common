@@ -207,6 +207,14 @@ int32_t DroidAudioConfigSetting::init() {
     return 0;
 }
 
+int32_t DroidAudioConfigSetting::reset() {
+    vector<int32_t> devices;
+    devices.push_back( DROID_AUDIO_FORCE_USE_NONE); //default value;
+    setOutputDevices(devices);
+    setCoexistSpdifOther(true);
+    return 0;
+}
+
 int32_t DroidAudioConfigSetting::dump(int fd, const char **args __unused, uint32_t numArgs __unused) {
     dprintf(fd, "tif: %d mMusicVolumeGroupId: %d\n", !mNotImptTvHardwareInputService, mMusicVolumeGroupId);
     dprintf(fd, "mForceManagePatch: %d opened: %d started: %d\n",

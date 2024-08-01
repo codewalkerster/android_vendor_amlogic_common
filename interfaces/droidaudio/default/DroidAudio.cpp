@@ -108,6 +108,11 @@ void DroidAudio::clientDied(void* cookie) {
     return ::ndk::ScopedAStatus::ok();
 }
 
+::ndk::ScopedAStatus DroidAudio::reset(int32_t* _aidl_return __unused) {
+    DroidAudioConfigSetting::instance()->reset();
+    return ::ndk::ScopedAStatus::ok();
+}
+
 ::ndk::ScopedAStatus DroidAudio::registerClient(const shared_ptr<IDroidAudioClient>& client, int32_t* _aidl_return __unused) {
 
     uid_t uid = IPCThreadState::self()->getCallingUid();

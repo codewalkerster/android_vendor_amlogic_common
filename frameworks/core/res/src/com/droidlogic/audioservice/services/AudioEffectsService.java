@@ -17,8 +17,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.BroadcastReceiver;
 import android.database.ContentObserver;
-import android.media.tv.TvContract;
 import android.media.AudioSystem;
+import android.media.tv.TvContract;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.UserHandle;
@@ -30,10 +30,9 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.droidlogic.app.DroidLogicUtils;
-import com.droidlogic.app.DroidAudioManager;
-import com.droidlogic.app.SystemControlManager;
 import com.droidlogic.app.AudioEffectManager;
+import com.droidlogic.app.DroidLogicUtils;
+import com.droidlogic.app.SystemControlManager;
 import com.droidlogic.audioservice.settings.SoundEffectManager;
 
 
@@ -74,7 +73,7 @@ public class AudioEffectsService extends Service {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MSG_AUDIO_SERVER_DIED:
-                    mSoundEffectManager.cleanupAudioEffects();
+                    mSoundEffectManager.deinit();
                     this.sendEmptyMessageDelayed(MSG_AUDIO_SERVER_CHECK_SATE, 60);
                     break;
                 case MSG_AUDIO_SERVER_CHECK_SATE:
@@ -87,7 +86,7 @@ public class AudioEffectsService extends Service {
                     }
                     break;
                 case MSG_AUDIO_SERVER_READY:
-                    mSoundEffectManager.createAudioEffectsByIndex();
+                    mSoundEffectManager.init();
                     Log.d(TAG, "Restore AudioEffects over!");
                     break;
                 default:
@@ -109,7 +108,7 @@ public class AudioEffectsService extends Service {
     public void onDestroy() {
         if (DEBUG) Log.d(TAG, "onDestroy");
         if (mSoundEffectManager != null) {
-            mSoundEffectManager.cleanupAudioEffects();
+            mSoundEffectManager.deinit();
         }
         unregisterCommandReceiver(this);
     }
@@ -126,8 +125,16 @@ public class AudioEffectsService extends Service {
     }
 
     private final IAudioEffectsService.Stub mBinder = new IAudioEffectsService.Stub() {
-        public void createAudioEffects() {
-            mSoundEffectManager.createAudioEffects();
+        public void init() {
+            mSoundEffectManager.init();
+        }
+
+        public void deinit() {
+            mSoundEffectManager.deinit();
+        }
+
+        public void reset() {
+            mSoundEffectManager.reset();
         }
 
         public boolean isSupportVirtualX() {
@@ -154,11 +161,6 @@ public class AudioEffectsService extends Service {
             return mSoundEffectManager.getSoundModeStatus();
         }
 
-        //return current is eq or dap
-        public int getSoundModule() {
-            return mSoundEffectManager.getSoundModule();
-        }
-
         public int getTrebleStatus () {
             return mSoundEffectManager.getTrebleStatus();
         }
@@ -177,10 +179,6 @@ public class AudioEffectsService extends Service {
 
         public void setSoundMode (int mode) {
             mSoundEffectManager.setSoundMode(mode);
-        }
-
-        public void setSoundModeByObserver (int mode, int bandSum) {
-            mSoundEffectManager.setSoundModeByObserver(mode, bandSum);
         }
 
         public void setUserSoundModeParam(int bandNumber, int value, int bandSum) {
@@ -205,19 +203,6 @@ public class AudioEffectsService extends Service {
 
         public void setVirtualSurround (int mode) {
             mSoundEffectManager.setVirtualSurround (mode);
-        }
-
-        public void cleanupAudioEffects() {
-            mSoundEffectManager.cleanupAudioEffects();
-        }
-
-        public void initSoundEffectSettings() {
-            mSoundEffectManager.initSoundEffectSettings();
-        }
-
-        public void resetSoundEffectSettings() {
-            Log.d(TAG, "resetSoundEffectSettings");
-            mSoundEffectManager.resetSoundEffectSettings();
         }
 
         public void setDapParam(int id, int value) {
@@ -261,47 +246,21 @@ public class AudioEffectsService extends Service {
     };
 
     private void handleActionStartUp() {
-        boolean isDapValid = DroidAudioManager.getInstance(mContext).isAudioSupportMs12System();
-        Log.i(TAG, "handleActionStartUp needAudioEffectFeture:" + DroidLogicUtils.isTv() + ", isDapValid:" + isDapValid);
+        Log.i(TAG, "handleActionStartUp: is tv:" + DroidLogicUtils.isTv());
         // This will apply the saved audio settings on boot
-        mSoundEffectManager.createAudioEffectsByIndex();
-        registerCommandReceiver(this);
+        mSoundEffectManager.init();
     }
 
     private static final String RESET_ACTION = "droid.action.resetsoundeffect";
-
     private void registerCommandReceiver(Context context) {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(RESET_ACTION);
         context.registerReceiver(mSoundEffectSettingsReceiver, intentFilter, context.RECEIVER_EXPORTED);
-        context.getContentResolver().registerContentObserver(Settings.Global.getUriFor(SoundEffectManager.DB_ID_SOUND_EFFECT_SOUND_MODE), false,
-                mSoundEffectParametersObserver);
-        context.getContentResolver().registerContentObserver(Settings.Global.getUriFor(SoundEffectManager.DB_ID_SOUND_EFFECT_SOUND_MODE_EQ_VALUE), false,
-                mSoundEffectParametersObserver);
-        context.getContentResolver().registerContentObserver(Settings.Global.getUriFor(SoundEffectManager.DB_ID_SOUND_EFFECT_SOUND_MODE_DAP_VALUE), false,
-                mSoundEffectParametersObserver);
     }
 
     private void unregisterCommandReceiver(Context context) {
         context.unregisterReceiver(mSoundEffectSettingsReceiver);
-        context.getContentResolver().unregisterContentObserver(mSoundEffectParametersObserver);
     }
-
-    private ContentObserver mSoundEffectParametersObserver = new ContentObserver(new Handler()) {
-        @Override
-        public void onChange(boolean selfChange, Uri uri) {
-            if (uri != null) {
-                if (uri.equals(Settings.Global.getUriFor(SoundEffectManager.DB_ID_SOUND_EFFECT_SOUND_MODE))
-                        || uri.equals(Settings.Global.getUriFor(SoundEffectManager.DB_ID_SOUND_EFFECT_SOUND_MODE_EQ_VALUE))
-                        || uri.equals(Settings.Global.getUriFor(SoundEffectManager.DB_ID_SOUND_EFFECT_SOUND_MODE_DAP_VALUE))) {
-                    int mode = Settings.Global.getInt(mContext.getContentResolver(), uri.getLastPathSegment(), AudioEffectManager.EQ_SOUND_MODE_STANDARD);
-                    int bandSum = mSoundEffectManager.getHpeqBandNum(AudioEffectManager.DEBUG_HPEQ_BAND_NUM_UI);
-                    Log.d(TAG, "onChange setSoundMode " + uri.getLastPathSegment() + ":" + mode);
-                    mSoundEffectManager.setSoundModeByObserver(mode, bandSum);
-                }
-            }
-        }
-    };
 
     private final BroadcastReceiver mSoundEffectSettingsReceiver = new BroadcastReceiver() {
         @Override
@@ -309,7 +268,7 @@ public class AudioEffectsService extends Service {
             if (DEBUG) Log.d(TAG, "intent = " + intent);
             if (intent != null) {
                 if (RESET_ACTION.equals(intent.getAction())) {
-                    mSoundEffectManager.resetSoundEffectSettings();
+                    mSoundEffectManager.reset();
                 }
             }
         }

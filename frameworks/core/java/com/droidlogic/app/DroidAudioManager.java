@@ -38,7 +38,7 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 
-// import android.os.ServiceManager;
+import com.droidlogic.app.AudioEffectManager;
 import com.droidlogic.app.SystemControlManager;
 
 import vendor.amlogic.hardware.droidaudio.IDroidAudio;
@@ -81,6 +81,92 @@ public class DroidAudioManager {
         mResolver = context.getContentResolver();
         mSystemControl = SystemControlManager.getInstance();
         mAudioManager = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
+    }
+
+    private void initDatabase() {
+        boolean flag = mSystemControl.getPropertyBoolean("ro.vendor.platform.support.soundbar", false);
+        Settings.Global.putInt(mResolver, DB_ID_AUDIO_SOUNDBAR_MODE_ENABLE, flag ? 1 : 0);
+        Settings.Global.putInt(mResolver, DB_ID_AUDIO_DRC_MODE, IS_DRC_RF);
+        Settings.Global.putInt(mResolver, DIGITAL_AUDIO_FORMAT, DIGITAL_AUDIO_FORMAT_AUTO);
+        Settings.Global.putInt(mResolver, ENCODED_SURROUND_OUTPUT, ENCODED_SURROUND_OUTPUT_AUTO);
+        Settings.Global.putInt(mResolver, TV_ARC_LATENCY, TV_ARC_LATENCY_DEFAULT);
+        Settings.Global.putInt(mResolver, DB_ID_SOUND_SPDIF_OUTPUT_ENABLE, SOUND_SPDIF_OUTPUT_ENABLE_DEFAULT);
+        Settings.Global.getInt(mResolver, DB_ID_SOUND_SPEAKER_OUTPUT_ENABLE, DB_ID_SOUND_SPEAKER_OUTPUT_ENABLE_DEFAULT);
+        DataProviderManager.putIntValue(mContext, DB_ID_SOUND_AD_SWITCH, SOUND_AD_SWITCH_DEFAULT);
+        Settings.Global.putInt(mResolver, DIALOGUE_ENHANCEMENT_SWITCH, DIALOGUE_ENHANCEMENT_OFF);
+        Settings.Global.getInt(mResolver, FORCE_DDP_SWITCH, FORCE_DDP_DEFAULT);
+        int source = 0;
+        for (source = AUDIO_OUTPUT_DELAY_SOURCE_ATV; source < AUDIO_OUTPUT_DELAY_SOURCE_MAX; source++) {
+            Settings.Global.putInt(mResolver, DB_ID_AUDIO_PRESCALE_ARRAY[source], AUDIO_PRESCALE_DEFAULT_ARRAY[source]);
+            Settings.Global.putInt(mResolver, DB_ID_AUDIO_OUTPUT_SPEAKER_DELAY_ARRAY[source], HAL_AUDIO_OUT_DEV_DELAY_DEFAULT);
+            Settings.Global.putInt(mResolver, DB_ID_AUDIO_OUTPUT_SPDIF_DELAY_ARRAY[source], HAL_AUDIO_OUT_DEV_DELAY_DEFAULT);
+            Settings.Global.putInt(mResolver, DB_ID_AUDIO_OUTPUT_HEADPHONE_DELAY_ARRAY[source], HAL_AUDIO_OUT_DEV_DELAY_DEFAULT);
+            source++;
+        }
+        Settings.Global.putInt(mResolver, DB_ID_AUDIO_OUTPUT_ALL_DELAY, HAL_AUDIO_OUT_DEV_DELAY_DEFAULT);
+    }
+
+    public static final String DB_ID_SET_AUDIO_DATABASE_FIRST_BOOT          = "db_id_set_audio_database_first_boot";
+    public void init(boolean reset) {
+        int firstBoot = Settings.Global.getInt(mResolver, DB_ID_SET_AUDIO_DATABASE_FIRST_BOOT, 1);
+        if (firstBoot == 1) {
+            Settings.Global.putInt(mResolver, DB_ID_SET_AUDIO_DATABASE_FIRST_BOOT, 0);
+            initDatabase();
+        }
+        if (!DroidLogicUtils.isTv()) {
+            setSoundBarModeEnabled(isSoundBarModeEnabled());
+        }
+        final boolean isSupportDolby = mSystemControl.getPropertyBoolean("ro.vendor.platform.support.dolby", false);
+        if (isSupportDolby) {
+            setDrcMode(getDrcMode());
+        }
+        if (!reset) {
+            int audioFormat = getDigitalAudioFormatOut();
+            switch (audioFormat) {
+            case DIGITAL_AUDIO_FORMAT_MANUAL:
+                setDigitalAudioFormatOut(DIGITAL_AUDIO_FORMAT_MANUAL, getAudioManualFormats());
+                break;
+            case DIGITAL_AUDIO_FORMAT_PCM:
+            case DIGITAL_AUDIO_FORMAT_AUTO:
+            case DIGITAL_AUDIO_FORMAT_PASSTHROUGH:
+            default:
+                setDigitalAudioFormatOut(audioFormat);
+                break;
+            }
+        }
+        setARCLatency(getARCLatency());
+        setSoundSpdifEnable(getSoundSpdifEnable());
+        setSpeakerEnabled(isSpeakerEnabled());
+        setAdSupportEnable(getAdSupportEnable());
+        setAc4DialogEnhancer(getAc4DialogEnhancer());
+        setForceDDPEnable(getForceDDPEnable());
+
+        if (!reset) {
+            // refresh db delay of media to hal
+            refreshAudioCfgBySrc(AUDIO_OUTPUT_DELAY_SOURCE_MEDIA, true);
+        }
+        for (int source = AUDIO_OUTPUT_DELAY_SOURCE_ATV; source < AUDIO_OUTPUT_DELAY_SOURCE_MAX; source++) {
+            setAudioOutputSpeakerDelay(source, getAudioOutputSpeakerDelay(source));
+            setAudioOutputSpdifDelay(source, getAudioOutputSpdifDelay(source));
+            setAudioOutputHeadphoneDelay(source, getAudioOutputHeadphoneDelay(source));
+        }
+        setAudioOutputAllDelay(getAudioOutputAllDelay());
+        // refresh db prescale of all source to hal (set one prescale, at the same time the others will be set)
+        setAudioPrescale(AUDIO_OUTPUT_DELAY_SOURCE_ATV, getAudioPrescale(AUDIO_OUTPUT_DELAY_SOURCE_ATV));
+    }
+
+    public void reset() {
+        initDatabase();
+        init(true);
+        if (droidAudioServiceIsNull()) return;
+        try {
+            mDroidAudioService.reset();
+        } catch (RemoteException e) {
+            Log.e(TAG, "reset failed:" + e);
+            return;
+        }
+        AudioEffectManager mAudioEffectManager = AudioEffectManager.getInstance(mContext);
+        mAudioEffectManager.reset();
     }
 
     private static class DroidAudioServiceClient extends IDroidAudioClient.Stub {
@@ -351,6 +437,21 @@ public class DroidAudioManager {
         }
     }
 
+    public static String audioDigitalModeToString(int value) {
+        String temp = "[" + value + "]";
+        switch (value) {
+            case DIGITAL_AUDIO_FORMAT_PCM:
+                return temp + "PCM";
+            case DIGITAL_AUDIO_FORMAT_AUTO:
+                return temp + "AUTO";
+            case DIGITAL_AUDIO_FORMAT_MANUAL:
+                return temp + "MANUAL";
+            case DIGITAL_AUDIO_FORMAT_PASSTHROUGH:
+                return temp + "PASSTHROUGH";
+            default:
+                return temp + "invalid value";
+        }
+    }
     public static final int DIGITAL_AUDIO_FORMAT_PCM                    = 0;
     public static final int DIGITAL_AUDIO_FORMAT_AUTO                   = 1;
     public static final int DIGITAL_AUDIO_FORMAT_MANUAL                 = 2;
@@ -359,7 +460,7 @@ public class DroidAudioManager {
         setDigitalAudioFormatOut(mode, "");
     }
     public void setDigitalAudioFormatOut(int mode, String submode) {
-        Log.d(TAG, "setDigitalAudioFormatOut mode:" + mode + ", submode:" + submode);
+        Log.d(TAG, "setDigitalAudioFormatOut: mode:" + audioDigitalModeToString(mode) + ", submode:" + submode);
         if (DIGITAL_AUDIO_FORMAT_MANUAL == mode && submode == null) {
             submode = "";
             Log.i(TAG, "setDigitalAudioFormatOut manual mode, submode is null.");
@@ -392,7 +493,7 @@ public class DroidAudioManager {
     }
 
     public String getAudioManualFormats() {
-        String format = Settings.Global.getString(mContext.getContentResolver(), DIGITAL_AUDIO_SUBFORMAT);
+        String format = Settings.Global.getString(mResolver, DIGITAL_AUDIO_SUBFORMAT);
         return format == null ? "" : format;
     }
 
@@ -443,8 +544,9 @@ public class DroidAudioManager {
     }
 
     public static final String FORCE_DDP_SWITCH      = "force_ddp_enable";
-    public static final int FORCE_DDP_OFF   = 0;
-    public static final int FORCE_DDP_ON    = 1;
+    public static final int FORCE_DDP_OFF            = 0;
+    public static final int FORCE_DDP_ON             = 1;
+    public static final int FORCE_DDP_DEFAULT        = FORCE_DDP_OFF;
     public void setForceDDPEnable(boolean newVal) {
         Log.d(TAG, "setForceDDPEnable: " + newVal);
         if (newVal) {
@@ -464,11 +566,12 @@ public class DroidAudioManager {
     }
 
     public boolean getForceDDPEnable() {
-        return Settings.Global.getInt(mResolver, FORCE_DDP_SWITCH,
-                FORCE_DDP_OFF) == FORCE_DDP_ON;
+        return Settings.Global.getInt(mResolver, FORCE_DDP_SWITCH, FORCE_DDP_DEFAULT) == FORCE_DDP_ON;
     }
 
+    public static final int SOUND_SPDIF_OUTPUT_ENABLE_DEFAULT           = 1;
     public static final String DB_ID_SOUND_SPDIF_OUTPUT_ENABLE          = "db_id_sound_spdif_output_enable";
+
     public static final String HAL_PARAM_SPDIF_OUTPUT_ENABLE            = "hal_param_spdif_output_enable=";
     public void setSoundSpdifEnable(boolean enable) {
         Settings.Global.putInt(mResolver, DB_ID_SOUND_SPDIF_OUTPUT_ENABLE, enable ? 1 : 0);
@@ -476,9 +579,23 @@ public class DroidAudioManager {
     }
 
     public boolean getSoundSpdifEnable() {
-        return Settings.Global.getInt(mResolver, DB_ID_SOUND_SPDIF_OUTPUT_ENABLE, 1) != 0;
+        return Settings.Global.getInt(mResolver, DB_ID_SOUND_SPDIF_OUTPUT_ENABLE, SOUND_SPDIF_OUTPUT_ENABLE_DEFAULT) != 0;
     }
 
+    public static final String DB_ID_SOUND_SPEAKER_OUTPUT_ENABLE               = "db_id_sound_speaker_output_enable";
+    public static final int DB_ID_SOUND_SPEAKER_OUTPUT_ENABLE_DEFAULT          = 1; // enable
+    public static final String HAL_PARAM_SPEAKER_OUTPUT_MUTE                   = "cmd_aed_lr_ch_volume_mute=";
+    public void setSpeakerEnabled(boolean enable) {
+        mAudioManager.setParameters(HAL_PARAM_SPEAKER_OUTPUT_MUTE + (enable ? 0 : 1));
+        Settings.Global.putInt(mResolver, DB_ID_SOUND_SPEAKER_OUTPUT_ENABLE, enable ? 1 : 0);
+    }
+
+    public boolean isSpeakerEnabled() {
+        return Settings.Global.getInt(mResolver,
+            DB_ID_SOUND_SPEAKER_OUTPUT_ENABLE, DB_ID_SOUND_SPEAKER_OUTPUT_ENABLE_DEFAULT) != 0;
+    }
+
+    public static int SOUND_AD_SWITCH_DEFAULT                           = 0;
     public static final String DB_ID_SOUND_AD_SWITCH                    = "ad_switch";
     public static final String HAL_PARAM_AD_SWITCH                      = "ad_switch_enable=";
     public void setAdSupportEnable(boolean newVal) {
@@ -487,8 +604,8 @@ public class DroidAudioManager {
     }
 
     public boolean getAdSupportEnable() {
-        DataProviderManager.getIntValue(mContext, DB_ID_SOUND_AD_SWITCH, 0) ;
-        return DataProviderManager.getIntValue(mContext, DB_ID_SOUND_AD_SWITCH, 0) != 0;
+        DataProviderManager.getIntValue(mContext, DB_ID_SOUND_AD_SWITCH, SOUND_AD_SWITCH_DEFAULT) ;
+        return DataProviderManager.getIntValue(mContext, DB_ID_SOUND_AD_SWITCH, SOUND_AD_SWITCH_DEFAULT) != 0;
     }
 
     /* [setAudioOutputSpeakerDelay / setAudioOutputSpdifDelay / setAudioOutputHeadphoneDelay/
@@ -799,13 +916,7 @@ public class DroidAudioManager {
     }
 
     public boolean isSoundBarModeEnabled() {
-        boolean flag = mSystemControl.getPropertyBoolean("ro.vendor.platform.support.soundbar", false);
-        int soundBarEnable = Settings.Global.getInt(mResolver, DB_ID_AUDIO_SOUNDBAR_MODE_ENABLE, flag ? 1 : 0);
-        return (soundBarEnable == 1);
-    }
-
-    public void init() {
-
+        return Settings.Global.getInt(mResolver, DB_ID_AUDIO_SOUNDBAR_MODE_ENABLE, 0) != 0;
     }
 
     public static String AudioCmdToString(int cmd) {

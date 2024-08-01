@@ -22,7 +22,6 @@ import com.droidlogic.audioservice.services.IAudioEffectsService;
 
 public class AudioEffectManager {
     private String TAG = "AudioEffectManager";
-    public static final String SERVICE_PACKEGE_NANME = "com.droidlogic";
     public static final String SERVICE_NANME = "com.droidlogic.audioservice.services.AudioEffectsService";
     private IAudioEffectsService mAudioEffectsService = null;
     private Context mContext;
@@ -341,7 +340,7 @@ public class AudioEffectManager {
                 while (true) {
                     Intent intent = new Intent();
                     intent.setAction(SERVICE_NANME);
-                    intent.setPackage(SERVICE_PACKEGE_NANME);
+                    intent.setPackage("com.droidlogic");
                     mIsBind = mContext.bindService(intent, serConn, mContext.BIND_AUTO_CREATE);
                     LOGI("=====[getService] mIsBind: " + mIsBind + ", retry:" + retry);
                     if (mIsBind || retry <= 0) {
@@ -368,6 +367,30 @@ public class AudioEffectManager {
         }
     };
 
+    public static String debugUiIndexToString(int value) {
+        String temp = "[" + value + "]";
+        switch (value) {
+            case DEBUG_HPEQ_UI:
+                return temp + "HPEQ";
+            case DEBUG_BALANCE_UI:
+                return temp + "BALANCE";
+            case DEBUG_TREBLEBASS_UI:
+                return temp + "TREBLEBASS";
+            case DEBUG_VIRTUAL_SURROUND_UI:
+                return temp + "VIRTUAL_SURROUND";
+            case DEBUG_DPE_UI:
+                return temp + "DPE";
+            case DEBUG_VIRTUAL_X_UI:
+                return temp + "VIRTUAL_X";
+            case DEBUG_DAP_2_UI:
+                return temp + "DAP_2";
+            case DEBUG_HPEQ_BAND_NUM_UI:
+                return temp + "HPEQ_BAND_NUM";
+            default:
+                return temp + "invalid value";
+        }
+    }
+
     public void unBindService() {
         mContext.unbindService(serConn);
     }
@@ -382,12 +405,30 @@ public class AudioEffectManager {
         }
     }
 
-    public void createAudioEffects() {
+    public void init() {
         if (audioEffectServiceIsNull()) return;
         try {
-            mAudioEffectsService.createAudioEffects();
+            mAudioEffectsService.init();
         } catch (RemoteException e) {
-            Log.e(TAG, "createAudioEffects failed:" + e);
+            Log.e(TAG, "init failed:" + e);
+        }
+    }
+
+    public void deinit() {
+        if (audioEffectServiceIsNull()) return;
+        try {
+            mAudioEffectsService.deinit();
+        } catch (RemoteException e) {
+            Log.e(TAG, "deinit failed:" + e);
+        }
+    }
+
+    public void reset() {
+        if (audioEffectServiceIsNull()) return;
+        try {
+            mAudioEffectsService.reset();
+        } catch (RemoteException e) {
+            Log.e(TAG, "reset failed:" + e);
         }
     }
 
@@ -445,16 +486,6 @@ public class AudioEffectManager {
             return mAudioEffectsService.getSoundModeStatus();
         } catch (RemoteException e) {
             Log.e(TAG, "getSoundModeStatus failed:" + e);
-        }
-        return -1;
-    }
-
-    public int getSoundModule() {
-        if (audioEffectServiceIsNull()) return 0;
-        try {
-            return mAudioEffectsService.getSoundModule();
-        } catch (RemoteException e) {
-            Log.e(TAG, "getSoundModule failed:" + e);
         }
         return -1;
     }
@@ -571,33 +602,6 @@ public class AudioEffectManager {
         }
     }
 
-    public void cleanupAudioEffects() {
-        if (audioEffectServiceIsNull()) return;
-        try {
-            mAudioEffectsService.cleanupAudioEffects();
-        } catch (RemoteException e) {
-            Log.e(TAG, "cleanupAudioEffects failed:" + e);
-        }
-    }
-
-    public void initSoundEffectSettings() {
-        if (audioEffectServiceIsNull()) return;
-        try {
-            mAudioEffectsService.initSoundEffectSettings();
-        } catch (RemoteException e) {
-            Log.e(TAG, "initSoundEffectSettings failed:" + e);
-        }
-    }
-
-    public void resetSoundEffectSettings() {
-        if (audioEffectServiceIsNull()) return;
-        try {
-            mAudioEffectsService.resetSoundEffectSettings();
-        } catch (RemoteException e) {
-            Log.e(TAG, "resetSoundEffectSettings failed:" + e);
-        }
-    }
-
     public void setDapParam(int id, int value) {
         if (audioEffectServiceIsNull()) return;
         try {
@@ -615,15 +619,6 @@ public class AudioEffectManager {
             Log.e(TAG, "getDapParam failed:" + e);
         }
         return 0;
-    }
-
-    public void initDapAudioEffect() {
-        if (audioEffectServiceIsNull()) return;
-        try {
-            mAudioEffectsService.initDapAudioEffect();
-        } catch (RemoteException e) {
-            Log.e(TAG, "initDapAudioEffect failed:" + e);
-        }
     }
 
     //dpe param
@@ -644,15 +639,6 @@ public class AudioEffectManager {
             Log.e(TAG, "getDpeParam failed:" + e);
         }
         return 0;
-    }
-
-    public void initDpeAudioEffect() {
-        if (audioEffectServiceIsNull()) return;
-        try {
-            mAudioEffectsService.initDpeAudioEffect();
-        } catch (RemoteException e) {
-            Log.e(TAG, "initDpeAudioEffect failed:" + e);
-        }
     }
 
     public void setAudioEffectOn(int id, boolean dbSwitch) {

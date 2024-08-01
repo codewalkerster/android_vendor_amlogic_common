@@ -17,7 +17,9 @@
 package com.droidlogic.audioservice.services;
 
 interface IAudioEffectsService{
-    void createAudioEffects();
+    void init();
+    void deinit();
+    void reset();
     boolean isSupportVirtualX();
     void setDtsVirtualXMode(int virtualXMode);
     int getDtsVirtualXMode();
@@ -37,9 +39,6 @@ interface IAudioEffectsService{
     void setBass(int step);
     void setBalance(int step);
     void setVirtualSurround(int mode);
-    void cleanupAudioEffects();
-    void initSoundEffectSettings();
-    void resetSoundEffectSettings();
     void setDapParam(int id, int value);
     int getDapParam(int id);
     void initDapAudioEffect();

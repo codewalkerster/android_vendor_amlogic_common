@@ -36,6 +36,7 @@ struct DroidAudio : public BnDroidAudio {
     ~DroidAudio();
 
     ::ndk::ScopedAStatus init(int32_t* _aidl_return) override;
+    ::ndk::ScopedAStatus reset(int32_t* _aidl_return) override;
     void doOnDroidAudioEvent();
     ::ndk::ScopedAStatus registerClient(const shared_ptr<IDroidAudioClient>& client, int32_t* _aidl_return) override;
     void removeNotificationClient(uid_t uid, pid_t pid);
