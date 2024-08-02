@@ -678,7 +678,15 @@ void CPQControl::onTXStatusChange()
 }
 
 int CPQControl::isGameMode() {
-    return property_get_int32("vendor.media.omx.gamemode.status", 0);
+    /*vendor.media.omx.gamemode.status       R PF used for clound game
+     *vendor.media.c2.vdec.game_low_latency  U PF used for clound game
+     */
+    bool isCodec2 = property_get_bool("vendor.media.codec2.support", false);
+    if (isCodec2) {
+        return property_get_int32("vendor.media.c2.vdec.game_low_latency", 0);
+    } else {
+        return property_get_int32("vendor.media.omx.gamemode.status", 0);
+    }
 }
 
 int CPQControl::LoadPQSettings()
@@ -3336,10 +3344,10 @@ int CPQControl::SetMemcMode(int memc_mode, int is_save)
 {
     SYS_LOGD("%s, mode = %d\n", __FUNCTION__, memc_mode);
     int ret = -1;
-    ret = Cpq_SetMemcMode((vpp_memc_mode_t)memc_mode, mCurrentSourceInputInfo);
+    ret = Cpq_SetMemcMode((MEMC_MODE)memc_mode, mCurrentSourceInputInfo);
 
     if (ret == 0 && is_save == 1) {
-        ret = SaveMemcMode((vpp_memc_mode_t)memc_mode);
+        ret = SaveMemcMode((MEMC_MODE)memc_mode);
     }
 
     if (ret < 0) {
@@ -3351,9 +3359,9 @@ int CPQControl::SetMemcMode(int memc_mode, int is_save)
     return ret;
 }
 
-int CPQControl::GetMemcMode()
+int CPQControl::GetMemcMode(void)
 {
-    int level = VPP_MEMC_MODE_OFF;
+    int level = MEMC_MODE_OFF;
     PICTURE_MODE_DATA para;
     if (!GetPictureModeData(&para, (PICTURE_MODE)GetPQMode())) {
         SYS_LOGE("%s: GetPictureModeData source: %d, timming: %d data: %d fail\n",__FUNCTION__, CurSource, CurTimming, level);
@@ -3362,15 +3370,15 @@ int CPQControl::GetMemcMode()
 
     level = para.Memc;
 
-    if (level < VPP_MEMC_MODE_OFF || level >= VPP_MEMC_MODE_MAX) {
-        level = VPP_MEMC_MODE_OFF;
+    if (level < MEMC_MODE_OFF || level >= MEMC_MODE_MAX) {
+        level = MEMC_MODE_OFF;
     }
 
-    SYS_LOGD("%s, source: %d, level = %d\n", __FUNCTION__, CurSource, level);
+    SYS_LOGD("%s, source: %d, timming: %d, level = %d\n", __FUNCTION__, CurSource, CurTimming, level);
     return level;
 }
 
-int CPQControl::SaveMemcMode(vpp_memc_mode_t memc_mode)
+int CPQControl::SaveMemcMode(MEMC_MODE memc_mode)
 {
     PICTURE_MODE_DATA para;
     if (!GetPictureModeData(&para, (PICTURE_MODE)GetPQMode())) {
@@ -3380,11 +3388,16 @@ int CPQControl::SaveMemcMode(vpp_memc_mode_t memc_mode)
 
     para.Memc = (int)memc_mode;
 
-    SYS_LOGD("%s success!\n",__FUNCTION__);
+    if (!SetPictureModeData(&para, (PICTURE_MODE)GetPQMode())) {
+        SYS_LOGE("%s: GetPictureModeData source: %d, timming: %d, memc_mode: %d fail\n",__FUNCTION__, CurSource, CurTimming, memc_mode);
+        return -1;
+    }
+
+    SYS_LOGD("%s success! source: %d, timming: %d, level: %d\n",__FUNCTION__, CurSource, CurTimming, memc_mode);
     return 0;
 }
 
-int CPQControl::Cpq_SetMemcMode(vpp_memc_mode_t memc_mode, source_input_param_t source_input_param)
+int CPQControl::Cpq_SetMemcMode(MEMC_MODE memc_mode, source_input_param_t source_input_param)
 {
     if (!mbCpqCfg_memc_enable) {
         SYS_LOGD("%s memc Disabled!\n",__FUNCTION__);
@@ -3392,7 +3405,7 @@ int CPQControl::Cpq_SetMemcMode(vpp_memc_mode_t memc_mode, source_input_param_t 
     }
 
     if (isGameMode()) {
-        memc_mode = VPP_MEMC_MODE_OFF;
+        memc_mode = MEMC_MODE_OFF;
         SYS_LOGE("%s, isGameMode, Set memc mode OFF!!!\n", __FUNCTION__);
     }
 
@@ -3403,57 +3416,63 @@ int CPQControl::Cpq_SetMemcMode(vpp_memc_mode_t memc_mode, source_input_param_t 
     }
 
     int ret = 0;
-    int DeJudder_level = pData.memc[memc_mode].DeBlurLevel;
+    int DeJudder_level = pData.memc[memc_mode].DeJudderLevel;
     int DeBlur_Level = pData.memc[memc_mode].DeBlurLevel;
 
-    if (mPQdb->mDbMatchType == MATCH_TYPE_MBOX_T3X) {
-        if (!isGameMode() && memc_mode == VPP_MEMC_MODE_OFF) {
-            if (mFrameRate <= 60) {
-                SYS_LOGD("%s, though ui off level, but dejudder is 0\n", __FUNCTION__);
-                DeJudder_level = 0;
-                DeBlur_Level = 0;
-            }
-        }
+    if (mPQdb->mDbMatchType == MATCH_TYPE_MBOX_T3X &&
+        memc_mode == MEMC_MODE_OFF &&
+        !isGameMode() &&
+        mFrameRate <= 60) {
+        SYS_LOGD("%s, though ui off level, but dejudder is 0\n", __FUNCTION__);
+        DeJudder_level = 0;
+        DeBlur_Level = 0;
+    }
 
-        ret |= Cpq_SetMemcDeJudderLevel(DeJudder_level, mCurrentSourceInputInfo);
-        ret |= Cpq_SetMemcDeBlurLevel(DeBlur_Level, mCurrentSourceInputInfo);
+    ret |= Cpq_SetMemcDeJudderLevel(DeJudder_level, mCurrentSourceInputInfo);
+    ret |= Cpq_SetMemcDeBlurLevel(DeBlur_Level, mCurrentSourceInputInfo);
 
-        if (memc_mode == VPP_MEMC_MODE_OFF) {
-            //ret |= Memc_enable(0);
-        } else {
-            ret |= Memc_enable(1);
+    if (memc_mode == MEMC_MODE_OFF) {
+        if (Cpq_GetMemcTrueFalseOff(memc_mode)) {
+            ret |= Memc_enable(0);
         }
     } else {
-        ret |= Cpq_SetMemcDeJudderLevel(DeJudder_level, mCurrentSourceInputInfo);
-        ret |= Cpq_SetMemcDeBlurLevel(DeBlur_Level, mCurrentSourceInputInfo);
-
-        if (memc_mode == VPP_MEMC_MODE_OFF) {
-            ret |= Memc_enable(0);
-        } else {
-            ret |= Memc_enable(1);
-        }
+        ret |= Memc_enable(1);
     }
 
     return ret;
 }
 
+bool CPQControl::Cpq_GetMemcTrueFalseOff(MEMC_MODE memc_mode)
+{
+    bool memc_off = true;
+
+    if (mPQdb->mDbMatchType == MATCH_TYPE_MBOX_T3X) {
+        if (memc_mode == MEMC_MODE_OFF) {
+            if (mCurrentHdrType == HDR_TYPE_DOVI || isGameMode()) {
+                memc_off = true;
+            } else {
+                memc_off = false;
+            }
+        }
+    }
+
+    SYS_LOGD("%s, memc_off = %d\n", __FUNCTION__, memc_off);
+    return memc_off;
+}
+
 int CPQControl::SetMemcDeBlurLevel(int level, int is_save)
 {
-    SYS_LOGD("%s, source: %d, level = %d\n", __FUNCTION__, CurSource, level);
-    int ret = -1;
-    ret = Cpq_SetMemcDeBlurLevel(level, mCurrentSourceInputInfo);
-
-    if ((ret == 0) && (is_save == 1)) {
-        ret = SaveMemcDeBlurLevel(level);
+    if (is_save == 1) {
+        SaveMemcDeBlurLevel(level);
     }
 
-    if (ret < 0) {
+    if (Cpq_SetMemcDeBlurLevel(level, mCurrentSourceInputInfo) < 0) {
         SYS_LOGE("%s failed!\n",__FUNCTION__);
-    } else {
-        SYS_LOGD("%s success!\n",__FUNCTION__);
+        return -1;
     }
 
-    return ret;
+    SYS_LOGD("%s, success! source: %d, timming: %d, level = %d\n", __FUNCTION__, CurSource, CurTimming, level);
+    return 0;
 }
 
 int CPQControl::GetMemcDeBlurLevel(void)
@@ -3466,14 +3485,14 @@ int CPQControl::GetMemcDeBlurLevel(void)
     }
 
     int mode = GetMemcMode();
-    if (mode < VPP_MEMC_MODE_OFF || mode >= VPP_MEMC_MODE_MAX) {
-        mode = VPP_MEMC_MODE_OFF;
+    if (mode < MEMC_MODE_OFF || mode >= MEMC_MODE_MAX) {
+        mode = MEMC_MODE_OFF;
         SYS_LOGE("%s, mode out of range, use default!!\n", __FUNCTION__);
     }
 
     level = pData.memc[mode].DeBlurLevel;
 
-    SYS_LOGD("%s, source: %d, level = %d\n", __FUNCTION__, CurSource, level);
+    SYS_LOGD("%s, success! source: %d, timming: %d, level = %d\n", __FUNCTION__, CurSource, CurTimming, level);
     return level;
 }
 
@@ -3486,8 +3505,8 @@ int CPQControl::SaveMemcDeBlurLevel(int level)
     }
 
     int mode = GetMemcMode();
-    if (mode < VPP_MEMC_MODE_OFF || mode >= VPP_MEMC_MODE_MAX) {
-        mode = VPP_MEMC_MODE_OFF;
+    if (mode < MEMC_MODE_OFF || mode >= MEMC_MODE_MAX) {
+        mode = MEMC_MODE_OFF;
         SYS_LOGE("%s, mode out of range, use default!!\n", __FUNCTION__);
     }
 
@@ -3498,13 +3517,12 @@ int CPQControl::SaveMemcDeBlurLevel(int level)
         return -1;
     }
 
-    SYS_LOGD("%s success!\n",__FUNCTION__);
+    SYS_LOGD("%s, success! source: %d, timming: %d, level = %d\n", __FUNCTION__, CurSource, CurTimming, level);
     return 0;
 }
 
 int CPQControl::Cpq_SetMemcDeBlurLevel(int level, source_input_param_t source_input_param)
 {
-    SYS_LOGD("%s, level = %d\n", __FUNCTION__, level);
     if (!mbCpqCfg_memc_enable) {
         SYS_LOGD("%s memc Disabled!\n",__FUNCTION__);
         return 0;
@@ -3515,27 +3533,23 @@ int CPQControl::Cpq_SetMemcDeBlurLevel(int level, source_input_param_t source_in
         return -1;
     }
 
-    SYS_LOGD("%s success!\n",__FUNCTION__);
+    SYS_LOGD("%s, success! source: %d, timming: %d, level = %d\n", __FUNCTION__, CurSource, CurTimming, level);
     return 0;
 }
 
 int CPQControl::SetMemcDeJudderLevel(int level, int is_save)
 {
-    SYS_LOGD("%s, source: %d, level = %d\n", __FUNCTION__, CurSource, level);
-    int ret = -1;
-    ret = Cpq_SetMemcDeJudderLevel(level, mCurrentSourceInputInfo);
-
-    if ((ret == 0) && (is_save == 1)) {
-        ret = SaveMemcDeJudderLevel(level);
+    if (is_save == 1) {
+        SaveMemcDeJudderLevel(level);
     }
 
-    if (ret < 0) {
-        SYS_LOGE("%s failed!\n",__FUNCTION__);
-    } else {
-        SYS_LOGD("%s success!\n",__FUNCTION__);
+    if (Cpq_SetMemcDeJudderLevel(level, mCurrentSourceInputInfo) < 0) {
+        SYS_LOGE("%s failed! source: %d, timming: %d, level = %d\n", __FUNCTION__, CurSource, CurTimming, level);
+        return -1;
     }
 
-    return ret;
+    SYS_LOGD("%s, success! source: %d, timming: %d, level = %d\n", __FUNCTION__, CurSource, CurTimming, level);
+    return 0;
 }
 
 int CPQControl::GetMemcDeJudderLevel(void)
@@ -3548,14 +3562,14 @@ int CPQControl::GetMemcDeJudderLevel(void)
     }
 
     int mode = GetMemcMode();
-    if (mode < VPP_MEMC_MODE_OFF || mode >= VPP_MEMC_MODE_MAX) {
-        mode = VPP_MEMC_MODE_OFF;
+    if (mode < MEMC_MODE_OFF || mode >= MEMC_MODE_MAX) {
+        mode = MEMC_MODE_OFF;
         SYS_LOGE("%s, mode out of range, use default!!\n", __FUNCTION__);
     }
 
     level = pData.memc[mode].DeJudderLevel;
 
-    SYS_LOGD("%s, source: %d, level = %d\n", __FUNCTION__, CurSource, level);
+    SYS_LOGD("%s, source: %d, timming: %d, level = %d\n", __FUNCTION__, CurSource, CurTimming, level);
     return level;
 }
 
@@ -3568,8 +3582,8 @@ int CPQControl::SaveMemcDeJudderLevel(int level)
     }
 
     int mode = GetMemcMode();
-    if (mode < VPP_MEMC_MODE_OFF || mode >= VPP_MEMC_MODE_MAX) {
-        mode = VPP_MEMC_MODE_OFF;
+    if (mode < MEMC_MODE_OFF || mode >= MEMC_MODE_MAX) {
+        mode = MEMC_MODE_OFF;
         SYS_LOGE("%s, mode out of range, use default!!\n", __FUNCTION__);
     }
 
@@ -3580,14 +3594,12 @@ int CPQControl::SaveMemcDeJudderLevel(int level)
         return -1;
     }
 
-    SYS_LOGD("%s success!\n",__FUNCTION__);
+    SYS_LOGD("%s, success! source: %d, timming: %d, level = %d\n", __FUNCTION__, CurSource, CurTimming, level);
     return 0;
 }
 
 int CPQControl::Cpq_SetMemcDeJudderLevel(int level, source_input_param_t source_input_param)
 {
-    SYS_LOGD("%s, level = %d\n", __FUNCTION__, level);
-
     if (!mbCpqCfg_memc_enable) {
         SYS_LOGD("%s memc Disabled!\n",__FUNCTION__);
         return 0;
@@ -3598,7 +3610,7 @@ int CPQControl::Cpq_SetMemcDeJudderLevel(int level, source_input_param_t source_
         return -1;
     }
 
-    SYS_LOGD("%s success!\n",__FUNCTION__);
+    SYS_LOGD("%s, success! source: %d, timming: %d, level = %d\n", __FUNCTION__, CurSource, CurTimming, level);
     return 0;
 }
 
@@ -10272,7 +10284,7 @@ int CPQControl::SetPQPictureMode(PICTURE_MODE pq_mode)
         ret |= Cpq_SetDeblockMode((di_deblock_mode_t)PictureMode.Deblock, mCurrentSourceInputInfo);
         ret |= Cpq_SetDemoSquitoMode((di_demosquito_mode_t)PictureMode.DeMoSquito, mCurrentSourceInputInfo);
         ret |= Cpq_SetSmoothPlusMode((vpp_smooth_plus_mode_t)PictureMode.Decontour, mCurrentSourceInputInfo);
-        ret |= Cpq_SetMemcMode((vpp_memc_mode_t)PictureMode.Memc, mCurrentSourceInputInfo);
+    ret |= Cpq_SetMemcMode((MEMC_MODE)PictureMode.Memc, mCurrentSourceInputInfo);
         ret |= Cpq_SetSuperResolution(PictureMode.SuperResolution, mCurrentSourceInputInfo);
 
         // colortemp
@@ -10631,7 +10643,7 @@ int CPQControl::RefreshDvApoPictureMode(int Type)
         return -1;
     }
 
-    Cpq_SetMemcMode((vpp_memc_mode_t)amdolby_apo[Type].Memc, mCurrentSourceInputInfo);
+    Cpq_SetMemcMode((MEMC_MODE)amdolby_apo[Type].Memc, mCurrentSourceInputInfo);
     Cpq_SetSharpness(amdolby_apo[Type].Sharp, mCurrentSourceInputInfo);
     Cpq_SetSuperResolution(amdolby_apo[Type].Sr, mCurrentSourceInputInfo);
     Cpq_SetNoiseReductionMode((vpp_noise_reduction_mode_t)amdolby_apo[Type].Nr, mCurrentSourceInputInfo);
