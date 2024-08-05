@@ -18,6 +18,7 @@ import android.content.IntentFilter;
 import android.content.BroadcastReceiver;
 import android.database.ContentObserver;
 import android.media.tv.TvContract;
+import android.media.AudioSystem;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.UserHandle;
@@ -34,6 +35,7 @@ import com.droidlogic.app.DroidAudioManager;
 import com.droidlogic.app.SystemControlManager;
 import com.droidlogic.app.AudioEffectManager;
 import com.droidlogic.audioservice.settings.SoundEffectManager;
+
 
 /**
  * This Service modifies Audio and Picture Quality TV Settings.
@@ -52,11 +54,54 @@ public class AudioEffectsService extends Service {
         mAudioEffectsService = this;
     }
 
+    private final AudioSystem.ErrorCallback mAudioSystemCallback = new AudioSystem.ErrorCallback() {
+        public void onError(int error) {
+            switch (error) {
+                case AudioSystem.AUDIO_STATUS_SERVER_DIED:
+                    Log.i(TAG, "onError: audioserver was died! Recreate AudioEffect.");
+                    mHandler.sendEmptyMessage(MSG_AUDIO_SERVER_DIED);
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+
+    private static final int MSG_AUDIO_SERVER_DIED = 0;
+    private static final int MSG_AUDIO_SERVER_CHECK_SATE = 1;
+    private static final int MSG_AUDIO_SERVER_READY = 2;
+    private Handler mHandler = new Handler() {
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MSG_AUDIO_SERVER_DIED:
+                    mSoundEffectManager.cleanupAudioEffects();
+                    this.sendEmptyMessageDelayed(MSG_AUDIO_SERVER_CHECK_SATE, 60);
+                    break;
+                case MSG_AUDIO_SERVER_CHECK_SATE:
+                    if (AudioSystem.checkAudioFlinger() != AudioSystem.AUDIO_STATUS_OK) {
+                        this.sendEmptyMessageDelayed(MSG_AUDIO_SERVER_CHECK_SATE, 80);
+                        Log.d(TAG, "AudioServer is not ready");
+                    } else {
+                        this.sendEmptyMessage(MSG_AUDIO_SERVER_READY);
+                        Log.d(TAG, "AudioServer is ready");
+                    }
+                    break;
+                case MSG_AUDIO_SERVER_READY:
+                    mSoundEffectManager.createAudioEffectsByIndex();
+                    Log.d(TAG, "Restore AudioEffects over!");
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+
     @Override
     public void onCreate() {
         if (DEBUG) Log.d(TAG, "AudioEffectsService onCreate");
         mContext = this;
         mSoundEffectManager = SoundEffectManager.getInstance(mContext);
+        AudioSystem.setErrorCallback(mAudioSystemCallback);
         handleActionStartUp();
     }
 
