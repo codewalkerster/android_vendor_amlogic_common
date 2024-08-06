@@ -234,6 +234,7 @@ public class SubtitleManager {
     private boolean mSurfaceRectFlag = false;
     private Handler mHandler;
 
+
     //ext sub
     private SubtitleUtils mSubtitleUtils = null;
     private static final String[] mExternalExtension = {
@@ -329,6 +330,7 @@ public class SubtitleManager {
     private native int nativeGetSubType();
     private native String nativeGetSubLanguage(int idx);
     private native void nativeSetSubLanguage(String lang);
+    private native int nativeSetSubTranslationLanguage(String lang);
     private native void nativeSetStartTimeStamp(int startTime);
     private native String nativeGetCurName();
     private native int nativeGetSubTypeDetail();
@@ -624,18 +626,20 @@ public class SubtitleManager {
                         text = new String (subdata);
                     }
                     Log.d(TAG, "startSubtitle TEXT = " + text);
+
                     mUI.showSubtitleString(text, show);
                     break;
 
                 case SUBTITLE_IMAGE:
                 case SUBTITLE_IMAGE_CENTER:
                     if ((width <= 0) || (height <= 0)) {
-                        if (!show) mUI.showBitmap(null, 1, 1, false, objectSegmentId);
+                     //   if (!show) mUI.showBitmap(null, 1, 1, false, objectSegmentId,null);
                         return;
                     }
                     try {
                         int[] array = (int[])data;
                         mUI.setCoordinate(x, y, objectSegmentId);
+
                         Bitmap bitmap = Bitmap.createBitmap(array, width, height, Config.ARGB_8888);
                         // scaling.
                         float scaleW = ((mDisplayRect.right-mDisplayRect.left)*1.0f)/(float)videoWidth;
@@ -1037,6 +1041,7 @@ public class SubtitleManager {
             builtInSubs = builtInSubs > 0 ? builtInSubs : 0;
 
             if (mSubtitleUtils.getSubID(idx - builtInSubs) != null) {
+
                 close();
                 mSubtitleUtils.resetCharset();
                 LOGI("[openIdx] ext sub switch idx:" + idx+" mPath:"+mPath);
@@ -1271,6 +1276,17 @@ public class SubtitleManager {
         nativeSetSubLanguage(lang);
     }
 
+    // lang: the two bytes country code in <ISO 3166 Country Codes>,
+    //       which are lowercase characters.
+    //       Use "" or empty if resume to original language subtitle.
+    // return:
+    //       0  success to set translation language
+    //       1  the language is not supported
+    //      -1  error happened
+    public int setSubTranslationLanguage(String lang) {
+        return nativeSetSubTranslationLanguage(lang);
+    }
+
     public void setStartTimeStamp(int startTime) {
         nativeSetStartTimeStamp(startTime);
     }
@@ -1321,6 +1337,9 @@ public class SubtitleManager {
 
     public void setPosHeight(int height) {
         runOnMainThread(() -> { mUI.setPosHeight(height); });
+    }
+    public void setAIAdaptiveArea(boolean openAi) {
+        mUI.setAIAdaptiveArea(openAi);
     }
 
     public void setImgSubRatio(float ratioW, float ratioH, int maxW, int maxH) {

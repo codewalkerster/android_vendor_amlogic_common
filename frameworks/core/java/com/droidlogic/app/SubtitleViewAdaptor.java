@@ -21,7 +21,25 @@ import android.graphics.Bitmap.Config;
 import android.graphics.BlendMode;
 import android.util.DisplayMetrics;
 
+import android.net.Uri;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import android.os.Handler;
+import android.os.Looper;
+
+import android.os.Message;
+
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 
 
 
@@ -33,6 +51,7 @@ class SubtitleViewAdaptor {
     private FrameLayout mSubLayout = null;
     private TextView mTextView;
     private ImageView[] mImageView;
+    private boolean bOpenAiAdaptiveArea = false;
 
     private CCSubtitleView mCcSubtitleView;
     boolean mIsWindowCreated;
@@ -71,13 +90,29 @@ class SubtitleViewAdaptor {
     private int mWindowW = 0;
     private int mWindowH = 0;
 
-    private Bitmap interBitmap ;
+    private Bitmap interBitmap;
+
     private String mTitle;
     // To support setDisplayRect.
     private int mDisplayBoundWidth;
     private int mDisplayBoundHeight;
 
     private static final String[] NEW_LINE_FLAG = {"\\N","|"};
+    private boolean dump2File = false;
+    private static final String PROP_SAVE_IMAGE_FILE = "debug.subtitle.save_display_file";
+    private  static final int  TEXT_MSG_NOT_SHOW = 2001;
+    private  static final int  IMAGE0_MSG_NOT_SHOW = 2002;
+    private  static final int  IMAGE1_MSG_NOT_SHOW = 2003;
+    private String PIC_W ="vendor.hwc.aisubtile.pic_width";
+    private String PIC_H = "vendor.hwc.aisubtile.pic_height";
+
+    //2.width height 400*50
+    private String AREA_W ="vendor.hwc.aisubtile.area_width";
+    private String AREA_H ="vendor.hwc.aisubtile.area_height";
+
+    //3.real adaptive area: 0,
+    private String AREA_NUBER ="vendor.hwc.aisubtile.out_area";//not use now
+    private DisplayMetrics outMetrics;
 
     /**
      *
@@ -100,8 +135,11 @@ class SubtitleViewAdaptor {
         mWindowManager = (WindowManager)mContext.getSystemService(Context.WINDOW_SERVICE);
         mImageView = new ImageView[MAX_OBJECT_SEGMENT_ID];
         ensureSubLayoutCreated();
+        bOpenAiAdaptiveArea = false;
+        setAIAdaptiveArea(bOpenAiAdaptiveArea);
+        outMetrics = new DisplayMetrics();
+        mWindowManager.getDefaultDisplay().getMetrics(outMetrics);
     }
-
     public boolean isDisplayWindowAdded() {
         checkCallerOnUIThread();
         Log.d(TAG, "isDisplayWindowAdded:"+mIsWindowCreated);
@@ -130,10 +168,11 @@ class SubtitleViewAdaptor {
 
         RelativeLayout tlayout = new RelativeLayout(mContext);
         tlayout.setLayoutParams(lparams);
-        tlayout.setPadding(0, 0, 0, 50);
-        tlayout.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
+        //tlayout.setPadding(0, 0, 0, 50);
+        //tlayout.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
         mTextView = (TextView) new TextView(mContext);
         tlayout.addView(mTextView, lparams);
+         //mSubLayout.addView(tlayout, tparams);
         for (int i=0; i<MAX_OBJECT_SEGMENT_ID; i++) {
            RelativeLayout ilayout = new RelativeLayout(mContext);
            ilayout.setLayoutParams(lparams);
@@ -177,6 +216,7 @@ class SubtitleViewAdaptor {
         mWindowLayoutParams.y = y;
         mWindowLayoutParams.width = w;
         mWindowLayoutParams.height = h;
+        Log.d(TAG, "initialLayoutParams,type:" + windowType +",x:" + x + ",y:" + y + ",w:" + w + ",h:" + h);
 
         mDisplayBoundWidth = w;
         mDisplayBoundHeight =h;
@@ -254,6 +294,33 @@ class SubtitleViewAdaptor {
         mIsWindowCreated = false;
         mSubLayout = null;//for switch resolution, the surface not update which cause the subtitle size and position error
     }
+    //add temp for translation subtitle,start
+
+    Handler handler = new Handler()
+    {
+        public void handleMessage(Message msg) {
+            Log.d(TAG, "msg.what =" + msg.what);
+            switch (msg.what) {
+            case TEXT_MSG_NOT_SHOW:
+                Log.d(TAG, "not show message, setVisible false");
+                 mTextView.setVisibility(View.INVISIBLE);
+                break;
+            case IMAGE0_MSG_NOT_SHOW:
+                mImageView[0].setVisibility(View.INVISIBLE);
+                break;
+            case IMAGE1_MSG_NOT_SHOW:
+                mImageView[1].setVisibility(View.INVISIBLE);
+                break;
+            }
+        }
+    };
+    public void setAIAdaptiveArea(boolean openAi) {
+         Log.d(TAG, "setAIadaptiveArea:" + openAi);
+         bOpenAiAdaptiveArea = openAi;
+         SystemControlManager mSystemControl = SystemControlManager.getInstance();
+         mSystemControl.writeSysFs("/sys/module/aml_media/parameters/uvm_open_aisubtitle", openAi?"1":"0");
+         Log.d(TAG, "setAIAdaptiveArea end");
+    }
 
     public void showSubtitleString(String text, boolean showing) {
         checkCallerOnUIThread();
@@ -284,41 +351,138 @@ class SubtitleViewAdaptor {
         }
 
        RelativeLayout.LayoutParams tt = new RelativeLayout.LayoutParams(mTextView.getLayoutParams());
-       tt.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-       tt.addRule(RelativeLayout.CENTER_HORIZONTAL);
-       mTextView.setLayoutParams(tt);
+       if (bOpenAiAdaptiveArea) {
 
-       if (mPosHeight == 0) {
-           DisplayMetrics outMetrics = new DisplayMetrics();
-           mWindowManager.getDefaultDisplay().getMetrics(outMetrics);
-           mPosHeight = outMetrics.heightPixels/10;
-       }
+                //add for adaptive area text show 20250509
+                SystemControlManager mSystemControl = SystemControlManager.getInstance();
+                String tmp = mSystemControl.getProperty(PIC_W);
+                int picW = Integer.parseInt(tmp.equals("")? "600": tmp);
+                tmp =  mSystemControl.getProperty(PIC_H);
+                int picH = Integer.parseInt(tmp.equals("")? "480": tmp);
+                String area_1 = mSystemControl.readSysFs("/sys/module/aml_media/parameters/uvm_set_aisubtitle_area");
+                Log.d(TAG, "area_1 content:" + area_1);
+                int areaNumber = 0;
+                try {
+                    areaNumber = Integer.parseInt(area_1.equals("")? "0": area_1);
+                } catch (NumberFormatException e){
+                    Log.e(TAG, "area_1,parse area error:" + e.toString());
+                }
+                tmp =  mSystemControl.getProperty(AREA_W);
+                int areaW =  Integer.parseInt(tmp.equals("")? "400": tmp);
+                tmp =  mSystemControl.getProperty(AREA_H);
+                int areaH =  Integer.parseInt(tmp.equals("")? "50": tmp);
+                Log.d(TAG, "picW:" + picW + ",picH:" + picH + ",areaW:" + areaW + ",areaH:" + areaH + ",number:" + areaNumber);
 
-       mTextView.setGravity(Gravity.CENTER);
-       ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) mTextView.getLayoutParams();
-       params.setMargins(0, 0, 0, mPosHeight);
-       mTextView.setLayoutParams(params);
+
+               int heightPixels = outMetrics.heightPixels;
+               int widthPixels = outMetrics.widthPixels;
+               int dpi = outMetrics.densityDpi;
+               //Log.d(TAG, "window h:" + heightPixels +",window w:" + widthPixels + ",dpi:" + dpi);
+
+               int pos = 0;
+               switch (areaNumber) {
+                    case 1:
+                       pos = 1;
+                       break;
+                   case 2:
+                       pos = 15;
+                       break;
+                   case 3:
+                       pos = 14;
+                       break;
+                   case 0:
+                   default:
+                       pos = 0;
+                       break;
+               }
+               float scale_H = heightPixels*1.0f/picH;
+               float scale_W = widthPixels*1.0f/picW;
+               int heightScale = (int) (areaH*scale_H );
+               int widthScale = (int) (areaW*scale_W );
+               tt.width = widthScale;
+               tt.height = RelativeLayout.LayoutParams.WRAP_CONTENT;
+                float dpiScale = dpi*1.0f/160;
+                //Log.d(TAG, "scale h:" + scale_H + ", new height:" + heightScale + ",w scale:" + scale_W +", new width:" + widthScale);
+
+                if (areaNumber == 2 || areaNumber == 3) {
+                      tt.removeRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                      tt.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+                      tt.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+
+                      tt.topMargin = (heightPixels) * (15-pos) / 15;
+                      tt.leftMargin = (widthPixels - widthScale)/2;
+                      //Log.d(TAG, "leftMargin:" + tt.leftMargin +",top margin:" + tt.topMargin);
+                } else  {
+                      tt.removeRule(RelativeLayout.ALIGN_PARENT_TOP);
+                      tt.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                      tt.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+                      tt.bottomMargin = (heightPixels) * pos / 15;
+                      tt.leftMargin = (widthPixels - widthScale)/2;
+                      //Log.d(TAG, "leftMargin:" + tt.leftMargin +",bottom margin:" + tt.bottomMargin );
+                }
+
+                mTextView.setLayoutParams(tt);
+                //mTextView.setGravity(Gravity.LEFT);
+                Log.d(TAG, "adaptive area, mTextView:" + mTextView);
+            }
+        if (!bOpenAiAdaptiveArea) {
+           tt.removeRule(RelativeLayout.ALIGN_PARENT_TOP);
+           tt.removeRule(RelativeLayout.CENTER_HORIZONTAL);
+           tt.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+           tt.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+
+           tt.width=  RelativeLayout.LayoutParams.MATCH_PARENT;
+           tt.height = RelativeLayout.LayoutParams.WRAP_CONTENT;
+           mTextView.setLayoutParams(tt);
+           if (mPosHeight == 0) {
+               DisplayMetrics outMetrics = new DisplayMetrics();
+               mWindowManager.getDefaultDisplay().getMetrics(outMetrics);
+               mPosHeight = outMetrics.heightPixels/10;
+               Log.d(TAG, "mPosHeight:" + mPosHeight);
+           }
+           Log.d(TAG, "mPosHeight:" + mPosHeight);
+           SystemControlManager mSystemControl = SystemControlManager.getInstance();
+            //mTextView.setGravity(Gravity.LEFT);
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) mTextView.getLayoutParams();
+            int posx = mSystemControl.getPropertyInt("vendor.media.subtiltle_posx", 120);
+            Log.d(TAG, "posx:" + posx);
+            params.setMargins(posx, 0, 0, mPosHeight);
+            mTextView.setLayoutParams(params);
+        }
+       /*
        for (int i=0; i<MAX_OBJECT_SEGMENT_ID; i++) {
            mImageView[i].setVisibility(View.INVISIBLE);
        }
+       */
        if (!showing) {
-            mTextView.setVisibility(View.INVISIBLE);
+            //mTextView.setVisibility(View.INVISIBLE);//add for subtitle translate temp
             return;
        }
+       //add for subtitle translate temp,start
+       handler.removeMessages(TEXT_MSG_NOT_SHOW);//add temp for translation subtitle
+       handler.sendEmptyMessageDelayed(TEXT_MSG_NOT_SHOW, 6*1000);//add temp for translation subtitle,6S
+       //add end
+
+       //for hebrew language,need app config "android:supportsRtl="true", has verified on U
+       mTextView.setTextDirection(View.TEXT_DIRECTION_LTR);
 
         mTextView.setVisibility(View.VISIBLE);
         //mCcSubtitleView.hide();
         mCcSubtitleView.setVisibility(View.INVISIBLE);
-        for (int i=0; i<NEW_LINE_FLAG.length; i++) {
-            text = text.replace(NEW_LINE_FLAG[i], "\n");
-        }
-        Pattern pattern1 = Pattern.compile("(?<=\\{)[^\\}]+");
-        Matcher m = pattern1.matcher(text);
-        while (m.find()) {
-            text = text.replace("{"+m.group()+"}", "");
+        if (text != null) {
+            for (int i=0; i<NEW_LINE_FLAG.length; i++) {
+                text = text.replace(NEW_LINE_FLAG[i], "\n");
+            }
+
+            Pattern pattern1 = Pattern.compile("(?<=\\{)[^\\}]+");
+            Matcher m = pattern1.matcher(text);
+            while (m.find()) {
+                text = text.replace("{"+m.group()+"}", "");
+            }
         }
         Log.d(TAG, "showText:"+text);
         if (text != null) {
+            boolean leftFlag = false;
             text = text.replaceAll ("\r", "");
             byte tmpStrByte[] = text.getBytes();
 
@@ -326,9 +490,32 @@ class SubtitleViewAdaptor {
                 tmpStrByte[tmpStrByte.length - 1] = ' ';
             }
 
+            String newText = new String(tmpStrByte);
+            // String text =  "this is englishn>>>>>>/this is frensh";
+
+            int index = newText.indexOf(">>>>>>");
+            if (index >=0) {//replace
+                newText = newText.replace(">>>>>>", "");
+                leftFlag = true;
+            }
+            int endIndex =  newText.indexOf("<<<<<<");
+            if (endIndex >= 0) {
+                newText = newText.replace("<<<<<<", "");
+            }
+            SpannableString spannableString = new SpannableString(newText);
+            Log.d(TAG, "index of ---------:" + index);
+            if (index >= 0) {
+                 ForegroundColorSpan firstColorSpan = new ForegroundColorSpan(Color.YELLOW);
+                 spannableString.setSpan(firstColorSpan, 0, index, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
             if (mTextView != null) {
                 mTextView.setVisibility(View.VISIBLE);
-                mTextView.setText(new String(tmpStrByte));
+                mTextView.setText(spannableString);//new String(tmpStrByte)
+                if (leftFlag) {
+                    mTextView.setGravity(Gravity.LEFT);
+                } else {
+                    mTextView.setGravity(Gravity.CENTER);
+                }
                 Log.d(TAG, "Layout" + mSubLayout + ", Text:" + mTextView.getText() + ", " + mTextView);
             }
         }
@@ -437,6 +624,7 @@ class SubtitleViewAdaptor {
         }
         mCcSubtitleView.setVisibility(View.VISIBLE);
         mCcSubtitleView.showJsonStr(str);
+
     }
     public void resetForSeek() {
         checkCallerOnUIThread();
@@ -463,6 +651,7 @@ class SubtitleViewAdaptor {
     public void setPosHeight(int posheight) {
         checkCallerOnUIThread();
        mPosHeight = posheight;
+       Log.d(TAG, "setPosHeight:" + posheight);
     }
     public void setTextSize(int size ) {
         checkCallerOnUIThread();
@@ -540,7 +729,7 @@ class SubtitleViewAdaptor {
         checkCallerOnUIThread();
         if (mDisableDisplay)
             return;
-        mTextView.setVisibility(View.INVISIBLE);
+        // mTextView.setVisibility(View.INVISIBLE);
         mCcSubtitleView.setVisibility(View.INVISIBLE);
 
         if (!showing) {
@@ -558,18 +747,29 @@ class SubtitleViewAdaptor {
             return;
         }
 
+        //add for subtitle translate temp,start
+        int msgValue = (subtitleObjectSegmentId==0 ? IMAGE0_MSG_NOT_SHOW : IMAGE1_MSG_NOT_SHOW);
+        handler.removeMessages(msgValue);//add temp for translation subtitle
+        handler.sendEmptyMessageDelayed(msgValue, 6*1000);//add temp for translation subtitle,6S
+        //add end
+
         Log.d(TAG, "showBitmap:" + bitmap + ",object id:" + subtitleObjectSegmentId);
         if (mSubtitleType == SubtitleManager.TYPE_SUBTITLE_DVB_TELETEXT) {
            interBitmap = createTTxBitmap(bitmap,wScale, hScale, (int)mWindowLayoutParams.width, (int)mWindowLayoutParams.height);
         } else {
+
+
+
            interBitmap = creatBitmapByScale(bitmap, wScale, hScale, mWmax, mHmax);
         }
+
 
         ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) mImageView[subtitleObjectSegmentId].getLayoutParams();
         android.view.ViewGroup.LayoutParams  layoutParams = mImageView[subtitleObjectSegmentId].getLayoutParams();
         if ((mSubtitleType == SubtitleManager.TYPE_SUBTITLE_DVB)
             || (mSubtitleType == SubtitleManager.TYPE_SUBTITLE_SCTE27)
-            || (mSubtitleType == SubtitleManager.TYPE_SUBTITLE_PGS)) {
+            || (mSubtitleType == SubtitleManager.TYPE_SUBTITLE_PGS)
+            ||(mSubtitleType == SubtitleManager.TYPE_SUBTITLE_EXTERNAL)) {
             //Log.d(TAG, "mCoordinateX="+mCoordinateX+", mCoordinateY="+mCoordinateY + ",wScale:" + wScale + ",hScale:" + hScale);
 
             mCoordinateX[subtitleObjectSegmentId] = (int)(mCoordinateX[subtitleObjectSegmentId]*wScale);
@@ -594,6 +794,7 @@ class SubtitleViewAdaptor {
             mImageView[subtitleObjectSegmentId].setImageBitmap(interBitmap);
             mImageView[subtitleObjectSegmentId].setVisibility(View.VISIBLE);
             Log.d(TAG, "Layout>>"+mSubLayout+", bitmap:"+interBitmap.getWidth()+", "+mImageView[subtitleObjectSegmentId]);
+
         }
         if (DEBUG_LAYOUT) dumpViewHirarchy(mSubLayout);
     }
@@ -621,7 +822,7 @@ class SubtitleViewAdaptor {
         mWindowManager.addView(mSubLayout, mWindowLayoutParams);
         mIsWindowCreated = true;
         Log.d(TAG, "addSystemSubtitleView:" + title);
-        displayView();
+        //displayView();//when receive UI_SHOW to show
     }
 
     private void dumpViewHirarchy(View view) {
