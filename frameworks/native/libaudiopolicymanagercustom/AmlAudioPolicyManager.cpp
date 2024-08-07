@@ -54,6 +54,38 @@
 #include "TypeConverter.h"
 
 namespace android {
+EngineInstance Aml_loadApmEngineLibraryAndCreateEngine(const std::string& librarySuffix __unused)
+{
+    auto engLib = EngineLibrary::load("_amlogic");
+    if (!engLib) {
+        ALOGE("%s: Failed to load the engine library, suffix:_amlogic", __func__);
+        return nullptr;
+    }
+    auto engine = engLib->createEngineUsingXmlConfig("");
+    if (engine == nullptr) {
+        ALOGE("%s: Failed to instantiate the APM engine", __func__);
+        return nullptr;
+    }
+    return engine;
+}
+
+#ifdef AML_BOARD_COMPILE_AOSP_TYPE
+EngineInstance Aml_loadApmEngineLibraryAndCreateEngine(const std::string& librarySuffix __unused,
+        const media::audio::common::AudioHalEngineConfig& config)
+{
+    auto engLib = EngineLibrary::load("_amlogic");
+    if (!engLib) {
+        ALOGE("%s: Failed to load the engine library, suffix:_amlogic", __func__);
+        return nullptr;
+    }
+    auto engine = engLib->createEngineUsingHalConfig(config);
+    if (engine == nullptr) {
+        ALOGE("%s: Failed to instantiate the APM engine", __func__);
+        return nullptr;
+    }
+    return engine;
+}
+#endif
 
 __attribute__((unused)) extern "C"
 AudioPolicyInterface* createAudioPolicyManager(AudioPolicyClientInterface *clientInterface)
@@ -70,14 +102,14 @@ AudioPolicyInterface* createAudioPolicyManager(AudioPolicyClientInterface *clien
                 AudioPolicyConfig::kDefaultEngineLibraryNameSuffix,
                 "Only default engine is currently supported with the AIDL HAL");
         apm = new AmlAudioPolicyManager(config,
-                loadApmEngineLibraryAndCreateEngine(
+                Aml_loadApmEngineLibraryAndCreateEngine(
                         config->getEngineLibraryNameSuffix(), apmConfig.engineConfig),
                 clientInterface);
     } else {
 #endif
         auto config = AudioPolicyConfig::loadFromApmXmlConfigWithFallback();  // This can't fail.
         apm = new AmlAudioPolicyManager(config,
-                loadApmEngineLibraryAndCreateEngine(config->getEngineLibraryNameSuffix()),
+                Aml_loadApmEngineLibraryAndCreateEngine(config->getEngineLibraryNameSuffix()),
                 clientInterface);
 #ifdef AML_BOARD_COMPILE_AOSP_TYPE
     }
