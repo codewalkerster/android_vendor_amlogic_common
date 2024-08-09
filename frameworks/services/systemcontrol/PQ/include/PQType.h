@@ -1029,9 +1029,16 @@ typedef enum pq_module_demo_e
 typedef enum pq_module_demo_state_e
 {
     PQ_DEMO_STATE_OFF = 0,
-    PQ_DEMO_STATE_ON,
+    PQ_DEMO_STATE_ON  = 1,
     PQ_DEMO_STATE_MAX,
 } pq_module_demo_state_t;
+
+typedef enum pq_module_demo_aisr_win_e
+{
+    PQ_DEMO_AISR_WIN_OFF = 0,//outside axis range
+    PQ_DEMO_AISR_WIN_ON  = 1,//within axis range, default value
+    PQ_DEMO_AISR_WIN_MAX,
+} pq_module_demo_aisr_win_t;
 
 typedef enum vpp_pq_level_e {
     VPP_PQ_LV_OFF,

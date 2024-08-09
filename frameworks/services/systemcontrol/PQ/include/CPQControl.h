@@ -233,6 +233,8 @@ public:
     virtual void onTXStatusChange();
     int SetPQModuleDemoState(pq_module_demo_t modules, pq_module_demo_state_t state);
     int GetPQModuleDemoState(int modules);
+    int SetPQModuleDemoAisrWin(pq_module_demo_aisr_win_t aisr_win);
+    int GetPQModuleDemoAisrWin(void);
     virtual void resetAllUserSettingParam();
     virtual void resetSSMData();
     virtual void Set_Backlight(int value);

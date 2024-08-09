@@ -4826,6 +4826,46 @@ public class SystemControlManager {
 
      }
 
+     /**
+      * @Function: SetPQModuleDemoAisrWin
+      * @Description: Set PQ Module Demo Aisr Win
+      * @Param: typedef enum pq_module_demo_aisr_win_e
+                {
+                    PQ_DEMO_AISR_WIN_OFF = 0,//outside axis range
+                    PQ_DEMO_AISR_WIN_ON = 1,//within axis range, default value
+                    PQ_DEMO_AISR_WIN_MAX,
+                } pq_module_demo_aisr_win_t;
+      * @Return: fail -1
+      */
+     public int SetPQModuleDemoAisrWin(int aisr_win) {
+           synchronized (mLock) {
+             try {
+                 return mProxy.SetPQModuleDemoAisrWin(aisr_win);
+             } catch (RemoteException e) {
+                 Log.e(TAG, "SetPQModuleDemoAisrWin:" + e);
+             }
+         }
+         return -1;
+
+     }
+
+     /**
+      * @Function: GetPQModuleDemoAisrWin
+      * @Description: Get PQ Module Demo Aisr Win
+      * @Return: Aisr Win
+      */
+     public int GetPQModuleDemoAisrWin() {
+           synchronized (mLock) {
+             try {
+                 return mProxy.GetPQModuleDemoAisrWin();
+             } catch (RemoteException e) {
+                 Log.e(TAG, "GetPQModuleDemoAisrWin:" + e);
+             }
+         }
+         return -1;
+
+     }
+
      public int SetFilmMakerMode(int onoff) {
            synchronized (mLock) {
              try {

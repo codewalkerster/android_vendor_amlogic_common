@@ -1744,6 +1744,18 @@ Return<int32_t> SystemControlHal::GetPQModuleDemoState(int32_t modules) {
     return mSysControl->GetPQModuleDemoState(modules);
 }
 
+Return<int32_t> SystemControlHal::SetPQModuleDemoAisrWin(int32_t aisr_win) {
+    SYS_LOGD("%s aisr_win:%d", __FUNCTION__, aisr_win);
+
+    return mSysControl->SetPQModuleDemoAisrWin(aisr_win);
+}
+
+Return<int32_t> SystemControlHal::GetPQModuleDemoAisrWin(void) {
+    SYS_LOGD("%s", __FUNCTION__);
+
+    return mSysControl->GetPQModuleDemoAisrWin();
+}
+
 Return<int32_t> SystemControlHal::getBlueStretch(void) {
     return mSysControl->getBlueStretch();
 }

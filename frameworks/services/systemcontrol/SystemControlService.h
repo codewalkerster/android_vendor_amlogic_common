@@ -344,6 +344,8 @@ public:
     int getLocalDimming(void);
     int SetPQModuleDemoState(int modules, int state);
     int GetPQModuleDemoState(int modules);
+    int SetPQModuleDemoAisrWin(int aisr_win);
+    int GetPQModuleDemoAisrWin(void);
     bool syncDensity(int displayid, int width, int height);
     int setDolbyDarkDetail(int mode, int is_save);
     int getDolbyDarkDetail(void);

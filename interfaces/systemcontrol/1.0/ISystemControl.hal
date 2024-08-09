@@ -837,6 +837,12 @@ interface ISystemControl {
   GetPQModuleDemoState(int32_t modules)
       generates (int32_t ret);
 
+  SetPQModuleDemoAisrWin(int32_t aisr_win)
+      generates (int32_t ret);
+
+  GetPQModuleDemoAisrWin()
+      generates (int32_t ret);
+
   setBlueStretch(int32_t level,int32_t isSave)
       generates (int32_t ret);
 

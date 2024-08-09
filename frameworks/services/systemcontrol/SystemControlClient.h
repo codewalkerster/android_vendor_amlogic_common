@@ -342,6 +342,8 @@ public:
     int setAmDolbyPecisionDetail(int32_t mode, int is_save);
     int SetPQModuleDemoState(int32_t modules, int32_t state);
     int GetPQModuleDemoState(int32_t modules);
+    int SetPQModuleDemoAisrWin(int32_t aisr_win);
+    int GetPQModuleDemoAisrWin(void);
     int setFilmMakerMode(int onoff);
     int getFilmMakerMode(void);
     int setFilmMakerFlag(int enable);

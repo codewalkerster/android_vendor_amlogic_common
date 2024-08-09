@@ -145,6 +145,7 @@ typedef enum {
     PQ_MODULE_MEMC_DEMO_WIN,
     PQ_MODULE_AISR_DEMO_EN,
     PQ_MODULE_AISR_DEMO_AXIS,
+    PQ_MODULE_AISR_DEMO_WIN,
     NodeIndexMax,
 } ConstCharforSysNodeIndex;
 

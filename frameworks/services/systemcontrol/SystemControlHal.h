@@ -325,6 +325,8 @@ class SystemControlHal : public ISystemControl, public SystemControlNotify, publ
     Return<int32_t> setAmDolbyPecisionDetail(int32_t mode, int32_t is_save) override;
     Return<int32_t> SetPQModuleDemoState(int32_t modules, int32_t state) override;
     Return<int32_t> GetPQModuleDemoState(int32_t modules) override;
+    Return<int32_t> SetPQModuleDemoAisrWin(int32_t aisr_win) override;
+    Return<int32_t> GetPQModuleDemoAisrWin(void) override;
     Return<int32_t> setFilmMakerMode(int32_t onoff) override;
     Return<int32_t> getFilmMakerMode(void) override;
     Return<int32_t> setFilmMakerFlag(int32_t enable) override;

@@ -1568,6 +1568,14 @@ int SystemControlClient::GetPQModuleDemoState(int32_t modules) {
     return mSysCtrl->GetPQModuleDemoState(modules);
 }
 
+int SystemControlClient::SetPQModuleDemoAisrWin(int32_t aisr_win) {
+    return mSysCtrl->SetPQModuleDemoAisrWin(aisr_win);
+}
+
+int SystemControlClient::GetPQModuleDemoAisrWin(void) {
+    return mSysCtrl->GetPQModuleDemoAisrWin();
+}
+
 int SystemControlClient::getBlueStretch(void) {
     return mSysCtrl->getBlueStretch();
 }

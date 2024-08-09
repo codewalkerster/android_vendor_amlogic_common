@@ -850,6 +850,7 @@ void SysWrite::initConstCharforSysNode() {
     mPathforSysNode[PQ_MODULE_MEMC_DEMO_WIN] = "/sys/class/frc/param";
     mPathforSysNode[PQ_MODULE_AISR_DEMO_EN] = "/sys/class/video/aisr_demo_en";
     mPathforSysNode[PQ_MODULE_AISR_DEMO_AXIS] = "/sys/class/video/aisr_demo_axis";
+    mPathforSysNode[PQ_MODULE_AISR_DEMO_WIN]    = "/sys/class/video/aisr_demo_win";
 }
 #if 0
 status_t SysWrite::dump(int fd, const Vector<String16>& args){

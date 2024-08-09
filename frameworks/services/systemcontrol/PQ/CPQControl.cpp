@@ -191,13 +191,6 @@ void CPQControl::CPQControlInit()
         SYS_LOGD("Load PQ success!\n");
     }
 
-    //PQ Module Demo
-    if (PQModuleDemoInit() < 0) {
-        SYS_LOGE("PQ Module Demo Init failed!\n");
-    } else {
-        SYS_LOGD("PQ Module Demo Init success!\n");
-    }
-
     //set backlight
     BacklightInit();
 
@@ -793,6 +786,8 @@ int CPQControl::PQModuleDemoInit()
     for (int modules = PQ_DEMO_MEMC; modules < PQ_DEMO_MAX; modules++) {
         ret |= SetPQModuleDemoState((pq_module_demo_t)modules, (pq_module_demo_state_t)GetPQModuleDemoState(modules));
     }
+
+    ret |= SetPQModuleDemoAisrWin((pq_module_demo_aisr_win_t)GetPQModuleDemoAisrWin());
 
     return ret;
 }
@@ -9729,6 +9724,10 @@ int CPQControl::Cpq_SetLocalDimming(vpp_pq_level_t level)
     return 0;
 }
 
+int PQDemoMemcState = PQ_DEMO_STATE_OFF;
+int PQDemoAisrState = PQ_DEMO_STATE_OFF;
+int PQDemoAisrWin   = PQ_DEMO_AISR_WIN_ON;
+
 int CPQControl::SetPQModuleDemoState(pq_module_demo_t modules, pq_module_demo_state_t state)
 {
     SYS_LOGD("%s, modules:%d, state:%d\n",__FUNCTION__, modules, state);
@@ -9737,6 +9736,7 @@ int CPQControl::SetPQModuleDemoState(pq_module_demo_t modules, pq_module_demo_st
         case PQ_DEMO_MEMC://left memc on, right memc off
             if (hasMemcFunc()) {
                 ret = pqWriteSys(PQ_MODULE_MEMC_DEMO_WIN, (state == 1) ? "demo_win 1" : "demo_win 0");
+                PQDemoMemcState = state;
             } else {
                 SYS_LOGE("%s MEMC Module disabled\n",__FUNCTION__);
                 ret = -1;
@@ -9745,6 +9745,7 @@ int CPQControl::SetPQModuleDemoState(pq_module_demo_t modules, pq_module_demo_st
         case PQ_DEMO_AISR:
             if (mbCpqCfg_aisr_enable) {
                 ret = pqWriteSys(PQ_MODULE_AISR_DEMO_EN, (state == 1) ? "1" : "0");
+                PQDemoAisrState = state;
 
                     if (state == PQ_DEMO_STATE_ON && mCurrentOutputType == OUTPUT_TYPE_LVDS) {//tv
                         ret = pqWriteSys(PQ_MODULE_AISR_DEMO_AXIS, "0 0 1919 2159");//default 4k
@@ -9771,13 +9772,6 @@ int CPQControl::SetPQModuleDemoState(pq_module_demo_t modules, pq_module_demo_st
             break;
     }
 
-    if (ret != -1) {
-        if (mSSMAction->SSMSavePQModuleDemoState((int)modules, (int)state) < 0) {
-            SYS_LOGE("%s, SSMSavePQModuleDemoState ERROR!!!\n", __FUNCTION__);
-            ret = -1;
-        }
-    }
-
     if (ret < 0) {
         SYS_LOGE("%s failed\n",__FUNCTION__);
     } else {
@@ -9789,11 +9783,17 @@ int CPQControl::SetPQModuleDemoState(pq_module_demo_t modules, pq_module_demo_st
 int CPQControl::GetPQModuleDemoState(int modules)
 {
     int state = 0;
-    if (mSSMAction->SSMReadPQModuleDemoState(modules, &state) < 0) {
-        SYS_LOGE("%s, SSMReadPQModuleDemoState ERROR!!!\n", __FUNCTION__);
-        return -1;
-    } else {
-        SYS_LOGD("%s, modules:%d, state:%d\n",__FUNCTION__, modules, state);
+
+    switch (modules) {
+        case PQ_DEMO_MEMC:
+            state = PQDemoMemcState;
+            break;
+        case PQ_DEMO_AISR:
+            state = PQDemoAisrState;
+            break;
+        default:
+            SYS_LOGE("%s This Module ：%d is missing \n",__FUNCTION__, modules);
+            break;
     }
 
     if (state < PQ_DEMO_STATE_OFF || state >= PQ_DEMO_STATE_MAX) {
@@ -9802,6 +9802,36 @@ int CPQControl::GetPQModuleDemoState(int modules)
     }
 
     return state;
+}
+
+int CPQControl::SetPQModuleDemoAisrWin(pq_module_demo_aisr_win_t aisr_win)
+{
+    SYS_LOGD("%s, aisr_win:%d\n",__FUNCTION__, aisr_win);
+
+    int ret = -1;
+
+    ret = pqWriteSys(PQ_MODULE_AISR_DEMO_WIN, (aisr_win == 1) ? "1" : "0");
+    PQDemoAisrWin = aisr_win;
+
+    if (ret < 0) {
+        SYS_LOGE("%s failed\n",__FUNCTION__);
+    } else {
+        SYS_LOGD("%s success\n",__FUNCTION__);
+    }
+    return ret;
+}
+
+int CPQControl::GetPQModuleDemoAisrWin(void)
+{
+    int aisr_win = 0;
+    aisr_win = PQDemoAisrWin;
+
+    if (aisr_win < PQ_DEMO_AISR_WIN_OFF || aisr_win >= PQ_DEMO_AISR_WIN_MAX) {
+        SYS_LOGE("%s aisr_win: %d out of range\n", __FUNCTION__, aisr_win);
+        aisr_win = PQ_DEMO_AISR_WIN_ON;
+    }
+
+    return aisr_win;
 }
 
 void CPQControl::resetAllUserSettingParam()

@@ -2762,6 +2762,24 @@ int SystemControlService::GetPQModuleDemoState(int modules)
     }
 }
 
+int SystemControlService::SetPQModuleDemoAisrWin(int aisr_win)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->SetPQModuleDemoAisrWin((pq_module_demo_aisr_win_t)aisr_win);
+    } else {
+        return -1;
+    }
+}
+
+int SystemControlService::GetPQModuleDemoAisrWin(void)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->GetPQModuleDemoAisrWin();
+    } else {
+        return -1;
+    }
+}
+
 int SystemControlService::setBlueStretch(int level, int is_save)
 {
     if (pCPQControl != NULL) {
