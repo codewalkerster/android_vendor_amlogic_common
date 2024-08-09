@@ -86,15 +86,19 @@ public class DroidAudioManager {
     private void initDatabase() {
         boolean flag = mSystemControl.getPropertyBoolean("ro.vendor.platform.support.soundbar", false);
         Settings.Global.putInt(mResolver, DB_ID_AUDIO_SOUNDBAR_MODE_ENABLE, flag ? 1 : 0);
-        Settings.Global.putInt(mResolver, DB_ID_AUDIO_DRC_MODE, IS_DRC_RF);
+        Settings.Global.putInt(mResolver, DB_ID_DOLBY_AUDIO_DRC_MODE, IS_DRC_RF);
         Settings.Global.putInt(mResolver, DIGITAL_AUDIO_FORMAT, DIGITAL_AUDIO_FORMAT_AUTO);
         Settings.Global.putInt(mResolver, ENCODED_SURROUND_OUTPUT, ENCODED_SURROUND_OUTPUT_AUTO);
         Settings.Global.putInt(mResolver, TV_ARC_LATENCY, TV_ARC_LATENCY_DEFAULT);
         Settings.Global.putInt(mResolver, DB_ID_SOUND_SPDIF_OUTPUT_ENABLE, SOUND_SPDIF_OUTPUT_ENABLE_DEFAULT);
-        Settings.Global.getInt(mResolver, DB_ID_SOUND_SPEAKER_OUTPUT_ENABLE, DB_ID_SOUND_SPEAKER_OUTPUT_ENABLE_DEFAULT);
+        Settings.Global.putInt(mResolver, DB_ID_SOUND_SPEAKER_OUTPUT_ENABLE, DB_ID_SOUND_SPEAKER_OUTPUT_ENABLE_DEFAULT);
         DataProviderManager.putIntValue(mContext, DB_ID_SOUND_AD_SWITCH, SOUND_AD_SWITCH_DEFAULT);
-        Settings.Global.putInt(mResolver, DIALOGUE_ENHANCEMENT_SWITCH, DIALOGUE_ENHANCEMENT_OFF);
-        Settings.Global.getInt(mResolver, FORCE_DDP_SWITCH, FORCE_DDP_DEFAULT);
+        Settings.Global.putInt(mResolver, DB_ID_AUDIO_DIALOGUE_ENHANCEMENT_SWITCH, DIALOGUE_ENHANCEMENT_DEFAULT);
+        Settings.Global.putInt(mResolver, DB_ID_SOUND_DMX_MODE, DOLBY_SOUND_DMX_MODE_DEFAULT);
+        Settings.Global.putInt(mResolver, FORCE_DDP_SWITCH, FORCE_DDP_DEFAULT);
+        Settings.Global.putInt(mResolver, DB_ID_DOLBY_AUDIO_DRC_LEVEL, 100);
+        Settings.Global.putInt(mResolver, DB_ID_DTS_X_AUDIO_DRC_MODE, DTS_X_DRC_OFF);
+
         int source = 0;
         for (source = AUDIO_OUTPUT_DELAY_SOURCE_ATV; source < AUDIO_OUTPUT_DELAY_SOURCE_MAX; source++) {
             Settings.Global.putInt(mResolver, DB_ID_AUDIO_PRESCALE_ARRAY[source], AUDIO_PRESCALE_DEFAULT_ARRAY[source]);
@@ -104,6 +108,7 @@ public class DroidAudioManager {
             source++;
         }
         Settings.Global.putInt(mResolver, DB_ID_AUDIO_OUTPUT_ALL_DELAY, HAL_AUDIO_OUT_DEV_DELAY_DEFAULT);
+        Log.i(TAG, "initDatabase:");
     }
 
     public static final String DB_ID_SET_AUDIO_DATABASE_FIRST_BOOT          = "db_id_set_audio_database_first_boot";
@@ -118,7 +123,7 @@ public class DroidAudioManager {
         }
         final boolean isSupportDolby = mSystemControl.getPropertyBoolean("ro.vendor.platform.support.dolby", false);
         if (isSupportDolby) {
-            setDrcMode(getDrcMode());
+            setDolbyDrcMode(getDolbyDrcMode());
         }
         if (!reset) {
             int audioFormat = getDigitalAudioFormatOut();
@@ -136,10 +141,14 @@ public class DroidAudioManager {
         }
         setARCLatency(getARCLatency());
         // setSoundSpdifEnable(getSoundSpdifEnable());
+        //setSpeakerEnabled(isSpeakerEnabled());
+        //un-mute speaker if device reboot
         setSpeakerEnabled(isSpeakerEnabled());
         setAdSupportEnable(getAdSupportEnable());
-        setAc4DialogEnhancer(getAc4DialogEnhancer());
+        setDialogEnhancerLevel(getDialogEnhancerLevel());
+        setSoundDmxMode(getSoundDmxMode());
         setForceDDPEnable(getForceDDPEnable());
+        setDtsXDrcMode(getDtsXDrcMode());
 
         if (!reset) {
             // refresh db delay of media to hal
@@ -165,8 +174,6 @@ public class DroidAudioManager {
             Log.e(TAG, "reset failed:" + e);
             return;
         }
-        AudioEffectManager mAudioEffectManager = AudioEffectManager.getInstance(mContext);
-        mAudioEffectManager.reset();
     }
 
     private static class DroidAudioServiceClient extends IDroidAudioClient.Stub {
@@ -250,15 +257,17 @@ public class DroidAudioManager {
         }
     }
 
-    public static final String DB_ID_AUDIO_DRC_MODE         = "db_id_audio_drc_mode";
-    public static final String DTSDRC_MODE                  = "dtsdrc_mode";
-    public static final String CUSTOM_0_DRCMODE             = "0";
-    public static final String CUSTOM_1_DRCMODE             = "1";
-    public static final String LINE_DRCMODE                 = "2";
-    public static final String RF_DRCMODE                   = "3";
-    public static final String DEFAULT_DRCMODE              = LINE_DRCMODE;
+    public static final String DB_ID_DOLBY_AUDIO_DRC_MODE         = "db_id_dolby_audio_drc_mode";
+    public static final String DB_ID_DOLBY_AUDIO_DRC_LEVEL        = "db_id_dolby_audio_drc_level";
+    public static final String DB_ID_DTS_X_AUDIO_DRC_MODE         = "db_id_dts_x_audio_drc_mode";
+    public static final String DTSDRC_MODE                        = "dtsdrc_mode";
+    public static final String CUSTOM_0_DRCMODE                   = "0";
+    public static final String CUSTOM_1_DRCMODE                   = "1";
+    public static final String LINE_DRCMODE                       = "2";
+    public static final String RF_DRCMODE                         = "3";
+    public static final String DEFAULT_DRCMODE                    = LINE_DRCMODE;
 
-    public static final String AUDIO_DSP_AC3_DRC            = "/sys/class/audiodsp/ac3_drc_control";
+    public static final String AUDIO_DSP_AC3_DRC                  = "/sys/class/audiodsp/ac3_drc_control";
     private void enableDolby_DRC(boolean enable) {
         if (enable) { //open DRC
             mSystemControl.writeSysFs(AUDIO_DSP_AC3_DRC, "drchighcutscale 0x64");
@@ -282,17 +291,20 @@ public class DroidAudioManager {
     public static final int IS_DRC_OFF                      = 0;
     public static final int IS_DRC_LINE                     = 1;
     public static final int IS_DRC_RF                       = 2;
-    public void setDrcMode(int drcMode) {
+    public void setDolbyDrcMode(int drcMode) {
         switch (drcMode) {
             case IS_DRC_OFF:
                 enableDolby_DRC(false);
                 setDolbyMode(LINE_DRCMODE);
                 break;
             case IS_DRC_LINE:
-                enableDolby_DRC(true);
+                mAudioManager.setParameters("hal_param_enable_drc_rf_mode=0");
                 setDolbyMode(LINE_DRCMODE);
+                int level = getDolbyDrcLineLevel();
+                setDolbyDrcLineLevel(100);
                 break;
             case IS_DRC_RF:
+                mAudioManager.setParameters("hal_param_enable_drc_rf_mode=1");
                 enableDolby_DRC(false);
                 setDolbyMode(RF_DRCMODE);
                 break;
@@ -300,12 +312,72 @@ public class DroidAudioManager {
                 Log.e(TAG, "not support DRC mode:" + drcMode);
                 return;
             }
-        Settings.Global.putInt(mResolver, DB_ID_AUDIO_DRC_MODE, drcMode);
+        Settings.Global.putInt(mResolver, DB_ID_DOLBY_AUDIO_DRC_MODE, drcMode);
     }
 
-    public int getDrcMode() {
-        return Settings.Global.getInt(mResolver, DB_ID_AUDIO_DRC_MODE, IS_DRC_RF);
+    public void setDolbyDrcLineLevel(int lineLevel) {
+        String hexLineLevel = Integer.toHexString(lineLevel);
+        mAudioManager.setParameters("hal_param_drc_boost_value=" + lineLevel);
+        mAudioManager.setParameters("hal_param_drc_cut_value=" + lineLevel);
+        mSystemControl.writeSysFs(AUDIO_DSP_AC3_DRC, "drchighcutscale" + " " + hexLineLevel);
+        mSystemControl.writeSysFs(AUDIO_DSP_AC3_DRC, "drclowboostscale" + " " + hexLineLevel);
+        Settings.Global.putInt(mResolver, DB_ID_DOLBY_AUDIO_DRC_LEVEL, lineLevel);
+        String tempStr = "drchighcutscale" + " " + hexLineLevel;
+        Log.d(TAG, "setDolbyDrcMode Line = " + lineLevel + ", " + tempStr);
     }
+
+    public int getDolbyDrcLineLevel() {
+        return Settings.Global.getInt(mResolver, DB_ID_DOLBY_AUDIO_DRC_LEVEL, 100);
+    }
+
+    public int getDolbyDrcMode() {
+        return Settings.Global.getInt(mResolver, DB_ID_DOLBY_AUDIO_DRC_MODE, IS_DRC_RF);
+    }
+
+    public static final int DTS_X_DRC_OFF                      = 0;
+    public static final int DTS_X_DRC_ON                       = 1;
+    public boolean isDtsXEnable() {
+        String param = mAudioManager.getParameters("dts_x_enable");
+        if (param.contains("dts_x_enable=1")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public void setDtsXDrcMode(int drcMode) {
+        if (!isDtsXEnable()) {
+            Log.d(TAG, "setDtsXDrcMode: Not support DTS-X");
+            return;
+        }
+        if (drcMode == DTS_X_DRC_ON) {
+            mAudioManager.setParameters("dtsx_spk_drc=1");
+        } else {
+            mAudioManager.setParameters("dtsx_spk_drc=0");
+        }
+        Settings.Global.putInt(mResolver, DB_ID_DTS_X_AUDIO_DRC_MODE, drcMode);
+        Log.d(TAG, "setDtsXDrcMode: mode:" + drcMode);
+    }
+
+    public int getDtsXDrcMode() {
+        int curDrcMode = 0;
+        int curDrcStatus = 0;
+        String param = mAudioManager.getParameters("dtsx_spk_drc");
+        if (param.contains("dtsx_spk_drc=1")) {
+            curDrcStatus = 1;
+        } else {
+            curDrcStatus = 0;
+        }
+        curDrcMode = Settings.Global.getInt(mResolver, DB_ID_DTS_X_AUDIO_DRC_MODE, DTS_X_DRC_OFF);
+        if (curDrcMode != curDrcStatus) {
+            Log.w(TAG, "getDtsXDrcMode: Warning, Not Match! Mode:" + curDrcMode + " Status:" + curDrcStatus);
+        } else {
+            Log.i(TAG, "getDtsXDrcMode: Mode:" + curDrcMode);
+        }
+        return curDrcMode;
+    }
+
+
 
     public static final String TV_ARC_LATENCY                           = "tv_arc_latency";
     public static final String PROPERTY_LOCAL_ARC_LATENCY               = "vendor.media.amnuplayer.audio.delayus";
@@ -352,8 +424,8 @@ public class DroidAudioManager {
         return vadUbootEnable.equals(AUDIO_VAD_STRING_VAD_ON);
     }
 
-    private static final String PARA_AUDIO_DOLBY_MS12                   = "dolby_ms12_enable";
-    private static final String PARA_AUDIO_DOLBY_MS12_ENABLE            = "dolby_ms12_enable=1";
+    private static final String PARA_AUDIO_DOLBY_MS12                   = "Dolby_MS12_Audio_Config";
+    private static final String PARA_AUDIO_DOLBY_MS12_ENABLE            = "Dolby_MS12_Audio_Config=N";
 
     public static final String DIGITAL_AUDIO_FORMAT                     = "digital_audio_format";
     public static final String DIGITAL_AUDIO_SUBFORMAT                  = "digital_audio_subformat";
@@ -515,33 +587,56 @@ public class DroidAudioManager {
     }
 
     public boolean isAudioSupportMs12System() {
-        return mAudioManager.getParameters(PARA_AUDIO_DOLBY_MS12).contains(PARA_AUDIO_DOLBY_MS12_ENABLE);
+        return !mAudioManager.getParameters(PARA_AUDIO_DOLBY_MS12).contains(PARA_AUDIO_DOLBY_MS12_ENABLE);
     }
 
-    public static final int DIALOGUE_ENHANCEMENT_OFF       = 0;
-    public static final int DIALOGUE_ENHANCEMENT_LOW       = 4;
-    public static final int DIALOGUE_ENHANCEMENT_MEDIUM    = 8;
-    public static final int DIALOGUE_ENHANCEMENT_HIGH      = 12;
-    public void setAc4DialogEnhancer(int newVal) {
-        Log.d(TAG, "setAc4DialogEnhancer: " + newVal);
-        switch (newVal) {
+    public static final int DIALOGUE_ENHANCEMENT_OFF                    = 0;
+    public static final int DIALOGUE_ENHANCEMENT_LOW                    = 1;
+    public static final int DIALOGUE_ENHANCEMENT_MEDIUM                 = 2;
+    public static final int DIALOGUE_ENHANCEMENT_HIGH                   = 3;
+    public static final int DIALOGUE_ENHANCEMENT_DEFAULT                = DIALOGUE_ENHANCEMENT_OFF;
+    public static final String DB_ID_AUDIO_DIALOGUE_ENHANCEMENT_SWITCH  = "db_id_audio_dialogue_enhancer";
+    public void setDialogEnhancerLevel(int level) {
+        Log.d(TAG, "setDialogEnhancerLevel level: " + level);
+        switch (level) {
             case DIALOGUE_ENHANCEMENT_OFF:
-                Settings.Global.putInt(mResolver, DIALOGUE_ENHANCEMENT_SWITCH, 0);
-                mAudioManager.setParameters("dialogue_enhancement=0");
-                break;
             case DIALOGUE_ENHANCEMENT_LOW:
-                Settings.Global.putInt(mResolver, DIALOGUE_ENHANCEMENT_SWITCH, 4);
-                mAudioManager.setParameters("dialogue_enhancement=4");
-                break;
             case DIALOGUE_ENHANCEMENT_MEDIUM:
-                Settings.Global.putInt(mResolver, DIALOGUE_ENHANCEMENT_SWITCH, 8);
-                mAudioManager.setParameters("dialogue_enhancement=8");
-                break;
             case DIALOGUE_ENHANCEMENT_HIGH:
-                Settings.Global.putInt(mResolver, DIALOGUE_ENHANCEMENT_SWITCH, 12);
-                mAudioManager.setParameters("dialogue_enhancement=12");
+                Settings.Global.putInt(mResolver, DB_ID_AUDIO_DIALOGUE_ENHANCEMENT_SWITCH, level);
+                mAudioManager.setParameters("hal_param_dialogue_enhancement=" + level);
+                break;
+            default:
+                Log.w(TAG, "setDialogEnhancerLevel: invalid level: " + level);
                 break;
         }
+    }
+
+    public int getDialogEnhancerLevel() {
+        return Settings.Global.getInt(mResolver, DB_ID_AUDIO_DIALOGUE_ENHANCEMENT_SWITCH, DIALOGUE_ENHANCEMENT_DEFAULT);
+    }
+
+    public static final int DOLBY_SOUND_DMX_MODE_SURROUND                       = 0;
+    public static final int DOLBY_SOUND_DMX_MODE_STEREO                         = 1;
+    public static final int DOLBY_SOUND_DMX_MODE_DEFAULT                        = DOLBY_SOUND_DMX_MODE_SURROUND;
+    public static final String DB_ID_SOUND_DMX_MODE                             = "db_id_sound_dmx_mode";
+    public void setSoundDmxMode(int mode) {
+        Log.d(TAG, "setSoundDmxMode: " + mode);
+        switch (mode) {
+            case DOLBY_SOUND_DMX_MODE_SURROUND:
+            case DOLBY_SOUND_DMX_MODE_STEREO:
+                Settings.Global.putInt(mResolver, DB_ID_SOUND_DMX_MODE, mode);
+                mAudioManager.setParameters("hal_param_dmx_mode=" + mode);
+                break;
+            default:
+                Log.w(TAG, "setSoundDmxMode Invalid mode: " + mode);
+                break;
+
+        }
+    }
+
+    public int getSoundDmxMode() {
+        return Settings.Global.getInt(mResolver, DB_ID_SOUND_DMX_MODE, DOLBY_SOUND_DMX_MODE_DEFAULT);
     }
 
     public static final String FORCE_DDP_SWITCH      = "force_ddp_enable";
@@ -557,13 +652,6 @@ public class DroidAudioManager {
            Settings.Global.putInt(mResolver, FORCE_DDP_SWITCH, FORCE_DDP_OFF);
            mAudioManager.setParameters("hal_param_force_ddp=0");
         }
-    }
-
-    //ac4 enhancer
-    public static final String AC4_DIALOGUE_ENHANCEMENT_VALUE   = "ac4_dialogue_enhancer_value";
-    public static final String DIALOGUE_ENHANCEMENT_SWITCH      = "dialogue_enhancement";
-    public int getAc4DialogEnhancer() {
-        return Settings.Global.getInt(mResolver, DIALOGUE_ENHANCEMENT_SWITCH, DIALOGUE_ENHANCEMENT_OFF);
     }
 
     public boolean getForceDDPEnable() {
@@ -706,6 +794,9 @@ public class DroidAudioManager {
         }
         Settings.Global.putInt(mResolver, DB_ID_AUDIO_OUTPUT_SPEAKER_DELAY_ARRAY[source], delayMs);
     }
+    public void setAudioOutputSpeakerDelay(int delayMs) {
+        setAudioOutputSpeakerDelay(getTvSourceType(), delayMs);
+    }
 
     public int getAudioOutputSpeakerDelay(int source) {
         if (!checkSourceValid(source, "getAudioOutputSpeakerDelay")) {
@@ -714,6 +805,9 @@ public class DroidAudioManager {
         int delayMs = Settings.Global.getInt(mResolver, DB_ID_AUDIO_OUTPUT_SPEAKER_DELAY_ARRAY[source], HAL_AUDIO_OUT_DEV_DELAY_DEFAULT);
         if (DroidLogicUtils.getAudioDebugEnable()) Log.d(TAG, "getAudioOutputSpeakerDelay source:" + tvSourceToString(source) + ", delayMs:" + delayMs);
         return delayMs;
+    }
+    public int getAudioOutputSpeakerDelay() {
+        return getAudioOutputSpeakerDelay(getTvSourceType());
     }
 
     public void setAudioOutputSpdifDelay(int source, int delayMs) {
@@ -892,6 +986,7 @@ public class DroidAudioManager {
                 return temp + "invalid source:" + source;
         }
     }
+
     public void refreshAudioCfgBySrc(int source, boolean force) {
         if (!checkSourceValid(source, "refreshAudioCfgBySrc")) {
             return;
@@ -903,6 +998,18 @@ public class DroidAudioManager {
             setAudioOutputSpeakerDelay(source, getAudioOutputSpeakerDelay(source));
             setAudioOutputSpdifDelay(source, getAudioOutputSpdifDelay(source));
             setAudioOutputHeadphoneDelay(source, getAudioOutputSpdifDelay(source));
+        }
+    }
+
+    public void setAudioApplyToAll() {
+        int currentTvSource = getTvSourceType();
+        for (int source = AUDIO_OUTPUT_DELAY_SOURCE_ATV; source < AUDIO_OUTPUT_DELAY_SOURCE_MAX; source++) {
+            if (source == currentTvSource) {
+                continue;
+            }
+            setAudioOutputSpeakerDelay(source, getAudioOutputSpeakerDelay(currentTvSource));
+            setAudioOutputSpdifDelay(source, getAudioOutputSpdifDelay(currentTvSource));
+            setAudioOutputHeadphoneDelay(source, getAudioOutputSpdifDelay(currentTvSource));
         }
     }
 
@@ -931,7 +1038,7 @@ public class DroidAudioManager {
     }
 
     public boolean isSoundBarModeEnabled() {
-        return Settings.Global.getInt(mResolver, DB_ID_AUDIO_SOUNDBAR_MODE_ENABLE, 0) != 0;
+        return (Settings.Global.getInt(mResolver, DB_ID_AUDIO_SOUNDBAR_MODE_ENABLE, 0) != 0);
     }
 
     public static String AudioCmdToString(int cmd) {

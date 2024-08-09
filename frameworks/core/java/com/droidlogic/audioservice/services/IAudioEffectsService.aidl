@@ -21,18 +21,24 @@ interface IAudioEffectsService{
     void deinit();
     void reset();
     boolean isSupportVirtualX();
+    void setDtsVirtualXStatus(int enable);
+    int getDtsVirtualXStatus();
+    void setDtsVirtualSurround(int enable);
+    int getDtsVirtualSurround();
+    void setDtsDialogClarityMode(int mode);
+    int getDtsDialogClarityMode();
     void setDtsVirtualXMode(int virtualXMode);
     int getDtsVirtualXMode();
     void setDtsTruVolumeHdEnable(boolean enable);
     boolean getDtsTruVolumeHdEnable();
+    void setDtsBassEnhancement(boolean enable);
+    int getDtsBassEnhancement();
     int getSoundModeStatus();
-    int getSoundModule();
     int getTrebleStatus();
     int getBassStatus();
     int getBalanceStatus();
     int getVirtualSurroundStatus();
     void setSoundMode(int mode);
-    void setSoundModeByObserver(int mode, int bandSum);
     void setUserSoundModeParam(int bandNumber, int value, int bandSum);
     int getUserSoundModeParam(int bandNumber);
     void setTreble(int step);
@@ -49,4 +55,11 @@ interface IAudioEffectsService{
     boolean isAudioEffectOn(int id);
     void setHpeqBandNum(int id, int value);
     int getHpeqBandNum(int id);
+    void setBasicEffectMode(int mode);
+    int getBasicEffectMode();
+    int getDolbyMS12AudioConfig();
+    void initDualEffectMode();
+    void setDualEffectMode(int mode);
+    int getDualEffectMode();
+    int getEffectFunctionConfig(int id);
 }
