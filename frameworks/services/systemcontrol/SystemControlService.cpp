@@ -2933,8 +2933,6 @@ int SystemControlService::getSDR2HDR(void)
     }
 }
 
-//PQ end
-
 //static frame
 int SystemControlService::setStaticFrameEnable(int enable, int isSave)
 {
@@ -2998,6 +2996,16 @@ bool SystemControlService::hasPqCaseFunc(int type)
 
     return ret;
 }
+
+int SystemControlService::getChipType(void)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->GetChipType();
+    } else {
+        return -1;
+    }
+}
+//PQ end
 
 bool SystemControlService::getIsMultiDemux()
 {

@@ -1837,6 +1837,11 @@ Return<Result> SystemControlHal::hasPqCaseFunc(int32_t type) {
     return Result::FAIL;
 }
 
+Return<int32_t> SystemControlHal::getChipType(void) {
+    SYS_LOGD("%s", __FUNCTION__);
+
+    return mSysControl->getChipType();
+}
 //PQ end
 
 //static frame

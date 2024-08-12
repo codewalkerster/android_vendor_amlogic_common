@@ -360,8 +360,6 @@ public:
     int getMultipointGammaMode(void);
     int setSDR2HDR(int onoff);
     int getSDR2HDR(void);
-
-    //PQ end
     //static frame
     int setStaticFrameEnable(int enable, int isSave);
     int getStaticFrameEnable();
@@ -371,6 +369,8 @@ public:
     int setVideoScreenColor(int color);
     int setVideoScreenColorByVT(int window, int Color, int frequency);
     bool hasPqCaseFunc(int type);
+    int getChipType(void);
+    //PQ end
 
     bool getIsMultiDemux();
     //FBC

@@ -354,6 +354,7 @@ public:
     int setSDR2HDR(int onoff);
     int getSDR2HDR(void);
     bool hasPqCaseFunc(int type);
+    int getChipType(void);
     //PQ end
 
     //memc

@@ -222,7 +222,6 @@ class SystemControlHal : public ISystemControl, public SystemControlNotify, publ
     Return<int32_t> getColorCustomize(int32_t Color, int32_t Type) override;
     Return<int32_t> setColorCustomizeEnable(int32_t enable) override;
     Return<int32_t> getColorCustomizeEnable(void) override;
-
     Return<int32_t> getSourceHdrType(void) override;
     Return<int32_t> checkLdimExist(void) override;
     Return<void> getOverscanParams(int32_t mode, getOverscanParams_cb _hidl_cb) override;
@@ -242,7 +241,7 @@ class SystemControlHal : public ISystemControl, public SystemControlNotify, publ
     Return<int32_t> factoryResetColorTemp(void) override;
     Return<int32_t> factorySetParamsDefault(void) override;
     Return<int32_t> factorySetNolineParams(int32_t inputSrc, int32_t sigFmt, int32_t transFmt, int32_t type, int32_t osd0_value, int32_t osd25_value,
-                                                    int32_t osd50_value, int32_t osd75_value, int32_t osd100_value) override;
+                                           int32_t osd50_value, int32_t osd75_value, int32_t osd100_value) override;
     Return<void> factoryGetNolineParams(int32_t inputSrc, int32_t sigFmt, int32_t transFmt, int32_t type, factoryGetNolineParams_cb _hidl_cb) override;
     Return<int32_t> factoryfactoryGetColorTemperatureParams(int32_t colorTemp_mode) override;
     Return<int32_t> factorySetOverscan(int32_t inputSrc, int32_t sigFmt, int32_t transFmt, int32_t dmode, int32_t he_value, int32_t hs_value, int32_t ve_value, int32_t vs_value) override;
@@ -336,30 +335,22 @@ class SystemControlHal : public ISystemControl, public SystemControlNotify, publ
     Return<int32_t> getMultipointGammaMode(void) override;
     Return<int32_t> setSDR2HDR(int32_t onoff) override;
     Return<int32_t> getSDR2HDR(void) override;
-
-    //aisr
     Return<Result> aisrContrl(bool on) override;
     Return<Result> hasAisrFunc() override;
     Return<Result> getAisr() override;
     Return<int32_t> setAisrMode(int32_t mode, int32_t isSave) override;
     Return<int32_t> getAisrMode(void) override;
-    //aicolor
     Return<Result> hasAiColorFunc() override;
     Return<int32_t> setAiColor(int32_t value, int32_t isSave) override;
     Return<int32_t> getAiColor(void) override;
-
-    //DLG
     Return<int32_t> setDLGEnable(int32_t enable, int32_t isSave) override;
     Return<int32_t> getDLGEnable(void) override;
-
-    //afr
     Return<Result> frameRateDisplay(bool on, const ISystemControl::Rect& rect) override;
     Return<void> frameRateDisplayAsync(bool on, const ISystemControl::Rect& rect) override;
-
     Return<int32_t> setColorGamutMode(int32_t isEnable, int32_t is_save) override;
     Return<int32_t> getColorGamutMode(void) override;
-
     Return<Result> hasPqCaseFunc(int32_t type) override;
+    Return<int32_t> getChipType(void) override;
     //PQ end
 
     //memc

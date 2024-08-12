@@ -549,6 +549,7 @@ public:
     int Cpq_GetSSMStatus();
     int SetFlagByCfg(void);
     int HasPqCaseFunc(pq_case_func_e type);
+    int GetChipType(void);
     int SetPLLValues(source_input_param_t source_input_param);
     int SetCVD2Values(void);
     int SetCurrentSourceInputInfo(source_input_param_t source_input_param);

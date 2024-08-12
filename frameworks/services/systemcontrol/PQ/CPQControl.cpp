@@ -8077,6 +8077,21 @@ int CPQControl::HasPqCaseFunc(pq_case_func_e type)
     return func_en;
 }
 
+int CPQControl::GetChipType(void)
+{
+    int ret = 0;
+    int chip_type = 0; /*detail chip type please refer enum meson_cpuid_type_e*/
+
+    ret = VPPDeviceIOCtl(AMVECM_IOC_G_CHIP_TYPE, &chip_type);
+    if (ret < 0) {
+       SYS_LOGE("%s error(%s)!\n", __FUNCTION__, strerror(errno));
+       return -1;
+    }
+
+    SYS_LOGD("%s, chip_type:%d\n", __FUNCTION__, chip_type);
+    return chip_type;
+}
+
 int CPQControl::SetPLLValues(source_input_param_t source_input_param)
 {
     am_regs_t regs;
@@ -8763,18 +8778,14 @@ int CPQControl::Cpq_SetAipqMode(aipq_mode_e mode, source_input_param_t source_in
 
 bool CPQControl::hasAisrFunc()
 {
-    int ret = -1;
-
-    SYS_LOGD("%s, hasAisrFunc\n", __FUNCTION__);
-    if (mbCpqCfg_aisr_enable && isFileExist(pqSysWrite->getSysNode(AISR_PARAMETERS_UVM_OPEN_NN))) {
-        ret = true;
-    } else {
-        ret = false;
+    if (isFileExist(pqSysWrite->getSysNode(AISR_PARAMETERS_UVM_OPEN_NN))) {
+        SYS_LOGI("%s, has aisr\n", __FUNCTION__);
+        return true;
     }
 
-    SYS_LOGI("%s, has aisr or not:%d\n", __FUNCTION__, ret);
-    return ret;
- }
+    SYS_LOGI("%s, has not aisr\n", __FUNCTION__);
+    return false;
+}
 
 int CPQControl::SetAiSrEnable(bool isEnable)
 {
@@ -8879,6 +8890,11 @@ int CPQControl::GetAiSrMode()
 
     data = pData.aisr_mode;
 
+    if (GetChipType() == 0x38 && data > 1) { //MESON_CPU_MAJOR_ID_T3 = 0x38
+        /*T3 aisr is two level, so just use 0 and 1, but UI bin default value maybe 2 or 3*/
+        data = 1;
+    }
+
     SYS_LOGI("%s, data = %d\n", __FUNCTION__, data);
     return data;
 }
@@ -8904,18 +8920,27 @@ int CPQControl::SaveAiSrMode(int mode)
 
 int CPQControl::Cpq_SetAiSrMode(aisr_mode_e mode, source_input_param_t source_input_param)
 {
+    if (!hasAisrFunc()) {
+        SYS_LOGD("%s not support\n", __FUNCTION__);
+        return 0;
+    }
+
+    if (!mbCpqCfg_aisr_enable) {
+        SYS_LOGD("%s: AiSr disabled!\n", __FUNCTION__);
+        return 0;
+    }
+
     if (isGameMode()) {
         mode = AISR_MODE_OFF;
         SYS_LOGE("%s, isGameMode Set AI SR mode OFF!!!\n", __FUNCTION__);
     }
 
     SYS_LOGI("%s mode = %d\n", __FUNCTION__, mode);
-    if (!mbCpqCfg_aisr_enable) {
-        SYS_LOGD("%s: AiSr disabled!\n", __FUNCTION__);
-        return 0;
-    }
 
-    SetAiSrEnable((mode > AISR_MODE_OFF) ? true : false);
+    if (GetChipType() == 0x38) { //MESON_CPU_MAJOR_ID_T3 = 0x38
+        SYS_LOGI("%s two level aisr project, no need load reg table\n", __FUNCTION__);
+        goto SET_ENABLE;
+    }
 
     am_regs_t regs;
     memset(&regs, 0, sizeof(am_regs_t));
@@ -8928,6 +8953,9 @@ int CPQControl::Cpq_SetAiSrMode(aisr_mode_e mode, source_input_param_t source_in
         SYS_LOGE("%s failed!\n",__FUNCTION__);
         return -1;
     }
+
+SET_ENABLE:
+    SetAiSrEnable((mode > AISR_MODE_OFF) ? true : false);
 
     SYS_LOGI("%s success!\n",__FUNCTION__);
     return 0;

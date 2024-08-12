@@ -1175,4 +1175,5 @@ typedef enum _pq_case_func_e {
     PQ_CASE_FUNC_RESET,
     PQ_CASE_FUNC_MAX,
 } pq_case_func_e;
+
 #endif

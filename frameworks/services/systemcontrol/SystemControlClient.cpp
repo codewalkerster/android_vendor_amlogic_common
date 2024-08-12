@@ -1648,6 +1648,9 @@ bool SystemControlClient::hasPqCaseFunc(int type) {
     return (mSysCtrl->hasPqCaseFunc(type) == Result::OK);
 }
 
+int SystemControlClient::getChipType(void) {
+    return mSysCtrl->getChipType();
+}
 //PQ end
 
 //static frame

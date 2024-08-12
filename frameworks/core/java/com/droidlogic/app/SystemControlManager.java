@@ -5212,4 +5212,86 @@ public class SystemControlManager {
         }
         return false;
     }
+
+    public enum ChipType {
+        MESON_CPU_MAJOR_ID_UNKNOWN(-1),
+        MESON_CPU_MAJOR_ID_M8B(0x1B),
+        MESON_CPU_MAJOR_ID_GXBB(0x1F),
+        MESON_CPU_MAJOR_ID_GXTVBB(0x20),
+        MESON_CPU_MAJOR_ID_GXL(0x21),
+        MESON_CPU_MAJOR_ID_GXM(0x22),
+        MESON_CPU_MAJOR_ID_TXL(0x23),
+        MESON_CPU_MAJOR_ID_TXLX(0x24),
+        MESON_CPU_MAJOR_ID_AXG(0x25),
+        MESON_CPU_MAJOR_ID_GXLX(0x26),
+        MESON_CPU_MAJOR_ID_TXHD(0x27),
+        MESON_CPU_MAJOR_ID_G12A(0x28),
+        MESON_CPU_MAJOR_ID_G12B(0x29),
+        MESON_CPU_MAJOR_ID_SM1(0x2B),
+        MESON_CPU_MAJOR_ID_TL1(0x2E),
+        MESON_CPU_MAJOR_ID_TM2(0x2F),
+        MESON_CPU_MAJOR_ID_C1(0x30),
+        MESON_CPU_MAJOR_ID_SC2(0x32),
+        MESON_CPU_MAJOR_ID_T5(0x34),
+        MESON_CPU_MAJOR_ID_T5D(0x35),
+        MESON_CPU_MAJOR_ID_T7(0x36),
+        MESON_CPU_MAJOR_ID_S4(0x37),
+        MESON_CPU_MAJOR_ID_T3(0x38),
+        MESON_CPU_MAJOR_ID_S4D(0x3a),
+        MESON_CPU_MAJOR_ID_T5W(0x3b),
+        MESON_CPU_MAJOR_ID_C3(0x3c),
+        MESON_CPU_MAJOR_ID_S5(0x3e),
+        MESON_CPU_MAJOR_ID_A4(0x40),
+        MESON_CPU_MAJOR_ID_T3X(0x42);
+
+        private int val;
+
+        ChipType(int val) {
+            this.val = val;
+        }
+
+        public static ChipType valueOf(int value) {
+            for (ChipType it : ChipType.values()) {
+                if (it.toInt() == value) {
+                    return it;
+                }
+            }
+            return ChipType.MESON_CPU_MAJOR_ID_UNKNOWN;
+        }
+
+            public int toInt() {
+            return this.val;
+        }
+    }
+
+    /**
+    * @Function: GetChipType()
+    * @Description: get current cpu id
+    * @Parameters: return value refer "enum ChipType"
+    */
+    public int GetChipType() {
+        synchronized (mLock) {
+            try {
+                return mProxy.getChipType();
+            } catch (RemoteException e) {
+                Log.e(TAG, "GetChipType:" + e);
+            }
+        }
+        return -1;
+    }
+
+    /**
+    * @Function: GetAisrLevelStatus()
+    * @Description: get different project aisr ui 2 level or 4 level
+    * @Parameters: return 2 level or 4 level
+    */
+    public int GetAisrLevelStatus() {
+        int chip_type = GetChipType();
+
+        if (chip_type == ChipType.MESON_CPU_MAJOR_ID_T3.toInt()) {
+            return 2;
+        }
+
+        return 4;
+    }
 }
