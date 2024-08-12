@@ -56,6 +56,7 @@ public class DroidLogicBenchService extends Service {
         put("/dev/cpuset/background/cpus", "1");
         put("/dev/cpuset/system-background/cpus", "1");
         put("/dev/cpuset/restricted/cpus", "1");
+        put("/sys/kernel/mm/lru_gen/enabled", "0");
         }};
 
     @Override
