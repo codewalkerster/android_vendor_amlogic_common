@@ -642,11 +642,17 @@ static int rmmod(const char *modname)
     return ret;
 }
 
-static void rmmod_aml_drv(void)
+static void aml_special_handle(void)
 {
-    char mod_name[20] = {'\0'};
+    char dev_name[PROP_VALUE_MAX] = {'\0'};
 
-    if (get_aml_bt_module(mod_name)) {
+    if (get_aml_bt_module(dev_name)) {
+        if (strcmp(bt_prop_val.dev_name, dev_name)) {
+            PR_INFO("fix dev_name:%s to %s", bt_prop_val.dev_name, dev_name);
+            memcpy(bt_prop_val.dev_name, dev_name, (sizeof(bt_prop_val.dev_name) - 1));
+            property_set(PROP_BT_NAME, bt_prop_val.dev_name);
+        }
+
         PR_INFO("aml modules need rmmod wifi_comm");
         if (!rmmod("wifi_comm")) {
             usleep(100000);
@@ -763,7 +769,7 @@ static bool set_bt_cfg(void)
     bool ret;
 
     mailbox_qca_bt_name();
-    rmmod_aml_drv();
+    aml_special_handle();
     ret = set_power_type();
 
     return ret;
