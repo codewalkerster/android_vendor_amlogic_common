@@ -15,6 +15,6 @@
 <resources>
     <bool name="config_wifi5ghzSupport">true</bool>
     <integer translatable="false"
-          name="config_wifiAllNonCarrierMergedWifiMaxDisableDurationMinutes">0</integer>
+          name="config_wifiAllNonCarrierMergedWifiMaxDisableDurationMinutes">1</integer>
 
 </resources>
