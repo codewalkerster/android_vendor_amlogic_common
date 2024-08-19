@@ -102,8 +102,9 @@ public class HdmiCecManager {
         if (mTvClient != null) {
             return mHdmiControlManager.getTvSendStandbyOnSleep() == ON;
         }
-        return !HdmiControlManager.POWER_CONTROL_MODE_NONE
-            .equals(mHdmiControlManager.getPowerControlMode());
+        return readValue(SETTINGS_AUTO_POWER_OFF);
+        //return !HdmiControlManager.POWER_CONTROL_MODE_NONE
+        //    .equals(mHdmiControlManager.getPowerControlMode());
     }
 
     public boolean isAutoWakeUpEnabled() {
