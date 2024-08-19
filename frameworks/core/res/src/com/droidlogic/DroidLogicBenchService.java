@@ -44,6 +44,7 @@ public class DroidLogicBenchService extends Service {
         "com.futuremark.pcmark.android.benchmark",
         "com.antutu.ABenchMark",
         "com.antutu.benchmark.full",
+        "com.antutu.benchmark.full:unity",
         "com.rightware.BasemarkOSIICN",
         "com.glbenchmark.glbenchmark27"
         ));
@@ -109,19 +110,55 @@ public class DroidLogicBenchService extends Service {
         super.onDestroy();
     }
 
-    public boolean isBenchApp(int nPid) {
-      ActivityManager activityManager = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
-      List<ActivityManager.RunningAppProcessInfo> runningProcesses = activityManager.getRunningAppProcesses();
-      for (ActivityManager.RunningAppProcessInfo processInfo : runningProcesses) {
-          for (String app : benchmarkApps) {
-              if (processInfo.processName.equals(app)) {
-                  if (nPid == processInfo.pid) {
-                      return true;
-                  }
-              }
-          }
-      }
-      return false;
+   public boolean isBenchApp(int nPid) {
+        ActivityManager activityManager = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> runningProcesses = activityManager.getRunningAppProcesses();
+        for (ActivityManager.RunningAppProcessInfo processInfo : runningProcesses) {
+            for (String app : benchmarkApps) {
+                if (processInfo.processName.equals(app)) {
+                    if (nPid == processInfo.pid) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean isBenchAppForeGround() {
+        ActivityManager activityManager = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> runningProcesses = activityManager.getRunningAppProcesses();
+        for (ActivityManager.RunningAppProcessInfo processInfo : runningProcesses) {
+            for (String app : benchmarkApps) {
+                if (processInfo.processName.equals(app)) {
+                    if (processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+                        return true;
+                    } else {
+                        return isTopActivity();
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean isTopActivity() {
+        ActivityManager am = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> infos = am.getRunningTasks(1);
+        for (ActivityManager.RunningTaskInfo componentInfo : infos) {
+            for (String app : benchmarkApps) {
+                if (componentInfo.topActivity.getPackageName().equals(app)) {
+                    Log.d(TAG, app + " is top activity!");
+                    return true;
+
+                } else {
+                    Log.d(TAG, app + "is not top activity.");
+                    return false;
+
+                }
+            }
+        }
+        return false;
     }
 
     private class ProcessObserver extends IProcessObserver.Stub {
@@ -146,7 +183,7 @@ public class DroidLogicBenchService extends Service {
                     return;
                 }
 
-                if (foreground) {
+                if (isBenchAppForeGround()) {
                     Log.d(TAG, "bench app is onForeground");
                     if (!bHasChangeToPerformance) {
                         getCpusets();
