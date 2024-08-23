@@ -995,6 +995,7 @@ int32_t DroidAudioConfigSetting::getOutputDevices(vector<int32_t>* devices) {
                     forceUse = DROID_AUDIO_FORCE_USE_HEADPHONES;
                     break;
                 case AUDIO_DEVICE_OUT_HDMI_ARC:
+                case AUDIO_DEVICE_OUT_HDMI_EARC:
                     forceUse = DROID_AUDIO_FORCE_USE_HDMI_ARC;
                     break;
                 case AUDIO_DEVICE_OUT_USB_DEVICE:
@@ -1003,6 +1004,8 @@ int32_t DroidAudioConfigSetting::getOutputDevices(vector<int32_t>* devices) {
                     forceUse = DROID_AUDIO_FORCE_USE_WIRED_ACCESSORY;
                     break;
                 case AUDIO_DEVICE_OUT_BLUETOOTH_A2DP:
+                case AUDIO_DEVICE_OUT_BLUETOOTH_A2DP_HEADPHONES:
+                case AUDIO_DEVICE_OUT_BLUETOOTH_A2DP_SPEAKER:
                     forceUse = DROID_AUDIO_FORCE_USE_BT_A2DP;
                     break;
                 default:
