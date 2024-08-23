@@ -275,7 +275,7 @@ status_t AmlAudioPolicyManager::checkAndSetVolume(IVolumeCurves &curves,
                 curDevice == AUDIO_DEVICE_OUT_WIRED_HEADPHONE || curDevice == AUDIO_DEVICE_OUT_WIRED_HEADSET  ||
                 (curDevice & AUDIO_DEVICE_OUT_ALL_A2DP) != 0 || (curDevice & AUDIO_DEVICE_OUT_ALL_USB) != 0) {
                 setSinkGainToHal(volumeDb, curDevice, outputDesc, outputDescDevices);
-            } else if (curDevice == AUDIO_DEVICE_OUT_HDMI_ARC) {
+            } else if (curDevice == AUDIO_DEVICE_OUT_HDMI_ARC || curDevice == AUDIO_DEVICE_OUT_HDMI_EARC) {
                 volumeDb = 0.0f;
             }
         }
