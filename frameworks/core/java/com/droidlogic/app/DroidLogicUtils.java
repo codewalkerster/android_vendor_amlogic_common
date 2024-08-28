@@ -40,4 +40,9 @@ public class DroidLogicUtils {
     public static boolean isBuildLivetv() {
         return getSystemControlManager().getPropertyBoolean("ro.vendor.platform.build.livetv", false);
     }
+
+    // 1: soundbar mode on; 0: soundbar mode off
+    public static boolean isSoundbar() {
+        return getSystemControlManager().getPropertyInt("persist.vendor.media.audio.soundbar.mode", 0) == 1;
+    }
 }

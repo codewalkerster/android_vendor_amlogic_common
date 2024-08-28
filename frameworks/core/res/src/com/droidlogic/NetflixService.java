@@ -616,8 +616,9 @@ public class NetflixService extends Service {
     private void refreshAudioCapabilities(boolean init, boolean state) {
         boolean isTv = DroidLogicUtils.isTv();
         int surround = mDroidAudioManager.getDigitalAudioFormatOut();
-        Log.i(TAG, "onReceived HDMI_PLUGGED: " + state + ", isTv:" + isTv + ", surround:" +
-                DroidAudioManager.audioFormatOutputToString(surround));
+        Log.i(TAG, "refreshAudioCapabilities: " + ", isTv:" + isTv + ", surround:" +
+                DroidAudioManager.audioFormatOutputToString(surround) +
+                "isSoundbar: " + DroidLogicUtils.isSoundbar());
 
         String hdmiEncodings = mAudioManager.getParameters("hdmi_encodings");
 
@@ -628,6 +629,11 @@ public class NetflixService extends Service {
             // For arc/earc, After disconnecting arc, it need to be configured as the default value in the json file.
             setAtmosEnabled(state? atmosSupported : atmosSupportedByConfig);
             setUiAudioBufferDelayOffsetTv();
+        } else if (DroidLogicUtils.isSoundbar()) {
+            if (init) {
+                setAtmosEnabled(true);
+                Log.i(TAG,"Soundbar mode, set amtos enable");
+            }
         } else {
             if ((init || state) && (DroidAudioManager.DIGITAL_AUDIO_FORMAT_AUTO == surround
                 || DroidAudioManager.DIGITAL_AUDIO_FORMAT_PASSTHROUGH == surround) ) {
