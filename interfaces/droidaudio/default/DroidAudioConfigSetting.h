@@ -56,6 +56,7 @@ private:
     void reloadAudio();
     void findAudioSinkFromAudioPolicy(vector<audio_port_v7>& sinks);
     int32_t findAudioDevicePort(audio_devices_t type, audio_port_v7& port);
+    void sinkChangedSignalNotify();
     void handleAudioSinkUpdatedRunnable();
     void setAudioPortSourceGain();
     int32_t updateAudioPatch();
@@ -119,7 +120,7 @@ private:
             mDroidAudioConfigSetting->handleAudioSinkUpdatedRunnable();
         } else {
             // handleDispatchAudioRoutesChanged
-            mDroidAudioConfigSetting->mThreadCnd.notify_one();
+            mDroidAudioConfigSetting->sinkChangedSignalNotify();
         }
     }
 

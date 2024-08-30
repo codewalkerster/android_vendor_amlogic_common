@@ -185,7 +185,7 @@ DroidAudioConfigSetting::DroidAudioConfigSetting(): mInitStatus(false),
 
 DroidAudioConfigSetting::~DroidAudioConfigSetting() {
     mExitProcThread = true;
-    mThreadCnd.notify_one();
+    sinkChangedSignalNotify();
     if (mProcThread.joinable()) {
         mProcThread.join();
     }
@@ -241,15 +241,23 @@ void DroidAudioConfigSetting::handleVolumeChange(volume_group_t group) {
     setAudioPortSourceGain();
 }
 
+void DroidAudioConfigSetting::sinkChangedSignalNotify() {
+    unique_lock<mutex> mutex(mThreadMutex);
+    AM_LOGV("audio changed and notify>>>>>>>");
+    mThreadCnd.notify_one();
+}
+
 void DroidAudioConfigSetting::handleDispatchAudioRoutesChanged() {
     uint32_t timeoutMs = 500;
     bool standby = true;
     cv_status ret;
     AM_LOGI("start+++");
-    while (!mExitProcThread) {{
+    while (!mExitProcThread) {
         unique_lock<mutex> mutex(mThreadMutex);
         if (standby) {
+            AM_LOGV("mThreadCnd_wait begin+++++++++++++");
             mThreadCnd.wait(mutex);
+            AM_LOGV("mThreadCnd_wait end--------");
         }
 
         AudioDeviceTypeAddrVector devices{};
@@ -263,11 +271,12 @@ void DroidAudioConfigSetting::handleDispatchAudioRoutesChanged() {
                 break;
             }
         }
-
+        AM_LOGV("mThreadCnd_wait_for begin+++++++++++++timeoutMs:%d", timeoutMs);
         ret = mThreadCnd.wait_for(mutex, chrono::milliseconds(timeoutMs));
         if (mExitProcThread) {
             break;
         }
+        AM_LOGV("mThreadCnd_wait_for end--------");
         if (cv_status::timeout == ret) {
             handleAudioSinkUpdatedRunnable();
             if (getDebugEnable()) {
@@ -277,7 +286,7 @@ void DroidAudioConfigSetting::handleDispatchAudioRoutesChanged() {
         } else {
             standby = false;
         }
-    }}
+    }
     AM_LOGI("exit---");
     return;
 }
@@ -294,14 +303,14 @@ void DroidAudioConfigSetting::handleAudioSinkUpdatedRunnable() {
         }
     }
     unique_lock<mutex> l(mMutex);
-    if (mpAudioPatch == nullptr) {
-        if (getDebugEnable()) {
-            AM_LOGD("not find dtv audio patch");
-        }
-        return;
-    }
     int32_t ret = 0;
     if (mNotImptTvHardwareInputService) {
+        if (mpAudioPatch == nullptr) {
+            if (getDebugEnable()) {
+                AM_LOGD("not find dtv audio patch");
+            }
+            return;
+        }
         ret = recreateAudioPatch();
     } else {
         ret = updateAudioPatch();
