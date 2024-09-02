@@ -1072,10 +1072,18 @@ void DisplayMode::applyDisplaySetting(hdmi_output_info_t* output_info) {
                 SYS_LOGE("usleep interrupt!\n");
         }
         // stop hdcp tx
-        pTxAuth->stop();
+        if (isNeedHDCPProcess()) {
+            pTxAuth->stop();
+        } else {
+            SYS_LOGI("user space not process hdcp\n");
+        }
     } else if (OUTPUT_MODE_STATE_INIT == output_info->reason) {
         // stop hdcp tx
-        pTxAuth->stop();
+        if (isNeedHDCPProcess()) {
+            pTxAuth->stop();
+        } else {
+            SYS_LOGI("user space not process hdcp\n");
+        }
         char fail_case[8] = {0};
         pSysWrite->getPropertyString(HDCP_TX_AUTH_FAIL, fail_case, "4");
         if (!strcmp(fail_case, "1")) {
@@ -1221,11 +1229,19 @@ void DisplayMode::applyDisplaySetting(hdmi_output_info_t* output_info) {
     // 10. start HDMI HDCP authenticate
     if (isNeedChange) {
         if (!cvbsMode) {
-            pTxAuth->start();
+            if (isNeedHDCPProcess()) {
+                pTxAuth->start();
+            } else {
+                SYS_LOGI("user space not process hdcp\n");
+            }
         }
     } else if (OUTPUT_MODE_STATE_INIT == output_info->reason) {
         if (!cvbsMode) {
-            pTxAuth->start();
+            if (isNeedHDCPProcess()) {
+                pTxAuth->start();
+            } else {
+                SYS_LOGI("user space not process hdcp\n");
+            }
         }
     }
 
@@ -1809,6 +1825,14 @@ bool DisplayMode::isEdidChange() {
         }
     }
     return false;
+}
+
+/*
+ * IVCX chips run hdcp authecticate at kernel space
+ * SNPS chips run hdcp authenticate at userspace
+ */
+bool DisplayMode::isNeedHDCPProcess() {
+    return DisplayModeMgr::getInstance().userSpaceHDCPTxAuth();
 }
 
 /* boot config enable, hwc will take care of it */

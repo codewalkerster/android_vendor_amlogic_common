@@ -277,6 +277,11 @@ bool DisplayModeMgr::getUbootenv(std::string key, std::string& value) {
     return mDisplayAdapter->getUbootenv(key, value);
 }
 
+bool DisplayModeMgr::userSpaceHDCPTxAuth() {
+    CHECK_DISPLAY_SERVICE();
+    return mDisplayAdapter->userSpaceHDCPTxAuth();
+}
+
 bool DisplayModeMgr::updateConnectorType() {
     // For MBox, if connected hdmi, never switch back to cvbs
     if ((mDisplayType == DISPLAY_TYPE_MBOX || mDisplayType == DISPLAY_TYPE_TABLET) && !access(DISPLAY_HDMI_USED, F_OK)) {

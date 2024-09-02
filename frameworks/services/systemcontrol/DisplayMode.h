@@ -654,6 +654,7 @@ private:
     void initHdrSdrMode();
     bool isEdidChange();
     bool isHWCProcess();
+    bool isNeedHDCPProcess();
     bool isSupport4K30Hz();
     bool isSupport4K();
     bool isSupportDeepColor();

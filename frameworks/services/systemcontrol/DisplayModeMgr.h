@@ -40,6 +40,8 @@ public:
     DisplayModeMgr();
     ~DisplayModeMgr();
 
+    bool userSpaceHDCPTxAuth();
+
     bool setUbootenv(std::string key, std::string value);
     bool getUbootenv(std::string key, std::string& value);
 
