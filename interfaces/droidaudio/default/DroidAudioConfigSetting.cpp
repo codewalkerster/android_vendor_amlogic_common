@@ -38,7 +38,6 @@ using namespace android;
 static sp<SystemControlClient> g_SystemControlClient;
 #define  DVB_DEMUX_ID_BASE      25
 
-
 static void encapsulationAndSetParams(const char *key, int32_t value) {
     char param[100 + 11];
     if (strlen(key) >= 100) {
@@ -159,13 +158,10 @@ void listAudioPorts(vector<audio_port_v7>& ports) {
     }
 }
 
-DroidAudioConfigSetting::DroidAudioConfigSetting(): mInitStatus(false),
-    mCurrentFmt(-1), mCurrentHasDtvVideo(0), mDtvDemuxIdCurrentWork(0), mHasReceivedStartDecoderCmd(false)
+DroidAudioConfigSetting::DroidAudioConfigSetting(): mInitStatus(false)
 {
     AM_LOGI("");
     mNotImptTvHardwareInputService = !getPropertyBoolean("ro.vendor.platform.build.livetv", false);
-    mHasOpenedDecoder = false;
-    mMixAdSupported = false;
     mForceManagePatch = getPropertyBoolean("vendor.media.dtv.force.manage.patch", false);
     mExitProcThread = false;
     g_SystemControlClient = ::android::SystemControlClient::getInstance();
@@ -218,8 +214,9 @@ int32_t DroidAudioConfigSetting::dump(int fd, const char **args __unused, uint32
     int32_t forceUse = g_SystemControlClient->getPropertyInt(PROP_AUDIO_OUTPUT_FORCEUSE, DROID_AUDIO_FORCE_USE_NONE);
     dprintf(fd, "db forceUse: %d\n", forceUse);
     dprintf(fd, "tif: %d\n", !mNotImptTvHardwareInputService);
-    dprintf(fd, "mForceManagePatch: %d opened: %d started: %d\n",
-        mForceManagePatch, mHasOpenedDecoder, mHasReceivedStartDecoderCmd);
+    dprintf(fd, "mForceManagePatch: %d\n",
+        mForceManagePatch);
+
     for (auto &v : mDemuxs) {
         DroidAudioDemux& demux = v.second;
         dprintf(fd, "START_DECODE(id:%d) format:%d pid:%d start:%d open:%d mute:%d vol:%d\n",
@@ -267,56 +264,20 @@ void DroidAudioConfigSetting::handleDispatchAudioRoutesChanged() {
 }
 
 void DroidAudioConfigSetting::handleAudioSinkUpdatedRunnable() {
+
     int32_t ret = 0;
-    {
-        unique_lock<mutex> demux_l(mDemuxMutex);
-        map<int, DroidAudioDemux>::iterator iter = mDemuxs.find(mDtvDemuxIdCurrentWork);
-        if (iter == mDemuxs.end()) {
+    unique_lock<mutex> l(mMutex);
+    if (mNotImptTvHardwareInputService) {
+        if (mpAudioPatch == nullptr) {
             if (getDebugEnable()) {
-                AM_LOGD("not find demux id:%d ", mDtvDemuxIdCurrentWork);
+                AM_LOGD("not find dtv audio patch");
             }
             return;
         }
+        ret = recreateAudioPatch();
+    } else {
+        ret = updateAudioPatch();
     }
-    {
-        unique_lock<mutex> l(mMutex);
-        if (mNotImptTvHardwareInputService) {
-            if (mpAudioPatch == nullptr) {
-                if (getDebugEnable()) {
-                    AM_LOGD("not find dtv audio patch");
-                }
-                return;
-            }
-            ret = recreateAudioPatch();
-        } else {
-            ret = updateAudioPatch();
-        }
-    }
-    if (ret == 0) {
-        reStartAdecDecoderIfPossible();
-    }
-}
-
-void DroidAudioConfigSetting::reStartAdecDecoderIfPossible() {
-    unique_lock<mutex> demux_l(mDemuxMutex);
-    AM_LOGI("mDtvDemuxIdCurrentWork:%d", mDtvDemuxIdCurrentWork);
-    if (getPropertyBoolean("ro.vendor.platform.has.tvuimode", false)) {
-        AudioSystem::setParameters(String8("hal_param_tuner_in=dtv"));
-    }
-    map<int, DroidAudioDemux>::iterator iter = mDemuxs.find(mDtvDemuxIdCurrentWork);
-    if (iter == mDemuxs.end()) {
-        AM_LOGE("not find demux id:%d ", mDtvDemuxIdCurrentWork);
-        return;
-    }
-    DroidAudioDemux& demux = iter->second;
-    if (demux.mStartStatus == 0) {
-        AM_LOGE("dtv audio has not started, mStartStatus %d ", demux.mStartStatus);
-        return;
-    }
-    encapsulationAndSetParams("hal_param_dtv_audio_fmt=", demux.mAudioFormat);
-    encapsulationAndSetParams("hal_param_has_dtv_video=", mCurrentHasDtvVideo);
-    int cmd = DROID_AUDIO_CMD_START_DECODE + (mDtvDemuxIdCurrentWork << DVB_DEMUX_ID_BASE);
-    encapsulationAndSetParams("hal_param_dtv_patch_cmd=", cmd);
 }
 
 void DroidAudioConfigSetting::findAudioSinkFromAudioPolicy(vector<audio_port_v7>& ports) {
@@ -542,16 +503,14 @@ int32_t DroidAudioConfigSetting::setAudioCmdParam(int32_t cmd, int32_t param1, i
         param1 = param1 + (param3 << DVB_DEMUX_ID_BASE);
         param2 = param2 + (param3 << DVB_DEMUX_ID_BASE);
     }
-    int32_t tmp_param;
+
     map<int, DroidAudioDemux>::iterator iter;
     switch (cmdIndex) {
         case DROID_AUDIO_CMD_SET_SPDIF_PROTECTION_MODE:
             encapsulationAndSetParams("hal_param_dtv_spdif_protection_mode=", param1);
             break;
         case DROID_AUDIO_CMD_SET_DEMUX_INFO:
-            //encapsulationAndSetParams("hal_param_dtv_pid=" + param1);
             encapsulationAndSetParams("hal_param_dtv_demux_id=", param2);
-            encapsulationAndSetParams("hal_param_dtv_cmd=", cmd);
             break;
         case DROID_AUDIO_CMD_SET_SECURITY_MEM_LEVEL:
             encapsulationAndSetParams("hal_param_security_mem_level=", param1);
@@ -566,46 +525,12 @@ int32_t DroidAudioConfigSetting::setAudioCmdParam(int32_t cmd, int32_t param1, i
             encapsulationAndSetParams("hal_param_dtv_media_second_lang=", param1);
            break;
         case DROID_AUDIO_CMD_SET_HAS_VIDEO:
-            mCurrentHasDtvVideo = param1;
             encapsulationAndSetParams("hal_param_has_dtv_video=", param1);
             break;
-
         case DROID_AUDIO_CMD_START_DECODE:
-            {
-                unique_lock<mutex> demux_l(mDemuxMutex);
-                iter = mDemuxs.find(param3);
-                if (iter == mDemuxs.end()) {
-                    AM_LOGW("START_DECODE not find demux id:%d ", param3);
-                    break;
-                }
-                DroidAudioDemux& demux = iter->second;
-                //1.if there are the multi-demux case, the start and stop need be controlled bu mute or mute.
-                //2.if there have not received the open cmd, we could not start the decoder directly.
-                //3.if there have started the decoder, we need not restart the decoder.
-                if (mDemuxs.size() > 1 || mDemuxs.size() == 0) {
-                    break;
-                }
-
-                mHasReceivedStartDecoderCmd = true;
-                mCurrentFmt = param1;
-                mDtvDemuxIdCurrentWork = param3;
-                encapsulationAndSetParams("hal_param_dtv_audio_fmt=", param1);
-                encapsulationAndSetParams("hal_param_dtv_audio_id=", param2);
-                encapsulationAndSetParams("hal_param_dtv_patch_cmd=", cmd);
-                encapsulationAndSetParams("hal_param_dtv_audio_volume=", demux.mVolume);
-                encapsulationAndSetParams("hal_param_tv_mute=", demux.mMuteStatus);
-                demux.mStartStatus = 1;
-                demux.mAudioFormat = param1;
-                demux.mAudioPid = param2;
-                if (getDebugEnable()) {
-                    for (auto &v : mDemuxs) {
-                        DroidAudioDemux& demux = v.second;
-                        AM_LOGD("START_DECODE(id:%d) format:%d pid:%d start:%d open:%d mute:%d vol:%d",
-                            v.first, demux.mAudioFormat, demux.mAudioPid, demux.mStartStatus, demux.mOpenStatus,
-                            demux.mMuteStatus, demux.mVolume);
-                    }
-                }
-            }
+            encapsulationAndSetParams("hal_param_dtv_audio_fmt=", param1);
+            encapsulationAndSetParams("hal_param_dtv_audio_id=", param2);
+            encapsulationAndSetParams("hal_param_dtv_patch_cmd=", cmd);
             break;
         case DROID_AUDIO_CMD_PAUSE_DECODE:
             encapsulationAndSetParams("hal_param_dtv_patch_cmd=", cmd);
@@ -614,26 +539,7 @@ int32_t DroidAudioConfigSetting::setAudioCmdParam(int32_t cmd, int32_t param1, i
             encapsulationAndSetParams("hal_param_dtv_patch_cmd=", cmd);
             break;
         case DROID_AUDIO_CMD_STOP_DECODE:
-            {
-                unique_lock<mutex> demux_l(mDemuxMutex);
-                iter = mDemuxs.find(param3);
-                if (iter == mDemuxs.end()) {
-                    AM_LOGW("STOP_DECODE not find demux id:%d ", param3);
-                    break;
-                }
-                DroidAudioDemux& demux = iter->second;
-                mHasReceivedStartDecoderCmd = false;
-                encapsulationAndSetParams("hal_param_dtv_patch_cmd=", cmd);
-                demux.mStartStatus = 0;
-                if (getDebugEnable()) {
-                    for (auto &v : mDemuxs) {
-                        DroidAudioDemux& demux = v.second;
-                        AM_LOGD("STOP_DECODE(id:%d) format:%d pid:%d start:%d open:%d mute:%d vol:%d",
-                            v.first, demux.mAudioFormat, demux.mAudioPid, demux.mStartStatus, demux.mOpenStatus,
-                            demux.mMuteStatus, demux.mVolume);
-                    }
-                }
-            }
+            encapsulationAndSetParams("hal_param_dtv_patch_cmd=", cmd);
             break;
         case DROID_AUDIO_CMD_SET_DECODE_AD:
             encapsulationAndSetParams("hal_param_dtv_sub_audio_fmt=", param1);
@@ -642,108 +548,14 @@ int32_t DroidAudioConfigSetting::setAudioCmdParam(int32_t cmd, int32_t param1, i
             AM_LOGD("SET_DECODE_AD sub_audio_fmt:%d, sub_audio_pid:%d", param1, param2);
             break;
         case DROID_AUDIO_CMD_SET_VOLUME:
-            {
-                unique_lock<mutex> demux_l(mDemuxMutex);
-                iter = mDemuxs.find(param3);
-                if (iter == mDemuxs.end()) {
-                    DroidAudioDemux newDemux;
-                    //newDemux.mMuteStatus = param1;
-                    newDemux.mVolume = param1;
-                    auto result = mDemuxs.insert(pair<int, DroidAudioDemux>(param3, newDemux));
-                    iter = result.first;
-                } else {
-                    iter->second.mVolume = param1;
-                }
-                if (iter->second.mStartStatus == 0 || iter->second.mOpenStatus == 0 ) {
-                     break;
-                }
-                encapsulationAndSetParams("hal_param_dtv_audio_volume=", param1);
-                AM_LOGD("CMD_SET_VOLUME, audio volume:%d", param1);
-            }
+            encapsulationAndSetParams("hal_param_dtv_audio_volume=", param1);
+            AM_LOGD("CMD_SET_VOLUME, audio volume:%d", param1);
             break;
         case DROID_AUDIO_CMD_SET_MUTE:
-            {
-//                if (!isDtvkit) {
-//                    encapsulationAndSetParams("hal_param_tv_mute=", param1);
-//                    break;
-//                }
-                tmp_param = param1;
-                param1 = param1 & ((1 << DVB_DEMUX_ID_BASE) - 1);
-                if (param1 == 0) {
-                    mDtvDemuxIdCurrentWork = param3;
-                }
-                // if there have received the mute cmd but have not open the decoder,
-                // we need to save and init the path_id information(openstatus/mutestatus/Audioformat).
-                unique_lock<mutex> demux_l(mDemuxMutex);
-                iter = mDemuxs.find(param3);
-                if (iter == mDemuxs.end()) {
-                    DroidAudioDemux newDemux;
-                    newDemux.mMuteStatus = tmp_param;
-                    auto result = mDemuxs.insert(pair<int, DroidAudioDemux>(param3, newDemux));
-                    iter = result.first;
-                } else {
-                    iter->second.mMuteStatus = tmp_param;
-                }
-                DroidAudioDemux& demux = iter->second;
-                //if there have not opened the decoder, we only need to save the mute value and not apply the follow logic.
-                if (demux.mOpenStatus == 0) {
-                     break;
-                }
-                if (getDebugEnable()) {
-                    AM_LOGD("size:%zu demuxid:%d start:%d open:%d mute:%d vol:%d", mDemuxs.size(), iter->first,
-                        demux.mStartStatus, demux.mOpenStatus, demux.mMuteStatus, demux.mVolume);
-                }
-                //CASE 1:single demux, there have not other control logic.When the decoder have opened, set the mute to audio_hal.
-                if (mDemuxs.size() == 1) {
-                    if (demux.mStartStatus == 0) {
-                        int applyCmd = DROID_AUDIO_CMD_START_DECODE + (param3 << DVB_DEMUX_ID_BASE);
-                        encapsulationAndSetParams("hal_param_dtv_audio_fmt=", demux.mAudioFormat);
-                        encapsulationAndSetParams("hal_param_dtv_audio_id=", demux.mAudioPid);
-                        encapsulationAndSetParams("hal_param_dtv_patch_cmd=", applyCmd);
-                        demux.mStartStatus = 1;
-                        mHasReceivedStartDecoderCmd = true;
-                        encapsulationAndSetParams("hal_param_dtv_audio_volume=", demux.mVolume);
-                    }
-                    encapsulationAndSetParams("hal_param_tv_mute=", demux.mMuteStatus);
-                } else if (mDemuxs.size() > 1) {
-                    //CASE2:multi-demux
-                    //1.when receive the unmute cmd, there need to control the start logic, but before start the decoder, We need to check the decoder state which to ensure all the path have stoped. When the path heve not started and start it.
-                    //2.when receive the mute cmd, if the path have started, there should stop the current path.
-                    if (param1 == 0) {//received the unmute cmd
-                        for (auto &v : mDemuxs) {  // check the all work path start state, because audio hal only support one path working.
-                            if (v.second.mStartStatus == 1 && v.first != param3) {
-                                int applyCmd = DROID_AUDIO_CMD_STOP_DECODE + (v.first << DVB_DEMUX_ID_BASE);
-                                encapsulationAndSetParams("hal_param_dtv_patch_cmd=", applyCmd);
-                                mHasReceivedStartDecoderCmd = false;
-                                v.second.mStartStatus = 0;
-                            }
-                        }
-                        if (demux.mStartStatus == 0) {//if  the path have not started, there need to start the  work path and send the path information to audio hal.
-                            int applyCmd = DROID_AUDIO_CMD_START_DECODE+ (param3 << DVB_DEMUX_ID_BASE);
-                            encapsulationAndSetParams("hal_param_dtv_audio_fmt=", demux.mAudioFormat);
-                            encapsulationAndSetParams("hal_param_dtv_audio_id=", demux.mAudioPid);
-                            encapsulationAndSetParams("hal_param_dtv_patch_cmd=", applyCmd);
-                            demux.mStartStatus = 1;
-                            mHasReceivedStartDecoderCmd = true;
-                            encapsulationAndSetParams("hal_param_dtv_audio_volume=", demux.mVolume);
-                            encapsulationAndSetParams("hal_param_tv_mute=", demux.mMuteStatus);
-                        } else {//if the path have started, only set mute to audio hal.
-                            encapsulationAndSetParams("hal_param_tv_mute=", demux.mMuteStatus);
-
-                        }
-                    } else if (param1 == 1) {////set mute == 1(if there have started , stop)
-                        if (demux.mStartStatus == 1)  {
-                            int applyCmd = DROID_AUDIO_CMD_STOP_DECODE + (param3 << DVB_DEMUX_ID_BASE);
-                            encapsulationAndSetParams("hal_param_dtv_patch_cmd=", applyCmd);
-                            mHasReceivedStartDecoderCmd = false;
-                            demux.mStartStatus = 0;
-                        }
-                    }
-                }
-            }
+            encapsulationAndSetParams("hal_param_tv_mute=", param1);
+            AM_LOGD("CMD_SET_MUTE, audio mute:%d", param1);
             break;
         case DROID_AUDIO_CMD_SET_OUTPUT_MODE:
-            encapsulationAndSetParams("hal_param_dtv_patch_cmd=", cmd);
             encapsulationAndSetParams("hal_param_audio_output_mode=", param1); /* refer to AM_AOUT_OutputMode_t */
             break;
         case DROID_AUDIO_CMD_SET_PRE_GAIN:
@@ -765,13 +577,10 @@ int32_t DroidAudioConfigSetting::setAudioCmdParam(int32_t cmd, int32_t param1, i
                         updateAudioPatch();
                     }
                 }
-                if (getPropertyBoolean("ro.vendor.platform.has.tvuimode", false)) {
-                    AudioSystem::setParameters(String8("hal_param_tuner_in=dtv"));
-                }
-                encapsulationAndSetParams("hal_param_dtv_fmt=", param1);
-                encapsulationAndSetParams("hal_param_dtv_pid=", param2);
+
+                encapsulationAndSetParams("hal_param_dtv_audio_fmt=", param1);
+                encapsulationAndSetParams("hal_param_dtv_audio_id=", param2);
                 encapsulationAndSetParams("hal_param_dtv_patch_cmd=", cmd);
-                mHasOpenedDecoder = true;
                 if (getDebugEnable()) {
                     AM_LOGD("now start open the decoder:OPEN_DECODER_1(%d), demux count:%zu", param3, mDemuxs.size());
                     for (auto &v : mDemuxs) {
@@ -841,8 +650,6 @@ int32_t DroidAudioConfigSetting::setAudioCmdParam(int32_t cmd, int32_t param1, i
                         AudioSystem::releaseAudioPatch(mpAudioPatch->id);
                     }
                 } else {//DTVKIT case and create or relese audio patch be controlled by TIF
-                    mHasOpenedDecoder = false;
-                    mMixAdSupported = false;
                     if (found) {
                         mDemuxs.erase(iter);
                     } else {
@@ -908,9 +715,10 @@ int32_t DroidAudioConfigSetting::setAudioCmdParam(int32_t cmd, int32_t param1, i
                 unique_lock<mutex> l(mMutex);
                 releaseTvTunerAudioPatch();
                 mpAudioPatch = nullptr;
-                mHasOpenedDecoder = false;
-                mMixAdSupported = false;
             }
+            break;
+        case DROID_AUDIO_CMD_SET_AUDIO_PLAYBACK_MODE:
+            encapsulationAndSetParams("hal_param_dtv_playback_mode=", param1);
             break;
         case DROID_AUDIO_CMD_SET_AUDIO_PICTURE_MODE:
             AM_LOGD("SET_AUDIO_PICTURE_MODE: %s", (param1 == 1? "GAME" : "STANDARD"));

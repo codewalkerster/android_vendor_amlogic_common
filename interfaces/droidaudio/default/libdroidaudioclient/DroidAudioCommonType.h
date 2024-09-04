@@ -55,6 +55,7 @@ typedef enum {
     DROID_AUDIO_CMD_SET_MEDIA_FIRST_LANG                        = 29,
     DROID_AUDIO_CMD_SET_MEDIA_SECOND_LANG                       = 30,
     DROID_AUDIO_CMD_SET_AUDIO_PICTURE_MODE                      = 31,
+    DROID_AUDIO_CMD_SET_AUDIO_PLAYBACK_MODE                     = 32,
 } DROID_AUDIO_CMD_TYPE_E;
 
 // audio_policy_forced_cfg_t (system\media\audio\include\system\audio_policy.h)
@@ -108,6 +109,7 @@ inline const char* audioCmd2Str(int type)
     ENUM_TYPE_TO_STR(DROID_AUDIO_CMD_SET_MEDIA_FIRST_LANG)
     ENUM_TYPE_TO_STR(DROID_AUDIO_CMD_SET_MEDIA_SECOND_LANG)
     ENUM_TYPE_TO_STR(DROID_AUDIO_CMD_SET_AUDIO_PICTURE_MODE)
+    ENUM_TYPE_TO_STR(DROID_AUDIO_CMD_SET_AUDIO_PLAYBACK_MODE)
     ENUM_TYPE_TO_STR_END
 }
 

@@ -72,12 +72,6 @@ private:
     bool                            mInitStatus;
     map<int, DroidAudioDemux>       mDemuxs;
 
-    int32_t                         mCurrentFmt;
-    int32_t                         mCurrentHasDtvVideo;
-    int32_t                         mDtvDemuxIdCurrentWork;
-    bool                            mHasReceivedStartDecoderCmd;
-    bool                            mHasOpenedDecoder;
-    bool                            mMixAdSupported;
     bool                            mNotImptTvHardwareInputService;
     bool                            mForceManagePatch;
 
