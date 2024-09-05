@@ -45,6 +45,7 @@ public class DroidLogicBenchService extends Service {
         "com.antutu.ABenchMark",
         "com.antutu.benchmark.full",
         "com.antutu.benchmark.full:unity",
+        "com.antutu.benchmark.full:refinery",
         "com.rightware.BasemarkOSIICN",
         "com.glbenchmark.glbenchmark27"
         ));
