@@ -34,6 +34,10 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.Handler;
 import android.os.Message;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
+
+
 
 
 import android.provider.Settings;
@@ -100,6 +104,7 @@ public class NetflixService extends Service {
     private static final int UI_AUDIO_DELAY_OFFSET_TV_MS12 = 120;
     private static final int UI_AUDIO_DELAY_OFFSET_OTT_DOLBY = 70;
     private static final int UI_AUDIO_DELAY_OFFSET_OTT_PCM = 75;
+    private static final int DEVICE_CLEANUP_TIMEOUT=5000;
     private static boolean atmosSupported = false;
     private static boolean atmosSupportedByConfig = false;
     private static boolean dolbySupported = false;
@@ -261,6 +266,20 @@ public class NetflixService extends Service {
         }
     }
 
+    private BroadcastReceiver ScreenOffReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            synchronized (mLock) {
+                if (mIsNetflixFg) {
+                    Log.d(TAG, "wake lock foreground" );
+                    PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+                    WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,TAG);
+                    wakeLock.acquire(DEVICE_CLEANUP_TIMEOUT);
+                }
+            }
+        }
+    };
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -324,6 +343,9 @@ public class NetflixService extends Service {
             }
         };
         resetHdrPolicy();
+
+        IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
+        registerReceiver(ScreenOffReceiver, filter);
     }
 
     @Override
