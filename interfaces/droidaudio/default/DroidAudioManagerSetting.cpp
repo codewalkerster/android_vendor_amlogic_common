@@ -574,32 +574,44 @@ int32_t DroidAudioManagerSetting::setAudioApplyToAll() {
 }
 
 int32_t DroidAudioManagerSetting::setDigitalAudioMode(int32_t mode, const string& formats) {
+    const string HAL_PARAM_DIGITAL_AUDIO_SUBFORMAT          = "hal_param_digital_audio_subformat=";
     const string HAL_PARAM_DIGITAL_AUDIO_MODE               = "hdmi_format=";
-    const int32_t HAL_DIGITAL_AUDIO_MODE_PCM                = 0;
-    const int32_t HAL_DIGITAL_AUDIO_MODE_AUTO               = 5;
-    const int32_t HAL_DIGITAL_AUDIO_MODE_PASSTHROUGH        = 6;
+    const string HAL_DIGITAL_AUDIO_MODE_PCM                 = "0";
+    const string HAL_DIGITAL_AUDIO_MODE_AUTO                = "5";
+    const string HAL_DIGITAL_AUDIO_MODE_PASSTHROUGH         = "6";
+    const string HAL_DIGITAL_AUDIO_MODE_MANUAL              = "7";
+    string audioHalMode                                     = "";
+    string audioHalParamSubFormats                          = "";
     if (isAudioDebug()) AM_LOGD("mode:%s(%d), formats:%s", DroidAudioManager::audioDigitalMode2Str(mode), mode, formats.c_str());
     switch (mode) {
-        case DroidAudioManager::DIGITAL_AUDIO_MODE_MANUAL:
-            if (isTvPlatform()) {
-                mode = DroidAudioManager::DIGITAL_AUDIO_MODE_AUTO;
-            }
-            ::setParameters(HAL_PARAM_DIGITAL_AUDIO_MODE, HAL_DIGITAL_AUDIO_MODE_AUTO);
+        case DroidAudioManager::DIGITAL_AUDIO_MODE_PCM:
+            audioHalMode = HAL_DIGITAL_AUDIO_MODE_PCM;
             break;
         case DroidAudioManager::DIGITAL_AUDIO_MODE_AUTO:
+            audioHalMode = HAL_DIGITAL_AUDIO_MODE_AUTO;
+            break;
+        case DroidAudioManager::DIGITAL_AUDIO_MODE_MANUAL:
+            audioHalMode = HAL_DIGITAL_AUDIO_MODE_MANUAL;
+            audioHalParamSubFormats = ";" + HAL_PARAM_DIGITAL_AUDIO_SUBFORMAT + formats;
+            break;
         case DroidAudioManager::DIGITAL_AUDIO_MODE_PASSTHROUGH:
-            if (mode == DroidAudioManager::DIGITAL_AUDIO_MODE_AUTO) {
-                ::setParameters(HAL_PARAM_DIGITAL_AUDIO_MODE, HAL_DIGITAL_AUDIO_MODE_AUTO);
-            } else {
-                ::setParameters(HAL_PARAM_DIGITAL_AUDIO_MODE, HAL_DIGITAL_AUDIO_MODE_PASSTHROUGH);
+            audioHalMode = HAL_DIGITAL_AUDIO_MODE_PASSTHROUGH;
+            break;
+        case DroidAudioManager::DIGITAL_AUDIO_MODE_ALWAYS: {
+                audioHalMode = HAL_DIGITAL_AUDIO_MODE_MANUAL;
+                std::string result;
+                for (const auto& format : DroidAudioManager::SURROUND_SOUND_ALWAYS_FORMATS) {
+                    if (!result.empty()) result += ",";
+                    result += std::to_string(format);
+                }
+                audioHalParamSubFormats = ";" + HAL_PARAM_DIGITAL_AUDIO_SUBFORMAT + result;
+                break;
             }
-            break;
-        case DroidAudioManager::DIGITAL_AUDIO_MODE_PCM:
         default:
-            mode = DroidAudioManager::DIGITAL_AUDIO_MODE_PCM;
-            ::setParameters(HAL_PARAM_DIGITAL_AUDIO_MODE, HAL_DIGITAL_AUDIO_MODE_PCM);
-            break;
+            AM_LOGE("invalid mode:%d", mode);
+            return -1;
     }
+    ::setParameters(HAL_PARAM_DIGITAL_AUDIO_MODE + audioHalMode + audioHalParamSubFormats);
     putToDb(DB_KEY_AM_AUDIO_CONFIG_DIGITAL_AUDIO_MODE, mode);
     return 0;
 }

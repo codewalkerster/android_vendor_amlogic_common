@@ -156,6 +156,7 @@ public class DroidAudioCore {
                 mDroidAudioManager.setDigitalAudioModeToHal(digitalMode,
                             digitalMode == DroidAudioManager.DIGITAL_AUDIO_MODE_MANUAL ? mDroidAudioManager.getAudioManualFormats() : "");
             } else if (Settings.Global.ENCODED_SURROUND_OUTPUT_ENABLED_FORMATS.equals(option)) {
+                Log.d(TAG, "onChange enabled_formats changed, set manual mode");
                 mDroidAudioManager.setDigitalAudioModeToHal(
                         DroidAudioManager.DIGITAL_AUDIO_MODE_MANUAL, mDroidAudioManager.getAudioManualFormats());
             } else if (Settings.Global.USER_PREFERRED_RESOLUTION_HEIGHT.equals(option)) {

@@ -425,7 +425,26 @@ public class DroidAudioManager {
     public static final int DIGITAL_AUDIO_MODE_ALWAYS                                       = 4;
     public static final int DIGITAL_AUDIO_MODE_MIN                                          = DIGITAL_AUDIO_MODE_PCM;
     public static final int DIGITAL_AUDIO_MODE_MAX                                          = DIGITAL_AUDIO_MODE_ALWAYS;
-    public int setDigitalAudioModeToHal(int mode, String formats) {
+    public int setDigitalAudioModeToHal(int mode, final String formats) {
+        if (mode < DIGITAL_AUDIO_MODE_MIN || mode > DIGITAL_AUDIO_MODE_MAX) {
+            Log.e(TAG, "setDigitalAudioModeToHal invalid audioMode:" + mode + ", formats:" + formats);
+            return -1;
+        }
+        if (DroidLogicUtils.getAudioDebugEnable() && formats != null) {
+            String tempFromats = formats.trim();
+            if (!tempFromats.isEmpty()) {
+                String[] formatArrStr = tempFromats.split(",");
+                for (int i = 0; i < formatArrStr.length; i++) {
+                    int format = Integer.parseInt(formatArrStr[i]);
+                    Log.d(TAG, "setDigitalAudioModeToHal mode:" + mode +
+                        ", format[" + i + "]:" + "(" + format + ") " + audioFormatToName(format));
+                }
+            }
+        }
+        if (DIGITAL_AUDIO_MODE_MANUAL == mode && formats == null) {
+            Log.w(TAG, "setDigitalAudioModeToHal manual mode, formats is null.");
+            return executeRemoteCall(() -> mDroidAudioService.AudioManager_setDigitalAudioMode(mode, ""), "setDigitalAudioModeToHal", 0);
+        }
         return executeRemoteCall(() -> mDroidAudioService.AudioManager_setDigitalAudioMode(mode, formats), "setDigitalAudioModeToHal", 0);
     }
     public void setDigitalAudioMode(int mode) {
@@ -437,20 +456,6 @@ public class DroidAudioManager {
             return;
         }
         Log.d(TAG, "setDigitalAudioMode audioMode:" + digitalModeToString(mode) + ", formats:" + formats);
-        if (DroidLogicUtils.getAudioDebugEnable() && formats != null) {
-            String tempFromats = formats.trim();
-            if (!tempFromats.isEmpty()) {
-                String[] formatArrStr = tempFromats.split(",");
-                for (int i = 0; i < formatArrStr.length; i++) {
-                    int format = Integer.parseInt(formatArrStr[i]);
-                    Log.d(TAG, "setDigitalAudioMode format[" + i + "]:" + "(" + format + ") " + audioFormatToName(format));
-                }
-            }
-        }
-        if (DIGITAL_AUDIO_MODE_MANUAL == mode && formats == null) {
-            formats = "";
-            Log.w(TAG, "setDigitalAudioMode manual mode, formats is null.");
-        }
         setDigitalAudioModeToHal(mode, formats);
         setSurroundModeToAndroid(mode, formats);
     }

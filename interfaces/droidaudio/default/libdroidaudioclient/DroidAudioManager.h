@@ -15,6 +15,7 @@
  */
 
 #pragma once
+#include <vector>
 
 using namespace std;
 
@@ -123,7 +124,45 @@ public:
     static int32_t getTvSourceType();
     static int32_t setAudioApplyToAll();
 
-    enum DIGITAL_AUDIO_MODE_E{
+    // keep these values in sync with AudioFormat.java
+    enum DIGITAL_AUDIO_MODE_ENCODING_E {
+        ENCODING_PCM_16BIT                                              = 2,
+        ENCODING_PCM_8BIT                                               = 3,
+        ENCODING_PCM_FLOAT                                              = 4,
+        ENCODING_AC3                                                    = 5,
+        ENCODING_E_AC3                                                  = 6,
+        ENCODING_DTS                                                    = 7,
+        ENCODING_DTS_HD                                                 = 8,
+        ENCODING_MP3                                                    = 9,
+        ENCODING_AAC_LC                                                 = 10,
+        ENCODING_AAC_HE_V1                                              = 11,
+        ENCODING_AAC_HE_V2                                              = 12,
+        ENCODING_IEC61937                                               = 13,
+        ENCODING_DOLBY_TRUEHD                                           = 14,
+        ENCODING_AAC_ELD                                                = 15,
+        ENCODING_AAC_XHE                                                = 16,
+        ENCODING_AC4                                                    = 17,
+        ENCODING_E_AC3_JOC                                              = 18,
+        ENCODING_DOLBY_MAT                                              = 19,
+        ENCODING_OPUS                                                   = 20,
+        ENCODING_PCM_24BIT_PACKED                                       = 21,
+        ENCODING_PCM_32BIT                                              = 22,
+        ENCODING_MPEGH_BL_L3                                            = 23,
+        ENCODING_MPEGH_BL_L4                                            = 24,
+        ENCODING_MPEGH_LC_L3                                            = 25,
+        ENCODING_MPEGH_LC_L4                                            = 26,
+        ENCODING_DTS_UHD                                                = 27,
+        ENCODING_DRA                                                    = 28,
+        ENCODING_DTS_HD_MA                                              = 29,
+        ENCODING_DTS_UHD_P2                                             = 30,
+        ENCODING_DSD                                                    = 31,
+    };
+    inline static const std::vector<int32_t> SURROUND_SOUND_ALWAYS_FORMATS = {
+        ENCODING_AC3, ENCODING_E_AC3, ENCODING_DOLBY_TRUEHD,
+        ENCODING_E_AC3_JOC, ENCODING_DOLBY_MAT,
+        ENCODING_DTS, ENCODING_DTS_HD, ENCODING_DTS_UHD_P2, ENCODING_DRA
+    };
+    enum DIGITAL_AUDIO_MODE_E {
         DIGITAL_AUDIO_MODE_PCM                                          = 0,
         DIGITAL_AUDIO_MODE_AUTO                                         = 1,
         DIGITAL_AUDIO_MODE_MANUAL                                       = 2,
@@ -137,7 +176,7 @@ public:
     static int32_t setForceDDPEnabled(bool enable);
     static bool isForceDDPEnabled();
 
-    enum DOLBY_DRC_MODE_E{
+    enum DOLBY_DRC_MODE_E {
         DOLBY_DRC_MODE_OFF                                                            = 0,
         DOLBY_DRC_MODE_LINE                                                           = 1,
         DOLBY_DRC_MODE_RF                                                             = 2,
@@ -152,7 +191,7 @@ public:
     static int32_t setDtsXDrcEnabled(bool enable);
     static bool isDtsXDrcEnabled();
 
-    enum DIALOGUE_ENHANCEMENT_LEVEL_E{
+    enum DIALOGUE_ENHANCEMENT_LEVEL_E {
         DIALOGUE_ENHANCEMENT_LEVEL_OFF                                                  = 0,
         DIALOGUE_ENHANCEMENT_LEVEL_LOW                                                  = 1,
         DIALOGUE_ENHANCEMENT_LEVEL_MEDIUM                                               = 2,
@@ -163,7 +202,7 @@ public:
     static int32_t setDialogEnhancerLevel(int32_t level);
     static int32_t getDialogEnhancerLevel();
 
-    enum DOLBY_SOUND_DMX_MODE_E{
+    enum DOLBY_SOUND_DMX_MODE_E {
         DOLBY_SOUND_DMX_MODE_SURROUND                                                   = 0,
         DOLBY_SOUND_DMX_MODE_STEREO                                                     = 1,
         DOLBY_SOUND_DMX_MODE_MIN                                                        = DOLBY_SOUND_DMX_MODE_SURROUND,
@@ -174,7 +213,7 @@ public:
     static int32_t setVadEnabled(bool enable);
     static bool isVadEnabled();
 
-    enum DOLBY_SOUND_LEVELER_MODE_E{
+    enum DOLBY_SOUND_LEVELER_MODE_E {
         DOLBY_SOUND_LEVELER_MODE_OFF                                                    = 0,
         DOLBY_SOUND_LEVELER_MODE_ON                                                     = 1,
         DOLBY_SOUND_LEVELER_MODE_AUTO                                                   = 2,
@@ -185,7 +224,7 @@ public:
     static int32_t getSoundLevelerAmount();
 
     //  Same as the contents of the DroidLogicTvUtils.java
-    enum OPEN_TV_SOURCE_E{
+    enum OPEN_TV_SOURCE_E {
         SOURCE_TYPE_ATV                                                                  = 0,
         SOURCE_TYPE_DTV                                                                  = 1,
     };
@@ -210,7 +249,7 @@ public:
     static int32_t setAiDeGain(int32_t value);
     static int32_t getAiDeGain();
 
-    enum MIC_SOURCE_TYPE_E{
+    enum MIC_SOURCE_TYPE_E {
         MIC_SOURCE_TYPE_BUILT_IN                                            = 0,  //built in mic
         MIC_SOURCE_TYPE_LINE_IN                                             = 1,  //line in mic
         MIC_SOURCE_TYPE_USB_IN                                              = 2,  //line in mic
