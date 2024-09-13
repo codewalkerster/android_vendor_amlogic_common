@@ -195,6 +195,7 @@ void DroidAudioConfigSetting::reloadAudio() {
     audio_attributes_t attr;
     attr.usage = AUDIO_USAGE_MEDIA;
     AudioSystem::getVolumeGroupFromAudioAttributes(attr, mMusicVolumeGroupId);
+    AudioSystem::getDevicesForRoleAndStrategy(AudioSystem::getStrategyForStream(AUDIO_STREAM_MUSIC), DEVICE_ROLE_NONE, cur_devices);
     AM_LOGI("mMusicVolumeGroupId:%d", mMusicVolumeGroupId);
 }
 
@@ -262,15 +263,28 @@ void DroidAudioConfigSetting::handleDispatchAudioRoutesChanged() {
 
         AudioDeviceTypeAddrVector devices{};
         AudioSystem::getDevicesForRoleAndStrategy(AudioSystem::getStrategyForStream(AUDIO_STREAM_MUSIC), DEVICE_ROLE_NONE, devices);
-        for (auto device : devices) {
+        if (devices != cur_devices) {
+            for (auto device : cur_devices) {
+                if (getDebugEnable()) {
+                    AM_LOGD("old sink device:%s(%#x)", audio_device_to_string(device.mType), device.mType);
+                }
+            }
+            for (auto device : devices) {
+                if (getDebugEnable()) {
+                    AM_LOGD("cur sink device:%s(%#x)", audio_device_to_string(device.mType), device.mType);
+                }
+                if ((AUDIO_DEVICE_OUT_ALL_A2DP & device.mType) != 0) {
+                    timeoutMs = 2500;
+                }
+            }
+            cur_devices = devices;
             if (getDebugEnable()) {
-                AM_LOGD("cur sink device:%s(%#x)", audio_device_to_string(device.mType), device.mType);
+                AM_LOGD("sink devices updated");
             }
-            if ((AUDIO_DEVICE_OUT_ALL_A2DP & device.mType) != 0) {
-                timeoutMs = 2500;
-                break;
-            }
+        } else {
+              continue;
         }
+
         AM_LOGV("mThreadCnd_wait_for begin+++++++++++++timeoutMs:%d", timeoutMs);
         ret = mThreadCnd.wait_for(mutex, chrono::milliseconds(timeoutMs));
         if (mExitProcThread) {
@@ -292,6 +306,7 @@ void DroidAudioConfigSetting::handleDispatchAudioRoutesChanged() {
 }
 
 void DroidAudioConfigSetting::handleAudioSinkUpdatedRunnable() {
+    int32_t ret = 0;
     {
         unique_lock<mutex> demux_l(mDemuxMutex);
         map<int, DroidAudioDemux>::iterator iter = mDemuxs.find(mDtvDemuxIdCurrentWork);
@@ -302,18 +317,19 @@ void DroidAudioConfigSetting::handleAudioSinkUpdatedRunnable() {
             return;
         }
     }
-    unique_lock<mutex> l(mMutex);
-    int32_t ret = 0;
-    if (mNotImptTvHardwareInputService) {
-        if (mpAudioPatch == nullptr) {
-            if (getDebugEnable()) {
-                AM_LOGD("not find dtv audio patch");
+    {
+        unique_lock<mutex> l(mMutex);
+        if (mNotImptTvHardwareInputService) {
+            if (mpAudioPatch == nullptr) {
+                if (getDebugEnable()) {
+                    AM_LOGD("not find dtv audio patch");
+                }
+                return;
             }
-            return;
+            ret = recreateAudioPatch();
+        } else {
+            ret = updateAudioPatch();
         }
-        ret = recreateAudioPatch();
-    } else {
-        ret = updateAudioPatch();
     }
     if (ret == 0) {
         reStartAdecDecoderIfPossible();
