@@ -503,7 +503,7 @@ void CConfigFile::GetPqExtdbPath(char *file_path)
                 SYS_LOGE("copy file to %s error!\n", PARAM_PQ_EXT_DB_PATH);
             }
         } else {
-            SYS_LOGE("no pq.db in %s and %s\n", PQ_EXT_DB_DEFAULT_PATH_0, PQ_EXT_DB_DEFAULT_PATH_1);
+            SYS_LOGE("no pq_ext.db in %s and %s\n", PQ_EXT_DB_DEFAULT_PATH_0, PQ_EXT_DB_DEFAULT_PATH_1);
         }
 
     }

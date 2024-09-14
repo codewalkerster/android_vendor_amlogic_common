@@ -176,6 +176,8 @@ public:
     int setSharpness(int value, int is_enable, int isSave);
     int getSharpness(void);
     int saveSharpness(int value);
+    int setOsdSharpness(int is_enable, int isSave);
+    bool getOsdSharpness(void);
     int setNoiseReductionMode(int nr_mode, int isSave);
     int getNoiseReductionMode(void);
     int saveNoiseReductionMode(int nr_mode);

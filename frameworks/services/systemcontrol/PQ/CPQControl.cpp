@@ -128,6 +128,17 @@ void CPQControl::CPQControlInit()
         mbDatabaseMatchChipStatus = isPqDatabaseMachChip();
     }
 
+    //open Ext DB
+    char pq_ext_db_path[128] = {0};
+    mPQConfigFile->GetPqExtdbPath(pq_ext_db_path);
+    mPQExtdb = new CPQExtdb();
+    ret = mPQExtdb->openPqExtDB(pq_ext_db_path);
+    if (ret != 0) {
+        SYS_LOGE("%s: open pq_ext.db failed!\n");
+    } else {
+        SYS_LOGD("%s: open pq_ext.db success!\n");
+    }
+
     //open overscan DB
     if (mbCpqCfg_separate_db_enable) {
         char dstOverscanDbPath[128] = {0};
@@ -215,7 +226,7 @@ void CPQControl::CPQControlInit()
 
     InitTconlessBin();
 
-    SetOsdSharpness();
+    Cpq_SetOsdSharpness(GetOsdSharpness());
 
     mInitialized = true;
 }
@@ -2028,6 +2039,94 @@ int CPQControl::Cpq_SetSharpnessPiLevel(int value, source_input_param_t source_i
     }
 
     SYS_LOGD("%s success!\n", __FUNCTION__);
+    return 0;
+}
+
+int CPQControl::SetOsdSharpness(bool enable, int is_save)
+{
+    int ret = 0;
+    SYS_LOGI("%s, source: %d, value = %d\n", __FUNCTION__, CurSource, enable);
+
+    ret = Cpq_SetOsdSharpness(enable);
+
+    if ((ret == 0) && (is_save == 1)) {
+        ret = SaveOsdSharpness(enable);
+    }
+
+    if (ret < 0) {
+        SYS_LOGE("%s failed!\n",__FUNCTION__);
+    } else {
+        SYS_LOGD("%s success!\n",__FUNCTION__);
+    }
+
+    return 0;
+}
+
+bool CPQControl::GetOsdSharpness(void)
+{
+    int data = 0;
+    PICTURE_SETTING_GLOBAL pData;
+    if (!GetPictureStructDataGlobal(&pData)) {
+        SYS_LOGE("%s GetPictureStructDataGlobal failed!\n",__FUNCTION__);
+        return data;
+    }
+
+    data = pData.osd_sharpness;
+
+    if (data < 0 || data > 1) {
+        data = 0;
+    }
+
+    SYS_LOGI("%s, data:%d\n", __FUNCTION__, data);
+    return (bool)data;
+}
+
+int CPQControl::SaveOsdSharpness(bool enable)
+{
+    SYS_LOGI("%s, SaveOsdSharpness enable:%d\n", __FUNCTION__, enable);
+    PICTURE_SETTING_GLOBAL pData;
+    if (!GetPictureStructDataGlobal(&pData)) {
+        SYS_LOGE("%s GetPictureStructDataGlobal failed!\n",__FUNCTION__);
+        return -1;
+    }
+
+    pData.osd_sharpness = enable ? 1 : 0;
+
+    if (!SetPictureStructDataGlobal(&pData)) {
+        SYS_LOGE("%s SetPictureStructDataGlobal failed!\n",__FUNCTION__);
+        return -1;
+    }
+
+    return 0;
+}
+
+int CPQControl::Cpq_SetOsdSharpness(bool enable)
+{
+    if (!mbCpqCfg_osd_sharpness_enable) {
+        SYS_LOGD("%s: osd sharpness module disabled!\n", __FUNCTION__);
+        return 0;
+    }
+
+    am_regs_t regs;
+
+    memset(&regs, 0x0, sizeof(am_regs_t));
+
+    if (mPQExtdb->PQ_GetOsdSharpnessParams(enable ? 1 : 0, mCurrentSourceInputInfo, &regs) < 0) {
+        SYS_LOGE("%s PQ_GetOsdSharpnessParams failed!\n", __FUNCTION__);
+        return -1;
+    }
+
+    for (int i = 0; i < regs.length; i++) {
+        SYS_LOGD("%s: am_reg[%d]: %d, %d, %x, %x\n", __FUNCTION__,
+            i,
+            regs.am_reg[i].type, regs.am_reg[i].addr, regs.am_reg[i].mask, regs.am_reg[i].val);
+    }
+
+    if (Cpq_LoadRegs(regs) < 0) {
+        SYS_LOGE("%s: Cpq_LoadRegs failed!\n", __FUNCTION__);
+        return -1;
+    }
+
     return 0;
 }
 
@@ -7999,6 +8098,13 @@ int CPQControl::SetFlagByCfg(void)
         mbCpqCfg_film_mode_enable = false;
     }
 
+    config_value = mPQConfigFile->GetString(CFG_SECTION_PQ, CFG_OSD_SHARPNEDD, "disable");
+    if (strcmp(config_value, "enable") == 0) {
+        mbCpqCfg_osd_sharpness_enable = true;
+    } else {
+        mbCpqCfg_osd_sharpness_enable = false;
+    }
+
     //special ui display/hatch cfg start
     config_value = mPQConfigFile->GetString(CFG_SECTION_PQ, CFG_UI_PICTURE_MODE, "disable");
     if (strcmp(config_value, "enable") == 0) {
@@ -8071,6 +8177,7 @@ int CPQControl::HasPqCaseFunc(pq_case_func_e type)
         case PQ_CASE_FUNC_DECONTOUR:         func_en = mbCpqCfg_smoothplus_enable;        break;
         case PQ_CASE_FUNC_MEMC:              func_en = mbCpqCfg_memc_enable;              break;
         case PQ_CASE_FUNC_FILM_MODE:         func_en = mbCpqCfg_film_mode_enable;         break;
+        case PQ_CASE_FUNC_OSD_SHARPNESS:     func_en = mbCpqCfg_osd_sharpness_enable;     break;
         case PQ_CASE_FUNC_RESET:             func_en = true;                              break;
     }
 
@@ -11477,47 +11584,6 @@ bool CPQControl::IsDongleLowPowerPqOff(void)
     }
 
     return pq_off;
-}
-
-int CPQControl::SetOsdSharpness(void)
-{
-    if (GetChipType() == 0x48) { //MESON_CPU_MAJOR_ID_S6 = 0x48,
-        int ret = -1;
-        char pq_ext_db_path[128] = {0};
-
-        mPQConfigFile->GetPqExtdbPath(pq_ext_db_path);
-
-        mPQExtdb = new CPQExtdb();
-        ret = mPQExtdb->openPqExtDB(pq_ext_db_path);
-        if (ret != 0) {
-            SYS_LOGE("%s: open pq_ext.db failed!\n", __FUNCTION__);
-            return -1;
-        }
-
-        am_regs_t regs;
-        memset(&regs, 0x0, sizeof(am_regs_t));
-        if (mPQExtdb->PQ_GetOsdSharpnessParams(0, mCurrentSourceInputInfo, &regs) < 0) {
-            SYS_LOGE("%s PQ_GetOsdSharpnessParams failed!\n", __FUNCTION__);
-            return -1;
-        }
-
-        for (int i = 0; i < regs.length; i++) {
-            SYS_LOGD("%s: am_reg[%d]: %d, %d, %x, %x\n", __FUNCTION__,
-                i,
-                regs.am_reg[i].type, regs.am_reg[i].addr, regs.am_reg[i].mask, regs.am_reg[i].val);
-        }
-
-        if (Cpq_LoadRegs(regs) < 0) {
-            SYS_LOGE("%s: Cpq_LoadRegs failed!\n", __FUNCTION__);
-            return -1;
-        }
-
-        mPQExtdb->closePqExtDB();
-        SYS_LOGI("%s: success!\n", __FUNCTION__);
-        return 0;
-    }
-
-    return 0;
 }
 
 //DATABASE

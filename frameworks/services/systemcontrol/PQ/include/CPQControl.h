@@ -312,6 +312,9 @@ public:
     int Cpq_SetSharpness0Level(int value, source_input_param_t source_input_param);
     int Cpq_SetSharpness1Level(int value, source_input_param_t source_input_param);
     int Cpq_SetSharpnessPiLevel(int value, source_input_param_t source_input_param);
+    //OsdSharpness
+    int SetOsdSharpness(bool enable, int is_save);
+    bool GetOsdSharpness(void);
 
     int SetSuperResolution(int value, int is_save);
     int GetSuperResolution(void);
@@ -754,7 +757,8 @@ private:
     double GetGammaPower(vpp_gamma_curve_t mode);
     int GetDriverValueMap(CMS_TYPE type, int value);
     bool IsDongleLowPowerPqOff(void);
-    int SetOsdSharpness(void);
+    int SaveOsdSharpness(bool enable);
+    int Cpq_SetOsdSharpness(bool enable);
 
     //DATABASE
     bool SetPictureMode(PICTURE_MODE_DEFAULT *params);
@@ -852,6 +856,7 @@ private:
     bool mbCpqCfg_ui_picture_mode_enable                = false;
     bool mbCpqCfg_ui_backlight_enable                   = false;
     bool mbCpqCfg_ui_sharpness_enable                   = false;
+    bool mbCpqCfg_osd_sharpness_enable                  = false;
 
     bool mInitialized                                   = false;
 

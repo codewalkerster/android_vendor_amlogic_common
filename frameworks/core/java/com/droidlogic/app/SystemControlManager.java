@@ -1957,6 +1957,43 @@ public class SystemControlManager {
 
     }
 
+    /**
+     * @Function: SetOsdSharpness
+     * @Description: Set osd sharpness enable or not
+     * @Param:
+     * @Param: is_enable true to enable, is_save 1 to save
+     * @Return: 0 success, -1 fail
+     */
+    public int SetOsdSharpness(boolean is_enable, int is_save) {
+        synchronized (mLock) {
+            try {
+                return mProxy.setOsdSharpness((is_enable ? 1 : 0), is_save);
+            } catch (RemoteException e) {
+                Log.e(TAG, "SetOsdSharpness:" + e);
+            }
+        }
+        return -1;
+
+    }
+
+    /**
+     * @Function: GetOsdSharpness
+     * @Description: Get current osd sharpness status
+     * @Param:
+     * @Return: osd sharpness on/off status
+     */
+    public boolean GetOsdSharpness() {
+        synchronized (mLock) {
+            try {
+                return (mProxy.getOsdSharpness() == Result.OK);
+            } catch (RemoteException e) {
+                Log.e(TAG, "GetOsdSharpness:" + e);
+            }
+        }
+
+        return false;
+    }
+
     public enum Noise_Reduction_Mode {
         REDUCE_NOISE_CLOSE(0),
         REDUCE_NOISE_WEAK(1),
@@ -5173,7 +5210,8 @@ public class SystemControlManager {
         PQ_CASE_FUNC_DECONTOUR(27),
         PQ_CASE_FUNC_MEMC(28),
         PQ_CASE_FUNC_FILM_MODE(29),
-        PQ_CASE_FUNC_RESET(30);
+        PQ_CASE_FUNC_OSD_SHARPNESS(30),
+        PQ_CASE_FUNC_RESET(31);
 
         private int val;
 

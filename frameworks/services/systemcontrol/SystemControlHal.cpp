@@ -1043,6 +1043,22 @@ Return<int32_t> SystemControlHal::saveSharpness(int32_t value) {
     return mSysControl->saveSharpness(value);
 }
 
+Return<int32_t> SystemControlHal::setOsdSharpness(int32_t is_enable, int32_t isSave) {
+    SYS_LOGD("%s", __FUNCTION__);
+
+    return mSysControl->setOsdSharpness(is_enable, isSave);
+}
+
+Return<Result> SystemControlHal::getOsdSharpness(void) {
+    SYS_LOGD("%s", __FUNCTION__);
+
+    if (mSysControl->getOsdSharpness()) {
+        return Result::OK;
+    }
+
+    return Result::FAIL;
+}
+
 Return<int32_t> SystemControlHal::setNoiseReductionMode(int32_t nr_mode, int32_t isSave) {
     return mSysControl->setNoiseReductionMode(nr_mode, isSave);
 }

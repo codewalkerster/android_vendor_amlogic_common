@@ -372,6 +372,12 @@ interface ISystemControl {
   saveSharpness(int32_t value)
       generates (int32_t ret);
 
+  setOsdSharpness(int32_t enable, int32_t isSave)
+      generates (int32_t ret);
+
+  getOsdSharpness()
+      generates (Result result);
+
   setNoiseReductionMode(int32_t mode, int32_t isSave)
       generates (int32_t ret);
 

@@ -174,6 +174,8 @@ class SystemControlHal : public ISystemControl, public SystemControlNotify, publ
     Return<int32_t> setSharpness(int32_t value, int32_t is_enable, int32_t isSave) override;
     Return<int32_t> getSharpness(void) override;
     Return<int32_t> saveSharpness(int32_t value) override;
+    Return<int32_t> setOsdSharpness(int32_t is_enable, int32_t isSave) override;
+    Return<Result> getOsdSharpness(void) override;
     Return<int32_t> setNoiseReductionMode(int32_t nr_mode, int32_t isSave) override;
     Return<int32_t> getNoiseReductionMode(void) override;
     Return<int32_t> saveNoiseReductionMode(int32_t nr_mode) override;

@@ -1172,6 +1172,7 @@ typedef enum _pq_case_func_e {
     PQ_CASE_FUNC_DECONTOUR,
     PQ_CASE_FUNC_MEMC,
     PQ_CASE_FUNC_FILM_MODE,
+    PQ_CASE_FUNC_OSD_SHARPNESS,
     PQ_CASE_FUNC_RESET,
     PQ_CASE_FUNC_MAX,
 } pq_case_func_e;

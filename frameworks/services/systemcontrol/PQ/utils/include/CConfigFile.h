@@ -99,6 +99,7 @@
 #define CFG_COLOR_SPACE                         "pq.ColorSpace.en"
 #define CFG_SUPER_RESOLUTION                    "pq.SuperResolution.en"
 #define CFG_FILM_MODE                           "pq.FilmMode.en"
+#define CFG_OSD_SHARPNEDD                       "pq.OsdSharpness.en"
 #define CFG_NEW_PICTURE_MODE_ENABLE             "pq.new_picture_mode.en"
 
 //dongle low power config

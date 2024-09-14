@@ -1128,6 +1128,24 @@ int SystemControlService::saveSharpness(int value)
     }
 }
 
+int SystemControlService::setOsdSharpness(bool enable, int is_save)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->SetOsdSharpness(enable, is_save);
+    } else {
+        return -1;
+    }
+}
+
+bool SystemControlService::getOsdSharpness(void)
+{
+    if (pCPQControl != NULL) {
+        return pCPQControl->GetOsdSharpness();
+    } else {
+        return false;
+    }
+}
+
 int SystemControlService::setNoiseReductionMode(int nr_mode, int is_save)
 {
     if (pCPQControl != NULL) {

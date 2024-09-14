@@ -2,7 +2,7 @@
 
 TABLE_VER_OSD mVerInfoOSD =
 {
-    "AML_Public_PQ_OSD_20240805",   /*ProjectVersion*/
+    "AML_Public_PQ_OSD_20240903",   /*ProjectVersion*/
     "AML_Public_S7D",               /*ChipVersion*/
     "AML_TV_PICTURE",               /*TableVersion*/
     "None",                         /*oem_model*/
@@ -180,6 +180,7 @@ TABLE_PICTURE_SETTING_EXT mPictureSettingTable = {
 /*ai_color      */        0,
 /*FilmMakerEnable*/       _OFF,
 /*Sdr2Hdr        */       _OFF,
+/*osd_sharpness  */       _OFF,
 /*BackLight               dis  dis1 dis2*/
                          {100, 100, 100,},
 },

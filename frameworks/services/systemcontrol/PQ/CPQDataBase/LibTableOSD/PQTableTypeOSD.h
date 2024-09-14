@@ -201,6 +201,7 @@ typedef struct _PICTURE_SETTING_GLOBAL {
     int ai_color;
     int FilmMakerEnable;
     int Sdr2Hdr;
+    int osd_sharpness;
     BACKLIGHT_STRUCT Backlight;
 }PICTURE_SETTING_GLOBAL;
 

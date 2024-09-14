@@ -838,6 +838,14 @@ int SystemControlClient::saveSharpness(int value) {
     return mSysCtrl->saveSharpness(value);
 }
 
+int SystemControlClient::setOsdSharpness(int is_enable, int isSave) {
+    return mSysCtrl->setOsdSharpness(is_enable, isSave);
+}
+
+bool SystemControlClient::getOsdSharpness(void) {
+    return (mSysCtrl->getOsdSharpness() == Result::OK);
+}
+
 int SystemControlClient::setNoiseReductionMode(int nr_mode, int isSave) {
     return mSysCtrl->setNoiseReductionMode(nr_mode, isSave);
 }
