@@ -111,7 +111,10 @@ pid_t UserLogConfig::startPersistLogcat() {
     return pid;
 }
 bool UserLogConfig::stopLogging() {
-   return kill(mLogcatConfig.logcat_pid, 9) >= 0;
+    if (mLogcatConfig.logcat_pid != -1)
+        return kill(mLogcatConfig.logcat_pid, 9) >= 0;
+    else
+        return true;
 }
 
 
