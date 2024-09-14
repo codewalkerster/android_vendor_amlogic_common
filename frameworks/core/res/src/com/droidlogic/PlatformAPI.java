@@ -68,7 +68,7 @@ final class PlatformAPI {
     public static String getStringProperty(String property, String defVal) {
         try {
             return (String)Class.forName("android.os.SystemProperties")
-                .getMethod("get", new Class[] { String.class, Boolean.TYPE })
+                .getMethod("get", new Class[] { String.class, String.class })
                 .invoke(null, new Object[] { property, defVal });
         } catch(Exception e) {
             e.printStackTrace();
