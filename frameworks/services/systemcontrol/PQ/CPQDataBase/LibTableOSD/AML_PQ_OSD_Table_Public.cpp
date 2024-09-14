@@ -180,7 +180,7 @@ TABLE_PICTURE_SETTING_EXT mPictureSettingTable = {
 /*ai_color      */        0,
 /*FilmMakerEnable*/       _OFF,
 /*Sdr2Hdr        */       _OFF,
-/*osd_sharpness  */       _ON,
+/*osd_sharpness  */       _OFF,
 /*BackLight               dis  dis1 dis2*/
                          {100, 100, 100,},
 },
