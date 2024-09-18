@@ -263,6 +263,8 @@ void VendorInterface::Shutdown() {
   g_vendor_interface->Close();
   delete g_vendor_interface;
   g_vendor_interface = nullptr;
+
+  bt_vendor_release_wake_lock();
 }
 
 VendorInterface* VendorInterface::get() { return g_vendor_interface; }
@@ -537,9 +539,7 @@ void VendorInterface::HandleIncomingEvent(const hidl_vec<uint8_t>& hci_packet) {
     }
     zigbee_cb((void *)rsp_data);
     //zigbee_cb = nullptr;
-  }
-  else
-  {
+  } else {
        if ((hci_packet[0] == 0x3e && hci_packet[1] > 3) && ((hci_packet[2] == 0x0d && hci_packet[4] == 0x15) || (hci_packet[2] == 0x02 && hci_packet[4] ==0x01))) {
             PR_INFO("rec adv direct packet");
        }
