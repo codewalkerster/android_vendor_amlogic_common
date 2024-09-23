@@ -1,0 +1,139 @@
+package {
+    // See: http://go/android-license-faq
+    // A large-scale-change added 'default_applicable_licenses' to import
+    // all of the 'license_kinds' from "vendor_amlogic_common_license"
+    // to get the below license kinds:
+    //   SPDX-license-identifier-Apache-2.0
+    //   legacy_proprietary
+    default_applicable_licenses: ["vendor_amlogic_common_license"],
+}
+
+cc_library_shared {
+    name: "liberrormonitorservice",
+    vendor: true,
+    cflags: [
+        "-std=c++17",
+    ],
+    srcs: [
+    "util/JsonUtil.cpp",
+    "util/EventMapUtil.cpp",
+    "collector/Collector.cpp",
+    "collector/ModuleCollector.cpp",
+    "collector/KernelCollector.cpp",
+    "collector/MediaCollector.cpp",
+    "filter/MonitorFilter.cpp",
+    "filter/CollectorFilter.cpp",
+    "filter/Filter.cpp",
+    "Monitor.cpp",
+    "LogLevelSetter.cpp",
+    "ResManWrapper.cpp",
+  ],
+  shared_libs: [
+    "vendor.amlogic.hardware.errormonitor@1.0",
+    "libbase",
+    "libutils",
+    "libcutils",
+    "liblog",
+    "libhidlbase",
+    "libhardware",
+    "libdl",
+    "libjsoncpp",
+  ],
+  include_dirs: [
+    "vendor/amlogic/common/mediahal_sdk/include",
+  ],
+  local_include_dirs: [
+    "include",
+  ],
+
+}
+cc_library_shared {
+  name: "liberrormonitorclient",
+  vendor_available: true,
+  system_ext_specific: true,
+  cflags: [
+    "-std=c++17",
+  ],
+  srcs: [
+    "ErrorMonitorClient.cpp",
+    "util/JsonUtil.cpp",
+  ],
+  shared_libs: [
+    "vendor.amlogic.hardware.errormonitor@1.0",
+    "libbase",
+    "libutils",
+    "libcutils",
+    "liblog",
+    "libhidlbase",
+    "libjsoncpp",
+  ],
+  export_include_dirs: [
+    "include"
+  ],
+  local_include_dirs: [
+    "include",
+  ],
+}
+
+cc_binary {
+  name: "errormonitor",
+  init_rc: ["errormonitor.rc"],
+  vintf_fragments: ["vendor.amlogic.hardware.errormonitor@1.0.xml"],
+  vendor: true,
+  srcs: [
+    "ErrorMonitorHal.cpp",
+    "ErrorMonitorService.cpp",
+    "main_errormonitor.cpp",
+
+  ],
+  shared_libs: [
+    "vendor.amlogic.hardware.errormonitor@1.0",
+    "libbinder",
+    "libhardware",
+    "libhidlbase",
+    "libhidlmemory",
+    "libcutils",
+    "libutils",
+    "liblog",
+    "libdl",
+    "libui",
+    "liberrormonitorservice",
+    "android.hidl.allocator@1.0",
+    "android.hidl.memory@1.0",
+    "libmediandk",
+    "libjsoncpp",
+  ],
+  header_libs: [
+    "libgui_headers",
+    "media_plugin_headers",
+    "av-headers",
+    "libui_headers",
+  ],
+  include_dirs: [
+    "vendor/amlogic/common/mediahal_sdk/include",
+  ],
+  local_include_dirs: [
+    "include",
+  ],
+}
+
+cc_binary {
+  name: "ErrorMonitorUnitTest",
+  vendor: true,
+  srcs: [
+    "test/error_monitor_unit_test.cpp",
+  ],
+  shared_libs: [
+      "vendor.amlogic.hardware.errormonitor@1.0",
+      "liberrormonitorclient",
+      "libhidlbase",
+      "liblog",
+      "libutils",
+  ],
+  static_libs: [
+    "libgtest"
+  ],
+  local_include_dirs: [
+    "include",
+  ],
+}

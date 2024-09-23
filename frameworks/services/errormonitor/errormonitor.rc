@@ -1,0 +1,6 @@
+on early-boot
+    start error_monitor
+service error_monitor /vendor/bin/errormonitor
+    user root
+    group system root media audio
+    interface vendor.amlogic.hardware.errormonitor@1.0::IErrorMonitor default

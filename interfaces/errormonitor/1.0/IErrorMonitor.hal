@@ -1,0 +1,26 @@
+package vendor.amlogic.hardware.errormonitor@1.0;
+import IErrorMonitorCallback;
+
+interface IErrorMonitor {
+
+    setCallback(IErrorMonitorCallback callback);
+
+    startErrorMonitor(string monitorConfig)
+        generates (Result result);
+
+    stopErrorMonitor();
+
+    updateMonitorConfig(string monitorConfig)
+        generates (Result result);
+
+    getMonitorConfig()
+        generates (Result result,string monitorConfig);
+
+    setLogLevel(string levelConfig)
+        generates (Result result);
+
+    getLogLevel()
+        generates (Result result,string levelConfig);
+
+    notifyErrorInfo(int32_t subModule ,int32_t level,int32_t logType, int32_t errorType, string msg);
+};
