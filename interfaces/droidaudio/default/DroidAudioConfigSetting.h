@@ -92,8 +92,6 @@ private:
 
     std::mutex                      mMutex;
     std::mutex                      mDemuxMutex;
-    AudioDeviceTypeAddrVector       cur_devices{};
-
 };
 
 inline DroidAudioConfigSetting* DroidAudioConfigSetting::instance() {

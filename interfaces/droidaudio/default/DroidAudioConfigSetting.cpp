@@ -112,6 +112,7 @@ status_t listAudioPatches(vector<struct audio_patch>& patches) {
             status = TIMED_OUT;
             break;
         }
+        numPatches = 0;
         status = AudioSystem::listAudioPatches(&numPatches, nullptr, &generation1);
         if (status != NO_ERROR) {
             AM_LOGW("AudioSystem::listAudioPatches error: %d", status);
@@ -195,7 +196,6 @@ void DroidAudioConfigSetting::reloadAudio() {
     audio_attributes_t attr;
     attr.usage = AUDIO_USAGE_MEDIA;
     AudioSystem::getVolumeGroupFromAudioAttributes(attr, mMusicVolumeGroupId);
-    AudioSystem::getDevicesForRoleAndStrategy(AudioSystem::getStrategyForStream(AUDIO_STREAM_MUSIC), DEVICE_ROLE_NONE, cur_devices);
     AM_LOGI("mMusicVolumeGroupId:%d", mMusicVolumeGroupId);
 }
 
@@ -260,32 +260,6 @@ void DroidAudioConfigSetting::handleDispatchAudioRoutesChanged() {
             mThreadCnd.wait(mutex);
             AM_LOGV("mThreadCnd_wait end--------");
         }
-
-        AudioDeviceTypeAddrVector devices{};
-        AudioSystem::getDevicesForRoleAndStrategy(AudioSystem::getStrategyForStream(AUDIO_STREAM_MUSIC), DEVICE_ROLE_NONE, devices);
-        if (devices != cur_devices) {
-            for (auto device : cur_devices) {
-                if (getDebugEnable()) {
-                    AM_LOGD("old sink device:%s(%#x)", audio_device_to_string(device.mType), device.mType);
-                }
-            }
-            for (auto device : devices) {
-                if (getDebugEnable()) {
-                    AM_LOGD("cur sink device:%s(%#x)", audio_device_to_string(device.mType), device.mType);
-                }
-                if ((AUDIO_DEVICE_OUT_ALL_A2DP & device.mType) != 0) {
-                    timeoutMs = 2500;
-                }
-            }
-            cur_devices = devices;
-            if (getDebugEnable()) {
-                AM_LOGD("sink devices updated");
-            }
-        } else {
-              continue;
-        }
-
-        AM_LOGV("mThreadCnd_wait_for begin+++++++++++++timeoutMs:%d", timeoutMs);
         ret = mThreadCnd.wait_for(mutex, chrono::milliseconds(timeoutMs));
         if (mExitProcThread) {
             break;
@@ -348,6 +322,10 @@ void DroidAudioConfigSetting::reStartAdecDecoderIfPossible() {
         return;
     }
     DroidAudioDemux& demux = iter->second;
+    if (demux.mStartStatus == 0) {
+        AM_LOGE("dtv audio has not started, mStartStatus %d ", demux.mStartStatus);
+        return;
+    }
     encapsulationAndSetParams("hal_param_dtv_audio_fmt=", demux.mAudioFormat);
     encapsulationAndSetParams("hal_param_has_dtv_video=", mCurrentHasDtvVideo);
     int cmd = DROID_AUDIO_CMD_START_DECODE + (mDtvDemuxIdCurrentWork << DVB_DEMUX_ID_BASE);
@@ -427,7 +405,6 @@ void DroidAudioConfigSetting::setAudioPortSourceGain() {
 }
 
 int32_t DroidAudioConfigSetting::updateAudioPatch() {
-    bool found = false;
     vector<audio_patch> patchs;
     listAudioPatches(patchs);
     for (audio_patch patch : patchs) {
@@ -440,6 +417,7 @@ int32_t DroidAudioConfigSetting::updateAudioPatch() {
                     AM_LOGI("update audio patch, sink dev:%#x id %d", patch.sinks[0].ext.device.type,patch.sinks[0].id);
                     delete mpAudioPatch;
                     mpAudioPatch = new audio_patch(patch);
+                    return 0;
                 } else {
                     AM_LOGI("no sink changed, sink:type %#x id %d", mpAudioPatch->sinks[0].ext.device.type, mpAudioPatch->sinks[0].id);
                     return -1;
@@ -447,17 +425,16 @@ int32_t DroidAudioConfigSetting::updateAudioPatch() {
             } else {
                 mpAudioPatch = new audio_patch(patch);
                 AM_LOGI("find TIF audio patch, sink dev:%#x", patch.sinks[0].ext.device.type);
+                return 0;
             }
-            found = true;
         }
     }
-    if (!found) {
-        AM_LOGW("not find TIF tv_tuner->dev audio patch.");
+    AM_LOGW("not find TIF tv_tuner->dev audio patch.");
+    if (mpAudioPatch != nullptr) {
         delete mpAudioPatch;
         mpAudioPatch = nullptr;
-        return -1;
     }
-    return 0;
+    return -1;
 }
 
 int32_t DroidAudioConfigSetting::recreateAudioPatch() {
