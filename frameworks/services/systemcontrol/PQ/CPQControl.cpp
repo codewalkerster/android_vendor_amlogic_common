@@ -134,9 +134,9 @@ void CPQControl::CPQControlInit()
     mPQExtdb = new CPQExtdb();
     ret = mPQExtdb->openPqExtDB(pq_ext_db_path);
     if (ret != 0) {
-        SYS_LOGE("%s: open pq_ext.db failed!\n");
+        SYS_LOGE("open pq_ext.db failed!\n");
     } else {
-        SYS_LOGD("%s: open pq_ext.db success!\n");
+        SYS_LOGD("open pq_ext.db success!\n");
     }
 
     //open overscan DB
