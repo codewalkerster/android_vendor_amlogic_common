@@ -52,13 +52,51 @@
 
 #include "AmlAudioPolicyManager.h"
 #include "TypeConverter.h"
+#include "DroidAudioCommon.h"
+#include "DroidAudioCommonType.h"
 
 namespace android {
-EngineInstance Aml_loadApmEngineLibraryAndCreateEngine(const std::string& librarySuffix __unused)
+using android::media::audio::common::AudioPortExt;
+const char * forceUse2Str(audio_policy_forced_cfg_t value) {
+    switch (value) {
+    case AUDIO_POLICY_FORCE_NONE:
+        return "NONE";
+    case AUDIO_POLICY_FORCE_SPEAKER:
+        return "SPEAKER";
+    case AUDIO_POLICY_FORCE_HEADPHONES:
+        return "HEADPHONES";
+    case AUDIO_POLICY_FORCE_BT_SCO:
+        return "BT_SCO";
+    case AUDIO_POLICY_FORCE_BT_A2DP:
+        return "BT_A2DP";
+    case AUDIO_POLICY_FORCE_WIRED_ACCESSORY:
+        return "USB";
+    case AUDIO_POLICY_FORCE_BT_CAR_DOCK:
+        return "BT_CAR_DOCK";
+    case AUDIO_POLICY_FORCE_BT_DESK_DOCK:
+        return "DESK_DOCK";
+    case AUDIO_POLICY_FORCE_ANALOG_DOCK:
+        return "SPDIF";
+    case AUDIO_POLICY_FORCE_DIGITAL_DOCK:
+        return "HDMI";
+    case AUDIO_POLICY_FORCE_NO_BT_A2DP:
+        return "NO_BT_A2DP";
+    default:
+        return "UNKNOWN";
+    }
+};
+
+EngineInstance Aml_loadApmEngineLibraryAndCreateEngine(const std::string& librarySuffix)
 {
-    auto engLib = EngineLibrary::load("_amlogic");
+    int mode = property_get_int32("persist.vendor.media.audio.output.strategy", DROID_AUDIO_OUTPUT_STRATEGY_AUTO);
+    std::string suffix = librarySuffix;
+    if (mode == DROID_AUDIO_OUTPUT_STRATEGY_SEMI_AUTO) {
+        suffix = "_amlogic";
+    }
+
+    auto engLib = EngineLibrary::load(suffix);
     if (!engLib) {
-        ALOGE("%s: Failed to load the engine library, suffix:_amlogic", __func__);
+        ALOGE("%s: Failed to load the engine library, suffix:%s", __func__, suffix.c_str());
         return nullptr;
     }
     auto engine = engLib->createEngineUsingXmlConfig("");
@@ -70,12 +108,18 @@ EngineInstance Aml_loadApmEngineLibraryAndCreateEngine(const std::string& librar
 }
 
 #ifdef AML_BOARD_COMPILE_AOSP_TYPE
-EngineInstance Aml_loadApmEngineLibraryAndCreateEngine(const std::string& librarySuffix __unused,
+EngineInstance Aml_loadApmEngineLibraryAndCreateEngine(const std::string& librarySuffix,
         const media::audio::common::AudioHalEngineConfig& config)
 {
-    auto engLib = EngineLibrary::load("_amlogic");
+    int mode = property_get_int32("persist.vendor.media.audio.output.strategy", DROID_AUDIO_OUTPUT_STRATEGY_AUTO);
+    std::string suffix = librarySuffix;
+    if (mode == DROID_AUDIO_OUTPUT_STRATEGY_SEMI_AUTO) {
+        suffix = "_amlogic";
+    }
+
+    auto engLib = EngineLibrary::load(suffix);
     if (!engLib) {
-        ALOGE("%s: Failed to load the engine library, suffix:_amlogic", __func__);
+        ALOGE("%s: Failed to load the engine library, suffix:%s", __func__, suffix.c_str());
         return nullptr;
     }
     auto engine = engLib->createEngineUsingHalConfig(config);
@@ -134,6 +178,107 @@ AmlAudioPolicyManager::AmlAudioPolicyManager(const sp<const AudioPolicyConfig>& 
                                        AudioPolicyClientInterface *clientInterface)
     : AudioPolicyManager(config, std::move(engine), clientInterface)
 {
+}
+
+status_t AmlAudioPolicyManager::setDeviceConnectionState(
+        audio_policy_dev_state_t state, const android::media::audio::common::AudioPort& port,
+        audio_format_t encodedFormat) {
+    if (port.ext.getTag() != AudioPortExt::device) {
+        return BAD_VALUE;
+    }
+    audio_devices_t device_type;
+    std::string device_address;
+    if (status_t status = aidl2legacy_AudioDevice_audio_device(
+                port.ext.get<AudioPortExt::device>().device, &device_type, &device_address);
+        status != OK) {
+        return status;
+    };
+
+    if (state == AUDIO_POLICY_DEVICE_STATE_UNAVAILABLE && audio_is_output_device(device_type)) {
+        auto deviceToForceUse = [&](audio_devices_t device_type) -> audio_policy_forced_cfg_t {
+            switch (device_type) {
+                case AUDIO_DEVICE_OUT_HDMI_ARC:
+                case AUDIO_DEVICE_OUT_HDMI_EARC:
+                    return AUDIO_POLICY_FORCE_DIGITAL_DOCK;
+                case AUDIO_DEVICE_OUT_SPEAKER:
+                    return AUDIO_POLICY_FORCE_SPEAKER;
+                case AUDIO_DEVICE_OUT_SPDIF:
+                    return AUDIO_POLICY_FORCE_ANALOG_DOCK;
+                case AUDIO_DEVICE_OUT_HDMI:
+                    return AUDIO_POLICY_FORCE_BT_CAR_DOCK;
+                case AUDIO_DEVICE_OUT_WIRED_HEADPHONE:
+                case AUDIO_DEVICE_OUT_WIRED_HEADSET:
+                    return AUDIO_POLICY_FORCE_HEADPHONES;
+                case AUDIO_DEVICE_OUT_BLUETOOTH_A2DP:
+                case AUDIO_DEVICE_OUT_BLUETOOTH_A2DP_HEADPHONES:
+                case AUDIO_DEVICE_OUT_BLUETOOTH_A2DP_SPEAKER:
+                    return AUDIO_POLICY_FORCE_BT_A2DP;
+                case AUDIO_DEVICE_OUT_USB_HEADSET:
+                case AUDIO_DEVICE_OUT_USB_DEVICE:
+                case AUDIO_DEVICE_OUT_USB_ACCESSORY:
+                    return AUDIO_POLICY_FORCE_WIRED_ACCESSORY;
+                default:
+                    return AUDIO_POLICY_FORCE_NONE;
+            }
+        };
+        // The priority needs to be rescheduled after the currently force use device is disconnected.
+        audio_policy_forced_cfg_t curForceUse = mEngine->getForceUse(AUDIO_POLICY_FORCE_FOR_MEDIA);
+        audio_policy_forced_cfg_t disconnectDeviceForceUse = deviceToForceUse(device_type);
+        AM_LOGI("curForceUse:%s(%d) disconnect_forceuse:%s(%d) ", forceUse2Str(curForceUse),
+            curForceUse, forceUse2Str(disconnectDeviceForceUse), disconnectDeviceForceUse);
+        if (disconnectDeviceForceUse != AUDIO_POLICY_FORCE_NONE &&
+            curForceUse != AUDIO_POLICY_FORCE_NONE &&
+            curForceUse == disconnectDeviceForceUse) {
+            AM_LOGI("disconnect current forceuse device, set forceUse to none.");
+            mEngine->setForceUse(AUDIO_POLICY_FORCE_FOR_MEDIA, AUDIO_POLICY_FORCE_NONE);
+        }
+    }
+
+    return AudioPolicyManager::setDeviceConnectionState(state, port, encodedFormat);
+}
+
+void AmlAudioPolicyManager::setForceUse(audio_policy_force_use_t usage,
+                         audio_policy_forced_cfg_t config) {
+    int userForceUse = property_get_int32(PROP_AUDIO_OUTPUT_FORCEUSE, AUDIO_POLICY_FORCE_NONE);
+    if (usage == AUDIO_POLICY_FORCE_FOR_MEDIA) {
+        AM_LOGI("userDbForceUse:%s(%d) force_device:%s(%d)", forceUse2Str((audio_policy_forced_cfg_t)userForceUse),
+            userForceUse, forceUse2Str(config), config);
+    }
+    // userForceUse specifies the value configured for the user.
+    // If forceuse is different from the user value, the forceuse cannot be set. (AudioService.java)
+    if (usage == AUDIO_POLICY_FORCE_FOR_MEDIA && userForceUse != config) {
+        return;
+    }
+    AudioPolicyManager::setForceUse(usage, config);
+    for (size_t i = 0; i < mAudioPatches.size(); i++) {
+        sp<AudioPatch> patch = mAudioPatches.valueAt(i);
+        if (patch->mPatch.num_sources > 0 && patch->mPatch.num_sinks > 0) {
+            bool source_include_device = false;
+            size_t i = 0;
+            const struct audio_port_config *source = patch->mPatch.sources;
+            for (i = 0; i < patch->mPatch.num_sources; i++) {
+                if (source[i].type == AUDIO_PORT_TYPE_DEVICE) {
+                   source_include_device = true;
+                   break;
+                }
+            }
+            const struct audio_port_config *sink = &patch->mPatch.sinks[0];
+            if (source_include_device && sink->type == AUDIO_PORT_TYPE_DEVICE &&
+                   (source[i].ext.device.type == AUDIO_DEVICE_IN_AUX_DIGITAL ||
+                    source[i].ext.device.type == AUDIO_DEVICE_IN_TV_TUNER ||
+                    source[i].ext.device.type == AUDIO_DEVICE_IN_LINE ||
+                    source[i].ext.device.type == AUDIO_DEVICE_IN_SPDIF ||
+                    source[i].ext.device.type == AUDIO_DEVICE_IN_HDMI_ARC)) {
+                auto attributes = mEngine->getAllAttributesForProductStrategy(streamToStrategy(AUDIO_STREAM_MUSIC)).front();
+                DeviceVector devices = mEngine->getOutputDevicesForAttributes(attributes, nullptr, false);
+                if (!devices.containsDeviceWithType(patch->mPatch.sinks[0].ext.device.type)) {
+                    AM_LOGI("tvinput patch output changed. sinks:%s", devices.toString().c_str());
+                    mpClientInterface->onAudioPortListUpdate();
+                }
+                break;
+            }
+        }
+    }
 }
 
 status_t AmlAudioPolicyManager::checkAndSetVolume(IVolumeCurves &curves,
@@ -327,8 +472,17 @@ bool AmlAudioPolicyManager::isHearingAidUsedForComm() const {
 
 status_t AmlAudioPolicyManager::dump(int fd)
 {
-    auto engineSuffix = AudioPolicyConfig::loadFromApmXmlConfigWithFallback()->getEngineLibraryNameSuffix();
-    dprintf(fd, "------ Amlogic_AudioPolicyManager (APM xml Engine: %s) -------", engineSuffix.c_str());
+    int mode = property_get_int32("persist.vendor.media.audio.output.strategy", DROID_AUDIO_OUTPUT_STRATEGY_AUTO);
+    std::string engineSuffix = "";
+    if (mode == DROID_AUDIO_OUTPUT_STRATEGY_SEMI_AUTO) {
+        engineSuffix = "_amlogic";
+    } else {
+        engineSuffix = AudioPolicyConfig::loadFromApmXmlConfigWithFallback()->getEngineLibraryNameSuffix();
+    }
+
+    audio_policy_forced_cfg_t curForceUse = mEngine->getForceUse(AUDIO_POLICY_FORCE_FOR_MEDIA);
+    dprintf(fd, "------ Amlogic_AudioPolicyManager (APM xml Engine: %s) forceuse:%s -------",
+        engineSuffix.c_str(), forceUse2Str(curForceUse));
     AudioPolicyManager::dump(fd);
     return NO_ERROR;
 }

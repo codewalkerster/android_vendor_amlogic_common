@@ -34,10 +34,6 @@
 #include <media/AudioContainers.h>
 #include <utils/String8.h>
 #include <utils/Log.h>
-/*[Amlogic start]+++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-/* Change-Id: Id7204729e7ed599af85fb820a417a699626606b0 */
-#include <cutils/properties.h>
-/*[Amlogic end]-----------------------------------------------------------*/
 
 namespace android
 {
@@ -64,70 +60,10 @@ static const std::vector<legacy_strategy_map>& getLegacyStrategy() {
 }
 
 /*[Amlogic start]+++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-/* Change-Id: Id7204729e7ed599af85fb820a417a699626606b0 */
-const char * forceUse2Str(audio_policy_forced_cfg_t value) {
-    switch (value) {
-    case AUDIO_POLICY_FORCE_NONE:
-        return "NONE";
-    case AUDIO_POLICY_FORCE_SPEAKER:
-        return "SPEAKER";
-    case AUDIO_POLICY_FORCE_HEADPHONES:
-        return "HEADPHONES";
-    case AUDIO_POLICY_FORCE_BT_SCO:
-        return "BT_SCO";
-    case AUDIO_POLICY_FORCE_BT_A2DP:
-        return "BT_A2DP";
-    case AUDIO_POLICY_FORCE_WIRED_ACCESSORY:
-        return "USB";
-    case AUDIO_POLICY_FORCE_BT_CAR_DOCK:
-        return "HDMI_OUT";
-    case AUDIO_POLICY_FORCE_BT_DESK_DOCK:
-        return "DESK_DOCK";
-    case AUDIO_POLICY_FORCE_ANALOG_DOCK:
-        return "SPDIF";
-    case AUDIO_POLICY_FORCE_DIGITAL_DOCK:
-        return "HDMI_ARC";
-    case AUDIO_POLICY_FORCE_NO_BT_A2DP:
-        return "NO_BT_A2DP";
-    default:
-        return "UNKNOWN";
-    }
-};
-
-enum audio_output_strategy {
-    OUTPUT_STRATEGY_AUTO            = 0,
-    OUTPUT_STRATEGY_SEMI_AUTO       = 1,
-    OUTPUT_STRATEGY_MANUAL          = 2,
-};
-
-static audio_output_strategy gAudioOutStrategy = OUTPUT_STRATEGY_AUTO;
-
-static void updateCurAudioOutStrategy()
-{
-    gAudioOutStrategy = (audio_output_strategy)property_get_int32("persist.vendor.media.audio.output.strategy", OUTPUT_STRATEGY_AUTO);
-    if (gAudioOutStrategy < OUTPUT_STRATEGY_AUTO || gAudioOutStrategy > OUTPUT_STRATEGY_MANUAL) {
-        gAudioOutStrategy = OUTPUT_STRATEGY_AUTO;
-        ALOGW("[%s:%d] audio output mode:%d invalid, set default AUTO.", __func__, __LINE__, gAudioOutStrategy);
-    }
-}
-
-static bool checkChipName(const std::string& chipName, uint32_t length) {
-    char buf[128] = {'\0'};
-    bool ret =0;
-    ret = property_get("ro.board.platform", buf, NULL);
-    if (ret > 0) {
-        if (strncasecmp(buf, chipName.c_str(), length) == 0) {
-            return true;
-        }
-    }
-    return false;
-}
-
 void Engine::dump(String8 *dst) const
 {
     audio_policy_forced_cfg_t mediaForceUse = EngineBase::getForceUse(AUDIO_POLICY_FORCE_FOR_MEDIA);
-    dst->appendFormat("------ Amlogic_Engine (APM) mode:%d | force device: %s(%d) -------\n",
-        gAudioOutStrategy, forceUse2Str(mediaForceUse), mediaForceUse);
+    dst->appendFormat("------ Amlogic_Engine (APM) force device: %d -------\n", mediaForceUse);
     EngineBase::dump(dst);
 }
 /*[Amlogic end]-----------------------------------------------------------*/
@@ -158,23 +94,10 @@ status_t Engine::loadWithFallback(const T& configSource) {
     for (const auto &strategy : legacyStrategy) {
         mLegacyStrategyMap[getProductStrategyByName(strategy.name)] = strategy.id;
     }
-    /*[Amlogic start]+++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-    /* Change-Id: Id7204729e7ed599af85fb820a417a699626606b0 */
-    updateCurAudioOutStrategy();
-    int mediaForceUse = EngineBase::getForceUse(AUDIO_POLICY_FORCE_FOR_MEDIA);
-    if (gAudioOutStrategy != OUTPUT_STRATEGY_AUTO) {
-        mediaForceUse = property_get_int32("persist.vendor.media.audio.forceuse", -1);
-        if (mediaForceUse == -1) {
-            mediaForceUse = AUDIO_POLICY_FORCE_SPEAKER;
-        }
-        EngineBase::setForceUse(AUDIO_POLICY_FORCE_FOR_MEDIA, (audio_policy_forced_cfg_t)mediaForceUse);
-    }
-    ALOGI("[%s:%d] audio output strategy:%d, media forceuse:%s(%d).", __func__, __LINE__,
-        gAudioOutStrategy, forceUse2Str((audio_policy_forced_cfg_t)mediaForceUse), mediaForceUse);
-    /*[Amlogic end]-----------------------------------------------------------*/
 
     return OK;
 }
+
 
 status_t Engine::setForceUse(audio_policy_force_use_t usage, audio_policy_forced_cfg_t config)
 {
@@ -191,18 +114,10 @@ status_t Engine::setForceUse(audio_policy_force_use_t usage, audio_policy_forced
             config != AUDIO_POLICY_FORCE_WIRED_ACCESSORY &&
             config != AUDIO_POLICY_FORCE_ANALOG_DOCK &&
             config != AUDIO_POLICY_FORCE_DIGITAL_DOCK && config != AUDIO_POLICY_FORCE_NONE &&
-            /*[Amlogic start]+++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-            /* Change-Id: Id7204729e7ed599af85fb820a417a699626606b0 */
-            config != AUDIO_POLICY_FORCE_BT_CAR_DOCK &&
-            /*[Amlogic end]-----------------------------------------------------------*/
             config != AUDIO_POLICY_FORCE_NO_BT_A2DP && config != AUDIO_POLICY_FORCE_SPEAKER ) {
             ALOGW("setForceUse() invalid config %d for MEDIA", config);
             return BAD_VALUE;
         }
-        /*[Amlogic start]+++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-        /* Change-Id: Id7204729e7ed599af85fb820a417a699626606b0 */
-        updateCurAudioOutStrategy();
-        /*[Amlogic end]-----------------------------------------------------------*/
         break;
     case AUDIO_POLICY_FORCE_FOR_RECORD:
         if (config != AUDIO_POLICY_FORCE_BT_SCO && config != AUDIO_POLICY_FORCE_WIRED_ACCESSORY &&
@@ -234,13 +149,6 @@ status_t Engine::setForceUse(audio_policy_force_use_t usage, audio_policy_forced
             ALOGW("setForceUse() invalid config %d for HDMI_SYSTEM_AUDIO", config);
             return BAD_VALUE;
         }
-        /*[Amlogic start]+++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-        /* Change-Id: Id7204729e7ed599af85fb820a417a699626606b0 */
-        if (config == AUDIO_POLICY_FORCE_HDMI_SYSTEM_AUDIO_ENFORCED &&
-            gAudioOutStrategy == OUTPUT_STRATEGY_AUTO) {
-            EngineBase::setForceUse(AUDIO_POLICY_FORCE_FOR_MEDIA, AUDIO_POLICY_FORCE_NONE);
-        }
-        /*[Amlogic end]-----------------------------------------------------------*/
         break;
     case AUDIO_POLICY_FORCE_FOR_ENCODED_SURROUND:
         if (config != AUDIO_POLICY_FORCE_NONE &&
@@ -483,7 +391,6 @@ DeviceVector Engine::getDevicesForStrategyInt(legacy_strategy strategy,
             }
         }
         /*[Amlogic start]+++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-        /* Change-Id: Id7204729e7ed599af85fb820a417a699626606b0 */
         // LE audio broadcast device is only used if:
         // - No call is active
         // - either MEDIA or SONIFICATION_RESPECTFUL is the highest priority active strategy
@@ -508,36 +415,24 @@ DeviceVector Engine::getDevicesForStrategyInt(legacy_strategy strategy,
         }
 
         if (devices2.isEmpty()) {
-            if (getLastRemovableMediaDevices().size() > 0 && gAudioOutStrategy == OUTPUT_STRATEGY_SEMI_AUTO) {
-                #if 1 /* 1. BT = USB = wired device(HEADPHONES,lineout...). Select the last device that was inserted. */
+            if (getLastRemovableMediaDevices().size() > 0) {
+                /* 1. BT = USB = wired device(HEADPHONES,lineout...). Select the last device that was inserted. */
                 devices2 = availableOutputDevices.getFirstDevicesFromTypes(getLastRemovableMediaDevices());
-                #else /* 2. A2DP > USB */
-                devices2 = availableOutputDevices.getFirstDevicesFromTypes({
-                        AUDIO_DEVICE_OUT_BLUETOOTH_A2DP, AUDIO_DEVICE_OUT_BLUETOOTH_A2DP_HEADPHONES,
-                        AUDIO_DEVICE_OUT_BLUETOOTH_A2DP_SPEAKER,
-                        AUDIO_DEVICE_OUT_USB_HEADSET, AUDIO_DEVICE_OUT_USB_DEVICE,
-                        AUDIO_DEVICE_OUT_USB_ACCESSORY});
-                #endif
             }
         }
 
         int forceMedia = (int)getForceUse(AUDIO_POLICY_FORCE_FOR_MEDIA);
-        ALOGV("[%s:%d] audio output strategy:%d, media forceuse:%s(%d).", __func__, __LINE__,
-            gAudioOutStrategy, forceUse2Str((audio_policy_forced_cfg_t)forceMedia), forceMedia);
         if (devices2.isEmpty()) {
             switch (forceMedia) {
                 case AUDIO_POLICY_FORCE_DIGITAL_DOCK:
                     devices2 = availableOutputDevices.getFirstDevicesFromTypes({
-                            AUDIO_DEVICE_OUT_HDMI_EARC, AUDIO_DEVICE_OUT_HDMI_ARC});
+                            AUDIO_DEVICE_OUT_HDMI_EARC, AUDIO_DEVICE_OUT_HDMI_ARC, AUDIO_DEVICE_OUT_HDMI});
                     break;
                 case AUDIO_POLICY_FORCE_SPEAKER:
                     devices2 = availableOutputDevices.getDevicesFromType(AUDIO_DEVICE_OUT_SPEAKER);
                     break;
                 case AUDIO_POLICY_FORCE_ANALOG_DOCK:
                     devices2 = availableOutputDevices.getDevicesFromType(AUDIO_DEVICE_OUT_SPDIF);
-                    break;
-                case AUDIO_POLICY_FORCE_BT_CAR_DOCK:
-                    devices2 = availableOutputDevices.getDevicesFromType(AUDIO_DEVICE_OUT_HDMI);
                     break;
                 case AUDIO_POLICY_FORCE_HEADPHONES:
                     devices2 = availableOutputDevices.getFirstDevicesFromTypes({
@@ -564,18 +459,7 @@ DeviceVector Engine::getDevicesForStrategyInt(legacy_strategy strategy,
                     AUDIO_DEVICE_OUT_ANLG_DOCK_HEADSET);
         }
 
-        if (devices2.isEmpty() && gAudioOutStrategy == OUTPUT_STRATEGY_AUTO) {
-            if (getLastRemovableMediaDevices().size() > 0) {
-                devices2 = availableOutputDevices.getFirstDevicesFromTypes(getLastRemovableMediaDevices());
-            } else {
-                devices2 = availableOutputDevices.getFirstDevicesFromTypes({
-                        AUDIO_DEVICE_OUT_WIRED_HEADPHONE, AUDIO_DEVICE_OUT_WIRED_HEADSET, AUDIO_DEVICE_OUT_HDMI_EARC,
-                        AUDIO_DEVICE_OUT_HDMI_ARC, AUDIO_DEVICE_OUT_HDMI, AUDIO_DEVICE_OUT_DGTL_DOCK_HEADSET,
-                        AUDIO_DEVICE_OUT_SPEAKER, AUDIO_DEVICE_OUT_SPDIF});
-            }
-        }
-
-        if (devices2.isEmpty() && gAudioOutStrategy != OUTPUT_STRATEGY_AUTO) {
+        if (devices2.isEmpty()) {
             devices2 = availableOutputDevices.getDevicesFromType(AUDIO_DEVICE_OUT_FM);
         }
 
@@ -753,20 +637,9 @@ sp<DeviceDescriptor> Engine::getDeviceForInputSource(audio_source_t inputSource)
         }
         switch (commDeviceType) {
         case AUDIO_DEVICE_OUT_SPEAKER:
-            /*[Amlogic start]+++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-            // The s7 chip doesn't support builtin_mic.
-            if (checkChipName("s7", 2)) {
-                device = availableDevices.getFirstExistingDevice({
-                        AUDIO_DEVICE_IN_BACK_MIC, AUDIO_DEVICE_IN_USB_DEVICE,
-                        AUDIO_DEVICE_IN_USB_HEADSET, AUDIO_DEVICE_IN_BUILTIN_MIC});
-
-            } else {
-                device = availableDevices.getFirstExistingDevice({
-                        AUDIO_DEVICE_IN_BACK_MIC, AUDIO_DEVICE_IN_BUILTIN_MIC,
-                        AUDIO_DEVICE_IN_USB_DEVICE, AUDIO_DEVICE_IN_USB_HEADSET});
-
-            }
-            /*[Amlogic end]-----------------------------------------------------------*/
+            device = availableDevices.getFirstExistingDevice({
+                    AUDIO_DEVICE_IN_BACK_MIC, AUDIO_DEVICE_IN_BUILTIN_MIC,
+                    AUDIO_DEVICE_IN_USB_DEVICE, AUDIO_DEVICE_IN_USB_HEADSET});
             break;
         case AUDIO_DEVICE_OUT_BLE_HEADSET:
             device = availableDevices.getDevice(
@@ -822,11 +695,9 @@ sp<DeviceDescriptor> Engine::getDeviceForInputSource(audio_source_t inputSource)
         break;
     case AUDIO_SOURCE_CAMCORDER:
         // For a device without built-in mic, adding usb device
-        /*[Amlogic start]+++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
         device = availableDevices.getFirstExistingDevice({
-                AUDIO_DEVICE_IN_USB_DEVICE,
-                AUDIO_DEVICE_IN_BACK_MIC, AUDIO_DEVICE_IN_BUILTIN_MIC});
-        /*[Amlogic end]-----------------------------------------------------------*/
+                AUDIO_DEVICE_IN_BACK_MIC, AUDIO_DEVICE_IN_BUILTIN_MIC,
+                AUDIO_DEVICE_IN_USB_DEVICE});
         break;
     case AUDIO_SOURCE_VOICE_DOWNLINK:
     case AUDIO_SOURCE_VOICE_CALL:

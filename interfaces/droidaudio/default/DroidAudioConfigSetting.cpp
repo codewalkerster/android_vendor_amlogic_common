@@ -169,7 +169,6 @@ DroidAudioConfigSetting::DroidAudioConfigSetting(): mInitStatus(false),
     mForceManagePatch = getPropertyBoolean("vendor.media.dtv.force.manage.patch", false);
     mExitProcThread = false;
     g_SystemControlClient = ::android::SystemControlClient::getInstance();
-    updateCoexistSpdifOther();
 
     sp<DroidAudioAudioPortCallback> audioPortCallback = new DroidAudioAudioPortCallback(this);
     if (AudioSystem::addAudioPortCallback(audioPortCallback) != NO_ERROR) {
@@ -188,6 +187,14 @@ DroidAudioConfigSetting::~DroidAudioConfigSetting() {
 }
 
 void DroidAudioConfigSetting::reloadAudio() {
+    int32_t spdifCoexist = g_SystemControlClient->getPropertyInt(PROP_AUDIO_OUTPUT_SPDIF_COEXIST, true);
+    setCoexistSpdifOther(spdifCoexist == 1);
+
+    int32_t forceUse = g_SystemControlClient->getPropertyInt(PROP_AUDIO_OUTPUT_FORCEUSE, DROID_AUDIO_FORCE_USE_NONE);
+    vector<int32_t> devices;
+    devices.push_back(forceUse);
+    setOutputDevices(devices);
+
 }
 
 int32_t DroidAudioConfigSetting::init() {
@@ -200,14 +207,16 @@ int32_t DroidAudioConfigSetting::init() {
 }
 
 int32_t DroidAudioConfigSetting::reset() {
-    vector<int32_t> devices;
-    devices.push_back( DROID_AUDIO_FORCE_USE_NONE); //default value;
-    setOutputDevices(devices);
     setCoexistSpdifOther(true);
+    vector<int32_t> devices;
+    devices.push_back(DROID_AUDIO_FORCE_USE_NONE); //default value;
+    setOutputDevices(devices);
     return 0;
 }
 
 int32_t DroidAudioConfigSetting::dump(int fd, const char **args __unused, uint32_t numArgs __unused) {
+    int32_t forceUse = g_SystemControlClient->getPropertyInt(PROP_AUDIO_OUTPUT_FORCEUSE, DROID_AUDIO_FORCE_USE_NONE);
+    dprintf(fd, "db forceUse: %d\n", forceUse);
     dprintf(fd, "tif: %d\n", !mNotImptTvHardwareInputService);
     dprintf(fd, "mForceManagePatch: %d opened: %d started: %d\n",
         mForceManagePatch, mHasOpenedDecoder, mHasReceivedStartDecoderCmd);
@@ -925,10 +934,9 @@ int32_t DroidAudioConfigSetting::setOutputDevices(const vector<int32_t>& devices
         case DROID_AUDIO_FORCE_USE_NONE:
         case DROID_AUDIO_FORCE_USE_SPEAKER:
         case DROID_AUDIO_FORCE_USE_SPDIF:
-        case DROID_AUDIO_FORCE_USE_HDMI_OUT:
         case DROID_AUDIO_FORCE_USE_HEADPHONES:
-        case DROID_AUDIO_FORCE_USE_HDMI_ARC:
-        case DROID_AUDIO_FORCE_USE_WIRED_ACCESSORY:
+        case DROID_AUDIO_FORCE_USE_HDMI:
+        case DROID_AUDIO_FORCE_USE_USB:
         case DROID_AUDIO_FORCE_USE_BT_A2DP:
             break;
         default:
@@ -936,8 +944,8 @@ int32_t DroidAudioConfigSetting::setOutputDevices(const vector<int32_t>& devices
             return -1;
     }
     AM_LOGI("setForceUse:%d", devices[0]);
+    g_SystemControlClient->setProperty(PROP_AUDIO_OUTPUT_FORCEUSE, to_string(devices[0]).c_str());
     AudioSystem::setForceUse(AUDIO_POLICY_FORCE_FOR_MEDIA, (audio_policy_forced_cfg_t)devices[0]);
-    g_SystemControlClient->setProperty("persist.vendor.media.audio.forceuse", to_string(devices[0]).c_str());
     return 0;
 }
 
@@ -956,21 +964,19 @@ int32_t DroidAudioConfigSetting::getOutputDevices(vector<int32_t>* devices) {
                 case AUDIO_DEVICE_OUT_SPDIF:
                     forceUse = DROID_AUDIO_FORCE_USE_SPDIF;
                     break;
-                case AUDIO_DEVICE_OUT_HDMI:
-                    forceUse = DROID_AUDIO_FORCE_USE_HDMI_OUT;
-                    break;
                 case AUDIO_DEVICE_OUT_WIRED_HEADSET:
                 case AUDIO_DEVICE_OUT_WIRED_HEADPHONE:
                     forceUse = DROID_AUDIO_FORCE_USE_HEADPHONES;
                     break;
+                case AUDIO_DEVICE_OUT_HDMI:
                 case AUDIO_DEVICE_OUT_HDMI_ARC:
                 case AUDIO_DEVICE_OUT_HDMI_EARC:
-                    forceUse = DROID_AUDIO_FORCE_USE_HDMI_ARC;
+                    forceUse = DROID_AUDIO_FORCE_USE_HDMI;
                     break;
                 case AUDIO_DEVICE_OUT_USB_DEVICE:
                 case AUDIO_DEVICE_OUT_USB_ACCESSORY:
                 case AUDIO_DEVICE_OUT_USB_HEADSET:
-                    forceUse = DROID_AUDIO_FORCE_USE_WIRED_ACCESSORY;
+                    forceUse = DROID_AUDIO_FORCE_USE_USB;
                     break;
                 case AUDIO_DEVICE_OUT_BLUETOOTH_A2DP:
                 case AUDIO_DEVICE_OUT_BLUETOOTH_A2DP_HEADPHONES:
@@ -994,10 +1000,9 @@ int32_t DroidAudioConfigSetting::getOutputDevices(vector<int32_t>* devices) {
         switch (forceUse) {
             case DROID_AUDIO_FORCE_USE_SPEAKER:
             case DROID_AUDIO_FORCE_USE_SPDIF:
-            case DROID_AUDIO_FORCE_USE_HDMI_OUT:
             case DROID_AUDIO_FORCE_USE_HEADPHONES:
-            case DROID_AUDIO_FORCE_USE_HDMI_ARC:
-            case DROID_AUDIO_FORCE_USE_WIRED_ACCESSORY:
+            case DROID_AUDIO_FORCE_USE_HDMI:
+            case DROID_AUDIO_FORCE_USE_USB:
             case DROID_AUDIO_FORCE_USE_BT_A2DP:
                 break;
             default:

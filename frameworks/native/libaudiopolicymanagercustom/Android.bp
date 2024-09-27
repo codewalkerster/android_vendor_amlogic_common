@@ -40,7 +40,14 @@ cc_library_shared {
         "AmlAudioPolicyManager.cpp",
     ],
 
-    export_include_dirs: ["."],
+    export_include_dirs: [
+        ".",
+    ],
+
+    include_dirs: [
+        "vendor/amlogic/common/interfaces/droidaudio/default/",
+        "vendor/amlogic/common/interfaces/droidaudio/default/libdroidaudioclient",
+    ],
 
     shared_libs: [
         "libaudiopolicymanagerdefault",

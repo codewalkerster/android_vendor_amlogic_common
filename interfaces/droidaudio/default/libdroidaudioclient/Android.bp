@@ -24,6 +24,11 @@ cc_library_shared {
         "libbinder_ndk",
         "vendor.amlogic.hardware.droidaudio-V1-ndk",
     ],
+
+    required: [
+        "vendor.amlogic.hardware.droidaudio-V1-ndk",
+    ],
+
     header_libs: [
         "libhardware_headers",
         "libaudioclient_headers",

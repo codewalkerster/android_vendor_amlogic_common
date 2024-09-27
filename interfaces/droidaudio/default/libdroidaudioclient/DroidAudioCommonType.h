@@ -16,6 +16,7 @@
 
 #pragma once
 
+#define PROP_AUDIO_OUTPUT_FORCEUSE                              "persist.vendor.media.audio.forceuse"
 #define PROP_AUDIO_OUTPUT_STRATEGY                              "persist.vendor.media.audio.output.strategy"
 #define PROP_AUDIO_OUTPUT_SPDIF_COEXIST                         "persist.vendor.media.audio.spdif.coexist"
 
@@ -61,12 +62,10 @@ typedef enum {
     DROID_AUDIO_FORCE_USE_NONE                                  = 0, // AUDIO_POLICY_FORCE_NONE
     DROID_AUDIO_FORCE_USE_SPEAKER                               = 1, // AUDIO_POLICY_FORCE_SPEAKER
     DROID_AUDIO_FORCE_USE_HEADPHONES                            = 2, // AUDIO_POLICY_FORCE_HEADPHONES
-    DROID_AUDIO_FORCE_USE_BT_SCO                                = 3, // AUDIO_POLICY_FORCE_BT_SCO
     DROID_AUDIO_FORCE_USE_BT_A2DP                               = 4, // AUDIO_POLICY_FORCE_BT_A2DP
-    DROID_AUDIO_FORCE_USE_WIRED_ACCESSORY                       = 5, // AUDIO_POLICY_FORCE_WIRED_ACCESSORY
-    DROID_AUDIO_FORCE_USE_HDMI_ARC                              = 9, // AUDIO_POLICY_FORCE_DIGITAL_DOCK
+    DROID_AUDIO_FORCE_USE_USB                                   = 5, // AUDIO_POLICY_FORCE_WIRED_ACCESSORY
+    DROID_AUDIO_FORCE_USE_HDMI                                  = 9, // AUDIO_POLICY_FORCE_DIGITAL_DOCK
     DROID_AUDIO_FORCE_USE_SPDIF                                 = 8, // AUDIO_POLICY_FORCE_ANALOG_DOCK
-    DROID_AUDIO_FORCE_USE_HDMI_OUT                              = 6, // AUDIO_POLICY_FORCE_BT_CAR_DOCK
 } DROID_AUDIO_FORCE_USE_TYPE_E;
 
 /* 0: Auto  1: Semi-Auto  2: Manual (refer to: audio_output_strategy enum in Engine.cpp) */

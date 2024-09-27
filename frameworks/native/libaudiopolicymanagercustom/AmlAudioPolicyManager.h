@@ -46,6 +46,11 @@ public:
                        AudioPolicyClientInterface *clientInterface);
     virtual ~AmlAudioPolicyManager() {};
 
+    virtual void setForceUse(audio_policy_force_use_t usage,
+                             audio_policy_forced_cfg_t config);
+    virtual status_t setDeviceConnectionState(audio_policy_dev_state_t state,
+            const android::media::audio::common::AudioPort& port, audio_format_t encodedFormat);
+
     virtual status_t checkAndSetVolume(IVolumeCurves &curves,
                                        VolumeSource volumeSource, int index,
                                        const sp<AudioOutputDescriptor>& outputDesc,

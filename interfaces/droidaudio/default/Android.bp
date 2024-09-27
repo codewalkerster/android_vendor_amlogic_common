@@ -36,9 +36,15 @@ cc_binary {
         "libsystemcontrolservice",
         "vendor.amlogic.hardware.systemcontrol@1.1",
     ],
-     defaults: [
-         "latest_android_media_audio_common_types_cpp_export_shared",
-     ],
+
+    required: [
+        "vendor.amlogic.hardware.droidaudio-V1-ndk",
+    ],
+
+    defaults: [
+        "latest_android_media_audio_common_types_cpp_export_shared",
+    ],
+
     static_libs: [
         "android.hardware.common-V2-ndk",
         "libaidlcommonsupport",

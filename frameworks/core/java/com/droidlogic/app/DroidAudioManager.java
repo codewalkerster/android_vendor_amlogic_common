@@ -135,7 +135,7 @@ public class DroidAudioManager {
             }
         }
         setARCLatency(getARCLatency());
-        setSoundSpdifEnable(getSoundSpdifEnable());
+        // setSoundSpdifEnable(getSoundSpdifEnable());
         setSpeakerEnabled(isSpeakerEnabled());
         setAdSupportEnable(getAdSupportEnable());
         setAc4DialogEnhancer(getAc4DialogEnhancer());
@@ -1042,10 +1042,9 @@ public class DroidAudioManager {
     public static final int DROID_AUDIO_FORCE_USE_NONE                              = 0; // AUDIO_POLICY_FORCE_NONE
     public static final int DROID_AUDIO_FORCE_USE_SPEAKER                           = 1; // AUDIO_POLICY_FORCE_SPEAKER
     public static final int DROID_AUDIO_FORCE_USE_SPDIF                             = 8; // AUDIO_POLICY_FORCE_ANALOG_DOCK
-    public static final int DROID_AUDIO_FORCE_USE_HDMI_ARC                          = 9; // AUDIO_POLICY_FORCE_DIGITAL_DOCK
-    public static final int DROID_AUDIO_FORCE_USE_HDMI_OUT                          = 6; // AUDIO_POLICY_FORCE_BT_CAR_DOCK
+    public static final int DROID_AUDIO_FORCE_USE_HDMI                              = 9; // AUDIO_POLICY_FORCE_DIGITAL_DOCK
     public static final int DROID_AUDIO_FORCE_USE_HEADPHONES                        = 2; // AUDIO_POLICY_FORCE_HEADPHONES
-    public static final int DROID_AUDIO_FORCE_USE_WIRED_ACCESSORY                   = 5; // AUDIO_POLICY_FORCE_WIRED_ACCESSORY
+    public static final int DROID_AUDIO_FORCE_USE_USB                               = 5; // AUDIO_POLICY_FORCE_WIRED_ACCESSORY
     public static final int DROID_AUDIO_FORCE_USE_BT_A2DP                           = 4; // AUDIO_POLICY_FORCE_BT_A2DP
     public int setOutputDevices(int[] devices) {
         if (droidAudioServiceIsNull()) return 0;
