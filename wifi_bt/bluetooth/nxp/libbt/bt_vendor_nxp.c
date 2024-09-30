@@ -116,7 +116,7 @@ typedef struct {
 /*
  * * Defines for wait for Bluetooth firmware ready
  * * Specify durations between polls and max wait time
- * */
+ */
 #define POLL_DRIVER_DURATION_US (100000)
 #define POLL_DRIVER_MAX_TIME_MS (20000)
 
