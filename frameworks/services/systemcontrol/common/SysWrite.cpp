@@ -847,10 +847,11 @@ void SysWrite::initConstCharforSysNode() {
     mPathforSysNode[VIDEO_AIFACE_ENABLE]        = "/sys/module/aml_media/parameters/uvm_open_aiface";
     mPathforSysNode[VIDEO_VD_PROC_STATE]        = "/sys/class/video/video_vd_proc_state";
     mPathforSysNode[AICOLOR_PARAMETERS_UVM_OPEN] = "/sys/module/aml_media/parameters/uvm_open_aicolor";
-    mPathforSysNode[PQ_MODULE_MEMC_DEMO_WIN] = "/sys/class/frc/param";
-    mPathforSysNode[PQ_MODULE_AISR_DEMO_EN] = "/sys/class/video/aisr_demo_en";
-    mPathforSysNode[PQ_MODULE_AISR_DEMO_AXIS] = "/sys/class/video/aisr_demo_axis";
+    mPathforSysNode[PQ_MODULE_MEMC_DEMO_WIN]    = "/sys/class/frc/param";
+    mPathforSysNode[PQ_MODULE_AISR_DEMO_EN]     = "/sys/class/video/aisr_demo_en";
+    mPathforSysNode[PQ_MODULE_AISR_DEMO_AXIS]   = "/sys/class/video/aisr_demo_axis";
     mPathforSysNode[PQ_MODULE_AISR_DEMO_WIN]    = "/sys/class/video/aisr_demo_win";
+    mPathforSysNode[VIDEO_AISR_ENABLE_NEW]      = "/sys/class/video/aisr_en";
 }
 #if 0
 status_t SysWrite::dump(int fd, const Vector<String16>& args){

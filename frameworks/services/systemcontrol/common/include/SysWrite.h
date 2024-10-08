@@ -146,6 +146,7 @@ typedef enum {
     PQ_MODULE_AISR_DEMO_EN,
     PQ_MODULE_AISR_DEMO_AXIS,
     PQ_MODULE_AISR_DEMO_WIN,
+    VIDEO_AISR_ENABLE_NEW,
     NodeIndexMax,
 } ConstCharforSysNodeIndex;
 

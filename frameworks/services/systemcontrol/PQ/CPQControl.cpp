@@ -8855,9 +8855,16 @@ int CPQControl::Cpq_SetAiSrEnable(bool enable)
         return 0;
     }
 
-    if (pqWriteSys(VIDEO_AISR_ENABLE, enable ? "1" : "0") < 0) {
-        SYS_LOGE("%s failed!\n", __FUNCTION__);
-        return -1;
+    if (GetChipType() == 0x47 || GetChipType() == 0x48) { //MESON_CPU_MAJOR_ID_S7D || MESON_CPU_MAJOR_ID_S6
+        if (pqWriteSys(VIDEO_AISR_ENABLE_NEW, enable ? "1" : "0") < 0) {
+            SYS_LOGE("%s failed!\n", __FUNCTION__);
+            return -1;
+        }
+    } else {
+        if (pqWriteSys(VIDEO_AISR_ENABLE, enable ? "1" : "0") < 0) {
+            SYS_LOGE("%s failed!\n", __FUNCTION__);
+            return -1;
+        }
     }
 
     return 0;
@@ -9797,7 +9804,7 @@ int CPQControl::SetPQModuleDemoState(pq_module_demo_t modules, pq_module_demo_st
             }
             break;
         default:
-            SYS_LOGE("%s This Module ：%d is missing \n",__FUNCTION__, modules);
+            SYS_LOGE("%s This Module:%d is missing\n",__FUNCTION__, modules);
             ret = -1;
             break;
     }
