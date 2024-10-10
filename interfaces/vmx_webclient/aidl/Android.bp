@@ -9,23 +9,30 @@ package {
 
 aidl_interface {
     name: "vendor.amlogic.hardware.vmx_webclient",
-    owner: "vendor.amlogic.hardware.vmx_webclient",
     vendor_available: true,
     srcs: ["vendor/amlogic/hardware/vmx_webclient/*.aidl"],
+    stability: "vintf",
+    owner: "amlogic",
     imports: [
         "android.hardware.common-V2",
     ],
-    unstable: true,
     backend: {
         cpp: {
             enabled: false,
         },
         java: {
-            sdk_version: "module_current",
+            enabled: false,
         },
         ndk: {
-            min_sdk_version: "current",
+            enabled: true,
         },
     },
-    double_loadable: true,
+    versions_with_info: [
+        {
+            version: "1",
+            imports: ["android.hardware.common-V2"],
+        },
+    ],
+    frozen: true,
+
 }

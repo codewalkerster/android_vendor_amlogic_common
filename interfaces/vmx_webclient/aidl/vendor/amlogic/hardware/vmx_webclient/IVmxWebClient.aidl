@@ -13,6 +13,7 @@ import vendor.amlogic.hardware.vmx_webclient.VmxWebClientDecryptParam;
 import vendor.amlogic.hardware.vmx_webclient.Status;
 import vendor.amlogic.hardware.vmx_webclient.IVmxWebClientCallback;
 
+@VintfStability
 interface IVmxWebClient {
     int createInstance();
 

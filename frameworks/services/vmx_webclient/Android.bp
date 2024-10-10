@@ -26,7 +26,7 @@ cc_binary {
         "liblog",
         "libutils",
         "libcutils",
-        "vendor.amlogic.hardware.vmx_webclient-ndk",
+        "vendor.amlogic.hardware.vmx_webclient-V1-ndk",
         "libbinder_ndk",
     ],
     static_libs: [

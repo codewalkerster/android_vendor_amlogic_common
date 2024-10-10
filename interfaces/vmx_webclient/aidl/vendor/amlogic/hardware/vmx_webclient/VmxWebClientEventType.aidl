@@ -8,6 +8,7 @@
  */
 package vendor.amlogic.hardware.vmx_webclient;
 
+@VintfStability
 enum VmxWebClientEventType {
     KEVENT_WEBCLIENT_VERSION = 0,
     KEVENT_UNIQUE_IDENTIFIER = 1,

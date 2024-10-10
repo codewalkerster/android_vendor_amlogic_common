@@ -8,6 +8,7 @@
  */
 package vendor.amlogic.hardware.vmx_webclient;
 
+@VintfStability
 parcelable Pattern {
     int encryptBlocks;
     int skipBlocks;

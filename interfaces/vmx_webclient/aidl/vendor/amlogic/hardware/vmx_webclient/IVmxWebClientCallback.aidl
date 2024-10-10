@@ -11,6 +11,7 @@ package vendor.amlogic.hardware.vmx_webclient;
 
 import vendor.amlogic.hardware.vmx_webclient.VmxWebClientEventType;
 
+@VintfStability
 interface IVmxWebClientCallback {
    oneway void sendEvent(in VmxWebClientEventType eventType, in byte[] sessionId, in byte[] event);
 }

@@ -8,7 +8,10 @@
  */
 package vendor.amlogic.hardware.vmx_webclient;
 
-parcelable SubSample {
-    int numBytesOfClearData;
-    int numBytesOfEncryptedData;
+@VintfStability
+enum Mode {
+    UNENCRYPTED = 0,
+    AES_CTR = 1,
+    AES_CBC_CTS = 2,
+    AES_CBC = 3,
 }
