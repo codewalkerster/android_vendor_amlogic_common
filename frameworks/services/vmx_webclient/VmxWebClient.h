@@ -46,7 +46,10 @@ struct VmxWebClient : public BnVmxWebClient {
     ::ndk::ScopedAStatus destroyInstance(int32_t* _aidl_return) override;
     ::ndk::ScopedAStatus setCallback(const std::vector<uint8_t>& sessionId,
             const std::shared_ptr<IVmxWebClientCallback>& callback) override;
-    ::ndk::ScopedAStatus getProperty(const std::string& value) override;
+    ::ndk::ScopedAStatus getProperty(const std::string& in_prop,
+            std::vector<uint8_t>* out_value) override;
+    ::ndk::ScopedAStatus setProperty(const std::string& in_prop,
+            const std::vector<uint8_t>& in_value) override;
     ::ndk::ScopedAStatus getCdmErr(int32_t* _aidl_return) override;
 
     ::std::shared_ptr<IVmxWebClientCallback> mCallback;

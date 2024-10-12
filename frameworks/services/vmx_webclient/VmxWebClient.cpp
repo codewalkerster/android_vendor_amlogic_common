@@ -6,6 +6,8 @@
  *
  * Description:
  */
+#define LOG_TAG "AmVWebclient-service"
+// #define LOG_NDEBUG 0
 #include <aidlcommonsupport/NativeHandle.h>
 #include <utils/Log.h>
 #include <dlfcn.h>
@@ -20,7 +22,9 @@ typedef int (*WebClientFreeContextFunc)(void *);
 
 typedef void (*WebClientSetCallbackFunc)(const void *,amVmxWebClientCallback callback, void *);
 
-typedef void (*WebClientGetPropertyFunc)(const void *, std::string);
+typedef void (*WebClientGetPropertyFunc)(const void *, const std::string&, std::vector<uint8_t> *);
+
+typedef void (*WebClientSetPropertyFunc)(const void *, const std::string&, const std::vector<uint8_t>&);
 
 typedef int (*WebClientGetCdmErrFunc)(void);
 
@@ -29,6 +33,7 @@ static WebClientDecryptFunc webclient_decrypt = NULL;
 static WebClientFreeContextFunc webclient_free = NULL;
 static WebClientSetCallbackFunc webclient_setCallback = NULL;
 static WebClientGetPropertyFunc webclient_getProperty = NULL;
+static WebClientSetPropertyFunc webclient_setProperty = NULL;
 static WebClientGetCdmErrFunc webclient_getCdmErr = NULL;
 
 namespace aidl::vendor::amlogic::hardware::vmx_webclient::implementation {
@@ -42,7 +47,7 @@ VmxWebClient::VmxWebClient()
     }
 
     webclient_alloc =
-         (WebClientAllocContextFunc)dlsym(mLibHandle, "amVmxWebClientAllocContext");
+        (WebClientAllocContextFunc)dlsym(mLibHandle, "amVmxWebClientAllocContext");
     webclient_decrypt =
         (WebClientDecryptFunc)dlsym(mLibHandle, "amVmxWebClientDecrypt");
     webclient_free =
@@ -51,13 +56,15 @@ VmxWebClient::VmxWebClient()
         (WebClientSetCallbackFunc)dlsym(mLibHandle, "amVmxWebClientSetCallback");
     webclient_getProperty =
         (WebClientGetPropertyFunc)dlsym(mLibHandle, "amVmxWebClientGetProperty");
+    webclient_setProperty =
+        (WebClientSetPropertyFunc)dlsym(mLibHandle, "amVmxWebClientSetProperty");
     webclient_getCdmErr =
         (WebClientGetCdmErrFunc)dlsym(mLibHandle, "amVmxWebClientGetCdmErr");
 
     if (webclient_alloc)
         mWebClientObj = webclient_alloc(NULL);
 
-    ALOGI("Create mWebClientObj is %p", mWebClientObj);
+    ALOGV("Create mWebClientObj is %p", mWebClientObj);
 }
 
 VmxWebClient::~VmxWebClient() {
@@ -84,7 +91,7 @@ VmxWebClient::~VmxWebClient() {
     if (webclient_alloc && !mWebClientObj)
         mWebClientObj = webclient_alloc(&errorCode);
 
-    ALOGI("Create mWebClientObj is %p errorCode %d ", mWebClientObj, errorCode);
+    ALOGV("Create mWebClientObj is %p errorCode %d ", mWebClientObj, errorCode);
     if (!mWebClientObj)
         return toNdkScopedAStatus(static_cast<Status>(errorCode));
     return ::ndk::ScopedAStatus::ok();
@@ -94,7 +101,7 @@ VmxWebClient::~VmxWebClient() {
     (void)_aidl_return;
     ::android::Mutex::Autolock autoLock(mLock);
 
-    ALOGI("Destroy mWebClientObj is %p", mWebClientObj);
+    ALOGV("Destroy mWebClientObj is %p", mWebClientObj);
     if (mWebClientObj) {
         if (webclient_free) {
             webclient_free(mWebClientObj);
@@ -202,12 +209,22 @@ void OnCallback(uint8_t type, uint8_t *data, uint32_t dataLen, void *pUserData) 
     return toNdkScopedAStatus(Status::OK);
 }
 
-::ndk::ScopedAStatus VmxWebClient::getProperty(const std::string& value) {
+::ndk::ScopedAStatus VmxWebClient::getProperty(const std::string& in_prop,
+        std::vector<uint8_t>* out_value) {
     ::android::Mutex::Autolock autoLock(mLock);
 
-    if (mWebClientObj && webclient_getProperty && !value.empty()) {
-        std::string prop = value;
-        webclient_getProperty(mWebClientObj, prop);
+    if (webclient_getProperty) {
+        webclient_getProperty(mWebClientObj, in_prop, out_value);
+    }
+    return toNdkScopedAStatus(Status::OK);
+}
+
+::ndk::ScopedAStatus VmxWebClient::setProperty(const std::string& in_prop,
+        const std::vector<uint8_t>& in_value) {
+    ::android::Mutex::Autolock autoLock(mLock);
+
+    if (mWebClientObj && webclient_setProperty) {
+        webclient_setProperty(mWebClientObj, in_prop, in_value);
     }
     return toNdkScopedAStatus(Status::OK);
 }

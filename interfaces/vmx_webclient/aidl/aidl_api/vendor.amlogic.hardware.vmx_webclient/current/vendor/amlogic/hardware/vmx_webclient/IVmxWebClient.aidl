@@ -32,6 +32,7 @@ interface IVmxWebClient {
   int decryptSecure(in vendor.amlogic.hardware.vmx_webclient.VmxWebClientDecryptParam para);
   int destroyInstance();
   void setCallback(in byte[] sessionId, in vendor.amlogic.hardware.vmx_webclient.IVmxWebClientCallback callback);
-  void getProperty(in String value);
+  void getProperty(in String prop, out byte[] value);
+  void setProperty(in String prop, in byte[] value);
   int getCdmErr();
 }

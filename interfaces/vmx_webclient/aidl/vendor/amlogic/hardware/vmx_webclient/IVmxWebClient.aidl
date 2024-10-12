@@ -25,7 +25,9 @@ interface IVmxWebClient {
 
     void setCallback(in byte[] sessionId, in IVmxWebClientCallback callback);
 
-    void getProperty(in String value);
+    void getProperty(in String prop, out byte[] value);
+
+    void setProperty(in String prop, in byte[] value);
 
     int getCdmErr();
 }

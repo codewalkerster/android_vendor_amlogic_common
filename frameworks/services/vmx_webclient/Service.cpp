@@ -7,7 +7,7 @@
  * Description:
  */
 
-#define LOG_TAG "vendor.amlogic.vmx_webclient-service"
+#define LOG_TAG "AmVWebclient-service"
 
 #include <android-base/logging.h>
 #include <android/binder_ibinder_platform.h>
@@ -30,7 +30,7 @@ int main() {
     binder_status_t status =
             AServiceManager_addService(webClient->asBinder().get(), Instance.c_str());
     CHECK(status == STATUS_OK)
-        << "Failed to add VmxWebClient Factory, status=" << status;
+        << "Failed to add VWebClient Factory, status=" << status;
 
     ABinderProcess_joinThreadPool();
 }
