@@ -9,6 +9,7 @@ on early-fs
 
 on fs
     start vendor.gralloc-v2
+    wait /dev/mali0
     start surfaceflinger
 
 on late-fs
