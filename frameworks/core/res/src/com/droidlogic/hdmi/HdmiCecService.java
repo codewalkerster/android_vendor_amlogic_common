@@ -37,6 +37,7 @@ import android.widget.Toast;
 import java.util.Arrays;
 
 import com.droidlogic.R;
+import com.droidlogic.app.SystemControlManager;
 
 public class HdmiCecService extends Service {
     private static final String TAG = "HdmiCecService";
@@ -46,6 +47,9 @@ public class HdmiCecService extends Service {
 
     private static final int ACTIVENESS_STATE_ON = 1;
     private static final int ACTIVENESS_STATE_OFF = 0;
+
+    private static final int ENABLED = 1;
+    private static final int DISABLED = 0;
 
     // The length of vendor specific message is permanent 3.
     private static final int LENGTH_VENDOR_COMMAND = 3;
@@ -63,6 +67,12 @@ public class HdmiCecService extends Service {
     private static final String FEATURE_SOFTWARE_NETFLIX = "droidlogic.software.netflix";
     // droidlogic first boot
     private static final String DROIDLOGIC_FIRST_BOOT = "droidlogic_first_boot";
+    private static final String HDMI_CONTROL_ENABLED = "hdmi_control_enabled";
+    private static final String HDMI_VOLUME_CONTROL_ENABLED = "hdmi_control_volume_control_enabled";
+
+    // For soundbar device
+    private static final String PROP_SOUNDBAR_MODE = "persist.vendor.sys.soundbar_mode";
+    private static final String PROP_SOUNDBAR_MODE_SUPPORTED = "ro.vendor.platform.support.soundbar";
 
     private HdmiControlManager mHdmiControlManager;
     private HdmiPlaybackClient mPlayback;
@@ -90,11 +100,28 @@ public class HdmiCecService extends Service {
         mVendorCommandHandler = new VendorCommandHandler(this);
         mSettingsObserver = new SettingsObserver(mHandler);
         registerObserver();
+        initSettings();
+
         mPlayback = mHdmiControlManager.getPlaybackClient();
         if (null == mPlayback) {
             Log.d(TAG, "It's none playback device");
             return;
         }
+
+        initActivenessListener();
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.d(TAG, "onDestroy");
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
+    private void initSettings() {
         mAudioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
         AudioDeviceAttributes device = new AudioDeviceAttributes(
             AudioDeviceAttributes.ROLE_OUTPUT, AudioDeviceInfo.TYPE_HDMI, "");
@@ -106,8 +133,33 @@ public class HdmiCecService extends Service {
                 int behavior = AudioManager.DEVICE_VOLUME_BEHAVIOR_VARIABLE;
                 mAudioManager.setDeviceVolumeBehavior(device, behavior);
             }
-        }
 
+            // Initiate some settings with the consideration of old Global Settings.
+            // init soundbar mode property
+            boolean soundbarSupported = SystemProperties.getBoolean(PROP_SOUNDBAR_MODE_SUPPORTED, false);
+            Log.i(TAG, "soundbar supported:" + soundbarSupported);
+            if (Global.getInt(getContentResolver(), SettingsObserver.SOUNDBAR_MODE, -1) == -1) {
+                Global.putInt(getContentResolver(), SettingsObserver.SOUNDBAR_MODE, soundbarSupported ? 1 : 0);
+            }
+
+            int hdmiCecEnabled = mHdmiControlManager.getHdmiCecEnabled();
+            int hdmiSettingsEnabled = Global.getInt(getContentResolver(), HDMI_CONTROL_ENABLED, hdmiCecEnabled);
+            Log.i(TAG, "cec state settings:" + hdmiSettingsEnabled + " config:" + hdmiCecEnabled);
+            if (hdmiSettingsEnabled != hdmiCecEnabled) {
+                mHdmiControlManager.setHdmiCecEnabled(hdmiSettingsEnabled);
+            }
+
+            int volumeControlEnabled = mHdmiControlManager.getHdmiCecVolumeControlEnabled();
+            int volumeControlSettingsEnabled = Global.getInt(getContentResolver(), HDMI_VOLUME_CONTROL_ENABLED,
+                    volumeControlEnabled);
+            Log.i(TAG, "cec volume control settings:" + volumeControlSettingsEnabled + " config:" + volumeControlEnabled);
+            if (volumeControlEnabled != volumeControlSettingsEnabled) {
+                mHdmiControlManager.setHdmiCecVolumeControlEnabled(volumeControlSettingsEnabled);
+            }
+        }
+    }
+
+    private void initActivenessListener() {
         if (!getPackageManager().hasSystemFeature(FEATURE_SOFTWARE_NETFLIX) && (!DEBUG)) {
             Log.i(TAG, "Netflix feature is not supported");
             return;
@@ -122,20 +174,8 @@ public class HdmiCecService extends Service {
         mHdmiCecAidlClient.setLanguage(LANG_VENDOR_CALLBACK);
         mCecServiceCallback = new HdmiCecServiceCallback(mHandler);
         mHdmiCecAidlClient.setCallback(mCecServiceCallback);
-
         mActiveness = new HdmiCecActiveness(this);
-
         registerReceiver();
-    }
-
-    @Override
-    public void onDestroy() {
-        Log.d(TAG, "onDestroy");
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
     }
 
     private void updateActiveState(boolean active) {
@@ -204,7 +244,8 @@ public class HdmiCecService extends Service {
     private void registerObserver() {
         ContentResolver resolver = this.getContentResolver();
         String[] settings = new String[] {
-            SettingsObserver.CEC_ENABLE_ADB
+            SettingsObserver.CEC_ENABLE_ADB,
+            SettingsObserver.SOUNDBAR_MODE
         };
         for (String s : settings) {
             resolver.registerContentObserver(Global.getUriFor(s), false, mSettingsObserver,
@@ -215,7 +256,8 @@ public class HdmiCecService extends Service {
     }
 
     private class SettingsObserver extends ContentObserver {
-    static final String CEC_ENABLE_ADB = "cec_enable_adb";
+        static final String CEC_ENABLE_ADB = "cec_enable_adb";
+        static final String SOUNDBAR_MODE = "soundbar_mode";
 
         public SettingsObserver(Handler handler) {
             super(handler);
@@ -232,6 +274,9 @@ public class HdmiCecService extends Service {
                     if (enabled) {
                         mVendorCommandHandler.sendEnableAdbVendorCommand();
                     }
+                    break;
+                case SOUNDBAR_MODE:
+                    SystemControlManager.getInstance().setProperty(PROP_SOUNDBAR_MODE, enabled + "");
                     break;
             }
         }

@@ -99,9 +99,12 @@ public class AudioEffectsService extends Service {
     public void onCreate() {
         if (DEBUG) Log.d(TAG, "AudioEffectsService onCreate");
         mContext = this;
-        mSoundEffectManager = SoundEffectManager.getInstance(mContext);
-        AudioSystem.setErrorCallback(mAudioSystemCallback);
-        handleActionStartUp();
+        Thread thread = new Thread(()->{
+            mSoundEffectManager = SoundEffectManager.getInstance(mContext);
+            AudioSystem.setErrorCallback(mAudioSystemCallback);
+            handleActionStartUp();
+        });
+        thread.start();
     }
 
     @Override
