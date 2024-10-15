@@ -39,8 +39,12 @@ struct VmxWebClient : public BnVmxWebClient {
     VmxWebClient();
     ~VmxWebClient();
     ::ndk::ScopedAStatus createInstance(int32_t* _aidl_return) override;
-    ::ndk::ScopedAStatus decrypt(const VmxWebClientDecryptParam& para,
-            std::vector<uint8_t>* outData, int32_t* _aidl_return) override;
+    ::ndk::ScopedAStatus decrypt(const std::vector<uint8_t>& keyid,
+                                const std::vector<uint8_t>& keyurl,
+                                const std::vector<uint8_t>& indata,
+                                const std::vector<uint8_t>& iv,
+                                std::vector<uint8_t>* outdata,
+                                int32_t* _aidl_return) override;
     ::ndk::ScopedAStatus decryptSecure(const VmxWebClientDecryptParam& para,
             int32_t* _aidl_return) override;
     ::ndk::ScopedAStatus destroyInstance(int32_t* _aidl_return) override;

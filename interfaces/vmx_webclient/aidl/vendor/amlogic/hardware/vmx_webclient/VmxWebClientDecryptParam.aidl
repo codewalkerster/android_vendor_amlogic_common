@@ -12,6 +12,8 @@ import android.hardware.common.NativeHandle;
 import vendor.amlogic.hardware.vmx_webclient.Mode;
 import vendor.amlogic.hardware.vmx_webclient.Pattern;
 import vendor.amlogic.hardware.vmx_webclient.SubSample;
+import vendor.amlogic.hardware.vmx_webclient.StreamingFormat;
+import vendor.amlogic.hardware.vmx_webclient.MethodInfo;
 
 /**
  * VmxWebClientDecryptParam describes a decrypt
@@ -20,8 +22,10 @@ import vendor.amlogic.hardware.vmx_webclient.SubSample;
 @VintfStability
 parcelable VmxWebClientDecryptParam {
     int secure;
-    int sampleAES;
+    int streamingFormat;
+    int methodInfo;
     int keySeq;
+    byte[] keyid;
     byte[] key;
     byte[] iv;
     Mode mode;

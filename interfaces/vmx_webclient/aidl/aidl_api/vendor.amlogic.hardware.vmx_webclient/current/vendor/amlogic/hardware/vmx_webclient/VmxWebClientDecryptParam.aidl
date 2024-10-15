@@ -28,8 +28,10 @@ package vendor.amlogic.hardware.vmx_webclient;
 @VintfStability
 parcelable VmxWebClientDecryptParam {
   int secure;
-  int sampleAES;
+  int streamingFormat;
+  int methodInfo;
   int keySeq;
+  byte[] keyid;
   byte[] key;
   byte[] iv;
   vendor.amlogic.hardware.vmx_webclient.Mode mode;

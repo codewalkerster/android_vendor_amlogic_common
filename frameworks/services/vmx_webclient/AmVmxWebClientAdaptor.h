@@ -36,7 +36,10 @@ struct Pattern {
 struct amVmxWebClientDecryptParam
 {
     int mSecure;
-    int mSampleAES;
+    int mStreamingFormat;
+    int mMethodInfo;
+    const char *mKeyId;
+    int mKeyIdLen;
     const char *mKeyUrl;
     int mKeyUrlLen;
     int mKeySeq;

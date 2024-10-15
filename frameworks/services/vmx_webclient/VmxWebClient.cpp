@@ -28,6 +28,9 @@ typedef void (*WebClientSetPropertyFunc)(const void *, const std::string&, const
 
 typedef int (*WebClientGetCdmErrFunc)(void);
 
+typedef int (*WebClientDecryptExFunc)(const void*, const std::vector<uint8_t>&, const std::vector<uint8_t>&,
+                            const std::vector<uint8_t>&, const std::vector<uint8_t>&, std::vector<uint8_t>*);
+
 static WebClientAllocContextFunc webclient_alloc = NULL;
 static WebClientDecryptFunc webclient_decrypt = NULL;
 static WebClientFreeContextFunc webclient_free = NULL;
@@ -35,6 +38,7 @@ static WebClientSetCallbackFunc webclient_setCallback = NULL;
 static WebClientGetPropertyFunc webclient_getProperty = NULL;
 static WebClientSetPropertyFunc webclient_setProperty = NULL;
 static WebClientGetCdmErrFunc webclient_getCdmErr = NULL;
+static WebClientDecryptExFunc webclient_decrypt_ex = NULL;
 
 namespace aidl::vendor::amlogic::hardware::vmx_webclient::implementation {
 
@@ -60,6 +64,8 @@ VmxWebClient::VmxWebClient()
         (WebClientSetPropertyFunc)dlsym(mLibHandle, "amVmxWebClientSetProperty");
     webclient_getCdmErr =
         (WebClientGetCdmErrFunc)dlsym(mLibHandle, "amVmxWebClientGetCdmErr");
+    webclient_decrypt_ex =
+        (WebClientDecryptExFunc)dlsym(mLibHandle, "amVmxWebClientDecryptEx");
 
     if (webclient_alloc)
         mWebClientObj = webclient_alloc(NULL);
@@ -111,11 +117,33 @@ VmxWebClient::~VmxWebClient() {
     return ::ndk::ScopedAStatus::ok();
 }
 
-::ndk::ScopedAStatus VmxWebClient::decrypt(const VmxWebClientDecryptParam& para,
-        std::vector<uint8_t>* outData, int32_t* _aidl_return) {
-    (void)para;
-    (void)outData;
-    (void)_aidl_return;
+::ndk::ScopedAStatus VmxWebClient::decrypt(const std::vector<uint8_t>& keyid,
+                                const std::vector<uint8_t>& keyurl,
+                                const std::vector<uint8_t>& indata,
+                                const std::vector<uint8_t>& iv,
+                                std::vector<uint8_t>* outdata,
+                                int32_t* _aidl_return)
+{
+    int ret = 0;
+    if (mWebClientObj) {
+        if (webclient_decrypt_ex) {
+            ret = webclient_decrypt_ex(mWebClientObj, keyid, keyurl, indata, iv, outdata);
+            if (_aidl_return)
+                *_aidl_return = ret;
+            if (ret) {
+                ALOGE("decrypt failed 0x%x", ret);
+                return toNdkScopedAStatus(static_cast<Status>(ret));
+            }
+        } else {
+            ALOGE("Invalid obj or decryptex interface %p %p", mWebClientObj, webclient_decrypt_ex);
+            return toNdkScopedAStatus(Status::ERROR_DRM_CANNOT_HANDLE);
+        }
+    } else {
+        ALOGE("Invalid obj or decrypt interface %p %p", mWebClientObj, webclient_decrypt);
+        return toNdkScopedAStatus(Status::ERROR_DRM_SESSION_LOST_STATE);
+    }
+    if (_aidl_return)
+        *_aidl_return = 0;
     return ::ndk::ScopedAStatus::ok();
 }
 
@@ -131,7 +159,8 @@ VmxWebClient::~VmxWebClient() {
 
     if (mWebClientObj && webclient_decrypt) {
         amPara.mSecure = para.secure;
-        amPara.mSampleAES = para.sampleAES;
+        amPara.mStreamingFormat = para.streamingFormat;
+        amPara.mMethodInfo = para.methodInfo;
         amPara.mKeySeq = para.keySeq;
 
         if (para.mode == Mode::UNENCRYPTED) {
@@ -147,6 +176,11 @@ VmxWebClient::~VmxWebClient() {
 
         amPara.mPattern.mEncryptBlocks = para.pattern.encryptBlocks;
         amPara.mPattern.mSkipBlocks = para.pattern.skipBlocks;
+
+        if (para.keyid.size() > 0) {
+            amPara.mKeyId = (const char *)para.keyid.data();
+            amPara.mKeyIdLen = para.keyid.size();
+        }
 
         if (para.key.size() > 0) {
             amPara.mKeyUrl = (const char *)para.key.data();

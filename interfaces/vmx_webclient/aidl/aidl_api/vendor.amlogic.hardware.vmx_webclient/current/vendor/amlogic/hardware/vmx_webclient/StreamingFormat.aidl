@@ -26,13 +26,8 @@
 
 package vendor.amlogic.hardware.vmx_webclient;
 @VintfStability
-interface IVmxWebClient {
-  int createInstance();
-  int decrypt(in byte[] keyid, in byte[] keyurl, in byte[] indata, in byte[] iv, out byte[] outdata);
-  int decryptSecure(in vendor.amlogic.hardware.vmx_webclient.VmxWebClientDecryptParam para);
-  int destroyInstance();
-  void setCallback(in byte[] sessionId, in vendor.amlogic.hardware.vmx_webclient.IVmxWebClientCallback callback);
-  void getProperty(in String prop, out byte[] value);
-  void setProperty(in String prop, in byte[] value);
-  int getCdmErr();
+enum StreamingFormat {
+  SF_HLS_TS = 0,
+  SF_HLS_FMP4 = 1,
+  SF_DASH = 2,
 }

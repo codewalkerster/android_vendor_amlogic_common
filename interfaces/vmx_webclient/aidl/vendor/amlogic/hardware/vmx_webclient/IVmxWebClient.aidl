@@ -17,7 +17,7 @@ import vendor.amlogic.hardware.vmx_webclient.IVmxWebClientCallback;
 interface IVmxWebClient {
     int createInstance();
 
-    int decrypt(in VmxWebClientDecryptParam para, out byte[] outData);
+    int decrypt(in byte[] keyid, in byte[] keyurl, in byte[] indata, in byte[] iv, out byte[] outdata);
 
     int decryptSecure(in VmxWebClientDecryptParam para);
 
