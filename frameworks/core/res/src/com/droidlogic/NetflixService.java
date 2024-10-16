@@ -336,7 +336,7 @@ public class NetflixService extends Service {
             public void handleMessage(Message msg) {
                 switch (msg.what) {
                     case MSG_UPDATA:
-                        Log.d(TAG, "handleMessage");
+                        // Log.d(TAG, "handleMessage");
                         netflixFGStateUpdate();
                         break;
                     default:
@@ -563,16 +563,29 @@ public class NetflixService extends Service {
 
     private boolean isTopActivity(String pkgName){
         ActivityManager am = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningTaskInfo> infos = am.getRunningTasks(1);
-        ComponentName componentInfo = infos.get(0).topActivity;
+        List<ActivityManager.RunningTaskInfo> infos = null;
 
-        if (componentInfo.getPackageName().equals(pkgName)) {
-            Log.d(TAG,pkgName + " is top activity!");
-            return true;
-        }else{
-            Log.d(TAG,pkgName + "is not top activity.");
+        try {
+            infos = am.getRunningTasks(1);
+        } catch (SecurityException e) {
+            Log.d(TAG, "Failed to get running tasks. " + e.getMessage());
             return false;
         }
+
+        if (infos == null || infos.isEmpty()) {
+            Log.d(TAG,"No running tasks found.");
+            return false;
+        }
+
+        String topActivityPackageName = infos.get(0).topActivity.getPackageName();
+
+        if (pkgName.equals(topActivityPackageName)) {
+            // Log.d(TAG, pkgName + " is top activity!");
+            return true;
+        }
+
+        // Log.d(TAG, pkgName + " is not top activity.");
+        return false;
     }
 
     private boolean isAudioDeviceConnected(int type) {
@@ -597,19 +610,25 @@ public class NetflixService extends Service {
             }
             List<RootTaskInfo> infos = mIActivityManager.getAllRootTaskInfos();
             for (RootTaskInfo info : infos) {
+                if (info == null) {
+                    continue;
+                }
                 if (!info.visible) {
                     continue;
                 }
                 ComponentName componentInfo = info.topActivity;
+                if (componentInfo == null) {
+                    continue;
+                }
                 if (componentInfo.getPackageName().equals(pkgName)) {
                     Log.d(TAG, componentInfo.getPackageName() + " is top activity!");
                     return true;
                 }else{
-                    Log.d(TAG,componentInfo.getPackageName() + " is visible.");
+                    // Log.d(TAG,componentInfo.getPackageName() + " is visible.");
                     continue;
                 }
             }
-            Log.d(TAG,pkgName + " is not top activity.");
+            // Log.d(TAG,pkgName + " is not top activity.");
         }catch (RemoteException e) {
             Log.e(TAG, "Cannot getTasks", e);
         }
@@ -859,7 +878,7 @@ public class NetflixService extends Service {
 
         @Override
         public void onForegroundServicesChanged(int pid, int uid, int fgServiceTypes) {
-            Log.d(TAG, "onForegroundServicesChanged pid:" + pid);
+            // Log.d(TAG, "onForegroundServicesChanged pid:" + pid);
         }
 
         @Override
