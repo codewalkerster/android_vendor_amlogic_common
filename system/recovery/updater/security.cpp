@@ -646,7 +646,7 @@ int PrepareUpdate(const ZipArchiveHandle zipArchive){
     if (ret > 0) {
         printf("Find bootloader.img, start to update\n");
 
-        int fd = open("/dev/block/by-name/bootloader_up", O_RDWR | O_CREAT, 00777);
+        int fd = open("/dev/block/by-name/bootloader_up", O_RDWR, 00777);
         if (fd < 0) {
             printf("open /dev/block/by-name/bootloader_up failed\n");
             printf("write to /dev/block/by-name/bootloader\n");
