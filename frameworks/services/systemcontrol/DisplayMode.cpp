@@ -92,17 +92,6 @@ static const char* DV_MODE_TYPE[] = {
     "LL_RGB_444_10BIT"
 };
 
-/*
- * 0:parse original tv edid,hdmi output dv/hdr/sdr signal
- * 1:mark dv capability,hdmi only output hdr/sdr signal
- * 2:mark dv and hdr capability,hdmi always output sdr signal
- */
-static const char* HDR_PRIORITY_TYPE[] = {
-    "0",
-    "1",
-    "2"
-};
-
 static const char* ALLM_MODE_CAP[] = {
     "0",
     "1",
@@ -1139,7 +1128,9 @@ void DisplayMode::applyDisplaySetting(hdmi_output_info_t* output_info) {
 
         //apply hdr priority to driver sysfs
         if (hdr_priority_change) {
-            DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDR_PRIORITY, HDR_PRIORITY_TYPE[hdr_priority], ConnectorType::CONN_TYPE_HDMI);
+            char tmp[MODE_LEN] = {0};
+            sprintf(tmp, "%d", hdr_priority);
+            DisplayModeMgr::getInstance().setDisplayAttribute(DISPLAY_HDR_PRIORITY, tmp, ConnectorType::CONN_TYPE_HDMI);
         }
 
         //apply enable or disable dolby vision core
@@ -2910,7 +2901,9 @@ void DisplayMode::setHdrPriority(const char* type) {
     char cur_displaymode[MODE_LEN] = {0};
     getDisplayMode(cur_displaymode);
 
-    if (strstr(type, HDR_PRIORITY_TYPE[HDR10_PRIORITY])) {
+    char tmp[MODE_LEN] = {0};
+    sprintf(tmp, "%d", HDR10_PRIORITY);
+    if (strstr(type, tmp)) {
         if (mpSceneProcess->isHDRSupportMode(cur_displaymode)) {
             setSourceOutputMode(cur_displaymode);
         } else {
