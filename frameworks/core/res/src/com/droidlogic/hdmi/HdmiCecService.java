@@ -141,6 +141,7 @@ public class HdmiCecService extends Service {
             if (Global.getInt(getContentResolver(), SettingsObserver.SOUNDBAR_MODE, -1) == -1) {
                 Global.putInt(getContentResolver(), SettingsObserver.SOUNDBAR_MODE, soundbarSupported ? 1 : 0);
             }
+            SystemControlManager.getInstance().setProperty(PROP_SOUNDBAR_MODE, String.valueOf(soundbarSupported ? ENABLED : DISABLED));
 
             int hdmiCecEnabled = mHdmiControlManager.getHdmiCecEnabled();
             int hdmiSettingsEnabled = Global.getInt(getContentResolver(), HDMI_CONTROL_ENABLED, hdmiCecEnabled);
@@ -267,11 +268,11 @@ public class HdmiCecService extends Service {
         @Override
         public void onChange(boolean selfChange, Uri uri) {
             String option = uri.getLastPathSegment();
-            boolean enabled = Global.getInt(HdmiCecService.this.getContentResolver(), option, 0) == 1;
+            int enabled = Global.getInt(HdmiCecService.this.getContentResolver(), option, 0);
             Log.d(TAG, "onChange " + option + " enabled:" + enabled);
             switch (option) {
                 case CEC_ENABLE_ADB:
-                    if (enabled) {
+                    if (enabled == ENABLED) {
                         mVendorCommandHandler.sendEnableAdbVendorCommand();
                     }
                     break;
