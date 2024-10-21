@@ -94,22 +94,14 @@
 #define CFG_BLUESTRETCH_ENABLE                  "pq.BlueStretch.en"
 #define CFG_CHROMACORING_ENABLE                 "pq.ChromaCoring.en"
 #define CFG_LOCALDIMMING_ENABLE                 "pq.LocalDimming.en"
-#define CFG_GLOBAL_DIMMING                      "pq.GlobalDimming.en"
 #define CFG_HDMI_COLOR_RANGE_MODE               "pq.HdmiColorRangeMode.en"
 #define CFG_COLOR_SPACE                         "pq.ColorSpace.en"
 #define CFG_SUPER_RESOLUTION                    "pq.SuperResolution.en"
 #define CFG_FILM_MODE                           "pq.FilmMode.en"
 #define CFG_OSD_SHARPNEDD                       "pq.OsdSharpness.en"
 #define CFG_NEW_PICTURE_MODE_ENABLE             "pq.new_picture_mode.en"
-
 //dongle low power config
 #define CFG_DONGLE_LOW_POWER                    "pq.DongleLowPower.en"
-
-//special ui display/hatch cfg
-#define CFG_UI_PICTURE_MODE                     "pq.ui_picture_mode.en"
-#define CFG_UI_BACKLIGHT                        "pq.ui_backlight.en"
-#define CFG_UI_SHARPNESS                        "pq.ui_sharpness.en"
-
 //overscan module config
 #define CFG_DISPLAY_OVERSCAN_ENABLE             "pq.DisplayOverscan.en"
 

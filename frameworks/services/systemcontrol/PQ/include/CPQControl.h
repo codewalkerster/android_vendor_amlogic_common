@@ -305,6 +305,7 @@ public:
     void video_set_saturation_hue(signed char saturation, signed char hue, signed long *mab);
     void video_get_saturation_hue(signed char *sat, signed char *hue, signed long *mab);
     //Sharpness
+    bool HasSharpness(void);
     int SetSharpness(int value, int is_enable, int is_save);
     int GetSharpness(void);
     int SaveSharpness(int value);
@@ -389,6 +390,7 @@ public:
     int Cpq_SetVideoCrop(int Voffset0, int Hoffset0, int Voffset1, int Hoffset1);
     int Cpq_SetNonLinearFactor(int value);
     //Backlight
+    bool HasBackLight(void);
     int read_backlight_value(unsigned int *temp);
     int read_backlight2_value(unsigned int *temp);
     int read_backlight3_value(unsigned int *temp);
@@ -850,12 +852,8 @@ private:
     bool mbCpqCfg_dongle_low_power_enable               = false;
     bool mbCpqCfg_color_range_mode_enable               = false;
     bool mbCpqCfg_color_space_enable                    = false;
-    bool mbCpqCfg_global_dimming_enable                 = false;
     bool mbCpqCfg_super_resolution_enable               = false;
     bool mbCpqCfg_film_mode_enable                      = false;
-    bool mbCpqCfg_ui_picture_mode_enable                = false;
-    bool mbCpqCfg_ui_backlight_enable                   = false;
-    bool mbCpqCfg_ui_sharpness_enable                   = false;
     bool mbCpqCfg_osd_sharpness_enable                  = false;
 
     bool mInitialized                                   = false;
