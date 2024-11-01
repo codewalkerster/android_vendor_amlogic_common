@@ -53,6 +53,14 @@ import android.os.SystemProperties;
 import android.text.TextUtils;
 import android.bluetooth.BluetoothHidHost;
 import android.text.TextUtils;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 /**
  * Service for managing connection and data communication with a GATT server hosted on a
  * given Bluetooth LE device.
@@ -140,6 +148,8 @@ public class DialogBluetoothService extends Service {
     private static int UNPAIR_RESET_BUTTON_TRIGGER = 1;
     private static String DEFAULT_REMOTE_TYPE = "IR_NONE";
     private boolean flagjni = false;
+    private static String filePath = "/sys/class/aml_btusb/aml_btusb/aml_rclist";
+    private static final String MAC_ADDRESS_SEPARATOR = ";";
     /**
      * Used in order for the service to be notified about HID devices connection and bond state.
      */
@@ -155,6 +165,18 @@ public class DialogBluetoothService extends Service {
                 return;
 
             final String action = intent.getAction();
+
+            if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
+                int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
+                Log.i(TAG, "ACTION STATE CHANGED was " + state);
+                if (state == BluetoothAdapter.STATE_ON) {
+                    Log.i(TAG, "Bluetooth is ON");
+                    writeFileFromString(filePath, null);
+                    GetToBondedDevicesMacAddress();
+                }
+                return;
+            }
+
             final BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
             String macAddress = device.getAddress();
             String deviceName = device.getName();
@@ -203,25 +225,119 @@ public class DialogBluetoothService extends Service {
                     pending.add(device);
                     mHandler.removeCallbacks(mConnRunnable);
                     mHandler.postDelayed(mConnRunnable, CONNECTION_DELAY_MS);
-                } else if (bondStatePrev == BluetoothDevice.BOND_BONDED && bondStateNow == BluetoothDevice.BOND_NONE) {
-                    if (getBtUnpairBehavior(device.getName()) != UNPAIR_SHOW_INSTRUMENT) {
-                        Log.d(TAG, "No need to show instrument immediately");
-                        return;
-                    }
+                }
+                if (bondStatePrev == BluetoothDevice.BOND_BONDING && bondStateNow == BluetoothDevice.BOND_BONDED) {
                     BluetoothClass btClass = device.getBluetoothClass();
-                    if (btClass != null && btClass.getMajorDeviceClass() == BluetoothClass.Device.Major.PERIPHERAL && (!hasBondedDefaultDevices())) {
-                        Intent intent1 = new Intent();
-                        intent1.setComponent(new ComponentName("com.android.tv.settings", "com.android.tv.settings.accessories.AddAccessoryActivity"));
-                        intent1.putExtra("no_input_mode", true);
-                        intent1.putExtra("show_remote_only", true);
+                    Log.i(TAG, "Add BOND STATE CHANGED [" + device.getName() + "] - addr is " + macAddress);
+                    if (btClass != null && btClass.getMajorDeviceClass() == BluetoothClass.Device.Major.PERIPHERAL ) {
+                        writeMacAddressToFile(macAddress);
+                    }
+                }
+                else if (bondStatePrev == BluetoothDevice.BOND_BONDED && bondStateNow == BluetoothDevice.BOND_NONE) {
+                    BluetoothClass btClass = device.getBluetoothClass();
+                    Log.i(TAG, "Remove BOND STATE CHANGED [" + device.getName() + "] - addr is " + macAddress);
+                    if (btClass != null && btClass.getMajorDeviceClass() == BluetoothClass.Device.Major.PERIPHERAL ) {
+                        removeMacAddressFromFile(macAddress);
+                        if (!hasBondedDefaultDevices()) {
+                            Intent intent1 = new Intent();
+                            intent1.setComponent(new ComponentName("com.android.tv.settings", "com.android.tv.settings.accessories.AddAccessoryActivity"));
+                            intent1.putExtra("no_input_mode", true);
+                            intent1.putExtra("show_remote_only", true);
 
-                        intent1.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        context.startActivity(intent1);
+                            intent1.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            context.startActivity(intent1);
+                        }
                     }
                 }
             }
         }
     };
+
+    private void removeMacAddressFromFile(String macAddressToRemove) {
+        String currentMacAddresses = readFileToString(filePath);
+        Log.i(TAG, "Current MAC addresses in file: " + currentMacAddresses);
+        if (currentMacAddresses != null && !currentMacAddresses.isEmpty()) {
+            String[] addressList = currentMacAddresses.split(MAC_ADDRESS_SEPARATOR);
+            StringBuilder updatedAddressList = new StringBuilder();
+            boolean firstAddress = true;
+
+            for (String address : addressList) {
+                if (!address.toLowerCase().equals(macAddressToRemove.toLowerCase())) {
+                    if (!firstAddress) {
+                        updatedAddressList.append(MAC_ADDRESS_SEPARATOR);
+                    } else {
+                        firstAddress = false;
+                    }
+                    updatedAddressList.append(address);
+                }
+            }
+
+            writeFileFromString(filePath, updatedAddressList.toString());
+        }
+    }
+
+    private String readFileToString(String filePath) {
+        StringBuilder fileContent = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                fileContent.append(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return fileContent.toString();
+    }
+
+
+    private void writeFileFromString(String filePath, String content) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+	    if (content == null || content.isEmpty()) {
+                writer.write(MAC_ADDRESS_SEPARATOR);
+            } else {
+                writer.write(content);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void writeMacAddressToFile(String macAddress) {
+        List<String> macAddresses = readCurrentMacAddresses();
+        macAddresses.add(macAddress);
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            for (String address : macAddresses) {
+                StringBuilder sb = new StringBuilder();
+                sb.append(address).append(MAC_ADDRESS_SEPARATOR);
+                String content = sb.toString();
+                Log.i(TAG, "content = " + content);
+                writer.write(content);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private List<String> readCurrentMacAddresses() {
+        List<String> macAddresses = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(new File(filePath)))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                Log.i(TAG, "read now line : " + line);
+                String[] macAddressParts = line.split(";");
+                for (String macAddress : macAddressParts) {
+                    macAddresses.add(macAddress.trim());
+                    Log.i(TAG, "add mac to : " + macAddress.trim());
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e(TAG, "error " + e.getMessage());
+        }
+        return macAddresses;
+    }
 
     private Runnable mConnRunnable = new Runnable() {
         @Override
@@ -230,6 +346,7 @@ public class DialogBluetoothService extends Service {
                 Log. i(TAG, "mConnRunnable, looking on bonded devices in order to find connection target...");
                 //pending.clear();
                 connectToBondedDevices();
+                GetToBondedDevicesMacAddress();
             } else {
                 Log.e(TAG, "Ignoring connection attempt. State: " + mConnectionState);
             }
@@ -312,6 +429,34 @@ public class DialogBluetoothService extends Service {
         }
     }
 
+    /**
+     * Get to bonded devices mac address
+     */
+    public void GetToBondedDevicesMacAddress()
+    {
+        Log.i(TAG, "GetToBondedDevicesMacAddress><");
+
+        if (mBluetoothGatt != null && mConnectionState != STATE_DISCONNECTED) {
+            Log.e(TAG, "Already connected to GATT instance. Aborting another connection attempt!");
+            return;
+        }
+
+        if (mBluetoothAdapter == null) {
+            Log.e(TAG, "Adapter not yet initialized, not continuing with connection!");
+            return;
+        }
+
+        Set<BluetoothDevice> bondedDevices = mBluetoothAdapter.getBondedDevices();
+        Log.i(TAG, "bondedDevices size: " + bondedDevices.size());
+
+        writeFileFromString(filePath, null);
+        for (BluetoothDevice dev : bondedDevices) {
+            String macAddress = dev.getAddress(); // get mac address
+            Log.i(TAG, "Device Name: " + dev.getName() + ", MAC Address: " + macAddress);
+            writeMacAddressToFile(macAddress);
+        }
+    }
+
     public boolean isRemoteAudioCapable(BluetoothDevice device)
     {
         String name = (device == null ? null : device.getName());
@@ -375,7 +520,7 @@ public class DialogBluetoothService extends Service {
         filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
         filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED);
         filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-        //filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         //filter.addAction(BluetoothHidHost.ACTION_CONNECTION_STATE_CHANGED);
         registerReceiver(receiver, filter, mContext.RECEIVER_EXPORTED);
 
