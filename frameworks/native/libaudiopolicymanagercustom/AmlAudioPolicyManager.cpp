@@ -401,11 +401,10 @@ status_t AmlAudioPolicyManager::checkAndSetVolume(IVolumeCurves &curves,
             }
         }
     } else {
-        if (bBootVideoRunning) {
+        VolumeSource musicVolSrc = toVolumeSource(AUDIO_STREAM_MUSIC);
+        if (bBootVideoRunning && musicVolSrc == volumeSource) {
             ALOGV("[%s:%d] boot video Running, volume src:%d", __func__, __LINE__, volumeSource);
-            if (bBootVideoRunning) {
-                volumeDb = -18.37f;
-            }
+            volumeDb = -18.37f;
         }
         // set the source gain to audio hal
         for (auto client : outputDesc->clientsList(true /*activeOnly*/)) {
