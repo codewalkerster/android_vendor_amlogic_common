@@ -90,6 +90,12 @@ interface ISystemControl extends @1.0::ISystemControl{
   syncDensity(int32_t displayid, int32_t width, int32_t height)
       generates (Result result);
 
+  disableQms (bool isDisable)
+      generates (Result result);
+
+  getQmsVrrCap ()
+      generates (Result result);
+
   // AFR
   frameRateDisplay (bool on, Rect rect)
        generates (Result result);

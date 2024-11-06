@@ -384,6 +384,24 @@ Return<Result> SystemControlHal::syncDensity(int displayId, int width, int heigh
     return Result::FAIL;
 }
 
+Return<Result> SystemControlHal::disableQms(bool isDisale) {
+    SYS_LOGD("%s isDisale:%d", __FUNCTION__, isDisale);
+
+    if (mSysControl->disableQms(isDisale)) {
+        return Result::OK;
+    }
+    return Result::FAIL;
+}
+
+Return<Result> SystemControlHal::getQmsVrrCap() {
+    SYS_LOGD("%s", __FUNCTION__);
+
+    if (mSysControl->getQmsVrrCap()) {
+        return Result::OK;
+    }
+    return Result::FAIL;
+}
+
 Return<Result> SystemControlHal::writeHdcpRXImg(const hidl_string &path) {
     if (ENABLE_LOG_PRINT) ALOGI("writeHdcpRXImg path:%s", path.c_str());
     return mSysControl->writeHdcpRXImg(path)?Result::OK:Result::FAIL;

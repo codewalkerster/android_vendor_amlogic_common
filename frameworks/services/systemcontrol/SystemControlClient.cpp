@@ -143,9 +143,19 @@ bool SystemControlClient::writeSysfs(const std::string& path, const std::string&
 bool SystemControlClient::memcContrl(int isEnable) {
     return (mSysCtrl->memcContrl(isEnable) == Result::OK);
 }
+
 bool SystemControlClient::syncDensity(int displayid,int width, int height) {
     return (mSysCtrl->syncDensity(displayid, width, height) == Result::OK);
 }
+
+bool SystemControlClient::disableQms(bool isDisable) {
+    return (mSysCtrl->disableQms(isDisable) == Result::OK);
+}
+
+bool SystemControlClient::getQmsVrrCap() {
+    return (mSysCtrl->getQmsVrrCap() == Result::OK);
+}
+
 bool SystemControlClient::writeSysfs(const std::string& path, const char *value, const int size) {
     int i;
     hidl_array<int32_t, 4096> result;

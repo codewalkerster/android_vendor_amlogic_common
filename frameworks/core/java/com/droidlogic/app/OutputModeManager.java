@@ -471,6 +471,14 @@ public class OutputModeManager {
         return false;
     }
 
+    public boolean disableQms(boolean isDisable) {
+        return mSystemControl.disableQms(isDisable);
+    }
+
+    public boolean getQmsVrrCap() {
+        return mSystemControl.getQmsVrrCap();
+    }
+
     public boolean isSupportHDRResolution(int type, String mode) {
         return mSystemControl.isSupportHDRResolution(type, mode);
     }

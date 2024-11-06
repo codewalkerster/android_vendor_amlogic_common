@@ -389,6 +389,8 @@ public:
     virtual status_t dump(int fd, const std::vector<std::string>& args);
 
     int getLogLevel();
+    bool disableQms(bool isDisable);
+    bool getQmsVrrCap();
 
     bool memcContrl(bool on);
 private:

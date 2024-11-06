@@ -358,6 +358,9 @@ class SystemControlHal : public ISystemControl, public SystemControlNotify, publ
     //memc
     Return<Result> memcContrl(bool on) override;
 
+    Return<Result> disableQms(bool isDisable) override;
+    Return<Result> getQmsVrrCap() override;
+
     //static frame
     Return<int32_t> setStaticFrameEnable(int32_t enable, int32_t isSave);
     Return<int32_t> getStaticFrameEnable();

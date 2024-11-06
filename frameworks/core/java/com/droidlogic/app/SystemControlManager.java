@@ -286,6 +286,28 @@ public class SystemControlManager {
         return false;
     }
 
+    public boolean disableQms(boolean isDisable) {
+        synchronized (mLock) {
+            try {
+                  return (mProxy.disableQms(isDisable) == Result.OK);
+            } catch (RemoteException e) {
+                Log.e(TAG, "disableQms:" + e);
+            }
+        }
+        return false;
+    }
+
+    public boolean getQmsVrrCap() {
+        synchronized (mLock) {
+            try {
+                  return (mProxy.getQmsVrrCap() == Result.OK);
+            } catch (RemoteException e) {
+                Log.e(TAG, "getQmsVrrCap:" + e);
+            }
+        }
+        return false;
+    }
+
     public int[] paddingBuffer(int[] src, int def, int len) {
         int[] data;
         data = new int[len];

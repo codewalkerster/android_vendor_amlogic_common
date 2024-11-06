@@ -3538,3 +3538,26 @@ void DisplayMode::resetMemc() {
     }
     close(memDev);
 }
+
+bool DisplayMode::disableQms(bool isDisable) {
+    bool ret = false;
+
+    ret = DisplayModeMgr::getInstance().disableQms(isDisable);
+
+    if (!ret)
+        SYS_LOGE("%s fail\n", __FUNCTION__);
+
+    return ret;
+}
+
+bool DisplayMode::getQmsVrrCap() {
+    bool ret = false;
+
+    ret = DisplayModeMgr::getInstance().getQmsVrrCap();
+
+    if (!ret)
+        SYS_LOGE("%s fail\n", __FUNCTION__);
+
+    return ret;
+}
+

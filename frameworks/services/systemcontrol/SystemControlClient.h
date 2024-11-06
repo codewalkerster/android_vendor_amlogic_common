@@ -362,6 +362,9 @@ public:
     //memc
     bool memcContrl(int isEnable);
 
+    bool disableQms(bool isDisable);
+    bool getQmsVrrCap();
+
     //static frame
     int setStaticFrameEnable(int enable, int isSave);
     int getStaticFrameEnable();

@@ -628,6 +628,9 @@ public:
     void setHdrPriority(const char* type);
     void gethdrforcemode(char* value);
     bool memcContrl(bool on);
+    bool disableQms(bool isDisable);
+    bool getQmsVrrCap();
+
 private:
 
     bool getBootEnv(const char* key, char* value);

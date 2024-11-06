@@ -132,6 +132,32 @@ bool DisplayModeMgr::initConnectType() {
     return status;
 }
 
+bool DisplayModeMgr::disableQms(bool isDisable) {
+    CHECK_DISPLAY_SERVICE();
+
+    bool ret = false;
+
+    ret = mDisplayAdapter->disableQms(isDisable);
+
+    if (!ret)
+        SYS_LOGE("%s fail\n", __FUNCTION__);
+
+    return ret;
+}
+
+bool DisplayModeMgr::getQmsVrrCap() {
+    CHECK_DISPLAY_SERVICE();
+
+    bool ret = false;
+
+    ret = mDisplayAdapter->getQmsVrrCap();
+
+    if (!ret)
+        SYS_LOGE("%s fail\n", __FUNCTION__);
+
+    return ret;
+}
+
 bool DisplayModeMgr::getDisplayMode(char *mode, int len) {
     bool ret = false;
     std::string curMode = "null";

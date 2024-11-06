@@ -3223,6 +3223,14 @@ bool SystemControlService::memcContrl(bool on) {
     return pDisplayMode->memcContrl(on);
 }
 
+bool SystemControlService::disableQms(bool isDisable) {
+    return pDisplayMode->disableQms(isDisable);
+}
+
+bool SystemControlService::getQmsVrrCap() {
+    return pDisplayMode->getQmsVrrCap();
+}
+
 bool SystemControlService::frameRateDisplay(bool on) {
     if (pDisplayMode != NULL) {
         return pDisplayMode->frameRateDisplay(on);
