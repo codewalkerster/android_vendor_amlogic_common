@@ -133,6 +133,8 @@
 #define AMVECM_IOC_S_SDR2HDR_CTRL              _IO(AMVECM_IOC_MAGIC, 0x8d)
 //chip type
 #define AMVECM_IOC_G_CHIP_TYPE                 _IOR(AMVECM_IOC_MAGIC, 0x8e, int)
+//chip cls
+#define AMVECM_IOC_G_CHIP_ClASS                _IOR(AMVECM_IOC_MAGIC, 0x8f, int)
 
 //VPP.DI IOCTL command list
 #define _DI_    'D'

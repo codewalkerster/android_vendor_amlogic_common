@@ -175,6 +175,10 @@ void CPQControl::CPQControlInit()
     mCurrentSourceInputInfo.sig_fmt      = TVIN_SIG_FMT_HDMI_1920X1080P_60HZ;
     mCurrentSourceInputInfo.trans_fmt    = TVIN_TFMT_2D;
 
+    //get chip type & chip cls
+    mChipType = GetChipType();
+    mChipCls = GetChipCls();
+
     //check output mode
     mCurrentOutputType = CheckOutPutMode(SOURCE_MPEG);
 
@@ -1885,7 +1889,8 @@ void CPQControl::video_get_saturation_hue(signed char *sat, signed char *hue, si
 //sharpness
 bool CPQControl::HasSharpness(void)
 {
-    if (mbCpqCfg_sharpness0_enable || mbCpqCfg_sharpness1_enable || mbCpqCfg_sharpnesspi_enable) {
+    if ((mbCpqCfg_sharpness0_enable || mbCpqCfg_sharpness1_enable || mbCpqCfg_sharpnesspi_enable) &&
+        (mChipCls == 1 /*TV_CHIP,*/)) {
         return true;
     }
 
@@ -2140,6 +2145,15 @@ int CPQControl::Cpq_SetOsdSharpness(bool enable)
 }
 
 //SuperResolution
+bool CPQControl::HasSuperResolution(void)
+{
+    if (mbCpqCfg_super_resolution_enable && (mChipCls == 1 /*TV_CHIP,*/)) {
+        return true;
+    }
+
+    return false;
+}
+
 int CPQControl::SetSuperResolution(int value, int is_save)
 {
     if (is_save) {
@@ -2197,6 +2211,11 @@ int CPQControl::SaveSuperResolution(int value)
 
 int CPQControl::Cpq_SetSuperResolution(int value, source_input_param_t source_input_param)
 {
+    if (!mbCpqCfg_super_resolution_enable) {
+        SYS_LOGD("%s: SuperResolution module disabled!\n", __FUNCTION__);
+        return 0;
+    }
+
     int ret = 0;
     ret |= Cpq_SetSharpness0FixedParam(value, source_input_param);
     ret |= Cpq_SetSharpness1FixedParam(value, source_input_param);
@@ -8152,7 +8171,7 @@ int CPQControl::HasPqCaseFunc(pq_case_func_e type)
         case PQ_CASE_FUNC_BLACK_STRETCH:     func_en = mbCpqCfg_blackextension_enable;    break;
         case PQ_CASE_FUNC_DNLP:              func_en = mbCpqCfg_dnlp_enable;              break;
         case PQ_CASE_FUNC_LOCAL_CONTRAST:    func_en = mbCpqCfg_local_contrast_enable;    break;
-        case PQ_CASE_FUNC_SR:                func_en = mbCpqCfg_super_resolution_enable;  break;
+        case PQ_CASE_FUNC_SR:                func_en = HasSuperResolution();              break;
         case PQ_CASE_FUNC_DNR:               func_en = mbCpqCfg_nr_enable;                break;
         case PQ_CASE_FUNC_DEBLOCK:           func_en = mbCpqCfg_deblock_enable;           break;
         case PQ_CASE_FUNC_DEMOSQUITO:        func_en = mbCpqCfg_demoSquito_enable;        break;
@@ -8181,6 +8200,21 @@ int CPQControl::GetChipType(void)
 
     SYS_LOGD("%s, chip_type:%d\n", __FUNCTION__, chip_type);
     return chip_type;
+}
+
+int CPQControl::GetChipCls(void)
+{
+    int ret = 0;
+    int chip_cls = 0; /*detail chip cls please refer enum chip_cls_e*/
+
+    ret = VPPDeviceIOCtl(AMVECM_IOC_G_CHIP_ClASS, &chip_cls);
+    if (ret < 0) {
+       SYS_LOGE("%s error(%s)!\n", __FUNCTION__, strerror(errno));
+       return -1;
+    }
+
+    SYS_LOGD("%s, chip_cls:%d\n", __FUNCTION__, chip_cls);
+    return chip_cls;
 }
 
 int CPQControl::SetPLLValues(source_input_param_t source_input_param)
@@ -8943,7 +8977,7 @@ int CPQControl::Cpq_SetAiSrEnable(bool enable)
         return 0;
     }
 
-    if (GetChipType() == 0x47 || GetChipType() == 0x48) { //MESON_CPU_MAJOR_ID_S7D || MESON_CPU_MAJOR_ID_S6
+    if (mChipType == 0x47 || mChipType == 0x48) { //MESON_CPU_MAJOR_ID_S7D || MESON_CPU_MAJOR_ID_S6
         if (pqWriteSys(VIDEO_AISR_ENABLE_NEW, enable ? "1" : "0") < 0) {
             SYS_LOGE("%s failed!\n", __FUNCTION__);
             return -1;
@@ -8987,7 +9021,7 @@ int CPQControl::GetAiSrMode()
 
     data = pData.aisr_mode;
 
-    if (GetChipType() == 0x38 && data > 1) { //MESON_CPU_MAJOR_ID_T3 = 0x38
+    if (mChipType == 0x38 && data > 1) { //MESON_CPU_MAJOR_ID_T3 = 0x38
         /*T3 aisr is two level, so just use 0 and 1, but UI bin default value maybe 2 or 3*/
         data = 1;
     }
@@ -9034,7 +9068,7 @@ int CPQControl::Cpq_SetAiSrMode(aisr_mode_e mode, source_input_param_t source_in
 
     SYS_LOGI("%s mode = %d\n", __FUNCTION__, mode);
 
-    if (GetChipType() == 0x38) { //MESON_CPU_MAJOR_ID_T3 = 0x38
+    if (mChipType == 0x38) { //MESON_CPU_MAJOR_ID_T3 = 0x38
         SYS_LOGI("%s two level aisr project, no need load reg table\n", __FUNCTION__);
         goto SET_ENABLE;
     }

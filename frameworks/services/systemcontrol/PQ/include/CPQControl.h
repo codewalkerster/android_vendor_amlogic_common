@@ -317,6 +317,7 @@ public:
     int SetOsdSharpness(bool enable, int is_save);
     bool GetOsdSharpness(void);
 
+    bool HasSuperResolution(void);
     int SetSuperResolution(int value, int is_save);
     int GetSuperResolution(void);
     int SaveSuperResolution(int value);
@@ -556,6 +557,7 @@ public:
     int SetFlagByCfg(void);
     int HasPqCaseFunc(pq_case_func_e type);
     int GetChipType(void);
+    int GetChipCls(void);
     int SetPLLValues(source_input_param_t source_input_param);
     int SetCVD2Values(void);
     int SetCurrentSourceInputInfo(source_input_param_t source_input_param);
@@ -879,9 +881,10 @@ private:
     int mCurrentNodeNumber                              = 0;
     int mSliceNum                                       = 1;
     int mFrameRate                                      = 60;
-
-    unsigned int mHdmiHdrInfo                           = 0;
     int IsDvApoTypeGame                                 = 0;
+    int mChipType                                       = -1;
+    int mChipCls                                        = -1;
+    unsigned int mHdmiHdrInfo                           = 0;
 
     resolution_height_type_t mOutPutFrameHeightType     = UHD_HEIGHT_2160;//for aisr demo patch
 
