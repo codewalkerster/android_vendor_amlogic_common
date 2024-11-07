@@ -8874,7 +8874,7 @@ bool CPQControl::hasAisrFunc()
     }
 
     SYS_LOGI("%s, has aisr or not:%d\n", __FUNCTION__, ret);
-    return false;
+    return ret;
 }
 
 int CPQControl::SetAiSrEnable(bool isEnable)
