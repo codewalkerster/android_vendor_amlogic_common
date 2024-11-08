@@ -52,6 +52,11 @@ public class BootComplete extends BroadcastReceiver {
 
     private static final String SOUNDBAR_MODE = "soundbar_mode";
     private static final String PROPERTY_SOUNDBAR_MODE_SUPPORTED = "ro.vendor.platform.support.soundbar";
+    private static final String KEY_POWER = "116";
+    private static final String KEY_HOME = "102";
+    private static final String NEED_START_NTF = "need_start_netflix_app";
+    private static final String SAVE_WOL = "WOL";
+    private static final String AMATI_FEATURE = "com.google.android.feature.AMATI_EXPERIENCE";
 
     private boolean mHasTvUiMode;
 
@@ -90,8 +95,29 @@ public class BootComplete extends BroadcastReceiver {
         if (getBooleanProperty("ro.vendor.subtitle.enable_fallback_display", false)) {
             context.startService(new Intent(context, SubtitleDisplayer.class));
         }
+
+        SystemControlManager systemcontrolmanager = SystemControlManager.getInstance();
+        String wakeup_key_event = systemcontrolmanager.readSysFs("/sys/class/remote0/amremote0/wakeup_key_event");
+        Log.i(TAG, "wakeup_key_event:" + wakeup_key_event);
+
         if (context.getPackageManager().hasSystemFeature(NetflixService.FEATURE_SOFTWARE_NETFLIX)) {
-            context.startService(new Intent(context, NetflixService.class));
+            Intent netflix_intent = new Intent(context, NetflixService.class);
+
+            if (wakeup_key_event != null && wakeup_key_event.length() > 0) {
+                String key_map = systemcontrolmanager.readSysFs("/sys/class/remote0/amremote0/keymap");
+                if (key_map != null && key_map.length() > 0) {
+                    int index = key_map.indexOf(wakeup_key_event);
+                    if (index >= 0) {
+                        String wakeup_keycode = key_map.substring(index + wakeup_key_event.length());
+                        Log.d(TAG, "wakeup key:" + wakeup_keycode);
+                        if (!wakeup_keycode.contains(KEY_POWER) && !wakeup_keycode.contains(KEY_HOME)) {
+                            netflix_intent.putExtra(NEED_START_NTF, true);
+                            SystemProperties.set("persist.sys.customkey.wakeup", "true");
+                        }
+                    }
+                }
+            }
+            context.startService(netflix_intent);
         }
         if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_HDMI_CEC)) {
             context.startService(new Intent(context, HdmiCecService.class));

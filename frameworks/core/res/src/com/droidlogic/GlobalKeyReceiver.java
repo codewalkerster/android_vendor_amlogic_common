@@ -70,6 +70,10 @@ public class GlobalKeyReceiver extends BroadcastReceiver {
     private static final String EXTRA_PACKAGE_NAME = "launchPackageName";
     private static final String EXTRA_LAUNCH_INTENT = "launchIntent";
     private static final String NETFLIX_INTENT = "com.netflix.action.NETFLIX_KEY_START";
+    private static final String ACTION_VIEW_INPUTS = "com.android.tv.action.VIEW_INPUTS";
+    private static final String EXTRA_LAUNCH_FROM_INPUT_KEY = "launchFromInputKey";
+
+    private boolean mIsCustomWakekey = true;
 
     private static boolean isTvSetupComplete(Context context) {
         return Settings.Secure
@@ -168,6 +172,16 @@ public class GlobalKeyReceiver extends BroadcastReceiver {
                 case KeyEvent.KEYCODE_BUTTON_4:
                     if (keyAction == KeyEvent.ACTION_UP) {
                         Log.i(TAG, "onReceive:  receive from interactive " + fromNonInteractive );
+
+                        if (mIsCustomWakekey) {
+                            mIsCustomWakekey = SystemProperties.getBoolean("persist.sys.customkey.wakeup", false);
+                            if (mIsCustomWakekey) {
+                                SystemProperties.set("persist.sys.customkey.wakeup", "false");
+                                Log.i(TAG, "this is a special key,no need to launch netflix here");
+                                return;
+                            }
+                        }
+
                         oneTouchPlay(context);
                         launchNetflix(context,fromNonInteractive);
                     }

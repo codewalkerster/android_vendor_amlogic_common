@@ -131,6 +131,8 @@ public class NetflixService extends Service {
     private HdrConversionMode mHdrConversionMode;
     private AudioManagerAudioDeviceCallback mAudioManagerAudioDeviceCallback;
 
+    private static final String NEED_START_NTF = "need_start_netflix_app";
+
     private class SettingsObserver extends ContentObserver {
         public SettingsObserver(Handler handler) {
             super(handler);
@@ -350,6 +352,10 @@ public class NetflixService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        boolean isNeedStartApp = intent.getBooleanExtra(NEED_START_NTF, false);
+        if (isNeedStartApp) {
+            launchNetflix();
+        }
         return super.onStartCommand(intent, flags, startId);
     }
 
