@@ -859,16 +859,12 @@ private:
     bool mbCpqCfg_osd_sharpness_enable                  = false;
 
     bool mInitialized                                   = false;
-
     bool mbVideoIsPlaying                               = false;//video don't playing
     bool screenColorEnable                              = false;
     bool mCurrentHdrStatus                              = false;
     bool mbDtvKitEnable                                 = false;
     bool mbDatabaseMatchChipStatus                      = false;
-
-    bool mDisplayMode4k120                              = false;
-    bool mDisplayMode4k100                              = false;
-
+    bool mDisplayMode120_100Hz                          = false;
     bool mbFilmmakerModeFlag                            = false;
 
     int mAmvideoFd                                      = -1;

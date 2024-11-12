@@ -10163,37 +10163,40 @@ output_type_t CPQControl::MapDbTvoutWithIOResolution(int inputFrameHeight, int o
         mPQdb->mDbMatchType == MATCH_TYPE_MBOX_S6) {
         int index_in = 0, index_out = 0, table_type = 0;
 
-        for (int i = 0; i < RESOLUTION_MAX; i++) { //pick up input index
+        //pick up input index
+        for (int i = 0; i < RESOLUTION_MAX; i++) {
             if (inputFrameHeight < Table_ResolutionHeightThread[i][1]) {
-                index_in = i - 1;
+                index_in = i - 1; //480/576/720/1080/2160 input
                 break;
             }
-            if (inputFrameHeight >= Table_ResolutionHeightThread[UHD_HEIGHT_4320][1]) { //input 8k
-                index_in = 5;
+            if (inputFrameHeight >= Table_ResolutionHeightThread[UHD_HEIGHT_4320][1]) {
+                index_in = 5; //4320 input
             }
         }
 
-        for (int j = 0; j < RESOLUTION_MAX; j++) { //pick up output index
+        //pick up output index
+        for (int j = 0; j < RESOLUTION_MAX; j++) {
             if (outputFrameHeight < Table_ResolutionHeightThread[j][1]) {
-                index_out = j - 1;
+                index_out = j - 1; //480/576/720/1080/2160 output
                 break;
             }
-            if (outputFrameHeight >= Table_ResolutionHeightThread[UHD_HEIGHT_4320][1]) { //8k output
-                index_out = 5;
+            if (outputFrameHeight >= Table_ResolutionHeightThread[UHD_HEIGHT_4320][1]) {
+                index_out = 5; //4320 output
             }
         }
 
+        //judge execute 4K+120/100Hz table or not
         if (mPQdb->mHdrStatus == true) {
-            if (mDisplayMode4k120 == true || mDisplayMode4k100 ==  true) {
-                table_type = 3;
+            if (index_out == 4 && mDisplayMode120_100Hz ==  true) {
+                table_type = (int)TABLE_TYPE_4K120_HDR;
             } else {
-                table_type = 1;
+                table_type = (int)TABLE_TYPE_HDR;
             }
         } else {
-            if (mDisplayMode4k120 == true || mDisplayMode4k100 == true) {
-                table_type = 2;
+            if (index_out == 4 && mDisplayMode120_100Hz == true) {
+                table_type = (int)TABLE_TYPE_4K120;
             } else {
-                table_type = 0;
+                table_type = (int)TABLE_TYPE_SDR;
             }
         }
 
@@ -10238,15 +10241,21 @@ output_type_t CPQControl::MapDbTvoutWithIOResolution(int inputFrameHeight, int o
 output_type_t CPQControl::CheckOutPutMode(tv_source_input_t source_input)
 {
     output_type_t OutPutType = OUTPUT_TYPE_LVDS;
+
     if (!isFileExist(HDMI_OUTPUT_CHECK_PATH)) {//LVDS output
         OutPutType = OUTPUT_TYPE_LVDS;
     } else {
         int outputFrameHeight = 1080;
         char outputModeBuf[32] = {0};
+
+        /* "/sys/class/display/mode" driver return format, ex:
+         * 1920x1080p120hz
+         * 2160p60hz
+         */
         if ((pqReadSys(DISPLAY_MODE, outputModeBuf, sizeof(outputModeBuf)) < 0) || (strlen(outputModeBuf) == 0)) {
-            SYS_LOGD("Read DISPLAY_MODE failed!\n");
+            SYS_LOGE("%s: Read DISPLAY_MODE failed!\n", __FUNCTION__);
         } else {
-            SYS_LOGD( "%s: current output mode is %s!\n", __FUNCTION__, outputModeBuf);
+            SYS_LOGD( "%s: current output mode:%s\n", __FUNCTION__, outputModeBuf);
             if (strstr(outputModeBuf, "null")) {
                 return OUTPUT_TYPE_MAX;
             } else if (strstr(outputModeBuf, "480cvbs")) {//NTSC output
@@ -10254,28 +10263,25 @@ output_type_t CPQControl::CheckOutPutMode(tv_source_input_t source_input)
             } else if(strstr(outputModeBuf, "576cvbs")) {//PAL output
                 OutPutType = OUTPUT_TYPE_PAL;
             } else {//HDMI output
-                char tempBuf[32] = {0};
-                int outputModeStrSize = strlen(outputModeBuf);
-                strncpy(tempBuf, outputModeBuf, (outputModeStrSize-4));//delete "xxhz"
-                SYS_LOGD( "%s: size is %d, str is : %s!\n", __FUNCTION__, outputModeStrSize, tempBuf);
-                if (strstr(tempBuf, "smpte")) {
+                if (strstr(outputModeBuf, "smpte")) {
                     outputFrameHeight = 4096;
+                } else if (strstr(outputModeBuf, "120hz") || strstr(outputModeBuf, "100hz")) {
+                    mDisplayMode120_100Hz = true;
                 } else {
-                    memset(tempBuf,0, sizeof(tempBuf));
-                    strncpy(tempBuf, outputModeBuf, (outputModeStrSize - 5));//delete "pxxhz"
-                    outputFrameHeight = atoi(tempBuf);
-                }
-                SYS_LOGD("%s: outputFrameHeight: %d!\n", __FUNCTION__, outputFrameHeight);
+                    const char delim[2] = "p";
+                    char *token;
 
-                if (strstr(outputModeBuf, "120hz")) {
-                    mDisplayMode4k120 = true;
-                } else if (strstr(outputModeBuf, "100hz")) {
-                    mDisplayMode4k100 = true;
-                } else {
-                    mDisplayMode4k120 = false;
-                    mDisplayMode4k100= false;
+                    token = strtok(outputModeBuf, delim);
+                    if (token != NULL) {
+                        outputFrameHeight = atoi(token);
+                    } else {
+                        outputFrameHeight = 1920;
+                        SYS_LOGE("%s: /sys/class/display/mode return format no char 'p'\n", __FUNCTION__);
+                    }
+
+                    mDisplayMode120_100Hz = false;
                 }
-                SYS_LOGD("%s: mDisplayMode4k120:%d mDisplayMode4k100:%d!\n", __FUNCTION__, mDisplayMode4k120, mDisplayMode4k100);
+                SYS_LOGD("%s: outputFrameHeight:%d mDisplayMode120_100Hz:%d\n", __FUNCTION__, outputFrameHeight, mDisplayMode120_100Hz);
 
                 //check outputmode
                 if ((source_input == SOURCE_MPEG)
