@@ -71,3 +71,6 @@ on property:vendor.w1_wifi_type=ap
 on property:vendor.w1_wifi_type=p2p
    write /sys/module/vlsicomm/parameters/con_mode 130
 
+on post-fs
+    setprop sys.wifitracing.started 2
+
