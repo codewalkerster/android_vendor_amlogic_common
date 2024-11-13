@@ -107,6 +107,7 @@ public class NetflixService extends Service {
     private static final int UI_AUDIO_DELAY_OFFSET_OTT_PCM = 75;
     private static final int DEVICE_CLEANUP_TIMEOUT=5000;
     private static boolean atmosSupportedByConfig = false;
+    private static boolean ddpSupportedByConfig = false;
     private boolean mIsNetflixFg = false;
     private boolean mIsYoutubeFg = false;
     private boolean hasMS12 = false;
@@ -279,9 +280,13 @@ public class NetflixService extends Service {
         mDisplayManager = (DisplayManager)getSystemService(DisplayManager.class);
 
         hasMS12 = mDroidAudioManager.isAudioSupportMs12System();
+        Log.d(TAG, "ms12Supported = " + hasMS12);
         initNrdpCapabilities();
         atmosSupportedByConfig = isAtmosConfiged();
         Log.d(TAG, "atmosSupportedByConfig = " + atmosSupportedByConfig);
+        ddpSupportedByConfig = isDdpConfiged();
+        Log.d(TAG, "ddpSupportedByConfig = " + ddpSupportedByConfig);
+
         mAudioManagerAudioDeviceCallback = new AudioManagerAudioDeviceCallback();
         mAudioManager.registerAudioDeviceCallback(mAudioManagerAudioDeviceCallback, null);
         refreshAudioCapabilities(true);
@@ -634,6 +639,17 @@ public class NetflixService extends Service {
                 String subformat = Settings.Global.getString(mContext.getContentResolver(), DroidAudioManager.DIGITAL_AUDIO_SUBFORMAT);
                 Log.i(TAG, "onChange manual subformat: " + subformat);
                 setAtmosEnabled(subformat.contains(AudioFormat.ENCODING_E_AC3_JOC + ""));
+                setAtmosEnabled(subformat.contains(AudioFormat.ENCODING_E_AC3 + ""));
+            } else if (DroidAudioManager.DIGITAL_AUDIO_FORMAT_PCM == surround) {
+                state = (AudioSystem.DEVICE_STATE_AVAILABLE == AudioSystem.getDeviceConnectionState(AudioSystem.DEVICE_OUT_HDMI_ARC, ""))
+                    || (AudioSystem.DEVICE_STATE_AVAILABLE == AudioSystem.getDeviceConnectionState(AudioSystem.DEVICE_OUT_HDMI_EARC, ""));
+
+                Log.i(TAG, "PCM Arc/eArc state: " + state);
+
+                // For arc/earc, After disconnecting arc, it need to be configured as the default value in the json file.
+                setDdpEnabled(state? false : ddpSupportedByConfig);
+                setAtmosEnabled(state? false : atmosSupportedByConfig);
+
             } else {
                 state = (AudioSystem.DEVICE_STATE_AVAILABLE == AudioSystem.getDeviceConnectionState(AudioSystem.DEVICE_OUT_HDMI_ARC, ""))
                     || (AudioSystem.DEVICE_STATE_AVAILABLE == AudioSystem.getDeviceConnectionState(AudioSystem.DEVICE_OUT_HDMI_EARC, ""));
@@ -643,7 +659,9 @@ public class NetflixService extends Service {
                 hdmiEncodings = mAudioManager.getParameters("hdmi_encodings");
 
                 // For arc/earc, After disconnecting arc, it need to be configured as the default value in the json file.
+                setDdpEnabled(state? hdmiEncodings.contains("eac3") : ddpSupportedByConfig);
                 setAtmosEnabled(state? hdmiEncodings.contains("atmos") : atmosSupportedByConfig);
+
             }
 
             setUiAudioBufferDelayOffsetTv();
@@ -678,23 +696,33 @@ public class NetflixService extends Service {
         }
     }
 
+
+    private void setDdpEnabled(boolean enabled) {
+        updateSettingsJsonObjectBoolean(NRDP_AUDIO_PLATFORM_CAP, "ddplus", "enabled", enabled);
+    }
+
+
     private void setAtmosEnabled(boolean enabled) {
+        updateSettingsJsonObjectBoolean(NRDP_AUDIO_PLATFORM_CAP, "atmos", "enabled", enabled);
+    }
+
+    private void updateSettingsJsonObjectBoolean(String nrdp_name, String objName, String attr, boolean enabled) {
         // Refer to /vendor/etc/nrdp_audio_platform_capabilities.json
-        String audioCap = Settings.Global.getString(getContentResolver(), NRDP_AUDIO_PLATFORM_CAP);
+        String audioCap = Settings.Global.getString(getContentResolver(), nrdp_name);
         if (audioCap == null)
             return;
 
-        Log.i(TAG, "set ATMOS support " + enabled);
+        Log.i(TAG, "set "+ objName + " support " + enabled);
 
         try {
             JSONObject rootObject = new JSONObject(audioCap);
             JSONObject audioCapsObject = rootObject.getJSONObject("audiocaps");
-            JSONObject atmosObject = audioCapsObject.getJSONObject("atmos");
+            JSONObject object = audioCapsObject.getJSONObject(objName);
 
-            boolean isEnabled = atmosObject.getBoolean("enabled");
+            boolean isEnabled = object.getBoolean(attr);
             if (isEnabled ^ enabled) {
-                Log.i(TAG, "set ATMOS support " + isEnabled + " -> " + enabled);
-                atmosObject.put("enabled", enabled);
+                Log.i(TAG, "set " + objName + " support " + isEnabled + " -> " + enabled);
+                object.put(attr, enabled);
                 Settings.Global.putString(getContentResolver(), NRDP_AUDIO_PLATFORM_CAP, rootObject.toString());
             }
         } catch (org.json.JSONException e) {
@@ -755,16 +783,30 @@ public class NetflixService extends Service {
             UI_AUDIO_DELAY_OFFSET_TV_MS12 : UI_AUDIO_DELAY_OFFSET_TV_NON_DOLBY);
 	}
 
-    private boolean isAtmosConfiged() {
+    private boolean isDdpConfiged() {
         String capName_File = NRDP_AUDIO_PLATFORM_CAP;
-        if (hasMS12 && mDroidAudioManager.getDigitalAudioFormatOut() == DroidAudioManager.DIGITAL_AUDIO_FORMAT_AUTO) {
+        if (hasMS12) {
             capName_File = NRDP_AUDIO_PLATFORM_CAP_MS12;
         }
 
+        return getSettingsJsonObjectBoolean(capName_File, "ddplus", "enabled");
+    }
+
+    private boolean isAtmosConfiged() {
+        String capName_File = NRDP_AUDIO_PLATFORM_CAP;
+        if (hasMS12) {
+            capName_File = NRDP_AUDIO_PLATFORM_CAP_MS12;
+        }
+
+        return getSettingsJsonObjectBoolean(capName_File, "atmos", "enabled");
+
+   }
+
+    private boolean getSettingsJsonObjectBoolean(String nrdp_name, String objName, String attr) {
         try {
-            Log.i(TAG, "capName_File = " + capName_File);
+            Log.i(TAG, "capName_File = " + nrdp_name);
             StringBuilder sb = new StringBuilder();
-            Scanner scanner = new Scanner(new File(NRDP_PLATFORM_CONFIG_DIR + capName_File + ".json"));
+            Scanner scanner = new Scanner(new File(NRDP_PLATFORM_CONFIG_DIR + nrdp_name + ".json"));
             while (scanner.hasNextLine()) {
                 sb.append(scanner.nextLine());
                 sb.append('\n');
@@ -773,17 +815,18 @@ public class NetflixService extends Service {
 
             JSONObject rootObject = new JSONObject(sb.toString());
             JSONObject audioCapsObject = rootObject.getJSONObject("audiocaps");
-            JSONObject atmosObject = audioCapsObject.getJSONObject("atmos");
+            JSONObject object = audioCapsObject.getJSONObject(objName);
 
-            return atmosObject.getBoolean("enabled");
+            return object.getBoolean(attr);
         } catch(java.io.FileNotFoundException e) {
             Log.d(TAG, e.getMessage());
         } catch(Exception e) {
             e.printStackTrace();
         }
 
-            return false;
-        }
+        return false;
+    }
+
 
     private void setAlwaysHDR(boolean NetflixIsForeground) {
         //when netflix is fg, enable always HDR whatever.
