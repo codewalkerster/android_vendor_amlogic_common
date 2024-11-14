@@ -1,11 +1,27 @@
 /*
- * Copyright (c) 2014 Amlogic, Inc. All rights reserved.
+ * Copyright (C) 2014-2024 Amlogic, Inc. All rights reserved.
  *
- * This source code is subject to the terms and conditions defined in the
- * file 'LICENSE' which is part of this source code package.
+ * All information contained herein is Amlogic confidential.
  *
- * Description:
- *     AMLOGIC SubtitleManager
+ * This software is provided to you pursuant to Software License Agreement
+ * (SLA) with Amlogic Inc ("Amlogic"). This software may be used
+ * only in accordance with the terms of this agreement.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification is strictly prohibited without prior written permission from
+ * Amlogic.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 package com.droidlogic.app;
@@ -226,8 +242,10 @@ public class SubtitleManager {
 
     private int mDisplayType = -1;
     private int mCurrentTrack = 0;
-    private int mCurrentCCchannel = 15;
-    private int mMonitorCCchannel = 15;
+    private int mCurrentClosedCaptionChannel = 15;
+    private int mMonitorClosedCaptionChannel = 15;
+    private String currentText;//for refresh fast
+    private boolean currentShow = false;
 
     //teletext loading resource id
     private int mResId = 0;
@@ -454,9 +472,9 @@ public class SubtitleManager {
         LOGI("[updateChannelId]event:" + event + ",channedId:" + channelId);
         if (event == 1 && !mChalIdList.contains(channelId)) { //1:add
             mChalIdList.add(channelId);
-            if (mMonitorCCchannel == channelId && mCurrentCCchannel != channelId) {
+            if (mMonitorClosedCaptionChannel == channelId && mCurrentClosedCaptionChannel != channelId) {
                 nativeSelectCcChannel(channelId);
-                mCurrentCCchannel = channelId;
+                mCurrentClosedCaptionChannel = channelId;
             }
      } else if(event == 0 && mChalIdList.contains(channelId)) { //0:remvoe
             idx = mChalIdList.indexOf(channelId);
@@ -679,7 +697,7 @@ public class SubtitleManager {
     }
 
     public boolean startFallbackDisplay() {
-        Log.d(TAG, "startFallbackDisplay 3", new Throwable());
+        Log.d(TAG, "startFallbackDisplay");
         mHidlFallbackDisplay = new FallbackDisplayListener() {
             public void onSubtitleEvent(int type, Object data, byte[] subdata, int x, int y,
                     int width ,int height, int videoWidth, int videoHeight, boolean show, int objectSegmentId) {
@@ -978,7 +996,6 @@ public class SubtitleManager {
 
     public boolean open(String path, int ioType) {
         boolean r = false;
-        //Log.d(TAG, "[open] path:" + path, new Throwable());
         mInterSubTotal = -1;//need clear, or else may be used the old value which cause outofindex error
         r = nativeOpen(path, ioType);
 
@@ -1055,11 +1072,11 @@ public class SubtitleManager {
             return;
         }
 
-        mMonitorCCchannel = channel;
+        mMonitorClosedCaptionChannel = channel;
 
         runOnMainThread(() -> { mUI.clearContent(); });
         nativeSelectCcChannel(channel);
-        mCurrentCCchannel = channel;
+        mCurrentClosedCaptionChannel = channel;
 
     }
 
@@ -1104,18 +1121,18 @@ public class SubtitleManager {
     public synchronized void close() {
         mDisplayType = -1;
         mCurrentTrack = 0;
-        mCurrentCCchannel = 15;
-        mMonitorCCchannel = 15;
+        mCurrentClosedCaptionChannel = 15;
+        mMonitorClosedCaptionChannel = 15;
         mExtFilePath = null;
         nativeClose();
     }
 
     public void destroy() {
-        Log.d(TAG, "destroy:", new Throwable());
+        Log.d(TAG, "destroy");
         mDisplayType = -1;
         mCurrentTrack = 0;
-        mCurrentCCchannel = 15;
-        mMonitorCCchannel = 15;
+        mCurrentClosedCaptionChannel = 15;
+        mMonitorClosedCaptionChannel = 15;
         nativeDestroy();
     }
 
@@ -1124,7 +1141,7 @@ public class SubtitleManager {
         if (mExtFilePath != null) {
             if (mThread == null || mThreadStop == true) {
                 mThreadStop = false;
-                Log.d(TAG, "mExtFilePath="+mExtFilePath, new Throwable());
+                Log.d(TAG, "mExtFilePath="+mExtFilePath);
                 mThread = new Thread (runnable);
                 mThread.start();
             }
@@ -1233,8 +1250,6 @@ public class SubtitleManager {
 
     public String getSubTypeStr() {
         String type = null;
-        Log.d(TAG, "TO BE IMPL..", new Throwable());
-
 /*        try {
             if (mProxy != null) {
                 type = mProxy.getSubTypeStr();
@@ -1379,7 +1394,6 @@ public class SubtitleManager {
 
     public void setIOType(int type) {
         LOGI("[setIOType] type:" + type);
-        Log.d(TAG, "Obsoleted Not IMPL..", new Throwable());
         //nativeSetIoType(type);
         /*try {
             if (mProxy != null) {
