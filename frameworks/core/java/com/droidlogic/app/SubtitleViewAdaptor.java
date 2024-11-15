@@ -214,7 +214,7 @@ class SubtitleViewAdaptor {
 
         ensureSubLayoutCreated();
         mDisplay = mWindowManager.getDefaultDisplay();
-        initialLayoutParams(TYPE_APPLICATION_MEDIA_OVERLAY, title, 0, 0, mDisplay.getWidth(), mDisplay.getHeight());
+        initialLayoutParams(LayoutParams.TYPE_APPLICATION_OVERLAY, title, 0, 0, mDisplay.getWidth(), mDisplay.getHeight());
         // Add window for subtitle
         try {
             mWindowManager.addView(mSubLayout, mWindowLayoutParams);
@@ -615,7 +615,7 @@ class SubtitleViewAdaptor {
         mSubLayout = null;//for switch resolution, the surface not update which cause the subtitle size and position error
 
         ensureSubLayoutCreated();
-        initialLayoutParams(TYPE_APPLICATION_MEDIA_OVERLAY, title, x, y, w, h);
+        initialLayoutParams(LayoutParams.TYPE_APPLICATION_OVERLAY, title, x, y, w, h);
 
         // Add window for subtitle
         mWindowManager.addView(mSubLayout, mWindowLayoutParams);
