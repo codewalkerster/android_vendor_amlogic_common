@@ -237,6 +237,39 @@ status_t AmlAudioPolicyManager::setDeviceConnectionState(
     return AudioPolicyManager::setDeviceConnectionState(state, port, encodedFormat);
 }
 
+status_t AmlAudioPolicyManager::setDevicesRoleForStrategy(product_strategy_t strategy,
+                                                       device_role_t role,
+                                                       const AudioDeviceTypeAddrVector &devices) {
+    auto streams = mEngine->getStreamTypesForProductStrategy(strategy);
+    int count = std::count(streams.begin(), streams.end(), AUDIO_STREAM_VOICE_CALL);
+    if (count > 0 && role == DEVICE_ROLE_PREFERRED) {
+        for (const auto& device : devices) {
+            if (device.mType == AUDIO_DEVICE_OUT_BLUETOOTH_SCO ||
+            device.mType == AUDIO_DEVICE_OUT_BLUETOOTH_SCO_HEADSET ||
+            device.mType == AUDIO_DEVICE_OUT_BLUETOOTH_SCO_CARKIT) {
+                setForceUse(AUDIO_POLICY_FORCE_FOR_COMMUNICATION, AUDIO_POLICY_FORCE_BT_SCO);
+                break;
+            } else if (device.mType == AUDIO_DEVICE_OUT_SPEAKER) {
+                setForceUse(AUDIO_POLICY_FORCE_FOR_COMMUNICATION, AUDIO_POLICY_FORCE_SPEAKER);
+                return NO_ERROR;
+            }
+        }
+    }
+
+    return AudioPolicyManager::setDevicesRoleForStrategy(strategy, role, devices);
+}
+
+status_t AmlAudioPolicyManager::clearDevicesRoleForStrategy(product_strategy_t strategy,
+                                                           device_role_t role) {
+    auto streams = mEngine->getStreamTypesForProductStrategy(strategy);
+    int count = std::count(streams.begin(), streams.end(), AUDIO_STREAM_VOICE_CALL);
+    if (count > 0 && role == DEVICE_ROLE_PREFERRED) {
+        setForceUse(AUDIO_POLICY_FORCE_FOR_COMMUNICATION, AUDIO_POLICY_FORCE_NONE);
+    }
+
+    return AudioPolicyManager::clearDevicesRoleForStrategy(strategy, role);
+}
+
 void AmlAudioPolicyManager::setForceUse(audio_policy_force_use_t usage,
                          audio_policy_forced_cfg_t config) {
     int userForceUse = property_get_int32(PROP_AUDIO_OUTPUT_FORCEUSE, AUDIO_POLICY_FORCE_NONE);

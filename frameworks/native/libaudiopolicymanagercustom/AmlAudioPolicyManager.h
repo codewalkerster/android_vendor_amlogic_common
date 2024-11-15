@@ -57,6 +57,14 @@ public:
                                        DeviceTypeSet deviceTypes,
                                        int delayMs = 0, bool force = false);
 
+    virtual status_t setDevicesRoleForStrategy(product_strategy_t strategy,
+                                           device_role_t role,
+                                           const AudioDeviceTypeAddrVector &devices);
+
+    virtual status_t clearDevicesRoleForStrategy(product_strategy_t strategy,
+                                             device_role_t role);
+
+
     status_t dump(int fd) override;
 
 private:
