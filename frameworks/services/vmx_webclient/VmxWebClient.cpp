@@ -162,6 +162,8 @@ VmxWebClient::~VmxWebClient() {
         amPara.mOffset = para.offset;
 
         ret = webclient_decrypt(mWebClientObj, &amPara);
+        native_handle_delete(const_cast<native_handle_t *>(amPara.mSourceHandle));
+        native_handle_delete(const_cast<native_handle_t *>(amPara.mSecureHandle));
         if (ret) {
             ALOGE("decrypt failed 0x%x", ret);
             return toNdkScopedAStatus(static_cast<Status>(ret));
