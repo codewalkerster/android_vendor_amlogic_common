@@ -24,9 +24,6 @@
    <!-- UI wm size limit 720p. -->
     <integer name="config_maxUiWidth">1280</integer>
 
-    <!-- Maximum number of supported users -->
-    <integer name="config_multiuserMaximumUsers">1</integer>
-
     <string-array translatable="false" name="config_defaultPinnerServiceFiles">
       <!--<item>"/system/lib/libandroid_servers.so"</item>-->
       <!--<item>"/system/bin/logd"</item>-->
