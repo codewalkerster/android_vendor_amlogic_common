@@ -45,17 +45,17 @@ public:
                        EngineInstance&& engine,
                        AudioPolicyClientInterface *clientInterface);
     virtual ~AmlAudioPolicyManager() {};
+    virtual status_t setSurroundFormatEnabled(audio_format_t audioFormat, bool enabled) override;
+    virtual status_t setDeviceConnectionState(audio_policy_dev_state_t state,
+            const android::media::audio::common::AudioPort& port, audio_format_t encodedFormat) override;
 
     virtual void setForceUse(audio_policy_force_use_t usage,
-                             audio_policy_forced_cfg_t config);
-    virtual status_t setDeviceConnectionState(audio_policy_dev_state_t state,
-            const android::media::audio::common::AudioPort& port, audio_format_t encodedFormat);
-
+                             audio_policy_forced_cfg_t config) override;
     virtual status_t checkAndSetVolume(IVolumeCurves &curves,
                                        VolumeSource volumeSource, int index,
                                        const sp<AudioOutputDescriptor>& outputDesc,
                                        DeviceTypeSet deviceTypes,
-                                       int delayMs = 0, bool force = false);
+                                       int delayMs = 0, bool force = false) override;
 
     virtual status_t setDevicesRoleForStrategy(product_strategy_t strategy,
                                            device_role_t role,
@@ -71,6 +71,7 @@ private:
     bool isScoRequestedForComm() const;
     bool isHearingAidUsedForComm() const;
 
+    bool mIsTogglingHdmiDigitalDevice = false;
 };
 
 };

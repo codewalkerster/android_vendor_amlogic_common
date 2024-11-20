@@ -180,6 +180,14 @@ AmlAudioPolicyManager::AmlAudioPolicyManager(const sp<const AudioPolicyConfig>& 
 {
 }
 
+status_t AmlAudioPolicyManager::setSurroundFormatEnabled(audio_format_t audioFormat, bool enabled) {
+    mIsTogglingHdmiDigitalDevice = true;
+    // Surround Manual Mode: set the subformat enabled.
+    status_t ret = AudioPolicyManager::setSurroundFormatEnabled(audioFormat, enabled);
+    mIsTogglingHdmiDigitalDevice = false;
+    return ret;
+}
+
 status_t AmlAudioPolicyManager::setDeviceConnectionState(
         audio_policy_dev_state_t state, const android::media::audio::common::AudioPort& port,
         audio_format_t encodedFormat) {
@@ -197,6 +205,7 @@ status_t AmlAudioPolicyManager::setDeviceConnectionState(
     if (state == AUDIO_POLICY_DEVICE_STATE_UNAVAILABLE && audio_is_output_device(device_type)) {
         auto deviceToForceUse = [&](audio_devices_t device_type) -> audio_policy_forced_cfg_t {
             switch (device_type) {
+                case AUDIO_DEVICE_OUT_HDMI:
                 case AUDIO_DEVICE_OUT_HDMI_ARC:
                 case AUDIO_DEVICE_OUT_HDMI_EARC:
                     return AUDIO_POLICY_FORCE_DIGITAL_DOCK;
@@ -204,8 +213,6 @@ status_t AmlAudioPolicyManager::setDeviceConnectionState(
                     return AUDIO_POLICY_FORCE_SPEAKER;
                 case AUDIO_DEVICE_OUT_SPDIF:
                     return AUDIO_POLICY_FORCE_ANALOG_DOCK;
-                case AUDIO_DEVICE_OUT_HDMI:
-                    return AUDIO_POLICY_FORCE_BT_CAR_DOCK;
                 case AUDIO_DEVICE_OUT_WIRED_HEADPHONE:
                 case AUDIO_DEVICE_OUT_WIRED_HEADSET:
                     return AUDIO_POLICY_FORCE_HEADPHONES;
@@ -229,8 +236,20 @@ status_t AmlAudioPolicyManager::setDeviceConnectionState(
         if (disconnectDeviceForceUse != AUDIO_POLICY_FORCE_NONE &&
             curForceUse != AUDIO_POLICY_FORCE_NONE &&
             curForceUse == disconnectDeviceForceUse) {
-            AM_LOGI("disconnect current forceuse device, set forceUse to none.");
-            mEngine->setForceUse(AUDIO_POLICY_FORCE_FOR_MEDIA, AUDIO_POLICY_FORCE_NONE);
+            if (AUDIO_POLICY_FORCE_DIGITAL_DOCK == disconnectDeviceForceUse && mIsTogglingHdmiDigitalDevice) {
+                mIsTogglingHdmiDigitalDevice = false;
+                AM_LOGI("Toggling hdmi device now, do not set forceuse to NONE.");
+            } else {
+                AM_LOGI("disconnect current forceuse device:%s, set forceuse to NONE.", forceUse2Str(curForceUse));
+                mEngine->setForceUse(AUDIO_POLICY_FORCE_FOR_MEDIA, AUDIO_POLICY_FORCE_NONE);
+            }
+        }
+    } else {
+        // The user sets the surround mode when no HDMI device is connected, mIsTogglingHdmiDigitalDevice is true.
+        // The next time an HDMI device is connected, this flag needs to be set to false.
+        if(device_type == AUDIO_DEVICE_OUT_HDMI ||
+            device_type == AUDIO_DEVICE_OUT_HDMI_ARC || device_type == AUDIO_DEVICE_OUT_HDMI_EARC) {
+            mIsTogglingHdmiDigitalDevice = false;
         }
     }
 
@@ -276,6 +295,8 @@ void AmlAudioPolicyManager::setForceUse(audio_policy_force_use_t usage,
     if (usage == AUDIO_POLICY_FORCE_FOR_MEDIA) {
         AM_LOGI("userDbForceUse:%s(%d) force_device:%s(%d)", forceUse2Str((audio_policy_forced_cfg_t)userForceUse),
             userForceUse, forceUse2Str(config), config);
+    } else if (usage == AUDIO_POLICY_FORCE_FOR_ENCODED_SURROUND) {
+        mIsTogglingHdmiDigitalDevice = true;
     }
     // userForceUse specifies the value configured for the user.
     // If forceuse is different from the user value, the forceuse cannot be set. (AudioService.java)
