@@ -347,9 +347,11 @@ public class NetflixService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        boolean isNeedStartApp = intent.getBooleanExtra(NEED_START_NTF, false);
-        if (isNeedStartApp) {
-            launchNetflix();
+        if (intent != null) {
+            boolean isNeedStartApp = intent.getBooleanExtra(NEED_START_NTF, false);
+            if (isNeedStartApp) {
+                launchNetflix();
+            }
         }
         return super.onStartCommand(intent, flags, startId);
     }
