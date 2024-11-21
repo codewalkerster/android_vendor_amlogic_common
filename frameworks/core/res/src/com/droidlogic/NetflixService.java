@@ -149,12 +149,14 @@ public class NetflixService extends Service {
                     setNrdpCapabilitiesIfNeed(NRDP_AUDIO_PLATFORM_CAP, true);
                 case DroidAudioManager.DIGITAL_AUDIO_FORMAT_MANUAL:
                 case DroidAudioManager.DIGITAL_AUDIO_FORMAT_PCM:
-                    refreshAudioCapabilities(false);
                     break;
                 default:
                     Log.d(TAG, "error surround format");
                     break;
             }
+
+            refreshAudioCapabilities(false);
+
         }
     }
 
@@ -297,6 +299,9 @@ public class NetflixService extends Service {
                 false, mSettingsObserver);
         getContentResolver().registerContentObserver(Settings.Global.getUriFor(DroidAudioManager.DIGITAL_AUDIO_SUBFORMAT),
                 false, mSettingsObserver);
+        getContentResolver().registerContentObserver(Settings.Global.getUriFor(DroidAudioManager.DB_ID_DROIDLOGIC_AUDIO_OUTPUT_DEVICE),
+                false, mSettingsObserver);
+
         mCecStatusObserver = new CecStatusObserver(new Handler());
         getContentResolver().registerContentObserver(Settings.Global.getUriFor(NDRP_CEC_STATUS),
                 false, mCecStatusObserver);
@@ -635,33 +640,51 @@ public class NetflixService extends Service {
                 "isSoundbar: " + DroidLogicUtils.isSoundbar());
 
         if (isTv) {
+            int[] outputDevices = mDroidAudioManager.getOutputDevices();
+            int outputDevice = DroidAudioManager.DROID_AUDIO_FORCE_USE_NONE;
+            if (outputDevices != null && outputDevices.length > 0) {
+                outputDevice = outputDevices[0];
+                Log.i(TAG, "outputDevice " + outputDevice);
+            }
+
             if (DroidAudioManager.DIGITAL_AUDIO_FORMAT_MANUAL == surround) {
                 String subformat = Settings.Global.getString(mContext.getContentResolver(), DroidAudioManager.DIGITAL_AUDIO_SUBFORMAT);
                 Log.i(TAG, "onChange manual subformat: " + subformat);
                 setAtmosEnabled(subformat.contains(AudioFormat.ENCODING_E_AC3_JOC + ""));
-                setAtmosEnabled(subformat.contains(AudioFormat.ENCODING_E_AC3 + ""));
+                setDdpEnabled(subformat.contains(AudioFormat.ENCODING_E_AC3 + ""));
             } else if (DroidAudioManager.DIGITAL_AUDIO_FORMAT_PCM == surround) {
-                state = (AudioSystem.DEVICE_STATE_AVAILABLE == AudioSystem.getDeviceConnectionState(AudioSystem.DEVICE_OUT_HDMI_ARC, ""))
-                    || (AudioSystem.DEVICE_STATE_AVAILABLE == AudioSystem.getDeviceConnectionState(AudioSystem.DEVICE_OUT_HDMI_EARC, ""));
-
-                Log.i(TAG, "PCM Arc/eArc state: " + state);
-
-                // For arc/earc, After disconnecting arc, it need to be configured as the default value in the json file.
-                setDdpEnabled(state? false : ddpSupportedByConfig);
-                setAtmosEnabled(state? false : atmosSupportedByConfig);
+                Log.i(TAG, "PCM Mode");
+                if (outputDevice == DroidAudioManager.DROID_AUDIO_FORCE_USE_HDMI) {
+                    // Disable DDP & ATOMS in PCM mode.
+                    Log.i(TAG, "Arc/eArc ");
+                    setDdpEnabled(false);
+                    setAtmosEnabled(false);
+                } else if (outputDevice == DroidAudioManager.DROID_AUDIO_FORCE_USE_SPEAKER) {
+                    Log.i(TAG, "Speaker ");
+                    setDdpEnabled(ddpSupportedByConfig);
+                    setAtmosEnabled(atmosSupportedByConfig);
+                } else {
+                    Log.i(TAG, "not Arc/eArc/Speaker ");
+                    setDdpEnabled(ddpSupportedByConfig);
+                    setAtmosEnabled(false);
+                }
 
             } else {
-                state = (AudioSystem.DEVICE_STATE_AVAILABLE == AudioSystem.getDeviceConnectionState(AudioSystem.DEVICE_OUT_HDMI_ARC, ""))
-                    || (AudioSystem.DEVICE_STATE_AVAILABLE == AudioSystem.getDeviceConnectionState(AudioSystem.DEVICE_OUT_HDMI_EARC, ""));
-
-                Log.i(TAG, "Arc/eArc state: " + state);
-
-                hdmiEncodings = mAudioManager.getParameters("hdmi_encodings");
-
-                // For arc/earc, After disconnecting arc, it need to be configured as the default value in the json file.
-                setDdpEnabled(state? hdmiEncodings.contains("eac3") : ddpSupportedByConfig);
-                setAtmosEnabled(state? hdmiEncodings.contains("atmos") : atmosSupportedByConfig);
-
+                if (outputDevice == DroidAudioManager.DROID_AUDIO_FORCE_USE_HDMI) {
+                    // For arc/earc, After disconnecting arc, it need to be configured as the default value in the json file.
+                    Log.i(TAG, "Arc/eArc ");
+                    hdmiEncodings = mAudioManager.getParameters("hdmi_encodings");
+                    setDdpEnabled(hdmiEncodings.contains("eac3"));
+                    setAtmosEnabled(hdmiEncodings.contains("atmos"));
+                } else if (outputDevice == DroidAudioManager.DROID_AUDIO_FORCE_USE_SPEAKER) {
+                    Log.i(TAG, "Speaker ");
+                    setDdpEnabled(ddpSupportedByConfig);
+                    setAtmosEnabled(atmosSupportedByConfig);
+                } else {
+                    Log.i(TAG, "not Arc/eArc/Speaker ");
+                    setDdpEnabled(ddpSupportedByConfig);
+                    setAtmosEnabled(false);
+                }
             }
 
             setUiAudioBufferDelayOffsetTv();

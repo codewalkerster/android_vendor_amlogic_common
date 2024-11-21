@@ -360,6 +360,7 @@ public class DroidAudioManager {
     public static final String PARAM_HAL_AUDIO_OUTPUT_FORMAT_PCM        = "hdmi_format=0";
     public static final String PARAM_HAL_AUDIO_OUTPUT_FORMAT_AUTO       = "hdmi_format=5";
     public static final String PARAM_HAL_AUDIO_OUTPUT_FORMAT_PASSTHROUGH= "hdmi_format=6";
+    public static final String DB_ID_DROIDLOGIC_AUDIO_OUTPUT_DEVICE     = "db_id_droidlogic_audio_output_device";
 
     // DD/DD+/DTS
     public static final String DIGITAL_AUDIO_SUBFORMAT_SPDIF            = "5,6,7";
@@ -1049,6 +1050,9 @@ public class DroidAudioManager {
     public int setOutputDevices(int[] devices) {
         if (droidAudioServiceIsNull()) return 0;
         try {
+            if (devices != null & devices.length != 0) {
+                Settings.Global.putInt(mResolver, DB_ID_DROIDLOGIC_AUDIO_OUTPUT_DEVICE, devices[0]);
+            }
             return mDroidAudioService.setOutputDevices(devices);
         } catch (RemoteException e) {
             Log.e(TAG, "setOutputDevices failed:" + e);
