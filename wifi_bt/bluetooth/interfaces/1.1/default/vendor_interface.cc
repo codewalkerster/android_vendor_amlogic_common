@@ -263,8 +263,6 @@ void VendorInterface::Shutdown() {
   g_vendor_interface->Close();
   delete g_vendor_interface;
   g_vendor_interface = nullptr;
-
-  bt_vendor_release_wake_lock();
 }
 
 VendorInterface* VendorInterface::get() { return g_vendor_interface; }
@@ -547,8 +545,12 @@ void VendorInterface::HandleIncomingEvent(const hidl_vec<uint8_t>& hci_packet) {
        }
        else if (hci_packet[0] == 0x62) {
         writefwlogdata(hci_packet);
-   }
-   else{
+       }
+       else{
+	      if (hci_packet[0] == 0x10 && hci_packet[2] == 0xfc) {
+	        ALOGD("%s recive realtek hardware", __func__);
+	        bt_vendor_acquire_wake_lock();
+	      }
         event_cb_(hci_packet);
    }
   }
