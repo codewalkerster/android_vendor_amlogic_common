@@ -44,6 +44,7 @@ static const char* VENDOR_LIBRARY_NAME = "libbt-vendor.so";
 static const char* VENDOR_LIBRARY_SYMBOL_NAME =
     "BLUETOOTH_VENDOR_LIB_INTERFACE";
 
+#define HCI_ZIGBEE_FLAG     0xFA
 static const int INVALID_FD = -1;
 
 bool wake_lock_acquired;
@@ -59,6 +60,8 @@ struct {
   uint16_t opcode;
 } internal_command;
 
+tINT_CMD_CBACK zigbee_cb;
+
 // True when LPM is not enabled yet or wake is not asserted.
 bool lpm_wake_deasserted;
 uint32_t lpm_timeout_ms;
@@ -66,6 +69,8 @@ bool recent_activity_flag;
 
 VendorInterface* g_vendor_interface = nullptr;
 std::mutex wakeup_mutex_;
+using PacketReadCallback = std::function<void(const hidl_vec<uint8_t>&)>;
+PacketReadCallback hci_event_cb;
 
 HC_BT_HDR* WrapPacketAndCopy(uint16_t event, const hidl_vec<uint8_t>& data) {
   size_t packet_size = data.size() + sizeof(HC_BT_HDR);
@@ -82,7 +87,8 @@ HC_BT_HDR* WrapPacketAndCopy(uint16_t event, const hidl_vec<uint8_t>& data) {
 
 bool internal_command_event_match(const hidl_vec<uint8_t>& packet) {
   uint8_t event_code = packet[0];
-  if (event_code != HCI_COMMAND_COMPLETE_EVENT) {
+  if (event_code != HCI_COMMAND_COMPLETE_EVENT
+    && event_code != 0) {
     ALOGE("%s: Unhandled event type %02X", __func__, event_code);
     return false;
   }
@@ -97,12 +103,28 @@ bool internal_command_event_match(const hidl_vec<uint8_t>& packet) {
 }
 
 uint8_t transmit_cb(uint16_t opcode, void* buffer, tINT_CMD_CBACK callback) {
-  ALOGV("%s opcode: 0x%04x, ptr: %p, cb: %p", __func__, opcode, buffer,
-        callback);
-  internal_command.cb = callback;
-  internal_command.opcode = opcode;
-  uint8_t type = HCI_PACKET_TYPE_COMMAND;
+  if(opcode == 0xff98)
+  {
+    hidl_vec<uint8_t> hardware_error_packet = {0x10,0x01,0x00};
+    if(hci_event_cb)
+    {
+        hci_event_cb(hardware_error_packet);
+    }
+    return true;
+  }
+
   HC_BT_HDR* bt_hdr = reinterpret_cast<HC_BT_HDR*>(buffer);
+  uint8_t type = HCI_PACKET_TYPE_COMMAND;
+  if(opcode == 0xff9a)
+  {
+    type = HCI_PACKET_ZIGBEE;
+    zigbee_cb = callback;
+  }
+  else
+  {
+    internal_command.cb = callback;
+    internal_command.opcode = opcode;
+  }
   VendorInterface::get()->Send(type, bt_hdr->data, bt_hdr->len);
   delete[] reinterpret_cast<uint8_t*>(buffer);
   return true;
@@ -339,7 +361,7 @@ bool VendorInterface::Open(InitializeCompleteCallback initialize_complete_cb,
       return false;
     }
   }
-
+  hci_event_cb = event_cb;
   event_cb_ = event_cb;
   PacketReadCallback intercept_events = [this](const hidl_vec<uint8_t>& event) {
     HandleIncomingEvent(event);
@@ -486,8 +508,11 @@ void VendorInterface::OnTimeout() {
 }
 
 void VendorInterface::HandleIncomingEvent(const hidl_vec<uint8_t>& hci_packet) {
+  uint8_t rsp_data[2048] = {0};
+  //internal_command_event_match(hci_packet);
+
   if (internal_command.cb != nullptr &&
-      internal_command_event_match(hci_packet)) {
+      internal_command_event_match(hci_packet))  {
     HC_BT_HDR* bt_hdr = WrapPacketAndCopy(HCI_PACKET_TYPE_EVENT, hci_packet);
 
     // Here to send hardware error to restart stack if VSC status is non-zero
@@ -502,8 +527,25 @@ void VendorInterface::HandleIncomingEvent(const hidl_vec<uint8_t>& hci_packet) {
     tINT_CMD_CBACK saved_cb = internal_command.cb;
     internal_command.cb = nullptr;
     saved_cb(bt_hdr);
-  } else {
-       if (hci_packet[0] == 0x62) {
+  }
+  else if(hci_packet[0] == HCI_ZIGBEE_FLAG)
+  {
+    memset(rsp_data, 0, sizeof(rsp_data));
+    memcpy(rsp_data, hci_packet.data(), hci_packet.size());
+    if (zigbee_cb == nullptr)
+    {
+        ALOGD("zigbee callback is null");
+        return;
+    }
+    zigbee_cb((void *)rsp_data);
+    //zigbee_cb = nullptr;
+  }
+  else
+  {
+       if ((hci_packet[0] == 0x3e && hci_packet[1] > 3) && ((hci_packet[2] == 0x0d && hci_packet[4] == 0x15) || (hci_packet[2] == 0x02 && hci_packet[4] ==0x01))) {
+            PR_INFO("rec adv direct packet");
+       }
+       else if (hci_packet[0] == 0x62) {
         writefwlogdata(hci_packet);
    }
    else{

@@ -81,6 +81,7 @@ size_t H4Protocol::Send(uint8_t type, const uint8_t* data, size_t length) {
 void H4Protocol::OnPacketReady() {
   switch (hci_packet_type_) {
     case HCI_PACKET_TYPE_EVENT:
+    case HCI_PACKET_ZIGBEE:
       event_cb_(hci_packetizer_.GetPacket());
       break;
     case HCI_PACKET_TYPE_ACL_DATA:
@@ -122,7 +123,8 @@ void H4Protocol::OnDataReady(int fd) {
     if (hci_packet_type_ != HCI_PACKET_TYPE_ACL_DATA &&
         hci_packet_type_ != HCI_PACKET_TYPE_SCO_DATA &&
         hci_packet_type_ != HCI_PACKET_TYPE_ISO_DATA &&
-        hci_packet_type_ != HCI_PACKET_TYPE_EVENT) {
+        hci_packet_type_ != HCI_PACKET_TYPE_EVENT &&
+        hci_packet_type_ != HCI_PACKET_ZIGBEE) {
       LOG_ALWAYS_FATAL("%s: Unimplemented packet type %d", __func__,
                        static_cast<int>(hci_packet_type_));
     }

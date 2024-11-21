@@ -31,13 +31,15 @@ const size_t preamble_size_for_type[] = {0,
                                          HCI_ACL_PREAMBLE_SIZE,
                                          HCI_SCO_PREAMBLE_SIZE,
                                          HCI_EVENT_PREAMBLE_SIZE,
-                                         HCI_ISO_PREAMBLE_SIZE};
+                                         HCI_ISO_PREAMBLE_SIZE,
+                                         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, HCI_ZIGBEE_PREAMBLE_SIZE};
 const size_t packet_length_offset_for_type[] = {0,
                                                 HCI_LENGTH_OFFSET_CMD,
                                                 HCI_LENGTH_OFFSET_ACL,
                                                 HCI_LENGTH_OFFSET_SCO,
                                                 HCI_LENGTH_OFFSET_EVT,
-                                                HCI_LENGTH_OFFSET_ISO};
+                                                HCI_LENGTH_OFFSET_ISO,
+                                                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, HCI_LENGTH_OFFSET_ZIGBEE};
 
 size_t HciGetPacketLengthForType(HciPacketType type, const uint8_t* preamble) {
   size_t offset = packet_length_offset_for_type[type];
@@ -45,6 +47,8 @@ size_t HciGetPacketLengthForType(HciPacketType type, const uint8_t* preamble) {
     return (((preamble[offset + 1]) << 8) | preamble[offset]);
   } else if (type == HCI_PACKET_TYPE_ISO_DATA) {
     return ((((preamble[offset + 1]) & 0x3f) << 8) | preamble[offset]);
+  }else if (type == HCI_PACKET_ZIGBEE){
+    return (((preamble[offset + 1]) << 8) | preamble[offset]) + 2;  //Add check sum
   }
   return preamble[offset];
 }
@@ -74,6 +78,9 @@ void HciPacketizer::OnDataReady(int fd, HciPacketType packet_type) {
         LOG_ALWAYS_FATAL("%s: Read header error: %s", __func__,
                          strerror(errno));
       }
+      if (packet_type == HCI_PACKET_ZIGBEE){
+          ALOGD("preamble read len %#zx", bytes_read);
+      }
       bytes_read_ += bytes_read;
       if (bytes_read_ == preamble_size_for_type[packet_type]) {
         size_t packet_length =
@@ -101,6 +108,10 @@ void HciPacketizer::OnDataReady(int fd, HciPacketType packet_type) {
       if (bytes_read < 0) {
         LOG_ALWAYS_FATAL("%s: Read payload error: %s", __func__,
                          strerror(errno));
+      }
+      if (packet_type == HCI_PACKET_ZIGBEE)
+      {
+        ALOGD("playload read len %#zx", bytes_read);
       }
       bytes_remaining_ -= bytes_read;
       bytes_read_ += bytes_read;
