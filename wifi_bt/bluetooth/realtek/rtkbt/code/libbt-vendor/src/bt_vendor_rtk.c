@@ -723,8 +723,8 @@ static int op(bt_vendor_opcode_t opcode, void *param)
                     }
                     else
                     {
-                        //usleep(200000);
-                        BTVNDDBG("set power on and delay 00ms");
+                        usleep(200000);
+                        BTVNDDBG("set power on and delay 200ms");
                     }
                 }
             }
