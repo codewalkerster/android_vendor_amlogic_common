@@ -81,6 +81,7 @@ public class DroidAudioCore {
         String[] settings = new String[] {
                 DroidAudioManager.ENCODED_SURROUND_OUTPUT,
                 DroidAudioManager.ENCODED_SURROUND_OUTPUT_ENABLED_FORMATS,
+                Settings.Global.USER_PREFERRED_RESOLUTION_HEIGHT,
         };
         mSettingsObserver = new SettingsObserver(new Handler());
         for (String s : settings) {
@@ -172,6 +173,14 @@ public class DroidAudioCore {
             } else if (DroidAudioManager.ENCODED_SURROUND_OUTPUT_ENABLED_FORMATS.equals(option)) {
                 mDroidAudioManager.saveDigitalAudioFormatToHal(
                     DroidAudioManager.DIGITAL_AUDIO_FORMAT_MANUAL, getSurroundManualFormats());
+            } else if (Settings.Global.USER_PREFERRED_RESOLUTION_HEIGHT.equals(option)) {
+                int resolutionHeight = Settings.Global.getInt(mResolver, Settings.Global.USER_PREFERRED_RESOLUTION_HEIGHT, 0);
+                boolean preDdpEnable = mDroidAudioManager.getForceDDPEnable();
+                boolean needEnable = (resolutionHeight == 576 || resolutionHeight == 480) ? true : false;
+                if (needEnable != preDdpEnable) {
+                    Log.i(TAG, "onChange resolutionHeight:" + resolutionHeight + ", set ddp enable:" + needEnable);
+                    mDroidAudioManager.setForceDDPEnable(needEnable);
+                }
             }
         }
     }

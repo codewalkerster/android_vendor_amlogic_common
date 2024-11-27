@@ -87,9 +87,6 @@ public class SystemControlEvent extends ISystemControlCallback.Stub {
         }  else {
             intent = new Intent(ACTION_SYSTEM_CONTROL_EVENT);
             intent.putExtra(EVENT_TYPE, event);
-            if (EVENT_OUTPUT_MODE_CHANGE == event) {
-                setAudioStateWhenDisplayModeChanged();
-            }
         }
         mContext.sendStickyBroadcastAsUser(intent, UserHandle.ALL);
     }
@@ -164,24 +161,6 @@ public class SystemControlEvent extends ISystemControlCallback.Stub {
         if (DisplayDensityManager.Enabled()) {
             DisplayDensityManager mDisplayManager = DisplayDensityManager.getInstance(mContext);
             mDisplayManager.adjustDisplayDensityByMode(displayId,width,height);
-        }
-    }
-
-    private void setAudioStateWhenDisplayModeChanged() {
-        // get output size, if 480/576 then set audio param
-        DroidAudioManager droidAudioManager = DroidAudioManager.getInstance(mContext);
-        OutputModeManager outputModeManager = OutputModeManager.getInstance(mContext);
-
-        String strMode = outputModeManager.getCurrentOutputMode();
-        boolean ddpEnable = false;
-        if (strMode.contains("480p") || strMode.contains("576p")) {
-            ddpEnable = true;
-        }
-        Log.i(TAG, "Cur output mode=" + strMode +
-            ", Prev DDP enable=" + droidAudioManager.getForceDDPEnable() +
-            ", need set DDP enable=" + ddpEnable);
-        if (droidAudioManager.getForceDDPEnable() != ddpEnable) {
-            droidAudioManager.setForceDDPEnable(ddpEnable);
         }
     }
 
