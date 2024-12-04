@@ -8331,7 +8331,7 @@ hdr_type_t CPQControl::Cpq_GetSourceHDRType(source_input_param_t source_input_pa
                     newHdrType = HDR_TYPE_HDR10;
                 } else if (0 == strcmp(buf, "src_fmt = HDR10+")) {
                     newHdrType = HDR_TYPE_HDR10PLUS;
-                } else if (0 == strcmp(buf, "src_fmt = HDR10 prime")) {
+                } else if (0 == strcmp(buf, "src_fmt = HDR Prime")) {
                     newHdrType = HDR_TYPE_PRIMESL;
                 } else if (0 == strcmp(buf, "src_fmt = HLG")) {
                     newHdrType = HDR_TYPE_HLG;
@@ -10645,8 +10645,10 @@ pq_sig_fmt_t CPQControl::CheckPQTimming(hdr_type_t hdr_type)
         case HDR_TYPE_SDR:
             timming = PQ_SIGFMT_SDR;
             break;
-        case HDR_TYPE_NONE:
         case HDR_TYPE_PRIMESL:
+            timming = PQ_SIGFMT_HDR_PRIMESL;
+            break;
+        case HDR_TYPE_NONE:
         case HDR_TYPE_MVC:
         default:
             timming = PQ_SIGFMT_DEFAULT;
