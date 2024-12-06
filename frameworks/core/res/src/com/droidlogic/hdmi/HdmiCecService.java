@@ -16,6 +16,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
@@ -74,6 +75,10 @@ public class HdmiCecService extends Service {
     private static final String PROP_SOUNDBAR_MODE = "persist.vendor.sys.soundbar_mode";
     private static final String PROP_SOUNDBAR_MODE_SUPPORTED = "ro.vendor.platform.support.soundbar";
 
+    private static final String PACKAGE_HDMICEC_APP = "android.hdmicec.app";
+    private static final String PACKAGE_AUDIO_SERVICE = "com.google.android.gts.audioservice";
+    private static final String HDMI_WORK_STATUS = "hdmi_work_status";
+
     private HdmiControlManager mHdmiControlManager;
     private HdmiPlaybackClient mPlayback;
     private HdmiCecAidlClient mHdmiCecAidlClient;
@@ -90,6 +95,8 @@ public class HdmiCecService extends Service {
     private VendorCommandHandler mVendorCommandHandler;
     private SettingsObserver mSettingsObserver;
 
+    private int mVolumeControlEnabled;
+
     @Override
     public void onCreate() {
         Log.d(TAG, "onCreate");
@@ -100,6 +107,7 @@ public class HdmiCecService extends Service {
         mVendorCommandHandler = new VendorCommandHandler(this);
         mSettingsObserver = new SettingsObserver(mHandler);
         registerObserver();
+        registerReceiver();
         initSettings();
 
         mPlayback = mHdmiControlManager.getPlaybackClient();
@@ -151,11 +159,19 @@ public class HdmiCecService extends Service {
             }
 
             int volumeControlEnabled = mHdmiControlManager.getHdmiCecVolumeControlEnabled();
-            int volumeControlSettingsEnabled = Global.getInt(getContentResolver(), HDMI_VOLUME_CONTROL_ENABLED,
-                    volumeControlEnabled);
+            int volumeControlSettingsEnabled = Global.getInt(getContentResolver(), HDMI_VOLUME_CONTROL_ENABLED, volumeControlEnabled);
             Log.i(TAG, "cec volume control settings:" + volumeControlSettingsEnabled + " config:" + volumeControlEnabled);
             if (volumeControlEnabled != volumeControlSettingsEnabled) {
                 mHdmiControlManager.setHdmiCecVolumeControlEnabled(volumeControlSettingsEnabled);
+            }
+        }
+        if (isAppInstalled(this, PACKAGE_HDMICEC_APP)
+            || isAppInstalled(this, PACKAGE_AUDIO_SERVICE)) {
+            Global.putInt(getContentResolver(), HDMI_WORK_STATUS, ENABLED);
+            mVolumeControlEnabled = Global.getInt(getContentResolver(), HDMI_VOLUME_CONTROL_ENABLED, DISABLED);
+            if (mVolumeControlEnabled == DISABLED) {
+                Log.d(TAG, "Enable hdmi control volume control after booting");
+                Global.putInt(getContentResolver(), HDMI_VOLUME_CONTROL_ENABLED, ENABLED);
             }
         }
     }
@@ -176,10 +192,12 @@ public class HdmiCecService extends Service {
         mCecServiceCallback = new HdmiCecServiceCallback(mHandler);
         mHdmiCecAidlClient.setCallback(mCecServiceCallback);
         mActiveness = new HdmiCecActiveness(this);
-        registerReceiver();
     }
 
     private void updateActiveState(boolean active) {
+        if (mActiveness == null) {
+            return;
+        }
         Log.d(TAG, "updateActiveState active:" + active + " old:" + mIsActive);
         mIsActive = active;
         mActiveness.setState(active);
@@ -189,6 +207,11 @@ public class HdmiCecService extends Service {
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         //filter.addAction(Intent.ACTION_SCREEN_ON);
+
+        filter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        filter.addDataScheme("package");
+
         registerReceiver(mHdmiCecReceiver, filter);
     }
 
@@ -231,6 +254,7 @@ public class HdmiCecService extends Service {
     }
 
     private class HdmiCecReceiver extends BroadcastReceiver {
+
         @Override
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
@@ -238,7 +262,43 @@ public class HdmiCecService extends Service {
                     Log.d(TAG, "screen off");
                     updateActiveState(false);
                     break;
+                case Intent.ACTION_PACKAGE_ADDED:
+                    onHdmiAppChanged(intent, true);
+                    break;
+                case Intent.ACTION_PACKAGE_REMOVED:
+                    onHdmiAppChanged(intent, false);
+                    break;
             }
+        }
+    }
+
+    private void onHdmiAppChanged(Intent intent, boolean added) {
+        Uri data = intent.getData();
+        if (data == null) {
+            return;
+        }
+        if (PACKAGE_HDMICEC_APP.equals(data.getSchemeSpecificPart())
+            || PACKAGE_AUDIO_SERVICE.equals(data.getSchemeSpecificPart())) {
+            Log.d(TAG, "onHdmiAppChanged package " + data.getSchemeSpecificPart() + " added " + added);
+            Global.putInt(getContentResolver(), HDMI_WORK_STATUS, added ? ENABLED : DISABLED);
+            if (added) {
+                mVolumeControlEnabled = Global.getInt(getContentResolver(), HDMI_VOLUME_CONTROL_ENABLED, DISABLED);
+                if (mVolumeControlEnabled == DISABLED) {
+                    Global.putInt(getContentResolver(), HDMI_VOLUME_CONTROL_ENABLED, ENABLED);
+                }
+            } else if (mVolumeControlEnabled == DISABLED) {
+                Global.putInt(getContentResolver(), HDMI_VOLUME_CONTROL_ENABLED, DISABLED);
+            }
+        }
+    }
+
+    boolean isAppInstalled(Context context, String packageName) {
+        PackageManager pm = context.getPackageManager();
+        try {
+            pm.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
         }
     }
 
