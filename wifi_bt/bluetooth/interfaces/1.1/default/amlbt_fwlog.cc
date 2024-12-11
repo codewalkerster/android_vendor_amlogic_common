@@ -28,7 +28,18 @@
 
 static const int INVALID_FD = -1;
 static int fwlogfile_fd = INVALID_FD;
-static int32_t dataCount;
+static int32_t dataCount = 0;
+static int32_t prop_dataCount = 0;
+static int32_t maxLogFileCount;
+
+#define PROP_AMLBT_FWLOG_MAX_FILE_COUNT "persist.vendor.amlbt_fwlog_max_file_count"
+#define PROP_AMLBT_FWLOG_MAX_DATA_COUNT "persist.vendor.amlbt_fwlog_max_data_count"
+
+#define default_max_file_count  0      //0: one file
+#define default_max_data_count  765383 //300MB/411B = 765383
+
+
+
 
 //c++
 #include <iostream>
@@ -107,7 +118,7 @@ void writefwlogdata(const std::vector<uint8_t>& data) {
 
 	dataCount++;
 
-	if (dataCount == 500000) {
+	if (dataCount >= prop_dataCount) {
 		updateLogFile();
 		dataCount = 0;
 	}
@@ -143,7 +154,6 @@ void updateLogFile(void) {
     }
 
 	std::string logFilePrefix = "fw_log.txt_";
-    const int maxLogFileCount = 5;
 
     std::vector<std::string> logFiles;
     std::string logFileDir = logPath.substr(0, logPath.find_last_of('/'));
@@ -162,6 +172,7 @@ void updateLogFile(void) {
         }
         closedir(dir);
     }
+    if (maxLogFileCount > 0) {
 	if (logFiles.size() >= maxLogFileCount) {
 
 		std::sort(logFiles.begin(), logFiles.end(), compareFilesByNumber);
@@ -174,10 +185,10 @@ void updateLogFile(void) {
 
 	}
 
-
-    if (std::rename(logPath.c_str(), newFilename.c_str()) != 0) {
+        if (std::rename(logPath.c_str(), newFilename.c_str()) != 0) {
         ALOGE("%s: Unable to rename fw_log.txt to %s, errno: %s", __func__, newFilename.c_str(), strerror(errno));
-      //  return;
+        //  return;
+        }
     }
 
     mode_t prevmask = umask(0);
@@ -192,10 +203,40 @@ void updateLogFile(void) {
 }
 
 
+int32_t get_property_as_int32_t(const char *key, int32_t default_value) {
+    char value[PROP_VALUE_MAX];
+    property_get(key, value, "");
+
+    if (value[0] == '\0') {
+        return default_value;
+    }
+
+    char *endptr;
+    long result = strtol(value, &endptr, 10);
+
+    if (value == endptr || *endptr != '\0') {
+        return default_value;
+    }
+
+    if (result < INT32_MIN || result > INT32_MAX) {
+        return default_value;
+    }
+
+    return (int32_t)result;
+}
+
+
 void fwlog_init (void) {
+
+	maxLogFileCount = get_property_as_int32_t(PROP_AMLBT_FWLOG_MAX_FILE_COUNT,default_max_file_count);
+	prop_dataCount =  get_property_as_int32_t(PROP_AMLBT_FWLOG_MAX_DATA_COUNT,default_max_data_count);
+	ALOGE("%s maxLogFileCount = %d max_dataCount = %d ",__func__,maxLogFileCount,prop_dataCount);
+
+	dataCount = 0;
+
 	updateLogFile();
-   if (fwlogfile_fd == INVALID_FD)
-   ALOGE("%s: unable open fwlogfile_fd", __func__);
+	if (fwlogfile_fd == INVALID_FD)
+	ALOGE("%s: unable open fwlogfile_fd", __func__);
 }
 
 void fwlog_close (void) {
