@@ -6763,10 +6763,17 @@ int CPQControl::Cpq_SetDnlpMode(Dynamic_contrast_status_t level, source_input_pa
         return 0;
     }
 
+    int ret = 0;
     ve_dnlp_curve_param_t newdnlp;
-    if (mPQdb->PQ_GetDNLPParams(mCurrentSourceInputInfo, level, &newdnlp) < 0) {
-        SYS_LOGE("mPQdb->PQ_GetDNLPParams failed!\n");
+    ret = mPQdb->PQ_GetDNLPParams(mCurrentSourceInputInfo, level, &newdnlp);
+    if (ret < 0) {
+        SYS_LOGE("PQ_GetDNLPParams failed!\n");
         return -1;
+    }
+
+    if (ret == 1) {
+        SYS_LOGD("%s same Table, skip Load!\n", __FUNCTION__);
+        return 0;
     }
 
     if (VPPDeviceIOCtl(AMVECM_IOC_VE_NEW_DNLP, &newdnlp) < 0) {
