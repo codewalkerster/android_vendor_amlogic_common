@@ -180,11 +180,32 @@ AmlAudioPolicyManager::AmlAudioPolicyManager(const sp<const AudioPolicyConfig>& 
 {
 }
 
+void AmlAudioPolicyManager::toggleHdmiDevice(bool state) {
+    // TODO: Temporarily use the SAD updated param to prevent audio hal route.
+    std::string action = "set_ARC_hdmi=";
+    if (state) {
+        action += "updating_sad";
+    } else {
+        action += "updated_sad";
+    }
+    mIsTogglingHdmiDigitalDevice = state;
+    mpClientInterface->setParameters(AUDIO_IO_HANDLE_NONE, String8(action.c_str()));
+}
+
 status_t AmlAudioPolicyManager::setSurroundFormatEnabled(audio_format_t audioFormat, bool enabled) {
-    mIsTogglingHdmiDigitalDevice = true;
+    DeviceVector hdmiOutputDevices = mAvailableOutputDevices.getDevicesFromTypes(
+        {AUDIO_DEVICE_OUT_HDMI, AUDIO_DEVICE_OUT_HDMI_ARC, AUDIO_DEVICE_OUT_HDMI_EARC});
+    bool isManualMode = mEngine->getForceUse(AUDIO_POLICY_FORCE_FOR_ENCODED_SURROUND) ==
+                                                AUDIO_POLICY_FORCE_ENCODED_SURROUND_MANUAL;
+    if (isManualMode && hdmiOutputDevices.size() > 0) {
+        AM_LOGI("toggleHdmiDevice true");
+        toggleHdmiDevice(true);
+    }
     // Surround Manual Mode: set the subformat enabled.
     status_t ret = AudioPolicyManager::setSurroundFormatEnabled(audioFormat, enabled);
-    mIsTogglingHdmiDigitalDevice = false;
+    if (isManualMode && hdmiOutputDevices.size() > 0) {
+        toggleHdmiDevice(false);
+    }
     return ret;
 }
 
@@ -249,7 +270,7 @@ status_t AmlAudioPolicyManager::setDeviceConnectionState(
         // The next time an HDMI device is connected, this flag needs to be set to false.
         if(device_type == AUDIO_DEVICE_OUT_HDMI ||
             device_type == AUDIO_DEVICE_OUT_HDMI_ARC || device_type == AUDIO_DEVICE_OUT_HDMI_EARC) {
-            mIsTogglingHdmiDigitalDevice = false;
+            toggleHdmiDevice(false);
         }
     }
 
@@ -296,7 +317,15 @@ void AmlAudioPolicyManager::setForceUse(audio_policy_force_use_t usage,
         AM_LOGI("userDbForceUse:%s(%d) force_device:%s(%d)", forceUse2Str((audio_policy_forced_cfg_t)userForceUse),
             userForceUse, forceUse2Str(config), config);
     } else if (usage == AUDIO_POLICY_FORCE_FOR_ENCODED_SURROUND) {
-        mIsTogglingHdmiDigitalDevice = true;
+        DeviceVector hdmiOutputDevices = mAvailableOutputDevices.getDevicesFromTypes(
+            {AUDIO_DEVICE_OUT_HDMI, AUDIO_DEVICE_OUT_HDMI_ARC, AUDIO_DEVICE_OUT_HDMI_EARC});
+        int pre = mEngine->getForceUse(AUDIO_POLICY_FORCE_FOR_ENCODED_SURROUND);
+        if (pre != config && hdmiOutputDevices.size() > 0) {
+            // AudioService.java(updateEncodedSurroundOutput) will reconnect hdmi device.
+            // audio hal resets the status to false when the device is connected. (adev_set_device_connected_state_v7)
+            AM_LOGI("toggleHdmiDevice true");
+            toggleHdmiDevice(true);
+        }
     }
     // userForceUse specifies the value configured for the user.
     // If forceuse is different from the user value, the forceuse cannot be set. (AudioService.java)

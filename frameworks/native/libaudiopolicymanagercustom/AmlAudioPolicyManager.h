@@ -71,6 +71,8 @@ private:
     bool isScoRequestedForComm() const;
     bool isHearingAidUsedForComm() const;
 
+    void toggleHdmiDevice(bool state);
+
     bool mIsTogglingHdmiDigitalDevice = false;
 };
 

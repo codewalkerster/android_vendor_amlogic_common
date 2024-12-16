@@ -49,6 +49,7 @@ public:
     int32_t getOutputDevices(vector<int32_t>* devices);
     int32_t setCoexistSpdifOther(bool enable);
     int32_t setMusicStreamVolume(int32_t index);
+    int32_t setMasterMute(bool mute);
     int32_t dump(int fd, const char **args, uint32_t numArgs);
 
 private:

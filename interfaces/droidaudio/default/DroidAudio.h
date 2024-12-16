@@ -46,6 +46,7 @@ struct DroidAudio : public BnDroidAudio {
     ::ndk::ScopedAStatus getOutputDevices(vector<int32_t>* devices) override;
     ::ndk::ScopedAStatus setCoexistSpdifOther(bool enable, int32_t* _aidl_return) override;
     ::ndk::ScopedAStatus setMusicStreamVolume(int32_t index, int32_t* _aidl_return __unused) override;
+    ::ndk::ScopedAStatus setMasterMute(bool mute, int32_t* _aidl_return) override;
 
     binder_status_t dump(int fd, const char **args, uint32_t numArgs) override;
 

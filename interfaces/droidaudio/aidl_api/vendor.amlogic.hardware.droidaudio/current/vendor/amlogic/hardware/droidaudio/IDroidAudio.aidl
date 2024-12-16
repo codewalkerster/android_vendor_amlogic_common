@@ -35,4 +35,5 @@ interface IDroidAudio {
   int[] getOutputDevices();
   int setCoexistSpdifOther(boolean enable);
   int setMusicStreamVolume(int index);
+  int setMasterMute(boolean mute);
 }

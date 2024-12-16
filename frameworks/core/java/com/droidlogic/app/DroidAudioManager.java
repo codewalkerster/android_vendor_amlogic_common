@@ -911,9 +911,23 @@ public class DroidAudioManager {
     public void setSoundBarModeEnabled(boolean enable) {
         Log.i(TAG, "setSoundBarModeEnabled soundbar:" + enable);
         Settings.Global.putInt(mResolver, DB_ID_AUDIO_SOUNDBAR_MODE_ENABLE, enable ? 1 : 0);
+        setMasterMute(true);
         mSystemControl.setProperty("persist.vendor.media.audio.soundbar.mode", enable ? "1" : "0");
-        mAudioManager.setParameters("hal_param_soundbar_mode=" + (enable ? "1" : "0"));
         mSystemControl.writeSysFs(SYS_HDMITX_AUDIO_SOUNDBAR_EN, enable ? "1" : "0");
+        // There is non-mute data in audiohal/alsa, these data is not being played. We wait 200ms for it to play out.
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        mAudioManager.setParameters("hal_param_soundbar_mode=" + (enable ? "1" : "0"));
+        // Wait for the system to refresh the volume and switch the audioPatch
+        try {
+            Thread.sleep(800);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        setMasterMute(false);
     }
 
     public boolean isSoundBarModeEnabled() {
@@ -1089,4 +1103,15 @@ public class DroidAudioManager {
         }
         return 0;
     }
+
+    private int setMasterMute(boolean mute) {
+        if (droidAudioServiceIsNull()) return 0;
+        try {
+            return mDroidAudioService.setMasterMute(mute);
+        } catch (RemoteException e) {
+            Log.e(TAG, "setMasterMute failed:" + e);
+        }
+        return 0;
+    }
+
 }

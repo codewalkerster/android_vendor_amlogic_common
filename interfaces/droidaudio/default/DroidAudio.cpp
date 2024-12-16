@@ -163,6 +163,11 @@ void DroidAudio::clientDied(void* cookie) {
     return ::ndk::ScopedAStatus::ok();
 }
 
+::ndk::ScopedAStatus DroidAudio::setMasterMute(bool mute, int32_t* _aidl_return) {
+    *_aidl_return = DroidAudioConfigSetting::instance()->setMasterMute(mute);
+    return ::ndk::ScopedAStatus::ok();
+}
+
 binder_status_t DroidAudio::dump(int fd, const char **args, uint32_t numArgs) {
     {
         unique_lock<mutex> _l(mNotificationClientsLock);

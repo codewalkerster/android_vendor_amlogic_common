@@ -1052,3 +1052,10 @@ int32_t DroidAudioConfigSetting::setCoexistSpdifOther(bool enable) {
     return 0;
 }
 
+int32_t DroidAudioConfigSetting::setMasterMute(bool mute) {
+    if (getDebugEnable()) {
+        AM_LOGD("enable:%d", mute);
+    }
+    return AudioSystem::setMasterMute(mute);
+}
+
