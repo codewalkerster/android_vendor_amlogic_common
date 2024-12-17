@@ -16,6 +16,10 @@ package {
     //   legacy_unencumbered
     //   legacy_proprietary
     default_applicable_licenses: ["vendor_amlogic_common_license"],
+    default_visibility: [
+        ":__subpackages__",
+        "//packages/apps/OdroidSettings:__subpackages__",
+    ],
 }
 
 subdirs = [

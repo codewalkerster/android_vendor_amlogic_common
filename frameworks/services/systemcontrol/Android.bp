@@ -133,6 +133,13 @@ cc_library_shared {
         "libbase",
         "libhidlbase",
     ],
+    visibility: [
+        ":__subpackages__",
+        "//frameworks/av/media/libstagefright/writer_fuzzers:__subpackages__",
+        "//hardware/amlogic:__subpackages__",
+        "//vendor/amlogic/common:__subpackages__",
+        "//vendor/amlogic/reference:__subpackages__",
+    ],
 }
 
 //for systemcontrol service
@@ -300,5 +307,10 @@ cc_library_static {
     ],
     cflags: [
         "-DRECOVERY_MODE",
+    ],
+    visibility: [
+        ":__subpackages__",
+        "//vendor/amlogic/common:__subpackages__",
+        "//hardware/amlogic:__subpackages__",
     ],
 }

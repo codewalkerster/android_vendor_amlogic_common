@@ -13,6 +13,11 @@ package {
     default_applicable_licenses: [
         "vendor_amlogic_common_frameworks_core_license",
     ],
+    default_visibility: [
+        ":__subpackages__",
+        "//vendor/amlogic/reference/apps:__subpackages__",
+        "//packages/apps/Settings:__subpackages__",
+    ],
 }
 
 java_library {
@@ -72,6 +77,12 @@ java_library {
         "vendor.amlogic.hardware.droidvold-V1.0-java",
     ],
 
+    visibility: [
+        ":__subpackages__",
+        "//vendor/amlogic/reference:__subpackages__",
+        "//vendor/amlogic/common:__subpackages__",
+        "//packages/apps/OdroidSettings:__subpackages__",
+    ],
 }
 
 //copy xml to permissions directory
@@ -81,4 +92,8 @@ prebuilt_etc {
     vendor: true,
     src: "droidlogic.software.core.xml",
     sub_dir: "permissions",
+    visibility: [
+        ":__subpackages__",
+        "//packages/apps/OdroidSettings:__subpackages__",
+    ],
 }

@@ -2,6 +2,7 @@
 #	so LOCAL_PATH only valid when Makefile life-time, no target building time
 LOCAL_PATH:= $(call my-dir)
 
+ifneq ($(ODROID_BOARD), true)
 ifneq ($(BOARD_AML_SECUREBOOT_SOC_TYPE),)
 
 AML_SECUREBOOT_SIGN_TOOL := $(LOCAL_PATH)/Aml_Linux_SecureBootV3_SignTool/amlogic_secureboot_sign_whole_pkg.bash
@@ -94,4 +95,5 @@ endif
 .PHONY: signed_aml_all
 signed_aml_all: signed_target_zip signed_otapackage signed_aml_upgrade signed_fastboot_zip
 
+endif # not ODROID_BOARD
 endif

@@ -141,4 +141,9 @@ cc_library_shared {
 
     proprietary: true,
 
+    visibility: [
+        ":__subpackages__",
+        "//vendor/amlogic/reference:__subpackages__",
+        "//vendor/amlogic/common:__subpackages__",
+    ],
 }
