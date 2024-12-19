@@ -882,7 +882,7 @@ private:
     int mChipCls                                        = -1;
     unsigned int mHdmiHdrInfo                           = 0;
 
-    resolution_height_type_t mOutPutFrameHeightType     = UHD_HEIGHT_2160;//for aisr demo patch
+    int mOutPutFrameHeight                              = 1080;//for aisr demo resolution
 
     CPQdb *mPQdb                                        = NULL;
     CPQExtdb *mPQExtdb                                  = NULL;

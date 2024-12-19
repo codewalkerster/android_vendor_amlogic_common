@@ -9919,12 +9919,20 @@ int CPQControl::SetPQModuleDemoState(pq_module_demo_t modules, pq_module_demo_st
                     if (state == PQ_DEMO_STATE_ON && mCurrentOutputType == OUTPUT_TYPE_LVDS) {//tv
                         ret = pqWriteSys(PQ_MODULE_AISR_DEMO_AXIS, "0 0 1919 2159");//default 4k
                     } else if (state == PQ_DEMO_STATE_ON && mCurrentOutputType != OUTPUT_TYPE_LVDS) {//ott
-                        if (mOutPutFrameHeightType == UHD_HEIGHT_4320) {
+                        if (mOutPutFrameHeight == 4096) {
+                            ret = pqWriteSys(PQ_MODULE_AISR_DEMO_AXIS, "0 0 2047 2159");//smpte output resolution 4096*2160
+                        } else if (mOutPutFrameHeight >= 4320) {
                             ret = pqWriteSys(PQ_MODULE_AISR_DEMO_AXIS, "0 0 3839 4319");//8k output
-                        } else if (mOutPutFrameHeightType == UHD_HEIGHT_2160) {
+                        } else if ((mOutPutFrameHeight >= 2160) && (mOutPutFrameHeight < 4320)) {
                             ret = pqWriteSys(PQ_MODULE_AISR_DEMO_AXIS, "0 0 1919 2159");//4k output
-                        } else if (mOutPutFrameHeightType <= FHD_HEIGHT_1080) {
-                            ret = pqWriteSys(PQ_MODULE_AISR_DEMO_AXIS, "0 0 960 1079");//1080 output
+                        } else if ((mOutPutFrameHeight >= 1080) && (mOutPutFrameHeight < 2160)) {
+                            ret = pqWriteSys(PQ_MODULE_AISR_DEMO_AXIS, "0 0 959 1079");//1080 output
+                        } else if ((mOutPutFrameHeight >= 720) && (mOutPutFrameHeight < 1080)) {
+                            ret = pqWriteSys(PQ_MODULE_AISR_DEMO_AXIS, "0 0 639 719");//720 output
+                        } else if ((mOutPutFrameHeight >= 576) && (mOutPutFrameHeight < 720)) {
+                            ret = pqWriteSys(PQ_MODULE_AISR_DEMO_AXIS, "0 0 359 575");//576 output
+                        } else if (mOutPutFrameHeight < 576) {
+                            ret = pqWriteSys(PQ_MODULE_AISR_DEMO_AXIS, "0 0 359 479");//480 output
                         }
                     } else {
                         SYS_LOGD("%s AISR Module Demo disabled\n",__FUNCTION__);
@@ -10207,9 +10215,7 @@ output_type_t CPQControl::MapDbTvoutWithIOResolution(int inputFrameHeight, int o
             }
         }
 
-        mOutPutFrameHeightType = (resolution_height_type_t)index_out;
-
-        SYS_LOGD("%s table_type %d index_in %d index_out %d mOutPutFrameHeightType %d\n", __FUNCTION__, table_type, index_in, index_out, mOutPutFrameHeightType);
+        SYS_LOGD("%s table_type %d index_in %d index_out %d \n", __FUNCTION__, table_type, index_in, index_out);
         OutPutType = (output_type_t)Table_TvoutWithIOResolution[table_type][index_in][index_out];
     } else { //old project logic
         if (inputFrameHeight > 1088) {//inputsource is 4k
@@ -10288,6 +10294,8 @@ output_type_t CPQControl::CheckOutPutMode(tv_source_input_t source_input)
 
                     mDisplayMode120_100Hz = false;
                 }
+
+                mOutPutFrameHeight = outputFrameHeight;
                 SYS_LOGD("%s: outputFrameHeight:%d mDisplayMode120_100Hz:%d\n", __FUNCTION__, outputFrameHeight, mDisplayMode120_100Hz);
 
                 //check outputmode
