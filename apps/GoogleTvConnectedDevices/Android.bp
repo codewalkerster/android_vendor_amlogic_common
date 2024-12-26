@@ -1,0 +1,70 @@
+// Copyright 2022 Google Inc. All Rights Reserved.
+
+package {
+    default_applicable_licenses: ["vendor_amlogic_googletvconnecteddevices_license"],
+}
+
+license {
+    name: "vendor_amlogic_googletvconnecteddevices_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+    ],
+}
+
+android_app {
+    name: "GoogleTvConnectedDevices",
+    system_ext_specific: true,
+    certificate: "platform",
+    sdk_version: "system_current",
+
+    srcs: [
+        "src/**/*.java",
+    ],
+    resource_dirs: [
+        "res",
+    ],
+    static_libs: [
+        "android-support-annotations",
+        "BluetoothServices"
+    ],
+    manifest: "AndroidManifest.xml",
+
+    optimize: {
+        proguard_flags_files: ["proguard.cfg"],
+        enabled: false,
+    },
+}
+
+android_app {
+    name: "GoogleTvConnectedDevices_Tv",
+    system_ext_specific: true,
+    certificate: "platform",
+    sdk_version: "system_current",
+
+    srcs: [
+        "src/**/*.java",
+    ],
+    resource_dirs: [
+        "res-tv",
+    ],
+    static_libs: [
+        "android-support-annotations",
+        "BluetoothServices"
+    ],
+    manifest: "AndroidManifest.xml",
+
+    optimize: {
+        proguard_flags_files: ["proguard.cfg"],
+        enabled: false,
+    },
+}
+
+prebuilt_etc {
+    name: "com.droidlogic.android.tv.connecteddevices",
+    system_ext_specific: true,
+    sub_dir: "permissions",
+    src: "com.droidlogic.android.tv.connecteddevices.xml",
+    filename_from_src: true,
+}

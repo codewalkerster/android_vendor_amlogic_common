@@ -1,0 +1,6 @@
+<!-- Copyright 2022 Google Inc. All Rights Reserved. -->
+<resources>
+  <bool name="axel_settings_enabled">true</bool>
+  <bool name="cec_settings_enabled">true</bool>
+  <bool name="show_cec_in_connected_settings">false</bool>
+</resources>

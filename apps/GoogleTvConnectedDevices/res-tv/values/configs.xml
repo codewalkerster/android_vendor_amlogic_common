@@ -1,0 +1,8 @@
+<!-- Copyright 2022 Google Inc. All Rights Reserved. -->
+<resources>
+  <bool name="axel_settings_enabled">false</bool>
+  <bool name="cec_settings_enabled">false</bool>
+  <string name="custom_bluetooth_slice_provider_uri" translatable="false">
+    content://com.google.android.apps.tv.launcherx.sliceprovider/custom_button
+  </string>
+</resources>

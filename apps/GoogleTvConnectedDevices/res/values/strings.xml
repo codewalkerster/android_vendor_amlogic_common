@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Overriding the BluetoothDeviceService class name to point to the implemented class.-->
+    <string translatable="false" name="bluetooth_device_service_class">com.droidlogic.android.tv.connecteddevices.DefaultBluetoothDeviceService</string>
+</resources>
