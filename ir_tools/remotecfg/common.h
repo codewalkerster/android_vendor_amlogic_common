@@ -45,17 +45,20 @@ enum {
     KEYMAP_LEVEL,
     MOUSEMAP_LEVEL,
     ADCMAP_LEVEL,
+    WAKEUP_LEVEL,
 };
 
 typedef int (*pfileHandle)(char *, char *, void *);
 
 typedef struct {
+	__u16 wakeup_size;
+	struct ir_wakeup_tab wakeupTab[MAX_WAKEUP_SIZE + 1];
 	struct ir_map_tab tab;
 }S_TAB_FILE_T;
 
 typedef struct {
 	unsigned int workMode;
-	unsigned int repeatEnable;
+//	unsigned int repeatEnable;
 	unsigned int debugEnable;
 	/*software decode*/
 	struct ir_sw_decode_para sw_data;
@@ -68,6 +71,10 @@ int ParseFile(const char *file, pfileHandle handler, void *data);
 int CheckVersion(int fd);
 int OpenDevice(char *filename);
 int CloseDevice(int fd);
+int GetTabNum(int devFd, unsigned int *tabList);
+int GetTabPara(int devFd, S_TAB_FILE_T *tabFile, unsigned int code);
+int GetWakeupPara(int devFd, struct ir_wakeup_tab *wakeupTab);
+int GetWakeupKey(int devFd, unsigned int *wakeupKey);
 
 
 

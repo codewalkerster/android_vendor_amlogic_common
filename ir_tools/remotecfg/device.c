@@ -46,7 +46,6 @@ static int WriteSysFile(const char *dir, const char *fileName, unsigned int val)
 
 	snprintf(fileBuf, MAX_LINE_LEN, "%s%s", dir, fileName);
 	if ((fd = open(fileBuf, O_RDWR)) < 0) {
-		fprintf(stderr, "open %s: %s\n", fileBuf, strerror(errno));
 		return FAIL;
 	}
 
@@ -63,9 +62,11 @@ static int WriteSysFile(const char *dir, const char *fileName, unsigned int val)
 
 int SetCfgPara(int devFd, const char *sysDir, S_CFG_FILE_T *cfgFile)
 {
-	WriteSysFile(sysDir, "protocol", cfgFile->workMode);
-	WriteSysFile(sysDir, "repeat_enable", cfgFile->repeatEnable);
-	WriteSysFile(sysDir, "debug_enable", cfgFile->debugEnable);
+	if (WriteSysFile(sysDir, "protocol", cfgFile->workMode))
+		return FAIL;
+//	WriteSysFile(sysDir, "repeat_enable", cfgFile->repeatEnable);
+	if (WriteSysFile(sysDir, "debug_enable", cfgFile->debugEnable))
+		return FAIL;
 
 	if (ioctl(devFd, REMOTE_IOC_SET_SW_DECODE_PARA,
 		&cfgFile->sw_data) < 0) {
@@ -93,16 +94,79 @@ int SetTabPara(int devFd, S_TAB_FILE_T *tabFile)
 		return FAIL;
 	}
 
+	if (tabFile->wakeup_size <= 0)
+		return SUCC;
+
+	if (ioctl(devFd, REMOTE_IOC_SET_WAKEUP_NUMBER,
+		  &tabFile->wakeup_size) < 0 ) {
+		fprintf(stderr, "failed to set wakeup table: %s\n",
+			strerror(errno));
+		return FAIL;
+	}
+
+	if (ioctl(devFd, REMOTE_IOC_SET_WAKEUP_TAB,
+		  &tabFile->wakeupTab) < 0 ) {
+		fprintf(stderr, "failed to set wakeup table: %s\n",
+			strerror(errno));
+		return FAIL;
+	}
+
+	return SUCC;
+}
+
+int GetTabNum(int devFd, unsigned int *tabList)
+{
+	tabList[0] = 0;
+
+	if (ioctl(devFd, REMOTE_IOC_GET_KEY_MAPPING_TAB, tabList) < 0) {
+		fprintf(stderr, "failed to get tab num: %s\n",
+			strerror(errno));
+		return FAIL;
+	}
+
+	return SUCC;
+}
+
+int GetTabPara(int devFd, S_TAB_FILE_T *tabFile, unsigned int code)
+{
+	unsigned int *tmp = (unsigned int *)&tabFile->tab;
+
+	tmp[0] = code;
+
+	if (ioctl(devFd, REMOTE_IOC_GET_KEY_MAPPING_TAB, &tabFile->tab) < 0) {
+		fprintf(stderr, "failed to get tab num: %s\n",
+			strerror(errno));
+		return FAIL;
+	}
+
+	return SUCC;
+}
+
+int GetWakeupPara(int devFd, struct ir_wakeup_tab *wakeupTab)
+{
+	if (ioctl(devFd, REMOTE_IOC_GET_WAKEUP_TAB, wakeupTab) < 0) {
+		fprintf(stderr, "failed to get wakeup tab: %s\n",
+			strerror(errno));
+		return FAIL;
+	}
+
+	return SUCC;
+}
+
+int GetWakeupKey(int devFd, unsigned int *wakeupKey)
+{
+	if (ioctl(devFd, REMOTE_IOC_GET_WAKEUP_KEY, wakeupKey) < 0) {
+		fprintf(stderr, "failed to get wakeup key: %s\n",
+			strerror(errno));
+		return FAIL;
+	}
+
 	return SUCC;
 }
 
 int OpenDevice(char *filename)
 {
-	int fd;
-
-	if ((fd = open(filename, O_RDWR)) < 0)
-		fprintf(stderr, "open %s:%s\n", filename, strerror(errno));
-	return fd;
+	return open(filename, O_RDWR);
 }
 
 int CloseDevice(int fd)

@@ -99,6 +99,58 @@ static int GetMapCode(char *line, int *code)
 	return 0;
 }
 
+/*
+Wakeup code in file:
+wakeup_begin
+	0xBA45BD02 0 116
+	0xEF10FE01 0 116
+	0xEF10FB04 0 116
+	......
+wakeup_end
+*/
+static int GetWakeupCode(char *line, void *data)
+{
+	char *p2, *p3;
+	char *p1 = line;
+	int ircode;
+	S_TAB_FILE_T *tabFile = (S_TAB_FILE_T *)data;
+	struct ir_wakeup_tab *wakeupTab = tabFile->wakeupTab;
+
+	if (tabFile->wakeup_size > MAX_WAKEUP_SIZE)
+		return -1;
+
+	/*remove head and tail blank in string*/
+	StrTrim(&line);
+
+	/*get second data point in line*/
+	p2 = strchr(line, ' ');
+	if (p2) {
+		*p2++ = 0;
+		StrTrim(&p2);
+	}
+	if (!p2 || !*p2)
+		return -1;
+
+	p3 = strchr(p2, ' ');
+	if (p3) {
+		*p3++ = 0;
+		StrTrim(&p3);
+	}
+	if (!p3 || !*p3)
+		return -1;
+
+	StrTrim(&p1);
+	if (!*p1)
+		return -1;
+
+	wakeupTab[tabFile->wakeup_size].frame_code = strtoul(p1, NULL, 0);
+	wakeupTab[tabFile->wakeup_size].ir_reason = strtoul(p2, NULL, 0);
+	wakeupTab[tabFile->wakeup_size].report_val = strtoul(p3, NULL, 0);
+	tabFile->wakeup_size++;
+
+	return 0;
+}
+
 int GetKeyValue(char *line, char **key, char **value)
 {
 	char *p1, *p2;
@@ -147,6 +199,10 @@ static int ReadFile(FILE *fp, pfileHandle handler, void *data)
 				parse_flag = KEYMAP_LEVEL;
 				continue;
 			}
+			if ((strcasecmp(line, "wakeup_begin")) == 0) {
+				parse_flag = WAKEUP_LEVEL;
+				continue;
+			}
 			if (!!GetKeyValue(line, &key, &value))
 				continue;
 			if ((*handler)(key, value, data) < 0) {
@@ -166,6 +222,17 @@ static int ReadFile(FILE *fp, pfileHandle handler, void *data)
 			if ((*handler)("mapcode", line, data) < 0) {
 				fprintf(stderr, "invalid line:%s=%s\n",
 					"mapcode", line);
+				continue;
+			}
+		break;
+		case WAKEUP_LEVEL:
+			if ((strcasecmp(line, "wakeup_end")) == 0) {
+				parse_flag = CONFIG_LEVEL;
+				continue;
+			}
+			if (GetWakeupCode(line, data) < 0) {
+				fprintf(stderr, "invalid line:%s=%s\n",
+					"wakeup", line);
 				continue;
 			}
 		break;

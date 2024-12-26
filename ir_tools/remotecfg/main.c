@@ -24,11 +24,15 @@
 #define DEVICE_FILE "/dev/amremote"
 #define SYSDIR  "/sys/class/remote/amremote/"
 
+/* support multi input devices */
+#define DEVICE_FILE_0 "/dev/amremote0"
+#define SYSDIR_0  "/sys/class/remote0/amremote0/"
+
 unsigned char dbg_flag = 0;
 
 static void usage(char *name)
 {
-	fprintf(stderr,"Usage: %s [-c cfg_file] [-t tab_file] [-d]\n", name);
+	fprintf(stderr,"Usage: %s [-c cfg_file] [-t tab_file] [-d] [-g]\n", name);
 	exit(EXIT_FAILURE);
 }
 
@@ -47,14 +51,22 @@ static void printTabFile(S_TAB_FILE_T *tabFile)
 	prDbg("release_delay = %d\n", tabFile->tab.release_delay);
 	prDbg("map_size = %d\n", tabFile->tab.map_size);
 	for (i = 0; i < tabFile->tab.map_size; i++)
-		prDbg("key[%d] = 0x%x\n", i, tabFile->tab.codemap[i].code);
+		prDbg("key[%d]:  \t%d\t%d\n", i,
+			tabFile->tab.codemap[i].code & 0xFFFF,
+			tabFile->tab.codemap[i].code >> 16);
+	for (i = 0; i < tabFile->wakeup_size; i++)
+		prDbg("wakeup[%d]:  \t0x%08x\t%d\t%d\n", i,
+			tabFile->wakeupTab[i].frame_code,
+			tabFile->wakeupTab[i].ir_reason,
+			tabFile->wakeupTab[i].report_val);
+
 
 }
 
 static void printCfgFile(S_CFG_FILE_T *cfgFile)
 {
 	prDbg("work_mode = %d\n", cfgFile->workMode);
-	prDbg("repeat_enable = %d\n", cfgFile->repeatEnable);
+//	prDbg("repeat_enable = %d\n", cfgFile->repeatEnable);
 	prDbg("debug_enable = %d\n", cfgFile->debugEnable);
 	prDbg("max_frame_time = %d\n", cfgFile->sw_data.max_frame_time);
 }
@@ -65,8 +77,8 @@ static int handleCfgFile(char *name, char *val, void *data)
 
 	if (MATCH("work_mode", name))
 		cfgFile->workMode = strtoul(val, NULL, 0);
-	else if (MATCH("repeat_enable", name))
-		cfgFile->repeatEnable = strtoul(val, NULL, 0);
+//	else if (MATCH("repeat_enable", name))
+//		cfgFile->repeatEnable = strtoul(val, NULL, 0);
 	else if (MATCH("debug_enable", name))
 		cfgFile->debugEnable = strtoul(val, NULL, 0);
 	else if (MATCH("max_frame_time", name))
@@ -83,7 +95,10 @@ static int handleTabFile(char *name, char *val, void *data)
 	S_TAB_FILE_T *tabFile = (S_TAB_FILE_T *)data;
 
 	if (MATCH("custom_name", name))
-		 strncpy(tabFile->tab.custom_name, val, CUSTOM_NAME_LEN - 1);
+	{
+		 strncpy(tabFile->tab.custom_name, val, CUSTOM_NAME_LEN-1);
+		 tabFile->tab.custom_name[CUSTOM_NAME_LEN-1] = '\0';
+	}
 	else if (MATCH("fn_key_scancode", name))
 		tabFile->tab.cursor_code.fn_key_scancode = strtoul(val, NULL, 0);
 	else if (MATCH("cursor_left_scancode", name))
@@ -101,11 +116,11 @@ static int handleTabFile(char *name, char *val, void *data)
 	else if (MATCH("release_delay", name))
 		tabFile->tab.release_delay = strtoul(val, NULL, 0);
 	else if (MATCH("vendor", name))
-		tabFile->tab.vendor = strtoul(val, NULL, 0);
+		tabFile->tab.id.vendor = strtoul(val, NULL, 0);
 	else if (MATCH("product", name))
-		tabFile->tab.product = strtoul(val, NULL, 0);
+		tabFile->tab.id.product = strtoul(val, NULL, 0);
 	else if (MATCH("version", name))
-		tabFile->tab.version = strtoul(val, NULL, 0);
+		tabFile->tab.id.version = strtoul(val, NULL, 0);
 	else if (MATCH("mapcode", name)) {
 		tabFile->tab.codemap[tabFile->tab.map_size].code = atoi(val);
 		tabFile->tab.map_size ++;
@@ -137,7 +152,10 @@ int SetConfigFile(int devfd, char *cfgdir)
 		goto err;
 	}
 	printCfgFile(cfgFile);
-	SetCfgPara(devfd, SYSDIR, cfgFile);
+
+	if (SetCfgPara(devfd, SYSDIR, cfgFile))
+		if (SetCfgPara(devfd, SYSDIR_0, cfgFile))
+			fprintf(stderr, "open %s: %s\n", SYSDIR_0, strerror(errno));
 err:
 	if (cfgFile)
 		free(cfgFile);
@@ -173,6 +191,80 @@ err:
 	return ret;
 }
 
+int GetTabFile(int devfd)
+{
+	int ret = 0, i;
+	unsigned int wakeupKey, tabList[16] = {0};
+	S_TAB_FILE_T *tabFile = NULL;
+	struct ir_wakeup_tab *wakeupTab = NULL;
+
+	tabFile = (S_TAB_FILE_T *)malloc(sizeof(S_TAB_FILE_T) + (MAX_KEYMAP_SIZE << 2));
+	wakeupTab = (struct ir_wakeup_tab *)malloc(sizeof(struct ir_wakeup_tab) * (MAX_WAKEUP_SIZE + 1));
+	if (!tabFile || !wakeupTab)
+	{
+		fprintf(stderr, "failed to allocate memory: %s\n", strerror(errno));
+		ret = -1;
+		goto err;
+	}
+
+	memset(wakeupTab, 0, sizeof(struct ir_wakeup_tab) * (MAX_WAKEUP_SIZE + 1));
+	memset(tabFile, 0, sizeof(S_TAB_FILE_T) + (MAX_KEYMAP_SIZE << 2));
+
+	if (GetTabNum(devfd, tabList) < 0)
+	{
+		fprintf(stderr, "failed to get keymap num\n");
+		ret = -1;
+		goto err;
+	}
+
+	i = 0;
+	while (tabList[i])
+	{
+		if (GetTabPara(devfd, tabFile, tabList[i]) < 0)
+		{
+			fprintf(stderr, "failed to get Tab 0x%X\n",
+				tabList[i]);
+			ret = -1;
+			goto err;
+		}
+
+		printTabFile(tabFile);
+		fprintf(stdout, "\n");
+		i++;
+	}
+
+	if (GetWakeupPara(devfd, wakeupTab) < 0)
+	{
+		fprintf(stderr, "failed to get wakeup Tab\n");
+		ret = -1;
+		goto err;
+	}
+
+	if (GetWakeupKey(devfd, &wakeupKey) < 0)
+	{
+		fprintf(stderr, "failed to get wakeup Tab\n");
+		ret = -1;
+		goto err;
+	}
+
+	i = 0;
+	fprintf(stdout, "Wakeup Key: 0x%x\n", wakeupKey);
+	fprintf(stdout, "Wakeup Tab:\n");
+	while (wakeupTab[i].frame_code)
+	{
+		fprintf(stdout, "0x%08X\t%d\t%d\n", wakeupTab[i].frame_code,
+			wakeupTab[i].ir_reason, wakeupTab[i].report_val);
+		i++;
+	}
+err:
+	if (tabFile)
+		free(tabFile);
+	if (wakeupTab)
+		free(wakeupTab);
+
+	return ret;
+}
+
 int main(int argc, char *argv[])
 {
 	int ch;
@@ -180,9 +272,10 @@ int main(int argc, char *argv[])
 	int ret;
 	char *cfgfile = NULL;
 	char *tabfile = NULL;
+	unsigned char get_tab_flag = 0;
 
 	opterr = 0; /*disable the 'getopt' debug info*/
-	while ((ch = getopt(argc, argv, "dc:t:")) != -1) {
+	while ((ch = getopt(argc, argv, "dgc:t:")) != -1) {
 		switch (ch) {
 		case 'd':
 			dbg_flag = 1;
@@ -193,6 +286,9 @@ int main(int argc, char *argv[])
 		case 't':
 			tabfile = optarg;
 			break;
+		case 'g':
+			get_tab_flag = 1;
+			break;
 		case '?':
 			usage(basename(argv[0]));
 			break;
@@ -201,11 +297,19 @@ int main(int argc, char *argv[])
 	}
 
 	devfd = OpenDevice(DEVICE_FILE);
-	if (devfd< 0)
-		return FAIL;
+	if (devfd< 0) {
+		devfd = OpenDevice(DEVICE_FILE_0);
+		if (devfd< 0) {
+			fprintf(stderr, "open failed:%s\n", strerror(errno));
+			return FAIL;
+		}
+	}
 
 	if (CheckVersion(devfd) < 0)
 		goto err;
+
+	if (get_tab_flag)
+		GetTabFile(devfd);
 
 	if (cfgfile)
 		if (SetConfigFile(devfd, cfgfile))
