@@ -34,7 +34,7 @@ import com.droidlogic.app.AudioEffectManager;
 import com.droidlogic.app.DroidLogicUtils;
 import com.droidlogic.app.SystemControlManager;
 import com.droidlogic.audioservice.settings.SoundEffectManager;
-
+import com.droidlogic.app.DroidAudioManager;
 
 /**
  * This Service modifies Audio and Picture Quality TV Settings.
@@ -144,6 +144,38 @@ public class AudioEffectsService extends Service {
             return mSoundEffectManager.isSupportVirtualX();
         }
 
+        public void setDtsVirtualXStatus(int enable) {
+            mSoundEffectManager.setDtsVirtualXStatus(enable);
+        }
+
+        public int getDtsVirtualXStatus() {
+            return mSoundEffectManager.getDtsVirtualXStatus();
+        }
+
+        public void setDtsVirtualSurround(int enable) {
+            mSoundEffectManager.setDtsVirtualSurround(enable);
+        }
+
+        public int getDtsVirtualSurround() {
+            return mSoundEffectManager.getDtsVirtualSurround();
+        }
+
+        public void setDtsDialogClarityMode(int mode) {
+            mSoundEffectManager.setDtsDialogClarityMode(mode);
+        }
+
+        public int getDtsDialogClarityMode() {
+            return mSoundEffectManager.getDtsDialogClarityMode();
+        }
+
+        public void setDtsBassEnhancement(boolean enable) {
+            mSoundEffectManager.setDtsBassEnhancement(enable);
+        }
+
+        public int getDtsBassEnhancement() {
+            return mSoundEffectManager.getDtsBassEnhancement();
+        }
+
         public void setDtsVirtualXMode(int virtualXMode) {
             mSoundEffectManager.setDtsVirtualXMode(virtualXMode);
         }
@@ -245,6 +277,27 @@ public class AudioEffectsService extends Service {
         }
         public int getHpeqBandNum(int id) {
             return mSoundEffectManager.getHpeqBandNum(id);
+        }
+        public void setBasicEffectMode(int mode) {
+            mSoundEffectManager.setBasicEffectMode(mode);
+        }
+        public int getBasicEffectMode() {
+            return mSoundEffectManager.getBasicEffectMode();
+        }
+        public int getDolbyMS12AudioConfig() {
+            return mSoundEffectManager.getDolbyMS12AudioConfig();
+        }
+        public void initDualEffectMode() {
+            mSoundEffectManager.initDualEffectMode();
+        }
+        public void setDualEffectMode(int mode) {
+            mSoundEffectManager.setDualEffectMode(mode);
+        }
+        public int getDualEffectMode() {
+            return mSoundEffectManager.getDualEffectMode();
+        }
+        public int getEffectFunctionConfig(int id) {
+            return mSoundEffectManager.getEffectFunctionConfig(id);
         }
     };
 

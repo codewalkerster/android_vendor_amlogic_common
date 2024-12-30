@@ -30,12 +30,14 @@ public class AudioEffectManager {
     private int RETRY_MAX = 10;
 
     /* [setSoundMode] EQ sound mode type */
-    public static final int EQ_SOUND_MODE_STANDARD                      = 0;
-    public static final int EQ_SOUND_MODE_MUSIC                         = 1;
-    public static final int EQ_SOUND_MODE_NEWS                          = 2;
-    public static final int EQ_SOUND_MODE_THEATER                       = 3;
-    public static final int EQ_SOUND_MODE_GAME                          = 4;
-    public static final int EQ_SOUND_MODE_CUSTOM                        = 5;
+    public static final int COMMON_SOUND_MODE_STANDARD                  = 0;
+    public static final int COMMON_SOUND_MODE_MUSIC                     = 1;
+    public static final int COMMON_SOUND_MODE_NEWS                      = 2;
+    public static final int COMMON_SOUND_MODE_MOVIE                     = 3;
+    public static final int COMMON_SOUND_MODE_GAME                      = 4;
+    public static final int COMMON_SOUND_MODE_NIGHT                     = 5;
+    public static final int COMMON_SOUND_MODE_CUSTOM                    = 6;
+
 
     /* [setUserSoundModeParam] custom sound mode EQ band type */
     public static final int EQ_SOUND_MODE_EFFECT_BAND1                  = 0;
@@ -63,6 +65,9 @@ public class AudioEffectManager {
 
     public static final int SOUND_EFFECT_VIRTUALX_MODE_DEFAULT          = SOUND_EFFECT_VIRTUALX_MODE_OFF;
     public static final int SOUND_EFFECT_TRUVOLUME_HD_ENABLE_DEFAULT    = 0;        // OFF
+    public static final int SOUND_EFFECT_VIRTUALX_DIALOG_MODE_DEFAULT   = 0;        // OFF
+    public static final int SOUND_EFFECT_VIRTUALX_TRU_BASS_DEFAULT      = 0;        // OFF
+    public static final int SOUND_EFFECT_VIRTUAL_SURROUND_DEFAULT       = 0;        // OFF
 
     /****************************DAP effect cmd*******************************/
     public static final int SOUND_EFFECT_DAP_VERSION_1_3_2  = 0;
@@ -104,7 +109,6 @@ public class AudioEffectManager {
     public static final int SUBCMD_DAP_2_4_BASE_VALUE                   = 2000;
 
     public static final int SUBCMD_DAP_2_4_SURROUND_VIRTUALIZER_BOOST   = 2000;
-    public static final int SUBCMD_DAP_2_4_DIALOGUE_ENHANCER_AMOUNT     = 2001;
     public static final int SUBCMD_DAP_2_4_BASS_ENHANCER_BOOST          = 2002;
     public static final int SUBCMD_DAP_2_4_BASS_ENHANCER_CUTOFF_100     = 2003;
     public static final int SUBCMD_DAP_2_4_BASS_ENHANCER_CUTOFF_1       = 2004;
@@ -134,7 +138,7 @@ public class AudioEffectManager {
 
 
     /* DAP 2.4 default setting */
-    public static final int DAP_2_4_SURROUND_VIRTUALIZER_DEFAULT               = 1;
+    public static final int DAP_2_4_SURROUND_VIRTUALIZER_DEFAULT               = 0;
     public static final int DAP_2_4_SURROUND_VIRTUALIZER_BOOST_DEFAULT         = 96;
     public static final int DAP_2_4_DIALOGUE_ENHANCER_DEFAULT                  = 0;
     public static final int DAP_2_4_DIALOGUE_ENHANCER_AMOUNT_DEFAULT           = 0;
@@ -298,19 +302,55 @@ public class AudioEffectManager {
     //debug audio UI
     public static final int DEBUG_UI_ON                                      = 1;
     public static final int DEBUG_UI_OFF                                     = 0;
+    public static final int EFFECT_UI_ON                                     = 1;
+    public static final int EFFECT_UI_OFF                                    = 0;
 
     public static final int HPEQ_5_BAND                                      = 5;
     public static final int HPEQ_7_BAND                                      = 7;
     public static final int HPEQ_9_BAND                                      = 9;
 
-    public static final int DEBUG_HPEQ_UI                                    = 0;
-    public static final int DEBUG_BALANCE_UI                                 = 1;
-    public static final int DEBUG_TREBLEBASS_UI                              = 2;
-    public static final int DEBUG_VIRTUAL_SURROUND_UI                        = 3;
-    public static final int DEBUG_DPE_UI                                     = 4;
-    public static final int DEBUG_VIRTUAL_X_UI                               = 5;
-    public static final int DEBUG_DAP_2_UI                                   = 6;
-    public static final int DEBUG_HPEQ_BAND_NUM_UI                           = 7;
+
+    public static final int EFFECT_HPEQ_UI_ID                                = 0;
+    public static final int EFFECT_BALANCE_UI_ID                             = 1;
+    public static final int EFFECT_TREBLEBASS_UI_ID                          = 2;
+    public static final int EFFECT_VIRTUAL_SURROUND_UI_ID                    = 3;
+    public static final int EFFECT_DPE_UI_ID                                 = 4;
+    public static final int EFFECT_VIRTUALX_UI_ID                            = 5;
+    public static final int EFFECT_DAP2_UI_ID                                = 6;
+    public static final int EFFECT_HPEQ_BAND_UI_ID                           = 7;
+    public static final int DOLBY_DRC_UI_ID                                  = 8;
+    public static final int DTS_DRC_UI_ID                                    = 9;
+    public static final int ENGINEER_MODE_UI_ID                              = 10;
+    public static final int AUDIO_LATENCY_UI_ID                              = 11;
+    public static final int FORCE_DDP_UI_ID                                  = 12;
+    public static final int PASSTHROUGH_UI_ID                                = 13;
+    public static final int VAD_UI_ID                                        = 14;
+    public static final int FUNCTION_UI_NUM                                  = 15;
+
+
+    /*
+    * Dolby ms12 audio config
+    * -N: Not support MS12
+    * -X: support MS12, config = x
+    * -Y: support MS12, config = y
+    * -X: support MS12, config = z
+    */
+    public static final int DOLBY_MS12_AUDIO_CONFIG_N                        = -1;
+    public static final int DOLBY_MS12_AUDIO_CONFIG_X                        = 1;
+    public static final int DOLBY_MS12_AUDIO_CONFIG_Y                        = 0;
+    public static final int DOLBY_MS12_AUDIO_CONFIG_Z                        = 2;
+    //DTS audio config
+    public static final int DTS_VIRTUALX_AUDIO_CONFIG_ON                     = 1;
+    public static final int DTS_VIRTUALX_AUDIO_CONFIG_OFF                    = 0;
+    //Dual Effect mode
+    public static final int EFFECT_MODE_AUTO                                 = 0;
+    public static final int EFFECT_MODE_DTS                                  = 1;
+    public static final int EFFECT_MODE_DOLBY                                = 2;
+    public static final int EFFECT_MODE_OFF                                  = 3;
+    public static final int EFFECT_MODE_MAX                                  = 4;
+    //Basic Effect mode
+    public static final int BASIC_EFFECT_MODE_OFF                            = 0;
+    public static final int BASIC_EFFECT_MODE_ON                             = 1;
 
     private static AudioEffectManager mInstance;
 
@@ -370,21 +410,21 @@ public class AudioEffectManager {
     public static String debugUiIndexToString(int value) {
         String temp = "[" + value + "]";
         switch (value) {
-            case DEBUG_HPEQ_UI:
+            case EFFECT_HPEQ_UI_ID:
                 return temp + "HPEQ";
-            case DEBUG_BALANCE_UI:
+            case EFFECT_BALANCE_UI_ID:
                 return temp + "BALANCE";
-            case DEBUG_TREBLEBASS_UI:
+            case EFFECT_TREBLEBASS_UI_ID:
                 return temp + "TREBLEBASS";
-            case DEBUG_VIRTUAL_SURROUND_UI:
+            case EFFECT_VIRTUAL_SURROUND_UI_ID:
                 return temp + "VIRTUAL_SURROUND";
-            case DEBUG_DPE_UI:
+            case EFFECT_DPE_UI_ID:
                 return temp + "DPE";
-            case DEBUG_VIRTUAL_X_UI:
+            case EFFECT_VIRTUALX_UI_ID:
                 return temp + "VIRTUAL_X";
-            case DEBUG_DAP_2_UI:
+            case EFFECT_DAP2_UI_ID:
                 return temp + "DAP_2";
-            case DEBUG_HPEQ_BAND_NUM_UI:
+            case EFFECT_HPEQ_BAND_UI_ID:
                 return temp + "HPEQ_BAND_NUM";
             default:
                 return temp + "invalid value";
@@ -432,6 +472,65 @@ public class AudioEffectManager {
         }
     }
 
+    public int getSoundModeStatus() {
+        if (audioEffectServiceIsNull()) return 0;
+        try {
+            return mAudioEffectsService.getSoundModeStatus();
+        } catch (RemoteException e) {
+            Log.e(TAG, "getSoundModeStatus failed:" + e);
+        }
+        return -1;
+    }
+
+    public void setSoundMode(int mode) {
+        if (audioEffectServiceIsNull()) return;
+        try {
+            mAudioEffectsService.setSoundMode(mode);
+        } catch (RemoteException e) {
+            Log.e(TAG, "setSoundMode failed:" + e);
+        }
+    }
+
+    public void setUserSoundModeParam(int bandNumber, int value, int bandSum) {
+        if (audioEffectServiceIsNull()) return;
+        try {
+            mAudioEffectsService.setUserSoundModeParam(bandNumber, value, bandSum);
+        } catch (RemoteException e) {
+            Log.e(TAG, "setUserSoundModeParam failed:" + e);
+        }
+    }
+
+    public int getUserSoundModeParam(int bandNumber) {
+        if (audioEffectServiceIsNull()) return 0;
+        try {
+            return mAudioEffectsService.getUserSoundModeParam(bandNumber);
+        } catch (RemoteException e) {
+            Log.e(TAG, "getUserSoundModeParam failed:" + e);
+        }
+        return -1;
+    }
+
+    //create/release the specified effect by Effect Type: id
+    public void setAudioEffectOn(int id, boolean dbSwitch) {
+        if (audioEffectServiceIsNull()) return;
+        try {
+            mAudioEffectsService.setAudioEffectOn(id, dbSwitch);
+        } catch (RemoteException e) {
+            Log.e(TAG, "setAudioEffectOn failed:" + e);
+        }
+    }
+
+    //whether is the specified effect enabled
+    public boolean isAudioEffectOn(int id) {
+        if (audioEffectServiceIsNull()) return false;
+        try {
+            return mAudioEffectsService.isAudioEffectOn(id);
+        } catch (RemoteException e) {
+            Log.e(TAG, "isAudioEffectOn failed:" + e);
+        }
+        return false;
+    }
+
     public boolean isSupportVirtualX() {
         if (audioEffectServiceIsNull()) return false;
         try {
@@ -442,6 +541,7 @@ public class AudioEffectManager {
         return false;
     }
 
+    //1.Virtualx parameter set/get
     public void setDtsVirtualXMode(int virtualXMode) {
         if (audioEffectServiceIsNull()) return;
         try {
@@ -480,16 +580,7 @@ public class AudioEffectManager {
         return false;
     }
 
-    public int getSoundModeStatus() {
-        if (audioEffectServiceIsNull()) return 0;
-        try {
-            return mAudioEffectsService.getSoundModeStatus();
-        } catch (RemoteException e) {
-            Log.e(TAG, "getSoundModeStatus failed:" + e);
-        }
-        return -1;
-    }
-
+    //2.TrebleBass parameter set/get
     public int getTrebleStatus() {
         if (audioEffectServiceIsNull()) return 0;
         try {
@@ -506,62 +597,6 @@ public class AudioEffectManager {
             return mAudioEffectsService.getBassStatus();
         } catch (RemoteException e) {
             Log.e(TAG, "getBassStatus failed:" + e);
-        }
-        return -1;
-    }
-    public int getBalanceStatus() {
-        if (audioEffectServiceIsNull()) return 0;
-        try {
-            return mAudioEffectsService.getBalanceStatus();
-        } catch (RemoteException e) {
-            Log.e(TAG, "getBalanceStatus failed:" + e);
-        }
-        return -1;
-    }
-
-    public int getVirtualSurroundStatus() {
-        if (audioEffectServiceIsNull()) return 0;
-        try {
-            return mAudioEffectsService.getVirtualSurroundStatus();
-        } catch (RemoteException e) {
-            Log.e(TAG, "getVirtualSurroundStatus failed:" + e);
-        }
-        return -1;
-    }
-
-    public void setSoundMode(int mode) {
-        if (audioEffectServiceIsNull()) return;
-        try {
-            mAudioEffectsService.setSoundMode(mode);
-        } catch (RemoteException e) {
-            Log.e(TAG, "setSoundMode failed:" + e);
-        }
-    }
-
-    public void setSoundModeByObserver(int mode, int bandSum) {
-        if (audioEffectServiceIsNull()) return;
-        try {
-            mAudioEffectsService.setSoundModeByObserver(mode, bandSum);
-        } catch (RemoteException e) {
-            Log.e(TAG, "setSoundModeByObserver failed:" + e);
-        }
-    }
-
-    public void setUserSoundModeParam(int bandNumber, int value, int bandSum) {
-        if (audioEffectServiceIsNull()) return;
-        try {
-            mAudioEffectsService.setUserSoundModeParam(bandNumber, value, bandSum);
-        } catch (RemoteException e) {
-            Log.e(TAG, "setUserSoundModeParam failed:" + e);
-        }
-    }
-
-    public int getUserSoundModeParam(int bandNumber) {
-        if (audioEffectServiceIsNull()) return 0;
-        try {
-            return mAudioEffectsService.getUserSoundModeParam(bandNumber);
-        } catch (RemoteException e) {
-            Log.e(TAG, "getUserSoundModeParam failed:" + e);
         }
         return -1;
     }
@@ -584,6 +619,7 @@ public class AudioEffectManager {
         }
     }
 
+    //3.Balance parameter set/get
     public void setBalance(int step) {
         if (audioEffectServiceIsNull()) return;
         try {
@@ -591,6 +627,27 @@ public class AudioEffectManager {
         } catch (RemoteException e) {
             Log.e(TAG, "setBalance failed:" + e);
         }
+    }
+
+    public int getBalanceStatus() {
+        if (audioEffectServiceIsNull()) return 0;
+        try {
+            return mAudioEffectsService.getBalanceStatus();
+        } catch (RemoteException e) {
+            Log.e(TAG, "getBalanceStatus failed:" + e);
+        }
+        return -1;
+    }
+
+    //4.Virtual parameter set/get
+    public int getVirtualSurroundStatus() {
+        if (audioEffectServiceIsNull()) return 0;
+        try {
+            return mAudioEffectsService.getVirtualSurroundStatus();
+        } catch (RemoteException e) {
+            Log.e(TAG, "getVirtualSurroundStatus failed:" + e);
+        }
+        return -1;
     }
 
     public void setVirtualSurround(int mode) {
@@ -602,6 +659,7 @@ public class AudioEffectManager {
         }
     }
 
+    //5.DAP parameter set/get
     public void setDapParam(int id, int value) {
         if (audioEffectServiceIsNull()) return;
         try {
@@ -621,7 +679,25 @@ public class AudioEffectManager {
         return 0;
     }
 
-    //dpe param
+    public void initDapAudioEffect() {
+        if (audioEffectServiceIsNull()) return;
+        try {
+            mAudioEffectsService.initDapAudioEffect();
+        } catch (RemoteException e) {
+            Log.e(TAG, "initDapAudioEffect failed:" + e);
+        }
+    }
+
+    //6.DPE parameter set/get
+    public void initDpeAudioEffect() {
+        if (audioEffectServiceIsNull()) return;
+        try {
+            mAudioEffectsService.initDpeAudioEffect();
+        } catch (RemoteException e) {
+            Log.e(TAG, "initDpeAudioEffect failed:" + e);
+        }
+    }
+
     public void setDpeParam(int id, int value) {
         if (audioEffectServiceIsNull()) return;
         try {
@@ -641,24 +717,7 @@ public class AudioEffectManager {
         return 0;
     }
 
-    public void setAudioEffectOn(int id, boolean dbSwitch) {
-        if (audioEffectServiceIsNull()) return;
-        try {
-            mAudioEffectsService.setAudioEffectOn(id, dbSwitch);
-        } catch (RemoteException e) {
-            Log.e(TAG, "setAudioEffectOn failed:" + e);
-        }
-    }
-
-    public boolean isAudioEffectOn(int id) {
-        if (audioEffectServiceIsNull()) return false;
-        try {
-            return mAudioEffectsService.isAudioEffectOn(id);
-        } catch (RemoteException e) {
-            Log.e(TAG, "isAudioEffectOn failed:" + e);
-        }
-        return false;
-    }
+    //7.HPEQ parameter set/get
     public void setHpeqBandNum(int id, int value) {
         if (audioEffectServiceIsNull()) return;
         try {
@@ -677,4 +736,256 @@ public class AudioEffectManager {
         }
         return 0;
     }
+
+
+    public static class HPEQ {
+        public static final int CMD_HPEQ_PARAM_ENABLE = 0;
+
+        static void init() {
+            mInstance.setAudioEffectOn(EFFECT_HPEQ_UI_ID, true);
+        }
+
+        static void deInit() {
+            mInstance.setAudioEffectOn(EFFECT_HPEQ_UI_ID, true);
+        }
+
+        static void setHpeqBandNum(int id, int value) {
+            mInstance.setHpeqBandNum(id, value);
+        }
+
+        static int getHpeqBandNum(int id) {
+            return mInstance.getHpeqBandNum(id);
+        }
+    }
+
+    public static class Balance {
+        public static final int CMD_BALANCE_PARAM_ENABLE = 1;
+
+    }
+
+    public static class TrebleBass {
+        public static final int CMD_TREBLEBASS_PARAM_ENABLE = 2;
+    }
+
+
+    public void setDtsVirtualXStatus(int enable) {
+        if (audioEffectServiceIsNull()) return;
+        try {
+            mAudioEffectsService.setDtsVirtualXStatus(enable);
+        } catch (RemoteException e) {
+            Log.e(TAG, "setDtsVirtualXStatus failed:" + e);
+        }
+    }
+
+    public int getDtsVirtualXStatus() {
+        if (audioEffectServiceIsNull()) return 0;
+        try {
+            return mAudioEffectsService.getDtsVirtualXStatus();
+        } catch (RemoteException e) {
+            Log.e(TAG, "setDtsVirtualXStatus failed:" + e);
+        }
+        return 0;
+    }
+
+    public void setDtsVirtualSurround(int enable) {
+        if (audioEffectServiceIsNull()) return;
+        try {
+            mAudioEffectsService.setDtsVirtualSurround(enable);
+        } catch (RemoteException e) {
+            Log.e(TAG, "setDtsVirtualXStatus failed:" + e);
+        }
+    }
+
+    public int getDtsVirtualSurround() {
+        if (audioEffectServiceIsNull()) return 0;
+        try {
+            return mAudioEffectsService.getDtsVirtualSurround();
+        } catch (RemoteException e) {
+            Log.e(TAG, "setDtsVirtualXStatus failed:" + e);
+        }
+        return 0;
+    }
+
+    public void setDtsDialogClarityMode(int mode) {
+        if (audioEffectServiceIsNull()) return;
+        try {
+            mAudioEffectsService.setDtsDialogClarityMode(mode);
+        } catch (RemoteException e) {
+            Log.e(TAG, "setDtsVirtualXStatus failed:" + e);
+        }
+    }
+
+    public int getDtsDialogClarityMode() {
+        if (audioEffectServiceIsNull()) return 0;
+        try {
+            return mAudioEffectsService.getDtsDialogClarityMode();
+        } catch (RemoteException e) {
+            Log.e(TAG, "setDtsVirtualXStatus failed:" + e);
+        }
+        return 0;
+    }
+
+    public void setDtsBassEnhancement(boolean enable) {
+        if (audioEffectServiceIsNull()) return;
+        try {
+            mAudioEffectsService.setDtsBassEnhancement(enable);
+        } catch (RemoteException e) {
+            Log.e(TAG, "setDtsVirtualXStatus failed:" + e);
+        }
+    }
+
+    public int getDtsBassEnhancement() {
+        if (audioEffectServiceIsNull()) return 0;
+        try {
+            return mAudioEffectsService.getDtsBassEnhancement();
+        } catch (RemoteException e) {
+            Log.e(TAG, "setDtsVirtualXStatus failed:" + e);
+        }
+        return 0;
+    }
+
+    public static class VirtualX {
+        public static final int SOUND_EFFECT_VIRTUALX_VERSION_1         = 0;
+        public static final int SOUND_EFFECT_VIRTUALX_VERSION_4         = 1;
+        public static final int SOUND_EFFECT_VIRTUALX_VERSION           = SOUND_EFFECT_VIRTUALX_VERSION_4;
+
+        // Definition of virtualx command values
+        public static final int CMD_DTS_MBHL_ENABLE_I32                 = 0;
+        public static final int CMD_DTS_TBHDX_ENABLE_I32                = 35;
+        public static final int CMD_DTS_VX_ENABLE_I32                   = 46;
+        public static final int CMD_DTS_LOUDNESS_CONTROL_ENABLE_I32     = 67;
+        public static final int CMD_DTS_ENABLE_V4                       = 82;
+        public static final int CMD_DIALOGCLARITY_MODE                  = 83;
+        public static final int CMD_SURROUND_MODE                       = 84;
+        public static final int CMD_DTS_VIRTUALX_USER_MODE              = 96;
+        public static final int CMD_TBHDX_PROCESS_DISCARD_I32           = 182;
+        // Definition of virtualx enum values
+        public static final int PARAM_DIALOGCLARITY_MODE_OFF            = 0;
+        public static final int PARAM_DIALOGCLARITY_MODE_LOW            = 1;
+        public static final int PARAM_DIALOGCLARITY_MODE_MEDIUM         = 2;
+        public static final int PARAM_DIALOGCLARITY_MODE_HIGH           = 3;
+    }
+
+    public static class DAP {
+        public static final int CMD_DAP_ENABLE                           = 16;
+
+        public static int toDapProfileID(int mode) {
+            int ret;
+            switch (mode) {
+                case AudioEffectManager.COMMON_SOUND_MODE_STANDARD:
+                    ret = AudioEffectManager.SOUND_EFFECT_DAP_2_4_PROFILE_OFF;
+                    break;
+                case AudioEffectManager.COMMON_SOUND_MODE_MUSIC:
+                    ret = AudioEffectManager.SOUND_EFFECT_DAP_2_4_PROFILE_MUSIC;
+                    break;
+                case AudioEffectManager.COMMON_SOUND_MODE_GAME:
+                    ret = AudioEffectManager.SOUND_EFFECT_DAP_2_4_PROFILE_GAME;
+                    break;
+                case AudioEffectManager.COMMON_SOUND_MODE_MOVIE:
+                    ret = AudioEffectManager.SOUND_EFFECT_DAP_2_4_PROFILE_MOVIE;
+                    break;
+                case AudioEffectManager.COMMON_SOUND_MODE_CUSTOM:
+                    ret = AudioEffectManager.SOUND_EFFECT_DAP_2_4_PROFILE_USER_SELECTABLE;
+                    break;
+                case AudioEffectManager.COMMON_SOUND_MODE_NIGHT:
+                    ret = AudioEffectManager.SOUND_EFFECT_DAP_2_4_PROFILE_NIGHT;
+                    break;
+                case AudioEffectManager.COMMON_SOUND_MODE_NEWS:
+                    ret = AudioEffectManager.SOUND_EFFECT_DAP_2_4_PROFILE_VOICE;
+                    break;
+                default: {
+                    Log.w("DAP_2_4", "toDapProfileID() Not support SoundMode: " + mode);
+                    ret = AudioEffectManager.SOUND_EFFECT_DAP_2_4_PROFILE_OFF;
+                }
+            }
+            return ret;
+        }
+    }
+
+    public void setBasicEffectMode(int mode) {
+        if (audioEffectServiceIsNull()) return;
+        try {
+            mAudioEffectsService.setBasicEffectMode(mode);
+        } catch (RemoteException e) {
+            Log.e(TAG, "setBasicEffectMode failed:" + e);
+        }
+    }
+
+    public int getBasicEffectMode() {
+        if (audioEffectServiceIsNull()) return BASIC_EFFECT_MODE_OFF;
+        try {
+            return mAudioEffectsService.getBasicEffectMode();
+        } catch (RemoteException e) {
+            Log.e(TAG, "getBasicEffectMode failed:" + e);
+        }
+        return BASIC_EFFECT_MODE_OFF;
+    }
+
+    public int getDolbyMS12AudioConfig() {
+        if (audioEffectServiceIsNull()) return DOLBY_MS12_AUDIO_CONFIG_Y;
+        try {
+            return mAudioEffectsService.getDolbyMS12AudioConfig();
+        } catch (RemoteException e) {
+            Log.e(TAG, "getDolbyMS12AudioConfig failed:" + e);
+        }
+        return DOLBY_MS12_AUDIO_CONFIG_Y;
+    }
+
+    public String getDolbyMS12AudioConfigStr() {
+        int val = mInstance.getDolbyMS12AudioConfig();
+        switch (val) {
+        case DOLBY_MS12_AUDIO_CONFIG_N:
+            return "N";
+        case DOLBY_MS12_AUDIO_CONFIG_X:
+            return "X";
+        case DOLBY_MS12_AUDIO_CONFIG_Y:
+            return "Y";
+        case DOLBY_MS12_AUDIO_CONFIG_Z:
+            return "Z";
+        default:
+            Log.w(TAG, "getDolbyMS12AudioConfigStr() Invalid val:" + val);
+            return "Unknown";
+        }
+    }
+
+    public void initDualEffectMode() {
+        if (audioEffectServiceIsNull()) return;
+        try {
+            mAudioEffectsService.initDualEffectMode();
+        } catch (RemoteException e) {
+            Log.e(TAG, "setDualEffectMode failed:" + e);
+        }
+        return;
+    }
+
+    public void setDualEffectMode(int mode) {
+        if (audioEffectServiceIsNull()) return;
+        try {
+            mAudioEffectsService.setDualEffectMode(mode);
+        } catch (RemoteException e) {
+            Log.e(TAG, "setDualEffectMode failed:" + e);
+        }
+        return;
+    }
+
+    public int getDualEffectMode() {
+        if (audioEffectServiceIsNull()) return 0;
+        try {
+            return mAudioEffectsService.getDualEffectMode();
+        } catch (RemoteException e) {
+            Log.e(TAG, "getDualEffectMode failed:" + e);
+        }
+        return 0;
+    }
+
+    public int getEffectFunctionConfig(int id) {
+        if (audioEffectServiceIsNull()) return 0;
+        try {
+            return mAudioEffectsService.getEffectFunctionConfig(id);
+        } catch (RemoteException e) {
+            Log.e(TAG, "getEffectFunctionConfig failed:" + e);
+        }
+        return 0;
+    }
+
 }
