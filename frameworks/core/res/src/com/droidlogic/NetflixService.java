@@ -709,12 +709,16 @@ public class NetflixService extends Service {
                 || DroidAudioManager.DIGITAL_AUDIO_FORMAT_PASSTHROUGH == surround
                 || DroidAudioManager.DIGITAL_AUDIO_FORMAT_MANUAL == surround)) {
 
-                if (DroidAudioManager.DIGITAL_AUDIO_FORMAT_MANUAL == surround) {
-                    String subformat = Settings.Global.getString(mContext.getContentResolver(), DroidAudioManager.DIGITAL_AUDIO_SUBFORMAT);
-                    Log.i(TAG, "onChange manual subformat: " + subformat);
-                    setAtmosEnabled(subformat.contains(AudioFormat.ENCODING_E_AC3_JOC + ""));
-                } else if (hasMS12 || SystemProperties.get("sys.vendor.atmos.passthrough").equals("enable")) {
-                    setAtmosEnabled(hdmiEncodings.contains("atmos"));
+                if (hasMS12 || SystemProperties.get("sys.vendor.atmos.passthrough").equals("enable")) {
+                    if (DroidAudioManager.DIGITAL_AUDIO_FORMAT_MANUAL == surround) {
+                        String subformat = Settings.Global.getString(mContext.getContentResolver(), DroidAudioManager.DIGITAL_AUDIO_SUBFORMAT);
+                        Log.i(TAG, "onChange manual subformat: " + subformat);
+                        setAtmosEnabled(subformat.contains(AudioFormat.ENCODING_E_AC3_JOC + ""));
+                    } else {
+                        setAtmosEnabled(hdmiEncodings.contains("atmos"));
+                    }
+                } else {
+                    setAtmosEnabled(false);
                 }
 
                 if (hasMS12) {
