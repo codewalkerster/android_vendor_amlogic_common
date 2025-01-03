@@ -66,6 +66,7 @@ import com.droidlogic.app.DroidAudioManager;
 import com.droidlogic.app.DroidLogicUtils;
 import com.droidlogic.app.SystemControlManager;
 import com.droidlogic.app.OutputModeManager;
+import android.net.wifi.WifiManager;
 
 public class NetflixService extends Service {
     private static final String TAG = "NetflixService";
@@ -133,6 +134,7 @@ public class NetflixService extends Service {
     private ActivityManager mActivityManager;
 
     private static final String NEED_START_NTF = "need_start_netflix_app";
+    private WifiManager mWifiManager;
 
     private class SettingsObserver extends ContentObserver {
         public SettingsObserver(Handler handler) {
@@ -282,6 +284,7 @@ public class NetflixService extends Service {
         mHdmiControlManager = (HdmiControlManager)mContext.getSystemService(Context.HDMI_CONTROL_SERVICE);
         mDisplayManager = (DisplayManager)getSystemService(DisplayManager.class);
         mActivityManager = (ActivityManager)getSystemService(ActivityManager.class);
+        mWifiManager = (WifiManager) getSystemService(WifiManager.class);
 
         hasMS12 = mDroidAudioManager.isAudioSupportMs12System();
         Log.d(TAG, "ms12Supported = " + hasMS12);
@@ -327,6 +330,12 @@ public class NetflixService extends Service {
         if (SystemProperties.get("sys.vendor.ethernet.wol", "enable").equals("enable")) {
             if (mSCM != null)
                 mSCM.writeSysFs("/sys/class/ethernet/wol" , "1");
+        }
+
+        final String[] macAddresses = mWifiManager.getFactoryMacAddresses();
+	 if (macAddresses != null && macAddresses.length > 0) {
+            Log.d(TAG, "  wlan0 mac getfactory mac-macAddresses[0]=" + macAddresses[0]);
+            mSCM.setProperty("ro.vendor.nrdp.wifi_mac", macAddresses[0]);
         }
         mMsgHandler = new Handler() {
             @Override
