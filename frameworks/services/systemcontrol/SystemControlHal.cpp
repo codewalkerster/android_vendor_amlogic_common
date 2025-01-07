@@ -1936,11 +1936,14 @@ Return<void> SystemControlHal::setAudioParam(int32_t param1, int32_t param2, int
 }
 
 void SystemControlHal::handleServiceDeath(uint32_t cookie) {
+    SYS_LOGD("%s cookie: %d", __FUNCTION__, cookie);
+
     AutoMutex _l( mLock );
     if (mClients[cookie] != nullptr) {
         mClients[cookie]->unlinkToDeath(mDeathRecipient);
-        mClients[cookie].clear();
+        mClients[cookie] = nullptr;
     }
+    mClients.erase(cookie);
 }
 
 Return<void> SystemControlHal::debug(const hidl_handle& handle, const hidl_vec<hidl_string>& options) {
