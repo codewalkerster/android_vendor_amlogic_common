@@ -93,13 +93,14 @@ struct ir_sw_decode_para {
 
 /*IOCTL commands*/
 #define REMOTE_IOC_SET_KEY_NUMBER        _IOW('I', 3, __u32)
-#define REMOTE_IOC_SET_KEY_MAPPING_TAB   _IOW('I', 4, __u32)
-#define REMOTE_IOC_SET_SW_DECODE_PARA    _IOW('I', 5, __u32)
-#define REMOTE_IOC_GET_WAKEUP_TAB        _IOW('I', 6, __u32)
-#define REMOTE_IOC_GET_KEY_MAPPING_TAB   _IOW('I', 7, __u32)
+#define REMOTE_IOC_SET_KEY_MAPPING_TAB   _IOW('I', 4, struct ir_map_tab)
+#define REMOTE_IOC_SET_SW_DECODE_PARA    _IOW('I', 5, struct ir_sw_decode_para)
+#define REMOTE_IOC_GET_WAKEUP_TAB        _IOW('I', 6, struct ir_wakeup_tab)
+#define REMOTE_IOC_GET_KEY_MAPPING_TAB   _IOW('I', 7, struct ir_map_tab)
 #define REMOTE_IOC_SET_WAKEUP_NUMBER     _IOW('I', 8, __u32)
-#define REMOTE_IOC_SET_WAKEUP_TAB        _IOW('I', 9, __u32)
+#define REMOTE_IOC_SET_WAKEUP_TAB        _IOW('I', 9, struct ir_wakeup_tab)
 #define REMOTE_IOC_GET_WAKEUP_KEY        _IOW('I', 10, __u32)
-#define REMOTE_IOC_GET_DATA_VERSION      _IOR('I', 121, __u32)
+#define REMOTE_IOC_GET_PREBOOT_KEY       _IOW('I', 11, __u32)
+#define REMOTE_IOC_GET_DATA_VERSION      _IOR('I', 121, char[8])
 
 #endif
