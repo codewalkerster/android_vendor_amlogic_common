@@ -35,7 +35,7 @@ android_hardware_audio_config_default {
     },
 }
 soong_config_module_type_import {
-    from: "device/amlogic/common/soong_config/Android.bp",
+    from: "device/hardkernel/common/soong_config/Android.bp",
     module_types: ["amlogic_vendorconfig_cc_defaults"],
 }
 

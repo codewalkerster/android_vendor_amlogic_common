@@ -6,6 +6,11 @@ package {
     //   SPDX-license-identifier-Apache-2.0
     //   legacy_proprietary
     default_applicable_licenses: ["vendor_amlogic_common_license"],
+    default_visibility: [
+        ":__subpackages__",
+        "//hardware/amlogic/hwcomposer:__subpackages__",
+        "//vendor/amlogic/common/frameworks/core/jni/errormonitor",
+    ],
 }
 
 cc_library_shared {
