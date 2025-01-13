@@ -677,6 +677,8 @@ int PrepareUpdate(const ZipArchiveHandle zipArchive){
             set_bootloader_env("reboot_vendor_boot", "true");
     }
 
+    set_bootloader_env("recovery_prepare_ok", "1");
+
     sleep(2);
 
     return 0;
