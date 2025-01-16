@@ -8,7 +8,6 @@ import android.content.pm.PackageManager;
 import android.os.SystemProperties;
 import android.util.Log;
 
-
 public class FastBootComplete extends BroadcastReceiver {
     private static final String TAG             = "FastBootComplete";
 
@@ -19,6 +18,9 @@ public class FastBootComplete extends BroadcastReceiver {
         if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
             Intent gattServiceIntent = new Intent(context, DialogBluetoothService.class);
             context.startService(gattServiceIntent);
+
+            Intent audioDevIntent = new Intent(context, AudioVideoDevReconnectService.class);
+            context.startService(audioDevIntent);
         }
     }
 }

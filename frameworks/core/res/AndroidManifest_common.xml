@@ -189,6 +189,10 @@
             </intent-filter>
         </receiver>
 
+        <service android:exported="true"
+                 android:name="com.droidlogic.btpair.AudioVideoDevReconnectService"
+                 android:singleUser="true" />
+
         <service android:name="com.droidlogic.DeviceControlService"
                  android:enabled="true"
                  android:exported="true">

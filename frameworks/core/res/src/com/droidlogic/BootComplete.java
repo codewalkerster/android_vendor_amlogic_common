@@ -178,12 +178,6 @@ public class BootComplete extends BroadcastReceiver {
         } else {
             Log.i(TAG, "No need to listen low power policy change");
         }
-
-        Intent intent_dsettings = new Intent();
-        intent_dsettings = intent_dsettings.setComponent(new ComponentName("com.droidlogic.tv.settings",
-                 "com.droidlogic.tv.settings.sliceprovider.accessories.DroidCachedDeviceManageService"));
-        context.startService(intent_dsettings);
-        //Log.d(TAG, "start DroidCachedDeviceManagerService");
     }
 
     private boolean getBooleanProperty(String property, boolean defVal) {

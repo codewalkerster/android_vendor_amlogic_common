@@ -48,6 +48,7 @@ android_library {
         "vendor.amlogic.hardware.systemcontrol-V1.0-java",
         "vendor.amlogic.hardware.systemcontrol-V1.1-java",
         "android.hardware.tv.hdmi.cec-V1-java",
+        "SettingsLib",
     ],
 
 }
@@ -63,7 +64,6 @@ android_app {
     certificate: "platform",
     static_libs: ["droidlogic-res-lib"],
     uses_libs: ["droidlogic.software.core"],
-
     required: [
         "droidlogic.software.core",
         "droidlogic_permissions.xml",
@@ -73,5 +73,4 @@ android_app {
     optimize: {
         enabled: false,
     },
-
 }
