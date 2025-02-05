@@ -20,6 +20,8 @@ using ::aidl::vendor::amlogic::hardware::vmx_webclient::Mode;
 using ::aidl::vendor::amlogic::hardware::vmx_webclient::Status;
 using ::aidl::vendor::amlogic::hardware::vmx_webclient::VmxWebClientDecryptParam;
 using ::aidl::vendor::amlogic::hardware::vmx_webclient::IVmxWebClientCallback;
+using ::aidl::vendor::amlogic::hardware::vmx_webclient::KeyRequestParam;
+using ::aidl::vendor::amlogic::hardware::vmx_webclient::PipelineParam;
 
 inline ::ndk::ScopedAStatus toNdkScopedAStatus(Status status,
                                                const char* msg = nullptr) {
@@ -39,7 +41,8 @@ struct VmxWebClient : public BnVmxWebClient {
     VmxWebClient();
     ~VmxWebClient();
     ::ndk::ScopedAStatus createInstance(int32_t* _aidl_return) override;
-    ::ndk::ScopedAStatus decrypt(const std::vector<uint8_t>& keyid,
+    ::ndk::ScopedAStatus decrypt(const std::vector<uint8_t>& sessionid,
+                                const std::vector<uint8_t>& keyid,
                                 const std::vector<uint8_t>& keyurl,
                                 const std::vector<uint8_t>& indata,
                                 const std::vector<uint8_t>& iv,
@@ -55,6 +58,16 @@ struct VmxWebClient : public BnVmxWebClient {
     ::ndk::ScopedAStatus setProperty(const std::string& in_prop,
             const std::vector<uint8_t>& in_value) override;
     ::ndk::ScopedAStatus getCdmErr(int32_t* _aidl_return) override;
+    ::ndk::ScopedAStatus fetchKey(const std::vector<uint8_t>& sessionId,
+            const KeyRequestParam& para,
+            int32_t* _aidl_return) override;
+    ::ndk::ScopedAStatus provision(const std::vector<uint8_t>& in_request,
+            int32_t* _aidl_return) override;
+    ::ndk::ScopedAStatus isProvisioned(bool* _aidl_return) override;
+    ::ndk::ScopedAStatus createPipeline(const PipelineParam& para,
+            std::vector<uint8_t>* _aidl_return) override;
+    ::ndk::ScopedAStatus destroyPipeline(const std::vector<uint8_t>& in_engineId,
+            int32_t* _aidl_return) override;
 
     ::std::shared_ptr<IVmxWebClientCallback> mCallback;
     std::vector<uint8_t> mSessionId;

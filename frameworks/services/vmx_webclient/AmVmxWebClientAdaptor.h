@@ -38,11 +38,11 @@ struct amVmxWebClientDecryptParam
     int mSecure;
     int mStreamingFormat;
     int mMethodInfo;
+    int mKeySeq;
     const char *mKeyId;
     int mKeyIdLen;
     const char *mKeyUrl;
     int mKeyUrlLen;
-    int mKeySeq;
     const unsigned char *mIv;
     int mIvLen;
     enum Mode mMode;
@@ -50,9 +50,35 @@ struct amVmxWebClientDecryptParam
     const struct SubSamples *mSubSamples;
     int mNumSubSamples;
     const native_handle_t *mSourceHandle;
-    const native_handle_t *mSecureHandle;
+    const native_handle_t *mDestHandle;
     uint64_t mSrcOffset;
     uint64_t mOffset;
+    uint64_t mDestOffset;
+    uint32_t mEngineId;
+};
+
+struct amKeyRequestParam
+{
+    int mSecure;
+    int mKeySeq;
+    const unsigned char *mKeyId;
+    int mKeyIdLen;
+    const char *mKeyUrl;
+    int mKeyUrlLen;
+    const unsigned char *mIv;
+    int mIvLen;
+    int mStreamingFormat;
+    int mMethodInfo;
+    uint32_t mEngineId;
+};
+
+struct amPipelineParam
+{
+    int mSecure;
+    int mStreamingFormat;
+    int mMethodInfo;
+    int mMode;
+    uint32_t mEngineId;
 };
 
 typedef void (*amVmxWebClientCallback)(uint8_t type, uint8_t *data, uint32_t dataLen, void *pUserData);

@@ -29,7 +29,18 @@ typedef void (*WebClientSetPropertyFunc)(const void *, const std::string&, const
 typedef int (*WebClientGetCdmErrFunc)(void);
 
 typedef int (*WebClientDecryptExFunc)(const void*, const std::vector<uint8_t>&, const std::vector<uint8_t>&,
-                            const std::vector<uint8_t>&, const std::vector<uint8_t>&, std::vector<uint8_t>*);
+                            const std::vector<uint8_t>&, const std::vector<uint8_t>&,
+                            const std::vector<uint8_t>&, std::vector<uint8_t>*);
+
+typedef int (*WebClientFetchKeyFunc)(const void *,struct amKeyRequestParam *);
+
+typedef int (*WebClientProvisionFunc)(const void *, const std::vector<uint8_t>&);
+
+typedef bool (*WebClientIsProvisionedFunc)(const void *);
+
+typedef int (*WebClientCreatePipelineFunc)(const void *, struct amPipelineParam *);
+
+typedef int (*WebClientDestroyPipelineFunc)(const void *, uint32_t);
 
 static WebClientAllocContextFunc webclient_alloc = NULL;
 static WebClientDecryptFunc webclient_decrypt = NULL;
@@ -39,6 +50,11 @@ static WebClientGetPropertyFunc webclient_getProperty = NULL;
 static WebClientSetPropertyFunc webclient_setProperty = NULL;
 static WebClientGetCdmErrFunc webclient_getCdmErr = NULL;
 static WebClientDecryptExFunc webclient_decrypt_ex = NULL;
+static WebClientFetchKeyFunc webclient_fetchKey = NULL;
+static WebClientProvisionFunc webclient_provision = NULL;
+static WebClientIsProvisionedFunc webclient_isProvisioned = NULL;
+static WebClientCreatePipelineFunc webclient_createPipeline = NULL;
+static WebClientDestroyPipelineFunc webclient_destroyPipeline = NULL;
 
 namespace aidl::vendor::amlogic::hardware::vmx_webclient::implementation {
 
@@ -66,6 +82,16 @@ VmxWebClient::VmxWebClient()
         (WebClientGetCdmErrFunc)dlsym(mLibHandle, "amVmxWebClientGetCdmErr");
     webclient_decrypt_ex =
         (WebClientDecryptExFunc)dlsym(mLibHandle, "amVmxWebClientDecryptEx");
+    webclient_fetchKey =
+        (WebClientFetchKeyFunc)dlsym(mLibHandle, "amVmxWebClientFetchKey");
+    webclient_provision =
+        (WebClientProvisionFunc)dlsym(mLibHandle, "amVmxWebClientProvision");
+    webclient_isProvisioned =
+        (WebClientIsProvisionedFunc)dlsym(mLibHandle, "amVmxWebClientIsProvisioned");
+    webclient_createPipeline =
+        (WebClientCreatePipelineFunc)dlsym(mLibHandle, "amVmxWebClientCreatePipeline");
+    webclient_destroyPipeline =
+        (WebClientDestroyPipelineFunc)dlsym(mLibHandle, "amVmxWebClientDestroyPipeline");
 
     if (webclient_alloc)
         mWebClientObj = webclient_alloc(NULL);
@@ -117,7 +143,8 @@ VmxWebClient::~VmxWebClient() {
     return ::ndk::ScopedAStatus::ok();
 }
 
-::ndk::ScopedAStatus VmxWebClient::decrypt(const std::vector<uint8_t>& keyid,
+::ndk::ScopedAStatus VmxWebClient::decrypt(const std::vector<uint8_t>& sessionid,
+                                const std::vector<uint8_t>& keyid,
                                 const std::vector<uint8_t>& keyurl,
                                 const std::vector<uint8_t>& indata,
                                 const std::vector<uint8_t>& iv,
@@ -127,7 +154,7 @@ VmxWebClient::~VmxWebClient() {
     int ret = 0;
     if (mWebClientObj) {
         if (webclient_decrypt_ex) {
-            ret = webclient_decrypt_ex(mWebClientObj, keyid, keyurl, indata, iv, outdata);
+            ret = webclient_decrypt_ex(mWebClientObj, sessionid, keyid, keyurl, indata, iv, outdata);
             if (_aidl_return)
                 *_aidl_return = ret;
             if (ret) {
@@ -177,14 +204,14 @@ VmxWebClient::~VmxWebClient() {
         amPara.mPattern.mEncryptBlocks = para.pattern.encryptBlocks;
         amPara.mPattern.mSkipBlocks = para.pattern.skipBlocks;
 
-        if (para.keyid.size() > 0) {
-            amPara.mKeyId = (const char *)para.keyid.data();
-            amPara.mKeyIdLen = para.keyid.size();
+        if (para.keyId.size() > 0) {
+            amPara.mKeyId = (const char *)para.keyId.data();
+            amPara.mKeyIdLen = para.keyId.size();
         }
 
-        if (para.key.size() > 0) {
-            amPara.mKeyUrl = (const char *)para.key.data();
-            amPara.mKeyUrlLen = para.key.size();
+        if (para.keyUrl.size() > 0) {
+            amPara.mKeyUrl = (const char *)para.keyUrl.data();
+            amPara.mKeyUrlLen = para.keyUrl.size();
         }
 
         if (para.iv.size() > 0) {
@@ -198,13 +225,15 @@ VmxWebClient::~VmxWebClient() {
         }
 
         amPara.mSourceHandle = ::android::makeFromAidl(para.sourceDesc);
-        amPara.mSecureHandle = ::android::makeFromAidl(para.secureDesc);
+        amPara.mDestHandle = ::android::makeFromAidl(para.destDesc);
         amPara.mSrcOffset = para.srcOffset;
         amPara.mOffset = para.offset;
+        amPara.mDestOffset = para.destOffset;
+        amPara.mEngineId = para.engineId;
 
         ret = webclient_decrypt(mWebClientObj, &amPara);
         native_handle_delete(const_cast<native_handle_t *>(amPara.mSourceHandle));
-        native_handle_delete(const_cast<native_handle_t *>(amPara.mSecureHandle));
+        native_handle_delete(const_cast<native_handle_t *>(amPara.mDestHandle));
         if (ret) {
             ALOGE("decrypt failed 0x%x", ret);
             return toNdkScopedAStatus(static_cast<Status>(ret));
@@ -268,6 +297,123 @@ void OnCallback(uint8_t type, uint8_t *data, uint32_t dataLen, void *pUserData) 
 
     if (webclient_getCdmErr && _aidl_return) {
         *_aidl_return = webclient_getCdmErr();
+    }
+    return toNdkScopedAStatus(Status::OK);
+}
+
+::ndk::ScopedAStatus VmxWebClient::fetchKey(const std::vector<uint8_t>& sessionId,
+        const KeyRequestParam& para,
+        int32_t* _aidl_return) {
+    (void)_aidl_return;
+    (void)sessionId;
+    ::android::Mutex::Autolock autoLock(mLock);
+
+    int ret = 0;
+    struct amKeyRequestParam amPara;
+    memset(&amPara, 0, sizeof(amPara));
+    if (mWebClientObj && webclient_fetchKey) {
+        amPara.mSecure = para.secure;
+        if (para.keyId.size() > 0) {
+            amPara.mKeyId = para.keyId.data();
+            amPara.mKeyIdLen = para.keyId.size();
+        }
+        if (para.keyUrl.size() > 0) {
+            amPara.mKeyUrl = (const char *)para.keyUrl.data();
+            amPara.mKeyUrlLen = para.keyUrl.size();
+        }
+        if (para.iv.size() > 0) {
+            amPara.mIv = para.iv.data();
+            amPara.mIvLen = para.iv.size();
+        }
+        amPara.mStreamingFormat = para.streamingFormat;
+        amPara.mMethodInfo = para.methodInfo;
+        amPara.mEngineId = para.engineId;
+        ret = webclient_fetchKey(mWebClientObj, &amPara);
+        if (ret) {
+            ALOGE("fetchKey failed 0x%x", ret);
+            return toNdkScopedAStatus(static_cast<Status>(ret));
+        }
+    } else {
+        ALOGE("Invalid obj or fetchKey interface %p %p", mWebClientObj, webclient_fetchKey);
+        return toNdkScopedAStatus(Status::ERROR_DRM_SESSION_LOST_STATE);
+    }
+    return toNdkScopedAStatus(Status::OK);
+}
+
+::ndk::ScopedAStatus VmxWebClient::provision(const std::vector<uint8_t>& in_request,
+        int32_t* _aidl_return) {
+    (void)_aidl_return;
+    ::android::Mutex::Autolock autoLock(mLock);
+
+    int ret = 0;
+    if (mWebClientObj && webclient_provision) {
+        ret = webclient_provision(mWebClientObj, in_request);
+        if (ret) {
+            ALOGE("provision failed 0x%x", ret);
+            return toNdkScopedAStatus(static_cast<Status>(ret));
+        }
+    } else {
+        ALOGE("Invalid obj or provision interface %p %p", mWebClientObj, webclient_provision);
+        return toNdkScopedAStatus(Status::ERROR_DRM_SESSION_LOST_STATE);
+    }
+    return toNdkScopedAStatus(Status::OK);
+}
+
+::ndk::ScopedAStatus VmxWebClient::isProvisioned(bool* _aidl_return) {
+    ::android::Mutex::Autolock autoLock(mLock);
+
+    if (mWebClientObj && webclient_isProvisioned) {
+        *_aidl_return = webclient_isProvisioned(mWebClientObj);
+    } else {
+        ALOGE("Invalid obj or isProvisioned interface %p %p", mWebClientObj, webclient_isProvisioned);
+        return toNdkScopedAStatus(Status::ERROR_DRM_SESSION_LOST_STATE);
+    }
+    return toNdkScopedAStatus(Status::OK);
+}
+
+::ndk::ScopedAStatus VmxWebClient::createPipeline(const PipelineParam& para,
+        std::vector<uint8_t>* _aidl_return) {
+    ::android::Mutex::Autolock autoLock(mLock);
+
+    int ret = 0;
+    struct amPipelineParam amPara;
+    memset(&amPara, 0, sizeof(amPara));
+    if (mWebClientObj && webclient_createPipeline) {
+        amPara.mSecure = para.secure;
+        amPara.mStreamingFormat = para.streamingFormat;
+        amPara.mMethodInfo = para.methodInfo;
+        amPara.mMode = para.mode;
+        ret = webclient_createPipeline(mWebClientObj, &amPara);
+        if (ret) {
+            ALOGE("create pipeline failed 0x%x", ret);
+            return toNdkScopedAStatus(static_cast<Status>(ret));
+        }
+        uint32_t engineId = amPara.mEngineId;
+        _aidl_return->assign((uint8_t *)&engineId, (uint8_t *)&engineId + sizeof(uint32_t));
+    } else {
+        ALOGE("Invalid obj or createPipeline interface %p %p", mWebClientObj, webclient_createPipeline);
+        return toNdkScopedAStatus(Status::ERROR_DRM_SESSION_LOST_STATE);
+    }
+    return toNdkScopedAStatus(Status::OK);
+}
+
+::ndk::ScopedAStatus VmxWebClient::destroyPipeline(const std::vector<uint8_t>& in_engineId,
+        int32_t* _aidl_return) {
+    (void)_aidl_return;
+    ::android::Mutex::Autolock autoLock(mLock);
+
+    int ret = 0;
+    if (mWebClientObj && webclient_destroyPipeline) {
+        uint32_t engineId = 0;
+        memcpy((uint8_t *)&engineId, in_engineId.data(), in_engineId.size());
+        ret = webclient_destroyPipeline(mWebClientObj, engineId);
+        if (ret) {
+            ALOGE("destroy pipeline failed 0x%x", ret);
+            return toNdkScopedAStatus(static_cast<Status>(ret));
+        }
+    } else {
+        ALOGE("Invalid obj or destroyPipeline interface %p %p", mWebClientObj, webclient_destroyPipeline);
+        return toNdkScopedAStatus(Status::ERROR_DRM_SESSION_LOST_STATE);
     }
     return toNdkScopedAStatus(Status::OK);
 }

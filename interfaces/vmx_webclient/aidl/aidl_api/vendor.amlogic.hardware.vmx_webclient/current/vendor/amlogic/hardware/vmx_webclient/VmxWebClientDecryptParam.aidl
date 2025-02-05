@@ -31,8 +31,8 @@ parcelable VmxWebClientDecryptParam {
   int streamingFormat;
   int methodInfo;
   int keySeq;
-  byte[] keyid;
-  byte[] key;
+  byte[] keyId;
+  byte[] keyUrl;
   byte[] iv;
   vendor.amlogic.hardware.vmx_webclient.Mode mode;
   vendor.amlogic.hardware.vmx_webclient.Pattern pattern;
@@ -40,7 +40,9 @@ parcelable VmxWebClientDecryptParam {
   byte[] src;
   byte[] dst;
   android.hardware.common.NativeHandle sourceDesc;
-  android.hardware.common.NativeHandle secureDesc;
+  android.hardware.common.NativeHandle destDesc;
   long srcOffset;
   long offset;
+  long destOffset;
+  int engineId;
 }

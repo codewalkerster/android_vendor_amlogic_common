@@ -9,10 +9,10 @@
 package vendor.amlogic.hardware.vmx_webclient;
 
 @VintfStability
-enum MethodInfo {
-    MI_NONE = 0,
-    MI_AES_128_CBC,
-    MI_SAMPLE_AES,
-    MI_AES_128_CTR,
-    MI_FMP4
+parcelable PipelineParam {
+    int secure;
+    int streamingFormat;
+    int methodInfo;
+    int mode;
+    int engineId;
 }

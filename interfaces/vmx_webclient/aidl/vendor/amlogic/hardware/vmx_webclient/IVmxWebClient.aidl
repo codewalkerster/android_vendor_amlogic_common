@@ -12,12 +12,14 @@ package vendor.amlogic.hardware.vmx_webclient;
 import vendor.amlogic.hardware.vmx_webclient.VmxWebClientDecryptParam;
 import vendor.amlogic.hardware.vmx_webclient.Status;
 import vendor.amlogic.hardware.vmx_webclient.IVmxWebClientCallback;
+import vendor.amlogic.hardware.vmx_webclient.KeyRequestParam;
+import vendor.amlogic.hardware.vmx_webclient.PipelineParam;
 
 @VintfStability
 interface IVmxWebClient {
     int createInstance();
 
-    int decrypt(in byte[] keyid, in byte[] keyurl, in byte[] indata, in byte[] iv, out byte[] outdata);
+    int decrypt(in byte[] sessionid, in byte[] keyid, in byte[] keyurl, in byte[] indata, in byte[] iv, out byte[] outdata);
 
     int decryptSecure(in VmxWebClientDecryptParam para);
 
@@ -30,4 +32,14 @@ interface IVmxWebClient {
     void setProperty(in String prop, in byte[] value);
 
     int getCdmErr();
+
+    int fetchKey(in byte[] sessionId, in KeyRequestParam para);
+
+    int provision(in byte[] request);
+
+    boolean isProvisioned();
+
+    byte[] createPipeline(in PipelineParam para);
+
+    int destroyPipeline(in byte[] engineId);
 }

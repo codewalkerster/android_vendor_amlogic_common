@@ -25,8 +25,8 @@ parcelable VmxWebClientDecryptParam {
     int streamingFormat;
     int methodInfo;
     int keySeq;
-    byte[] keyid;
-    byte[] key;
+    byte[] keyId;
+    byte[] keyUrl;
     byte[] iv;
     Mode mode;
     Pattern pattern;
@@ -34,7 +34,9 @@ parcelable VmxWebClientDecryptParam {
     byte[] src;
     byte[] dst;
     NativeHandle sourceDesc;
-    NativeHandle secureDesc;
+    NativeHandle destDesc;
     long srcOffset;
     long offset;
+    long destOffset;
+    int engineId;
 }
