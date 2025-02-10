@@ -31,6 +31,7 @@ import android.media.AudioManager;
 import android.media.AudioSystem;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.SystemProperties;
 import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
@@ -187,10 +188,12 @@ public class DialogBluetoothService extends Service {
             final BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
             String macAddress = device.getAddress();
             String deviceName = device.getName();
-            mDevice = device;
             if (BluetoothHidHost.ACTION_CONNECTION_STATE_CHANGED.equals(action)) {
                 mHidHostConnectionState = intent.getIntExtra(BluetoothProfile.EXTRA_STATE, BluetoothProfile.STATE_CONNECTING);
-                mHandler.postDelayed(mHidconnectRunnable, CONNECTION_HID_DELAY_MS);
+                if (mHidHostConnectionState == BluetoothProfile.STATE_CONNECTED) {
+                    mDevice = device;
+                    mHandler.postDelayed(mHidconnectRunnable, CONNECTION_HID_DELAY_MS);
+                }
             } else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
                 Log.i(TAG, ">ACL LINK CONNECTED ["+device.getName()+"] - checking for supported devices after delay");
                 if (isRemoteAudioCapable(device)) {
@@ -376,12 +379,10 @@ public class DialogBluetoothService extends Service {
             String macAddress = mDevice.getAddress();
             String deviceName = mDevice.getName();
 
-            if (mHidHostConnectionState == BluetoothProfile.STATE_CONNECTED) {
-                if (isBleVoiceDevice(mDevice)) {
-                    Log.i(TAG, "set audio record device to rcu bluetooth voice");
-                    mAudioManager.setWiredDeviceConnectionState(new AudioDeviceAttributes(
-                        AudioSystem.DEVICE_IN_BLUETOOTH_BLE, macAddress, deviceName), AudioSystem.DEVICE_STATE_AVAILABLE);
-                }
+            if (isBleVoiceDevice(mDevice)) {
+                Log.i(TAG, "set audio record device to rcu bluetooth voice");
+                mAudioManager.setWiredDeviceConnectionState(new AudioDeviceAttributes(
+                    AudioSystem.DEVICE_IN_BLUETOOTH_BLE, macAddress, deviceName), AudioSystem.DEVICE_STATE_AVAILABLE);
             }
         }
     };
@@ -498,6 +499,11 @@ public class DialogBluetoothService extends Service {
         String name = (device == null ? null : device.getName());
         if (name == null)
             return false;
+
+        if ((SystemProperties.get("persist.support.nano.voice", "false")).equals("false")) {
+            Log.i(TAG, "property persist.support.nano.voice not support");
+            return false;
+        }
 
         for (String devName : BLE_VOICE_DEVICES) {
             if (name.indexOf(devName) != -1) {
