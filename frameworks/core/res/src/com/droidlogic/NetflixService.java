@@ -105,8 +105,7 @@ public class NetflixService extends Service {
     private static final int UI_AUDIO_DELAY_OFFSET_TV_MS12 = 120;
     private static final int UI_AUDIO_DELAY_OFFSET_OTT_DOLBY = 70;
     private static final int UI_AUDIO_DELAY_OFFSET_OTT_PCM = 75;
-    private static final int DEVICE_CLEANUP_TIMEOUT=5000;
-    private static final int LOW_DEVICE_CLEANUP_TIMEOUT=8000;
+    private static final int DEVICE_CLEANUP_TIMEOUT=8000;
     private static boolean atmosSupportedByConfig = false;
     private static boolean ddpSupportedByConfig = false;
     private boolean mIsNetflixFg = false;
@@ -266,7 +265,7 @@ public class NetflixService extends Service {
                     Log.d(TAG, "wake lock foreground" );
                     PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
                     WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,TAG);
-                    wakeLock.acquire(mActivityManager.isLowRamDevice() ? LOW_DEVICE_CLEANUP_TIMEOUT : DEVICE_CLEANUP_TIMEOUT);
+                    wakeLock.acquire(DEVICE_CLEANUP_TIMEOUT);
                 }
             }
         }
