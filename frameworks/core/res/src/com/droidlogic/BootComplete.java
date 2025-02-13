@@ -178,6 +178,9 @@ public class BootComplete extends BroadcastReceiver {
         } else {
             Log.i(TAG, "No need to listen low power policy change");
         }
+        //add for hdr/audio logo show function
+        Log.d(TAG, "start ShowHdrAudioLogoService");
+        context.startService(new Intent(context, ShowHdrAudioLogoService.class));
     }
 
     private boolean getBooleanProperty(String property, boolean defVal) {

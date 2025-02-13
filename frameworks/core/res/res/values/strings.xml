@@ -31,4 +31,6 @@
     <string name="prepare">invalid value...</string>
     <string name="adb_enabled">adb is enabled</string>
     <string name="arc_port_warning">Audio system device is not connected to the ARC port!</string>
+    <string name="to_start_dap">To switch on Dolby Atmos, can experience the best sound!</string>
+    <string name="error_unsupported_audio_stream_enable_dts_headphone">The audio stream is unsupported and is intended for playback by a DTS Headphone:X enabled device.</string>
 </resources>

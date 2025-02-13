@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+             android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop = "2dp"
+            android:background="#80808080">
+     <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#00000000"
+            android:layout_marginLeft= "2dp"
+            android:layout_marginRight= "2dp"
+            android:layout_marginTop = "2dp"
+            android:layout_marginBottom="2dp"
+            >
+    <TextView
+            android:id="@+id/text_audio_logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/shape_corner_black"
+            android:padding="2dp"
+             android:textSize="30px"
+
+            android:textColor="#ffffff"
+            android:layout_centerVertical="true"
+   />
+   <TextView
+            android:id="@+id/text_hdr_logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/text_audio_logo"
+            android:background="@drawable/shape_corner_black"
+            android:textSize="30px"
+            android:padding="2dp"
+
+            android:textColor="#ffffff"
+            android:layout_centerVertical="true"
+   />
+
+   </RelativeLayout>
+
+</RelativeLayout>
+<include layout="@layout/certification_control"/>
+
+</FrameLayout>
+

@@ -18,5 +18,16 @@
     <dimen name="activity_horizontal_margin">32dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="remote_marginStart">100dp</dimen>
-
+    <dimen name="logo_width">256px</dimen>
+    <dimen name="logo_height">148px</dimen>
+    <dimen name="logo_dts_width">145px</dimen>
+    <dimen name="logo_dts_height">57px</dimen>
+    <dimen name="logo_dts_hd_width">246px</dimen>
+    <dimen name="logo_dts_hd_height">57px</dimen>
+    <dimen name="logo_width_small">240px</dimen>
+    <dimen name="logo_height_small">90px</dimen>
+    <dimen name="logo_marge">7.5px</dimen>
+    <dimen name="atmos_text_width">450px</dimen>
+    <dimen name="atmos_right_marge">7.5px</dimen>
+    <dimen name="atmos_top_marge">30px</dimen>
 </resources>

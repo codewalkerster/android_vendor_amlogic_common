@@ -112,6 +112,11 @@
             android:enabled="true"
             android:exported="true">
         </service>
+        <service
+            android:name=".ShowHdrAudioLogoService"
+            android:enabled="true"
+            android:exported="true">
+        </service>
         <receiver android:name=".AiPqReceiver"
             android:enabled="true"
             android:exported="true">
