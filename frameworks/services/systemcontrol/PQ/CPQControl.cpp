@@ -9005,7 +9005,7 @@ int CPQControl::SetAiSrMode(aisr_mode_e mode, int is_save)
     int ret = -1;
     ret = Cpq_SetAiSrMode(mode, mCurrentSourceInputInfo);
 
-    if ((ret == 0) && (is_save == 1)) {
+    if (is_save == 1) {
         ret = SaveAiSrMode((int)mode);
     }
 
