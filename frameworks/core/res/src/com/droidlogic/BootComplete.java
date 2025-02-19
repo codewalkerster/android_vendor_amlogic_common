@@ -196,8 +196,10 @@ public class BootComplete extends BroadcastReceiver {
         if (isPackageInstalled(context, "com.aml.dial")) {
             Log.d(TAG, "start MagicWakeService");
             context.startService(new Intent(context, MagicWakeService.class));
+            if (!DroidLogicUtils.isTv()) {
+                context.startService(new Intent(context, YouTubeService.class));
+            }
         }
-
     }
 
     private boolean getBooleanProperty(String property, boolean defVal) {
