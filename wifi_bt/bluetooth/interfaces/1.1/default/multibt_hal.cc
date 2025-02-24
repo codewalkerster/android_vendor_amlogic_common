@@ -47,7 +47,7 @@
 #define MBOX_USER_MAX_LEN   96
 #define PATH_MAX_LEN        64
 #define ARMV8_TO_AOCPU      "/dev/ree2aocpu"
-#define CMD_SET_MID         0xFA
+#define CMD_SET_MID         0xFC
 #endif
 
 #define VND_PORT_NAME_MAXLEN    256
@@ -262,7 +262,7 @@ static const dev_info_uart bt_dev_uart[] = {
     {BT_VID_UNISOC,   "uwe_bt", UWE_VND_LIB, POWER_EVENT_RESET},
 };
 
-int mailbox_qca_bt_name(void)
+int mailbox_module_name(void)
 {
 #ifdef MAILBOX_MODULE_NAME
     struct merge_data {
@@ -271,13 +271,10 @@ int mailbox_qca_bt_name(void)
     } merge_data;
     int fd = -1;
     int ret = -1;
+    unsigned int len = 0;
     char path[PATH_MAX_LEN] = {'\0'};
-    char bt_name[] = {"qca6174"};
+    char bt_name[PROP_VALUE_MAX] = {'\0'};
 
-    if (strcmp(bt_prop_val.dev_name, bt_name)) {
-        PR_INFO("bt_name:%s, not qca6174", bt_prop_val.dev_name);
-        goto exit;
-    }
 
     sprintf(path, "%s", ARMV8_TO_AOCPU);
     PR_DBG("open %s\n", path);
@@ -289,18 +286,22 @@ int mailbox_qca_bt_name(void)
     }
 
     merge_data.cmd = CMD_SET_MID;
-    memcpy(merge_data.msg, bt_name, strlen(bt_name));
-    ret = write(fd, &merge_data, sizeof(merge_data));
+    len += sizeof(merge_data.cmd);
+    memcpy(merge_data.msg, bt_prop_val.dev_name, strlen(bt_prop_val.dev_name));
+    len += strlen(bt_prop_val.dev_name);
+    ret = write(fd, &merge_data, len);
     if (ret < 0) {
         PR_ERR("write failed: %s (%d)", strerror(errno), errno);
         goto exit;
     }
-    memset(bt_name, 0, strlen(bt_name));
-    ret = read(fd, bt_name, strlen(bt_name));
+
+    ret = read(fd, bt_name, len);
     if (ret < 0) {
         PR_ERR("read failed: %s (%d)", strerror(errno), errno);
         goto exit;
     }
+
+    PR_INFO("write len:%u,buf:%s", len, bt_name);
 
 exit:
     if (fd >= 0) {
@@ -768,7 +769,7 @@ static bool set_bt_cfg(void)
 {
     bool ret;
 
-    mailbox_qca_bt_name();
+    mailbox_module_name();
     aml_special_handle();
     ret = set_power_type();
 
