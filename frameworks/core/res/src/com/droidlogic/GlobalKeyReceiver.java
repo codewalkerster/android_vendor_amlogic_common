@@ -49,6 +49,9 @@ public class GlobalKeyReceiver extends BroadcastReceiver {
     private static final String PACKAGE_NAME_NETFLIX = "com.netflix.ninja";
     private static final String PACKAGE_NAME_YOUTUBE = "com.google.android.youtube.tv";
     private static final String ACTIVITY_NAME_YOUTUBE = "com.google.android.apps.youtube.tv.activity.MainActivity";
+    private static final String DEFAULT_PACKAGE_NAME_COAT = "com.amlogic.android.youtube.tv";
+    private static final String ACTIVITY_NAME_COAT = "dev.cobalt.app.MainActivity";
+    private static final String COAT_YOUTUBE_URI = "https://youtube.com/tv?launch=remote";
     private static final String PACKAGE_NAME_PLAYMOVIE = "com.google.android.videos";
     private static final String PACKAGE_NAME_PRIMEVIDEO = "com.amazon.amazonvideo.livingroom";
     private static final String PACKAGE_NAME_GOOGLEPLAY = "com.android.vending";
@@ -145,8 +148,15 @@ public class GlobalKeyReceiver extends BroadcastReceiver {
                 case KeyEvent.KEYCODE_BUTTON_3:
                     if (keyAction == KeyEvent.ACTION_UP) {
                         oneTouchPlay(context);
-                        intent1.setComponent(new ComponentName(PACKAGE_NAME_YOUTUBE, ACTIVITY_NAME_YOUTUBE))
-                               .putExtra(REMOTE_YT_BUTTON, true);
+                        String packageNameYouTube = SystemProperties.get("ro.product.youtube.package.name", PACKAGE_NAME_YOUTUBE);
+                        String activityNameYouTube = ACTIVITY_NAME_YOUTUBE;
+                        if (packageNameYouTube.equals(DEFAULT_PACKAGE_NAME_COAT)) {
+                            activityNameYouTube = ACTIVITY_NAME_COAT;
+                        }
+                        intent1.setComponent(new ComponentName(packageNameYouTube, activityNameYouTube)).putExtra(REMOTE_YT_BUTTON, true);
+                        intent1.setData(Uri.parse(COAT_YOUTUBE_URI));
+                        intent1.setAction(Intent.ACTION_VIEW);
+                        intent1.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         wakeUp(context);
                     }
                     break;
