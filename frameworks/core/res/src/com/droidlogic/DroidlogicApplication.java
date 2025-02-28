@@ -45,6 +45,11 @@ public class DroidlogicApplication extends Application {
     private SystemControlManager mSystemControlManager;
     private PowerManager.WakeLock mWakeLock;
     DroidAudioCore mDroidAudioCore;
+    private String mTop;
+    private String mForeground;
+    private String mBackground;
+    private String mSystem;
+    private String mRestricted;
 
     @Override
     public void onCreate() {
@@ -67,6 +72,41 @@ public class DroidlogicApplication extends Application {
             Log.d(TAG, "wakelocked");
         }
         DisableBtPairInstrumentation(this);
+        initCpusets();
+        setCpusetsDefault();
+    }
+
+    private void initCpusets() {
+        mTop = mSystemControlManager.readSysFsOri("/dev/cpuset/top-app/cpus");
+        Log.d(TAG, "mTop cpus is  " + mTop);
+        mForeground = mSystemControlManager.readSysFsOri("/dev/cpuset/foreground/cpus");
+        Log.d(TAG, "mForeground cpus is  " + mForeground);
+        mBackground = mSystemControlManager.readSysFsOri("/dev/cpuset/background/cpus");
+        Log.d(TAG, "background cpus is  " + mBackground);
+        mSystem = mSystemControlManager.readSysFsOri("/dev/cpuset/system-background/cpus");
+        Log.d(TAG, "system background cpus is  " + mSystem);
+        mRestricted = mSystemControlManager.readSysFsOri("/dev/cpuset/restricted/cpus");
+        Log.d(TAG, "restricted cpus is  " + mRestricted);
+    }
+
+    private void setCpusetsDefault() {
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(1000*60*1);
+                    mSystemControlManager.writeSysFs("/dev/cpuset/top-app/cpus", mTop);
+                    mSystemControlManager.writeSysFs("/dev/cpuset/foreground/cpus", mForeground);
+                    mSystemControlManager.writeSysFs("/dev/cpuset/background/cpus", mBackground);
+                    mSystemControlManager.writeSysFs("/dev/cpuset/system-background/cpus", mSystem);
+                    mSystemControlManager.writeSysFs("/dev/cpuset/restricted/cpus", mRestricted);
+                    Log.d(TAG, "end setCpusetsDefault");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+
     }
 
     private boolean isGtvsVersion() {
