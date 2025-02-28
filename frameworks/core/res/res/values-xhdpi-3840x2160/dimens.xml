@@ -1,0 +1,15 @@
+<resources>
+    <dimen name="logo_width">512px</dimen>
+    <dimen name="logo_height">297px</dimen>
+    <dimen name="logo_marge">7.5px</dimen>
+    <dimen name="atmos_text_width">300dp</dimen>
+    <dimen name="atmos_right_marge">10dp</dimen>
+    <dimen name="atmos_top_marge">20dp</dimen>
+    <dimen name="logo_width_small">360px</dimen>
+    <dimen name="logo_height_small">120px</dimen>
+    <dimen name="logo_dts_width">145px</dimen>
+    <dimen name="logo_dts_height">57px</dimen>
+    <dimen name="logo_dts_hd_width">246px</dimen>
+    <dimen name="logo_dts_hd_height">57px</dimen>
+
+</resources>

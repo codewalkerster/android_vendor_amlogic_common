@@ -2,50 +2,76 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-             android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop = "2dp"
-            android:background="#80808080">
-     <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="#00000000"
-            android:layout_marginLeft= "2dp"
-            android:layout_marginRight= "2dp"
-            android:layout_marginTop = "2dp"
-            android:layout_marginBottom="2dp"
-            >
-    <TextView
-            android:id="@+id/text_audio_logo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/shape_corner_black"
-            android:padding="2dp"
-             android:textSize="30px"
 
-            android:textColor="#ffffff"
-            android:layout_centerVertical="true"
-   />
-   <TextView
-            android:id="@+id/text_hdr_logo"
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/CertificationView"
+    android:layout_alignParentTop="true"
+    android:layout_marginTop="5dip"
+    android:layout_marginRight="5dip">
+
+        <RelativeLayout
+            android:id="@+id/image_logo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/text_audio_logo"
-            android:background="@drawable/shape_corner_black"
-            android:textSize="30px"
-            android:padding="2dp"
+            android:layout_alignParentRight="true">
+        <ImageView
+            android:id="@+id/CertificationDV"
+            android:layout_width="@dimen/logo_width"
+            android:layout_height="@dimen/logo_height"
+            android:layout_marginTop="@dimen/logo_marge"
+            android:layout_marginRight="@dimen/logo_marge"
+            android:layout_toLeftOf="@+id/CertificationAudio"
+            android:src="@drawable/cert_amdolby_atmos_w"
+            android:visibility="gone"
+            />
+        <ImageView
+            android:id="@+id/CertificationAudio"
+            android:layout_width="@dimen/logo_width"
+            android:layout_height="@dimen/logo_height"
+            android:layout_marginTop="@dimen/logo_marge"
+            android:layout_marginRight="@dimen/logo_marge"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/cert_amdolby_atmos_w"
+            android:visibility="gone"
 
-            android:textColor="#ffffff"
-            android:layout_centerVertical="true"
-   />
+            />
+           <TextView
+               android:id="@+id/text_hdr_logo"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:background="@drawable/shape_corner_black"
+               android:padding="2dp"
+               android:textSize="30px"
+               android:textColor="#ffffff"
+               android:layout_marginTop="@dimen/logo_marge"
+               android:layout_marginRight="@dimen/logo_marge"
+               android:layout_toLeftOf="@+id/CertificationAudio"
+               android:visibility="gone"
 
-   </RelativeLayout>
+            />
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/doblyatomstext"
+            android:layout_width="@dimen/atmos_text_width"
+            android:layout_height="wrap_content"
+            android:textColor="#130c0e"
+            android:layout_alignParentRight="true"
+            android:gravity="center_vertical|center_horizontal"
+            android:layout_marginTop="@dimen/atmos_top_marge"
+            android:layout_marginRight="@dimen/atmos_right_marge"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:text="@string/to_start_dap"
+            android:background="@drawable/shape_corner"
+            android:layout_below="@+id/image_logo"
+            android:visibility="gone"
+             />
+
 
 </RelativeLayout>
-<include layout="@layout/certification_control"/>
 
 </FrameLayout>
 

@@ -125,36 +125,19 @@ public class ShowHdrAudioLogoService extends Service implements SystemControlEve
                         case R_EVENT_HIDE_LOGO_AUDIO:
 
                             mLogoView.HiddenAudioLogoCertification();
-                            mLogoView.setAudioLogoTextViewVisibility(false);
                             audioLogoShowing = false;
                             if (!hdrLogoShowing && !audioLogoShowing) {
                                 showLogoView(false);
                             }
                             break;
                         case MSG_UPDATE_HDR:
-                            if (audioLogoShowing && !hasDelay) {
-                                hasDelay = true;
-                                Log.i(TAG, "delay hdr show");
-                                mHandler.sendEmptyMessageDelayed(MSG_UPDATE_HDR, 3400);
-                            } else {
-                               hasDelay = false;
                                hdrLogoShowing = true;
-                               mLogoView.clearAudioParam();
                                updateHdrTextLog();
-                            }
 
                             break;
                         case MSG_UPDATE_AUDIO:
-                            if (hdrLogoShowing && !hasDelay) {
-                                hasDelay = true;
-                                Log.i(TAG, "delay audio show");
-                                mHandler.sendEmptyMessageDelayed(MSG_UPDATE_AUDIO,  3400);
-                            } else {
-                                hasDelay = false;
                                 audioLogoShowing = true;
-                                mLogoView.setHdrLogoTextViewVisibility(false);
                                 updateAudioTextLog();
-                            }
 
                             break;
                         case MSG_CLEAR_AUDIO_CONTENT:
@@ -257,7 +240,7 @@ public class ShowHdrAudioLogoService extends Service implements SystemControlEve
         mHandler.sendEmptyMessageDelayed(R_EVENT_HIDE_LOGO_HDR, 3200);
      }
      private void updateAudioTextLog() {
-          mLogoView.setAudioLogoText(GetAudioStringFromBroadcast());
+
           mLogoView.showAudioLogoCertification(currentAudioFormat);
 
           showLogoView(true);
