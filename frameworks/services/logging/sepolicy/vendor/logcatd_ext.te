@@ -14,3 +14,4 @@ allow logcatd_ext unlabeled:dir search;
 #set_prop(logcatd_ext, vendor_bluetooth_prop)
 
 allow logcatd_ext exfat:dir search;
+allow logcatd_ext fuseblk:dir search;
