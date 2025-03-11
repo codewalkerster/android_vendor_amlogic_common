@@ -290,7 +290,9 @@ public class SoundEffectManager {
     private int     mPassthroughAudioConfig = 0;
     private int     mEffectEngineerModeConfig = 0;
 
+    private DroidAudioManager mDroidAudioManager;
     private static SoundEffectManager mInstance;
+
 
     public static synchronized SoundEffectManager getInstance(Context context) {
         if (null == mInstance) {
@@ -302,6 +304,7 @@ public class SoundEffectManager {
     private SoundEffectManager (Context context) {
         mContext = context;
         mSupportMs12Dap = DroidAudioManager.getInstance(mContext).isAudioSupportMs12System();
+        mDroidAudioManager = DroidAudioManager.getInstance(mContext);
     }
 
     private void initDatabase() {
@@ -438,6 +441,11 @@ public class SoundEffectManager {
             return;
         }
         Log.d(TAG, "init");
+
+        for (int index = AudioEffectManager.EFFECT_HPEQ_UI_ID; index < AudioEffectManager.FUNCTION_UI_NUM; index++) {
+            getEffectFunctionConfig(index);
+        }
+
         int firstBoot = Settings.Global.getInt(mContext.getContentResolver(), DB_ID_AUDIO_DATABASE_FIRST_BOOT, 1);
         if (firstBoot == 1) {
             Settings.Global.putInt(mContext.getContentResolver(), DB_ID_AUDIO_DATABASE_FIRST_BOOT, 0);
@@ -445,11 +453,7 @@ public class SoundEffectManager {
         }
         mSupportVirtualX = false;
 
-        for (int index = AudioEffectManager.EFFECT_HPEQ_UI_ID; index < AudioEffectManager.FUNCTION_UI_NUM; index++) {
-            getEffectFunctionConfig(index);
-        }
-
-        //Create Audio Effect instance based on Effect audio configuration
+         //Create Audio Effect instance based on Effect audio configuration
         if (mEffectEQAudioConfig != AudioEffectManager.EFFECT_UI_OFF) {
             setAudioEffectOnByIndex(AudioEffectManager.EFFECT_HPEQ_UI_ID, true, false);
         }
@@ -468,7 +472,8 @@ public class SoundEffectManager {
         if (mDtsVirtualxAudioConfig == AudioEffectManager.DTS_VIRTUALX_AUDIO_CONFIG_ON) {
             setAudioEffectOnByIndex(AudioEffectManager.EFFECT_VIRTUALX_UI_ID, true, false);
         }
-        if (mDolbyMS12AudioConfig == AudioEffectManager.DOLBY_MS12_AUDIO_CONFIG_Z || mDolbyMS12AudioConfig == AudioEffectManager.DOLBY_MS12_AUDIO_CONFIG_X) {
+        if ((mDolbyMS12AudioConfig == AudioEffectManager.DOLBY_MS12_AUDIO_CONFIG_Z || mDolbyMS12AudioConfig == AudioEffectManager.DOLBY_MS12_AUDIO_CONFIG_X)
+            && mDroidAudioManager.isAudioSupportMs12System()) {
             setAudioEffectOnByIndex(AudioEffectManager.EFFECT_DAP2_UI_ID, true, false);
         }
 
@@ -3427,7 +3432,6 @@ public class SoundEffectManager {
     public void setDualEffectMode(int mode) {
         if ((mVirtualX == null) && (mDap == null)) {
             mDualEffectMode = AudioEffectManager.EFFECT_MODE_OFF;
-            setDbIntValue(DB_ID_SOUND_EFFECT_DUAL_SOUND_EFFECT_MODE, mDualEffectMode);
             Log.d(TAG, "setDualEffectMode:" + mode + ",  VX and DAP is NULL!");
             return;
         }
@@ -3482,6 +3486,7 @@ public class SoundEffectManager {
         Log.d(TAG, "setDualEffectMode: " + mode);
     }
 
+    //return runtime status of dual effect mode
     public int getDualEffectMode() {
         boolean isDapOn = false;
         boolean isVXOn = false;
@@ -3520,11 +3525,9 @@ public class SoundEffectManager {
 
     //when system boot or UI refresh
     public void initDualEffectMode() {
-        int curMode = getDualEffectMode();
         int dbMode = getDbIntValue(DB_ID_SOUND_EFFECT_DUAL_SOUND_EFFECT_MODE, AudioEffectManager.EFFECT_MODE_AUTO);
-        if (curMode != dbMode) {
-            setDualEffectMode(dbMode);
-        }
+        setDualEffectMode(dbMode);
+        Log.i(TAG, "initDualEffectMode: dbMode:" + dbMode + ", mDualEffectMode:" + getDualEffectMode());
     }
 
     public int getDolbyMS12AudioConfig() {

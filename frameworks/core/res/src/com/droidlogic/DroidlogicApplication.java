@@ -37,7 +37,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.os.ServiceManager;
-
+import com.droidlogic.app.AudioEffectManager;
 
 public class DroidlogicApplication extends Application {
     private static final String TAG = "DroidlogicApplication";
@@ -50,6 +50,8 @@ public class DroidlogicApplication extends Application {
     private String mBackground;
     private String mSystem;
     private String mRestricted;
+    private AudioEffectManager mAudioEffectManager;
+    private Context mContext;
 
     @Override
     public void onCreate() {
@@ -74,6 +76,7 @@ public class DroidlogicApplication extends Application {
         DisableBtPairInstrumentation(this);
         initCpusets();
         setCpusetsDefault();
+        mContext = this;
     }
 
     private void initCpusets() {
@@ -121,6 +124,7 @@ public class DroidlogicApplication extends Application {
     }
 
     private static final int MSG_CHECK_BOOTVIDEO_FINISHED = 0;
+    private static final int MSG_INIT_AUDIO_EFFECT_SERVICE = 1;
     private Handler mHandler = new Handler() {
         public void handleMessage(Message msg) {
             switch (msg.what) {
@@ -131,12 +135,17 @@ public class DroidlogicApplication extends Application {
                         intent.setComponent(new ComponentName("com.droidlogic", "com.droidlogic.audioservice.services.AudioEffectsService"));
                         intent.setAction("com.droidlogic.audioservice.services.AudioEffectsService.STARTUP");
                         startService(intent);
+                        mHandler.sendEmptyMessageDelayed(MSG_INIT_AUDIO_EFFECT_SERVICE, 100);
                     } else {
                         if (DroidLogicUtils.getAudioDebugEnable()) {
                             Log.d(TAG, "handleMessage sendEmptyMessageDelayed MSG_CHECK_BOOTVIDEO_FINISHED");
                         }
                         mHandler.sendEmptyMessageDelayed(MSG_CHECK_BOOTVIDEO_FINISHED, 10);
                     }
+                    break;
+                case MSG_INIT_AUDIO_EFFECT_SERVICE:
+                    Log.d(TAG, "AudioEffectManager request service start");
+                    mAudioEffectManager = AudioEffectManager.getInstance(mContext);
                     break;
                 default:
                     break;

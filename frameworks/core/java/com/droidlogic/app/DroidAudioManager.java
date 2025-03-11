@@ -424,8 +424,8 @@ public class DroidAudioManager {
         return vadUbootEnable.equals(AUDIO_VAD_STRING_VAD_ON);
     }
 
-    private static final String PARA_AUDIO_DOLBY_MS12                   = "Dolby_MS12_Audio_Config";
-    private static final String PARA_AUDIO_DOLBY_MS12_ENABLE            = "Dolby_MS12_Audio_Config=N";
+    private static final String PARA_AUDIO_DOLBY_MS12                   = "dolby_ms12_enable";
+    private static final String PARA_AUDIO_DOLBY_MS12_ENABLE            = "dolby_ms12_enable=1";
 
     public static final String DIGITAL_AUDIO_FORMAT                     = "digital_audio_format";
     public static final String DIGITAL_AUDIO_SUBFORMAT                  = "digital_audio_subformat";
@@ -587,7 +587,7 @@ public class DroidAudioManager {
     }
 
     public boolean isAudioSupportMs12System() {
-        return !mAudioManager.getParameters(PARA_AUDIO_DOLBY_MS12).contains(PARA_AUDIO_DOLBY_MS12_ENABLE);
+        return mAudioManager.getParameters(PARA_AUDIO_DOLBY_MS12).contains(PARA_AUDIO_DOLBY_MS12_ENABLE);
     }
 
     public static final int DIALOGUE_ENHANCEMENT_OFF                    = 0;

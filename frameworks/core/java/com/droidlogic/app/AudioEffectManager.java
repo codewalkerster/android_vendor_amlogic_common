@@ -381,7 +381,7 @@ public class AudioEffectManager {
                     Intent intent = new Intent();
                     intent.setAction(SERVICE_NANME);
                     intent.setPackage("com.droidlogic");
-                    mIsBind = mContext.bindService(intent, serConn, mContext.BIND_AUTO_CREATE);
+                    mIsBind = mContext.bindService(intent, mContext.BIND_AUTO_CREATE, Runnable::run, serConn);
                     LOGI("=====[getService] mIsBind: " + mIsBind + ", retry:" + retry);
                     if (mIsBind || retry <= 0) {
                         break;
@@ -437,7 +437,7 @@ public class AudioEffectManager {
 
     private boolean audioEffectServiceIsNull() {
         if (mAudioEffectsService == null) {
-            Log.w(TAG, "mAudioEffectsService is null, pls check stack:");
+            Log.w(TAG, "mAudioEffectsService is null!");
             Log.w(TAG, Log.getStackTraceString(new Throwable()));
             return true;
         } else {
