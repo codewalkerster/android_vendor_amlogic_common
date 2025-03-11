@@ -230,7 +230,11 @@ public class ShowHdrAudioLogoService extends Service implements SystemControlEve
             mLogoView.setHdrLogoTextViewVisibility(false);
             mLogoView.showDolbyVisionCertification();
         } else {
-            mLogoView.setHdrLogoText(GetSourceHdrType());
+            if (mSystemControlManager.getPropertyInt("ro.vendor.platform.is.gtv_tv_ref", 0) == 1) {
+                mLogoView.setHdrLogoText(GetSourceHdrTypeForRefTV());
+            } else {
+                mLogoView.setHdrLogoText(GetSourceHdrType());
+            }
             mLogoView.setHdrLogoTextViewVisibility(true);
         }
 
@@ -367,6 +371,23 @@ public class ShowHdrAudioLogoService extends Service implements SystemControlEve
         }
 
     }
+
+    private String GetSourceHdrTypeForRefTV() {
+           switch (mSourceHdrInfo) {
+               case 1:
+               case 2:
+               case 4:
+               case 5:
+                   return "HDR";
+               case 3:
+                   return "DOVI";
+               case 6:
+               default:
+                   return "";
+
+           }
+
+       }
 
 }
 
