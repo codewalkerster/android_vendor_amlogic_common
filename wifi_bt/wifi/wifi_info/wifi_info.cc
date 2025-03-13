@@ -78,21 +78,21 @@ static const dongle_info dongle_registerd[]={\
     {"0000","0000","w2l_u","/vendor/lib/modules/w2l.ko","",aml_w2lu_base,"aml_w2l_u",0x0841,""},\
     {"0000","0000","w2l_u","/vendor/lib/modules/w2l.ko","",aml_w2lu_base,"aml_w2l_u",0x0849,""},\
     {"0000","0000","w2l_u","/vendor/lib/modules/w2l.ko","",aml_w2lu_base,"aml_w2l_u",0x0851,""},\
-    {"a962","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=../../etc/wifi/40181/fw_bcm40181a2.bin nvram_path=../../etc/wifi/40181/nvram.txt",no_base,"bcm6210",0x0,"/vendor/etc/wifi/40181/fw_bcm40181a2"},\
+    {"a962","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=40181/fw_bcm40181a2.bin nvram_path=40181/nvram.txt",no_base,"bcm6210",0x0,"/vendor/etc/wifi/40181/fw_bcm40181a2"},\
     {"0000","0000","wlan_mt76x8_usb","/vendor/lib/modules/wlan_mt76x8_usb.ko","sta=wlan ap=ap p2p=p2p",no_base,"mtk7668u",0x7668,""},\
-    {"4335","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=../../etc/wifi/6335/fw_bcm4339a0_ag.bin nvram_path=../../etc/wifi/6335/nvram.txt",no_base,"bcm6335",0x0,"/vendor/etc/wifi/6335/fw_bcm4339a0_ag"},\
-    {"0000","43c5","dhdpci","/vendor/lib/modules/dhdpci.ko","firmware_path=../..etc/wifi/4336/fw_bcm4336_ag.bin nvram_path=../../etc/wifi/4336/nvram.txt",no_base,"bcm4336",0x0,"/vendor/etc/wifi/4336/fw_bcm4336_ag"},\
-    {"a94d","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=../../etc/wifi/6234/fw_bcm43341b0_ag.bin nvram_path=../../etc/wifi/6234/nvram.txt",no_base,"bcm6234",0x0,"/vendor/etc/wifi/6234/fw_bcm43341b0_ag"},\
-    {"a9bf","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=../../etc/wifi/6255/fw_bcm43455c0_ag.bin nvram_path=../../etc/wifi/6255/nvram.txt",no_base,"bcm6255",0x0,"/vendor/etc/wifi/6255/fw_bcm43455c0_ag"},\
-    {"aae7","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=../../etc/wifi/AP6271/fw_bcm43751a1_ag.bin nvram_path=../../etc/wifi/AP6271/nvram_ap6271s.txt",no_base,"bcm6271",0x0,"/vendor/etc/wifi/AP6271/fw_bcm43751a1_ag"},\
-    {"a9a6","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=../../etc/wifi/6212/fw_bcm43438a0.bin nvram_path=../../etc/wifi/6212/nvram.txt",no_base,"bcm6212",0x0,"/vendor/etc/wifi/6212/fw_bcm43438a0"},\
-    {"4362","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=../../etc/wifi/43751/fw_bcm43751_ag.bin nvram_path=../../etc/wifi/43751/nvram.txt",no_base,"bcm43751",0x0,"/vendor/etc/wifi/43751/fw_bcm43751_ag"},\
-    {"4345","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=../../etc/wifi/43458/fw_bcm43455c0_ag.bin nvram_path=../../etc/wifi/43458/nvram_43458.txt",no_base,"bcm43458",0x0,"/vendor/etc/wifi/43458/fw_bcm43455c0_ag"},\
-    {"4354","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=../../etc/wifi/4354/fw_bcm4354a1_ag.bin nvram_path=../../etc/wifi/4354/nvram_ap6354.txt",no_base,"bcm6354",0x0,"/vendor/etc/wifi/4354/fw_bcm4354a1_ag"},\
-    {"4356","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=../../etc/wifi/4356/fw_bcm4356a2_ag.bin nvram_path=../../etc/wifi/4356/nvram_ap6356.txt",no_base,"bcm6356",0x0,"/vendor/etc/wifi/4356/fw_bcm4356a2_ag"},\
-    {"4359","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=../../etc/wifi/4359/fw_bcm4359c0_ag.bin nvram_path=../../etc/wifi/4359/nvram.txt",no_base,"bcm4359",0x0,"/vendor/etc/wifi/4359/fw_bcm4359c0_ag"},\
-    {"0000","4415","dhdpci","/vendor/lib/modules/dhdpci.ko","firmware_path=../../etc/wifi/4359/fw_bcm4359c0_ag.bin nvram_path=../../etc/wifi/4359/nvram.txt",no_base,"bcm4359",0x0,"/vendor/etc/wifi/4359/fw_bcm4359c0_ag"},\
-    {"aa31","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=../../etc/wifi/4358/fw_bcm4358_ag.bin nvram_path=../../etc/wifi/4358/nvram_4358.txt",no_base,"bcm4358",0x0,"/vendor/etc/wifi/4358/fw_bcm4358_ag"},\
+    {"4335","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=6335/fw_bcm4339a0_ag.bin nvram_path=6335/nvram.txt",no_base,"bcm6335",0x0,"/vendor/etc/wifi/6335/fw_bcm4339a0_ag"},\
+    {"0000","43c5","dhdpci","/vendor/lib/modules/dhdpci.ko","firmware_path=4336/fw_bcm4336_ag.bin nvram_path=4336/nvram.txt",no_base,"bcm4336",0x0,"/vendor/etc/wifi/4336/fw_bcm4336_ag"},\
+    {"a94d","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=6234/fw_bcm43341b0_ag.bin nvram_path=6234/nvram.txt",no_base,"bcm6234",0x0,"/vendor/etc/wifi/6234/fw_bcm43341b0_ag"},\
+    {"a9bf","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=6255/fw_bcm43455c0_ag.bin nvram_path=6255/nvram.txt",no_base,"bcm6255",0x0,"/vendor/etc/wifi/6255/fw_bcm43455c0_ag"},\
+    {"aae7","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=AP6271/fw_bcm43751a1_ag.bin nvram_path=AP6271/nvram_ap6271s.txt",no_base,"bcm6271",0x0,"/vendor/etc/wifi/AP6271/fw_bcm43751a1_ag"},\
+    {"a9a6","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=6212/fw_bcm43438a0.bin nvram_path=6212/nvram.txt",no_base,"bcm6212",0x0,"/vendor/etc/wifi/6212/fw_bcm43438a0"},\
+    {"4362","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=43751/fw_bcm43751_ag.bin nvram_path=43751/nvram.txt",no_base,"bcm43751",0x0,"/vendor/etc/wifi/43751/fw_bcm43751_ag"},\
+    {"4345","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=43458/fw_bcm43455c0_ag.bin nvram_path=43458/nvram_43458.txt",no_base,"bcm43458",0x0,"/vendor/etc/wifi/43458/fw_bcm43455c0_ag"},\
+    {"4354","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=4354/fw_bcm4354a1_ag.bin nvram_path=4354/nvram_ap6354.txt",no_base,"bcm6354",0x0,"/vendor/etc/wifi/4354/fw_bcm4354a1_ag"},\
+    {"4356","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=4356/fw_bcm4356a2_ag.bin nvram_path=4356/nvram_ap6356.txt",no_base,"bcm6356",0x0,"/vendor/etc/wifi/4356/fw_bcm4356a2_ag"},\
+    {"4359","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=4359/fw_bcm4359c0_ag.bin nvram_path=4359/nvram.txt",no_base,"bcm4359",0x0,"/vendor/etc/wifi/4359/fw_bcm4359c0_ag"},\
+    {"0000","4415","dhdpci","/vendor/lib/modules/dhdpci.ko","firmware_path=4359/fw_bcm4359c0_ag.bin nvram_path=4359/nvram.txt",no_base,"bcm4359",0x0,"/vendor/etc/wifi/4359/fw_bcm4359c0_ag"},\
+    {"aa31","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=4358/fw_bcm4358_ag.bin nvram_path=4358/nvram_4358.txt",no_base,"bcm4358",0x0,"/vendor/etc/wifi/4358/fw_bcm4358_ag"},\
     {"8888","0000","vlsicomm","/vendor/lib/modules/vlsicomm.ko","vmac0=wlan0 vmac1=ap0 conf_path=w1",aml_w1_base,"aml_w1",0x0,""},\
     {"0500","0000","w1u","/vendor/lib/modules/w1u.ko","vmac0=wlan0 vmac1=ap0",aml_w1u_s_base,"aml_w1u_s",0x0,""},\
     {"0540","0000","w1u","/vendor/lib/modules/w1u.ko","vmac0=wlan0 vmac1=ap0",aml_w1u_s_base,"aml_w1u_s",0x0,""},\
@@ -138,8 +138,8 @@ static const dongle_info dongle_registerd[]={\
     {"7603","0000","wlan_mt7663_sdio","/vendor/lib/modules/wlan_mt7663_sdio.ko","",mtk7661s_base,"mtk7661s",0x0,""},\
     {"037a","0000","wlan_mt7663_sdio","/vendor/lib/modules/wlan_mt7663_sdio.ko","",mtk7661s_base,"mtk7661s",0x0,""},\
     {"0000","0000","wlan_mt7663_usb","/vendor/lib/modules/wlan_mt7663_usb.ko","",mtk7663u_base,"mtk7663u",0x7663,""},\
-    {"0000","0000","bcmdhd","/vendor/lib/modules/bcmdhd.ko","firmware_path=../../etc/wifi/43569/fw_bcm4358u_ag.bin nvram_path=../../etc/wifi/43569/nvram_ap62x8.txt dhd_pwr_ctrl=0",no_base,"bcm43569",0xbd27,"/vendor/etc/wifi/43569/fw_bcm4358u_ag"}, \
-    {"0000","0000","bcmdhd","/vendor/lib/modules/bcmdhd.ko","firmware_path=../../etc/wifi/43569/fw_bcm4358u_ag.bin nvram_path=../../etc/wifi/43569/nvram_ap62x8.txt dhd_pwr_ctrl=0",no_base,"bcm43569",0x0bdc,"/vendor/etc/wifi/43569/fw_bcm4358u_ag"}, \
+    {"0000","0000","bcmdhd","/vendor/lib/modules/bcmdhd.ko","firmware_path=43569/fw_bcm4358u_ag.bin nvram_path=43569/nvram_ap62x8.txt dhd_pwr_ctrl=0",no_base,"bcm43569",0xbd27,"/vendor/etc/wifi/43569/fw_bcm4358u_ag"}, \
+    {"0000","0000","bcmdhd","/vendor/lib/modules/bcmdhd.ko","firmware_path=43569/fw_bcm4358u_ag.bin nvram_path=43569/nvram_ap62x8.txt dhd_pwr_ctrl=0",no_base,"bcm43569",0x0bdc,"/vendor/etc/wifi/43569/fw_bcm4358u_ag"}, \
     {"0000","0000","8723bu","/vendor/lib/modules/8723bu.ko","ifname=wlan0 if2name=ap0",no_base,"rtl8723bu",0xb720,""}, \
     {"0000","0000","8822bu","/vendor/lib/modules/8822bu.ko","ifname=wlan0 if2name=ap0",no_base,"rtl8822bu",0xb82c,""}, \
     {"0000","0000","88x2cu","/vendor/lib/modules/88x2cu.ko","ifname=wlan0 if2name=ap0",no_base,"rtl88x2cu",0xc82c,""}, \
@@ -147,10 +147,10 @@ static const dongle_info dongle_registerd[]={\
     {"0000","0000","8821cu","/vendor/lib/modules/8821cu.ko","ifname=wlan0 if2name=ap0",no_base,"rtl8821cu",0xc820,""}, \
     {"0000","0000","8821cu","/vendor/lib/modules/8821cu.ko","ifname=wlan0 if2name=ap0",no_base,"rtl8821cu",0xc811,""}, \
     {"3030","0000","ssv_hwif_ctrl","/vendor/lib/modules/ssv_hwif_ctrl.ko",no_base,ssv6051_base,"ssv6051",0x0,""}, \
-    {"0000","449d","dhdpci","/vendor/lib/modules/dhdpci.ko","firmware_path=../../etc/wifi/43752a2/fw_bcm43752a2_pcie_ag.bin nvram_path=../../etc/wifi/43752a2/nvram_ap6275p.txt",no_base,"bcm43752a2p",0x0,"/vendor/etc/wifi/43752a2/fw_bcm43752a2_pcie_ag"},\
-    {"0000","4475","dhdpci","/vendor/lib/modules/dhdpci.ko","firmware_path=../../etc/wifi/43752a2/fw_bcm4375b4_pcie_ag.bin nvram_path=../../etc/wifi/43752a2/nvram_ap6275hh3.txt",no_base,"bcm43752a2p",0x0,"/vendor/etc/wifi/43752a2/fw_bcm4375b4_pcie_ag"},\
-    {"aae8","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=../../etc/wifi/43752a2/fw_bcm43752a2_ag.bin nvram_path=../../etc/wifi/43752a2/nvram_ap6275s.txt",no_base,"bcm43752a2s",0x0,"/vendor/etc/wifi/43752a2/fw_bcm43752a2_ag"},\
-    {"aaec","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=../..etc/wifi/ap6276s/fw_syn43756b0_sdio.bin nvram_path=../../etc/wifi/ap6276s/nvram_ap6276s.txt",no_base,"bcm43756b0",0x0,"/vendor/etc/wifi/ap6276s/fw_syn43756b0_sdio"},\
+    {"0000","449d","dhdpci","/vendor/lib/modules/dhdpci.ko","firmware_path=43752a2/fw_bcm43752a2_pcie_ag.bin nvram_path=43752a2/nvram_ap6275p.txt",no_base,"bcm43752a2p",0x0,"/vendor/etc/wifi/43752a2/fw_bcm43752a2_pcie_ag"},\
+    {"0000","4475","dhdpci","/vendor/lib/modules/dhdpci.ko","firmware_path=43752a2/fw_bcm4375b4_pcie_ag.bin nvram_path=43752a2/nvram_ap6275hh3.txt",no_base,"bcm43752a2p",0x0,"/vendor/etc/wifi/43752a2/fw_bcm4375b4_pcie_ag"},\
+    {"aae8","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=43752a2/fw_bcm43752a2_ag.bin nvram_path=43752a2/nvram_ap6275s.txt",no_base,"bcm43752a2s",0x0,"/vendor/etc/wifi/43752a2/fw_bcm43752a2_ag"},\
+    {"aaec","0000","dhd","/vendor/lib/modules/dhd.ko","firmware_path=ap6276s/fw_syn43756b0_sdio.bin nvram_path=ap6276s/nvram_ap6276s.txt",no_base,"bcm43756b0",0x0,"/vendor/etc/wifi/ap6276s/fw_syn43756b0_sdio"},\
     {"0000","1101","wlan","/vendor/lib/modules/wlan_6391.ko","",qca6391_base,"qca6391",0x0,""},\
     {"0000","1103","wlan","/vendor/lib/modules/wlan_206x.ko","",qca206x_base,"qca206x",0x0,""},\
     {"0000","8852","8852ae","/vendor/lib/modules/8852ae.ko","ifname=wlan0 if2name=p2p0",rtl8852be_base,"rtl8852ae",0x0,""},\
