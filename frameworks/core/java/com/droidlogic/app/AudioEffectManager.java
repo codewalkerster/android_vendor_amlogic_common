@@ -325,7 +325,8 @@ public class AudioEffectManager {
     public static final int FORCE_DDP_UI_ID                                  = 12;
     public static final int PASSTHROUGH_UI_ID                                = 13;
     public static final int VAD_UI_ID                                        = 14;
-    public static final int FUNCTION_UI_NUM                                  = 15;
+    public static final int AI_DE_UI_ID                                      = 15;
+    public static final int FUNCTION_UI_NUM                                  = 16;
 
 
     /*

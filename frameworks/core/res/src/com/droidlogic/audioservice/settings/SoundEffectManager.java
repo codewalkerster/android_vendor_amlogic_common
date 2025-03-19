@@ -289,6 +289,7 @@ public class SoundEffectManager {
     private int     mForceDDPConfig = 0;
     private int     mPassthroughAudioConfig = 0;
     private int     mEffectEngineerModeConfig = 0;
+    private int     mAiDeAudioConfig = 0;
 
     private DroidAudioManager mDroidAudioManager;
     private static SoundEffectManager mInstance;
@@ -3731,6 +3732,18 @@ public class SoundEffectManager {
                 mEffectEngineerModeConfig = AudioEffectManager.EFFECT_UI_OFF;
             }
             retValue = mEffectEngineerModeConfig;
+            break;
+        case AudioEffectManager.AI_DE_UI_ID:
+            if (mEffectInit) {
+                return mAiDeAudioConfig;
+            }
+            param = AudioSystem.getParameters("Effect_Ai_De_Config");
+            if (param.contains("Effect_Ai_De_Config=1")) {
+                mAiDeAudioConfig = AudioEffectManager.EFFECT_UI_ON;
+            } else {
+                mAiDeAudioConfig = AudioEffectManager.EFFECT_UI_OFF;
+            }
+            retValue = mAiDeAudioConfig;
             break;
         default:
             Log.d(TAG, "getEffectFunctionConfig: unknown UI_ID:" + id);

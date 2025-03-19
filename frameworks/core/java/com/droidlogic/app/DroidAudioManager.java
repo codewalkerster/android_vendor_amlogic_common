@@ -162,6 +162,11 @@ public class DroidAudioManager {
         setAudioOutputAllDelay(getAudioOutputAllDelay());
         // refresh db prescale of all source to hal (set one prescale, at the same time the others will be set)
         setAudioPrescale(AUDIO_OUTPUT_DELAY_SOURCE_ATV, getAudioPrescale(AUDIO_OUTPUT_DELAY_SOURCE_ATV));
+        //update AIDE status
+        setAiDeEnable(getAiDeStatus());
+        if (getAiDeStatus()) {
+            setAiDeGain(getAiDeGain());
+        }
     }
 
     public void reset() {
@@ -1219,6 +1224,41 @@ public class DroidAudioManager {
             Log.e(TAG, "setMasterMute failed:" + e);
         }
         return 0;
+    }
+
+    public static final String DB_ID_AIDE_ENABLE            = "db_id_ai_dialog_enhancement_enable";
+    public static final String DB_ID_AIDE_GAIN              = "db_id_ai_dialog_enhancement_gain";
+    public static final String PARAM_AIDE_ENABLE            = "audio_enhancement_enable=";
+    public static final String PARAM_AIDE_GAIN              = "audio_enhancement_gain=";
+    public static final int DB_VALUE_AIDE_OFF               = 0;
+    public static final int DB_VALUE_AIDE_ON                = 1;
+    public static final int DB_VALUE_AIDE_DEFAULT           = DB_VALUE_AIDE_OFF;
+    public static final int DB_VALUE_AIDE_GAIN_DEFAULT      = 0;
+    public static final int AI_DE_GAIN_MIN                  = -15;
+    public static final int AI_DE_GAIN_MAX                  = 15;
+    public void setAiDeEnable(boolean enable) {
+        Log.d(TAG, "setAiDeEnable: " + enable);
+        int value = enable ? 1 : 0;
+        mAudioManager.setParameters(PARAM_AIDE_ENABLE + value);
+        Settings.Global.putInt(mResolver, DB_ID_AIDE_ENABLE, value);
+    }
+
+    public boolean getAiDeStatus() {
+        return Settings.Global.getInt(mResolver, DB_ID_AIDE_ENABLE, DB_VALUE_AIDE_DEFAULT) == DB_VALUE_AIDE_ON;
+    }
+
+    public void setAiDeGain(int value) {
+        Log.d(TAG, "setAiDeGain:" + value);
+        if (value < AI_DE_GAIN_MIN || value > AI_DE_GAIN_MAX) {
+            Log.d(TAG, "setAiDeGain: Invalid Value:" + value + ", MIN:" + AI_DE_GAIN_MIN + ", MAX:" + AI_DE_GAIN_MAX);
+            return;
+        }
+        mAudioManager.setParameters(PARAM_AIDE_GAIN + value);
+        Settings.Global.putInt(mResolver, DB_ID_AIDE_GAIN, value);
+    }
+
+    public int getAiDeGain() {
+        return Settings.Global.getInt(mResolver, DB_ID_AIDE_GAIN, DB_VALUE_AIDE_GAIN_DEFAULT);
     }
 
 }
