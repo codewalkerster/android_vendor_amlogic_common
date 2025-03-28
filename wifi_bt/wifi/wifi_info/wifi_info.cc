@@ -40,8 +40,8 @@ char nxpiw620_base[] ="/vendor/lib/modules/mlan_iw620.ko#";
 char aml_w2p_base[] = "/vendor/lib/modules/w2_comm.ko#bus_type=pci#";
 char aml_w2s_base[] = "/vendor/lib/modules/w2_comm.ko#bus_type=sdio#/vendor/lib/modules/aml_bt.ko#amlbt_if_type=1536#";
 char aml_w2u_base[] = "/vendor/lib/modules/w2_comm.ko#bus_type=usb#/vendor/lib/modules/aml_bt.ko#amlbt_if_type=1537#";
-char aml_w2ls_base[] = "/vendor/lib/modules/w2l_comm.ko#bus_type=sdio#";
-char aml_w2lu_base[] = "/vendor/lib/modules/w2l_comm.ko#bus_type=usb#";
+char aml_w2ls_base[] = "/vendor/lib/modules/w2l_comm.ko#bus_type=sdio#/vendor/lib/modules/w2l_bt.ko#amlbt_if_type=2048#";
+char aml_w2lu_base[] = "/vendor/lib/modules/w2l_comm.ko#bus_type=usb#/vendor/lib/modules/w2l_bt.ko#amlbt_if_type=2049#";
 char *no_base = NULL;
 
 /*
