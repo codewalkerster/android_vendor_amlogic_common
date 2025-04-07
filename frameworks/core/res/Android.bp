@@ -68,6 +68,8 @@ android_app {
         "droidlogic.software.core",
         "droidlogic_permissions.xml",
         "libjniuevent",
+        "magic_wake_daemon",
+        "magic_wake_daemon.rc",
     ],
 
     optimize: {

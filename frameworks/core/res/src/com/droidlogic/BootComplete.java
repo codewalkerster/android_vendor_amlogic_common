@@ -43,6 +43,10 @@ import android.content.DialogInterface;
 import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import android.content.pm.PackageInfo;
 
 public class BootComplete extends BroadcastReceiver {
     private static final String TAG             = "BootComplete";
@@ -184,6 +188,16 @@ public class BootComplete extends BroadcastReceiver {
         //add for hdr/audio logo show function
         Log.d(TAG, "start ShowHdrAudioLogoService");
         context.startService(new Intent(context, ShowHdrAudioLogoService.class));
+
+        // start MagicWakeService
+        //String cert_scope = systemcontrolmanager.getPropertyString("ro.product.youtube_cert_scope", "MagicWakeService");
+        //Log.d(TAG, "youtube_cert_scope:" + cert_scope);
+        // AOSP platform has aml dial app must need yts test
+        if (isPackageInstalled(context, "com.aml.dial")) {
+            Log.d(TAG, "start MagicWakeService");
+            context.startService(new Intent(context, MagicWakeService.class));
+        }
+
     }
 
     private boolean getBooleanProperty(String property, boolean defVal) {
@@ -288,5 +302,27 @@ public class BootComplete extends BroadcastReceiver {
                 false, developerOptionsObserver);
         developerOptionsObserver.onChange(true);
     }
+
+    private static boolean isValidCertScope(String cert_scope) {
+        return cert_scope != null &&
+           !cert_scope.isEmpty() &&
+           !"MagicWakeService".equals(cert_scope.trim());
+    }
+
+    private static boolean isPackageInstalled(Context context, String packageName) {
+        if (packageName == null || packageName.isEmpty()) {
+            return false;
+        }
+
+        try {
+            PackageManager pm = context.getPackageManager();
+            PackageInfo info = pm.getPackageInfo(packageName, PackageManager.GET_META_DATA);
+            return info != null;
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.d("PackageUtils", "Package not found: " + packageName);
+            return false;
+        }
+    }
+
 
 }

@@ -1,0 +1,9 @@
+service magic_wake_daemon /vendor/bin/magic_wake_daemon
+    class late_start
+    user root
+    group root system inet net_raw net_admin
+    capabilities NET_RAW NET_BIND_SERVICE NET_ADMIN
+
+on property:sys.boot_completed=1
+    chmod 0755 /vendor/bin/magic_wake_daemon
+    start magic_wake_daemon
