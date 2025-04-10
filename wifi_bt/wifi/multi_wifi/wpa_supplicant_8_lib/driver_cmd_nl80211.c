@@ -458,8 +458,10 @@ int wpa_driver_nl80211_driver_cmd(void *priv, char *cmd, char *buf,
 	android_wifi_priv_cmd priv_cmd;
 	int ret = 0;
 	char wifi_status[PROPERTY_VALUE_MAX] = {'\0'};
+	char low_energy_mode[PROPERTY_VALUE_MAX] = {'\0'};
 
 	property_get("vendor.wifi_name", wifi_status, NULL);
+	property_get("persist.vendor.sys.low_energy_mode", low_energy_mode, NULL);
 	wpa_printf(MSG_INFO, "%s: wifi vendor: %s", __func__, wifi_status);
 	wpa_printf(MSG_INFO, "%s: %s: private command: %s", __func__, bss->ifname, cmd);
 
@@ -491,6 +493,28 @@ int wpa_driver_nl80211_driver_cmd(void *priv, char *cmd, char *buf,
 		}
 	} while(0);
 
+
+	if (os_strcasecmp(cmd, "SETSUSPENDMODE 1") == 0 && os_strcasecmp(low_energy_mode, "enable") == 0) {
+		struct nl_msg *msg;
+		if (!(msg = nl80211_cmd_msg(bss, 0, NL80211_CMD_SET_WOWLAN))) {
+			nlmsg_free(msg);
+			return -EINVAL;
+		}
+		if (send_and_recv_msgs(drv, msg, NULL, NULL, NULL, NULL))
+			return -EINVAL;
+	}
+	if (os_strcasecmp(cmd, "SETSUSPENDMODE 1") == 0 && os_strcasecmp(low_energy_mode, "enable") != 0) {
+		struct nl_msg *msg;
+		struct nlattr *wowlan_triggers;
+		if (!(msg = nl80211_cmd_msg(bss, 0, NL80211_CMD_SET_WOWLAN)) || !(wowlan_triggers = nla_nest_start(msg,
+					       NL80211_ATTR_WOWLAN_TRIGGERS)) || nla_put_flag(msg, NL80211_WOWLAN_TRIG_ANY)) {
+			nlmsg_free(msg);
+			return -EINVAL;
+		}
+		nla_nest_end(msg, wowlan_triggers);
+		if (send_and_recv_msgs(drv, msg, NULL, NULL, NULL, NULL))
+			return -EINVAL;
+	}
 	if (os_strncasecmp(cmd, "COUNTRY", 7) == 0 && os_strncasecmp(wifi_status, "qca", 3) != 0 && os_strncasecmp(wifi_status, "rtl", 3) != 0) {
 		char alpha2[3];
 		struct nl_msg *msg;
