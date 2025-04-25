@@ -53,6 +53,7 @@ public class BootComplete extends BroadcastReceiver {
 
     private static final String KEY_POWER = "116";
     private static final String KEY_HOME = "102";
+    private static final String KEY_YOUTUBE = "188";
     private static final String NEED_START_NTF = "need_start_netflix_app";
     private static final String SAVE_WOL = "WOL";
     private static final String AMATI_FEATURE = "com.google.android.feature.AMATI_EXPERIENCE";
@@ -103,7 +104,8 @@ public class BootComplete extends BroadcastReceiver {
                     if (index >= 0) {
                         String wakeup_keycode = key_map.substring(index + wakeup_key_event.length());
                         Log.d(TAG, "wakeup key:" + wakeup_keycode);
-                        if (!wakeup_keycode.contains(KEY_POWER) && !wakeup_keycode.contains(KEY_HOME)) {
+                        if (!wakeup_keycode.contains(KEY_POWER) && !wakeup_keycode.contains(KEY_HOME)
+                                && !wakeup_keycode.contains(KEY_YOUTUBE)) {
                             netflix_intent.putExtra(NEED_START_NTF, true);
                             SystemProperties.set("persist.sys.customkey.wakeup", "true");
                         }
