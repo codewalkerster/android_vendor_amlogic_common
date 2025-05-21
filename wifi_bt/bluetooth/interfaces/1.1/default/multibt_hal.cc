@@ -185,6 +185,7 @@ static const dev_info bt_dev_sdio[] = {
     {{0x0271, 0x050A}, "qca6174",      QCA_VND_LIB,   "",                POWER_EVENT_RESET},
     // realtek sdio modules
     {{0x024C, 0xC822}, "rtl8822cs",    RTK_VND_LIB,   "",                POWER_EVENT_RESET},
+    {{0x024C, 0xB852}, "rtl8852bs",    RTK_VND_LIB,   "",                POWER_EVENT_RESET},
     // mediatek sdio modules
     {{0x0e8d, 0x7608}, "mtk7668s",     MTK_VND_LIB,   "btmtksdio",       POWER_EVENT_EN},
     {{0x0e8d, 0x7603}, "mtk7661s",     MTK_VND_LIB,   "btmtksdio",       POWER_EVENT_EN},
