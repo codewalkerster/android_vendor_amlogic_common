@@ -189,6 +189,6 @@ PRODUCT_PACKAGES += \
 	libbt-vendor_uwe \
 	libbluetooth_mtkbt \
 	libbt-vendor_aml \
-	libbt-vendor_aml_w2l
+	libbt-vendor_aml_new
 
 endif

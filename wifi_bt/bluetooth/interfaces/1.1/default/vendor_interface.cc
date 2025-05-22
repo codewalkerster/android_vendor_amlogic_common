@@ -300,9 +300,9 @@ bool VendorInterface::Open(InitializeCompleteCallback initialize_complete_cb,
     bt_vendor_hal.set_cfg_cb();
 
     if (strstr(bt_prop_val->vnd_lib_name,"Multi")) {
-        if (strstr(bt_prop_val->dev_name,"aml_w2l_")) {
-            PR_INFO("w2l_x, use libbt-vendor_aml_w2l.so");
-	    lib_handle_ = dlopen("libbt-vendor_aml_w2l.so", RTLD_NOW);
+        if (strstr(bt_prop_val->dev_name,"aml_w2l_") || strstr(bt_prop_val->dev_name,"aml_w1u")) {
+            PR_INFO("w1u or w2l, use libbt-vendor_aml_new.so");
+            lib_handle_ = dlopen("libbt-vendor_aml_new.so", RTLD_NOW);
 	} else {
 	    memset(temp, '\0', PROP_VALUE_MAX);
 	    // Obtain actual name of libbt_vendor dynamic library
