@@ -101,7 +101,7 @@ public class BootComplete extends BroadcastReceiver {
             if (wakeup_key_event != null && wakeup_key_event.length() > 0) {
                 String key_map = systemcontrolmanager.readSysFs("/sys/class/remote0/amremote0/keymap");
                 if (key_map != null && key_map.length() > 0) {
-                    int index = key_map.indexOf(wakeup_key_event);
+                    int index = key_map.indexOf(wakeup_key_event + " ");
                     if (index >= 0) {
                         String wakeup_keycode = key_map.substring(index + wakeup_key_event.length());
                         Log.d(TAG, "wakeup key:" + wakeup_keycode);
