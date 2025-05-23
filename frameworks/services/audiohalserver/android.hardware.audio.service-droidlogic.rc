@@ -5,5 +5,5 @@ service vendor.audio-hal /vendor/bin/hw/android.hardware.audio.service-droidlogi
     group audio camera drmrpc inet media mediadrm net_bt net_bt_admin net_bw_acct wakelock context_hub
     capabilities BLOCK_SUSPEND SYS_NICE IPC_LOCK
     ioprio rt 4
-    task_profiles ProcessCapacityHigh HighPerformance
+    task_profiles ProcessCapacityHigh MaxPerformance
     onrestart restart audioserver
