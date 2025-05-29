@@ -135,6 +135,7 @@ PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/multi_wifi/config/p2p_s
 PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/aml_tools/aml_comm_diag:$(TARGET_COPY_OUT_VENDOR)/xbin/aml_comm_diag
 PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/aml_tools/parse_trace_msg.sh:$(TARGET_COPY_OUT_VENDOR)/xbin/parse_trace_msg.sh
 PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/aml_tools/lspci:$(TARGET_COPY_OUT_VENDOR)/xbin/aml_lspci
+PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/aml_tools/iwpriv:$(TARGET_COPY_OUT_VENDOR)/xbin/iwpriv
 PRODUCT_COPY_FILES += vendor/amlogic/common/wifi_bt/wifi/aml_tools/iwpriv:$(TARGET_COPY_OUT_VENDOR)/xbin/aml_iwpriv
 
 ifneq ($(filter ap6181,$(WIFI_MODULES)),)
