@@ -45,7 +45,6 @@ import android.hardware.hdmi.HdmiTvClient;
 import android.hardware.hdmi.HdmiTvClient.SelectCallback;
 
 
-import com.droidlogic.app.AudioConfigManager;
 import com.droidlogic.app.DroidLogicUtils;
 
 
@@ -973,38 +972,6 @@ public class OutputModeManager {
         String prop = getPropertyString(PROP_DTSDRCSCALE, DEFAULT_DRC_SCALE);
         int val = Integer.parseInt(prop);
         writeSysfs(AUDIO_DSP_DTS_DEC, String.format("0x%02x", val));
-    }
-    /**
-    * @Deprecated
-    **/
-    public void setDTS_DownmixMode(String mode) {
-        // 0: Lo/Ro;   1: Lt/Rt;  default 0
-        int i = Integer.parseInt(mode);
-        if (i >= 0 && i <= 1) {
-            writeSysfs(AUDIO_DSP_DTS_DEC, "dtsdmxmode" + " " + mode);
-        } else {
-            writeSysfs(AUDIO_DSP_DTS_DEC, "dtsdmxmode" + " " + "0");
-        }
-    }
-    /**
-    * @Deprecated
-    **/
-    public void enableDTS_DRC_scale_control (boolean enable) {
-        if (enable) {
-            writeSysfs(AUDIO_DSP_DTS_DEC, "dtsdrcscale 0x64");
-        } else {
-            writeSysfs(AUDIO_DSP_DTS_DEC, "dtsdrcscale 0");
-        }
-    }
-    /**
-    * @Deprecated
-    **/
-    public void enableDTS_Dial_Norm_control (boolean enable) {
-        if (enable) {
-            writeSysfs(AUDIO_DSP_DTS_DEC, "dtsdialnorm 1");
-        } else {
-            writeSysfs(AUDIO_DSP_DTS_DEC, "dtsdialnorm 0");
-        }
     }
 
     private boolean isLogPrint(int prio) {

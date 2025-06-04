@@ -11,5 +11,5 @@ package vendor.amlogic.hardware.droidaudio;
 
 @VintfStability
 interface IDroidAudioClient {
-    int onDroidAudioEvent(int event, in int[] data);
+    oneway void onDroidAudioEvent(int event, in int[] data);
 }

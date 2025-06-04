@@ -9,7 +9,8 @@ package {
 
 cc_binary {
     name: "droidaudio_tester",
-    vendor: true,
+    system_ext_specific: true,
+//    vendor: true,
     compile_multilib: "32",
     srcs: [
         "main.cpp",
@@ -23,7 +24,24 @@ cc_binary {
         "liblog",
         "libutils",
         "libcutils",
+        "libbinder",
+        "libbinder_ndk",
         "libdroidaudioclient",
         "vendor.amlogic.hardware.droidaudio-V1-ndk",
+    ],
+
+    required: [
+        "vendor.amlogic.hardware.droidaudio-V1-ndk",
+    ],
+
+    header_libs: [
+        "libhardware_headers",
+        "libaudio_system_headers",
+        "libutils_headers",
+        "libbinder_headers",
+    ],
+
+    include_dirs: [
+        "vendor/amlogic/common/interfaces/droidaudio/default/libdroidaudioclient",
     ],
 }

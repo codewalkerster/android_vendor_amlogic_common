@@ -1,6 +1,8 @@
-on init
-    start droidaudio
+on post-fs-data
+    mkdir /data/droidaudio 0755
 
-service droidaudio /system_ext/bin/hw/droidaudio
-    disabled
+service droidaudio /system_ext/bin/droidaudio
+    class core
+    user root
+    group system
     seclabel u:r:droidaudio:s0

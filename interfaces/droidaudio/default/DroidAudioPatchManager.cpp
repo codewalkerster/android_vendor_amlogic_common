@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-#define LOG_TAG "DroidAudioConfigSetting"
+#define LOG_TAG "DroidAudioPatchManager"
 //#define LOG_NDEBUG 0
 
 #include <system/audio-base.h>
-#include <cutils/properties.h>
 #include "unistd.h"
 #include <log/log.h>
 
@@ -27,8 +26,9 @@
 
 
 #include "DroidAudioCommon.h"
-#include "DroidAudioCommonType.h"
-#include "DroidAudioConfigSetting.h"
+#include "DroidAudioClientUtils.h"
+#include "DroidAudioPatchManager.h"
+#include "DroidAudioManager.h"
 #include "SystemControlClient.h"
 
 using namespace std;
@@ -38,62 +38,23 @@ using namespace android;
 static sp<SystemControlClient> g_SystemControlClient;
 #define  DVB_DEMUX_ID_BASE      25
 
-static void encapsulationAndSetParams(const char *key, int32_t value) {
-    char param[100 + 11];
-    if (strlen(key) >= 100) {
-        AM_LOGE("key size > 100, key:%s, setParameters fail", key);
-        return;
-    }
-    sprintf(param, "%s%d", key, value);
-    AudioSystem::setParameters(String8(param));
-}
-
-
-bool getPropertyBoolean(const char *key, bool def) {
-
-    int len;
-    char buf[100] = {0};
-    bool result = def;
-
-    len = property_get(key, buf, "");
-    if (len == 1) {
-        char ch = buf[0];
-        if (ch == '0' || ch == 'n')
-            result = false;
-        else if (ch == '1' || ch == 'y')
-            result = true;
-    } else if (len > 1) {
-         if (!strcmp(buf, "no") || !strcmp(buf, "false") || !strcmp(buf, "off")) {
-            result = false;
-        } else if (!strcmp(buf, "yes") || !strcmp(buf, "true") || !strcmp(buf, "on")) {
-            result = true;
-        }
-    }
-
-    return result;
-}
-
-bool getDebugEnable() {
-    return getPropertyBoolean("vendor.media.droidaudio.debug", false);
-}
-
 void setAdFunction(int cmd, int param1, int param2, int param3 __unused) {
     switch (cmd) {
-        case DROID_AUDIO_CMD_AD_SWITCH_ENABLE:
-            encapsulationAndSetParams("ad_switch_enable=", (param1 > 0 ? 1 : 0));
+        case DroidAudioManager::DROID_AUDIO_CMD_AD_SWITCH_ENABLE:
+            setParameters("ad_switch_enable=", (param1 > 0 ? 1 : 0));
             break;
-        case DROID_AUDIO_CMD_AD_SET_VOLUME:
-            encapsulationAndSetParams("dual_decoder_advol_level=", param1);
+        case DroidAudioManager::DROID_AUDIO_CMD_AD_SET_VOLUME:
+            setParameters("dual_decoder_advol_level=", param1);
             break;
-        case DROID_AUDIO_CMD_AD_DUAL_SUPPORT:
-            encapsulationAndSetParams("hal_param_dual_dec_support=", (param1 > 0 ? 1 : 0));
+        case DroidAudioManager::DROID_AUDIO_CMD_AD_DUAL_SUPPORT:
+            setParameters("hal_param_dual_dec_support=", (param1 > 0 ? 1 : 0));
             break;
-        case DROID_AUDIO_CMD_AD_MIX_SUPPORT://Associated audio mixing on/off
-            encapsulationAndSetParams("hal_param_dual_dec_support=", param1);
-            encapsulationAndSetParams("hal_param_ad_mix_enable=", param1);
+        case DroidAudioManager::DROID_AUDIO_CMD_AD_MIX_SUPPORT://Associated audio mixing on/off
+            setParameters("hal_param_dual_dec_support=", param1);
+            setParameters("hal_param_ad_mix_enable=", param1);
             break;
-        case DROID_AUDIO_CMD_AD_MIX_LEVEL://Associated audio mixing level
-            encapsulationAndSetParams("hal_param_dual_dec_mix_level=", param2);
+        case DroidAudioManager::DROID_AUDIO_CMD_AD_MIX_LEVEL://Associated audio mixing level
+            setParameters("hal_param_dual_dec_mix_level=", param2);
             break;
         default:
             AM_LOGW("unknown  cmd id:%d param1:%d", cmd, param1);
@@ -158,65 +119,35 @@ void listAudioPorts(vector<audio_port_v7>& ports) {
     }
 }
 
-DroidAudioConfigSetting::DroidAudioConfigSetting(): mInitStatus(false)
-{
-    AM_LOGI("");
-    mNotImptTvHardwareInputService = !getPropertyBoolean("ro.vendor.platform.build.livetv", false);
-    mForceManagePatch = getPropertyBoolean("vendor.media.dtv.force.manage.patch", false);
-    mExitProcThread = false;
-    g_SystemControlClient = ::android::SystemControlClient::getInstance();
-
-    sp<DroidAudioAudioPortCallback> audioPortCallback = new DroidAudioAudioPortCallback(this);
-    if (AudioSystem::addAudioPortCallback(audioPortCallback) != NO_ERROR) {
-        AM_LOGW("addAudioPortCallback failed");
-    }
-    mProcThread = thread(&DroidAudioConfigSetting::handleDispatchAudioRoutesChanged, this);
-    reloadAudio();
-}
-
-DroidAudioConfigSetting::~DroidAudioConfigSetting() {
-    mExitProcThread = true;
-    sinkChangedSignalNotify();
-    if (mProcThread.joinable()) {
-        mProcThread.join();
-    }
-}
-
-void DroidAudioConfigSetting::reloadAudio() {
-    int32_t spdifCoexist = g_SystemControlClient->getPropertyInt(PROP_AUDIO_OUTPUT_SPDIF_COEXIST, true);
-    setCoexistSpdifOther(spdifCoexist == 1);
-
-    int32_t forceUse = g_SystemControlClient->getPropertyInt(PROP_AUDIO_OUTPUT_FORCEUSE, DROID_AUDIO_FORCE_USE_NONE);
-    vector<int32_t> devices;
-    devices.push_back(forceUse);
-    setOutputDevices(devices);
-
-}
-
-int32_t DroidAudioConfigSetting::init() {
+int32_t DroidAudioPatchManager::init() {
     if (mInitStatus) {
-        AM_LOGW("It's already initialized");
+        AM_LOGI("It's already initialized");
         return 0;
     }
+    mNotImptTvHardwareInputService = !getPropertyBoolean("ro.vendor.platform.build.livetv", false);
+    mForceManagePatch = getPropertyBoolean("vendor.media.dtv.force.manage.patch", false);
+    g_SystemControlClient = ::android::SystemControlClient::getInstance();
+    mProcThread = thread(&DroidAudioPatchManager::handleDispatchAudioRoutesChanged, this);
     mInitStatus = true;
     return 0;
 }
 
-int32_t DroidAudioConfigSetting::reset() {
-    setCoexistSpdifOther(true);
-    vector<int32_t> devices;
-    devices.push_back(DROID_AUDIO_FORCE_USE_NONE); //default value;
-    setOutputDevices(devices);
-    return 0;
+void DroidAudioPatchManager::reloadAudio() {
+    audioPortOrPatchUpdate();
 }
 
-int32_t DroidAudioConfigSetting::dump(int fd, const char **args __unused, uint32_t numArgs __unused) {
-    int32_t forceUse = g_SystemControlClient->getPropertyInt(PROP_AUDIO_OUTPUT_FORCEUSE, DROID_AUDIO_FORCE_USE_NONE);
-    dprintf(fd, "db forceUse: %d\n", forceUse);
-    dprintf(fd, "tif: %d\n", !mNotImptTvHardwareInputService);
-    dprintf(fd, "mForceManagePatch: %d\n",
-        mForceManagePatch);
 
+void DroidAudioPatchManager::audioPortOrPatchUpdate() {
+    if (mNotImptTvHardwareInputService) {
+        handleAudioSinkUpdatedRunnable();
+    } else {
+        // handleDispatchAudioRoutesChanged
+        sinkChangedSignalNotify();
+    }
+}
+
+int32_t DroidAudioPatchManager::dump(int fd, const char **args __unused, uint32_t numArgs __unused) {
+    dprintf(fd, "tif:                                   %10d | mForceManagePatch:                %10d\n", !mNotImptTvHardwareInputService, mForceManagePatch);
     for (auto &v : mDemuxs) {
         DroidAudioDemux& demux = v.second;
         dprintf(fd, "START_DECODE(id:%d) format:%d pid:%d start:%d open:%d mute:%d vol:%d\n",
@@ -226,13 +157,13 @@ int32_t DroidAudioConfigSetting::dump(int fd, const char **args __unused, uint32
     return STATUS_OK;
 }
 
-void DroidAudioConfigSetting::sinkChangedSignalNotify() {
+void DroidAudioPatchManager::sinkChangedSignalNotify() {
     unique_lock<mutex> mutex(mThreadMutex);
     AM_LOGV("audio changed and notify>>>>>>>");
     mThreadCnd.notify_one();
 }
 
-void DroidAudioConfigSetting::handleDispatchAudioRoutesChanged() {
+void DroidAudioPatchManager::handleDispatchAudioRoutesChanged() {
     uint32_t timeoutMs = 500;
     bool standby = true;
     cv_status ret;
@@ -251,7 +182,7 @@ void DroidAudioConfigSetting::handleDispatchAudioRoutesChanged() {
         AM_LOGV("mThreadCnd_wait_for end--------");
         if (cv_status::timeout == ret) {
             handleAudioSinkUpdatedRunnable();
-            if (getDebugEnable()) {
+            if (isAudioDebug()) {
                 AM_LOGD("timeout:%d ms process finished.", timeoutMs);
             }
             standby = true;
@@ -263,13 +194,12 @@ void DroidAudioConfigSetting::handleDispatchAudioRoutesChanged() {
     return;
 }
 
-void DroidAudioConfigSetting::handleAudioSinkUpdatedRunnable() {
-
+void DroidAudioPatchManager::handleAudioSinkUpdatedRunnable() {
     int32_t ret = 0;
     unique_lock<mutex> l(mMutex);
     if (mNotImptTvHardwareInputService) {
         if (mpAudioPatch == nullptr) {
-            if (getDebugEnable()) {
+            if (isAudioDebug()) {
                 AM_LOGD("not find dtv audio patch");
             }
             return;
@@ -278,9 +208,14 @@ void DroidAudioConfigSetting::handleAudioSinkUpdatedRunnable() {
     } else {
         ret = updateAudioPatch();
     }
+
+    if (mpAudioPatch != nullptr && mCurTunerSourceType == DroidAudioManager::SOURCE_TYPE_ATV) {
+        AM_LOGI("ATV source, start playing");
+        ::setParameters("hal_param_tuner_in=atv");
+    }
 }
 
-void DroidAudioConfigSetting::findAudioSinkFromAudioPolicy(vector<audio_port_v7>& ports) {
+void DroidAudioPatchManager::findAudioSinkFromAudioPolicy(vector<audio_port_v7>& ports) {
     ports.clear();
     AudioDeviceTypeAddrVector curDevices{};
     audio_attributes_t attributes = AudioSystem::streamTypeToAttributes(AUDIO_STREAM_MUSIC);
@@ -306,7 +241,7 @@ void DroidAudioConfigSetting::findAudioSinkFromAudioPolicy(vector<audio_port_v7>
     }
 }
 
-int32_t DroidAudioConfigSetting::findAudioDevicePort(audio_devices_t type, audio_port_v7& port) {
+int32_t DroidAudioPatchManager::findAudioDevicePort(audio_devices_t type, audio_port_v7& port) {
     vector<audio_port_v7> audioPorts;
     listAudioPorts(audioPorts);
     for (auto audioPort : audioPorts) {
@@ -322,27 +257,7 @@ int32_t DroidAudioConfigSetting::findAudioDevicePort(audio_devices_t type, audio
     return -1;
 }
 
-int32_t DroidAudioConfigSetting::setMusicStreamVolume(int32_t index __unused) {
-    // TODO: For the audio middleware projects.
-#if 0
-    int32_t currentIndex = 0;
-    AudioSystem::getStreamVolumeIndex(AUDIO_STREAM_MUSIC, &currentIndex, AUDIO_DEVICE_OUT_DEFAULT);
-    int gainValueMb = (int)(100 * AudioSystem::getStreamVolumeDB(AUDIO_STREAM_MUSIC, currentIndex, AUDIO_DEVICE_OUT_SPEAKER));
-    struct audio_port_config tunerInAudioPort = mpAudioPatch->sources[0];
-    tunerInAudioPort.config_mask = AUDIO_PORT_CONFIG_GAIN;
-    tunerInAudioPort.gain.mode = AUDIO_GAIN_MODE_JOINT;
-    tunerInAudioPort.gain.values[0] = gainValueMb;
-    AM_LOGI("cur music index:%d, gainValueMb:%d", currentIndex, gainValueMb);
-    status_t status = AudioSystem::setAudioPortConfig(&tunerInAudioPort);
-    if (status != NO_ERROR) {
-        AM_LOGE("setAudioPortConfig fail. status:%d", status);
-    }
-
-#endif
-    return 0;
-}
-
-int32_t DroidAudioConfigSetting::updateAudioPatch() {
+int32_t DroidAudioPatchManager::updateAudioPatch() {
     vector<audio_patch> patchs;
     listAudioPatches(patchs);
     for (audio_patch patch : patchs) {
@@ -375,7 +290,7 @@ int32_t DroidAudioConfigSetting::updateAudioPatch() {
     return -1;
 }
 
-int32_t DroidAudioConfigSetting::recreateAudioPatch() {
+int32_t DroidAudioPatchManager::recreateAudioPatch() {
     audio_port_v7               audioSource{};
     vector<audio_port_v7>       audioSinks;
     audioSource.id = -1;
@@ -458,7 +373,7 @@ int32_t DroidAudioConfigSetting::recreateAudioPatch() {
     return 0;
 }
 
-void DroidAudioConfigSetting::releaseTvTunerAudioPatch() {
+void DroidAudioPatchManager::releaseTvTunerAudioPatch() {
     if (mpAudioPatch == nullptr) {
         return;
     }
@@ -475,7 +390,7 @@ void DroidAudioConfigSetting::releaseTvTunerAudioPatch() {
         if (patch.num_sources == 1 && patch.sources[0].type == AUDIO_PORT_TYPE_DEVICE &&
             patch.sources[0].ext.device.type == AUDIO_DEVICE_IN_TV_TUNER) {
             // Found it!
-            setAudioCmdParam(DROID_AUDIO_CMD_CLOSE_DECODER, 0, 0, pathId);
+            setAudioCmdParam(DroidAudioManager::DROID_AUDIO_CMD_CLOSE_DECODER, 0, 0, pathId);
             pathId++;
             result = AudioSystem::releaseAudioPatch(patch.id);
             if (result != NO_ERROR) {
@@ -491,9 +406,9 @@ void DroidAudioConfigSetting::releaseTvTunerAudioPatch() {
     AM_LOGI("releaseAudioPatch finished");
  }
 
-int32_t DroidAudioConfigSetting::setAudioCmdParam(int32_t cmd, int32_t param1, int32_t param2, int32_t param3) {
-    if (getDebugEnable()) {
-        AM_LOGD("cmd:%s(%d) param1:%d param2:%d param3:%d", audioCmd2Str(cmd), cmd, param1, param2, param3);
+int32_t DroidAudioPatchManager::setAudioCmdParam(int32_t cmd, int32_t param1, int32_t param2, int32_t param3) {
+    if (isAudioDebug()) {
+        AM_LOGD("cmd:%s(%d) param1:%d param2:%d param3:%d", DroidAudioManager::audioCmd2Str(cmd), cmd, param1, param2, param3);
     }
 
     int cmdIndex = cmd;
@@ -506,65 +421,69 @@ int32_t DroidAudioConfigSetting::setAudioCmdParam(int32_t cmd, int32_t param1, i
 
     map<int, DroidAudioDemux>::iterator iter;
     switch (cmdIndex) {
-        case DROID_AUDIO_CMD_SET_SPDIF_PROTECTION_MODE:
-            encapsulationAndSetParams("hal_param_dtv_spdif_protection_mode=", param1);
+
+        case DroidAudioManager::DROID_AUDIO_CMD_SET_SPDIF_PROTECTION_MODE:
+            setParameters("hal_param_dtv_spdif_protection_mode=", param1);
             break;
-        case DROID_AUDIO_CMD_SET_DEMUX_INFO:
-            encapsulationAndSetParams("hal_param_dtv_demux_id=", param2);
+        case DroidAudioManager::DROID_AUDIO_CMD_SET_AUDIO_PATCH_ADDRESS:
+            setParameters("hal_param_dtv_audio_patch_address=", param1);
             break;
-        case DROID_AUDIO_CMD_SET_SECURITY_MEM_LEVEL:
-            encapsulationAndSetParams("hal_param_security_mem_level=", param1);
+        case DroidAudioManager::DROID_AUDIO_CMD_SET_DEMUX_INFO:
+            setParameters("hal_param_dtv_demux_id=", param2);
             break;
-        case DROID_AUDIO_CMD_SET_MEDIA_SYCN_ID:
-            encapsulationAndSetParams("hal_param_media_sync_id=", param1);
+        case DroidAudioManager::DROID_AUDIO_CMD_SET_SECURITY_MEM_LEVEL:
+            setParameters("hal_param_security_mem_level=", param1);
             break;
-        case DROID_AUDIO_CMD_SET_MEDIA_FIRST_LANG:
-            encapsulationAndSetParams("hal_param_dtv_media_first_lang=", param1);
+        case DroidAudioManager::DROID_AUDIO_CMD_SET_MEDIA_SYCN_ID:
+            setParameters("hal_param_media_sync_id=", param1);
             break;
-        case DROID_AUDIO_CMD_SET_MEDIA_SECOND_LANG:
-            encapsulationAndSetParams("hal_param_dtv_media_second_lang=", param1);
+        case DroidAudioManager::DROID_AUDIO_CMD_SET_MEDIA_FIRST_LANG:
+            setParameters("hal_param_dtv_media_first_lang=", param1);
+            break;
+        case DroidAudioManager::DROID_AUDIO_CMD_SET_MEDIA_SECOND_LANG:
+            setParameters("hal_param_dtv_media_second_lang=", param1);
            break;
-        case DROID_AUDIO_CMD_SET_HAS_VIDEO:
-            encapsulationAndSetParams("hal_param_has_dtv_video=", param1);
+        case DroidAudioManager::DROID_AUDIO_CMD_SET_HAS_VIDEO:
+            setParameters("hal_param_has_dtv_video=", param1);
             break;
-        case DROID_AUDIO_CMD_START_DECODE:
-            encapsulationAndSetParams("hal_param_dtv_audio_fmt=", param1);
-            encapsulationAndSetParams("hal_param_dtv_audio_id=", param2);
-            encapsulationAndSetParams("hal_param_dtv_patch_cmd=", cmd);
+        case DroidAudioManager::DROID_AUDIO_CMD_START_DECODE:
+            setParameters("hal_param_dtv_audio_fmt=", param1);
+            setParameters("hal_param_dtv_audio_id=", param2);
+            setParameters("hal_param_dtv_patch_cmd=", cmd);
             break;
-        case DROID_AUDIO_CMD_PAUSE_DECODE:
-            encapsulationAndSetParams("hal_param_dtv_patch_cmd=", cmd);
+        case DroidAudioManager::DROID_AUDIO_CMD_PAUSE_DECODE:
+            setParameters("hal_param_dtv_patch_cmd=", cmd);
             break;
-        case DROID_AUDIO_CMD_RESUME_DECODE:
-            encapsulationAndSetParams("hal_param_dtv_patch_cmd=", cmd);
+        case DroidAudioManager::DROID_AUDIO_CMD_RESUME_DECODE:
+            setParameters("hal_param_dtv_patch_cmd=", cmd);
             break;
-        case DROID_AUDIO_CMD_STOP_DECODE:
-            encapsulationAndSetParams("hal_param_dtv_patch_cmd=", cmd);
+        case DroidAudioManager::DROID_AUDIO_CMD_STOP_DECODE:
+            setParameters("hal_param_dtv_patch_cmd=", cmd);
             break;
-        case DROID_AUDIO_CMD_SET_DECODE_AD:
-            encapsulationAndSetParams("hal_param_dtv_sub_audio_fmt=", param1);
-            encapsulationAndSetParams("hal_param_dtv_sub_audio_pid=", param2);
-            encapsulationAndSetParams("hal_param_dtv_patch_cmd=", cmd);
+        case DroidAudioManager::DROID_AUDIO_CMD_SET_DECODE_AD:
+            setParameters("hal_param_dtv_sub_audio_fmt=", param1);
+            setParameters("hal_param_dtv_sub_audio_pid=", param2);
+            setParameters("hal_param_dtv_patch_cmd=", cmd);
             AM_LOGD("SET_DECODE_AD sub_audio_fmt:%d, sub_audio_pid:%d", param1, param2);
             break;
-        case DROID_AUDIO_CMD_SET_VOLUME:
-            encapsulationAndSetParams("hal_param_dtv_audio_volume=", param1);
+        case DroidAudioManager::DROID_AUDIO_CMD_SET_VOLUME:
+            setParameters("hal_param_dtv_audio_volume=", param1);
             AM_LOGD("CMD_SET_VOLUME, audio volume:%d", param1);
             break;
-        case DROID_AUDIO_CMD_SET_MUTE:
-            encapsulationAndSetParams("hal_param_tv_mute=", param1);
+        case DroidAudioManager::DROID_AUDIO_CMD_SET_MUTE:
+            setParameters("hal_param_tv_mute=", param1);
             AM_LOGD("CMD_SET_MUTE, audio mute:%d", param1);
             break;
-        case DROID_AUDIO_CMD_SET_OUTPUT_MODE:
-            encapsulationAndSetParams("hal_param_audio_output_mode=", param1); /* refer to AM_AOUT_OutputMode_t */
+        case DroidAudioManager::DROID_AUDIO_CMD_SET_OUTPUT_MODE:
+            setParameters("hal_param_audio_output_mode=", param1); /* refer to AM_AOUT_OutputMode_t */
             break;
-        case DROID_AUDIO_CMD_SET_PRE_GAIN:
-            encapsulationAndSetParams("hal_param_dtv_patch_cmd=", cmd);
+        case DroidAudioManager::DROID_AUDIO_CMD_SET_PRE_GAIN:
+            setParameters("hal_param_dtv_patch_cmd=", cmd);
             break;
-        case DROID_AUDIO_CMD_SET_PRE_MUTE:
-            encapsulationAndSetParams("hal_param_dtv_patch_cmd=", cmd);
+        case DroidAudioManager::DROID_AUDIO_CMD_SET_PRE_MUTE:
+            setParameters("hal_param_dtv_patch_cmd=", cmd);
             break;
-        case DROID_AUDIO_CMD_OPEN_DECODER:
+        case DroidAudioManager::DROID_AUDIO_CMD_OPEN_DECODER:
             {
                 vector<audio_patch> patchs;
                 listAudioPatches(patchs);
@@ -577,11 +496,10 @@ int32_t DroidAudioConfigSetting::setAudioCmdParam(int32_t cmd, int32_t param1, i
                         updateAudioPatch();
                     }
                 }
-
-                encapsulationAndSetParams("hal_param_dtv_audio_fmt=", param1);
-                encapsulationAndSetParams("hal_param_dtv_audio_id=", param2);
-                encapsulationAndSetParams("hal_param_dtv_patch_cmd=", cmd);
-                if (getDebugEnable()) {
+                setParameters("hal_param_dtv_audio_fmt=", param1);
+                setParameters("hal_param_dtv_audio_id=", param2);
+                setParameters("hal_param_dtv_patch_cmd=", cmd);
+                if (isAudioDebug()) {
                     AM_LOGD("now start open the decoder:OPEN_DECODER_1(%d), demux count:%zu", param3, mDemuxs.size());
                     for (auto &v : mDemuxs) {
                         DroidAudioDemux& demux = v.second;
@@ -610,7 +528,7 @@ int32_t DroidAudioConfigSetting::setAudioCmdParam(int32_t cmd, int32_t param1, i
                     pDemux->mAudioPid = param2;
                     pDemux->mOpenStatus = 1;
                 }
-                if (getDebugEnable()) {
+                if (isAudioDebug()) {
                     AM_LOGD("now end open the decoder demux id:%d demux count:%zu", param3, mDemuxs.size());
                     for (auto &v : mDemuxs) {
                         DroidAudioDemux& demux = v.second;
@@ -621,11 +539,11 @@ int32_t DroidAudioConfigSetting::setAudioCmdParam(int32_t cmd, int32_t param1, i
                 }
             }
             break;
-        case DROID_AUDIO_CMD_CLOSE_DECODER:
+        case DroidAudioManager::DROID_AUDIO_CMD_CLOSE_DECODER:
             {
-                encapsulationAndSetParams("hal_param_dtv_patch_cmd=", cmd);
+                setParameters("hal_param_dtv_patch_cmd=", cmd);
                 unique_lock<mutex> demux_l(mDemuxMutex);
-                if (getDebugEnable()) {
+                if (isAudioDebug()) {
                     AM_LOGD("now start close the decoder demux id:%d demux count:%zu", param3, mDemuxs.size());
                     for (auto &v : mDemuxs) {
                         DroidAudioDemux& demux = v.second;
@@ -660,7 +578,7 @@ int32_t DroidAudioConfigSetting::setAudioCmdParam(int32_t cmd, int32_t param1, i
                     delete mpAudioPatch;
                     mpAudioPatch = nullptr;
                 }
-                if (getDebugEnable()) {
+                if (isAudioDebug()) {
                     AM_LOGD("now end close the decoder, demux id:%d demux count:%zu", param3, mDemuxs.size());
                     for (auto &v : mDemuxs) {
                         DroidAudioDemux& demux = v.second;
@@ -671,10 +589,10 @@ int32_t DroidAudioConfigSetting::setAudioCmdParam(int32_t cmd, int32_t param1, i
                 }
             }
             break;
-        case DROID_AUDIO_CMD_SET_MEDIA_PRESENTATION_ID:
-            encapsulationAndSetParams("hal_param_dtv_media_presentation_id=", param1);
+        case DroidAudioManager::DROID_AUDIO_CMD_SET_MEDIA_PRESENTATION_ID:
+            setParameters("hal_param_dtv_media_presentation_id=", param1);
             break;
-        case DROID_AUDIO_CMD_SET_AUDIO_PATCH_MANAGE_MODE:
+        case DroidAudioManager::DROID_AUDIO_CMD_SET_AUDIO_PATCH_MANAGE_MODE:
             {
                 bool isDvbPlayback = (param1 == 0);
                 int forceManagePatchMode = param2;
@@ -703,24 +621,24 @@ int32_t DroidAudioConfigSetting::setAudioCmdParam(int32_t cmd, int32_t param1, i
                         mForceManagePatch, isDvbPlayback, forceManagePatchMode, hasTif, mNotImptTvHardwareInputService);
             }
             break;
-        case DROID_AUDIO_CMD_AD_SWITCH_ENABLE:
-        case DROID_AUDIO_CMD_AD_SET_VOLUME:
-        case DROID_AUDIO_CMD_AD_DUAL_SUPPORT:
-        case DROID_AUDIO_CMD_AD_MIX_SUPPORT:
-        case DROID_AUDIO_CMD_AD_MIX_LEVEL:
+        case DroidAudioManager::DROID_AUDIO_CMD_AD_SWITCH_ENABLE:
+        case DroidAudioManager::DROID_AUDIO_CMD_AD_SET_VOLUME:
+        case DroidAudioManager::DROID_AUDIO_CMD_AD_DUAL_SUPPORT:
+        case DroidAudioManager::DROID_AUDIO_CMD_AD_MIX_SUPPORT:
+        case DroidAudioManager::DROID_AUDIO_CMD_AD_MIX_LEVEL:
             setAdFunction(cmdIndex, param1, param2, param3);
             break;
-        case DROID_AUDIO_CMD_SET_TSPLAYER_CLIENT_DIED:
+        case DroidAudioManager::DROID_AUDIO_CMD_SET_TSPLAYER_CLIENT_DIED:
             {
                 unique_lock<mutex> l(mMutex);
                 releaseTvTunerAudioPatch();
                 mpAudioPatch = nullptr;
             }
             break;
-        case DROID_AUDIO_CMD_SET_AUDIO_PLAYBACK_MODE:
-            encapsulationAndSetParams("hal_param_dtv_playback_mode=", param1);
+        case DroidAudioManager::DROID_AUDIO_CMD_SET_AUDIO_PLAYBACK_MODE:
+            setParameters("hal_param_dtv_playback_mode=", param1);
             break;
-        case DROID_AUDIO_CMD_SET_AUDIO_PICTURE_MODE:
+        case DroidAudioManager::DROID_AUDIO_CMD_SET_AUDIO_PICTURE_MODE:
             AM_LOGD("SET_AUDIO_PICTURE_MODE: %s", (param1 == 1? "GAME" : "STANDARD"));
             if (param1 == 1) {
                 AudioSystem::setParameters(String8("picture_mode=PQ_MODE_GAME"));
@@ -735,135 +653,58 @@ int32_t DroidAudioConfigSetting::setAudioCmdParam(int32_t cmd, int32_t param1, i
     return 0;
 }
 
-int32_t DroidAudioConfigSetting::setOutputDevices(const vector<int32_t>& devices) {
-    if (devices.size() == 0 || devices.size() > 1) {
-        AM_LOGW("devices size is:%zu", devices.size());
-        return -1;
-    }
+int32_t DroidAudioPatchManager::createAudioPatch(int32_t sourceDevice, int32_t sinkDevice) {
+    audio_patch_handle_t handle = 0;
+    struct audio_patch patch = {};
+    int32_t ret = 0;
 
-    switch (devices[0]) {
-        case DROID_AUDIO_FORCE_USE_NONE:
-        case DROID_AUDIO_FORCE_USE_SPEAKER:
-        case DROID_AUDIO_FORCE_USE_SPDIF:
-        case DROID_AUDIO_FORCE_USE_HEADPHONES:
-        case DROID_AUDIO_FORCE_USE_HDMI:
-        case DROID_AUDIO_FORCE_USE_USB:
-        case DROID_AUDIO_FORCE_USE_BT_A2DP:
-            break;
-        default:
-            AM_LOGW("unsupported forceUse:%d", devices[0]);
-            return -1;
-    }
-    AM_LOGI("setForceUse:%d", devices[0]);
-    g_SystemControlClient->setProperty(PROP_AUDIO_OUTPUT_FORCEUSE, to_string(devices[0]).c_str());
-    AudioSystem::setForceUse(AUDIO_POLICY_FORCE_FOR_MEDIA, (audio_policy_forced_cfg_t)devices[0]);
+    audio_port_v7 source;
+    audio_port_v7 sink;
+    ret = findAudioDevicePort((audio_devices_t)sourceDevice, source);
+    R_CHECK_RET(ret, "not found source device:%#x", sourceDevice)
+    ret = findAudioDevicePort((audio_devices_t)sinkDevice, sink);
+    R_CHECK_RET(ret, "not found sink device:%#x", sinkDevice)
+
+    patch.sources[0].id = source.id;
+    patch.sources[0].role = source.role;
+    patch.sources[0].type = source.type;
+    patch.sources[0].channel_mask = AUDIO_CHANNEL_IN_STEREO;
+    patch.sources[0].sample_rate = 48000;
+    patch.sources[0].format = AUDIO_FORMAT_PCM_16_BIT;
+    patch.sources[0].config_mask = AUDIO_PORT_CONFIG_ALL;
+    patch.sources[0].ext.device.type = (audio_devices_t)sourceDevice;
+    patch.num_sources = 1;
+
+    patch.sinks[0].id = sink.id;
+    patch.sinks[0].role = sink.role;
+    patch.sinks[0].type = sink.type;
+    patch.sinks[0].channel_mask = AUDIO_CHANNEL_IN_STEREO;
+    patch.sinks[0].sample_rate = 48000;
+    patch.sinks[0].format = AUDIO_FORMAT_PCM_16_BIT;
+    patch.sinks[0].config_mask = AUDIO_PORT_CONFIG_ALL;
+    patch.sinks[0].ext.device.type = (audio_devices_t)sinkDevice;
+    patch.num_sinks = 1;
+    ret = AudioSystem::createAudioPatch(&patch, &handle);
+    R_CHECK_RET(ret,)
+    return handle;
+}
+
+int32_t DroidAudioPatchManager::releaseAudioPatch(int32_t handle) {
+    status_t ret = AudioSystem::releaseAudioPatch(handle);
+    R_CHECK_RET(ret,)
     return 0;
 }
 
-int32_t DroidAudioConfigSetting::getOutputDevices(vector<int32_t>* devices) {
-    int32_t audioOutStrategy = g_SystemControlClient->getPropertyInt(PROP_AUDIO_OUTPUT_STRATEGY, DROID_AUDIO_OUTPUT_STRATEGY_AUTO);
-    int32_t forceUse = 0;
-    if (audioOutStrategy == DROID_AUDIO_OUTPUT_STRATEGY_AUTO) {
-        AudioDeviceTypeAddrVector curDevices{};
-        audio_attributes_t attributes = AudioSystem::streamTypeToAttributes(AUDIO_STREAM_MUSIC);
-        AudioSystem::getDevicesForAttributes(attributes, &curDevices, false);
-        for (auto device : curDevices) {
-            switch (device.mType) {
-                case AUDIO_DEVICE_OUT_SPEAKER:
-                    forceUse = DROID_AUDIO_FORCE_USE_SPEAKER;
-                    break;
-                case AUDIO_DEVICE_OUT_SPDIF:
-                    forceUse = DROID_AUDIO_FORCE_USE_SPDIF;
-                    break;
-                case AUDIO_DEVICE_OUT_WIRED_HEADSET:
-                case AUDIO_DEVICE_OUT_WIRED_HEADPHONE:
-                    forceUse = DROID_AUDIO_FORCE_USE_HEADPHONES;
-                    break;
-                case AUDIO_DEVICE_OUT_HDMI:
-                case AUDIO_DEVICE_OUT_HDMI_ARC:
-                case AUDIO_DEVICE_OUT_HDMI_EARC:
-                    forceUse = DROID_AUDIO_FORCE_USE_HDMI;
-                    break;
-                case AUDIO_DEVICE_OUT_USB_DEVICE:
-                case AUDIO_DEVICE_OUT_USB_ACCESSORY:
-                case AUDIO_DEVICE_OUT_USB_HEADSET:
-                    forceUse = DROID_AUDIO_FORCE_USE_USB;
-                    break;
-                case AUDIO_DEVICE_OUT_BLUETOOTH_A2DP:
-                case AUDIO_DEVICE_OUT_BLUETOOTH_A2DP_HEADPHONES:
-                case AUDIO_DEVICE_OUT_BLUETOOTH_A2DP_SPEAKER:
-                    forceUse = DROID_AUDIO_FORCE_USE_BT_A2DP;
-                    break;
-                default:
-                    AM_LOGW("unsupported dev0:%#x", device.mType);
-                    return -1;
-            }
-            devices->push_back(forceUse);
-            if (getDebugEnable()) {
-                AM_LOGI("find device:%s", audio_device_to_string(device.mType));
-            }
-        }
-        if (devices->size() == 0) {
-            AM_LOGW("not find sink device");
-        }
+int32_t DroidAudioPatchManager::openTvAudio(int32_t source) {
+    AM_LOGI("source: %d", source);
+    if (source == DroidAudioManager::SOURCE_TYPE_ATV /* SOURCE_TYPE_ATV */) {
+        ::setParameters("hal_param_tuner_in=atv");
+    } else if (source == DroidAudioManager::SOURCE_TYPE_DTV /* SOURCE_TYPE_DTV */) {
+        ::setParameters("hal_param_tuner_in=dtv");
     } else {
-        forceUse = (int32_t)AudioSystem::getForceUse(AUDIO_POLICY_FORCE_FOR_MEDIA);
-        switch (forceUse) {
-            case DROID_AUDIO_FORCE_USE_SPEAKER:
-            case DROID_AUDIO_FORCE_USE_SPDIF:
-            case DROID_AUDIO_FORCE_USE_HEADPHONES:
-            case DROID_AUDIO_FORCE_USE_HDMI:
-            case DROID_AUDIO_FORCE_USE_USB:
-            case DROID_AUDIO_FORCE_USE_BT_A2DP:
-                break;
-            default:
-                AM_LOGW("unsupported forceUse:%d", forceUse);
-                return -1;
-        }
-        devices->push_back(forceUse);
-        if (getDebugEnable()) {
-            AM_LOGD("return forceUse:%d", forceUse);
-        }
+        AM_LOGW("openTvAudio unsupported source type:%d", source);
     }
+    mCurTunerSourceType = source;
     return 0;
-}
-
-void DroidAudioConfigSetting::updateCoexistSpdifOther() {
-    bool enable = getPropertyBoolean(PROP_AUDIO_OUTPUT_SPDIF_COEXIST, true);
-    int coexist = enable ? 1 : 0;
-    int curState = AudioSystem::getDeviceConnectionState(AUDIO_DEVICE_OUT_SPDIF, "");
-    AM_LOGI("coexist:%d, curState:%d", coexist, curState);
-
-    struct audio_port_v7 audioPort{};
-    audioPort.type = AUDIO_PORT_TYPE_DEVICE;
-    audioPort.ext.device.type = AUDIO_DEVICE_OUT_SPDIF;
-    android::media::audio::common::AudioPort aidlAudioPort = legacy2aidl_audio_port_v7_AudioPort(audioPort, false).value();
-    if (coexist == curState) {
-        audio_policy_dev_state_t state = enable ? AUDIO_POLICY_DEVICE_STATE_UNAVAILABLE : AUDIO_POLICY_DEVICE_STATE_AVAILABLE;
-        AudioSystem::setDeviceConnectionState(state, aidlAudioPort, AUDIO_FORMAT_DEFAULT);
-    }
-}
-
-int32_t DroidAudioConfigSetting::setCoexistSpdifOther(bool enable) {
-    if (getDebugEnable()) {
-        AM_LOGD("enable:%d", enable);
-    }
-    g_SystemControlClient->setProperty(PROP_AUDIO_OUTPUT_SPDIF_COEXIST, enable ? "1" : "0");
-    updateCoexistSpdifOther();
-    int forceUse = AudioSystem::getForceUse(AUDIO_POLICY_FORCE_FOR_MEDIA);
-    if (forceUse == DROID_AUDIO_FORCE_USE_SPDIF) {
-        g_SystemControlClient->setProperty(PROP_AUDIO_OUTPUT_STRATEGY, to_string(DROID_AUDIO_OUTPUT_STRATEGY_AUTO).c_str());
-        AudioSystem::setForceUse(AUDIO_POLICY_FORCE_FOR_MEDIA, (audio_policy_forced_cfg_t)DROID_AUDIO_FORCE_USE_NONE);
-        AM_LOGI("delete spdif, setForceUse NONE. enable:%d", enable);
-    }
-    encapsulationAndSetParams("hal_param_spdif_coexist_other=", (int32_t)enable);
-    return 0;
-}
-
-int32_t DroidAudioConfigSetting::setMasterMute(bool mute) {
-    if (getDebugEnable()) {
-        AM_LOGD("enable:%d", mute);
-    }
-    return AudioSystem::setMasterMute(mute);
 }
 

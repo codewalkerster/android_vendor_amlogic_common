@@ -16,57 +16,20 @@
 
 #pragma once
 
-#include <string.h>
+#include <string>
+
+using namespace std;
+extern const char* INI_KEY_AM_AUDIO_COMMON_DRIVER_BASE_PROJECT;
 
 
-#define ENUM_TYPE_STR_MAX_LEN                           (100)
+void setParameters(const string &value);
+void setParameters(const string &key, int32_t value);
+string getParameters(const string &key);
 
-#define ENUM_TYPE_TO_STR_DEFAULT_STR            "INVALID_ENUM"
-#define ENUM_TYPE_TO_STR_START(prefix)                      \
-    const char *pStr = ENUM_TYPE_TO_STR_DEFAULT_STR;        \
-    int prefixLen = strlen(prefix);                         \
-    switch (type) {
-#define ENUM_TYPE_TO_STR(x)                                 \
-    case x:                                                 \
-        pStr = #x;                                          \
-        pStr += prefixLen;                                  \
-        if (strlen(#x) - prefixLen > 70) {                  \
-            pStr += 70;                                     \
-        }                                                   \
-        break;
-#define ENUM_TYPE_TO_STR_END                                \
-    default:                                                \
-        break;                                              \
-    }                                                       \
-    return pStr;
-
-#define R_CHECK_RET(ret, fmt, ...)                                                              \
-    if (ret != 0) {                                                                             \
-        AM_LOGE("ret:%d " fmt, ret, ##__VA_ARGS__);                                             \
-        return ret;                                                                             \
-    }
-
-#define NO_R_CHECK_RET(ret, fmt, ...)                                                           \
-    if (ret != 0) {                                                                             \
-        AM_LOGE("ret:%d " fmt, ret, ##__VA_ARGS__);                                             \
-    }
-
-#define R_CHECK_PARAM_LEGAL(ret, param, min, max, fmt, ...)                                     \
-    if ((int)param < min || param > max) {                                                      \
-        AM_LOGE("%s:%d is illegal, min:%d, max:%d " fmt, #param, param, min, max, ##__VA_ARGS__);\
-        return ret;                                                                             \
-    }
-
-#define R_CHECK_POINTER_LEGAL(ret, pointer, fmt, ...)                                           \
-    if (pointer == NULL) {                                                                      \
-        AM_LOGE("%s is null pointer " fmt, #pointer, ##__VA_ARGS__);                            \
-        return ret;                                                                             \
-    }
-
-
-#define AM_LOGV(fmt, ...)  ALOGV("[%s:%d] " fmt, __func__,__LINE__, ##__VA_ARGS__)
-#define AM_LOGD(fmt, ...)  ALOGD("[%s:%d] " fmt, __func__,__LINE__, ##__VA_ARGS__)
-#define AM_LOGI(fmt, ...)  ALOGI("[%s:%d] " fmt, __func__,__LINE__, ##__VA_ARGS__)
-#define AM_LOGW(fmt, ...)  ALOGW("[%s:%d] " fmt, __func__,__LINE__, ##__VA_ARGS__)
-#define AM_LOGE(fmt, ...)  ALOGE("[%s:%d] " fmt, __func__,__LINE__, ##__VA_ARGS__)
+bool getPropertyBoolean(const char *key, bool def);
+bool isAudioDebug();
+bool isTvPlatform();
+bool isSoundbarPlatform();
+bool isDriverBaseProject();
+bool isSupportMs12();
 

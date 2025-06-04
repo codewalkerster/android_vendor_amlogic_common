@@ -52,8 +52,8 @@
 
 #include "AmlAudioPolicyManager.h"
 #include "TypeConverter.h"
-#include "DroidAudioCommon.h"
-#include "DroidAudioCommonType.h"
+#include "DroidAudioClientUtils.h"
+#include "DroidAudioManager.h"
 
 namespace android {
 using android::media::audio::common::AudioPortExt;

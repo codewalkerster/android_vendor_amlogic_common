@@ -20,7 +20,6 @@ import android.net.wifi.WifiManager;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.droidlogic.app.DroidAudioManager;
 import com.droidlogic.app.DroidLogicUtils;
 import com.droidlogic.app.SystemControlManager;
 
@@ -33,14 +32,19 @@ public class DroidLogicPowerService extends Service {
     private static final int POWER_SUSPEND_ON = 1;
     private static final int POWER_SUSPEND_SHUTDOWN = 2;
 
+    private static final String AUDIO_VAD_STRING_VAD_ON                      = "on";
+    private static final String AUDIO_VAD_STRING_VAD_OFF                     = "off";
+    private static final String AUDIO_VAD_UBOOTENV_FFV_WAKE                  = "ubootenv.var.ffv_wake";
+    private static final String AUDIO_VAD_PROPERTY_VADWAKE                   = "persist.vendor.vadwake";
+
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             Log.d(TAG, "action: " + action);
             if (Intent.ACTION_SCREEN_ON.equals(action)) {
-                String enableVad = mSystemControlManager.getPropertyString(DroidAudioManager.AUDIO_VAD_PROPERTY_VADWAKE, DroidAudioManager.AUDIO_VAD_STRING_VAD_OFF);
-                if (enableVad.equals(DroidAudioManager.AUDIO_VAD_STRING_VAD_ON)) {
+                String enableVad = mSystemControlManager.getPropertyString(AUDIO_VAD_PROPERTY_VADWAKE, AUDIO_VAD_STRING_VAD_OFF);
+                if (enableVad.equals(AUDIO_VAD_STRING_VAD_ON)) {
                     mAudioManager.setParameters("hal_param_vad_wakeup=resume");
                 }
                 setSuspendState(POWER_SUSPEND_OFF);
@@ -48,8 +52,8 @@ public class DroidLogicPowerService extends Service {
             } else if (Intent.ACTION_SCREEN_OFF.equals(action)) {
                 setSuspendState(POWER_SUSPEND_ON);
                 setWifiState(context, false);
-                String enableVad = mSystemControlManager.getPropertyString(DroidAudioManager.AUDIO_VAD_PROPERTY_VADWAKE, DroidAudioManager.AUDIO_VAD_STRING_VAD_OFF);
-                if (enableVad.equals(DroidAudioManager.AUDIO_VAD_STRING_VAD_ON)) {
+                String enableVad = mSystemControlManager.getPropertyString(AUDIO_VAD_PROPERTY_VADWAKE, AUDIO_VAD_STRING_VAD_OFF);
+                if (enableVad.equals(AUDIO_VAD_STRING_VAD_ON)) {
                     mAudioManager.setParameters("hal_param_vad_wakeup=suspend");
                 }
             } else if (Intent.ACTION_SHUTDOWN.equals(action)) {

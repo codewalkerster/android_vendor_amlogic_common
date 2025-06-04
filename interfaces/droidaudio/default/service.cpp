@@ -10,6 +10,7 @@
 #define LOG_TAG "vendor.amlogic.droidaudio-service"
 
 #include <inttypes.h>
+#include <cutils/properties.h>
 
 #include <android-base/logging.h>
 #include <android/binder_ibinder_platform.h>
@@ -18,7 +19,7 @@
 #include <binder/IServiceManager.h>
 
 #include "DroidAudio.h"
-#include "DroidAudioCommon.h"
+#include "DroidAudioClientUtils.h"
 
 using aidl::vendor::amlogic::hardware::droidaudio::implementation::DroidAudio;
 using namespace android;
@@ -32,6 +33,20 @@ uint64_t get_systime_ms() {
     return sys_time;
 }
 
+void waitBootVideoExit() {
+    const int32_t TIME_OUT_CNT = 600;
+    int32_t retry = 0;
+    AM_LOGI("start waiting for bootvideo exit...");
+    while (property_get_int32("service.bootvideo.exit", 0) == 1) {
+        if (retry >= TIME_OUT_CNT) {
+            AM_LOGW("timeout, waited for %d ms for bootvideo exit.", retry * 100);
+            return;
+        }
+        retry++;
+        usleep(100 * 1000);
+    }
+    AM_LOGI("success. waited for %d ms for bootvideo exit.", retry * 100);
+}
 
 void waitAudioService(const char *server_name) {
     uint64_t waitStartTime = get_systime_ms();
@@ -43,7 +58,6 @@ void waitAudioService(const char *server_name) {
         return;
     }
     sp<IServiceManager> sm = defaultServiceManager();
-    AM_LOGI("server_name: %s", server_name);
     while (sm->checkService(String16(server_name)) == nullptr) {
         retry++;
         usleep(100 * 1000);
@@ -54,12 +68,15 @@ void waitAudioService(const char *server_name) {
 
 
 int main() {
-    waitAudioService("media.audio_flinger");
-    waitAudioService("media.audio_policy");
-    ABinderProcess_setThreadPoolMaxThreadCount(8);
+    ABinderProcess_setThreadPoolMaxThreadCount(16);
     ABinderProcess_startThreadPool();
 
     std::shared_ptr<DroidAudio> droidAudioService = ::ndk::SharedRefBase::make<DroidAudio>();
+    AM_LOGI("start waiting for audioserver...");
+    waitAudioService("media.audio_flinger");
+    waitAudioService("media.audio_policy");
+    waitBootVideoExit();
+    droidAudioService->init();
     const std::string Instance = std::string() + DroidAudio::descriptor + "/default";
     binder_status_t status = AServiceManager_addService(droidAudioService->asBinder().get(), Instance.c_str());
     CHECK(status == STATUS_OK) << "Failed to add DroidAudio Factory, status=" << status;

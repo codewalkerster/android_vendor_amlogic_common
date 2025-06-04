@@ -62,6 +62,7 @@ import java.util.Scanner;
 import android.os.SystemProperties;
 import android.os.HandlerExecutor;
 
+import com.droidlogic.app.DroidAudioEffect;
 import com.droidlogic.app.DroidAudioManager;
 import com.droidlogic.app.DroidLogicUtils;
 import com.droidlogic.app.SystemControlManager;
@@ -143,15 +144,15 @@ public class NetflixService extends Service {
 
         @Override
         public void onChange(boolean selfChange, Uri uri) {
-            int surround = mDroidAudioManager.getDigitalAudioFormatOut();
-            Log.i(TAG, "onChange surround: " + DroidAudioManager.audioFormatOutputToString(surround));
+            int surround = mDroidAudioManager.getDigitalAudioMode();
+            Log.i(TAG, "onChange surround: " + DroidAudioManager.digitalModeToString(surround));
             switch (surround) {
-                case DroidAudioManager.DIGITAL_AUDIO_FORMAT_AUTO:
-                case DroidAudioManager.DIGITAL_AUDIO_FORMAT_PASSTHROUGH:
+                case DroidAudioManager.DIGITAL_AUDIO_MODE_AUTO:
+                case DroidAudioManager.DIGITAL_AUDIO_MODE_PASSTHROUGH:
                     Log.i(TAG, "onChange auto/passthrough");
                     setNrdpCapabilitiesIfNeed(NRDP_AUDIO_PLATFORM_CAP, true);
-                case DroidAudioManager.DIGITAL_AUDIO_FORMAT_MANUAL:
-                case DroidAudioManager.DIGITAL_AUDIO_FORMAT_PCM:
+                case DroidAudioManager.DIGITAL_AUDIO_MODE_MANUAL:
+                case DroidAudioManager.DIGITAL_AUDIO_MODE_PCM:
                     break;
                 default:
                     Log.d(TAG, "error surround format");
@@ -286,7 +287,8 @@ public class NetflixService extends Service {
         mActivityManager = (ActivityManager)getSystemService(ActivityManager.class);
         mWifiManager = (WifiManager) getSystemService(WifiManager.class);
 
-        hasMS12 = mDroidAudioManager.isAudioSupportMs12System();
+        int dolbyMs12Config = DroidAudioManager.getInstance(mContext).getDroidAudioConfig(DroidAudioManager.DROID_AUDIO_CONFIG_ID_IS_SUPPORT_MS12);
+        hasMS12 = (dolbyMs12Config == 1);
         Log.d(TAG, "ms12Supported = " + hasMS12);
         initNrdpCapabilities();
         atmosSupportedByConfig = isAtmosConfiged();
@@ -300,9 +302,9 @@ public class NetflixService extends Service {
 
         updateHdrSettings();
         mSettingsObserver = new SettingsObserver(new Handler());
-        getContentResolver().registerContentObserver(Settings.Global.getUriFor(DroidAudioManager.DIGITAL_AUDIO_FORMAT),
+        getContentResolver().registerContentObserver(Settings.Global.getUriFor(DroidAudioManager.ENCODED_SURROUND_OUTPUT),
                 false, mSettingsObserver);
-        getContentResolver().registerContentObserver(Settings.Global.getUriFor(DroidAudioManager.DIGITAL_AUDIO_SUBFORMAT),
+        getContentResolver().registerContentObserver(Settings.Global.getUriFor(DroidAudioManager.ENCODED_SURROUND_OUTPUT_ENABLED_FORMATS),
                 false, mSettingsObserver);
         getContentResolver().registerContentObserver(Settings.Global.getUriFor(DroidAudioManager.DB_ID_DROIDLOGIC_AUDIO_OUTPUT_DEVICE),
                 false, mSettingsObserver);
@@ -529,7 +531,7 @@ public class NetflixService extends Service {
         }
 
         if (capName.startsWith(NRDP_AUDIO_PLATFORM_CAP) && hasMS12 &&
-            mDroidAudioManager.getDigitalAudioFormatOut() == DroidAudioManager.DIGITAL_AUDIO_FORMAT_AUTO) {
+            mDroidAudioManager.getDigitalAudioMode() == DroidAudioManager.DIGITAL_AUDIO_MODE_AUTO) {
             capName_File = NRDP_AUDIO_PLATFORM_CAP_MS12;
         }
 
@@ -647,9 +649,9 @@ public class NetflixService extends Service {
         boolean isTv = DroidLogicUtils.isTv();
         boolean state;
         String hdmiEncodings;
-        int surround = mDroidAudioManager.getDigitalAudioFormatOut();
+        int surround = mDroidAudioManager.getDigitalAudioMode();
         Log.i(TAG, "refreshAudioCapabilities: " + ", isTv:" + isTv + ", surround:" +
-                DroidAudioManager.audioFormatOutputToString(surround) +
+                DroidAudioManager.digitalModeToString(surround) +
                 "isSoundbar: " + DroidLogicUtils.isSoundbar());
 
         if (isTv) {
@@ -660,12 +662,12 @@ public class NetflixService extends Service {
                 Log.i(TAG, "outputDevice " + outputDevice);
             }
 
-            if (DroidAudioManager.DIGITAL_AUDIO_FORMAT_MANUAL == surround) {
-                String subformat = Settings.Global.getString(mContext.getContentResolver(), DroidAudioManager.DIGITAL_AUDIO_SUBFORMAT);
+            if (DroidAudioManager.DIGITAL_AUDIO_MODE_MANUAL == surround) {
+                String subformat = Settings.Global.getString(mContext.getContentResolver(), DroidAudioManager.ENCODED_SURROUND_OUTPUT_ENABLED_FORMATS);
                 Log.i(TAG, "onChange manual subformat: " + subformat);
                 setAtmosEnabled(subformat.contains(AudioFormat.ENCODING_E_AC3_JOC + ""));
                 setDdpEnabled(subformat.contains(AudioFormat.ENCODING_E_AC3 + ""));
-            } else if (DroidAudioManager.DIGITAL_AUDIO_FORMAT_PCM == surround) {
+            } else if (DroidAudioManager.DIGITAL_AUDIO_MODE_PCM == surround) {
                 Log.i(TAG, "PCM Mode");
                 if (outputDevice == DroidAudioManager.DROID_AUDIO_FORCE_USE_HDMI) {
                     // Disable DDP & ATOMS in PCM mode.
@@ -713,13 +715,13 @@ public class NetflixService extends Service {
 
             hdmiEncodings = mAudioManager.getParameters("hdmi_encodings");
 
-            if ((init || state) && (DroidAudioManager.DIGITAL_AUDIO_FORMAT_AUTO == surround
-                || DroidAudioManager.DIGITAL_AUDIO_FORMAT_PASSTHROUGH == surround
-                || DroidAudioManager.DIGITAL_AUDIO_FORMAT_MANUAL == surround)) {
+            if ((init || state) && (DroidAudioManager.DIGITAL_AUDIO_MODE_AUTO == surround
+                || DroidAudioManager.DIGITAL_AUDIO_MODE_PASSTHROUGH == surround
+                || DroidAudioManager.DIGITAL_AUDIO_MODE_MANUAL == surround)) {
 
                 if (hasMS12 || SystemProperties.get("sys.vendor.atmos.passthrough").equals("enable")) {
-                    if (DroidAudioManager.DIGITAL_AUDIO_FORMAT_MANUAL == surround) {
-                        String subformat = Settings.Global.getString(mContext.getContentResolver(), DroidAudioManager.DIGITAL_AUDIO_SUBFORMAT);
+                    if (DroidAudioManager.DIGITAL_AUDIO_MODE_MANUAL == surround) {
+                        String subformat = mDroidAudioManager.getAudioManualFormats();
                         Log.i(TAG, "onChange manual subformat: " + subformat);
                         setAtmosEnabled(subformat.contains(AudioFormat.ENCODING_E_AC3_JOC + ""));
                     } else {

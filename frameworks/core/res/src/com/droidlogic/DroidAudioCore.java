@@ -29,6 +29,7 @@ import android.media.AudioManager;
 import android.media.AudioSystem;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.provider.Settings;
 import android.text.TextUtils;
@@ -37,7 +38,6 @@ import android.util.Log;
 import com.droidlogic.app.DroidLogicUtils;
 import com.droidlogic.app.OutputModeManager;
 import com.droidlogic.app.SystemControlManager;
-import com.droidlogic.app.AudioConfigManager;
 import com.droidlogic.app.DroidAudioManager;
 import com.droidlogic.UEventObserver;
 
@@ -72,9 +72,13 @@ public class DroidAudioCore {
         mContext = context;
         mResolver = context.getContentResolver();
         Log.i(TAG, "construction DroidAudioCore");
+        mDroidAudioManager = DroidAudioManager.getInstance(mContext);
+        if (mDroidAudioManager.getDroidAudioConfig(DroidAudioManager.DROID_AUDIO_CONFIG_ID_IS_DRIVER_BASE) != 0) {
+            Log.i(TAG, "driver base project, do not init");
+            return;
+        }
         mAudioManager = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
         mOutputModeManager = OutputModeManager.getInstance(mContext);
-        mDroidAudioManager = DroidAudioManager.getInstance(mContext);
         mObserver.startObserving(PATH_AUDIOFORMAT_UEVENT);
         mObserver.startObserving(PATH_TXLX_AUDIOFORMAT_UEVENT);
 
@@ -87,54 +91,9 @@ public class DroidAudioCore {
         for (String s : settings) {
             mResolver.registerContentObserver(Settings.Global.getUriFor(s), false, mSettingsObserver);
         }
-        mDroidAudioManager.init(false);
+        mDroidAudioManager.init();
         /*setThisValue for dts scale*/
         mOutputModeManager.setDtsDrcScaleSysfs();
-
-        // init VAD
-        mSystemControlManager = SystemControlManager.getInstance();
-        String vadUbootEnable = mSystemControlManager.getBootenv(DroidAudioManager.AUDIO_VAD_UBOOTENV_FFV_WAKE, DroidAudioManager.AUDIO_VAD_STRING_VAD_OFF);
-        String property = mSystemControlManager.getPropertyString(DroidAudioManager.AUDIO_VAD_PROPERTY_VADWAKE, DroidAudioManager.AUDIO_VAD_STRING_VAD_OFF);
-        Log.i(TAG, "initVadStatus uboot status:" + vadUbootEnable + ", prop:" + property);
-        if (vadUbootEnable.equals(DroidAudioManager.AUDIO_VAD_STRING_VAD_ON)) {
-            mSystemControlManager.setProperty(DroidAudioManager.AUDIO_VAD_PROPERTY_VADWAKE, vadUbootEnable);
-        }
-    }
-
-    private boolean needSyncDroidSetting(int surround) {
-        int format = Settings.Global.getInt(mResolver, DroidAudioManager.DIGITAL_AUDIO_FORMAT, -1);
-        Log.i(TAG, "needSyncDroidSetting internal audio format:" + format + ", android format:" + surround);
-        switch (surround) {
-            case DroidAudioManager.ENCODED_SURROUND_OUTPUT_AUTO:
-                if (format == DroidAudioManager.DIGITAL_AUDIO_FORMAT_AUTO ||
-                    format == DroidAudioManager.DIGITAL_AUDIO_FORMAT_PASSTHROUGH) {
-                    return false;
-                }
-                break;
-            case DroidAudioManager.ENCODED_SURROUND_OUTPUT_NEVER:
-                if (format == DroidAudioManager.DIGITAL_AUDIO_FORMAT_PCM)
-                    return false;
-                break;
-            case DroidAudioManager.ENCODED_SURROUND_OUTPUT_ALWAYS:
-            case DroidAudioManager.ENCODED_SURROUND_OUTPUT_MANUAL:
-                String subformat = mDroidAudioManager.getAudioManualFormats();
-                String subsurround = getSurroundManualFormats();
-                if (subsurround == null)
-                    subsurround = "";
-                if ((format == DroidAudioManager.DIGITAL_AUDIO_FORMAT_MANUAL)
-                        && subsurround.equals(subformat)) {
-                    return false;
-                }
-                break;
-            default:
-                Log.d(TAG, "error surround format");
-                break;
-        }
-        return true;
-    }
-
-    private String getSurroundManualFormats() {
-        return Settings.Global.getString(mResolver, DroidAudioManager.ENCODED_SURROUND_OUTPUT_ENABLED_FORMATS);
     }
 
     private class SettingsObserver extends ContentObserver {
@@ -142,44 +101,70 @@ public class DroidAudioCore {
             super(handler);
         }
 
+        private int surroundModeToDigitalMode(int surroundMode) {
+            switch (surroundMode) {
+                case Settings.Global.ENCODED_SURROUND_OUTPUT_AUTO:
+                    return DroidAudioManager.DIGITAL_AUDIO_MODE_AUTO;
+                case Settings.Global.ENCODED_SURROUND_OUTPUT_NEVER:
+                    return DroidAudioManager.DIGITAL_AUDIO_MODE_PCM;
+                case Settings.Global.ENCODED_SURROUND_OUTPUT_ALWAYS:
+                    return DroidAudioManager.DIGITAL_AUDIO_MODE_ALWAYS;
+                case Settings.Global.ENCODED_SURROUND_OUTPUT_MANUAL:
+                    return DroidAudioManager.DIGITAL_AUDIO_MODE_MANUAL;
+                default:
+                    Log.w(TAG, "surroundModeToDigitalMode invalid surroundMode:" + surroundMode + ", return AUTO");
+                    return DroidAudioManager.DIGITAL_AUDIO_MODE_AUTO;
+            }
+        }
+
+        private boolean needSyncDroidSetting(int surroundMode) {
+            int format = mDroidAudioManager.getDigitalAudioMode();
+            int digitalMode = surroundModeToDigitalMode(surroundMode);
+            boolean needSync = false;
+            if (surroundMode == -1) {
+                Log.w(TAG, "needSyncDroidSetting invalid surround mode:" + surroundMode);
+                return true;
+            }
+            if (digitalMode == format) {
+                // do nothing
+            } else if (digitalMode == DroidAudioManager.DIGITAL_AUDIO_MODE_AUTO &&
+                        format == DroidAudioManager.DIGITAL_AUDIO_MODE_PASSTHROUGH) {
+                // for passthrough -> auto
+            } else {
+                needSync = true;
+            }
+            Log.i(TAG, "needSyncDroidSetting needSync:" + needSync + ", audioMode:" +
+                DroidAudioManager.digitalModeToString(format) + ", surround:" +
+                DroidAudioManager.surroundModeToString(surroundMode));
+            return needSync;
+        }
+
         @Override
         public void onChange(boolean selfChange, Uri uri) {
             String option = uri.getLastPathSegment();
-            final int esoValue = Settings.Global.getInt(mResolver,
-                DroidAudioManager.ENCODED_SURROUND_OUTPUT,
-                DroidAudioManager.ENCODED_SURROUND_OUTPUT_AUTO);
-
-            if (!needSyncDroidSetting(esoValue)) {
-                return;
-            }
-            if (DroidAudioManager.ENCODED_SURROUND_OUTPUT.equals(option)) {
-                switch (esoValue) {
-                    case DroidAudioManager.ENCODED_SURROUND_OUTPUT_AUTO:
-                        mDroidAudioManager.saveDigitalAudioFormatToHal(
-                            DroidAudioManager.DIGITAL_AUDIO_FORMAT_AUTO, "");
-                        break;
-                    case DroidAudioManager.ENCODED_SURROUND_OUTPUT_NEVER:
-                        mDroidAudioManager.saveDigitalAudioFormatToHal(
-                            DroidAudioManager.DIGITAL_AUDIO_FORMAT_PCM, "");
-                        break;
-                    case DroidAudioManager.ENCODED_SURROUND_OUTPUT_ALWAYS:
-                    case DroidAudioManager.ENCODED_SURROUND_OUTPUT_MANUAL:
-                        mDroidAudioManager.saveDigitalAudioFormatToHal(
-                            DroidAudioManager.DIGITAL_AUDIO_FORMAT_MANUAL, getSurroundManualFormats());
-                        break;
-                    default:
-                        break;
+            if (Settings.Global.ENCODED_SURROUND_OUTPUT.equals(option)) {
+                final int surroundMode = Settings.Global.getInt(mResolver,
+                    Settings.Global.ENCODED_SURROUND_OUTPUT, Settings.Global.ENCODED_SURROUND_OUTPUT_AUTO);
+                if (!needSyncDroidSetting(surroundMode)) {
+                    return;
                 }
-            } else if (DroidAudioManager.ENCODED_SURROUND_OUTPUT_ENABLED_FORMATS.equals(option)) {
-                mDroidAudioManager.saveDigitalAudioFormatToHal(
-                    DroidAudioManager.DIGITAL_AUDIO_FORMAT_MANUAL, getSurroundManualFormats());
+                int digitalMode = surroundModeToDigitalMode(surroundMode);
+                if (digitalMode == -1) {
+                    Log.w(TAG, "onChange invalid surround mode:" + surroundMode);
+                    return;
+                }
+                mDroidAudioManager.setDigitalAudioModeToHal(digitalMode,
+                            digitalMode == DroidAudioManager.DIGITAL_AUDIO_MODE_MANUAL ? mDroidAudioManager.getAudioManualFormats() : "");
+            } else if (Settings.Global.ENCODED_SURROUND_OUTPUT_ENABLED_FORMATS.equals(option)) {
+                mDroidAudioManager.setDigitalAudioModeToHal(
+                        DroidAudioManager.DIGITAL_AUDIO_MODE_MANUAL, mDroidAudioManager.getAudioManualFormats());
             } else if (Settings.Global.USER_PREFERRED_RESOLUTION_HEIGHT.equals(option)) {
                 int resolutionHeight = Settings.Global.getInt(mResolver, Settings.Global.USER_PREFERRED_RESOLUTION_HEIGHT, 0);
-                boolean preDdpEnable = mDroidAudioManager.getForceDDPEnable();
+                boolean preDdpEnable = mDroidAudioManager.isForceDDPEnabled();
                 boolean needEnable = (resolutionHeight == 576 || resolutionHeight == 480) ? true : false;
                 if (needEnable != preDdpEnable) {
                     Log.i(TAG, "onChange resolutionHeight:" + resolutionHeight + ", set ddp enable:" + needEnable);
-                    mDroidAudioManager.setForceDDPEnable(needEnable);
+                    mDroidAudioManager.setForceDDPEnabled(needEnable);
                 }
             }
         }

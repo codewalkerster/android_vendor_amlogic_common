@@ -15,7 +15,7 @@ aidl_interface {
     stability: "vintf",
     srcs: ["vendor/amlogic/hardware/droidaudio/*.aidl"],
     imports: [
-//        "android.hardware.common-V2",
+        //        "android.hardware.common-V2",
     ],
     backend: {
         cpp: {
@@ -32,5 +32,12 @@ aidl_interface {
         },
     },
     double_loadable: true,
-}
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [],
+        },
+    ],
+    frozen: true,
 
+}

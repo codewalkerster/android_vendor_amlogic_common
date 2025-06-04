@@ -12,11 +12,15 @@ cc_binary {
     init_rc: ["droidaudio.rc"],
     vintf_fragments: ["manifest_droidaudio.xml"],
     system_ext_specific: true,
-    relative_install_path: "hw",
     srcs: [
         "service.cpp",
         "DroidAudio.cpp",
-        "DroidAudioConfigSetting.cpp",
+        "DroidAudioDb.cpp",
+        "DroidAudioCommon.cpp",
+        "DroidAudioPatchManager.cpp",
+        "DroidAudioManagerSetting.cpp",
+        "DroidAudioEffectSetting.cpp",
+        "DroidAudioUevent.cpp",
     ],
     cflags: [
         "-Wall",
@@ -32,7 +36,10 @@ cc_binary {
         "libaudio_aidl_conversion_common_cpp",
         "libaudiofoundation",
         "libaudioclient",
+        "libsqlite",
+        "framework-permission-aidl-cpp",
         "vendor.amlogic.hardware.droidaudio-V1-ndk",
+        "libdroidaudioclient",
         "libsystemcontrolservice",
         "vendor.amlogic.hardware.systemcontrol@1.1",
     ],
@@ -51,6 +58,7 @@ cc_binary {
     ],
 
     header_libs: [
+        "libmedia_headers",
         "libhardware_headers",
         "libbinder_headers",
         "libaudioclient_headers",
