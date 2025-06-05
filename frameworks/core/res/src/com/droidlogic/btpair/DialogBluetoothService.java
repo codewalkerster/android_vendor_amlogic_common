@@ -61,6 +61,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 /**
@@ -157,7 +160,9 @@ public class DialogBluetoothService extends Service {
     private static String DEFAULT_REMOTE_TYPE = "IR_NONE";
     private boolean flagjni = false;
     private static String filePath = "/sys/class/aml_btusb/aml_btusb/aml_rclist";
+    private static String filePathToUart = "/sys/class/stpbt/stpbt/aml_rclist";
     private static final String MAC_ADDRESS_SEPARATOR = ";";
+    List<String> AmlRcListMacAddress = new ArrayList<>();
     /**
      * Used in order for the service to be notified about HID devices connection and bond state.
      */
@@ -174,13 +179,18 @@ public class DialogBluetoothService extends Service {
 
             final String action = intent.getAction();
 
+            if (Intent.ACTION_SCREEN_OFF.equals(action)) {
+                Log.i(TAG, "ACTION_SCREEN_OFF");
+                writeMacAddress();
+                return;
+            }
+
             if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
                 int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
                 Log.i(TAG, "ACTION STATE CHANGED was " + state);
                 if (state == BluetoothAdapter.STATE_ON) {
                     Log.i(TAG, "Bluetooth is ON");
-                    writeFileFromString(filePath, null);
-                    GetToBondedDevicesMacAddress();
+                    GetToBondedMacAddressAndWrite();
                 }
                 return;
             }
@@ -238,14 +248,14 @@ public class DialogBluetoothService extends Service {
                     BluetoothClass btClass = device.getBluetoothClass();
                     Log.i(TAG, "Add BOND STATE CHANGED [" + device.getName() + "] - addr is " + macAddress);
                     if (btClass != null && btClass.getMajorDeviceClass() == BluetoothClass.Device.Major.PERIPHERAL ) {
-                        writeMacAddressToFile(macAddress);
+                        GetToBondedMacAddressAndWrite();
                     }
                 }
                 else if (bondStatePrev == BluetoothDevice.BOND_BONDED && bondStateNow == BluetoothDevice.BOND_NONE) {
                     BluetoothClass btClass = device.getBluetoothClass();
                     Log.i(TAG, "Remove BOND STATE CHANGED [" + device.getName() + "] - addr is " + macAddress);
                     if (btClass != null && btClass.getMajorDeviceClass() == BluetoothClass.Device.Major.PERIPHERAL ) {
-                        removeMacAddressFromFile(macAddress);
+                        GetToBondedMacAddressAndWrite();
                         if (!hasBondedDefaultDevices()) {
                             Intent intent1 = new Intent();
                             intent1.setComponent(new ComponentName("com.android.tv.settings", "com.android.tv.settings.accessories.AddAccessoryActivity"));
@@ -261,42 +271,17 @@ public class DialogBluetoothService extends Service {
         }
     };
 
-    private void removeMacAddressFromFile(String macAddressToRemove) {
-        String currentMacAddresses = readFileToString(filePath);
-        Log.i(TAG, "Current MAC addresses in file: " + currentMacAddresses);
-        if (currentMacAddresses != null && !currentMacAddresses.isEmpty()) {
-            String[] addressList = currentMacAddresses.split(MAC_ADDRESS_SEPARATOR);
-            StringBuilder updatedAddressList = new StringBuilder();
-            boolean firstAddress = true;
 
-            for (String address : addressList) {
-                if (!address.toLowerCase().equals(macAddressToRemove.toLowerCase())) {
-                    if (!firstAddress) {
-                        updatedAddressList.append(MAC_ADDRESS_SEPARATOR);
-                    } else {
-                        firstAddress = false;
-                    }
-                    updatedAddressList.append(address);
-                }
-            }
+    private boolean checkFileExists(String filePath) {
+        Path exitFilePath = Paths.get(filePath);
 
-            writeFileFromString(filePath, updatedAddressList.toString());
+        try {
+            return Files.exists(exitFilePath) && Files.isRegularFile(exitFilePath);
+        } catch (SecurityException e) {
+            System.err.println("Insufficient permissions to access files: " + e.getMessage());
+            return false;
         }
     }
-
-    private String readFileToString(String filePath) {
-        StringBuilder fileContent = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                fileContent.append(line);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return fileContent.toString();
-    }
-
 
     private void writeFileFromString(String filePath, String content) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
@@ -310,42 +295,32 @@ public class DialogBluetoothService extends Service {
         }
     }
 
+    private void writeMacAddress() {
+        StringBuilder sb = new StringBuilder();
+        for (String address : AmlRcListMacAddress) {
+            sb.append(address).append(MAC_ADDRESS_SEPARATOR);
+            Log.i(TAG, "write address = " + address);
+        }
 
-    private void writeMacAddressToFile(String macAddress) {
-        List<String> macAddresses = readCurrentMacAddresses();
-        macAddresses.add(macAddress);
+        String content = sb.toString();
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
-            for (String address : macAddresses) {
-                StringBuilder sb = new StringBuilder();
-                sb.append(address).append(MAC_ADDRESS_SEPARATOR);
-                String content = sb.toString();
-                Log.i(TAG, "content = " + content);
-                writer.write(content);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (checkFileExists(filePath)) {
+            Log.i(TAG, "aml_btusb aml_rclist = " + content);
+            writeFileFromString(filePath, content);
+        }
+
+        if (checkFileExists(filePathToUart)) {
+            Log.i(TAG, "stpbt aml_rclist = " + content);
+            writeFileFromString(filePathToUart, content);
         }
     }
 
-    private List<String> readCurrentMacAddresses() {
-        List<String> macAddresses = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(new File(filePath)))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                Log.i(TAG, "read now line : " + line);
-                String[] macAddressParts = line.split(";");
-                for (String macAddress : macAddressParts) {
-                    macAddresses.add(macAddress.trim());
-                    Log.i(TAG, "add mac to : " + macAddress.trim());
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            Log.e(TAG, "error " + e.getMessage());
-        }
-        return macAddresses;
+
+    private void GetToBondedMacAddressAndWrite() {
+        GetToBondedDevicesMacAddress();
+        writeMacAddress();
     }
+
 
     private Runnable mConnRunnable = new Runnable() {
         @Override
@@ -354,7 +329,7 @@ public class DialogBluetoothService extends Service {
                 Log. i(TAG, "mConnRunnable, looking on bonded devices in order to find connection target...");
                 //pending.clear();
                 connectToBondedDevices();
-                GetToBondedDevicesMacAddress();
+                GetToBondedMacAddressAndWrite();
             } else {
                 Log.e(TAG, "Ignoring connection attempt. State: " + mConnectionState);
             }
@@ -471,11 +446,11 @@ public class DialogBluetoothService extends Service {
         Set<BluetoothDevice> bondedDevices = mBluetoothAdapter.getBondedDevices();
         Log.i(TAG, "bondedDevices size: " + bondedDevices.size());
 
-        writeFileFromString(filePath, null);
+        AmlRcListMacAddress.clear();
         for (BluetoothDevice dev : bondedDevices) {
             String macAddress = dev.getAddress(); // get mac address
             Log.i(TAG, "Device Name: " + dev.getName() + ", MAC Address: " + macAddress);
-            writeMacAddressToFile(macAddress);
+            AmlRcListMacAddress.add(macAddress);
         }
     }
 
@@ -545,6 +520,7 @@ public class DialogBluetoothService extends Service {
         mAudioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
 
         IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_SCREEN_OFF);
         filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
         filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
         filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED);
