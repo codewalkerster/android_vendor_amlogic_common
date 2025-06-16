@@ -773,6 +773,9 @@ static bool set_bt_cfg(void)
     int result;
     bool ret;
 
+    aml_special_handle();
+    ret = set_power_type();
+
     result = pthread_create(&thread_id, NULL, mailbox_module_name, NULL);
     if (result != 0) {
         PR_ERR("pthread_create fail: %s", strerror(result));
@@ -782,9 +785,6 @@ static bool set_bt_cfg(void)
             PR_ERR("pthread_detach fail: %s", strerror(result));
         }
     }
-
-    aml_special_handle();
-    ret = set_power_type();
 
     return ret;
 }
