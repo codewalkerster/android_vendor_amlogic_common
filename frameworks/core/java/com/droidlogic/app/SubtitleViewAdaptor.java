@@ -52,6 +52,7 @@ class SubtitleViewAdaptor {
     private TextView mTextView;
     private ImageView[] mImageView;
     private boolean bOpenAiAdaptiveArea = false;
+    private boolean mAiTranslationEnabled = false;
 
     private CCSubtitleView mCcSubtitleView;
     boolean mIsWindowCreated;
@@ -314,6 +315,15 @@ class SubtitleViewAdaptor {
             }
         }
     };
+
+    public void setAiTranslationLanguage(String lang) {
+        if (lang != "") {
+            mAiTranslationEnabled = true;
+        } else {
+            mAiTranslationEnabled = false;
+        }
+    }
+
     public void setAIAdaptiveArea(boolean openAi) {
          Log.d(TAG, "setAIadaptiveArea:" + openAi);
          bOpenAiAdaptiveArea = openAi;
@@ -352,119 +362,121 @@ class SubtitleViewAdaptor {
 
        RelativeLayout.LayoutParams tt = new RelativeLayout.LayoutParams(mTextView.getLayoutParams());
        if (bOpenAiAdaptiveArea) {
-
-                //add for adaptive area text show 20250509
-                SystemControlManager mSystemControl = SystemControlManager.getInstance();
-                String tmp = mSystemControl.getProperty(PIC_W);
-                int picW = Integer.parseInt(tmp.equals("")? "600": tmp);
-                tmp =  mSystemControl.getProperty(PIC_H);
-                int picH = Integer.parseInt(tmp.equals("")? "480": tmp);
-                String area_1 = mSystemControl.readSysFs("/sys/module/aml_media/parameters/uvm_set_aisubtitle_area");
-                Log.d(TAG, "area_1 content:" + area_1);
-                int areaNumber = 0;
-                try {
-                    areaNumber = Integer.parseInt(area_1.equals("")? "0": area_1);
-                } catch (NumberFormatException e){
-                    Log.e(TAG, "area_1,parse area error:" + e.toString());
-                }
-                tmp =  mSystemControl.getProperty(AREA_W);
-                int areaW =  Integer.parseInt(tmp.equals("")? "400": tmp);
-                tmp =  mSystemControl.getProperty(AREA_H);
-                int areaH =  Integer.parseInt(tmp.equals("")? "50": tmp);
-                Log.d(TAG, "picW:" + picW + ",picH:" + picH + ",areaW:" + areaW + ",areaH:" + areaH + ",number:" + areaNumber);
-
-
-               int heightPixels = outMetrics.heightPixels;
-               int widthPixels = outMetrics.widthPixels;
-               int dpi = outMetrics.densityDpi;
-               //Log.d(TAG, "window h:" + heightPixels +",window w:" + widthPixels + ",dpi:" + dpi);
-
-               int pos = 0;
-               switch (areaNumber) {
-                    case 1:
-                       pos = 1;
-                       break;
-                   case 2:
-                       pos = 15;
-                       break;
-                   case 3:
-                       pos = 14;
-                       break;
-                   case 0:
-                   default:
-                       pos = 0;
-                       break;
-               }
-               float scale_H = heightPixels*1.0f/picH;
-               float scale_W = widthPixels*1.0f/picW;
-               int heightScale = (int) (areaH*scale_H );
-               int widthScale = (int) (areaW*scale_W );
-               tt.width = widthScale;
-               tt.height = RelativeLayout.LayoutParams.WRAP_CONTENT;
-                float dpiScale = dpi*1.0f/160;
-                //Log.d(TAG, "scale h:" + scale_H + ", new height:" + heightScale + ",w scale:" + scale_W +", new width:" + widthScale);
-
-                if (areaNumber == 2 || areaNumber == 3) {
-                      tt.removeRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-                      tt.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-                      tt.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-
-                      tt.topMargin = (heightPixels) * (15-pos) / 15;
-                      tt.leftMargin = (widthPixels - widthScale)/2;
-                      //Log.d(TAG, "leftMargin:" + tt.leftMargin +",top margin:" + tt.topMargin);
-                } else  {
-                      tt.removeRule(RelativeLayout.ALIGN_PARENT_TOP);
-                      tt.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-                      tt.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-                      tt.bottomMargin = (heightPixels) * pos / 15;
-                      tt.leftMargin = (widthPixels - widthScale)/2;
-                      //Log.d(TAG, "leftMargin:" + tt.leftMargin +",bottom margin:" + tt.bottomMargin );
-                }
-
-                mTextView.setLayoutParams(tt);
-                //mTextView.setGravity(Gravity.LEFT);
-                Log.d(TAG, "adaptive area, mTextView:" + mTextView);
+            // add for adaptive area text show 20250509
+            SystemControlManager mSystemControl = SystemControlManager.getInstance();
+            String tmp = mSystemControl.getProperty(PIC_W);
+            int picW = Integer.parseInt(tmp.equals("")? "600": tmp);
+            tmp =  mSystemControl.getProperty(PIC_H);
+            int picH = Integer.parseInt(tmp.equals("")? "480": tmp);
+            String area_1 = mSystemControl.readSysFs("/sys/module/aml_media/parameters/uvm_set_aisubtitle_area");
+            Log.d(TAG, "area_1 content:" + area_1);
+            int areaNumber = 0;
+            try {
+                areaNumber = Integer.parseInt(area_1.equals("")? "0": area_1);
+            } catch (NumberFormatException e){
+                Log.e(TAG, "area_1,parse area error:" + e.toString());
             }
-        if (!bOpenAiAdaptiveArea) {
-           tt.removeRule(RelativeLayout.ALIGN_PARENT_TOP);
-           tt.removeRule(RelativeLayout.CENTER_HORIZONTAL);
-           tt.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-           tt.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+            tmp =  mSystemControl.getProperty(AREA_W);
+            int areaW =  Integer.parseInt(tmp.equals("")? "400": tmp);
+            tmp =  mSystemControl.getProperty(AREA_H);
+            int areaH =  Integer.parseInt(tmp.equals("")? "50": tmp);
+            Log.d(TAG, "picW:" + picW + ",picH:" + picH + ",areaW:" + areaW + ",areaH:" + areaH + ",number:" + areaNumber);
 
-           tt.width=  RelativeLayout.LayoutParams.MATCH_PARENT;
-           tt.height = RelativeLayout.LayoutParams.WRAP_CONTENT;
-           mTextView.setLayoutParams(tt);
-           if (mPosHeight == 0) {
+
+            int heightPixels = outMetrics.heightPixels;
+            int widthPixels = outMetrics.widthPixels;
+            int dpi = outMetrics.densityDpi;
+            //Log.d(TAG, "window h:" + heightPixels +",window w:" + widthPixels + ",dpi:" + dpi);
+
+            int pos = 0;
+            switch (areaNumber) {
+                case 1:
+                   pos = 1;
+                   break;
+               case 2:
+                   pos = 15;
+                   break;
+               case 3:
+                   pos = 14;
+                   break;
+               case 0:
+               default:
+                   pos = 0;
+                   break;
+            }
+            float scale_H = heightPixels*1.0f/picH;
+            float scale_W = widthPixels*1.0f/picW;
+            int heightScale = (int) (areaH*scale_H );
+            int widthScale = (int) (areaW*scale_W );
+            tt.width = widthScale;
+            tt.height = RelativeLayout.LayoutParams.WRAP_CONTENT;
+            float dpiScale = dpi*1.0f/160;
+            //Log.d(TAG, "scale h:" + scale_H + ", new height:" + heightScale + ",w scale:" + scale_W +", new width:" + widthScale);
+
+            if (areaNumber == 2 || areaNumber == 3) {
+                  tt.removeRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                  tt.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+                  tt.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+
+                  tt.topMargin = (heightPixels) * (15-pos) / 15;
+                  tt.leftMargin = (widthPixels - widthScale)/2;
+                  //Log.d(TAG, "leftMargin:" + tt.leftMargin +",top margin:" + tt.topMargin);
+            } else  {
+                  tt.removeRule(RelativeLayout.ALIGN_PARENT_TOP);
+                  tt.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+                  tt.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+                  tt.bottomMargin = (heightPixels) * pos / 15;
+                  tt.leftMargin = (widthPixels - widthScale)/2;
+                  //Log.d(TAG, "leftMargin:" + tt.leftMargin +",bottom margin:" + tt.bottomMargin );
+            }
+
+            mTextView.setLayoutParams(tt);
+            //mTextView.setGravity(Gravity.LEFT);
+            Log.d(TAG, "adaptive area, mTextView:" + mTextView);
+        } else {
+            tt.removeRule(RelativeLayout.ALIGN_PARENT_TOP);
+            tt.removeRule(RelativeLayout.CENTER_HORIZONTAL);
+            tt.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+            tt.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+
+            tt.width=  RelativeLayout.LayoutParams.MATCH_PARENT;
+            tt.height = RelativeLayout.LayoutParams.WRAP_CONTENT;
+            mTextView.setLayoutParams(tt);
+            if (mPosHeight == 0) {
                DisplayMetrics outMetrics = new DisplayMetrics();
                mWindowManager.getDefaultDisplay().getMetrics(outMetrics);
                mPosHeight = outMetrics.heightPixels/10;
                Log.d(TAG, "mPosHeight:" + mPosHeight);
-           }
-           Log.d(TAG, "mPosHeight:" + mPosHeight);
-           SystemControlManager mSystemControl = SystemControlManager.getInstance();
-            //mTextView.setGravity(Gravity.LEFT);
+            }
+            Log.d(TAG, "mPosHeight:" + mPosHeight);
+            SystemControlManager mSystemControl = SystemControlManager.getInstance();
             ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) mTextView.getLayoutParams();
             int posx = mSystemControl.getPropertyInt("vendor.media.subtiltle_posx", 120);
             Log.d(TAG, "posx:" + posx);
             params.setMargins(posx, 0, 0, mPosHeight);
+            if (mAiTranslationEnabled) {
+                mTextView.setGravity(Gravity.LEFT);
+            } else {
+                mTextView.setGravity(Gravity.CENTER);
+            }
             mTextView.setLayoutParams(params);
         }
-       /*
-       for (int i=0; i<MAX_OBJECT_SEGMENT_ID; i++) {
+        /*
+        for (int i=0; i<MAX_OBJECT_SEGMENT_ID; i++) {
            mImageView[i].setVisibility(View.INVISIBLE);
-       }
-       */
-       if (!showing) {
+        }
+        */
+        if (!showing) {
             //mTextView.setVisibility(View.INVISIBLE);//add for subtitle translate temp
             return;
-       }
-       //add for subtitle translate temp,start
-       handler.removeMessages(TEXT_MSG_NOT_SHOW);//add temp for translation subtitle
-       handler.sendEmptyMessageDelayed(TEXT_MSG_NOT_SHOW, 6*1000);//add temp for translation subtitle,6S
-       //add end
+        }
+        //add for subtitle translate temp,start
+        handler.removeMessages(TEXT_MSG_NOT_SHOW);//add temp for translation subtitle
+        handler.sendEmptyMessageDelayed(TEXT_MSG_NOT_SHOW, 6*1000);//add temp for translation subtitle,6S
+        //add end
 
-       //for hebrew language,need app config "android:supportsRtl="true", has verified on U
-       mTextView.setTextDirection(View.TEXT_DIRECTION_LTR);
+        //for hebrew language,need app config "android:supportsRtl="true", has verified on U
+        mTextView.setTextDirection(View.TEXT_DIRECTION_LTR);
 
         mTextView.setVisibility(View.VISIBLE);
         //mCcSubtitleView.hide();
@@ -482,7 +494,6 @@ class SubtitleViewAdaptor {
         }
         Log.d(TAG, "showText:"+text);
         if (text != null) {
-            boolean leftFlag = false;
             text = text.replaceAll ("\r", "");
             byte tmpStrByte[] = text.getBytes();
 
@@ -491,32 +502,34 @@ class SubtitleViewAdaptor {
             }
 
             String newText = new String(tmpStrByte);
-            // String text =  "this is englishn>>>>>>/this is frensh";
 
+            /* AI translated text likes below:
+
+                This is original English text
+                >>>>>>这是翻译出来的中文或者法文<<<<<<
+            */
             int index = newText.indexOf(">>>>>>");
-            if (index >=0) {//replace
+            if (index >= 0) {
                 newText = newText.replace(">>>>>>", "");
-                leftFlag = true;
             }
             int endIndex =  newText.indexOf("<<<<<<");
             if (endIndex >= 0) {
                 newText = newText.replace("<<<<<<", "");
             }
             SpannableString spannableString = new SpannableString(newText);
-            Log.d(TAG, "index of ---------:" + index);
             if (index >= 0) {
                  ForegroundColorSpan firstColorSpan = new ForegroundColorSpan(Color.YELLOW);
                  spannableString.setSpan(firstColorSpan, 0, index, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
             if (mTextView != null) {
                 mTextView.setVisibility(View.VISIBLE);
-                mTextView.setText(spannableString);//new String(tmpStrByte)
-                if (leftFlag) {
+                if (mAiTranslationEnabled) {
                     mTextView.setGravity(Gravity.LEFT);
                 } else {
                     mTextView.setGravity(Gravity.CENTER);
                 }
-                Log.d(TAG, "Layout" + mSubLayout + ", Text:" + mTextView.getText() + ", " + mTextView);
+                mTextView.setText(spannableString);
+                Log.d(TAG, "Layout = " + mSubLayout + ", Text= " + mTextView.getText() + ", view = " + mTextView);
             }
         }
     }

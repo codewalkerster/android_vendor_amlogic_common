@@ -1284,6 +1284,8 @@ public class SubtitleManager {
     //       1  the language is not supported
     //      -1  error happened
     public int setSubTranslationLanguage(String lang) {
+        Log.d(TAG, "setAIadaptiveArea, lang = " + lang);
+        mUI.setAiTranslationLanguage(lang);
         return nativeSetSubTranslationLanguage(lang);
     }
 
