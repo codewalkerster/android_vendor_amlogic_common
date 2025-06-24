@@ -256,6 +256,12 @@ public class DialogBluetoothService extends Service {
                     Log.i(TAG, "Remove BOND STATE CHANGED [" + device.getName() + "] - addr is " + macAddress);
                     if (btClass != null && btClass.getMajorDeviceClass() == BluetoothClass.Device.Major.PERIPHERAL ) {
                         GetToBondedMacAddressAndWrite();
+                        boolean isAutoPairCustomization = SystemProperties.getBoolean("sys.vendor.remote.autopair.customization", false);
+                        if (isAutoPairCustomization) {
+                            Log.d(TAG, "used oem autoPair solution instead of AML");
+                            return;
+                        }
+
                         if (!hasBondedDefaultDevices()) {
                             Intent intent1 = new Intent();
                             intent1.setComponent(new ComponentName("com.android.tv.settings", "com.android.tv.settings.accessories.AddAccessoryActivity"));
@@ -507,12 +513,6 @@ public class DialogBluetoothService extends Service {
     @Override
     public void onCreate() {
         Log.d(TAG, "Service onCreate");
-
-        boolean isAutoPairCustomization = SystemProperties.getBoolean("sys.vendor.remote.autopair.customization", false);
-        if (isAutoPairCustomization) {
-            Log.d(TAG, "used oem autoPair solution instead of AML");
-            return;
-        }
 
         mContext = this;
         mHandler = new Handler();
