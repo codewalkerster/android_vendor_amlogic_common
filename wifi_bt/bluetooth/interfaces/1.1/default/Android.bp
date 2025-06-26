@@ -72,6 +72,7 @@ cc_binary {
     ],
 
     shared_libs: [
+        "libz",
         "liblog",
         "libcutils",
         "libdl",
@@ -95,5 +96,6 @@ cc_binary {
     include_dirs: [
         "packages/modules/Bluetooth/system/hci/include",
         "hardware/libhardware_legacy/include",
+        "external/zlib",
     ],
 }
