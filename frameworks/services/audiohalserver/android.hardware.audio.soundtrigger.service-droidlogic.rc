@@ -5,6 +5,9 @@ service vendor.audio-hal /vendor/bin/hw/android.hardware.audio.service-droidlogi
     interface android.hardware.soundtrigger@2.1::ISoundTriggerHw default
     interface android.hardware.soundtrigger@2.2::ISoundTriggerHw default
     interface android.hardware.soundtrigger@2.3::ISoundTriggerHw default
+    interface android.hardware.audio.effect@7.0::IEffectsFactory default
+    interface android.hardware.audio@7.0::IDevicesFactory default
+    interface android.hardware.audio@7.1::IDevicesFactory default
     # media gid needed for /dev/fm (radio) and for /data/misc/media (tee)
     group audio camera drmrpc inet media mediadrm net_bt net_bt_admin net_bw_acct wakelock context_hub
     capabilities BLOCK_SUSPEND SYS_NICE IPC_LOCK
