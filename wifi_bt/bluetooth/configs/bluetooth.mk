@@ -32,6 +32,12 @@ endif
 
 PRODUCT_PROPERTY_OVERRIDES += persist.vendor.wifibt_name = "$(CONFIG_WIFIBT_NAME)"
 
+#  enable btsnoop log
+PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.bluetooth.btsnoopenable=enable \
+    persist.bluetooth.btsnooppath=/data/misc/bluetooth/logs/btsnoop_hci.log \
+    persist.bluetooth.btsnoopsize=0xffff \
+    persist.bluetooth.btsnooplogmode=full \
+
 ifeq ($(BOARD_HAVE_BLUETOOTH),true)
     PRODUCT_PROPERTY_OVERRIDES += \
     ro.vendor.autoconnectbt.isneed=false \

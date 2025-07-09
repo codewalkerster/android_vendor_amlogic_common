@@ -39,9 +39,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
                     persist.vendor.bluetooth.prefferedrole=master \
                     persist.vendor.rtkbtadvdisable=false
 
-PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.bluetooth.btsnooplogmode=disable \
-                    persist.bluetooth.btsnooppath=/data/misc/bluetooth/logs/btsnoop_hci.log \
-                    persist.bluetooth.btsnoopsize=0xffff \
-                    persist.bluetooth.showdeviceswithoutnames=false \
+PRODUCT_SYSTEM_DEFAULT_PROPERTIES += persist.bluetooth.showdeviceswithoutnames=false \
                     vendor.bluetooth.enable_timeout_ms=11000 \
                     vendor.realtek.bluetooth.en=false
