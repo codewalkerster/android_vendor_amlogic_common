@@ -52,16 +52,23 @@ public class AudioVideoDevReconnectService extends Service {
     private static final boolean DEBUG = false;
 
         private Context mContext =  null;
-        private boolean mIsDisconnctting = false;
-        private boolean mScreenOn = false;
+        private boolean mIsDisconnectting = false;
+        private boolean mScreenOn = true; //when system bootup,no screen on msg is sent
+        private static final Object sLock = new Object();
+        private BluetoothAdapter mBtAdapter;
 
-        private ArrayList<String> mBondAudioDevices = new ArrayList<>();
+        private ArrayList<String> mWaitToConnectSpeakers = new ArrayList<>();
+        private ArrayList<String> mBondRemoteDevices = new ArrayList<>();
 
-        private ArrayList<CachedBluetoothDevice> mDisconnectedRemoteDevices = new ArrayList<>();
+        private ArrayList<CachedBluetoothDevice> mReconnectFailedRemoteDevList = new ArrayList<>();
         private final int MSG_RECONNECT_SPEAKER_DEVICE = 0;
-        private final int MSG_UPDATE_DISCONNECTED_REMOCE_DEVICE = 1;
-        private final int MSG_RECONNECT_REMOCE_DEVICE = 2;
+        private final int MSG_CHECK_ALL_REMOTE_RECONNECTED = 1;
+        private final int MSG_RECONNECT_REMOTE_DEVICE = 2;
         private final int MSG_RETRY_RECONNECT_SPEAKER = 3;
+
+        private static int DEV_UNKNOWN = 0;
+        private static int DEV_SPEAKER = 1;
+        private static int DEV_REMOTE = 2;
 
         private AudioVideoDevPairThread myThread = null;
         private MyHandler mMyHandler;
@@ -83,55 +90,91 @@ public class AudioVideoDevReconnectService extends Service {
             filter.addAction(Intent.ACTION_SCREEN_ON);
             filter.addAction(Intent.ACTION_SCREEN_OFF);
             filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
+            filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
             registerReceiver(receiver, filter, mContext.RECEIVER_EXPORTED);
+
+            mBtAdapter = BluetoothAdapter.getDefaultAdapter();
 
             myThread = new AudioVideoDevPairThread();
             myThread.start();
 
         }
 
-        private final BroadcastReceiver receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                mContext = context;
+    private final BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            mContext = context;
 
-                String action = intent.getAction();
-                Log.i(TAG, "onReceive:" + action + ",mIsDisconnctting:" + mIsDisconnctting);
+            String action = intent.getAction();
+            Log.i(TAG, "onReceive:" + action + ",mIsDisconnectting:" + mIsDisconnectting);
+            synchronized (sLock) {
                 if (Intent.ACTION_SCREEN_ON.equals(action)) {
                     mScreenOn = true;
-                    if (mBondAudioDevices.size() > 0) {
+
+                    if (mWaitToConnectSpeakers.size() > 0) {
                         mMyHandler.removeMessages(MSG_RECONNECT_SPEAKER_DEVICE);
-                        mMyHandler.sendEmptyMessageDelayed(MSG_RECONNECT_SPEAKER_DEVICE, mIsDisconnctting ? 3000 : 0);
+                        mMyHandler.sendEmptyMessageDelayed(MSG_RECONNECT_SPEAKER_DEVICE, mIsDisconnectting ? 3000 : 0);
 
                     }
-                    mMyHandler.removeMessages(MSG_UPDATE_DISCONNECTED_REMOCE_DEVICE);
-                    mMyHandler.sendEmptyMessageDelayed(MSG_UPDATE_DISCONNECTED_REMOCE_DEVICE, 1000);
+
+                    mMyHandler.removeMessages(MSG_CHECK_ALL_REMOTE_RECONNECTED);
+                    mMyHandler.sendEmptyMessageDelayed(MSG_CHECK_ALL_REMOTE_RECONNECTED, 1000);
                 } else if (Intent.ACTION_SCREEN_OFF.equals(action)) {
                     mMyHandler.removeMessages(MSG_RECONNECT_SPEAKER_DEVICE);
+                    mMyHandler.removeMessages(MSG_CHECK_ALL_REMOTE_RECONNECTED);
+                    mMyHandler.removeMessages(MSG_RECONNECT_REMOTE_DEVICE);
                     mScreenOn = false;
 
-                    disconnectCachedSpeakers();
+                    updateBondSpeakers();
+                    updateBondRemotes();
                 } else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action) ) {
-                    if (!mScreenOn) {
-                        Log.i(TAG, "no need to reconnect next speaker now");
-                        return;
-                    }
-                     if (mBondAudioDevices.size() > 0) {
-                        final BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                        String aclConnectDev = device.getAddress();
-                        Log.i(TAG, " acl connected device:" + aclConnectDev);
-                        if (mBondAudioDevices.contains(aclConnectDev)) {
-                            mBondAudioDevices.remove(aclConnectDev);
-                            if (mBondAudioDevices.size() > 0) {
-                                mMyHandler.sendEmptyMessage(MSG_RECONNECT_SPEAKER_DEVICE);
-                            } else {
-                                Log.i(TAG, "all speaker are reconnected.");
+                    final BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                    String aclConnectDev = device.getAddress();
+                    Log.d(TAG, "ACTION_ACL_CONNECTED:" + aclConnectDev + ",name:" + device.getName());
+                    int devType = getDevType(device);
+
+                    if (mScreenOn) {
+                        if (mWaitToConnectSpeakers.size() > 0 && devType == DEV_SPEAKER) {
+                            Log.d(TAG, "    device is connected:" + aclConnectDev);
+                            if (mWaitToConnectSpeakers.contains(aclConnectDev)) {
+                                mWaitToConnectSpeakers.remove(aclConnectDev);
+                                Log.d(TAG, "    ** mWaitToConnectSpeakers ** rm:" + aclConnectDev);
+                                if (mWaitToConnectSpeakers.size() > 0) {
+                                    mMyHandler.removeMessages(MSG_RECONNECT_SPEAKER_DEVICE);
+                                    mMyHandler.sendEmptyMessage(MSG_RECONNECT_SPEAKER_DEVICE);
+                                } else {
+                                    Log.i(TAG, "    all speaker are reconnected.");
+                                }
                             }
                         }
+                    } else {
+                        if (devType == DEV_SPEAKER) {
+                            disconnectAudioDev(device);
+                            if (!mWaitToConnectSpeakers.contains(aclConnectDev)) {
+                                mWaitToConnectSpeakers.add(aclConnectDev);
+                                Log.i(TAG, "  ** mWaitToConnectSpeakers ** add:" + aclConnectDev);
+                            }
+                        } else if (devType == DEV_REMOTE) {
+                            updateBondRemotes();
+                        }
                     }
+
+               } else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action) ) {
+                   if (mScreenOn) {
+                       return;
+                   }
+                   final BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                   String aclDisConnectDev = device.getAddress();
+                   Log.d(TAG, "ACTION_ACL_DISCONNECTED:" + aclDisConnectDev + ",name:" + device.getName());
+                   int devType = getDevType(device);
+                   if (devType == DEV_REMOTE) {
+                       updateBondRemotes();
+                   }
                }
-           }
-       };
+            }
+        }
+    };
+
 
     class AudioVideoDevPairThread extends Thread {
         AudioVideoDevPairThread() {
@@ -147,20 +190,57 @@ public class AudioVideoDevReconnectService extends Service {
     }
 
 
-    private void disconnectCachedSpeakers() {
-         mBondAudioDevices.clear();
+    private void updateBondSpeakers() {
+         //mWaitToConnectSpeakers.clear();
+         Log.i(TAG, "updateBondSpeakers,now have "+ mWaitToConnectSpeakers.size());
 
-         final BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
-         if (btAdapter == null) {
-             Log.w(TAG, "Can't get BT adapter, return");
+         if (mBtAdapter == null) {
+             Log.w(TAG, "  Can't get BT adapter, return");
              return ;
          }
-         if (!btAdapter.isEnabled()) {
+         if (!mBtAdapter.isEnabled()) {
             return;
          }
-        final Set<BluetoothDevice> bondedDevices = btAdapter.getBondedDevices();
+        final Set<BluetoothDevice> bondedDevices = mBtAdapter.getBondedDevices();
         if (bondedDevices == null) {
-            Log.i(TAG, "No bondedDevices");
+            Log.i(TAG, "  No bondedDevices");
+            return;
+        }
+
+        for (final BluetoothDevice device : bondedDevices) {
+            final String deviceAddress = device.getAddress();
+            String deviceName = device.getName();
+            if (TextUtils.isEmpty(deviceAddress)) {
+                Log.i(TAG, "  device:" + deviceName + " addr is :" + deviceAddress + ",return");
+                continue;
+            }
+
+            if (getDevType(device) == DEV_SPEAKER) {
+                if (!isConnected(device)) {
+                    Log.i(TAG, "  skip disconnected speaker:" + deviceName);
+                    return;
+                }
+                mWaitToConnectSpeakers.add(device.getAddress());
+                mIsDisconnectting = true;
+                Log.i(TAG, "  ** mWaitToConnectSpeakers ** add: " + device.getAddress() + ",name:" + deviceName);
+                disconnectAudioDev(device);
+            }
+        }
+     }
+
+    private void updateBondRemotes() {
+         mBondRemoteDevices.clear();
+         Log.d(TAG, "** mBondRemoteDevices ** clear ");
+         if (mBtAdapter == null) {
+             Log.w(TAG, "  Can't get BT adapter, return");
+             return ;
+         }
+         if (!mBtAdapter.isEnabled()) {
+            return;
+         }
+        final Set<BluetoothDevice> bondedDevices = mBtAdapter.getBondedDevices();
+        if (bondedDevices == null) {
+            Log.i(TAG, "  No bondedDevices");
             return;
         }
 
@@ -171,15 +251,13 @@ public class AudioVideoDevReconnectService extends Service {
                 continue;
             }
 
-            BluetoothClass btClass = device.getBluetoothClass();
-            if ( btClass != null) {
-                int bt_class = btClass.getMajorDeviceClass();
-                if (bt_class == BluetoothClass.Device.Major.AUDIO_VIDEO) {
-                    mBondAudioDevices.add(device.getAddress());
-                    mIsDisconnctting = true;
-                    Log.i(TAG, "mBondAudioDevices add: " + device.getAddress());
-                    disconnectAudioDev(device);
+            if (getDevType(device) == DEV_REMOTE) {
+                if (!isConnected(device)) {
+                    Log.i(TAG, "    skip store remote:" + deviceName);
+                    return;
                 }
+                Log.i(TAG, "  ** mBondRemoteDevices ** add: " + device.getAddress() + ",name:" + deviceName);
+                mBondRemoteDevices.add(device.getAddress());
             }
         }
      }
@@ -195,40 +273,55 @@ public class AudioVideoDevReconnectService extends Service {
         @Override
         public void handleMessage(Message msg) {
             boolean ret;
-            switch (msg.what) {
-                case MSG_RECONNECT_SPEAKER_DEVICE:
-                    String deviceAddress = mBondAudioDevices.get(0);
-                    ret = connectDevice(deviceAddress);
-                    if (!ret) {
-                        mMyHandler.sendEmptyMessageDelayed(MSG_RETRY_RECONNECT_SPEAKER, 500);
-                    }
-                    break;
-                case MSG_UPDATE_DISCONNECTED_REMOCE_DEVICE:
-                    updateDisconnectedRemote();
-                    if (mDisconnectedRemoteDevices.size() > 0)
-                        mMyHandler.sendEmptyMessageDelayed(MSG_RECONNECT_REMOCE_DEVICE, 500);
-                    break;
-                case MSG_RECONNECT_REMOCE_DEVICE:
-                    CachedBluetoothDevice cachedDev = mDisconnectedRemoteDevices.get(0);
-                    Log.i(TAG, "reconnect remote:" + cachedDev.getName());
-                    cachedDev.connect();
-                    mDisconnectedRemoteDevices.remove(0);
-                    if (mDisconnectedRemoteDevices.size() > 0)
-                        mMyHandler.sendEmptyMessageDelayed(MSG_RECONNECT_REMOCE_DEVICE, 500);
-                    break;
-                case MSG_RETRY_RECONNECT_SPEAKER:
-                    String retryDevAddr = mBondAudioDevices.get(0);
-                    ret = connectDevice(retryDevAddr);
-                    if (!ret) {
-                        mBondAudioDevices.remove(0);
-                        Log.i(TAG, "stop retry,skip this device");
-                        if (mBondAudioDevices.size() > 0) {
-                            mMyHandler.sendEmptyMessage(MSG_RECONNECT_SPEAKER_DEVICE);
+            Log.d(TAG, "handleMessage:" + msg.what);
+            synchronized (sLock) {
+                switch (msg.what) {
+                    case MSG_RECONNECT_SPEAKER_DEVICE:
+                        if (mWaitToConnectSpeakers.size() == 0) {
+                            Log.i(TAG, "no device need to be reconnect now");
+                            break;
                         }
-                    }
-                    break;
-                default:
-                   Log.d(TAG, "No handler case available for message: " + msg.what);
+                        String deviceAddress = mWaitToConnectSpeakers.get(0);
+                        ret = connectDevice(deviceAddress);
+                        if (!ret) {
+                            mMyHandler.sendEmptyMessageDelayed(MSG_RETRY_RECONNECT_SPEAKER, 500);
+                        }
+                        break;
+                    case MSG_CHECK_ALL_REMOTE_RECONNECTED:
+                        if (mBondRemoteDevices != null && mBondRemoteDevices.size() > 0) {
+                            updateReconnectFailedRemotes();
+                            if (mReconnectFailedRemoteDevList.size() > 0)
+                                mMyHandler.sendEmptyMessageDelayed(MSG_RECONNECT_REMOTE_DEVICE, 500);
+                        }
+                        break;
+                    case MSG_RECONNECT_REMOTE_DEVICE:
+                        if (mReconnectFailedRemoteDevList.size() > 0) {
+                            CachedBluetoothDevice cachedDev = mReconnectFailedRemoteDevList.get(0);
+                            Log.i(TAG, "reconnect remote:" + cachedDev.getName());
+                            cachedDev.connect();
+                            mReconnectFailedRemoteDevList.remove(0);
+                            if (mReconnectFailedRemoteDevList.size() > 0)
+                                mMyHandler.sendEmptyMessageDelayed(MSG_RECONNECT_REMOTE_DEVICE, 500);
+                        }
+                        break;
+                    case MSG_RETRY_RECONNECT_SPEAKER:
+                            if (mWaitToConnectSpeakers.size() == 0) {
+                            Log.i(TAG, "no need to retry to connect speaker now");
+                            break;
+                        }
+                        String retryDevAddr = mWaitToConnectSpeakers.get(0);
+                        ret = connectDevice(retryDevAddr);
+                        if (!ret) {
+                            mWaitToConnectSpeakers.remove(0);
+                            Log.i(TAG, "stop retry,skip this device");
+                            if (mWaitToConnectSpeakers.size() > 0) {
+                                mMyHandler.sendEmptyMessage(MSG_RECONNECT_SPEAKER_DEVICE);
+                            }
+                        }
+                        break;
+                    default:
+                       Log.d(TAG, "No handler case available for message: " + msg.what);
+                }
             }
         }
     }
@@ -246,8 +339,8 @@ public class AudioVideoDevReconnectService extends Service {
                     boolean isBusy = cachedDevice.isBusy();
                     boolean isConnect = isConnected(device);
                     Log.d(TAG, "      deviceName:" + deviceName + ",isConnect:" + isConnect + ",isConnected: " + device.isConnected());
-                    Log.d(TAG, "cachedDeviceName:" + deviceName_a + "isCachedDevConnect:" + isCachedDevConnect + ",isBusy: " + isBusy);
-                    Log.d(TAG, "mIsDisconnctting:" + mIsDisconnctting);
+                    Log.d(TAG, "      cachedDeviceName:" + deviceName_a + "isCachedDevConnect:" + isCachedDevConnect + ",isBusy: " + isBusy);
+                    Log.d(TAG, "      mIsDisconnectting:" + mIsDisconnectting);
                 }
                 if (cachedDevice != null) {
                     cachedDevice.connect();
@@ -263,13 +356,13 @@ public class AudioVideoDevReconnectService extends Service {
     }
 
 
-    private static BluetoothDevice getDeviceByAddress(String address) {
+    private BluetoothDevice getDeviceByAddress(String address) {
 
         List<BluetoothDevice> devices = getDevices();
         BluetoothDevice curDevice = null;
 
         for (BluetoothDevice device: devices) {
-            Log.i(TAG, "    device:" + device.getAddress());
+            Log.i(TAG, "getDeviceByAddress:" + device.getAddress());
             if (address.equals(device.getAddress())) {
                 curDevice = device;
                 break;
@@ -278,10 +371,9 @@ public class AudioVideoDevReconnectService extends Service {
         return curDevice;
     }
 
-    private static List<BluetoothDevice> getDevices() {
-        final BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (btAdapter != null) {
-            return new ArrayList<>(btAdapter.getBondedDevices());
+    private List<BluetoothDevice> getDevices() {
+        if (mBtAdapter != null) {
+            return new ArrayList<>(mBtAdapter.getBondedDevices());
         } else {
             Log.e(TAG, "BtAdpater is null.getDevices fail");
         }
@@ -302,6 +394,7 @@ public class AudioVideoDevReconnectService extends Service {
             if (mLocalBluetoothManager != null) {
                 CachedBluetoothDevice cachedDevice = mLocalBluetoothManager.getCachedDeviceManager().findDevice(device);
                 if (cachedDevice != null) {
+                    Log.d(TAG, "disconnectAudioDev : " + cachedDevice.getAddress());
                     cachedDevice.disconnect();
                 } else {
                     Log.e(TAG, "disconnect failed because failed to find device");
@@ -314,38 +407,60 @@ public class AudioVideoDevReconnectService extends Service {
         if (device == null) {
             return false;
         }
-        boolean isConnected = device.getBondState() == BluetoothDevice.BOND_BONDED && device.isConnected();
-        Log.d(TAG, "BluetoothDevice.BondState: " + device.getBondState()
-                + ";BluetoothDevice.isConnected: " + device.isConnected());
+        int bondState = device.getBondState();
+        boolean isConnected = (bondState == BluetoothDevice.BOND_BONDED) && device.isConnected();
+        Log.d(TAG, "isConnected,dev:" + device.getAddress() + ",bondState:  " + bondState
+                + ",connected:" + device.isConnected());
         return isConnected;
     }
 
-    private void updateDisconnectedRemote() {
-        mDisconnectedRemoteDevices.clear();
+    private void updateReconnectFailedRemotes() {
+        mReconnectFailedRemoteDevList.clear();
 
         final Collection<CachedBluetoothDevice> cachedDevices =
-                mLocalBluetoothManager.getCachedDeviceManager().getCachedDevicesCopy();
+                 mLocalBluetoothManager.getCachedDeviceManager().getCachedDevicesCopy();
+        Log.d(TAG, "updateReconnectFailedRemotes");
 
         for (CachedBluetoothDevice cachedBluetoothDevice : cachedDevices) {
 
             BluetoothClass btClass = cachedBluetoothDevice.getBtClass();
             if (btClass != null) {
                 int bt_class = btClass.getMajorDeviceClass();
-                Log.e(TAG, "updateDisconnectedRemote, bt_class is " + bt_class);
                 if (bt_class == BluetoothClass.Device.Major.PERIPHERAL) {
                     if (cachedBluetoothDevice.isConnected() || cachedBluetoothDevice.isBusy()) {
-                        Log.d(TAG, "skip to reconnect remote:" + cachedBluetoothDevice.getName());
+                        Log.d(TAG, "    skip to add remote:" + cachedBluetoothDevice.getName());
                         continue;
                     }
-                    mDisconnectedRemoteDevices.add(cachedBluetoothDevice);
-                    Log.d(TAG, "mDisconnectedRemoteDevices add: " + cachedBluetoothDevice.getName() + ",addr:" + cachedBluetoothDevice.getAddress());
+                    if (mBondRemoteDevices.contains(cachedBluetoothDevice.getAddress())) {
+                        mReconnectFailedRemoteDevList.add(cachedBluetoothDevice);
+                        Log.d(TAG, "    ** mReconnectFailedRemoteDevList ** add: " + cachedBluetoothDevice.getName()
+                                   + ",addr:" + cachedBluetoothDevice.getAddress());
+                    }
                 }
             } else {
-                Log.e(TAG, "updateDisconnectedRemote error, btClass is null");
+                Log.e(TAG, "    updateReconnectFailedRemotes error, btClass is null");
             }
         }
+
      }
 
 
+    private int getDevType(BluetoothDevice device) {
+        BluetoothClass btClass = device.getBluetoothClass();
+        if ( btClass != null) {
+            int bt_class = btClass.getMajorDeviceClass();
+
+            if (bt_class == BluetoothClass.Device.Major.AUDIO_VIDEO) {
+                Log.d(TAG, "    getDevType,bt_class:" + bt_class + ",type:DEV_SPEAKER");
+                return DEV_SPEAKER;
+            } else if (bt_class == BluetoothClass.Device.Major.PERIPHERAL) {
+                Log.d(TAG, "    getDevType,bt_class:" + bt_class + ",type:DEV_REMOTE");
+                return DEV_REMOTE;
+            }
+            Log.d(TAG, "    getDevType,bt_class:" + bt_class + ",type:DEV_UNKNOWN");
+        }
+
+        return DEV_UNKNOWN;
+    }
 
 }
