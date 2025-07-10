@@ -27,6 +27,7 @@ interface IDroidMdnsOffload {
   int getAndResetMissCounter();
   boolean addToPassthroughList(String networkInterface, String qname);
   void removeFromPassthroughList(String networkInterface, String qname);
+  void setWakePorts(int num, in int[] protocol, in int[] matcher, in int[] portNum);
   void setPassthroughBehavior(String networkInterface, vendor.amlogic.hardware.droidmdnsoffload.IDroidMdnsOffload.PassthroughBehavior behavior);
   parcelable MdnsProtocolData {
     byte[] rawOffloadPacket;

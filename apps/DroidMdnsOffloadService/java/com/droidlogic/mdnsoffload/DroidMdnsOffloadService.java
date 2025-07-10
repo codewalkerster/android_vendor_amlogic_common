@@ -50,20 +50,20 @@ public class DroidMdnsOffloadService extends Service {
 
     @Override
     public void onCreate() {
-        Log.d(TAG, "onCreate");
+        //Log.d(TAG, "onCreate");
         initMdnsService(new VintfHalCache());
         super.onCreate();
     }
 
     @Override
     public void onDestroy() {
-        Log.d(TAG, "onDestroy");
+        //Log.d(TAG, "onDestroy");
         super.onDestroy();
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d(TAG, "onBind:" + intent);
+        ///Log.d(TAG, "onBind:" + intent);
         return mMdnsOffloadBinder;
     }
 
@@ -78,10 +78,10 @@ public class DroidMdnsOffloadService extends Service {
             boolean ret = false;
             try {
                  if (mService_mdnsoffload != null) {
-                    Log.d(TAG, "mService_mdnsoffload is not null");
                     ret = mService_mdnsoffload.get().setOffloadState(enabled);
-                 } else
+                 } else {
                     Log.d(TAG, "mService_mdnsoffload is null");
+                 }
             } catch (RemoteException ex) {
                  Log.e(TAG, "Failed setOffloadState", ex);
             }
@@ -93,7 +93,6 @@ public class DroidMdnsOffloadService extends Service {
             Log.d(TAG, "resetAll");
             try {
                     if (mService_mdnsoffload != null) {
-                        Log.d(TAG, "mService_mdnsoffload is not null");
                         mService_mdnsoffload.get().resetAll();
                     } else
                         Log.d(TAG, "mService_mdnsoffload is null");
@@ -117,11 +116,11 @@ public class DroidMdnsOffloadService extends Service {
                 MatchCriteria criteria = offloadData.matchCriteriaList.get(i);
                 type[i] = criteria.type;
                 name_offset[i] = criteria.nameOffset;
+                Log.d(TAG, " type:" + type[i] + ",name_offset:" + name_offset[i]);
             }
             int ret = -1;
             try {
                     if (mService_mdnsoffload != null) {
-                        Log.d(TAG, "mService_mdnsoffload is not null");
                         ret = mService_mdnsoffload.get().addProtocolResponses(networkInterface, offloadData.rawOffloadPacket, type, name_offset);
                     } else
                         Log.d(TAG, "mService_mdnsoffload is null");
@@ -138,7 +137,6 @@ public class DroidMdnsOffloadService extends Service {
             Log.d(TAG, "removeProtocolResponses:" + recordKey);
             try {
                     if (mService_mdnsoffload != null) {
-                        Log.d(TAG, "mService_mdnsoffload is not null");
                         mService_mdnsoffload.get().removeProtocolResponses(recordKey);
                     } else
                         Log.d(TAG, "mService_mdnsoffload is null");
@@ -153,7 +151,6 @@ public class DroidMdnsOffloadService extends Service {
             int ret = 0;
             try {
                     if (mService_mdnsoffload != null) {
-                        Log.d(TAG, "mService_mdnsoffload is not null");
                         ret = mService_mdnsoffload.get().getAndResetHitCounter(recordKey);
                     } else
                         Log.d(TAG, "mService_mdnsoffload is null");
@@ -169,7 +166,6 @@ public class DroidMdnsOffloadService extends Service {
             int ret = 0;
             try {
                     if (mService_mdnsoffload != null) {
-                        Log.d(TAG, "mService_mdnsoffload is not null");
                         ret = mService_mdnsoffload.get().getAndResetMissCounter();
                     } else
                         Log.d(TAG, "mService_mdnsoffload is null");

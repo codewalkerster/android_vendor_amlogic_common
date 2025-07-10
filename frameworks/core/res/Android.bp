@@ -48,7 +48,8 @@ android_library {
         "vendor.amlogic.hardware.systemcontrol-V1.1-java",
         "android.hardware.tv.hdmi.cec-V1-java",
         "SettingsLib",
-    ],
+        "vendor.amlogic.hardware.droidmdnsoffload-V1-java",
+   ],
 
 }
 

@@ -33,6 +33,7 @@ public:
     virtual ndk::ScopedAStatus  addToPassthroughList(const std::string& networkInterface, const std::string& qname, bool* _aidl_return) override;
     virtual ndk::ScopedAStatus  removeFromPassthroughList(const std::string& networkInterface, const std::string& qname) override;
     virtual ndk::ScopedAStatus  setPassthroughBehavior(const std::string& networkInterface, IDroidMdnsOffload::PassthroughBehavior behavior) override;
+    virtual ndk::ScopedAStatus  setWakePorts(int num, const std::vector<int>& protocol, const std::vector<int>& matcher, const std::vector<int>& portNum) override;
 };
 
 }

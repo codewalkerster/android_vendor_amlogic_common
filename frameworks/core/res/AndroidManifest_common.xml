@@ -58,7 +58,7 @@
     <uses-permission android:name="android.permission.FORCE_STOP_PACKAGES" />
     <uses-permission android:name="com.google.android.permission.GLOBAL_BUTTON" />
     <uses-permission android:name="android.permission.MODIFY_HDR_CONVERSION_MODE" />
-
+    <uses-permission android:name="android.permission.MANAGE_LOW_POWER_STANDBY"/>
     <uses-permission android:name="android.permission.DEVICE_POWER" />
     <uses-permission android:name="android.permission.NET_BIND_SERVICE" />
 

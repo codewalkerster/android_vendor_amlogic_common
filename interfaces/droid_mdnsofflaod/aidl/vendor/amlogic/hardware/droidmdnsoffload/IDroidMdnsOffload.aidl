@@ -21,6 +21,7 @@ interface IDroidMdnsOffload {
      boolean addToPassthroughList(String networkInterface, String qname);
      void removeFromPassthroughList(String networkInterface, String qname);
 
+     void setWakePorts(int num, in int[] protocol, in int[] matcher, in int[] portNum);
      enum PassthroughBehavior {
           FORWARD_ALL,
           DROP_ALL,
