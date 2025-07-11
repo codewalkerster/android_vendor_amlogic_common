@@ -170,6 +170,7 @@ static const dev_info bt_dev_pci[] = {
     // amlogic pice modules
     {{0x1F35, 0x0602}, "aml_w2_p",     AML_VND_LIB,   "",                POWER_EVENT_RESET},
     {{0x1F35, 0x0642}, "aml_w2_p",     AML_VND_LIB,   "",                POWER_EVENT_RESET},
+    {{0x1F35, 0x0682}, "aml_w2_p",     AML_VND_LIB,   "",                POWER_EVENT_RESET},
     // nxp pice modules
     {{0x02DF, 0x2b56}, "nxpiw620",     NXP_VND_LIB,   "",                POWER_EVENT_RESET},
 };
@@ -195,6 +196,8 @@ static const dev_info bt_dev_sdio[] = {
     {{0x1B8E, 0x0540}, "aml_w1u_s",    AML_VND_LIB,   "",                POWER_EVENT_DEF},
     {{0x1B8E, 0x0600}, "aml_w2_s",     AML_VND_LIB,   "",                POWER_EVENT_DEF},
     {{0x1B8E, 0x0640}, "aml_w2_s",     AML_VND_LIB,   "",                POWER_EVENT_DEF},
+    {{0x1B8E, 0x0680}, "aml_w2_s",     AML_VND_LIB,   "",                POWER_EVENT_DEF},
+    {{0x1B8E, 0x8881}, "aml_w2_s",     AML_VND_LIB,   "",                POWER_EVENT_DEF},
     {{0x1B8E, 0x0800}, "aml_w2l_s",    AML_VND_LIB,   "",                POWER_EVENT_DEF},
     {{0x1B8E, 0x0810}, "aml_w2l_s",    AML_VND_LIB,   "",                POWER_EVENT_DEF},
     {{0x1B8E, 0x0808}, "aml_w2l_s",    AML_VND_LIB,   "",                POWER_EVENT_DEF},
@@ -243,6 +246,7 @@ static const dev_info bt_dev_usb[] = {
     {{0x1B8E, 0x0541}, "aml_w1u",      AML_VND_LIB,   "",                POWER_EVENT_EN},
     {{0x1B8E, 0x0601}, "aml_w2_u",     AML_VND_LIB,   "",                POWER_EVENT_EN},
     {{0x1B8E, 0x0641}, "aml_w2_u",     AML_VND_LIB,   "",                POWER_EVENT_EN},
+    {{0x1B8E, 0x0681}, "aml_w2_u",     AML_VND_LIB,   "",                POWER_EVENT_EN},
     {{0x1B8E, 0x0801}, "aml_w2l_u",    AML_VND_LIB,   "",                POWER_EVENT_EN},
     {{0x1B8E, 0x0809}, "aml_w2l_u",    AML_VND_LIB,   "",                POWER_EVENT_EN},
     {{0x1B8E, 0x0811}, "aml_w2l_u",    AML_VND_LIB,   "",                POWER_EVENT_EN},
