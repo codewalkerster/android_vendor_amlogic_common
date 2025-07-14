@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="supported_devices" translatable="false">
+        <item>RemoteG20</item>
+        <item>RemoteG10</item>
+        <item>B25</item>
+        <item>B21</item>
+        <item>G21</item>
+    </string-array>
+</resources>

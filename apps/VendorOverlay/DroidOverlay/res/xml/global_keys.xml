@@ -33,6 +33,7 @@
     <key keyCode="KEYCODE_TV_INPUT" component="com.droidlogic/.GlobalKeyReceiver" />
     <key keyCode="KEYCODE_MACRO_1" component="com.google.android.apps.tv.launcherx/.remotecontrol.GlobalKeyListener_Receiver" dispatchWhenNonInteractive="true" />
     <key keyCode="KEYCODE_FEATURED_APP_1" component="com.google.android.apps.tv.launcherx/.remotecontrol.GlobalKeyListener_Receiver" />
+    <key keyCode="KEYCODE_MACRO_1" component="com.google.android.apps.tv.launcherx/.remotecontrol.GlobalKeyListener_Receiver" dispatchWhenNonInteractive="true" />
     <!-- disable TV global key as LiveTv need them -->
     <!--<key keyCode="KEYCODE_DVR" component="com.google.android.tv/.receiver.GlobalKeyReceiver1" />
     <key keyCode="KEYCODE_GUIDE" component="com.google.android.tv/.receiver.GlobalKeyReceiver" />
