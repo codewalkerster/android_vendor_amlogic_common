@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.os.SystemProperties;
 import android.util.Log;
 
+
 public class FastBootComplete extends BroadcastReceiver {
     private static final String TAG             = "FastBootComplete";
 

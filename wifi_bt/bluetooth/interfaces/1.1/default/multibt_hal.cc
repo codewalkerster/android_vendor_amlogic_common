@@ -262,8 +262,10 @@ static const dev_info_uart bt_dev_uart[] = {
     {BT_VID_UNISOC,   "uwe_bt", UWE_VND_LIB, POWER_EVENT_RESET},
 };
 
-int mailbox_module_name(void)
+static void* mailbox_module_name(void *arg)
 {
+    (void)arg;
+
 #ifdef MAILBOX_MODULE_NAME
     struct merge_data {
         int cmd;
@@ -275,9 +277,8 @@ int mailbox_module_name(void)
     char path[PATH_MAX_LEN] = {'\0'};
     char bt_name[PROP_VALUE_MAX] = {'\0'};
 
-
     sprintf(path, "%s", ARMV8_TO_AOCPU);
-    PR_DBG("open %s\n", path);
+    PR_INFO("open %s\n", path);
 
     fd = open(path, O_RDWR);
     if (fd < 0) {
@@ -308,9 +309,9 @@ exit:
         close(fd);
     }
 
-    return ret;
+    return NULL;
 #else
-    return -1;
+    return NULL;
 #endif
 }
 
@@ -767,9 +768,20 @@ static int get_redistinguish(void)
 
 static bool set_bt_cfg(void)
 {
+    pthread_t thread_id;
+    int result;
     bool ret;
 
-    mailbox_module_name();
+    result = pthread_create(&thread_id, NULL, mailbox_module_name, NULL);
+    if (result != 0) {
+        PR_ERR("pthread_create fail: %s", strerror(result));
+    } else {
+        result = pthread_detach(thread_id);
+        if (result != 0) {
+            PR_ERR("pthread_detach fail: %s", strerror(result));
+        }
+    }
+
     aml_special_handle();
     ret = set_power_type();
 

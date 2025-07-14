@@ -64,6 +64,8 @@ const char *get_wifi_name()
         return "mtk";
     } else if(strstr(wifi_type, "ssv") != NULL) {
         return "mtk";
+    } else if(strstr(wifi_type, "uwe") != NULL) {
+        return "mtk";
     } else {
 #ifdef REALTEK_WIFI_SUPPORT
         return "rtl";

@@ -1878,7 +1878,7 @@ wifi_interface_handle wifi_get_iface_handle(wifi_handle handle, char *name)
 
 wifi_error wifi_get_supported_feature_set(wifi_interface_handle handle, feature_set *set)
 {
-    if (strncmp(get_wifi_name(), "mtk", 3) == 0 || strncmp(get_wifi_name(), "qca", 3) == 0 || strncmp(get_wifi_name(), "rtl", 3) == 0) {
+    if (strncmp(get_wifi_name(), "mtk", 3) == 0 || strncmp(get_wifi_name(), "qca", 3) == 0 || strncmp(get_wifi_name(), "rtl", 3) == 0 || strncmp(get_wifi_name(), "uwe", 3) == 0) {
         if (set) {
             wifi_error result = WIFI_SUCCESS;
             *set = WIFI_FEATURE_SCAN_RAND | WIFI_FEATURE_SET_LATENCY_MODE;
@@ -1923,7 +1923,7 @@ wifi_error wifi_get_supported_radio_combinations_matrix(wifi_handle handle,
 
 wifi_error wifi_set_scanning_mac_oui(wifi_interface_handle handle, oui scan_oui)
 {
-    if (strncmp(get_wifi_name(), "rtl", 3) == 0 || strncmp(get_wifi_name(), "mtk", 3) == 0 || strncmp(get_wifi_name(), "qca", 3) == 0)
+    if (strncmp(get_wifi_name(), "rtl", 3) == 0 || strncmp(get_wifi_name(), "mtk", 3) == 0 || strncmp(get_wifi_name(), "qca", 3) == 0 || strncmp(get_wifi_name(), "uwe", 3) == 0)
         return WIFI_SUCCESS;
 
     SetPnoMacAddrOuiCommand command(handle, scan_oui);
@@ -1990,7 +1990,7 @@ static wifi_error wifi_stop_rssi_monitoring(wifi_request_id id, wifi_interface_h
 static wifi_error wifi_get_packet_filter_capabilities(wifi_interface_handle handle,
         u32 *version, u32 *max_len)
 {
-    if (strncmp(get_wifi_name(), "rtl", 3) == 0 || strncmp(get_wifi_name(), "mtk", 3) == 0 || strncmp(get_wifi_name(), "qca", 3) == 0) {
+    if (strncmp(get_wifi_name(), "rtl", 3) == 0 || strncmp(get_wifi_name(), "mtk", 3) == 0 || strncmp(get_wifi_name(), "qca", 3) == 0 || strncmp(get_wifi_name(), "uwe", 3) == 0) {
         *version = 4;
         *max_len = 1024;
         return WIFI_SUCCESS;

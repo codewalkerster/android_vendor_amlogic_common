@@ -50,18 +50,19 @@ public class AudioVideoDevReconnectService extends Service {
     private static final String TAG = "AudioVideoDevReconnectService";
     private static final boolean DEBUG = false;
 
-        private Context mContext =  null;
-        private boolean mWaitForDisconnct = false;
+    private Context mContext =  null;
+    private boolean mWaitForDisconnct = false;
 
-        private ArrayList<String> mBondAudioDevices = new ArrayList<>();
-        private ArrayList<CachedBluetoothDevice> mDisconnectedRemoteDevices = new ArrayList<>();
-        private final int MSG_RECONNECT_BOND_DEVICE = 0;
-        private final int MSG_UPDATE_DISCONNECTED_REMOCE_DEVICE = 1;
-        private final int MSG_RECONNECT_REMOCE_DEVICE = 2;
+    private ArrayList<String> mBondAudioDevices = new ArrayList<>();
+    private ArrayList<CachedBluetoothDevice> mDisconnectedRemoteDevices = new ArrayList<>();
+    private final int MSG_RECONNECT_BOND_DEVICE = 0;
+    private final int MSG_UPDATE_DISCONNECTED_REMOCE_DEVICE = 1;
+    private final int MSG_RECONNECT_REMOCE_DEVICE = 2;
 
-        private AudioVideoDevPairThread myThread = null;
-        private MyHandler mMyHandler;
-        private LocalBluetoothManager mLocalBluetoothManager;
+    private AudioVideoDevPairThread myThread = null;
+    private MyHandler mMyHandler;
+
+    private LocalBluetoothManager mLocalBluetoothManager;
 
         @Override
         public IBinder onBind(Intent intent) {
@@ -73,7 +74,7 @@ public class AudioVideoDevReconnectService extends Service {
             mContext = this;
             Log.w(TAG, "oncreate");
 
-            mLocalBluetoothManager = getLocalBluetoothManager(mContext);
+        mLocalBluetoothManager = getLocalBluetoothManager(mContext);
             IntentFilter filter = new IntentFilter();
             filter.addAction(Intent.ACTION_SCREEN_ON);
             filter.addAction(Intent.ACTION_SCREEN_OFF);
@@ -170,7 +171,10 @@ public class AudioVideoDevReconnectService extends Service {
                 case MSG_RECONNECT_BOND_DEVICE:
                     mWaitForDisconnct = false;
                     String deviceAddress = mBondAudioDevices.get(0);
-                    connectDevice(deviceAddress);
+                    boolean ret = connectDevice(deviceAddress);
+
+                    if (!ret)
+                        break;
 
                     mBondAudioDevices.remove(0);
                     if (mBondAudioDevices.size() > 0)
@@ -195,11 +199,16 @@ public class AudioVideoDevReconnectService extends Service {
         }
     }
 
-    private void connectDevice(String devAddress) {
+    private boolean connectDevice(String devAddress) {
         BluetoothDevice device = findDevice(devAddress);
         if (device != null) {
             if (mLocalBluetoothManager != null) {
                 CachedBluetoothDevice cachedDevice = mLocalBluetoothManager.getCachedDeviceManager().findDevice(device);
+                if (cachedDevice == null) {
+                    Log.e(TAG, "failed to find corresponding cachedDevice,retry it in 2s");
+                    mMyHandler.sendEmptyMessageDelayed(MSG_RECONNECT_BOND_DEVICE, 2000);
+                    return false;
+                }
                 boolean isConnect = isConnected(device);
                 boolean isCachedDevConnect = cachedDevice.isConnected();
                 boolean isBusy = cachedDevice.isBusy();
@@ -212,16 +221,20 @@ public class AudioVideoDevReconnectService extends Service {
                 }
                 if (cachedDevice != null) {
                     cachedDevice.connect();
+                    return true;
                 } else {
                     Log.e(TAG, "failed to find:" + devAddress);
                 }
             }
+        } else {
+            Log.e(TAG, "can't find device in bonded devices list. try it in 2 seconds");
+            mMyHandler.sendEmptyMessageDelayed(MSG_RECONNECT_BOND_DEVICE, 2000);
         }
+        return false ;
     }
 
-
     private static BluetoothDevice findDevice(String address) {
-
+        Log.d(TAG, "findDevice:" + address);
         List<BluetoothDevice> devices = getDevices();
         BluetoothDevice curDevice = null;
 

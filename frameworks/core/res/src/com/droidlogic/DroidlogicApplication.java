@@ -15,8 +15,9 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ContentProviderClient;
 import android.content.Context;
-
+import android.hardware.display.DisplayManager;
 import android.media.tv.TvContract;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemProperties;
@@ -37,6 +38,10 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.os.ServiceManager;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import com.droidlogic.app.AudioEffectManager;
 
 public class DroidlogicApplication extends Application {
@@ -65,6 +70,7 @@ public class DroidlogicApplication extends Application {
         mSystemControlManager = SystemControlManager.getInstance();
         mSystemControlManager.setListener(mSystemControlEvent);
         mSystemControlManager.setProperty("vendor.sys.display.boot_complete","1");
+        checkAndResetOverride();
         // GTVS version default use earlysuspend wakelock
         if (isGtvsVersion() && SystemProperties.getBoolean("ro.vendor.platform.earlysuspend", true)) {
             PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
@@ -110,6 +116,41 @@ public class DroidlogicApplication extends Application {
             }
         }.start();
 
+    }
+
+    private void checkAndResetOverride() {
+        Log.d(TAG,"Build version "+Build.VERSION.SDK_INT+"///"+SystemControlManager.getInstance().getPropertyInt("persist.vendor.sys.sdk_int", 0));
+        if (Build.VERSION.SDK_INT == SystemControlManager.getInstance().getPropertyInt("persist.vendor.sys.sdk_int", 0)) {
+            return;
+        }else {
+            Context context = getApplicationContext();
+            DisplayManager displaymanager = context.getSystemService(DisplayManager.class);
+            Log.d(TAG,"DisplayManager "+displaymanager.getGlobalUserPreferredDisplayMode());
+            int density = -1;
+            String sizeForced = "";
+            try {
+                density = Settings.Secure.getInt(context.getContentResolver(),"display_density_forced");
+                sizeForced = Settings.Global.getString(context.getContentResolver(),"display_size_forced");
+                Log.d(TAG,"density "+density+" sizeForced--"+sizeForced);
+            }catch (Settings.SettingNotFoundException e) {
+            }finally {
+                SystemControlManager.getInstance().setProperty("persist.vendor.sys.sdk_int",""+Build.VERSION.SDK_INT);
+                try {
+                    Log.d(TAG,"density "+density+" sizeForced"+sizeForced+"sizeForced.isEmpty()"+(sizeForced == null || sizeForced.isEmpty()));
+                    if (density != -1 && (sizeForced == null || sizeForced.isEmpty())) {
+                        Class globalclass = Class.forName("android.view.WindowManagerGlobal");
+                        Method getWmServiceMethod = globalclass.getDeclaredMethod("getWindowManagerService");
+                        getWmServiceMethod.setAccessible(true);
+                        Log.d(TAG,"clear density ");
+                        Object iWindowManager = getWmServiceMethod.invoke(null);
+                        Method clearForcedDisplayDensityForUser = iWindowManager.getClass().getMethod("clearForcedDisplayDensityForUser", int.class,  int.class);
+                        clearForcedDisplayDensityForUser.invoke(iWindowManager, 0, 0);
+                    }
+                }catch(Exception  ex){
+                    ex.printStackTrace();
+                }
+            }
+        }
     }
 
     private boolean isGtvsVersion() {

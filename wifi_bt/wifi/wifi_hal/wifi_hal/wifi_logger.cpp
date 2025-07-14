@@ -2660,7 +2660,7 @@ wifi_error wifi_get_rx_pkt_fates(wifi_interface_handle handle,
 wifi_error wifi_get_wake_reason_stats(wifi_interface_handle handle,
         WLAN_DRIVER_WAKE_REASON_CNT *wifi_wake_reason_cnt)
 {
-    if (strncmp(get_wifi_name(), "rtl", 3) == 0 || strncmp(get_wifi_name(), "mtk", 3) == 0 || strncmp(get_wifi_name(), "qca", 3) == 0)
+    if (strncmp(get_wifi_name(), "rtl", 3) == 0 || strncmp(get_wifi_name(), "mtk", 3) == 0 || strncmp(get_wifi_name(), "qca", 3) == 0 || strncmp(get_wifi_name(), "uwe", 3) == 0)
         return WIFI_SUCCESS;
 
     GetWakeReasonCountCommand *cmd = new GetWakeReasonCountCommand(handle,

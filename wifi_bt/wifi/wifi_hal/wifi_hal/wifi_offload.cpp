@@ -236,7 +236,8 @@ wifi_error wifi_start_sending_offloaded_packet(wifi_request_id index, wifi_inter
     if (strncmp(get_wifi_name(), "rtl", 3) == 0 ||
         strncmp(get_wifi_name(), "mtk", 3) == 0 ||
         strncmp(get_wifi_name(), "qca", 3) == 0 ||
-        strncmp(get_wifi_name(), "bcm", 3) == 0) {
+        strncmp(get_wifi_name(), "bcm", 3) == 0 ||
+        strncmp(get_wifi_name(), "uwe", 3) == 0  ) {
         return WIFI_SUCCESS;
     }
     if ((index > 0 && index <= N_AVAIL_ID) && (ip_packet != NULL) && (src_mac_addr != NULL)
@@ -260,7 +261,8 @@ wifi_error wifi_stop_sending_offloaded_packet(wifi_request_id index, wifi_interf
 {
     if (strncmp(get_wifi_name(), "mtk", 3) == 0 ||
         strncmp(get_wifi_name(), "qca", 3) == 0 ||
-        strncmp(get_wifi_name(), "bcm", 3) == 0) {
+        strncmp(get_wifi_name(), "bcm", 3) == 0 ||
+        strncmp(get_wifi_name(), "uwe", 3) == 0  ) {
         ALOGE("army debug for wifi_stop_sending_offloaded_packet====");
         return WIFI_SUCCESS;
     }

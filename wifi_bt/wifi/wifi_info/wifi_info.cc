@@ -30,6 +30,7 @@ char mtk760_base[] = "/vendor/lib/modules/mtprealloc.ko#";
 char ssv6051_base[] = "/vendor/lib/modules/ssv6051.ko#stacfgpath=/vendor/etc/wifi/ssv6051/ssv6051-wifi.cfg#/vendor/lib/modules/ssv6x5x.ko#tu_stacfgpath=/vendor/etc/wifi/ssv6x5x/ssv6x5x-wifi.cfg#";
 char qca6391_base[] = "/vendor/lib/modules/wlan_cnss_core_pcie_6391.ko# #/vendor/lib/modules/wlan_resident_6391.ko#";
 char rtl8852be_base[] = "/vendor/lib/modules/rtkm.ko#";
+char rtl8852bs_base[] = "/vendor/lib/modules/rtkm_s.ko#";
 char aml_w1_base[] = "/vendor/lib/modules/aml_sdio.ko#";
 char aml_w1u_base[] = "/vendor/lib/modules/w1u_comm.ko#bus_type=usb#";
 char aml_w1u_s_base[] = "/vendor/lib/modules/w1u_comm.ko#bus_type=sdio#";
@@ -125,7 +126,8 @@ static const dongle_info dongle_registerd[]={\
     {"0000","0000","8192eu","/vendor/lib/modules/8192eu.ko","ifname=wlan0 if2name=ap0",no_base,"rtl8192eu",0x818b,""},\
     {"0000","0000","8192fu","/vendor/lib/modules/8192fu.ko","ifname=wlan0 if2name=ap0",no_base,"rtl8192fu",0xf192,""},\
     {"b822","0000","8822bs","/vendor/lib/modules/8822bs.ko","ifname=wlan0 if2name=ap0",no_base,"rtl8822bs",0x0,""},\
-    {"b852","0000","8852bs","/vendor/lib/modules/8852bs.ko","ifname=wlan0 if2name=p2p0",no_base,"rtl8852bs",0x0,""},\
+    {"b852","0000","8852bs","/vendor/lib/modules/8852bs.ko","ifname=wlan0 if2name=p2p0",rtl8852bs_base,"rtl8852bs",0x0,""},\
+    {"b853","0000","8852bs","/vendor/lib/modules/8852bs.ko","ifname=wlan0 if2name=p2p0",rtl8852bs_base,"rtl8852bs",0x0,""},\
     {"0000","0000","8733bu","/vendor/lib/modules/8733bu.ko","ifname=wlan0 if2name=ap0",no_base,"rtl8733bu",0xb733,""},\
     {"0000","0000","8852au","/vendor/lib/modules/8852au.ko","ifname=wlan0 if2name=ap0",no_base,"rtl8852au",0x885c,""},\
     {"0000","0000","8852au","/vendor/lib/modules/8852au.ko","ifname=wlan0 if2name=ap0",no_base,"rtl8852au",0x885a,""},\

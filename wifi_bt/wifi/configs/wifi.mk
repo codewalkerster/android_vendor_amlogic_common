@@ -317,6 +317,8 @@ PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.txt,vendor/amlogic/common/
 endif
 
 ifneq ($(filter w2l,$(WIFI_MODULES)),)
+$(warning w2l_rf.txt config project is : $(PRODUCT_DIR))
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*.txt,vendor/amlogic/common/wifi_bt/wifi/w2l/$(PRODUCT_DIR),$(TARGET_COPY_OUT_VENDOR)/lib/firmware/w2l/)
 endif
 
 ifneq ($(filter sd8987,$(WIFI_MODULES)),)

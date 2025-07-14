@@ -11,8 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+ifneq ($(BOARD_USE_ODM_WIFI_BT),true)
 LOCAL_PATH := $(call my-dir)
 ifeq ($(BOARD_WLAN_DEVICE), nxp)
 	include $(call all-makefiles-under,$(LOCAL_PATH))
+endif
 endif

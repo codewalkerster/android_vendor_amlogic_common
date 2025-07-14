@@ -1,3 +1,4 @@
+ifneq ($(BOARD_USE_ODM_WIFI_BT),true)
 ifeq ($(WIFI_DRIVER),bcm40183)
     include $(call all-subdir-makefiles)
 endif
@@ -73,4 +74,5 @@ endif
 ifeq ($(MULTI_WIFI_SUPPORT),true)
     LOCAL_PATH:=$(call my-dir)
     include $(LOCAL_PATH)/tools/Android.mk
+endif
 endif
