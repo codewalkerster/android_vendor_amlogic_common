@@ -63,10 +63,14 @@ static const dongle_info dongle_registerd[]={\
     {"0000","0000","sprdwl_ng","/vendor/lib/modules/sprdwl_ng.ko","",uwe5621_base,"uwe5621ds",0x0,""},\
     {"0000","0602","w2p","/vendor/lib/modules/w2.ko","",aml_w2p_base,"aml_w2_p",0x0,""},\
     {"0000","0642","w2p","/vendor/lib/modules/w2.ko","",aml_w2p_base,"aml_w2_p",0x0,""},\
+    {"0000","0682","w2p","/vendor/lib/modules/w2.ko","",aml_w2p_base,"aml_w2_p",0x0,""},\
     {"0600","0000","w2s","/vendor/lib/modules/w2.ko","",aml_w2s_base,"aml_w2_s",0x0,""},\
     {"0640","0000","w2s","/vendor/lib/modules/w2.ko","",aml_w2s_base,"aml_w2_s",0x0,""},\
+    {"0680","0000","w2s","/vendor/lib/modules/w2.ko","",aml_w2s_base,"aml_w2_s",0x0,""},\
+    {"8881","0000","w2s","/vendor/lib/modules/w2.ko","",aml_w2s_base,"aml_w2_s",0x0,""},\
     {"0000","0000","w2u","/vendor/lib/modules/w2.ko","",aml_w2u_base,"aml_w2_u",0x0601,""},\
     {"0000","0000","w2u","/vendor/lib/modules/w2.ko","",aml_w2u_base,"aml_w2_u",0x0641,""},\
+    {"0000","0000","w2u","/vendor/lib/modules/w2.ko","",aml_w2u_base,"aml_w2_u",0x0681,""},\
     {"0800","0000","w2l_s","/vendor/lib/modules/w2l.ko","",aml_w2ls_base,"aml_w2l_s",0x0,""},\
     {"0808","0000","w2l_s","/vendor/lib/modules/w2l.ko","",aml_w2ls_base,"aml_w2l_s",0x0,""},\
     {"0810","0000","w2l_s","/vendor/lib/modules/w2l.ko","",aml_w2ls_base,"aml_w2l_s",0x0,""},\
