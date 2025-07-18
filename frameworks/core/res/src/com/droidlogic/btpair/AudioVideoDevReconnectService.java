@@ -171,10 +171,7 @@ public class AudioVideoDevReconnectService extends Service {
                 case MSG_RECONNECT_BOND_DEVICE:
                     mWaitForDisconnct = false;
                     String deviceAddress = mBondAudioDevices.get(0);
-                    boolean ret = connectDevice(deviceAddress);
-
-                    if (!ret)
-                        break;
+                    connectDevice(deviceAddress);
 
                     mBondAudioDevices.remove(0);
                     if (mBondAudioDevices.size() > 0)
@@ -199,16 +196,11 @@ public class AudioVideoDevReconnectService extends Service {
         }
     }
 
-    private boolean connectDevice(String devAddress) {
+    private void connectDevice(String devAddress) {
         BluetoothDevice device = findDevice(devAddress);
         if (device != null) {
             if (mLocalBluetoothManager != null) {
                 CachedBluetoothDevice cachedDevice = mLocalBluetoothManager.getCachedDeviceManager().findDevice(device);
-                if (cachedDevice == null) {
-                    Log.e(TAG, "failed to find corresponding cachedDevice,retry it in 2s");
-                    mMyHandler.sendEmptyMessageDelayed(MSG_RECONNECT_BOND_DEVICE, 2000);
-                    return false;
-                }
                 boolean isConnect = isConnected(device);
                 boolean isCachedDevConnect = cachedDevice.isConnected();
                 boolean isBusy = cachedDevice.isBusy();
@@ -221,16 +213,11 @@ public class AudioVideoDevReconnectService extends Service {
                 }
                 if (cachedDevice != null) {
                     cachedDevice.connect();
-                    return true;
                 } else {
                     Log.e(TAG, "failed to find:" + devAddress);
                 }
             }
-        } else {
-            Log.e(TAG, "can't find device in bonded devices list. try it in 2 seconds");
-            mMyHandler.sendEmptyMessageDelayed(MSG_RECONNECT_BOND_DEVICE, 2000);
         }
-        return false ;
     }
 
     private static BluetoothDevice findDevice(String address) {
