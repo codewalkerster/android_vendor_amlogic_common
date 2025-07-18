@@ -15,6 +15,9 @@
 <resources>
     <bool name="config_wifi5ghzSupport">true</bool>
     <integer translatable="false"
-          name="config_wifiAllNonCarrierMergedWifiMaxDisableDurationMinutes">1</integer>
+            name="config_wifiAllNonCarrierMergedWifiMaxDisableDurationMinutes">1</integer>
+
+    <!-- Wifi driver supports WPA3 Simultaneous Authentication of Equals (WPA3-SAE) for softap -->
+    <bool translatable="false" name="config_wifi_softap_sae_supported">true</bool>
 
 </resources>
