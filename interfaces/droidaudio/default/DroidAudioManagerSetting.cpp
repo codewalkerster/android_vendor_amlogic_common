@@ -200,6 +200,9 @@ int32_t DroidAudioManagerSetting::init(bool reset) {
     if (isAiDeEnabled()) {
         setAiDeEnabled(true);
         setAiDeGain(getAiDeGain());
+    } else {
+        setAiDeGain(0);
+        setAiDeEnabled(false);
     }
     DroidAudioPatchManager::instance().init();
     mInitStatus = true;
@@ -908,11 +911,11 @@ bool DroidAudioManagerSetting::isAiDeEnabled() {
 
 int32_t DroidAudioManagerSetting::setAiDeGain(int32_t gain) {
     const string HAL_PARAM_AIDE_GAIN = "audio_enhancement_gain=";
-    const int32_t AI_DE_GAIN_MIN = -15;
-    const int32_t AI_DE_GAIN_MAX = 15;
+    const int32_t AI_DE_GAIN_LEVEL_MIN = 0;
+    const int32_t AI_DE_GAIN_LEVEL_MAX = 3;
 
-    if (gain < AI_DE_GAIN_MIN || gain > AI_DE_GAIN_MAX) {
-        AM_LOGW("Invalid gain value:%d, min:%d, max:%d", gain, AI_DE_GAIN_MIN, AI_DE_GAIN_MAX);
+    if (gain < AI_DE_GAIN_LEVEL_MIN || gain > AI_DE_GAIN_LEVEL_MAX) {
+        AM_LOGW("Invalid gain value:%d, min:%d, max:%d", gain, AI_DE_GAIN_LEVEL_MIN, AI_DE_GAIN_LEVEL_MAX);
         return -1;
     }
 

@@ -594,6 +594,10 @@ public class DroidAudioManager {
         return executeRemoteCall(() -> mDroidAudioService.AudioManager_releaseAudioPatch(handle), "releaseAudioPatch", 0);
     }
 
+    public static final int AI_DE_MODE_OFF                                              = 0;
+    public static final int AI_DE_MODE_COMFORT                                          = 1;
+    public static final int AI_DE_MODE_FOCUS                                            = 2;
+    public static final int AI_DE_MODE_ISOLATE                                          = 3;
     public int setAiDeEnabled(boolean enable) {
         return executeRemoteCall(() -> mDroidAudioService.AudioManager_setAiDeEnabled(enable), "setAiDeEnabled", 0);
     }
