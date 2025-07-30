@@ -1,8 +1,8 @@
 LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
-COLLECT_PATCH:=$(shell $(LOCAL_PATH)/collect_patchlist.sh $(LOCAL_PATH) $(OUT_DIR))
-$(info collect_patchlist done)
+#COLLECT_PATCH:=$(shell $(LOCAL_PATH)/collect_patchlist.sh $(LOCAL_PATH) $(OUT_DIR))
+#$(info collect_patchlist done)
 
 PATCHECK_SRCS := patcheck.cpp
 LOCAL_MODULE := check_patch
