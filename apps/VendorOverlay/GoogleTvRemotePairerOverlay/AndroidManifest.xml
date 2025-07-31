@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (C) 2018 The Android Open Source Project
   ~
@@ -17,6 +18,9 @@
         package="com.droidlogic.tv.googletvremotepairer.overlay"
         android:versionCode="1"
         android:versionName="1.0">
-        <overlay android:targetPackage="com.google.android.tv.googletvremotepairer" android:priority="1" android:isStatic="true"/>
+        <overlay android:targetPackage="com.google.android.tv.googletvremotepairer"
+                 android:targetName="RemotePairerCustomization"
+                 android:priority="1"
+                 android:isStatic="true"/>
      <application android:label="com.droidlogic.tv.googletvremotepairer.overlay" android:hasCode="false"/>
 </manifest>

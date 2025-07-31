@@ -5,6 +5,7 @@
         <item>RemoteG10</item>
         <item>B25</item>
         <item>B21</item>
-        <item>G21</item>
+        <item>RemoteG21</item>
+        <item>RemoteG31</item>
     </string-array>
 </resources>
