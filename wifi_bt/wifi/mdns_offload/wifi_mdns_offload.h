@@ -36,6 +36,7 @@ typedef enum {
     WIFI_MDNS_OFFLOAD_ADD_TO_PASSTHROUGH_LIST,
     WIFI_MDNS_OFFLOAD_REMOVE_FROM_PASSTHROUGH_LIST,
     WIFI_MDNS_OFFLOAD_SET_PASSTHROUGH_BEHAVIOR,
+    WIFI_MDNS_OFFLOAD_SET_WAKE_PORTS,
 } wifi_mdns_offload_subcmd_t;
 
 typedef enum {
@@ -49,6 +50,8 @@ typedef enum {
     WIFI_MDNS_OFFLOAD_ATTRIBUTE_RECORD_KEY,
     WIFI_MDNS_OFFLOAD_ATTRIBUTE_QNAME,
     WIFI_MDNS_OFFLOAD_ATTRIBUTE_PASSTHROUGH_BEHAVIOR,
+    WIFI_MDNS_OFFLOAD_ATTRIBUTE_WAKE_PORTS_NUM,
+    WIFI_MDNS_OFFLOAD_ATTRIBUTE_WAKE_PORTS,
     WIFI_MDNS_OFFLOAD_ATTRIBUTE_MAX,
 } wifi_mdns_offload_attr_t;
 
@@ -76,6 +79,27 @@ typedef enum {
     */
     PASSTHROUGH_LIST,
 } passthroughBehavior;
+
+typedef enum {
+    TCP,
+    UDP,
+} PortProtocol;
+
+typedef enum {
+    MATCH_PORT_LOCAL,
+    MATCH_PORT_REMOTE,
+} portMatcher;
+
+typedef struct {
+    PortProtocol protocol;
+    portMatcher matcher;
+    uint16_t portNumber;
+} wakePort;
+
+typedef struct {
+    wakePort *port;
+    uint32_t num;
+} wakePorts;
 
 typedef enum {
     LOG_STYLE_LOGCAT,
@@ -126,6 +150,7 @@ u32_boolean addToPassthroughList(char *networkInterface, char *qname);
 void removeFromPassthroughList(char *networkInterface, char *qname);
 void setPassthroughBehavior(char *networkInterface,
     passthroughBehavior behavior);
+void setWakePorts(wakePorts *ports);
 
 #ifdef __cplusplus
 }

@@ -90,6 +90,24 @@ static matchCriteria criteriaList_2[] = {
     },
 };
 
+static wakePort portList[] = {
+    {
+        .protocol = TCP,
+        .matcher = MATCH_PORT_LOCAL,
+        .portNumber = 8010,
+    },
+    {
+        .protocol = TCP,
+        .matcher = MATCH_PORT_LOCAL,
+        .portNumber = 6465,
+    },
+    {
+        .protocol = TCP,
+        .matcher = MATCH_PORT_REMOTE,
+        .portNumber = 5228,
+    },
+};
+
 static int read_file(FILE *file, unsigned char *buf, size_t size,
     unsigned char isHex)
 {
@@ -233,7 +251,7 @@ static void exec_addProtocolResponses(int argc, char **argv)
     char **hexData =  NULL;
     unsigned char hexDataFile = 1;
     int count = 0, n = argc - 2;
-    memset(&matchCriteriaList, -1, sizeof(matchCriteria));
+    memset(&matchCriteriaList, -1, sizeof(matchCriteriaList));
     for (i = 2; i < argc; i++) {
         n--;
         if (strstr(argv[i], "--ifname") && argv[i + 1])
@@ -400,6 +418,56 @@ static void exec_setPassthroughBehavior(int argc, char **argv)
     LOGI("%s: done!\n", __func__);
 }
 
+static void exec_setWakePorts(int argc, char **argv)
+{
+    if (strcmp(argv[1], "setWakePorts")
+        && strcmp(argv[1], "--test"))
+        return;
+    LOGV("%s:\n", __func__);
+    int i = 0, j = 0;
+    wakePorts ports;
+    ports.port = portList;
+    ports.num = ARRAY_SIZE(portList);
+    uint32_t matchNum = 0;
+    wakePort matchPortList[16];
+    char protocol[32];
+    char matcher[32];
+    memset(&matchPortList, -1, sizeof(matchPortList));
+    for (i = 2; i < argc; i++) {
+        memset(protocol, 0, sizeof(protocol));
+        memset(matcher, 0, sizeof(matcher));
+        if (strstr(argv[i], "--port") && argv[i + 1]) {
+            if (3 == sscanf(argv[i + 1], "%[^,],%[^,],%hu", protocol,
+                matcher, &matchPortList[j].portNumber)) {
+                if (!strcmp(protocol, "tcp"))
+                    matchPortList[j].protocol = TCP;
+                if (!strcmp(protocol, "udp"))
+                    matchPortList[j].protocol = UDP;
+                if (!strcmp(matcher, "local"))
+                    matchPortList[j].matcher = MATCH_PORT_LOCAL;
+                if (!strcmp(matcher, "remote"))
+                    matchPortList[j].matcher = MATCH_PORT_REMOTE;
+                matchNum++;
+                j++;
+            }
+        }
+    }
+    if (matchNum > 0) {
+        ports.num = matchNum;
+        ports.port = matchPortList;
+    }
+    LOGV("%s: num:%u\n", __func__, ports.num);
+    LOGV("%s: ports:\n", __func__);
+    for (i = 0; i < ports.num; i++) {
+        LOGV("%d. protocol:%s\tmatcher:%s\tportNumber:%hu\n", i + 1,
+          ports.port[i].protocol ? "udp" : "tcp",
+          ports.port[i].matcher ? "remote" : "local",
+          ports.port[i].portNumber);
+    }
+    setWakePorts(&ports);
+    LOGI("%s: done!\n", __func__);
+}
+
 static void usage(char *name)
 {
     PRINT("\n");
@@ -437,6 +505,10 @@ static void usage(char *name)
           "\t --ifname wlan0|wlan1|...\n"\
           "\t --behavior value\n",
           name);
+    PRINT("%s [-d|--debug] setWakePorts\n"\
+          "\t --port protocol(tcp/udp),matcher(local/remote),portNumber "\
+          "[--port protocol,matcher,portNumber]...\n",
+          name);
     PRINT("\n");
     PRINT("e.g.:\n");
     PRINT("%s setOffloadState --enable 1\n",
@@ -451,6 +523,9 @@ static void usage(char *name)
           name);
     PRINT("%s addProtocolResponses --ifname wlan0 --criteria 1,52 "\
           "--criteria 255,52 --rawOffloadpacket ./hexdata_file\n",
+          name);
+    PRINT("%s setWakePorts --port tcp,local,8010 "\
+          "--port tcp,local,6465 --port tcp,remote,5228 --port udp,local,5353\n",
           name);
     PRINT("\n");
     PRINT("Note:\n");
@@ -472,7 +547,7 @@ int main(int argc, char **argv)
         usage(argv[0]);
         return 0;
     } else if (!strcmp(_argv[1], "-d") || !strcmp(_argv[1], "--debug")) {
-        wifi_mdns_offload_set_log(LOG_STYLE_CONSOLE, LOG_DEBUG_MASK);
+        wifi_mdns_offload_set_log(LOG_STYLE_CONSOLE, LOG_VERBOSE_MASK);
         _argc--;
         _argv++;
         if (_argc == 1) {
@@ -490,6 +565,7 @@ int main(int argc, char **argv)
     exec_addToPassthroughList(_argc, _argv);
     exec_removeFromPassthroughList(_argc, _argv);
     exec_setPassthroughBehavior(_argc, _argv);
+    exec_setWakePorts(_argc, _argv);
     wifi_mdns_offload_deinit();
     return 0;
 }

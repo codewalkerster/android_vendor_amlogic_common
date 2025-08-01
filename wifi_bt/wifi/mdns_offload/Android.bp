@@ -62,7 +62,6 @@ cc_library_shared {
 
 cc_binary {
     name: "wifimdnsoffload",
-    system_ext_specific: true,
     cflags: [
         "-Wall",
         "-Werror",
@@ -78,4 +77,5 @@ cc_binary {
     ],
     srcs: ["wifi_mdns_offload_main.c"],
 	local_include_dirs: ["."],
+	vendor_available: true,
 }

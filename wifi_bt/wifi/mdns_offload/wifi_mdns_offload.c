@@ -60,7 +60,7 @@ typedef struct {
 static nl_socket_handler socket_handler;
 static const uint32_t vendor_oui = GOOGLE_VENDOR_OUI;
 static uint32_t log_style = LOG_STYLE_LOGCAT;
-static uint32_t log_mask = LOG_DEBUG_MASK;
+static uint32_t log_mask = LOG_VERBOSE_MASK;
 
 int wifi_mdns_offload_log_out(uint8_t level, const char *fmt, ...)
 {
@@ -294,49 +294,55 @@ static int get_vendor_data_len(struct nlattr **attributes)
     return get_len(attributes, NL80211_ATTR_VENDOR_DATA);
 }
 
-static char *decode_qname(unsigned char *buf,
+static char *decode_qname(const uint8_t *buf,
     uint32_t buf_len, uint32_t offset)
 {
     char *qname = NULL;
-    unsigned char *p = NULL, *c = NULL;
-    uint32_t n = 0, i = 0;
+    const uint8_t *p = NULL;
+    uint16_t location = 0;
+    uint32_t ptr_count = 0;
+    uint32_t max_qname_len = 256;
+    uint32_t label_len = 0;
+    uint32_t total_len = 0;
 
     if (!buf || buf_len < 1 || offset < 0 || offset > buf_len - 1)
         goto err;
     p = buf + offset;
     if (*p == 0)
         goto err;
-    qname = (char *)malloc(256);
+    qname = (char *)malloc(max_qname_len);
     if (!qname) {
-        LOGD("alloc failed!\n");
+        LOGE("alloc failed!\n");
         return NULL;
     }
     memset(qname, 0, 256);
-    c = (unsigned char *)qname;
     while (*p) {
-        if ((*p >> 6) == 0x03) {
-            n = (((*p << 8) | *(p + 1)) & 0x3fff);
-            if (n > (buf_len - 1))
+        if ((*p & 0xC0) == 0xC0) {
+            if (ptr_count++ > 10)
                 goto err;
-            p = buf + n;
+            location = ((*p << 8) | *(p + 1)) & 0x3fff;
+            if (location > (buf_len - 1))
+                goto err;
+            p = buf + location;
             continue;
         }
-        n = *p;
-        if (p + n > buf + buf_len - 1)
+        label_len = *p++;
+        if (label_len > 63
+          || total_len + label_len + 1 > max_qname_len
+          || p + label_len > buf + buf_len)
             goto err;
-        p++;
-        for (i = 0; i < n; i++) {
-            if (*p > 32 && *p < 127)
-                *c++ = *p++;
-            else
-                goto err;
-        }
-        if (*p != 0)
-            *c++ = '.';
+        memcpy(qname + total_len, p, label_len);
+        p += label_len;
+        total_len += label_len;
+        qname[total_len++] = '.';
     }
+    if (total_len > 0)
+        qname[total_len-1] = '\0';
+    else
+        qname[0] = '\0';
     return qname;
 err:
-    LOGD("decode qname failed!\n");
+    LOGE("decode qname failed!\n");
     if (qname)
         free(qname);
     return NULL;
@@ -352,7 +358,7 @@ static void dump_msg(unsigned char *buf, uint32_t len)
         return;
     dump = (char *)malloc(256);
     if (!dump) {
-        LOGD("alloc failed!\n");
+        LOGE("alloc failed!\n");
         return;
     }
     for (i = 0; i < len; i++) {
@@ -391,7 +397,7 @@ int response_handler(struct nl_msg *msg, void *arg) {
         return NL_SKIP;
     }
     LOGD("response msg len = %d,dump msg:\n", nlmsg_hdr(msg)->nlmsg_len);
-    dump_msg((unsigned char *)(nlmsg_hdr(msg)), nlmsg_hdr(msg)->nlmsg_len);
+    //dump_msg((unsigned char *)(nlmsg_hdr(msg)), nlmsg_hdr(msg)->nlmsg_len);
     memset(attributes, 0, sizeof(attributes));
     int ret = nla_parse(attributes, NL80211_ATTR_MAX_INTERNAL,
         genlmsg_attrdata(header, 0), genlmsg_attrlen(header, 0), NULL);
@@ -548,11 +554,13 @@ int addProtocolResponses(char *networkInterface,
                     free(qname);
             }
         }
+#if 0
         if (offloadData->rawOffloadPacket) {
             LOGD("rawOffloadPacket:\n");
             dump_msg(offloadData->rawOffloadPacket,
                 offloadData->rawOffloadPacketLen);
         }
+#endif
     }
     struct nl_msg *msg = NULL;
     int ret = 0;
@@ -834,6 +842,64 @@ void setPassthroughBehavior(char *networkInterface,
     if (ret < 0) {
         LOGE("line:%d,nla_put failed!ret=%d\n", __LINE__, ret);
         goto error;
+    }
+    ret = nla_nest_end(msg, start);
+    if (ret < 0) {
+        LOGE("nla_nest_end failed!ret=%d\n", ret);
+        goto error;
+    }
+    ret = requestResponse(msg, NULL);
+    LOGD("%s: exit:%d\n", __func__, ret);
+    return;
+error:
+    nlmsg_free(msg);
+}
+
+void setWakePorts(wakePorts *ports)
+{
+    LOGD("%s:\n", __func__);
+    if (ports) {
+        LOGD("%s: num:%u\n", __func__, ports->num);
+        if (ports->num && ports->port) {
+            LOGD("ports:\n");
+            int i = 0;
+            for (i = 0; i < ports->num; i++) {
+                LOGD("%d. protocol:%s\tmatcher:%s\tportNumber:%hu\n", i + 1,
+                  ports->port[i].protocol ? "udp" : "tcp",
+                  ports->port[i].matcher ? "remote" : "local",
+                  ports->port[i].portNumber);
+            }
+        }
+    }
+    struct nl_msg *msg = NULL;
+    int ret = 0;
+    msg = nlmsg_create(WIFI_MDNS_OFFLOAD_SET_WAKE_PORTS);
+    if (msg == NULL) {
+        LOGE("nlmsg_create failed!\n");
+        return;
+    }
+    struct nlattr *start = nla_nest_start(msg, NL80211_ATTR_VENDOR_DATA);
+    if (start == NULL) {
+        LOGE("nla_nest_start failed!\n");
+        goto error;
+    }
+    if (ports) {
+        ret = nla_put(msg, WIFI_MDNS_OFFLOAD_ATTRIBUTE_WAKE_PORTS_NUM,
+            sizeof(ports->num), &ports->num);
+        if (ret < 0) {
+            LOGE("line:%d,nla_put failed!ret=%d\n", __LINE__, ret);
+            goto error;
+        }
+        if (ports->port) {
+            ret = nla_put(msg,
+                WIFI_MDNS_OFFLOAD_ATTRIBUTE_WAKE_PORTS,
+                sizeof(wakePort) * ports->num,
+                ports->port);
+            if (ret < 0) {
+                LOGE("line:%d,nla_put failed!ret=%d\n", __LINE__, ret);
+                goto error;
+            }
+        }
     }
     ret = nla_nest_end(msg, start);
     if (ret < 0) {
