@@ -2,7 +2,7 @@ SOONG_CONFIG_NAMESPACES += mdns
 SOONG_CONFIG_mdns += \
     board
 
-ifeq ($(TARGET_BUILD_MDNS),false)
+ifneq ($(TARGET_BUILD_MDNS),true)
 SOONG_CONFIG_mdns_board := mdns_disable
 else
 ifneq ($(wildcard device/google/atv/MdnsOffloadManagerService),)
