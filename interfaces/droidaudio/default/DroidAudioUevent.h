@@ -16,6 +16,8 @@ using namespace std;
 
 #define KEY_DEV_PATH_NAME   "DEVPATH"
 #define KEY_AI_SOUND        "AI_SOUND_MODE"
+#define KEY_MPEGH_ASI       "AUDIO_FORMAT=25"
+#define KEY_MPEGH_PERSIST   "AUDIO_FORMAT=26"
 #define VAL_DEV_PATH        "/devices/platform/auge_sound"
 
 #define UEVENT_MSG_LEN          2048
@@ -24,6 +26,8 @@ using namespace std;
 enum UEventType {
     UN_KNOWN = -1,
     AI_SOUND = 0,
+    MPEGH_ASI,
+    MPEGH_PERSIST,
 };
 
 typedef int (*uevent_callback_t)(void *owner, std::string match);

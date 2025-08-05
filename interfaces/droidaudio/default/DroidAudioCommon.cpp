@@ -55,6 +55,11 @@ string getParameters(const string &key) {
     }
 }
 
+string getParametersDirect(const string &key) {
+    string str(AudioSystem::getParameters(String8(key.c_str())));
+    return str;
+}
+
 bool getPropertyBoolean(const char *key, bool def) {
     int len;
     char buf[100] = {0};

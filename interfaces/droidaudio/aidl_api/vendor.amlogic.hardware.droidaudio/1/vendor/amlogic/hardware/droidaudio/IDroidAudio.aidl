@@ -137,4 +137,9 @@ interface IDroidAudio {
   boolean AudioEffect_isDtsTruVolumeHdEnabled();
   int AudioEffect_setAISoundModeEnable(boolean enable);
   boolean AudioEffect_isAISoundModeEnabled();
+  int MpeghManager_triggerAsiUpdate();
+  int MpeghManager_setActionEvent(String xml);
+  int MpeghManager_setSystemConfig(int id, String value);
+  String MpeghManager_getSystemConfig(int id);
+  String MpeghManager_getXmlSceneInfo();
 }

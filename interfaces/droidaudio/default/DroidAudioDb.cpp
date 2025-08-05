@@ -249,7 +249,7 @@ int32_t DroidAudioDbDescriptor::sqliteGetBlobFromDb(const string& key, vector<ui
         AM_LOGW("get Db fail. db size is 0, need size:%d. module:%s, key:%s.", size, mstrModuleId.c_str(), key.c_str());
         return sqliteInserDefaultValueToDb(key, vecData);
     } else {
-        if (valSize != size) {
+        if (valSize != size && size != 0) {
             AM_LOGW("get Db fail. module:%s, key:%s. db size:%d != need size:%d",
                 mstrModuleId.c_str(), key.c_str(), valSize, size);
             return sqliteInserDefaultValueToDb(key, vecData);

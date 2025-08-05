@@ -280,7 +280,10 @@ public:
     static const char* audioDigitalMode2Str(int32_t type);
     static const char* audioDelayDev2Str(int32_t type);
     static const char* tvSource2Str(int32_t source);
+
+    static int32_t setMpeghActionEvent(string eventXml);
+    static int32_t setMpeghSystemConfig(int id, string value);
+    static string getMpeghSystemConfig(int id);
+    static string getMpeghSceneXml();
 };
-
-
 

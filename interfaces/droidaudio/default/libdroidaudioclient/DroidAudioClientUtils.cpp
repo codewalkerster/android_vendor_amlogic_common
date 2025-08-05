@@ -51,7 +51,7 @@ public:
     DroidAudioServiceClient();
 
     virtual ::ndk::ScopedAStatus onDroidAudioEvent(int32_t event, const vector<int32_t>& data) override;
-
+    virtual ::ndk::ScopedAStatus onMpeghAsiEvent(int32_t in_event, const std::vector<int32_t>& in_data) override;
     ::ndk::ScopedAIBinder_DeathRecipient mDeathRecipient;
 };
 
@@ -103,4 +103,9 @@ DroidAudioServiceClient::DroidAudioServiceClient() {
     return ::ndk::ScopedAStatus::ok();
 }
 
-
+::ndk::ScopedAStatus DroidAudioServiceClient::onMpeghAsiEvent(
+                int32_t event, const vector<int32_t>& data) {
+    // TODO:
+    AM_LOGI("event:%d", event);
+    return ::ndk::ScopedAStatus::ok();
+}

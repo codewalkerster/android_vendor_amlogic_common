@@ -25,6 +25,7 @@ extern const char* INI_KEY_AM_AUDIO_COMMON_DRIVER_BASE_PROJECT;
 void setParameters(const string &value);
 void setParameters(const string &key, int32_t value);
 string getParameters(const string &key);
+string getParametersDirect(const string &key);
 
 bool getPropertyBoolean(const char *key, bool def);
 bool isAudioDebug();

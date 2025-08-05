@@ -2756,11 +2756,10 @@ int32_t DroidAudioEffectSetting::setAISoundModeEnable(bool enable) {
     ALOGI("+++%s() enable:%d", __func__, enable);
     std::string param = std::string("aq_tuning=aiaq -enable ").append(std::to_string(enable ? 1 : 0));
     setParameters(param);
-    if (enable) {
-        mEventObserver.open(this, nativeUeventHandle);
-    } else {
-        mEventObserver.close();
-    }
+
+    //if (false == enable) {
+    //    mAISoundLabel.reset();
+    //}
 
     mAISoundModeEnabled = enable;
 
@@ -2801,7 +2800,9 @@ int32_t DroidAudioEffectSetting::localUeventProcess(const std::string& msg)
 int32_t DroidAudioEffectSetting::nativeUeventHandle(void *owner, std::string msg) {
     if (owner != nullptr) {
         DroidAudioEffectSetting *ins = (DroidAudioEffectSetting*)owner;
-        ins->localUeventProcess(msg);
+        if (ins->mAISoundModeEnabled) {
+            ins->localUeventProcess(msg);
+        }
     }
     return 0;
 }

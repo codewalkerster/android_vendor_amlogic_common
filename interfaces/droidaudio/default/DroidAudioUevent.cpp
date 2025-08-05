@@ -14,6 +14,8 @@
 
 const DroidAudioUEvent::UEventItem DroidAudioUEvent::UEVENT_LIST[] = {
     {AI_SOUND, KEY_AI_SOUND},
+    {MPEGH_ASI, KEY_MPEGH_ASI},
+    {MPEGH_PERSIST, KEY_MPEGH_PERSIST},
 };
 
 DroidAudioUEvent::DroidAudioUEvent()

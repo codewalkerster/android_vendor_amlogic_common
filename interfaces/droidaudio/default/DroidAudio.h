@@ -23,6 +23,7 @@
 #include <aidl/vendor/amlogic/hardware/droidaudio/BnDroidAudio.h>
 #include <aidl/vendor/amlogic/hardware/droidaudio/Status.h>
 #include <aidl/vendor/amlogic/hardware/droidaudio/IDroidAudioClient.h>
+#include <DroidAudioUevent.h>
 
 namespace aidl::vendor::amlogic::hardware::droidaudio::implementation {
 
@@ -37,6 +38,7 @@ struct DroidAudio : public BnDroidAudio {
     ~DroidAudio();
     void init();
     int32_t doOnDroidAudioEvent(int32_t event, const vector<int32_t>& data);
+    int32_t doOnMpeghAsiEvent(int32_t event, const vector<int32_t>& data);
 
     ::ndk::ScopedAStatus registerClient(const shared_ptr<IDroidAudioClient>& client, int32_t* _aidl_return);
     void unregisterClient(uid_t uid, pid_t pid);
@@ -151,9 +153,16 @@ struct DroidAudio : public BnDroidAudio {
     ::ndk::ScopedAStatus AudioEffect_setAISoundModeEnable(bool enable, int32_t* _aidl_return) override;
     ::ndk::ScopedAStatus AudioEffect_isAISoundModeEnabled(bool* _aidl_return) override;
 
+    ::ndk::ScopedAStatus MpeghManager_setActionEvent(const std::string& in_xml, int32_t* _aidl_return) override;
+    ::ndk::ScopedAStatus MpeghManager_getXmlSceneInfo(std::string* _aidl_return) override;
+    ::ndk::ScopedAStatus MpeghManager_triggerAsiUpdate(int32_t* _aidl_return) override;
+    ::ndk::ScopedAStatus MpeghManager_setSystemConfig(int32_t in_id, const std::string& in_xml, int32_t* _aidl_return) override;
+    ::ndk::ScopedAStatus MpeghManager_getSystemConfig(int32_t in_id, std::string* _aidl_return) override;
+
     binder_status_t dump(int fd, const char **args, uint32_t numArgs) override;
     void audioserverDied();
     void audioPortOrPatchUpdate();
+    static int32_t nativeUeventHandle(void *owner, std::string msg);
 
 private:
     static void clientDied(void* cookie);
@@ -165,6 +174,7 @@ private:
         NotificationClient(const shared_ptr<IDroidAudioClient>& client, uid_t uid, pid_t pid);
         virtual ~NotificationClient();
         int32_t onDroidAudioEvent(int32_t event, const vector<int32_t>& data);
+        int32_t onMpeghAsiEvent(int32_t event, const vector<int32_t>& data);
         uid_t uid() {
             return mUid;
         }
@@ -189,5 +199,6 @@ private:
     static DroidAudio*  mDroidAudio;
     mutex mNotificationClientsLock;
     map<int64_t, shared_ptr<NotificationClient>> mNotificationClients;
+    DroidAudioUEvent mEventObserver;
 };
 }  // namespace aidl::vendor::amlogic::hardware::droidaudio::implementation

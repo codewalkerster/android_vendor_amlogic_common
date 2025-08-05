@@ -59,6 +59,12 @@ public class DroidAudioServiceManager {
             return;
         }
         @Override
+        public void onMpeghAsiEvent(int event, int[] data) {
+            // TODO:
+            Log.i(TAG, "onMpeghAsiEvent event:" + event + ", data:" + data);
+            return;
+        }
+        @Override
         public String getInterfaceHash() {
             return IDroidAudioClient.HASH;
         }
@@ -102,12 +108,12 @@ public class DroidAudioServiceManager {
             } catch (RemoteException e) {
                 Log.e(TAG, "getService linkToDeath fail:" + e);
             }
-            try {
-                mDroidAudioServiceClient = new DroidAudioServiceClient();
-                mDroidAudioService.registerClient(mDroidAudioServiceClient);
-            } catch (RemoteException e) {
-                Log.e(TAG, "getService registerClient fail:" + e);
-            }
+            //try {
+            //    mDroidAudioServiceClient = new DroidAudioServiceClient();
+            //    mDroidAudioService.registerClient(mDroidAudioServiceClient);
+            //} catch (RemoteException e) {
+            //    Log.e(TAG, "getService registerClient fail:" + e);
+            //}
         }
         return mDroidAudioService;
     }

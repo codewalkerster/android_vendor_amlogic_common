@@ -67,6 +67,7 @@ public:
     inline static const std::string DROIDLOGIC_DB_MODULE_ID_AM_AUDIO_COMMON                = "AM_AUDIO_COMMON";
     inline static const std::string DROIDLOGIC_DB_MODULE_ID_AM_AUDIO_MANAGER               = "AM_AUDIO_MANAGER";
     inline static const std::string DROIDLOGIC_DB_MODULE_ID_AM_AUDIO_EFFECT                = "AM_AUDIO_EFFECT";
+    inline static const std::string DROIDLOGIC_DB_MODULE_ID_AM_AUDIO_MPEGH                 = "AM_AUDIO_MPEGH";
 
     DroidAudioDbDescriptor(const string& id, const vector<const char*>& vecStr) :
         mVecDbStr(vecStr), mstrModuleId(id), mpDb(DroidAudioDb::instance()), mpDbHandle(mpDb->getSql3Manager()) {

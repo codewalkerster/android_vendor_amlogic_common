@@ -225,6 +225,18 @@ int32_t DroidAudioManager::setMicReverbLevel(int32_t source, int32_t level) {
 int32_t DroidAudioManager::getMicReverbLevel(int32_t source) {
     return AML_AIDL_EXECUTE_FUNCTION(int32_t, &IDroidAudio::AudioManager_getMicReverbLevel, source);
 }
+int32_t DroidAudioManager::setMpeghActionEvent(string eventXml) {
+    return AML_AIDL_EXECUTE_FUNCTION(int32_t, &IDroidAudio::MpeghManager_setActionEvent, eventXml);
+}
+int32_t DroidAudioManager::setMpeghSystemConfig(int id, string value) {
+    return AML_AIDL_EXECUTE_FUNCTION(int32_t, &IDroidAudio::MpeghManager_setSystemConfig, id, value);
+}
+string DroidAudioManager::getMpeghSystemConfig(int id) {
+    return AML_AIDL_EXECUTE_FUNCTION(string, &IDroidAudio::MpeghManager_getSystemConfig, id);
+}
+string DroidAudioManager::getMpeghSceneXml() {
+    return AML_AIDL_EXECUTE_FUNCTION(string, &IDroidAudio::MpeghManager_getXmlSceneInfo);
+}
 
 const char* DroidAudioManager::audioCmd2Str(int32_t type) {
     ENUM_TYPE_TO_STR_START("DroidAudioManager::DROID_AUDIO_CMD_");

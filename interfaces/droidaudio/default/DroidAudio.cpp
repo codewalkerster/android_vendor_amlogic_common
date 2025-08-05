@@ -36,6 +36,8 @@
 #include "DroidAudioClientUtils.h"
 #include "DroidAudioManagerSetting.h"
 #include "DroidAudioEffectSetting.h"
+#include "DroidAudioMpeghSetting.h"
+#include "DroidAudioUevent.h"
 
 using namespace std;
 using namespace android;
@@ -76,12 +78,38 @@ DroidAudio::DroidAudio()
     mDroidAudio = this;
     DroidAudioManagerSetting::instance();
     DroidAudioEffectSetting::instance();
+    DroidAudioMpeghSetting::instance();
     DroidAudioDb::instance()->init();
+    mEventObserver.open(this, nativeUeventHandle);
     AM_LOGI("");
 }
 
 DroidAudio::~DroidAudio() {
+    mEventObserver.close();
     AM_LOGI("");
+}
+
+int32_t DroidAudio::nativeUeventHandle(void *owner, std::string msg) {
+    if (owner != nullptr) {
+        DroidAudio *ins = (DroidAudio*)owner;
+        std::string MPEGH_ASI = "MPEGH_ASI";
+        std::string_view msgView(msg);
+        if (msgView.find(KEY_AI_SOUND) != std::string::npos) {
+            DroidAudioEffectSetting::instance()->nativeUeventHandle(DroidAudioEffectSetting::instance(), msg);
+        }
+        else if (msgView.find(KEY_MPEGH_ASI) != std::string::npos) {
+            ALOGD("receive MPEGH_ASI event");
+            std::unique_lock<std::mutex> __lock(ins->mNotificationClientsLock);
+            for (auto client: ins->mNotificationClients) {
+                vector<int32_t> vec;
+                client.second->onMpeghAsiEvent(1, vec);
+            }
+        } else if (msgView.find(KEY_MPEGH_PERSIST) != std::string::npos) {
+            ALOGD("receive MPEGH_PERSIST event");
+            DroidAudioMpeghSetting::instance()->storePersistContext();
+        }
+    }
+    return 0;
 }
 
 DroidAudio::NotificationClient::NotificationClient(const shared_ptr<IDroidAudioClient>& client, uid_t uid, pid_t pid)
@@ -124,6 +152,20 @@ int32_t DroidAudio::NotificationClient::onDroidAudioEvent(int32_t event, const v
     return 0;
 }
 
+int32_t DroidAudio::NotificationClient::onMpeghAsiEvent(int32_t event, const vector<int32_t>& data) {
+    if (mDroidAudioClient != nullptr) {
+        AM_LOGV("client(pid:%d)", mPid);
+        auto ret = mDroidAudioClient->onMpeghAsiEvent(event, data);
+        if (!ret.isOk()) {
+            AM_LOGE("client(pid:%d) error", mPid);
+            return -1;
+        }
+    } else {
+        AM_LOGE("client(pid:%d) is null", mPid);
+    }
+    return 0;
+}
+
 int32_t DroidAudio::doOnDroidAudioEvent(int32_t event, const vector<int32_t>& data) {
     unique_lock<mutex> _l(mNotificationClientsLock);
     for (auto it = mNotificationClients.begin(); it != mNotificationClients.end();) {
@@ -141,7 +183,23 @@ int32_t DroidAudio::doOnDroidAudioEvent(int32_t event, const vector<int32_t>& da
     }
     return 0;
 }
-
+int32_t DroidAudio::doOnMpeghAsiEvent(int32_t event, const vector<int32_t>& data) {
+    unique_lock<mutex> _l(mNotificationClientsLock);
+    for (auto it = mNotificationClients.begin(); it != mNotificationClients.end();) {
+        int64_t pid = it->first & 0xffff;
+        if (it->second != nullptr) {
+            int32_t ret = it->second->onMpeghAsiEvent(event, data);
+            if (ret != 0) {
+                it = mNotificationClients.erase(it);
+            }
+            ++it;
+        } else {
+            ++it;
+            AM_LOGW("NotificationClient on client(pid:%" PRId64 ") is null", pid);
+        }
+    }
+    return 0;
+}
 void DroidAudio::clientDied(void* cookie) {
     DroidAudio::NotificationClient* notify = (DroidAudio::NotificationClient *)cookie;
     AM_LOGW("client:%p pid:%d, uid:%d death...", notify, notify->pid(), notify->uid());
@@ -186,6 +244,7 @@ void DroidAudio::init() {
     }
     DroidAudioManagerSetting::instance()->init();
     DroidAudioEffectSetting::instance()->init();
+    DroidAudioMpeghSetting::instance()->init();
     mbInitStatus = true;
 }
 
@@ -679,6 +738,38 @@ void DroidAudio::unregisterClient(uid_t uid, pid_t pid) {
     *_aidl_return = DroidAudioEffectSetting::instance()->isAISoundModeEnabled();
     return ::ndk::ScopedAStatus::ok();
 }
+::ndk::ScopedAStatus DroidAudio::MpeghManager_triggerAsiUpdate(int32_t* _aidl_return) {
+    /*
+     * TODO:
+     * 1. hal call setAsiUpdate
+     * 2. getParameters from hal
+     * 3. callback to client
+    */
+    std::unique_lock<std::mutex> __lock(mNotificationClientsLock);
+    for (auto client: mNotificationClients) {
+        //client.second->onMpeghAsiEvent(int32_t event, const vector<int32_t> &data);
+    }
+    *_aidl_return = 0;
+    return ::ndk::ScopedAStatus::ok();
+}
+::ndk::ScopedAStatus DroidAudio::MpeghManager_setActionEvent(const std::string& in_xml, int32_t* _aidl_return) {
+    DroidAudioMpeghSetting::instance()->setActionEvent(in_xml);
+    *_aidl_return = 0;
+    return ::ndk::ScopedAStatus::ok();
+}
+::ndk::ScopedAStatus DroidAudio::MpeghManager_getXmlSceneInfo(std::string* _aidl_return) {
+    *_aidl_return = DroidAudioMpeghSetting::instance()->getXmlSceneInfo();
+    return ::ndk::ScopedAStatus::ok();
+}
 
+::ndk::ScopedAStatus DroidAudio::MpeghManager_setSystemConfig(int32_t in_id, const std::string& in_value, int32_t* _aidl_return) {
+    *_aidl_return = DroidAudioMpeghSetting::instance()->setSystemConfig(in_id, in_value);
+    return ::ndk::ScopedAStatus::ok();
+}
+
+::ndk::ScopedAStatus DroidAudio::MpeghManager_getSystemConfig(int32_t in_id, std::string* _aidl_return) {
+    *_aidl_return = DroidAudioMpeghSetting::instance()->getSystemConfig(in_id);
+    return ::ndk::ScopedAStatus::ok();
+}
 
 }  // namespace vendor::amlogic::hardware::droidaudio::implementation

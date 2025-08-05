@@ -20,7 +20,6 @@
 #include <media/AudioEffect.h>
 
 #include "DroidAudioEffect.h"
-#include "DroidAudioUevent.h"
 
 using namespace std;
 using namespace android;
@@ -472,7 +471,6 @@ private:
             }
     };
 
-    DroidAudioUEvent mEventObserver;
     AiRcLabel mAISoundLabel;
     bool mAISoundModeEnabled;
     //

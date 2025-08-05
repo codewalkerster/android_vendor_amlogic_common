@@ -21,6 +21,7 @@ cc_binary {
         "DroidAudioManagerSetting.cpp",
         "DroidAudioEffectSetting.cpp",
         "DroidAudioUevent.cpp",
+        "DroidAudioMpeghSetting.cpp",
     ],
     cflags: [
         "-Wall",
