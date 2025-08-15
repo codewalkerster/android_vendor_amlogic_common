@@ -480,6 +480,25 @@ void DroidAudio::unregisterClient(uid_t uid, pid_t pid) {
     return ::ndk::ScopedAStatus::ok();
 }
 
+::ndk::ScopedAStatus DroidAudio::AudioManager_setVocalIsolateEnabled(bool enable, int32_t* _aidl_return) {
+    *_aidl_return = DroidAudioManagerSetting::instance()->setVocalIsolateEnabled(enable);;
+    return ::ndk::ScopedAStatus::ok();
+}
+
+::ndk::ScopedAStatus DroidAudio::AudioManager_isVocalIsolateEnabled(bool* _aidl_return) {
+    *_aidl_return =  DroidAudioManagerSetting::instance()->isVocalIsolateEnabled();
+    return ::ndk::ScopedAStatus::ok();
+}
+
+::ndk::ScopedAStatus DroidAudio::AudioManager_setVocalRatio(int32_t ratio, int32_t* _aidl_return) {
+    *_aidl_return =  DroidAudioManagerSetting::instance()->setVocalRatio(ratio);
+    return ::ndk::ScopedAStatus::ok();
+}
+
+::ndk::ScopedAStatus DroidAudio::AudioManager_getMicVocalRatio(int32_t* _aidl_return) {
+    *_aidl_return =  DroidAudioManagerSetting::instance()->getMicVocalRatio();
+    return ::ndk::ScopedAStatus::ok();
+}
 
 // AudioEffect impl
 ::ndk::ScopedAStatus DroidAudio::AudioEffect_setAudioEffectEnabled(int32_t effectId, bool enable, int32_t* _aidl_return) {

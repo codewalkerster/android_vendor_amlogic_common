@@ -102,6 +102,10 @@ struct DroidAudio : public BnDroidAudio {
     ::ndk::ScopedAStatus AudioManager_isEnableMicReverb(int32_t source, bool* _aidl_return);
     ::ndk::ScopedAStatus AudioManager_setMicReverbLevel(int32_t source, int32_t level, int32_t* _aidl_return);
     ::ndk::ScopedAStatus AudioManager_getMicReverbLevel(int32_t source, int32_t* _aidl_return);
+    ::ndk::ScopedAStatus AudioManager_setVocalIsolateEnabled(bool enable, int32_t* _aidl_return) override;
+    ::ndk::ScopedAStatus AudioManager_isVocalIsolateEnabled(bool* _aidl_return) override;
+    ::ndk::ScopedAStatus AudioManager_setVocalRatio(int32_t ratio, int32_t* _aidl_return) override;
+    ::ndk::ScopedAStatus AudioManager_getMicVocalRatio(int32_t* _aidl_return) override;
 
     ::ndk::ScopedAStatus AudioEffect_setAudioEffectEnabled(int32_t effectId, bool enable, int32_t* _aidl_return) override;
     ::ndk::ScopedAStatus AudioEffect_isAudioEffectEnabled(int32_t effectId, bool* _aidl_return) override;

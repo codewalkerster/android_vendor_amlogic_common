@@ -101,6 +101,10 @@ public:
     bool isEnableMicReverb(int32_t source);
     int32_t setMicReverbLevel(int32_t source, int32_t level);
     int32_t getMicReverbLevel(int32_t source);
+    int setVocalIsolateEnabled(bool enable);
+    bool isVocalIsolateEnabled();
+    int setVocalRatio(int ratio);
+    int getMicVocalRatio();
 
 private:
     DroidAudioManagerSetting();

@@ -85,6 +85,8 @@ static const char* DB_KEY_AM_AUDIO_CONFIG_USB_MIC_MUTE                          
 static const char* DB_KEY_AM_AUDIO_CONFIG_USB_MIC_GAIN                                      = "db_key_am_audio_config_usb_mic_gain";
 static const char* DB_KEY_AM_AUDIO_CONFIG_USB_MIC_REVERB                                    = "db_key_am_audio_config_usb_mic_reverb";
 static const char* DB_KEY_AM_AUDIO_CONFIG_USB_MIC_REVERB_LEVEL                              = "db_key_am_audio_config_usb_mic_reverb_level";
+static const char* DB_KEY_AM_AUDIO_CONFIG_AUDIO_VOCAL_ISOLATE_ENABLE                        = "db_key_am_audio_config_audio_vocal_isolate_enable";
+static const char* DB_KEY_AM_AUDIO_CONFIG_AUDIO_VOCAL_GAIN                                  = "db_key_am_audio_config_audio_vocal_gain";
 
 static const vector<const char*> g_VecDbString = {
     DB_KEY_AM_AUDIO_CONFIG_AUDIO_SOUNDBAR_MODE_ENABLE,
@@ -128,6 +130,8 @@ static const vector<const char*> g_VecDbString = {
     DB_KEY_AM_AUDIO_CONFIG_USB_MIC_GAIN,
     DB_KEY_AM_AUDIO_CONFIG_USB_MIC_REVERB,
     DB_KEY_AM_AUDIO_CONFIG_USB_MIC_REVERB_LEVEL,
+    DB_KEY_AM_AUDIO_CONFIG_AUDIO_VOCAL_ISOLATE_ENABLE,
+    DB_KEY_AM_AUDIO_CONFIG_AUDIO_VOCAL_GAIN,
 };
 
 DroidAudioManagerSetting::DroidAudioManagerSetting():
@@ -204,6 +208,9 @@ int32_t DroidAudioManagerSetting::init(bool reset) {
         setAiDeGain(0);
         setAiDeEnabled(false);
     }
+
+    setVocalIsolateEnabled(false);
+
     DroidAudioPatchManager::instance().init();
     mInitStatus = true;
     return 0;
@@ -1080,7 +1087,7 @@ int32_t DroidAudioManagerSetting::getMicGain(int32_t source) {
             break;
     }
     if (isAudioDebug()) AM_LOGD("source:%d, gain: %d", source, gain);
-    return 0;
+    return gain;
 }
 
 int32_t DroidAudioManagerSetting::setMicReverb(int32_t source, bool enable) {
@@ -1175,4 +1182,32 @@ void DroidAudioManagerSetting::resetMicSettings() {
         setMicReverbLevel(source, getMicReverbLevel(source));
     }
     AM_LOGI("mHalMicConfig: %d, source: %d", halMicConfig, source);
+}
+
+int32_t DroidAudioManagerSetting::setVocalIsolateEnabled(bool enable) {
+    if (isAudioDebug()) AM_LOGD("enable: %d", enable);
+    ::setParameters("audio_vocal_isolate_enable=", (enable ? 1 : 0));
+    putToDb(DB_KEY_AM_AUDIO_CONFIG_AUDIO_VOCAL_ISOLATE_ENABLE, enable ? 1 : 0);
+    return 0;
+}
+
+bool DroidAudioManagerSetting::isVocalIsolateEnabled() {
+    int32_t enable = getIntFromDb(DB_KEY_AM_AUDIO_CONFIG_AUDIO_VOCAL_ISOLATE_ENABLE);
+    return (enable != 0);
+}
+
+int32_t DroidAudioManagerSetting::setVocalRatio(int32_t ratio) {
+    if (isAudioDebug()) AM_LOGD("ratio: %d", ratio);
+    float fRatio = (float)ratio / 10.0f;
+    std::ostringstream oss;
+    oss << "audio_vocal_gain=" << fRatio;
+    string halParams = oss.str();
+    ::setParameters(halParams);
+    putToDb(DB_KEY_AM_AUDIO_CONFIG_AUDIO_VOCAL_GAIN, ratio);
+    return 0;
+}
+
+int32_t DroidAudioManagerSetting::getMicVocalRatio() {
+    int ratio = getIntFromDb(DB_KEY_AM_AUDIO_CONFIG_AUDIO_VOCAL_GAIN);
+    return ratio;
 }

@@ -667,4 +667,17 @@ public class DroidAudioManager {
     public int getMicReverbLevel(int source) {
         return executeRemoteCall(() -> mDroidAudioService.AudioManager_getMicReverbLevel(source), "getMicReverbLevel", 0);
     }
+
+    public int setVocalIsolateEnabled(boolean enable) {
+        return executeRemoteCall(() -> mDroidAudioService.AudioManager_setVocalIsolateEnabled(enable), "setVocalIsolateEnabled", 0);
+    }
+    public boolean isVocalIsolateEnabled() {
+        return executeRemoteCall(() -> mDroidAudioService.AudioManager_isVocalIsolateEnabled(), "isVocalIsolateEnabled", false);
+    }
+    public int setVocalRatio(int ratio) {
+        return executeRemoteCall(() -> mDroidAudioService.AudioManager_setVocalRatio(ratio), "setVocalRatio", 0);
+    }
+    public int getVocalRatio() {
+        return executeRemoteCall(() -> mDroidAudioService.AudioManager_getMicVocalRatio(), "getVocalRatio", 0);
+    }
 }

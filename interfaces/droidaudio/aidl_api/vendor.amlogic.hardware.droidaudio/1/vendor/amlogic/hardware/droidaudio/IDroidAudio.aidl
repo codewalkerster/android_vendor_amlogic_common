@@ -90,6 +90,10 @@ interface IDroidAudio {
   boolean AudioManager_isEnableMicReverb(int source);
   int AudioManager_setMicReverbLevel(int source, int level);
   int AudioManager_getMicReverbLevel(int source);
+  int AudioManager_setVocalIsolateEnabled(boolean enable);
+  boolean AudioManager_isVocalIsolateEnabled();
+  int AudioManager_setVocalRatio(int ratio);
+  int AudioManager_getMicVocalRatio();
   int AudioEffect_setAudioEffectEnabled(int effectId, boolean enable);
   boolean AudioEffect_isAudioEffectEnabled(int effectId);
   int AudioEffect_setParameter(int effectId, in byte[] param, in byte[] value);

@@ -502,6 +502,12 @@ status_t AmlAudioPolicyManager::checkAndSetVolume(IVolumeCurves &curves,
                 }
             }
         }
+        if (musicVolSrc == volumeSource) {
+            int musicgain = static_cast<int>(volumeDb * 100);
+            AudioParameter param;
+            param.addInt(String8("hal_param_music_gain"), musicgain);
+            mpClientInterface->setParameters(AUDIO_IO_HANDLE_NONE, param.toString());
+        }
     }
     /*[Amlogic end]-----------------------------------------------------------*/
 
