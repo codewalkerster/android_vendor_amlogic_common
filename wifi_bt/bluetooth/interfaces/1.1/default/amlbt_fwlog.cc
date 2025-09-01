@@ -17,7 +17,6 @@
 #include <dirent.h>
 #include <iomanip>
 #include <sstream>
-#include <iostream>
 #include <vector>
 #include <chrono>
 #include <stdint.h>
@@ -25,32 +24,44 @@
 #include "amlbt_fwlog.h"
 #include <zlib.h>
 #include <thread>
-
-#define fwlog_version "2025-07-02"
-
-static const int INVALID_FD = -1;
-static int fwlogfile_fd = INVALID_FD;
-
-static int32_t dataCount = 0;
-static int32_t prop_dataCount = 0;
-static int32_t prop_fw_buff_level = 0;
-static int32_t prop_maxLogFileCount = 0;
-
-#define TOGGLE_BT_FW_MAX_FILE_NUM   "persist.log.tag.fw_max_file_num_bt"
-#define TOGGLE_BT_FW_BUFFER_LEVEL   "persist.log.tag.fw_buffer_bt"
-
-#define default_max_file_count  3      //1: one file
-#define default_fw_buff_level  300     //300MB/411B = 765383
-
-static int32_t Flag_gzip_thread = 0;
-static int32_t Flag_gzip_start = 0;
-
-
-
+#include <atomic>
 //c++
 #include <iostream>
 #include <string>
 
+
+#define fwlog_version                 "2025-09-01 13:47"
+#define TOGGLE_BT_FW_MAX_FILE_NUM     "persist.log.tag.fw_max_file_num_bt"
+#define TOGGLE_BT_FW_BUFFER_LEVEL     "persist.log.tag.fw_buffer_bt"
+#define default_max_file_count  3     //3 gz file
+#define default_fw_buff_level  300    //300M
+#define FIFO_SIZE (512 * 1024)        //500KB
+
+static const int INVALID_FD = -1;
+
+typedef struct {
+	int32_t fwlog_thread_run;         //Control thread startup
+	int32_t fwlog_file_gzip_start;    //Used for initiating the compression task
+		int fwlogfile_fd;             //fw_log.txt fd handle
+	int32_t w_dataCount;              //Record the current number of times a file is being written
+	int32_t sys_prop_dataCount;       //Maximum number of times a record file can be written to
+	int32_t sys_prop_fw_buff_level;   //The values for attribute settings,file size
+	int32_t sys_prop_maxLogFileCount; //The values for attribute settings,quantity of file
+} fwlog_t;
+
+fwlog_t fwlog_ctl;
+
+typedef struct {
+	std::atomic<size_t> read_pos;
+	std::atomic<size_t> write_pos;
+	uint8_t *buffer;
+	size_t size;
+	size_t rw_len;
+} fifo_t;
+
+fifo_t fwlog_fifo;
+
+//fw log file operations interface----------------------------------------------------------------
 typedef long time64_t;
 
 std::string getTimestamp(void) {
@@ -128,25 +139,7 @@ void writeHexData(int fd, const std::vector<uint8_t>& data, size_t startIdx = 0)
 	write(fd, hexString.c_str(), hexString.size());
 }
 
-void writefwlogdata(const std::vector<uint8_t>& data) {
-	int32_t tmp_prop_fw_buff_level = 0;
-	int32_t one_package_size = 0;
 
-	writeHexData(fwlogfile_fd, data,  2);
-	dataCount++;
-	tmp_prop_fw_buff_level =  get_property_as_int32_t(TOGGLE_BT_FW_BUFFER_LEVEL,default_fw_buff_level);
-	if(tmp_prop_fw_buff_level != prop_fw_buff_level) {
-		ALOGE("prop_fw_buff_level %d M change to %d M ",prop_fw_buff_level,tmp_prop_fw_buff_level);
-		prop_fw_buff_level = tmp_prop_fw_buff_level;
-		one_package_size = (data.size()-2) * 3 + 27;
-		prop_dataCount = (prop_fw_buff_level * 1024 * 1024) / one_package_size;
-		ALOGE("one_package_size:%d  prop_dataCount:%d  dataCount:%d ",one_package_size,prop_dataCount,dataCount);
-	}
-	if (dataCount >= prop_dataCount) {
-		updateLogFile();
-		dataCount = 0;
-	}
-}
 
 bool compareFilesByNumber(const std::string& file1, const std::string& file2) {
 
@@ -160,7 +153,7 @@ bool compareFilesByNumber(const std::string& file1, const std::string& file2) {
 }
 
 
-void updateLogFile(void) {
+void updateLogFile(fwlog_t *ctl) {
 
 	std::string logPath = get_fw_log_path();
 	std::vector<std::string> logFiles;
@@ -169,9 +162,9 @@ void updateLogFile(void) {
 	const std::string gzSuffix = ".gz";
 
 	ALOGE("%s",__func__);
-	if (fwlogfile_fd != INVALID_FD) {
-		close(fwlogfile_fd);
-		fwlogfile_fd = INVALID_FD;
+	if (ctl->fwlogfile_fd != INVALID_FD) {
+		close(ctl->fwlogfile_fd);
+		ctl->fwlogfile_fd = INVALID_FD;
 	}
 
 	std::vector<int> fileNumbers;
@@ -214,16 +207,18 @@ void updateLogFile(void) {
 		ALOGE("%s: Renamed current log to %s", __func__, newFilename.c_str());
 	}
 	mode_t prevmask = umask(0);
-	fwlogfile_fd = open(logPath.c_str(), O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
+	ctl->fwlogfile_fd = open(logPath.c_str(), O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
 	umask(prevmask);
-	if (fwlogfile_fd != INVALID_FD) {
+	if (ctl->fwlogfile_fd != INVALID_FD) {
 		ALOGE("%s: to open %s", __func__, logPath.c_str());
 	}
 
-	Flag_gzip_start = 1;
+	ctl->fwlog_file_gzip_start = 1;
 }
 
-int gzipCompress(const char* input_path, const char* output_path) {
+
+//fw log gzip implementation interface-------------------------------------------------------------------
+int gzipCompress(fwlog_t *ctl, const char* input_path, const char* output_path) {
 	FILE* source = NULL;
 	gzFile dest = NULL;
 	unsigned char buffer[128]= {0};
@@ -256,7 +251,7 @@ int gzipCompress(const char* input_path, const char* output_path) {
 			ret = -1;
 			break;
 		}
-		if(!Flag_gzip_thread)
+		if(!ctl->fwlog_thread_run)
 		{
 			ALOGE("%s: Flag_gzip_thread = 0 bt close,now,thread exit", __func__);
 			ret = -2;
@@ -268,9 +263,9 @@ int gzipCompress(const char* input_path, const char* output_path) {
 	ALOGE("%s: gzipCompress finish", __func__);
 
 	return ret;
-	}
+}
 
-void fwlog_gzipCompress(void) {
+void fwlog_gzipCompress(fwlog_t *ctl) {
 	std::string logFilePrefix = "fw_log.txt_";
 	std::string logPath = get_fw_log_path();
 	std::vector<std::string> logFiles;
@@ -296,7 +291,7 @@ void fwlog_gzipCompress(void) {
 		std::string gFilename = Filename + ".gz";
 		ALOGE("in:%s out:%s",Filename.c_str(),gFilename.c_str());
 		// check gzip suscessed?
-		if (!gzipCompress(Filename.c_str(), gFilename.c_str())) {
+		if (!gzipCompress(ctl,Filename.c_str(), gFilename.c_str())) {
 			// gzipCompress suscessed,remove file
 			if (remove(Filename.c_str()) == 0) {
 				it = logFiles.erase(it);
@@ -313,7 +308,7 @@ void fwlog_gzipCompress(void) {
 	}
 }
 
-void fwlog_sort_gzfile(void) {
+void fwlog_sort_gzfile(fwlog_t *ctl) {
 	std::string logPath = get_fw_log_path();
 	std::string logFileDir = logPath.substr(0, logPath.find_last_of('/'));
 	std::string logFilePrefix = "fw_log.txt_";
@@ -342,12 +337,12 @@ void fwlog_sort_gzfile(void) {
 		closedir(dir);
 	}
 
-	prop_maxLogFileCount = get_property_as_int32_t(TOGGLE_BT_FW_MAX_FILE_NUM, default_max_file_count);
-	ALOGE("%s: Max log files: %d", __func__, prop_maxLogFileCount);
+	ctl->sys_prop_maxLogFileCount = get_property_as_int32_t(TOGGLE_BT_FW_MAX_FILE_NUM, default_max_file_count);
+	ALOGE("%s: Max log files: %d", __func__, ctl->sys_prop_maxLogFileCount);
 
-	if (fileNumbers.size() > prop_maxLogFileCount) {
+	if (fileNumbers.size() > ctl->sys_prop_maxLogFileCount) {
 		std::sort(fileNumbers.begin(), fileNumbers.end());
-		int filesToDelete = fileNumbers.size() - prop_maxLogFileCount;
+		int filesToDelete = fileNumbers.size() - ctl->sys_prop_maxLogFileCount;
 		ALOGE("%s: Need to delete %d old log files", __func__, filesToDelete);
 		for (int i = 0; i < filesToDelete; i++) {
 			int oldestNum = fileNumbers[i];
@@ -388,36 +383,214 @@ void fwlog_sort_gzfile(void) {
 	}
 }
 
+//fw log FIFO buffer implementation interface--------------------------------------------------------------
+int fifo_init(fifo_t *fifo) {
+	ALOGE("%s", __func__);
+	fifo->buffer = new uint8_t[FIFO_SIZE];
+	if (!fifo->buffer) {
+		return -1;
+	}
 
+	fifo->size = FIFO_SIZE;
+	fifo->read_pos.store(0);
+	fifo->write_pos.store(0);
+	fifo->rw_len = 0;
+
+	return 0;
+}
+
+void fifo_free(fifo_t *fifo) {
+	ALOGE("%s", __func__);
+	if (fifo->buffer) {
+		delete[] fifo->buffer;
+		fifo->buffer = NULL;
+	}
+}
+
+size_t fifo_write_buff(fifo_t *fifo, const uint8_t *data, size_t len) {
+	if (len == 0) return 0;
+
+	size_t bytes_to_write = len;
+
+	size_t current_write_pos = fifo->write_pos.load(std::memory_order_relaxed);
+	size_t current_read_pos = fifo->read_pos.load(std::memory_order_acquire);
+
+	size_t available_space;
+
+	if(fifo->rw_len != len) {
+		fifo->rw_len = len;
+	}
+
+	// Check if there is sufficient space
+	if (current_write_pos >= current_read_pos) {
+		available_space = fifo->size - current_write_pos + current_read_pos;
+	} else {
+		available_space = current_read_pos - current_write_pos;
+	}
+
+	if (available_space < bytes_to_write) {
+		return 0;
+	}
+
+	size_t bytes_until_wrap = fifo->size - current_write_pos;
+
+	if (bytes_to_write <= bytes_until_wrap) {
+		memcpy(fifo->buffer + current_write_pos, data, bytes_to_write);
+	} else {
+		memcpy(fifo->buffer + current_write_pos, data, bytes_until_wrap);
+		memcpy(fifo->buffer, data + bytes_until_wrap, bytes_to_write - bytes_until_wrap);
+	}
+
+	// Update write_pos pointer
+	size_t new_write_pos = (current_write_pos + bytes_to_write) % fifo->size;
+	fifo->write_pos.store(new_write_pos, std::memory_order_release);
+
+	return bytes_to_write;
+}
+
+size_t fifo_read_buff(fifo_t *fifo, uint8_t *data, size_t len) {
+	if (len == 0) return 0;
+
+	size_t bytes_to_read = len;
+	size_t current_read_pos = fifo->read_pos.load(std::memory_order_relaxed);
+	size_t current_write_pos = fifo->write_pos.load(std::memory_order_acquire);
+
+
+	// Check if there is sufficient data
+	size_t available_data;
+	if (current_write_pos >= current_read_pos) {
+		available_data = current_write_pos - current_read_pos;
+	} else {
+		available_data = fifo->size - current_read_pos + current_write_pos;
+	}
+
+	if (available_data < bytes_to_read) {
+		return 0;
+	}
+
+	size_t bytes_until_wrap = fifo->size - current_read_pos;
+
+	if (bytes_to_read <= bytes_until_wrap) {
+		memcpy(data, fifo->buffer + current_read_pos, bytes_to_read);
+	} else {
+		memcpy(data, fifo->buffer + current_read_pos, bytes_until_wrap);
+		memcpy(data + bytes_until_wrap, fifo->buffer, bytes_to_read - bytes_until_wrap);
+	}
+
+	// Update read_pos pointer
+	size_t new_read_pos = (current_read_pos + bytes_to_read) % fifo->size;
+	fifo->read_pos.store(new_read_pos, std::memory_order_release);
+
+	return bytes_to_read;
+}
+
+//fw log write to file func--------------------------------------------------------------
+//uart:130 data.size  usb:257 data.size
+void writedata_to_file(fwlog_t *ctl, const std::vector<uint8_t>& data) {
+	int32_t tmp_prop_fw_buff_level = 0;
+	int32_t one_package_size = 0;
+
+	if(ctl->fwlogfile_fd == INVALID_FD) {
+		ALOGE("%s:INVALID_FD return", __func__);
+		return;
+	}
+
+	writeHexData(ctl->fwlogfile_fd, data,  2);
+	//dataCount++;
+	ctl->w_dataCount++;
+	tmp_prop_fw_buff_level =  get_property_as_int32_t(TOGGLE_BT_FW_BUFFER_LEVEL,default_fw_buff_level);
+	if (tmp_prop_fw_buff_level != ctl->sys_prop_fw_buff_level) {
+		ALOGE("prop_fw_buff_level %d M change to %d M ",ctl->sys_prop_fw_buff_level,tmp_prop_fw_buff_level);
+		ctl->sys_prop_fw_buff_level = tmp_prop_fw_buff_level;
+		one_package_size = (data.size()-2) * 3 + 27;
+		ctl->sys_prop_dataCount = (ctl->sys_prop_fw_buff_level * 1024 * 1024) / one_package_size;
+		ALOGE("one_package_size:%d  prop_dataCount:%d  dataCount:%d ",one_package_size,ctl->sys_prop_dataCount,ctl->w_dataCount);
+	}
+	if (ctl->w_dataCount >= ctl->sys_prop_dataCount) {
+		updateLogFile(ctl);
+		ctl->w_dataCount = 0;
+	}
+}
+
+void file_fwlog_write_work_thread(void) {
+	size_t ret =0;
+	uint8_t buffer[512]={0};
+	std::vector<uint8_t> r_fifo_event;
+
+	ALOGE("%s:run...", __func__);
+
+	ret = fifo_init(&fwlog_fifo);
+	if(ret < 0){
+		ALOGE("%s: fifo_init failed %d", __func__,ret);
+		return;
+	}
+	while(1) {
+		ret = fifo_read_buff(&fwlog_fifo, buffer, fwlog_fifo.rw_len);
+		if(ret !=0){
+			r_fifo_event.assign(buffer, buffer + fwlog_fifo.rw_len);
+			writedata_to_file(&fwlog_ctl,r_fifo_event);
+		} else { //The FIFO is already empty.
+			std::this_thread::sleep_for(std::chrono::milliseconds(50));
+			if(fwlog_ctl.fwlog_thread_run == 0) {
+				break;
+			}
+		}
+	}
+
+	fifo_free(&fwlog_fifo);
+	if (fwlog_ctl.fwlogfile_fd != INVALID_FD) {
+		close(fwlog_ctl.fwlogfile_fd);
+		ALOGE("%s:close fwlogfile_fd...", __func__);
+		fwlog_ctl.fwlogfile_fd = INVALID_FD;
+	}
+
+	ALOGE("%s:exit...", __func__);
+}
+
+//fw log file gzip func--------------------------------------------------------------
 void file_gzip_compress_work_thread(void) {
-	ALOGE("%s: file_gzip_compress_work_thread run...", __func__);
-	while(Flag_gzip_thread) {
-		if(Flag_gzip_start)
+	ALOGE("%s:run...", __func__);
+
+	while(fwlog_ctl.fwlog_thread_run) {
+		if(fwlog_ctl.fwlog_file_gzip_start)
 		{
 			ALOGE("%s: gzip work start...", __func__);
-			fwlog_gzipCompress();
-			fwlog_sort_gzfile();
-			Flag_gzip_start = 0;
+			fwlog_gzipCompress(&fwlog_ctl);
+			fwlog_sort_gzfile(&fwlog_ctl);
+			fwlog_ctl.fwlog_file_gzip_start = 0;
 			ALOGE("%s: gzip work finish...", __func__);
 		} else {
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
 	}
-	ALOGE("%s: file_gzip_compress_work_thread exit...", __func__);
+	ALOGE("%s:exit...", __func__);
 }
 
+//fw log External call interface-----------------------------------------------------
+void writefwlogdata(const std::vector<uint8_t>& data) {
+	size_t w_ret=0;
+	w_ret = fifo_write_buff(&fwlog_fifo, data.data(),data.size());
+	if(w_ret==0) {
+		ALOGE("w_ret:0,no size,drop fw evt");
+	}
+}
 
 void fwlog_init (void) {
-	ALOGE("%s %s ",__func__,fwlog_version);
-	ALOGE("prop_fw_buff_level:%d prop_dataCount:%d prop_maxLogFileCount:%d ",prop_fw_buff_level,prop_dataCount,prop_maxLogFileCount);
+	ALOGE("%s prop_fw_buff_level:%d prop_dataCount:%d prop_maxLogFileCount:%d ",fwlog_version,fwlog_ctl.sys_prop_fw_buff_level,fwlog_ctl.sys_prop_dataCount,fwlog_ctl.sys_prop_maxLogFileCount);
+
+	std::thread w(file_fwlog_write_work_thread);
+	w.detach();
 
 	std::thread t(file_gzip_compress_work_thread);
 	t.detach();
-	Flag_gzip_thread = 1;
 
-	dataCount = 0;
-	updateLogFile();
-	if (fwlogfile_fd == INVALID_FD) {
+	fwlog_ctl.fwlogfile_fd = INVALID_FD;
+	fwlog_ctl.fwlog_file_gzip_start = 0;
+	fwlog_ctl.fwlog_thread_run = 1;
+	fwlog_ctl.w_dataCount = 0;
+
+	updateLogFile(&fwlog_ctl);
+	if (fwlog_ctl.fwlogfile_fd == INVALID_FD) {
 		ALOGE("%s: unable open fwlogfile_fd", __func__);
 	}
 }
@@ -425,11 +598,6 @@ void fwlog_init (void) {
 void fwlog_close (void) {
 	ALOGE("%s ", __func__);
 
-	if (fwlogfile_fd != INVALID_FD) {
-		close(fwlogfile_fd);
-	}
-	fwlogfile_fd = INVALID_FD;
-
-	Flag_gzip_start = 0;
-	Flag_gzip_thread = 0;
+	fwlog_ctl.fwlog_file_gzip_start = 0;
+	fwlog_ctl.fwlog_thread_run = 0;
 }
