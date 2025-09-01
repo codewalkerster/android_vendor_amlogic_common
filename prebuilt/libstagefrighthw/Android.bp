@@ -45,6 +45,10 @@ stagefrighthw_dtsxlib_go_defaults {
     name: "stagefrighthw_dtsxlib_go_defaults",
 }
 
+stagefrighthw_mpeghlib_go_defaults {
+    name: "stagefrighthw_mpeghlib_go_defaults",
+}
+
 stagefrighthw_ddlib_go_defaults {
     name: "stagefrighthw_ddlib_go_defaults",
 }
@@ -168,6 +172,21 @@ cc_prebuilt_library_shared {
     check_elf_files: false,
 }
 
+
+cc_prebuilt_library_shared {
+    name: "libcdkMpeghDecoder",
+    device_specific: true,
+    defaults: ["stagefrighthw_go_defaults","stagefrighthw_mpeghlib_go_defaults"],
+    arch: {
+        arm: {
+            srcs: ["lib/libcdkMpeghDecoder.so"],
+        },
+        arm64: {
+            srcs: ["lib64/libcdkMpeghDecoder.so"],
+        },
+    },
+    check_elf_files: false,
+}
 
 cc_prebuilt_library_shared {
     name: "libHwAudio_dcvdec_passthrough",
