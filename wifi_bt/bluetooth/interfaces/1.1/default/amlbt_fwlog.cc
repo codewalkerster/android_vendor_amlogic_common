@@ -30,7 +30,7 @@
 #include <string>
 
 
-#define fwlog_version                 "2025-09-01 13:47"
+#define fwlog_version                 "2025-09-08"
 #define TOGGLE_BT_FW_MAX_FILE_NUM     "persist.log.tag.fw_max_file_num_bt"
 #define TOGGLE_BT_FW_BUFFER_LEVEL     "persist.log.tag.fw_buffer_bt"
 #define default_max_file_count  3     //3 gz file
@@ -513,7 +513,8 @@ void writedata_to_file(fwlog_t *ctl, const std::vector<uint8_t>& data) {
 }
 
 void file_fwlog_write_work_thread(void) {
-	size_t ret =0;
+	int ret = 0;
+	size_t bytes_to_read = 0;
 	uint8_t buffer[512]={0};
 	std::vector<uint8_t> r_fifo_event;
 
@@ -525,8 +526,8 @@ void file_fwlog_write_work_thread(void) {
 		return;
 	}
 	while(1) {
-		ret = fifo_read_buff(&fwlog_fifo, buffer, fwlog_fifo.rw_len);
-		if(ret !=0){
+		bytes_to_read = fifo_read_buff(&fwlog_fifo, buffer, fwlog_fifo.rw_len);
+		if(bytes_to_read !=0){
 			r_fifo_event.assign(buffer, buffer + fwlog_fifo.rw_len);
 			writedata_to_file(&fwlog_ctl,r_fifo_event);
 		} else { //The FIFO is already empty.
