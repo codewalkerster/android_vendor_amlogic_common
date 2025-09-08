@@ -21,6 +21,7 @@
 #define ACTION_EVENT_KEY "mpegh_action_event="
 #define ACTION_PERSIST_KEY "mpegh_persistency_ctx="
 #define ACTION_EVENT_RESET 0
+#define SYSTEM_MAX_CMD_ID 8
 
 static const char* DB_KEY_AM_AUDIO_CONFIG_MPEGH_PERSIST                        = "db_key_am_audio_config_mpegh_persist";
 
@@ -147,4 +148,14 @@ void DroidAudioMpeghSetting::init() {
         ALOGI("no persistXml store in db");
     }
     setParameters(ACTION_PERSIST_KEY + persistXml);
+
+    for (int32_t i = 0; i < SYSTEM_MAX_CMD_ID; i++) {
+        string dbkeyStr = mpeg_system_cmd[i];
+        string dbValueStr = getStrFromDb(dbkeyStr);
+        string params = dbkeyStr + "=" + dbValueStr;
+        if (dbValueStr.empty() == false) {
+            setParameters(params);
+            ALOGI("restore system_config key:%s value:%s", dbkeyStr.c_str(), dbValueStr.c_str());
+        }
+    }
 }
