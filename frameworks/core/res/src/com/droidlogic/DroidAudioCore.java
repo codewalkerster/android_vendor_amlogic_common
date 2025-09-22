@@ -156,6 +156,11 @@ public class DroidAudioCore {
                 mDroidAudioManager.setDigitalAudioModeToHal(digitalMode,
                             digitalMode == DroidAudioManager.DIGITAL_AUDIO_MODE_MANUAL ? mDroidAudioManager.getAudioManualFormats() : "");
             } else if (Settings.Global.ENCODED_SURROUND_OUTPUT_ENABLED_FORMATS.equals(option)) {
+                final int surroundMode = Settings.Global.getInt(mResolver,
+                    Settings.Global.ENCODED_SURROUND_OUTPUT, Settings.Global.ENCODED_SURROUND_OUTPUT_AUTO);
+                if (surroundMode != Settings.Global.ENCODED_SURROUND_OUTPUT_MANUAL) {
+                    return;
+                }
                 Log.d(TAG, "onChange enabled_formats changed, set manual mode");
                 mDroidAudioManager.setDigitalAudioModeToHal(
                         DroidAudioManager.DIGITAL_AUDIO_MODE_MANUAL, mDroidAudioManager.getAudioManualFormats());
