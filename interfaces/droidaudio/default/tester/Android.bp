@@ -8,9 +8,8 @@ package {
 }
 
 cc_binary {
-    name: "droidaudio_tester",
+    name: "droidaudio_sys_tester",
     system_ext_specific: true,
-//    vendor: true,
     compile_multilib: "32",
     srcs: [
         "main.cpp",
@@ -32,6 +31,47 @@ cc_binary {
 
     required: [
         "vendor.amlogic.hardware.droidaudio-V1-ndk",
+        "libdroidaudioclient",
+    ],
+
+    header_libs: [
+        "libhardware_headers",
+        "libaudio_system_headers",
+        "libutils_headers",
+        "libbinder_headers",
+    ],
+
+    include_dirs: [
+        "vendor/amlogic/common/interfaces/droidaudio/default/libdroidaudioclient",
+    ],
+}
+
+cc_binary {
+    name: "droidaudio_vnd_tester",
+    vendor: true,
+    compile_multilib: "32",
+
+    srcs: [
+        "main.cpp",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+    ],
+    shared_libs: [
+        "libbase",
+        "liblog",
+        "libutils",
+        "libcutils",
+        "libbinder",
+        "libbinder_ndk",
+        "libdroidaudioclient",
+        "vendor.amlogic.hardware.droidaudio-V1-ndk",
+    ],
+
+    required: [
+        "vendor.amlogic.hardware.droidaudio-V1-ndk",
+        "libdroidaudioclient",
     ],
 
     header_libs: [
