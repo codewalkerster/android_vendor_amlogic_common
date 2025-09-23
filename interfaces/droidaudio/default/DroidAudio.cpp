@@ -38,6 +38,9 @@
 #include "DroidAudioEffectSetting.h"
 #include "DroidAudioMpeghSetting.h"
 #include "DroidAudioUevent.h"
+#include "SystemControlClient.h"
+
+#define PROP_VENDOR_MPEGHA_ASI_UPDATE "persist.vendor.media.audio.mpegh.asi_update"
 
 using namespace std;
 using namespace android;
@@ -99,6 +102,7 @@ int32_t DroidAudio::nativeUeventHandle(void *owner, std::string msg) {
         }
         else if (msgView.find(KEY_MPEGH_ASI) != std::string::npos) {
             ALOGD("receive MPEGH_ASI event");
+            ::android::SystemControlClient::getInstance()->setProperty(PROP_VENDOR_MPEGHA_ASI_UPDATE, "1");
             std::unique_lock<std::mutex> __lock(ins->mNotificationClientsLock);
             for (auto client: ins->mNotificationClients) {
                 vector<int32_t> vec;
