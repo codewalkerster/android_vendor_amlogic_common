@@ -275,7 +275,7 @@ static void* mailbox_module_name(void *arg)
     struct merge_data {
         int cmd;
         char msg[MBOX_USER_MAX_LEN];
-    } merge_data;
+    } merge_data = {0, {0}};
     int fd = -1;
     int ret = -1;
     unsigned int len = 0;
