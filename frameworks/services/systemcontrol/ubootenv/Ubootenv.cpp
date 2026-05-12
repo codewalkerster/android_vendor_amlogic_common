@@ -30,9 +30,12 @@
 
 #include "Ubootenv.h"
 #include "common.h"
+#include "DisplayMode.h"
 
 
 const char *PROFIX_UBOOTENV_VAR = "ubootenv.var.";
+const char *HDMIMODE = "/sys/devices/platform/drm-subsystem/drm/card0/card0-HDMI-A-1/modes";
+const char *FIXED_DISPLAY = "/proc/device-tree/drm-subsystem/display-timings/fixed-display";
 
 Ubootenv::Ubootenv() :
     mEnvLock(PTHREAD_MUTEX_INITIALIZER) {
@@ -109,6 +112,36 @@ int Ubootenv::updateValue(const char* name, const char* value) {
     return ret;
 }
 
+#define MAX_LINE 10
+char * Ubootenv::readHdmimode() {
+    int fd, err;
+    char buf[MAX_LINE];
+    char *mode = NULL;
+
+    fd = open(HDMIMODE, O_RDONLY);
+    if (fd < 0) {
+        SYS_LOGE("[ubootenv] oepn hdmimode node failed\n");
+        return mode;
+    }
+
+    err = read(fd, buf, MAX_LINE);
+
+    close(fd);
+
+    if (err < 0) {
+        SYS_LOGE("[ubootenv] read hdmimode node failed\n");
+
+        return mode;
+    }
+
+    if (isspace(buf[strlen(buf) - 1])) {
+        mode = (char *) malloc(strlen(buf) -1);
+        strncpy (mode, buf, strlen(buf) -1);
+    }
+
+    return mode;
+}
+
 const char * Ubootenv::getValue(const char * key) {
     if (!isEnv(key)) {
         //should assert here.
@@ -116,6 +149,15 @@ const char * Ubootenv::getValue(const char * key) {
         //print all env
         printValues();
         return NULL;
+    }
+
+    if (strncmp(key, UBOOTENV_HDMIMODE, strlen(UBOOTENV_HDMIMODE)) == 0) {
+        if (access(FIXED_DISPLAY, F_OK) != -1) {
+            pthread_mutex_lock(&mEnvLock);
+            const char* envValue = readHdmimode();
+            pthread_mutex_unlock(&mEnvLock);
+            return envValue;
+        }
     }
 
     pthread_mutex_lock(&mEnvLock);

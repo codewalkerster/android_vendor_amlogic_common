@@ -46,6 +46,7 @@ public:
 private:
     int init();
     int readPartitionData();
+    char *readHdmimode();
     char* get(const char * key);
     int set(const char * key,  const char * value, bool createNew);
     int save();
